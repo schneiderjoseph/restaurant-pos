@@ -10,7 +10,7 @@ import {FloorTable} from "@/components/settings/floors/layout/table.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft, faChair, faExpand, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faChair} from "@fortawesome/free-solid-svg-icons";
 import {LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
@@ -20,18 +20,31 @@ import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import {useFloorMapCamera} from "@/hooks/useFloorMapCamera.ts";
 import {useResortFb} from "@/hooks/useResortFb.ts";
-import {ensureResortFloorTables} from "@/lib/resort-floor-tables.ts";
+import {ensureResortFloorTables, loadResortChambresFloor} from "@/lib/resort-floor-tables.ts";
+import {Customer} from "@/api/model/customer.ts";
+import {formatGuestLabel} from "@/lib/guest.ts";
 
+
+const normalizeRoomKey = (raw?: string | number | null): string => {
+  const trimmed = String(raw ?? '').trim();
+  if (!trimmed) {
+    return '';
+  }
+  if (/^\d+$/.test(trimmed)) {
+    return String(Number(trimmed));
+  }
+  return trimmed.toLowerCase();
+};
 
 export const FloorLayout = () => {
   const { t } = useTranslation(['closing', 'menu']);
-  const { t: tAdmin } = useTranslation('admin');
   const viewportRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useAtom(appState);
   const [, setSettings] = useAtom(appSettings);
   const db = useDB();
   const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
   const [tablesLiveQuery, setTablesLiveQuery] = useState<LiveSubscription | null>(null);
+  const [inHouseLiveQuery, setInHouseLiveQuery] = useState<LiveSubscription | null>(null);
   const [page] = useAtom(appPage);
   const [, setAlert] = useAtom(appAlert);
   const [settings] = useAtom(appSettings);
@@ -39,6 +52,7 @@ export const FloorLayout = () => {
   const {enabled: resortFb} = useResortFb();
   const isClosingLocked = enforcement.orderTakingBlocked;
   const closingLockMessage = enforcement.message;
+  const [occupiedRooms, setOccupiedRooms] = useState<Map<string, Customer>>(new Map());
 
   const floors = useMemo(() => {
     return settings.floors;
@@ -66,9 +80,6 @@ export const FloorLayout = () => {
     camera,
     worldSize,
     suppressClickRef,
-    fitToView,
-    zoomIn,
-    zoomOut,
     onPointerDown,
     onPointerMove,
     onPointerUp,
@@ -137,6 +148,35 @@ export const FloorLayout = () => {
     }));
   }
 
+  const fetchInHouseRooms = async () => {
+    const [rows] = await db.query<Customer[]>(
+      `SELECT * FROM ${Tables.customers}
+       WHERE (in_house = true OR tags CONTAINS 'in-house')
+         AND room != NONE
+         AND room != NULL`
+    );
+    const map = new Map<string, Customer>();
+    for (const guest of Array.isArray(rows) ? rows : []) {
+      const key = normalizeRoomKey(guest.room);
+      if (!key || map.has(key)) {
+        continue;
+      }
+      map.set(key, guest);
+    }
+    setOccupiedRooms(map);
+    return map;
+  };
+
+  const guestFromRoomMap = (item: Table, map: Map<string, Customer>): Customer | undefined => {
+    if (item.source !== 'asi-room') {
+      return undefined;
+    }
+    return (
+      map.get(normalizeRoomKey(item.number))
+      ?? map.get(normalizeRoomKey(item.asi_alias))
+    );
+  };
+
   const runLiveQuery = async () => {
     const result = await db.live(Tables.orders, function () {
       fetchOrders();
@@ -153,13 +193,23 @@ export const FloorLayout = () => {
     setTablesLiveQuery(result);
   }
 
+  const runInHouseLiveQuery = async () => {
+    const result = await db.live(Tables.customers, function () {
+      void fetchInHouseRooms();
+    });
+    setInHouseLiveQuery(result);
+  }
+
   useEffect(() => {
     runLiveQuery().then();
     runTablesLiveQuery().then();
+    void fetchInHouseRooms();
+    runInHouseLiveQuery().then();
 
     return () => {
       liveQuery?.kill().catch(() => undefined);
       tablesLiveQuery?.kill().catch(() => undefined);
+      inHouseLiveQuery?.kill().catch(() => undefined);
     }
   }, []);
 
@@ -171,6 +221,7 @@ export const FloorLayout = () => {
     void (async () => {
       try {
         const seeded = await ensureResortFloorTables(db);
+        const chambres = await loadResortChambresFloor(db);
         if (cancelled) {
           return;
         }
@@ -179,10 +230,16 @@ export const FloorLayout = () => {
             (prev.floors ?? []).map((floor) => [floor.id?.toString(), floor]),
           );
           floorMap.set(seeded.floor.id?.toString(), seeded.floor);
+          if (chambres?.floor?.id) {
+            floorMap.set(chambres.floor.id.toString(), chambres.floor);
+          }
           const tableMap = new Map(
             (prev.tables ?? []).map((table) => [table.id?.toString(), table]),
           );
           for (const table of seeded.tables) {
+            tableMap.set(table.id?.toString(), table);
+          }
+          for (const table of chambres?.tables ?? []) {
             tableMap.set(table.id?.toString(), table);
           }
           return {
@@ -191,12 +248,10 @@ export const FloorLayout = () => {
             tables: Array.from(tableMap.values()),
           };
         });
+        // Never force Salle — only set a floor when none is selected yet.
         setState((prev) => ({
           ...prev,
-          floor:
-            prev.resortEntry === 'floor'
-              ? (seeded.floor ?? prev.floor)
-              : (prev.floor ?? seeded.floor),
+          floor: prev.floor ?? seeded.floor,
         }));
       } catch (error) {
         console.error('Failed to layout resort floor tables', error);
@@ -219,10 +274,14 @@ export const FloorLayout = () => {
   }, [isClosingLocked, closingLockMessage, setAlert]);
 
   useEffect(() => {
+    // Prefer Salle as default when nothing selected (not Map insertion order).
     if (!state.floor && floors?.length > 0) {
-      setState(prev => ({
+      const salle =
+        floors.find((f) => f.id?.toString() === 'floor:resort_salle' || f.name === 'Salle') ??
+        floors[0];
+      setState((prev) => ({
         ...prev,
-        floor: floors[0]
+        floor: salle,
       }));
     }
   }, [floors, state.floor]);
@@ -237,6 +296,19 @@ export const FloorLayout = () => {
     )
   }
 
+  const roomGuestForTable = (item: Table): Customer | undefined => {
+    return guestFromRoomMap(item, occupiedRooms);
+  };
+
+  const roomOccupiedBy = (item: Table): string | undefined => {
+    const guest = roomGuestForTable(item);
+    return guest ? formatGuestLabel(guest) : undefined;
+  };
+
+  const isTableBusy = (item: Table) => {
+    return Boolean(tableOrder(item.id.toString())) || Boolean(roomOccupiedBy(item));
+  };
+
   const floorStats = useMemo(() => {
     const visible = tables ?? [];
     let occupied = 0;
@@ -250,7 +322,7 @@ export const FloorLayout = () => {
       if (table.is_locked) {
         locked += 1;
       }
-      if (tableOrder(table.id.toString())) {
+      if (isTableBusy(table)) {
         occupied += 1;
       } else if (!table.is_locked) {
         free += 1;
@@ -258,13 +330,13 @@ export const FloorLayout = () => {
     }
 
     return {occupied, locked, free, total: visible.length};
-  }, [tables, orders?.data]);
+  }, [tables, orders?.data, occupiedRooms]);
 
   const occupiedOnFloor = (floorId: string) => {
     const floorTables = settings.tables.filter(
       (table) => table.floor?.id?.toString() === floorId && !table.is_block
     );
-    return floorTables.filter((table) => tableOrder(table.id.toString())).length;
+    return floorTables.filter((table) => isTableBusy(table)).length;
   }
 
   const onClick = async (item: Table) => {
@@ -304,6 +376,25 @@ export const FloorLayout = () => {
       let ordersForTable = ordersData.filter(orderItem => orderItem?.table?.id?.toString() === item.id.toString());
       let order = ordersForTable[0];
       let cart = state.cart;
+
+      // Hotel rooms require an in-house guest — auto-attach when occupied.
+      let roomGuest: Customer | undefined;
+      if (item.source === 'asi-room') {
+        roomGuest = guestFromRoomMap(item, occupiedRooms) ?? order?.customer;
+        if (!roomGuest) {
+          const freshMap = await fetchInHouseRooms();
+          roomGuest = guestFromRoomMap(item, freshMap) ?? order?.customer;
+        }
+        if (!roomGuest) {
+          setAlert(prev => ({
+            ...prev,
+            message: t('menu:guest.roomRequiresGuest'),
+            type: 'error',
+            opened: true,
+          }));
+          return;
+        }
+      }
 
       if (state.switchTable) {
         if (state.order.id !== 'new') {
@@ -381,7 +472,7 @@ export const FloorLayout = () => {
           id: order ? order.id : 'new'
         },
         switchTable: false, // turn off switch table flag
-        customer: order?.customer, // clear customer
+        customer: order?.customer ?? roomGuest ?? undefined,
         resortEntry: prev.resortEntry === 'floor' ? 'floor' : prev.resortEntry,
         orderType: (item.order_types?.length > 0 ? item.order_types : orderTypes)[0]
       }));
@@ -496,6 +587,7 @@ export const FloorLayout = () => {
               {tables.map(item => (
                 <FloorTable
                   order={tableOrder(item.id)}
+                  occupiedBy={roomOccupiedBy(item)}
                   table={item}
                   isEditing={false}
                   isLocked={item.is_locked}
@@ -505,21 +597,6 @@ export const FloorLayout = () => {
                   suppressClick={suppressClickRef}
                 />
               ))}
-            </div>
-          )}
-          {state.floor && tables?.length > 0 && (
-            <div
-              data-floor-map-controls
-              className="absolute bottom-4 right-4 z-20 flex flex-col gap-2 cursor-default"
-            >
-              <div className="rounded-2xl bg-white/95 shadow-lg border border-neutral-200 p-1.5 flex flex-col gap-1">
-                <Button variant="primary" flat size="sm" icon={faPlus} iconButton onClick={zoomIn} aria-label={tAdmin('buttons.zoomIn')} />
-                <Button variant="primary" flat size="sm" icon={faMinus} iconButton onClick={zoomOut} aria-label={tAdmin('buttons.zoomOut')} />
-                <Button variant="primary" flat size="sm" icon={faExpand} iconButton onClick={fitToView} aria-label={t('floor.fitView')} />
-              </div>
-              <div className="rounded-xl bg-white/90 px-2 py-1 text-[11px] font-semibold text-neutral-600 shadow max-w-[160px] text-center">
-                {t('floor.mapHint')}
-              </div>
             </div>
           )}
         </div>

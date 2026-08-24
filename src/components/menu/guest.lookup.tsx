@@ -14,7 +14,9 @@ import { formatGuestLabel, guestCodeLabel, orderZoneLabel } from '@/lib/guest.ts
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import {
   ensureResortFloorTables,
+  findRoomByNumber,
   findTableByNumber,
+  loadResortChambresFloor,
 } from '@/lib/resort-floor-tables.ts';
 import { isAsiMode } from '@/lib/pos-mode.ts';
 import { toast } from 'sonner';
@@ -43,11 +45,38 @@ export const GuestLookup = () => {
   const floors: Floor[] = settings.floors ?? [];
 
   useEffect(() => {
-    void ensureResortFloorTables(db).catch((error) => {
-      console.error('Failed to ensure resort floor tables', error);
-    });
-  }, [db]);
-
+    void (async () => {
+      try {
+        const seeded = await ensureResortFloorTables(db);
+        const chambres = await loadResortChambresFloor(db);
+        setSettings((prev) => {
+          const floorMap = new Map(
+            (prev.floors ?? []).map((floor) => [floor.id?.toString(), floor]),
+          );
+          floorMap.set(seeded.floor.id?.toString(), seeded.floor);
+          if (chambres?.floor?.id) {
+            floorMap.set(chambres.floor.id.toString(), chambres.floor);
+          }
+          const tableMap = new Map(
+            (prev.tables ?? []).map((table) => [table.id?.toString(), table]),
+          );
+          for (const table of seeded.tables) {
+            tableMap.set(table.id?.toString(), table);
+          }
+          for (const table of chambres?.tables ?? []) {
+            tableMap.set(table.id?.toString(), table);
+          }
+          return {
+            ...prev,
+            floors: Array.from(floorMap.values()),
+            tables: Array.from(tableMap.values()),
+          };
+        });
+      } catch (error) {
+        console.error('Failed to ensure resort floor tables', error);
+      }
+    })();
+  }, [db, setSettings]);
   const loadGuests = async (term: string) => {
     const trimmed = term.trim();
     // ASI FD sync: tags contain 'in-house' (+ in_house bool mirror).
@@ -119,6 +148,9 @@ export const GuestLookup = () => {
 
   const selectGuest = (customer: Customer) => {
     setSelected(customer);
+    if (customer.room) {
+      setTableNumber(String(customer.room));
+    }
     setState((prev) => ({
       ...prev,
       customer,
@@ -177,9 +209,12 @@ export const GuestLookup = () => {
     }
 
     let table: Table | undefined;
-    const wantedTable = tableNumber.trim();
+    const wantedTable = tableNumber.trim() || String(selected.room ?? '').trim();
     if (wantedTable) {
-      table = await findTableByNumber(db, wantedTable);
+      // Prefer hotel room when the guest has a PMS room; dining table only if typed as such.
+      table =
+        (await findRoomByNumber(db, wantedTable)) ??
+        (await findTableByNumber(db, wantedTable));
       if (!table) {
         toast.error(t('menu:guest.tableNotFound', { number: wantedTable }));
         return;
@@ -206,15 +241,22 @@ export const GuestLookup = () => {
   const openFloorWalkIn = async () => {
     try {
       const seeded = await ensureResortFloorTables(db);
+      const chambres = await loadResortChambresFloor(db);
       setSettings((prev) => {
         const floorMap = new Map(
           (prev.floors ?? []).map((floor) => [floor.id?.toString(), floor]),
         );
         floorMap.set(seeded.floor.id?.toString(), seeded.floor);
+        if (chambres?.floor?.id) {
+          floorMap.set(chambres.floor.id.toString(), chambres.floor);
+        }
         const tableMap = new Map(
           (prev.tables ?? []).map((table) => [table.id?.toString(), table]),
         );
         for (const table of seeded.tables) {
+          tableMap.set(table.id?.toString(), table);
+        }
+        for (const table of chambres?.tables ?? []) {
           tableMap.set(table.id?.toString(), table);
         }
         return {

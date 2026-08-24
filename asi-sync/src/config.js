@@ -63,13 +63,20 @@ const config = {
   syncTables: process.env.ASI_TABLE_SYNC === undefined || process.env.ASI_TABLE_SYNC === ''
     ? bool('ASI_MENU_SYNC', false)
     : bool('ASI_TABLE_SYNC', false),
+  /**
+   * Hotel rooms (cUnit on FrontDesk). Defaults to ASI_FD_SYNC when ASI_ROOM_SYNC unset.
+   * Requires FD SQL credentials (same as guest sync).
+   */
+  syncRooms: process.env.ASI_ROOM_SYNC === undefined || process.env.ASI_ROOM_SYNC === ''
+    ? bool('ASI_FD_SYNC', false)
+    : bool('ASI_ROOM_SYNC', false),
   intervalMs: Number(process.env.ASI_SYNC_INTERVAL_MS || 30000),
   once: bool('ASI_SYNC_ONCE', false) || process.argv.includes('--once'),
 };
 
-if (config.fd.enabled) {
-  if (!config.fd.user) throw new Error('Missing ASI_FD_SQL_USER (required when ASI_FD_SYNC=1)');
-  if (!config.fd.password) throw new Error('Missing ASI_FD_SQL_PASSWORD (required when ASI_FD_SYNC=1)');
+if (config.fd.enabled || config.syncRooms) {
+  if (!config.fd.user) throw new Error('Missing ASI_FD_SQL_USER (required when ASI_FD_SYNC=1 or ASI_ROOM_SYNC=1)');
+  if (!config.fd.password) throw new Error('Missing ASI_FD_SQL_PASSWORD (required when ASI_FD_SYNC=1 or ASI_ROOM_SYNC=1)');
 }
 
 module.exports = { config };

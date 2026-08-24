@@ -30,6 +30,8 @@ import { toLuxonDateTime } from "@/lib/datetime.ts";
 interface Props {
   table: Table
   order?: Order
+  /** Hotel room occupied by an ASI in-house guest (no POS order). */
+  occupiedBy?: string | null
   isEditing: boolean
   canMove?: boolean
   onClick?: () => void
@@ -52,6 +54,7 @@ export const FloorTable = ({
   onClick,
   onRemove,
   order,
+  occupiedBy,
   isLocked,
   numberOfOrders,
   boundaryWidth,
@@ -183,7 +186,9 @@ export const FloorTable = ({
 
   const isPos = !isEditing;
   const isBlocked = table.is_block === true;
-  const isOccupied = Boolean(order);
+  const isOccupied = Boolean(order) || Boolean(occupiedBy?.trim());
+  const tileBackground = isOccupied && !order ? '#f59e0b' : settings.background;
+  const tileColor = isOccupied && !order ? '#78350f' : settings.color;
 
   return (
     <div
@@ -193,13 +198,13 @@ export const FloorTable = ({
       data-testid="floor-table"
       data-table-name={`${table.name ?? ''}${table.number ?? ''}`}
       style={{
-        background: settings.background,
-        color: settings.color,
+        background: tileBackground,
+        color: tileColor,
         height: settings.height,
         width: settings.width,
         left: clampAxis(displayX, getMaxX()),
         top: clampAxis(displayY, getMaxY()),
-        borderColor: settings.color,
+        borderColor: tileColor,
         '--scale': 0.97,
       } as CSSProperties}
       className={cn(
@@ -261,6 +266,11 @@ export const FloorTable = ({
         </>
       )}
       <span className="text-2xl font-black leading-none tracking-tight">{table.name}{table.number}</span>
+      {!order && occupiedBy?.trim() && (
+        <span className="text-[11px] font-semibold leading-tight line-clamp-2 px-0.5">
+          {occupiedBy.trim()}
+        </span>
+      )}
       {order && (
         <>
           {order.covers ? (

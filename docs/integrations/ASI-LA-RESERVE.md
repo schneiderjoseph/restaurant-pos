@@ -270,6 +270,18 @@ Room posting write-back still needs Anand-supported path (phase 2+).
 
 Env: `ASI_TABLE_SYNC` (defaults to follow `ASI_MENU_SYNC` when unset).
 
+### 6.2 Hotel rooms (phase 1c — FrontDesk `cUnit`)
+
+| ASI | POSR field |
+|-----|------------|
+| `cUnit.unitID` | `floor_table:asi_r_{id}` + `asi_unit_id` |
+| `cUnit.unitAlias` | `number` / `asi_alias` (e.g. `21`) |
+| Display | `name`=`R` + `number` → **R21** on floor **Chambres** |
+| `cFloor.floorName` | informational (La Réserve: ETAGE1) |
+| Soft-delete | Missing ASI units removed from Chambres |
+
+Env: `ASI_ROOM_SYNC` (defaults to follow `ASI_FD_SYNC` when unset). Uses FD SQL credentials.
+
 ---
 
 ## 7. Reference SQL (run on ASI host)

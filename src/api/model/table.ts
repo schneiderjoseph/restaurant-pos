@@ -33,6 +33,12 @@ export interface Table extends ID, Name, Priority {
   locked_at?: DateTime
   locked_by?: string
 
+  /** asi = dining table, asi-room = hotel room from FrontDesk cUnit */
+  source?: string | null
+  asi_alias?: string | null
+  asi_table_id?: number | null
+  asi_unit_id?: number | null
+
   deleted_at?: DateTime
 }
 

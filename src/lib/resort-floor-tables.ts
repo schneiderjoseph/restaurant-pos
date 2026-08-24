@@ -9,6 +9,9 @@ export const RESORT_TABLE_COUNT = 32;
 export const RESORT_FLOOR_RECORD_ID = 'floor:resort_salle';
 export const RESORT_FLOOR_NAME = 'Salle';
 
+export const RESORT_ROOMS_FLOOR_RECORD_ID = 'floor:resort_chambres';
+export const RESORT_ROOMS_FLOOR_NAME = 'Chambres';
+
 /** Compact grid that fits above the floor switcher (≈100vh − 160px). */
 export const RESORT_TABLE_LAYOUT = {
   cols: 8,
@@ -276,7 +279,7 @@ export async function ensureResortFloorTables(
   return ensureInFlight;
 }
 
-/** Resolve a floor_table by its display number (e.g. "7" or "07"). */
+/** Resolve a dining table by display number (excludes hotel rooms). */
 export async function findTableByNumber(
   db: AnyDb,
   rawNumber: string,
@@ -295,6 +298,7 @@ export async function findTableByNumber(
     await db.query(
       `SELECT * FROM ${Tables.tables}
        WHERE deleted_at = none
+         AND (source = NONE OR source = NULL OR source IS NONE OR source = 'asi')
          AND (
            number IN $numbers
            OR asi_alias IN $numbers
@@ -306,4 +310,61 @@ export async function findTableByNumber(
     ),
   );
   return rows[0];
+}
+
+/** Resolve an ASI hotel room (source=asi-room) by room number / alias. */
+export async function findRoomByNumber(
+  db: AnyDb,
+  rawNumber: string,
+): Promise<Table | undefined> {
+  const trimmed = rawNumber.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  const normalized = String(Number(trimmed) || trimmed);
+  const candidates = Array.from(
+    new Set([trimmed, normalized, trimmed.replace(/^0+/, '') || trimmed]),
+  );
+
+  const rows = rowsOf<Table>(
+    await db.query(
+      `SELECT * FROM ${Tables.tables}
+       WHERE deleted_at = none
+         AND source = 'asi-room'
+         AND (
+           number IN $numbers
+           OR asi_alias IN $numbers
+         )
+       ORDER BY priority ASC
+       LIMIT 1
+       FETCH floor`,
+      { numbers: candidates },
+    ),
+  );
+  return rows[0];
+}
+
+/** Load Chambres floor + ASI rooms into cache (no seeding). */
+export async function loadResortChambresFloor(
+  db: AnyDb,
+): Promise<{ floor: Floor; tables: Table[] } | null> {
+  const floors = rowsOf<Floor>(
+    await db.query(
+      `SELECT * FROM ${Tables.floors}
+       WHERE deleted_at = none
+         AND (id = $id OR name = $name)
+       LIMIT 1`,
+      {
+        id: toRecordId(RESORT_ROOMS_FLOOR_RECORD_ID),
+        name: RESORT_ROOMS_FLOOR_NAME,
+      },
+    ),
+  );
+  const floor = floors[0];
+  if (!floor?.id) {
+    return null;
+  }
+  const tables = await loadFloorTables(db, floor);
+  return { floor, tables };
 }

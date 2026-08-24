@@ -196,16 +196,8 @@ export const MenuHeader = () => {
           {resortFb && (
             <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-guest">
               {state.resortEntry === 'floor'
-                ? (state?.table
-                  ? `${state.table.name ?? ''}${state.table.number ?? ''}`
-                  : (state?.floor?.name ?? t('guest.openFloor')))
-                : (
-                  <>
-                    {state?.customer ? formatGuestLabel(state.customer) : t('guest.title')}
-                    {state?.table?.number ? ` · T${state.table.number}` : ''}
-                    {!state?.table?.number && state?.floor?.name ? ` · ${state.floor.name}` : ''}
-                  </>
-                )}
+                ? (state?.floor?.name ?? t('guest.openFloor'))
+                : t('guest.title')}
             </Button>
           )}
           {state?.orders?.length > 0 ? (
@@ -239,7 +231,7 @@ export const MenuHeader = () => {
             </>
           ) : null}
 
-          {!skipTableUi && (
+          {!skipTableUi && !resortFb && (
             <Button
               type="button"
               className="btn btn-primary lg btn-flat min-w-[50px]"
@@ -247,14 +239,6 @@ export const MenuHeader = () => {
               icon={faTable}
               data-testid="menu-table"
             >{state?.table?.name}{state?.table?.number}</Button>
-          )}
-          {resortFb && state?.table?.number && (
-            <Button
-              type="button"
-              className="btn btn-primary lg btn-flat min-w-[50px]"
-              icon={faTable}
-              data-testid="menu-table-resort"
-            >{state.table.name}{state.table.number}</Button>
           )}
           <Button type="button"
                   className="btn btn-primary lg btn-flat"

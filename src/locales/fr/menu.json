@@ -63,6 +63,7 @@
     "folioEmpty": "Aucune commande précédente",
     "pickGuest": "Recherchez ou créez un client pour continuer",
     "pickGuestPms": "Sélectionnez un client en chambre pour continuer",
-    "required": "Sélectionnez d'abord un client"
+    "required": "Sélectionnez d'abord un client",
+    "roomRequiresGuest": "Impossible de commander sur une chambre sans client. Choisissez une chambre occupée."
   }
 }
