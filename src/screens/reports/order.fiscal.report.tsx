@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {OrderFiscalSubmission} from "@/api/model/order_fiscal_submission.ts";
 import {Order} from "@/api/model/order.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {getOrderSettlementFigures} from "@/lib/order.ts";
 import {
@@ -330,22 +330,22 @@ export const OrderFiscalReport = () => {
                           {sub.qrcode ? t('orderFiscal.available') : t('orderFiscal.notAvailable')}
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {figures ? withCurrency(figures.itemsTotal) : '—'}
+                          {figures ? withDualCurrency(figures.itemsTotal) : '—'}
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {figures ? withCurrency(figures.tax) : '—'}
+                          {figures ? withDualCurrency(figures.tax) : '—'}
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {figures ? withCurrency(figures.discounts) : '—'}
+                          {figures ? withDualCurrency(figures.discounts) : '—'}
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {figures ? withCurrency(figures.serviceCharges) : '—'}
+                          {figures ? withDualCurrency(figures.serviceCharges) : '—'}
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                          {figures ? withCurrency(figures.extrasTotal) : '—'}
+                          {figures ? withDualCurrency(figures.extrasTotal) : '—'}
                         </td>
                         <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
-                          {figures ? withCurrency(figures.grandTotalDue) : '—'}
+                          {figures ? withDualCurrency(figures.grandTotalDue) : '—'}
                         </td>
                         <td className="py-3 px-3 text-sm text-neutral-700">{cashierName(order)}</td>
                         <td className="py-3 pr-6 text-sm text-danger-600">{sub.error || '—'}</td>
@@ -360,12 +360,12 @@ export const OrderFiscalReport = () => {
                     <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{formatNumber(submissions.length)}</td>
                     <td colSpan={4}></td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.gross)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.tax)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.discount)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.serviceCharges)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.extras)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.total)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(detailTotals.gross)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(detailTotals.tax)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(detailTotals.discount)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(detailTotals.serviceCharges)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(detailTotals.extras)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(detailTotals.total)}</td>
                     <td colSpan={2}></td>
                   </tr>
                 </tfoot>

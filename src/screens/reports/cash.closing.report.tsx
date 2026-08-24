@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {DayClosing} from "@/api/model/day_closing.ts";
-import {withCurrency} from "@/lib/utils.ts";
+import {withDualCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 
 const parseFilters = () => {
@@ -102,27 +102,27 @@ export const CashClosingReport = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">Opening balance</div>
-            <div className="text-xl font-semibold">{withCurrency(openingBalance)}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(openingBalance)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">Total cash</div>
-            <div className="text-xl font-semibold">{withCurrency(totalCash)}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(totalCash)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">Other payments</div>
-            <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(totalOtherPayments)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t('labels.cashAdded')}</div>
-            <div className="text-xl font-semibold">{withCurrency(Number(closing.cash_added || 0))}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(Number(closing.cash_added || 0))}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t('columns.expenses')}</div>
-            <div className="text-xl font-semibold">{withCurrency(totalExpenses)}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(totalExpenses)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t('labels.closingBalance')}</div>
-            <div className="text-xl font-semibold">{withCurrency(closingBalance)}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(closingBalance)}</div>
           </div>
         </div>
 
@@ -177,7 +177,7 @@ export const CashClosingReport = () => {
                 (closing.terminal_cash || []).map((terminal: any, index) => (
                   <tr key={toRecordString(terminal?.terminal_id) || String(index)}>
                     <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{terminal?.terminal_name || "Terminal"}</td>
-                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withCurrency(Number(terminal?.cash_amount || 0))}</td>
+                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withDualCurrency(Number(terminal?.cash_amount || 0))}</td>
                   </tr>
                 ))
               )}
@@ -205,7 +205,7 @@ export const CashClosingReport = () => {
                     <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">
                       {payment?.payment_type?.name || toRecordString(payment?.payment_type) || "Unknown"}
                     </td>
-                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withCurrency(Number(payment?.amount || 0))}</td>
+                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withDualCurrency(Number(payment?.amount || 0))}</td>
                   </tr>
                 ))
               )}
@@ -233,7 +233,7 @@ export const CashClosingReport = () => {
                   <tr key={toRecordString(expense?.id) || String(index)}>
                     <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{expense?.description || "-"}</td>
                     <td className="py-3 px-3 text-sm text-neutral-700">{expense?.category || "-"}</td>
-                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withCurrency(Number(expense?.amount || 0))}</td>
+                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withDualCurrency(Number(expense?.amount || 0))}</td>
                   </tr>
                 ))
               )}
@@ -242,7 +242,7 @@ export const CashClosingReport = () => {
               <tfoot className="bg-neutral-50">
                 <tr>
                   <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">Total expenses</td>
-                  <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(totalExpenses)}</td>
+                  <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(totalExpenses)}</td>
                 </tr>
               </tfoot>
             )}

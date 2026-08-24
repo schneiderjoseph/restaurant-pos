@@ -5,7 +5,7 @@ import {useDB} from '@/api/db/db.ts';
 import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getOvertimeReport} from '@/api/reports/labor';
 import type {OvertimeReportRow} from '@/api/reports/labor/shared/types.ts';
-import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {formatNumber, withDualCurrency} from '@/lib/utils.ts';
 
 export const LaborOvertimeReport = () => {
   const {t} = useTranslation('reports');
@@ -69,8 +69,8 @@ export const LaborOvertimeReport = () => {
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.regularHours)}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.overtimeHours)}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.doubleTimeHours)}</td>
-                  <td className="px-4 py-2 text-sm text-right">{withCurrency(row.overtimePay)}</td>
-                  <td className="px-4 py-2 text-sm text-right font-semibold">{withCurrency(row.totalCost)}</td>
+                  <td className="px-4 py-2 text-sm text-right">{withDualCurrency(row.overtimePay)}</td>
+                  <td className="px-4 py-2 text-sm text-right font-semibold">{withDualCurrency(row.totalCost)}</td>
                 </tr>
               ))}
             </tbody>

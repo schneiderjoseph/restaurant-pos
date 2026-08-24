@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 
 type ExpenseItem = {
   id?: string;
@@ -115,7 +115,7 @@ export const ExpenseReport = () => {
           <div className="text-sm text-neutral-500">{t('labels.expenseRows')}</div>
           <div className="text-xl font-semibold">{formatNumber(rows.length)}</div>
           <div className="text-sm text-neutral-500 mt-2">Total expenses</div>
-          <div className="text-xl font-semibold">{withCurrency(totalExpenses)}</div>
+          <div className="text-xl font-semibold">{withDualCurrency(totalExpenses)}</div>
         </div>
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <table className="min-w-full divide-y divide-neutral-200">
@@ -139,7 +139,7 @@ export const ExpenseReport = () => {
                 </td>
                 <td className="py-3 px-3 text-sm text-neutral-700">{row.description}</td>
                 <td className="py-3 px-3 text-sm text-neutral-700">{row.category}</td>
-                <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(row.amount)}</td>
+                <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(row.amount)}</td>
               </tr>
             ))}
             </tbody>

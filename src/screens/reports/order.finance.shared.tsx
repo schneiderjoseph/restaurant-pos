@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, toRecordId, withDualCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderDiscountTotal} from "@/lib/order.ts";
@@ -165,7 +165,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
           <div className="text-sm text-neutral-500">{t('categories.orders')}</div>
           <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
           <div className="text-sm text-neutral-500 mt-2">Total {metricHeader.toLowerCase()}</div>
-          <div className="text-xl font-semibold">{withCurrency(totalMetric)}</div>
+          <div className="text-xl font-semibold">{withDualCurrency(totalMetric)}</div>
         </div>
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <table className="min-w-full divide-y divide-neutral-200">
@@ -199,12 +199,12 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
                   <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(order.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
                   <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
                   <td className="py-3 px-3 text-sm text-neutral-700">{cashierName || "-"}</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(gross)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(gross)}</td>
                   {metric === "tax_amount" && (
                     <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order)}</td>
                   )}
-                  <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(metricAmount)}</td>
-                  <td className="py-3 pr-6 text-right text-sm text-neutral-700">{withCurrency(net)}</td>
+                  <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(metricAmount)}</td>
+                  <td className="py-3 pr-6 text-right text-sm text-neutral-700">{withDualCurrency(net)}</td>
                 </tr>
               );
             })}

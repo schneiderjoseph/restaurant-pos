@@ -3,7 +3,7 @@ import {useTranslation} from "react-i18next";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount, getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
 
 interface Props {
@@ -358,12 +358,12 @@ export const Summary = ({
         {/*<div style={{textAlign: 'center', marginBottom: '16px', fontSize: '24px'}}>Summary of {date}</div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Exclusive amount</span>
-          <span>{withCurrency(exclusive)}</span>
+          <span>{withDualCurrency(exclusive)}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>G sales</span>
-            <span>{withCurrency(gSales)}</span>
+            <span>{withDualCurrency(gSales)}</span>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
             Items total (before tax)
@@ -372,7 +372,7 @@ export const Summary = ({
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>Gross</span>
-            <span>{withCurrency(gross)}</span>
+            <span>{withDualCurrency(gross)}</span>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
             Amount collected + Refunds + Discounts
@@ -380,28 +380,28 @@ export const Summary = ({
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Refunds</span>
-          <span>{withCurrency(refunds)}</span>
+          <span>{withDualCurrency(refunds)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Service charges</span>
-          <span>{withCurrency(serviceCharges)}</span>
+          <span>{withDualCurrency(serviceCharges)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Discounts</span>
-          <span>{withCurrency(discounts)}</span>
+          <span>{withDualCurrency(discounts)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Coupons</span>
-          <span>{withCurrency(couponsTotal)}</span>
+          <span>{withDualCurrency(couponsTotal)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Taxes</span>
-          <span>{withCurrency(taxes)}</span>
+          <span>{withDualCurrency(taxes)}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>Net</span>
-            <span>{withCurrency(net)}</span>
+            <span>{withDualCurrency(net)}</span>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
             Amount collected - Service charges - Taxes
@@ -410,7 +410,7 @@ export const Summary = ({
         <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span>Amount due</span>
-          <span>{withCurrency(amountDue)}</span>
+          <span>{withDualCurrency(amountDue)}</span>
           </div>
           <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
             Items total + Taxes + Service charges + Extras - Discounts - Coupons
@@ -418,7 +418,7 @@ export const Summary = ({
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
           <span>Amount collected</span>
-          <span>{withCurrency(amountCollected)}</span>
+          <span>{withDualCurrency(amountCollected)}</span>
         </div>*/}
         <div style={{
           display: 'flex',
@@ -427,12 +427,12 @@ export const Summary = ({
           padding: '0.75rem'
         }}>
           <span>{t('report.rows.extras')}</span>
-          <span>{withCurrency(totalExtras)}</span>
+          <span>{withDualCurrency(totalExtras)}</span>
         </div>
         <div style={{display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}}>
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <span>{t('report.rows.rounding')}</span>
-            <span>{withCurrency(rounding)}</span>
+            <span>{withDualCurrency(rounding)}</span>
           </div>
           <div style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem'}}>
             {t('report.hints.roundingLegacy')}
@@ -445,7 +445,7 @@ export const Summary = ({
           padding: '0.75rem'
         }}>
           <span>{t('report.rows.voids')}</span>
-          <span>{withCurrency(voids)}</span>
+          <span>{withDualCurrency(voids)}</span>
         </div>
         <div style={{
           display: 'flex',
@@ -472,7 +472,7 @@ export const Summary = ({
           padding: '0.75rem'
         }}>
           <span>{t('report.rows.totalTips')}</span>
-          <span>{withCurrency(tips)}</span>
+          <span>{withDualCurrency(tips)}</span>
         </div>
         <div style={{
           display: 'flex',
@@ -499,7 +499,7 @@ export const Summary = ({
           padding: '0.75rem'
         }}>
           <span>{t('report.legacy.averageCover')}</span>
-          <span>{withCurrency(covers > 0 ? amountDue / covers : 0)}</span>
+          <span>{withDualCurrency(covers > 0 ? amountDue / covers : 0)}</span>
         </div>
         <div style={{
           display: 'flex',
@@ -517,7 +517,7 @@ export const Summary = ({
           padding: '0.75rem'
         }}>
           <span>{t('report.legacy.averageOrderCheck')}</span>
-          <span>{withCurrency((orders?.length ?? 0) > 0 ? amountDue / (orders?.length ?? 1) : 0)}</span>
+          <span>{withDualCurrency((orders?.length ?? 0) > 0 ? amountDue / (orders?.length ?? 1) : 0)}</span>
         </div>
         <div style={{
           display: 'flex',
@@ -541,7 +541,7 @@ export const Summary = ({
           <div style={{display: 'flex', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}} key={category}>
             <span style={{width: '40%', textAlign: 'left'}}>{category}</span>
             <span style={{width: '20%', textAlign: 'right'}}>{categories[category].quantity}</span>
-            <span style={{width: '20%', textAlign: 'right'}}>{withCurrency(categories[category].total)}</span>
+            <span style={{width: '20%', textAlign: 'right'}}>{withDualCurrency(categories[category].total)}</span>
             <span style={{
               width: '20%',
               textAlign: 'right'
@@ -584,7 +584,7 @@ export const Summary = ({
               ))}
             </span>
             <span style={{width: '20%', textAlign: 'right'}}>{dishes[dish].quantity}</span>
-            <span style={{width: '20%', textAlign: 'right'}}>{withCurrency(dishes[dish].total)}</span>
+            <span style={{width: '20%', textAlign: 'right'}}>{withDualCurrency(dishes[dish].total)}</span>
             <span style={{
               width: '20%',
               textAlign: 'right'
@@ -617,7 +617,7 @@ export const Summary = ({
             padding: '0.75rem'
           }} key={paymentType}>
             <span>{paymentType}</span>
-            <span>{withCurrency(paymentTypes[paymentType])}</span>
+            <span>{withDualCurrency(paymentTypes[paymentType])}</span>
             <span>{formatNumber(amountDue > 0 ? paymentTypes[paymentType] / amountDue * 100 : 0)}%</span>
           </div>
         ))}
@@ -647,7 +647,7 @@ export const Summary = ({
             padding: '0.75rem'
           }} key={tax}>
             <span>{tax}%</span>
-            <span>{withCurrency(taxesList[tax])}</span>
+            <span>{withDualCurrency(taxesList[tax])}</span>
             <span>{formatNumber(taxes > 0 ? taxesList[tax] / taxes * 100 : 0)}%</span>
           </div>
         ))}
@@ -679,7 +679,7 @@ export const Summary = ({
             padding: '0.75rem'
           }} key={discount}>
             <span>{discount}</span>
-            <span>{withCurrency(discountsList[discount])}</span>
+            <span>{withDualCurrency(discountsList[discount])}</span>
             <span>{formatNumber(discounts > 0 ? discountsList[discount] / discounts * 100 : 0)}%</span>
           </div>
         ))}
@@ -711,7 +711,7 @@ export const Summary = ({
             padding: '0.75rem'
           }} key={extra}>
             <span>{extra}</span>
-            <span>{withCurrency(extras[extra])}</span>
+            <span>{withDualCurrency(extras[extra])}</span>
           </div>
         ))}
 
@@ -745,7 +745,7 @@ export const Summary = ({
             key={code}
           >
             <span>{code}</span>
-            <span>{withCurrency(couponsList[code])}</span>
+            <span>{withDualCurrency(couponsList[code])}</span>
           </div>
         ))}
       </div>

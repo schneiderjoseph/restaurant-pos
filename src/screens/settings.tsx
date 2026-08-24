@@ -13,6 +13,7 @@ import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translat
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
 import {CurrencySymbolSettingsCard} from "@/components/user_settings/currency_symbol.tsx";
+import {RestaurantProfileSettingsCard} from "@/components/user_settings/restaurant_profile.tsx";
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
@@ -33,6 +34,7 @@ export const Settings = () => {
       <DocumentTitle parts={[tNav('sidebar.settings')]} />
       {/* Columns must not sit on the max-height Layout pane or content is clipped to the viewport. */}
       <div className="columns-1 md:columns-2 lg:columns-3 gap-5" data-testid="settings-page">
+        <MasonryItem><RestaurantProfileSettingsCard /></MasonryItem>
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>

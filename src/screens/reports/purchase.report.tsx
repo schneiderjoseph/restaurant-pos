@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
-import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, safeNumber, withDualCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildLocationInsideCondition,
@@ -198,27 +198,27 @@ export const PurchaseReport = () => {
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.subtotal')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalSubtotal)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalSubtotal)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.tax')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalTax)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalTax)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.extras')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalExtras)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalExtras)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.landedCost')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalLanded)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalLanded)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.finalInventory')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalFinalInventory)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalFinalInventory)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.grandTotal')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalGrand)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalGrand)}</p>
           </div>
         </div>
 
@@ -294,13 +294,13 @@ export const PurchaseReport = () => {
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{item.taxable ? 'Yes' : 'No'}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(effectiveQty)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(amount)}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                            {isFirst ? withCurrency(purchaseTax) : '—'}
+                            {isFirst ? withDualCurrency(purchaseTax) : '—'}
                           </td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">
-                            {isFirst ? withCurrency(purchaseExtras) : '—'}
+                            {isFirst ? withDualCurrency(purchaseExtras) : '—'}
                           </td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-neutral-700">{item.comments || purchase.comments || '-'}</td>
@@ -319,20 +319,20 @@ export const PurchaseReport = () => {
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalSubtotal)}
+                      {withDualCurrency(totals.totalSubtotal)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalTax)}
+                      {withDualCurrency(totals.totalTax)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalExtras)}
+                      {withDualCurrency(totals.totalExtras)}
                     </td>
                     <td colSpan={2}></td>
                   </tr>
                   <tr>
                     <td colSpan={8} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.grandTotal')}</td>
                     <td colSpan={3} className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalGrand)}
+                      {withDualCurrency(totals.totalGrand)}
                     </td>
                     <td colSpan={2}></td>
                   </tr>

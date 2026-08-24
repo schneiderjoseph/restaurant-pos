@@ -5,7 +5,7 @@ import {useDB} from '@/api/db/db.ts';
 import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getScheduledVsActual} from '@/api/reports/labor';
 import type {ScheduledVsActualRow} from '@/api/reports/labor/shared/types.ts';
-import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {formatNumber, withDualCurrency} from '@/lib/utils.ts';
 
 export const LaborScheduledVsActualReport = () => {
   const {t} = useTranslation('reports');
@@ -72,9 +72,9 @@ export const LaborScheduledVsActualReport = () => {
                   <td className={`px-4 py-2 text-sm text-right font-medium ${row.varianceHours > 0 ? 'text-warning-700' : row.varianceHours < 0 ? 'text-info-700' : ''}`}>
                     {formatNumber(row.varianceHours)} ({formatNumber(row.variancePercent)}%)
                   </td>
-                  <td className="px-4 py-2 text-sm text-right">{withCurrency(row.scheduledCost)}</td>
-                  <td className="px-4 py-2 text-sm text-right">{withCurrency(row.actualCost)}</td>
-                  <td className="px-4 py-2 text-sm text-right font-semibold">{withCurrency(row.costVariance)}</td>
+                  <td className="px-4 py-2 text-sm text-right">{withDualCurrency(row.scheduledCost)}</td>
+                  <td className="px-4 py-2 text-sm text-right">{withDualCurrency(row.actualCost)}</td>
+                  <td className="px-4 py-2 text-sm text-right font-semibold">{withDualCurrency(row.costVariance)}</td>
                 </tr>
               ))}
             </tbody>

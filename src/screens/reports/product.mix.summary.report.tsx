@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {parseMultiFilter} from "@/api/reports/shared/filters.ts";
 import type {CategoryGroup, ModifierSummaryMetrics} from "@/api/reports/shared/types.ts";
 import {aggregateAccumulatedModifiersSummary, aggregateModifiersSummary, aggregateProductMixByCategory, fetchOrders, PRODUCT_MIX_FETCHES} from "@/api/reports/sales";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
@@ -58,8 +58,8 @@ const ModifiersSummaryTable = ({
               )}
             </td>
             <td className="py-3 px-3 text-sm text-right text-neutral-700">{formatNumber(modifier.quantity)}</td>
-            <td className="py-3 px-3 text-sm text-right text-neutral-700">{withCurrency(modifier.unitPrice)}</td>
-            <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{withCurrency(modifier.total)}</td>
+            <td className="py-3 px-3 text-sm text-right text-neutral-700">{withDualCurrency(modifier.unitPrice)}</td>
+            <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{withDualCurrency(modifier.total)}</td>
           </tr>
         ))}
         {rows.length === 0 && (
@@ -75,7 +75,7 @@ const ModifiersSummaryTable = ({
           <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">Totals</td>
           <td className="py-3 px-3 text-sm text-right text-neutral-900">{formatNumber(totals.quantity)}</td>
           <td className="py-3 px-3 text-sm text-right text-neutral-900">-</td>
-          <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withCurrency(totals.total)}</td>
+          <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withDualCurrency(totals.total)}</td>
         </tr>
       </tfoot>
     </table>
@@ -286,16 +286,16 @@ export const ProductMixSummaryReport = () => {
                   {formatNumber(category.totals.numSold)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.priceSold)}
+                  {withDualCurrency(category.totals.priceSold)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.amount)}
+                  {withDualCurrency(category.totals.amount)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.cost)}
+                  {withDualCurrency(category.totals.cost)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.profit)}
+                  {withDualCurrency(category.totals.profit)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
                   {formatNumber(category.totals.foodCostPercent)}%
@@ -304,16 +304,16 @@ export const ProductMixSummaryReport = () => {
                   {formatNumber(category.totals.salePercent)}%
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.discount)}
+                  {withDualCurrency(category.totals.discount)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.tax)}
+                  {withDualCurrency(category.totals.tax)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.serviceCharges)}
+                  {withDualCurrency(category.totals.serviceCharges)}
                 </td>
                 <td className="py-3 pr-6 text-right text-sm text-neutral-900">
-                  {withCurrency(category.totals.totalCollected)}
+                  {withDualCurrency(category.totals.totalCollected)}
                 </td>
               </tr>,
               // Menu items under category
@@ -346,16 +346,16 @@ export const ProductMixSummaryReport = () => {
                       {formatNumber(item.numSold)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
-                      {withCurrency(item.priceSold)}
+                      {withDualCurrency(item.priceSold)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-700">
-                      {withCurrency(item.amount)}
+                      {withDualCurrency(item.amount)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
-                      {withCurrency(item.cost)}
+                      {withDualCurrency(item.cost)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-700">
-                      {withCurrency(item.profit)}
+                      {withDualCurrency(item.profit)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
                       {formatNumber(item.foodCostPercent)}%
@@ -364,16 +364,16 @@ export const ProductMixSummaryReport = () => {
                       {formatNumber(item.salePercent)}%
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
-                      {withCurrency(item.discount)}
+                      {withDualCurrency(item.discount)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
-                      {withCurrency(item.tax)}
+                      {withDualCurrency(item.tax)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
-                      {withCurrency(item.serviceCharges)}
+                      {withDualCurrency(item.serviceCharges)}
                     </td>
                     <td className="py-2 pr-6 text-right text-sm font-semibold text-neutral-900">
-                      {withCurrency(item.totalCollected)}
+                      {withDualCurrency(item.totalCollected)}
                     </td>
                   </tr>,
                 ];
@@ -408,13 +408,13 @@ export const ProductMixSummaryReport = () => {
                                     </span>
                                   </td>
                                   <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(modifier.quantity)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.unitPrice)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.discount)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.tax)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.serviceCharges)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.total)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withDualCurrency(modifier.unitPrice)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withDualCurrency(modifier.discount)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withDualCurrency(modifier.tax)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withDualCurrency(modifier.serviceCharges)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withDualCurrency(modifier.total)}</td>
                                   <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(modifier.ratio * 100)}%</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.mealPrice)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withDualCurrency(modifier.mealPrice)}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -449,16 +449,16 @@ export const ProductMixSummaryReport = () => {
                   {formatNumber(grandTotals.numSold)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.priceSold)}
+                  {withDualCurrency(grandTotals.priceSold)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.amount)}
+                  {withDualCurrency(grandTotals.amount)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.cost)}
+                  {withDualCurrency(grandTotals.cost)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.profit)}
+                  {withDualCurrency(grandTotals.profit)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
                   {formatNumber(grandTotals.foodCostPercent)}%
@@ -467,16 +467,16 @@ export const ProductMixSummaryReport = () => {
                   {formatNumber(grandTotals.salePercent)}%
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.discount)}
+                  {withDualCurrency(grandTotals.discount)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.tax)}
+                  {withDualCurrency(grandTotals.tax)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.serviceCharges)}
+                  {withDualCurrency(grandTotals.serviceCharges)}
                 </td>
                 <td className="py-3 pr-6 text-right text-sm text-neutral-900">
-                  {withCurrency(grandTotals.totalCollected)}
+                  {withDualCurrency(grandTotals.totalCollected)}
                 </td>
               </tr>
             </tfoot>

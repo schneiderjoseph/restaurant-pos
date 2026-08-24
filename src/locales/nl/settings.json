@@ -133,6 +133,23 @@
     "usdToHtgRate": "USD → HTG wisselkoers",
     "usdToHtgRateHint": "Getoond als tweede regel onder bedragen (bijv. 132 = $1 = G132)."
   },
+  "restaurantProfile": {
+    "title": "Restaurant",
+    "description": "Naam, adres, telefoon en logo voor tickets en rapporten. Printsjablonen kunnen logo of koptekst nog overschrijven.",
+    "name": "Restaurantnaam",
+    "address": "Adres",
+    "phone": "Telefoon",
+    "email": "E-mail",
+    "website": "Website",
+    "taxId": "Btw-nummer",
+    "logo": "Logo",
+    "logoHint": "Gebruikt op bonnen, keukentickets en rapporten als het printtype geen eigen logo heeft.",
+    "logoPreview": "Logovoorbeeld",
+    "removeLogo": "Logo verwijderen",
+    "logoError": "Logo-bestand kon niet worden geladen",
+    "updated": "Restaurantgegevens bijgewerkt",
+    "saveDescription": "Restaurantgegevens opslaan"
+  },
   "translateReceipts": {
     "title": "Bonnen vertalen",
     "description": "Indien ingeschakeld gebruiken systeemlabels op geprinte bonnen (titels, factuur, tafel, belasting, totaal, keukentickets en samenvatting) de geselecteerde taal van dit apparaat. Aangepaste kop- en voettekst uit printinstellingen wordt niet vertaald.",

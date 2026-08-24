@@ -1,6 +1,7 @@
 import {DateTime} from "luxon";
 import {InventoryInvoiceDoc} from "@/lib/inventory/invoice.mapper.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {useRestaurantProfile} from "@/hooks/useRestaurantProfile.ts";
 
 interface Props {
   doc: InventoryInvoiceDoc;
@@ -8,9 +9,13 @@ interface Props {
 
 export const InventoryInvoice = ({doc}: Props) => {
   const showCost = !!doc.showCostColumns;
+  const {profile, logoDataUrl} = useRestaurantProfile();
   const generatedAt = DateTime.now().toFormat(
     import.meta.env.VITE_DATE_TIME_FORMAT || "dd/MM/yyyy HH:mm",
   );
+  const restaurantName = doc.restaurantName || profile.name || "Restaurant";
+  const restaurantAddress = doc.restaurantAddress || profile.address;
+  const contact = [profile.phone, profile.email].filter(Boolean).join(" · ");
 
   return (
     <div
@@ -20,13 +25,23 @@ export const InventoryInvoice = ({doc}: Props) => {
       <div className="px-8 py-8 sm:px-10 sm:py-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between border-b border-neutral-800 pb-6">
           <div className="min-w-0">
+            {logoDataUrl && (
+              <img
+                src={logoDataUrl}
+                alt=""
+                className="mb-3 max-h-14 max-w-[180px] object-contain"
+              />
+            )}
             <div className="text-2xl font-semibold tracking-tight text-neutral-900">
-              {doc.restaurantName || "Restaurant"}
+              {restaurantName}
             </div>
-            {doc.restaurantAddress && (
+            {restaurantAddress && (
               <div className="mt-1 text-sm text-neutral-600 whitespace-pre-line max-w-sm">
-                {doc.restaurantAddress}
+                {restaurantAddress}
               </div>
+            )}
+            {contact && (
+              <div className="mt-1 text-sm text-neutral-600">{contact}</div>
             )}
           </div>
           <div className="sm:text-right shrink-0">

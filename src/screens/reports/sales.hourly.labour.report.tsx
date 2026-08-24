@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
@@ -287,13 +287,13 @@ export const SalesHourlyLabourReport = () => {
           {hourlyData.map((row, index) => (
             <tr key={index}>
               <td>{row.startTime}</td>
-              <td className="text-right">{withCurrency(row.amountCollected)}</td>
-              <td className="text-right">{withCurrency(row.grossSale)}</td>
-              <td className="text-right">{withCurrency(row.couponAmount)}</td>
+              <td className="text-right">{withDualCurrency(row.amountCollected)}</td>
+              <td className="text-right">{withDualCurrency(row.grossSale)}</td>
+              <td className="text-right">{withDualCurrency(row.couponAmount)}</td>
               <td className="text-right">{formatNumber(row.guests)}</td>
-              <td className="text-right">{withCurrency(row.guestAvg)}</td>
+              <td className="text-right">{withDualCurrency(row.guestAvg)}</td>
               <td className="text-right">{formatNumber(row.checks)}</td>
-              <td className="text-right">{withCurrency(row.checkAvg)}</td>
+              <td className="text-right">{withDualCurrency(row.checkAvg)}</td>
               <td className="text-right">{formatNumber(row.labourHours)}</td>
             </tr>
           ))}
@@ -308,13 +308,13 @@ export const SalesHourlyLabourReport = () => {
         <tfoot>
           <tr className="font-bold">
             <td>Totals</td>
-            <td className="text-right">{withCurrency(totals.amountCollected)}</td>
-            <td className="text-right">{withCurrency(totals.grossSale)}</td>
-            <td className="text-right">{withCurrency(totals.couponAmount)}</td>
+            <td className="text-right">{withDualCurrency(totals.amountCollected)}</td>
+            <td className="text-right">{withDualCurrency(totals.grossSale)}</td>
+            <td className="text-right">{withDualCurrency(totals.couponAmount)}</td>
             <td className="text-right">{formatNumber(totals.guests)}</td>
-            <td className="text-right">{withCurrency(totalGuestAvg)}</td>
+            <td className="text-right">{withDualCurrency(totalGuestAvg)}</td>
             <td className="text-right">{formatNumber(totals.checks)}</td>
-            <td className="text-right">{withCurrency(totalCheckAvg)}</td>
+            <td className="text-right">{withDualCurrency(totalCheckAvg)}</td>
             <td className="text-right">{formatNumber(totals.labourHours)}</td>
           </tr>
         </tfoot>

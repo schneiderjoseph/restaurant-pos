@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-24',
+    title: 'Restaurant profile',
+    items: [
+      'Settings → Restaurant stores name, address, phone, email, website, tax ID, and logo for tickets and reports.',
+      'If a print type has no logo or header text, the restaurant profile is used automatically.',
+      'Report Download as PDF now creates a real text PDF (selectable tables), not a screenshot.',
+    ],
+  },
+  {
     date: '2026-08-22',
     title: 'Orders defaults and performance',
     items: [

@@ -181,7 +181,8 @@
     "generatedAt": "Généré le :",
     "previous": "Précédent",
     "next": "Suivant",
-    "pageOf": "Page {{current}} sur {{total}}"
+    "pageOf": "Page {{current}} sur {{total}}",
+    "dualCurrency": "Montants en {{rate}}"
   },
   "filters": {
     "selectRange": "Sélectionner une plage",

@@ -181,7 +181,8 @@
     "generatedAt": "Generato il:",
     "previous": "Precedente",
     "next": "Successivo",
-    "pageOf": "Pagina {{current}} di {{total}}"
+    "pageOf": "Pagina {{current}} di {{total}}",
+    "dualCurrency": "Importi in {{rate}}"
   },
   "filters": {
     "selectRange": "Seleziona un intervallo",

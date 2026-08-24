@@ -133,6 +133,23 @@
     "usdToHtgRate": "USD → HTG Wechselkurs",
     "usdToHtgRateHint": "Als zweite Zeile unter Beträgen angezeigt (z. B. 132 = $1 = G132)."
   },
+  "restaurantProfile": {
+    "title": "Restaurant",
+    "description": "Name, Adresse, Telefon und Logo für Tickets und Berichte. Druckvorlagen können Logo oder Kopftext weiterhin überschreiben.",
+    "name": "Restaurantname",
+    "address": "Adresse",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "website": "Website",
+    "taxId": "Steuer-ID / USt-IdNr.",
+    "logo": "Logo",
+    "logoHint": "Wird auf Belegen, Küchentickets und Berichten verwendet, wenn der Drucktyp kein eigenes Logo hat.",
+    "logoPreview": "Logo-Vorschau",
+    "removeLogo": "Logo entfernen",
+    "logoError": "Logo-Datei konnte nicht geladen werden",
+    "updated": "Restaurantdaten aktualisiert",
+    "saveDescription": "Restaurantdaten speichern"
+  },
   "translateReceipts": {
     "title": "Belege übersetzen",
     "description": "Wenn aktiviert, verwenden Systembeschriftungen auf gedruckten Belegen (Titel, Rechnung, Tisch, Steuer, Gesamt, Küchentickets und Zusammenfassung) die auf diesem Gerät ausgewählte Sprache. Benutzerdefinierter Kopf-/Fußtext aus den Druckeinstellungen wird nicht übersetzt.",

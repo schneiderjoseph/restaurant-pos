@@ -5,7 +5,7 @@ import {useDB} from '@/api/db/db.ts';
 import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getDailyLaborCost} from '@/api/reports/labor';
 import type {LaborCostResult} from '@/api/reports/labor/shared/types.ts';
-import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {formatNumber, withDualCurrency} from '@/lib/utils.ts';
 
 export const LaborDailyCostReport = () => {
   const {t} = useTranslation('reports');
@@ -59,7 +59,7 @@ export const LaborDailyCostReport = () => {
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
               <p className="text-sm text-primary-700">Total cost</p>
-              <p className="text-xl font-bold text-primary-900">{withCurrency(totals.totalCost)}</p>
+              <p className="text-xl font-bold text-primary-900">{withDualCurrency(totals.totalCost)}</p>
             </div>
             <div className="bg-info-50 border border-info-200 rounded-lg p-4">
               <p className="text-sm text-info-700">Total hours</p>
@@ -88,7 +88,7 @@ export const LaborDailyCostReport = () => {
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.totalHours)}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.overtimeHours)}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.employeeCount)}</td>
-                    <td className="px-4 py-2 text-sm text-right font-semibold">{withCurrency(row.totalCost)}</td>
+                    <td className="px-4 py-2 text-sm text-right font-semibold">{withDualCurrency(row.totalCost)}</td>
                   </tr>
                 ))}
               </tbody>

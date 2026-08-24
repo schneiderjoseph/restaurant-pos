@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
 import {aggregateSalesSummary, fetchOrderVoids, fetchPaidOrders, SALES_SUMMARY_FETCHES} from "@/api/reports/sales";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {DAY_PARTS, getDayPartTimeRangeLabel} from "@/utils/dayParts";
 
 type BreakdownItem = {
@@ -96,33 +96,33 @@ export const SalesSummaryReport = () => {
 
     const saleBreakdown = DAY_PARTS.map(part => ({
       label: `${part.label} (${getDayPartTimeRangeLabel(part.label)})`,
-      value: withCurrency(dayPartTotals[part.label].sales),
+      value: withDualCurrency(dayPartTotals[part.label].sales),
     }));
 
     const orderTypeItems: BreakdownItem[] = orderTypeBreakdown.map(item => ({
       label: item.label,
-      value: withCurrency(item.value),
+      value: withDualCurrency(item.value),
     }));
 
     const nonCashItems: BreakdownItem[] = Object.entries(paymentSummary.nonCashBreakdown).map(([label, value]) => ({
       label,
-      value: withCurrency(value),
+      value: withDualCurrency(value),
     }));
 
     return [
-      {label: "Net sales", value: withCurrency(totalNetSales)},
-      {label: "Amount collected", value: withCurrency(paymentSummary.amountCollected)},
-      {label: t('labels.cashPaymentsNet'), value: withCurrency(paymentSummary.cashPayments)},
-      {label: "Rounding benefit", value: withCurrency(roundingBenefit)},
+      {label: "Net sales", value: withDualCurrency(totalNetSales)},
+      {label: "Amount collected", value: withDualCurrency(paymentSummary.amountCollected)},
+      {label: t('labels.cashPaymentsNet'), value: withDualCurrency(paymentSummary.cashPayments)},
+      {label: "Rounding benefit", value: withDualCurrency(roundingBenefit)},
       {label: t('metrics.checkCountByDayPart'), breakdown: checkBreakdown},
       {label: "Sale by day part", breakdown: saleBreakdown},
       {label: "Net sales by order type", breakdown: orderTypeItems},
-      {label: "Service charges", value: withCurrency(serviceCharges)},
-      {label: "Taxes", value: withCurrency(taxes)},
-      {label: "Non cash payments", value: withCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
-      {label: t('metrics.discounts'), value: withCurrency(totalDiscounts)},
-      {label: t('metrics.coupons'), value: withCurrency(totalCoupons)},
-      {label: t('reports.voids'), value: withCurrency(totalVoids)},
+      {label: "Service charges", value: withDualCurrency(serviceCharges)},
+      {label: "Taxes", value: withDualCurrency(taxes)},
+      {label: "Non cash payments", value: withDualCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
+      {label: t('metrics.discounts'), value: withDualCurrency(totalDiscounts)},
+      {label: t('metrics.coupons'), value: withDualCurrency(totalCoupons)},
+      {label: t('reports.voids'), value: withDualCurrency(totalVoids)},
     ];
   }, [
     dayPartTotals,
@@ -227,7 +227,7 @@ export const SalesSummaryReport = () => {
                   </th>
                   <td className="py-4 px-4 text-right text-sm text-neutral-700">{formatNumber(discount.quantity)}</td>
                   <td className="py-4 pr-6 text-right text-sm font-semibold text-neutral-900">
-                    {withCurrency(discount.amount)}
+                    {withDualCurrency(discount.amount)}
                   </td>
                 </tr>
               ))

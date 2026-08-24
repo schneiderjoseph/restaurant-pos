@@ -181,7 +181,8 @@
     "generatedAt": "تاريخ الإنشاء:",
     "previous": "السابق",
     "next": "التالي",
-    "pageOf": "صفحة {{current}} من {{total}}"
+    "pageOf": "صفحة {{current}} من {{total}}",
+    "dualCurrency": "المبالغ حسب {{rate}}"
   },
   "filters": {
     "selectRange": "اختر نطاقاً",

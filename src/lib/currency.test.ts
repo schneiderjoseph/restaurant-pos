@@ -11,6 +11,7 @@ import {
   convertPrimaryToPay,
   setUsdToHtgRate,
   shouldShowSecondaryCurrency,
+  getExchangeRateLabel,
 } from '@/lib/currency.ts';
 
 describe('currency', () => {
@@ -57,6 +58,15 @@ describe('currency', () => {
     expect(convertPrimaryToPay(10, 'HTG')).toBe(1320);
     expect(convertPayToPrimary(1320, 'HTG')).toBe(10);
     setUsdToHtgRate(null);
+    setAppCurrencyCode(null);
+  });
+
+  it('builds an exchange-rate label for reports', () => {
+    setAppCurrencyCode('USD');
+    setUsdToHtgRate(135);
+    expect(getExchangeRateLabel()).toBe('1 USD = 135 HTG');
+    setUsdToHtgRate(null);
+    expect(getExchangeRateLabel()).toBeNull();
     setAppCurrencyCode(null);
   });
 });

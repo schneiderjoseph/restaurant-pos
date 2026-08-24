@@ -7,7 +7,7 @@ import {Order, OrderStatus} from "@/api/model/order.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
 import {aggregateTopSellingDishes, fetchDashboardOrders, getOrderFigures} from "@/api/reports/sales";
 import {Tracking} from "@/api/model/tracking.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {ResponsivePie} from "@nivo/pie";
@@ -197,7 +197,7 @@ const SalesLineChart = ({
               legend: 'Revenue',
               legendOffset: -50,
               legendPosition: 'middle',
-              format: (value: any) => withCurrency(value).replace(/\.00$/, ''),
+              format: (value: any) => withDualCurrency(value).replace(/\.00$/, ''),
             }}
             enableGridX={false}
             enableGridY={true}
@@ -220,7 +220,7 @@ const SalesLineChart = ({
                   {DateTime.fromISO(point.data.x || '').toFormat('MMM dd, HH:mm')}
                 </p>
                 <p className="text-sm text-primary-500 font-semibold">
-                  {withCurrency(point.data.y || 0)}
+                  {withDualCurrency(point.data.y || 0)}
                 </p>
               </div>
             )}
@@ -427,7 +427,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
                     <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
                   </div>
                   <p className="text-sm text-neutral-600">
-                    {formatNumber(dayPartData?.orders || 0)} orders • {withCurrency(datum.value)}
+                    {formatNumber(dayPartData?.orders || 0)} orders • {withDualCurrency(datum.value)}
                   </p>
                 </div>
               );
@@ -497,7 +497,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
                   <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
                 </div>
                 <p className="text-sm text-neutral-600">
-                  {formatNumber(datum.value)} items • {withCurrency(datum.value)}
+                  {formatNumber(datum.value)} items • {withDualCurrency(datum.value)}
                 </p>
               </div>
             )}
@@ -591,7 +591,7 @@ const BreakdownTabsWidget = ({
                     <p className="text-xs text-neutral-500">
                       {countLabel}: {formatNumber(rows.find(row => row.name === datum.label)?.count || 0)}
                     </p>
-                    <p className="text-sm text-neutral-700">{withCurrency(datum.value)}</p>
+                    <p className="text-sm text-neutral-700">{withDualCurrency(datum.value)}</p>
                   </div>
                 )}
                 legends={[
@@ -632,7 +632,7 @@ const BreakdownTabsWidget = ({
                   <tr key={row.name}>
                     <td className="py-2 px-3 text-sm text-neutral-700">{row.name}</td>
                     <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(row.count)}</td>
-                    <td className="py-2 px-3 text-sm text-right font-semibold text-neutral-900">{withCurrency(row.amount)}</td>
+                    <td className="py-2 px-3 text-sm text-right font-semibold text-neutral-900">{withDualCurrency(row.amount)}</td>
                   </tr>
                 )) : (
                   <tr>
@@ -670,7 +670,7 @@ const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}
             }`}
           >
             <p className="text-sm text-neutral-600">{item.label}</p>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(item.amount)}</p>
+            <p className="text-sm font-semibold text-neutral-900">{withDualCurrency(item.amount)}</p>
           </div>
         ))}
       </div>
@@ -837,7 +837,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                         </p>
                       )}
                       <p className="text-xs text-gray-600">
-                        Total: <span className="font-bold text-primary-500">{withCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
+                        Total: <span className="font-bold text-primary-500">{withDualCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
                       </p>
                     </div>
                   </Popup>
@@ -888,7 +888,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                     {toLuxonDateTime(order.created_at).toFormat('HH:mm')}
                   </td>
                   <td className="py-3 pr-4 text-right text-sm font-semibold text-neutral-900">
-                    {withCurrency(getOrderPaymentTotals(order).amountCollected)}
+                    {withDualCurrency(getOrderPaymentTotals(order).amountCollected)}
                   </td>
                 </tr>
               )) : (
@@ -1189,7 +1189,7 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
                   {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT)}
                 </td>
                 <td className="py-3 pr-4 text-right text-sm font-semibold text-neutral-900">
-                  {withCurrency(getOrderPaymentTotals(order).amountCollected)}
+                  {withDualCurrency(getOrderPaymentTotals(order).amountCollected)}
                 </td>
               </tr>
             )) : (
@@ -1600,7 +1600,7 @@ export const SalesDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 p-5">
             <KPIMetricWidget
               title={t('labels.grossSale')}
-              value={withCurrency(kpis.grossSale)}
+              value={withDualCurrency(kpis.grossSale)}
               icon={DollarSign}
               gradientFrom="from-success-100"
               gradientTo="success-200"
@@ -1610,7 +1610,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title="Net Sale"
-              value={withCurrency(kpis.netSale)}
+              value={withDualCurrency(kpis.netSale)}
               icon={TrendingUp}
               gradientFrom="from-primary-100"
               gradientTo="primary-200"
@@ -1620,7 +1620,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title="Total Revenue"
-              value={withCurrency(kpis.totalRevenue)}
+              value={withDualCurrency(kpis.totalRevenue)}
               icon={ArrowLeftRight}
               gradientFrom="from-info-100"
               gradientTo="info-200"
@@ -1630,7 +1630,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title="Grand Total"
-              value={withCurrency(kpis.grandTotal)}
+              value={withDualCurrency(kpis.grandTotal)}
               icon={ShoppingCart}
               gradientFrom="from-primary-100"
               gradientTo="primary-200"
@@ -1640,7 +1640,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t('reports.tax')}
-              value={withCurrency(kpis.tax)}
+              value={withDualCurrency(kpis.tax)}
               icon={Hash}
               gradientFrom="from-info-100"
               gradientTo="info-200"
@@ -1650,7 +1650,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t('reports.discount')}
-              value={withCurrency(kpis.discount)}
+              value={withDualCurrency(kpis.discount)}
               icon={Tag}
               gradientFrom="from-warning-100"
               gradientTo="warning-200"
@@ -1660,7 +1660,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t('columns.void')}
-              value={withCurrency(kpis.void)}
+              value={withDualCurrency(kpis.void)}
               icon={Trash2}
               gradientFrom="from-danger-100"
               gradientTo="danger-200"
@@ -1670,7 +1670,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title="Service Charge"
-              value={withCurrency(kpis.serviceCharge)}
+              value={withDualCurrency(kpis.serviceCharge)}
               icon={ArrowLeftRight}
               gradientFrom="from-primary-100"
               gradientTo="primary-200"
@@ -1700,7 +1700,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title="Avg Order"
-              value={withCurrency(kpis.avgOrder)}
+              value={withDualCurrency(kpis.avgOrder)}
               icon={TrendingUp}
               gradientFrom="from-warning-100"
               gradientTo="warning-200"
@@ -1710,7 +1710,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title="Avg Cover"
-              value={withCurrency(kpis.avgCover)}
+              value={withDualCurrency(kpis.avgCover)}
               icon={DollarSign}
               gradientFrom="from-success-100"
               gradientTo="success-200"
@@ -1740,7 +1740,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t('reports.tips')}
-              value={withCurrency(kpis.tips)}
+              value={withDualCurrency(kpis.tips)}
               icon={DollarSign}
               gradientFrom="from-primary-100"
               gradientTo="primary-200"
@@ -1750,7 +1750,7 @@ export const SalesDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t('reports.coupon')}
-              value={withCurrency(kpis.coupon)}
+              value={withDualCurrency(kpis.coupon)}
               icon={Tag}
               gradientFrom="from-danger-100"
               gradientTo="danger-200"

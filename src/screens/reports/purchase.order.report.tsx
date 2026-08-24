@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchaseOrder} from "@/api/model/inventory_purchase_order.ts";
-import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, safeNumber, withDualCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildNestedRecordAnyCondition,
@@ -179,7 +179,7 @@ export const PurchaseOrderReport = () => {
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">{t('columns.total')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalAmount)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -253,8 +253,8 @@ export const PurchaseOrderReport = () => {
                           <td className="py-3 px-3 text-sm text-neutral-700">{supplierName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(amount)}</td>
                           <td className="py-3 pr-6 text-sm text-neutral-700">{createdByName}</td>
                         </tr>
                       );
@@ -271,7 +271,7 @@ export const PurchaseOrderReport = () => {
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalAmount)}
+                      {withDualCurrency(totals.totalAmount)}
                     </td>
                     <td></td>
                   </tr>

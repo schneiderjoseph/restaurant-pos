@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {
   fetchProductionLinesForReport,
@@ -153,7 +153,7 @@ export const ProductionReport = () => {
                   <td>{line.itemName}</td>
                   <td>{line.direction === "in" ? t("production.in") : t("production.out")}</td>
                   <td>{formatNumber(line.quantity)}</td>
-                  <td>{formatNumber(line.totalCost)}</td>
+                  <td>{withDualCurrency(line.totalCost)}</td>
                 </tr>
               ))}
             </tbody>

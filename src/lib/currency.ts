@@ -68,6 +68,14 @@ export function shouldShowSecondaryCurrency(): boolean {
   return primary === 'USD' || primary === 'HTG';
 }
 
+/** Label for report headers, e.g. "1 USD = 135 HTG". */
+export function getExchangeRateLabel(): string | null {
+  const rate = getUsdToHtgRate();
+  if (!rate || !shouldShowSecondaryCurrency()) return null;
+  const rounded = Number.isInteger(rate) ? String(rate) : rate.toFixed(2);
+  return `1 USD = ${rounded} HTG`;
+}
+
 /** Format amount in the secondary currency line (USD↔HTG using configured rate). */
 export function formatSecondaryCurrency(amount: string | number | undefined): string | null {
   const rate = getUsdToHtgRate();

@@ -181,7 +181,8 @@
     "generatedAt": "Сформировано:",
     "previous": "Назад",
     "next": "Далее",
-    "pageOf": "Страница {{current}} из {{total}}"
+    "pageOf": "Страница {{current}} из {{total}}",
+    "dualCurrency": "Суммы: {{rate}}"
   },
   "filters": {
     "selectRange": "Выберите период",

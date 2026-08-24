@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
-import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, safeNumber, toRecordId, withDualCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {APIProvider, Map as GoogleMap, useMap} from "@vis.gl/react-google-maps";
 import {MarkerClusterer, type Cluster, type ClusterStats, type Renderer} from "@googlemaps/markerclusterer";
@@ -392,9 +392,9 @@ export const DeliveryDensityReport = () => {
                       </td>
                     )}
                     {filters.showDetails && (
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(lineTotal)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(lineTotal)}</td>
                     )}
-                    <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(paidAmount)}</td>
+                    <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(paidAmount)}</td>
                   </tr>
                 );
               })}

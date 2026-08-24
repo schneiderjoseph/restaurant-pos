@@ -20,6 +20,10 @@ import {
 } from "@/api/model/print_options.ts";
 import { getAppTimezone } from "@/lib/datetime.ts";
 import { CURRENCY_SYMBOLS, getAppCurrency, getCurrencySymbol } from '@/lib/currency.ts';
+import {
+  applyRestaurantProfileToPrintConfig,
+  fetchRestaurantProfile,
+} from '@/lib/restaurant-profile.ts';
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -295,13 +299,14 @@ export async function dispatchPrint<Payload = any>(
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
 
   // eslint-disable-next-line prefer-const
-  let [config, settingsPrinters, showInclusivePrices, translateReceipts, printCopies, currencySymbolSettings] = await Promise.all([
+  let [config, settingsPrinters, showInclusivePrices, translateReceipts, printCopies, currencySymbolSettings, restaurantProfile] = await Promise.all([
     getPrintConfig(db, template),
     explicitPrinters ? Promise.resolve([]) : getPrintersForType(db, template, uid),
     fetchShowInclusivePricesEnabled(db).catch(() => false),
     fetchTranslateReceiptsEnabled(db).catch(() => false),
     fetchPrintCopiesSettings(db).catch(() => DEFAULT_PRINT_OPTIONS.copies),
     fetchCurrencySymbolSettings(db).catch(() => DEFAULT_CURRENCY_SYMBOL),
+    fetchRestaurantProfile(db).catch(() => null),
   ]);
 
   const printers = explicitPrinters || (settingsPrinters.length > 0 ? settingsPrinters : null);
@@ -324,6 +329,14 @@ export async function dispatchPrint<Payload = any>(
   const copies = options?.copies != null
     ? Math.max(1, Number(options.copies) || 1)
     : settingsCopies;
+
+  if (restaurantProfile) {
+    config = applyRestaurantProfileToPrintConfig(
+      config,
+      restaurantProfile.profile,
+      restaurantProfile.logoDataUrl
+    );
+  }
 
   const printConfig: Record<string, unknown> = {
     ...config,

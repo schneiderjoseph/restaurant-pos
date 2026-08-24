@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
@@ -298,13 +298,13 @@ export const ProductHourlyReport = () => {
                   {formatNumber(metrics.totalQuantity)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
-                  {withCurrency(metrics.totalSubtotal)}
+                  {withDualCurrency(metrics.totalSubtotal)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
-                  {withCurrency(metrics.totalTax)}
+                  {withDualCurrency(metrics.totalTax)}
                 </td>
                 <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                  {withCurrency(metrics.finalTotal)}
+                  {withDualCurrency(metrics.finalTotal)}
                 </td>
               </tr>
             ))}
@@ -337,13 +337,13 @@ export const ProductHourlyReport = () => {
                 {formatNumber(grandTotals.quantity)}
               </td>
               <td className="py-3 px-3 text-right text-sm text-neutral-900 border-r border-neutral-200">
-                {withCurrency(grandTotals.subtotal)}
+                {withDualCurrency(grandTotals.subtotal)}
               </td>
               <td className="py-3 px-3 text-right text-sm text-neutral-900 border-r border-neutral-200">
-                {withCurrency(grandTotals.tax)}
+                {withDualCurrency(grandTotals.tax)}
               </td>
               <td className="py-3 pr-6 text-right text-sm text-neutral-900">
-                {withCurrency(grandTotals.finalTotal)}
+                {withDualCurrency(grandTotals.finalTotal)}
               </td>
             </tr>
           </tfoot>

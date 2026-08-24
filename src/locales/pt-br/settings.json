@@ -133,6 +133,23 @@
     "usdToHtgRate": "Taxa USD → HTG",
     "usdToHtgRateHint": "Exibida como segunda linha sob os valores (ex.: 132 = $1 = G132)."
   },
+  "restaurantProfile": {
+    "title": "Restaurante",
+    "description": "Nome, endereço, telefone e logo usados em tickets e relatórios. Modelos de impressão ainda podem substituir o logo ou o cabeçalho.",
+    "name": "Nome do restaurante",
+    "address": "Endereço",
+    "phone": "Telefone",
+    "email": "E-mail",
+    "website": "Site",
+    "taxId": "CNPJ / NIF",
+    "logo": "Logo",
+    "logoHint": "Usado em recibos, tickets de cozinha e relatórios quando o tipo de impressão não tem logo próprio.",
+    "logoPreview": "Prévia do logo",
+    "removeLogo": "Remover logo",
+    "logoError": "Não foi possível carregar o arquivo do logo",
+    "updated": "Dados do restaurante atualizados",
+    "saveDescription": "Salvar dados do restaurante"
+  },
   "translateReceipts": {
     "title": "Traduzir recibos",
     "description": "Quando ativado, os rótulos do sistema nos recibos impressos (títulos, fatura, mesa, imposto, total, tickets de cozinha e resumo) usam o idioma selecionado neste dispositivo. O texto personalizado de cabeçalho e rodapé das configurações de impressão não é traduzido.",

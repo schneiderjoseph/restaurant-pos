@@ -181,7 +181,8 @@
     "generatedAt": "Gegenereerd op:",
     "previous": "Vorige",
     "next": "Volgende",
-    "pageOf": "Pagina {{current}} van {{total}}"
+    "pageOf": "Pagina {{current}} van {{total}}",
+    "dualCurrency": "Bedragen in {{rate}}"
   },
   "filters": {
     "selectRange": "Selecteer een bereik",

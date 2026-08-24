@@ -8,7 +8,7 @@ import {OrderDiscount} from "@/api/model/order_discount.ts";
 import {DiscountReason} from "@/api/model/discount_reason.ts";
 import {User} from "@/api/model/user.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {
   aggregateOrderDiscountBreakdown,
   getInvoiceNumber,
@@ -75,10 +75,10 @@ const formatValueType = (line: {
     return rate > 0 ? `${formatNumber(rate)}%` : "Percent";
   }
   if (valueType === "fixed_amount") {
-    return rate > 0 ? withCurrency(rate) : "Fixed amount";
+    return rate > 0 ? withDualCurrency(rate) : "Fixed amount";
   }
   if (valueType === "fixed_price") {
-    return rate > 0 ? withCurrency(rate) : "Fixed price";
+    return rate > 0 ? withDualCurrency(rate) : "Fixed price";
   }
   if (rate > 0) {
     return `${formatNumber(rate)}%`;
@@ -307,7 +307,7 @@ export const DiscountsReport = () => {
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t("labels.totalDiscount")}</div>
-            <div className="text-xl font-semibold">{withCurrency(totalDiscount)}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(totalDiscount)}</div>
           </div>
         </div>
 
@@ -340,7 +340,7 @@ export const DiscountsReport = () => {
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
                         <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withCurrency(item.total)}
+                          {withDualCurrency(item.total)}
                         </td>
                       </tr>
                     ))
@@ -378,7 +378,7 @@ export const DiscountsReport = () => {
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
                         <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withCurrency(item.total)}
+                          {withDualCurrency(item.total)}
                         </td>
                       </tr>
                     ))
@@ -429,7 +429,7 @@ export const DiscountsReport = () => {
                       <td className="py-3 px-3 text-sm text-neutral-700 capitalize">{row.scope}</td>
                       <td className="py-3 px-3 text-right text-sm text-neutral-700">{row.valueTypeLabel}</td>
                       <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
-                        {withCurrency(row.amount)}
+                        {withDualCurrency(row.amount)}
                       </td>
                       <td className="py-3 px-3 text-sm text-neutral-700 capitalize">{row.applicationType}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{row.reason}</td>
@@ -446,7 +446,7 @@ export const DiscountsReport = () => {
                       {t("columns.total")}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
-                      {withCurrency(totalDiscount)}
+                      {withDualCurrency(totalDiscount)}
                     </td>
                     <td colSpan={4} />
                   </tr>

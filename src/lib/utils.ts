@@ -2,7 +2,13 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {RecordId, StringRecordId} from "surrealdb";
 import { getShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
-import { getAppCurrency, getAppLocale, getQuickDenominations } from "@/lib/currency.ts";
+import {
+  formatSecondaryCurrency,
+  getAppCurrency,
+  getAppLocale,
+  getQuickDenominations,
+  shouldShowSecondaryCurrency,
+} from "@/lib/currency.ts";
 
 const DECIMAL_PLACES = import.meta.env.VITE_DECIMAL_PLACES;
 
@@ -55,6 +61,22 @@ export const withCurrency = (amount: string | number | undefined, decimalPlaces 
     currency,
     maximumFractionDigits: decimalPlaces,
   }).format(Number(amount));
+};
+
+/** Primary amount plus optional HTG/USD counterpart when an exchange rate is set. */
+export const withDualCurrency = (
+  amount: string | number | undefined,
+  decimalPlaces = DECIMAL_PLACES
+) => {
+  const primary = withCurrency(amount, decimalPlaces);
+  if (!shouldShowSecondaryCurrency()) {
+    return primary;
+  }
+  const secondary = formatSecondaryCurrency(amount);
+  if (!secondary) {
+    return primary;
+  }
+  return `${primary} (${secondary})`;
 };
 
 export const formatNumber = (amount: string | number, decimalPlaces = DECIMAL_PLACES) => {

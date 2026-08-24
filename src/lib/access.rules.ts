@@ -322,6 +322,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "settings.auto_clock_out",
       "settings.show_inclusive_prices",
       "settings.currency_symbol",
+      "settings.restaurant_profile",
       "settings.access_control",
       "settings.inventory",
       "settings.translate_receipts",
@@ -578,6 +579,7 @@ export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
   "Auto clock-out": "settings.auto_clock_out",
   "Show inclusive prices": "settings.show_inclusive_prices",
   "Currency symbol": "settings.currency_symbol",
+  "Restaurant profile": "settings.restaurant_profile",
   "Access control": "settings.access_control",
   "Inventory Settings": "settings.inventory",
   "Translate receipts": "settings.translate_receipts",
@@ -629,7 +631,10 @@ export const normalizeModules = (modules: string[] | undefined | null): string[]
   return [...next];
 };
 
-/** Candidates for DB `IN` checks during legacy→new transition. */
+/** Candidates for DB `IN` / includes checks during legacy→new transition.
+ * Parent group ids also match (e.g. `settings` grants `settings.restaurant_profile`),
+ * so roles saved before a new child module was added still work for admins with the group.
+ */
 export const moduleMatchCandidates = (module?: string): string[] => {
   if (!module) return [];
   const normalized = expandLegacyModule(module);
@@ -639,7 +644,23 @@ export const moduleMatchCandidates = (module?: string): string[] => {
       return targets.some((t) => normalized.includes(t) || t === module);
     })
     .map(([legacy]) => legacy);
-  return [...new Set([module, ...normalized, ...legacies])];
+
+  const parents: string[] = [];
+  for (const id of [module, ...normalized]) {
+    const parts = id.split('.');
+    for (let i = 1; i < parts.length; i++) {
+      parents.push(parts.slice(0, i).join('.'));
+    }
+  }
+
+  return [...new Set([module, ...normalized, ...legacies, ...parents])];
+};
+
+/** True if `userModules` grants `module` (exact, legacy alias, or parent group). */
+export const userModulesGrant = (userModules: string[] | undefined | null, module?: string): boolean => {
+  if (!module || !userModules?.length) return false;
+  const candidates = moduleMatchCandidates(module);
+  return candidates.some((candidate) => userModules.includes(candidate));
 };
 
 export const isKnownModuleId = (id: string): boolean => KNOWN_MODULE_IDS.has(id);

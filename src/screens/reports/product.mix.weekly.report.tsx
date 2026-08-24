@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {DateTime} from "luxon";
@@ -326,7 +326,7 @@ export const ProductMixWeeklyReport = () => {
                       {formatNumber(dayMetrics.quantity)}
                     </td>,
                     <td key={`${dateKey}-total`} className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
-                      {withCurrency(dayMetrics.total)}
+                      {withDualCurrency(dayMetrics.total)}
                     </td>
                   ];
                 })}
@@ -334,7 +334,7 @@ export const ProductMixWeeklyReport = () => {
                   {formatNumber(metrics.weeklyTotal.quantity)}
                 </td>
                 <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                  {withCurrency(metrics.weeklyTotal.total)}
+                  {withDualCurrency(metrics.weeklyTotal.total)}
                 </td>
               </tr>
             ))}

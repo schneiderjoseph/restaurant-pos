@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
-import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, safeNumber, toRecordId, withDualCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
@@ -418,7 +418,7 @@ export const SalesAdvancedReport = () => {
     if (paymentMap.size === 0) return '-';
 
     return Array.from(paymentMap.entries())
-      .map(([name, amount]) => `${name}: ${withCurrency(amount)}`)
+      .map(([name, amount]) => `${name}: ${withDualCurrency(amount)}`)
       .join(', ');
   };
 
@@ -525,49 +525,49 @@ export const SalesAdvancedReport = () => {
               <tr>
                 <td className="py-2 text-neutral-700">Sale Price w/o Tax</td>
                 <td
-                  className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.salePriceWithoutTax)}</td>
+                  className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.salePriceWithoutTax)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">Taxes</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.taxes)}</td>
+                <td className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.taxes)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">Service Charges</td>
                 <td
-                  className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.serviceCharges)}</td>
+                  className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.serviceCharges)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">{t('metrics.discounts')}</td>
-                <td className="py-2 text-right font-semibold text-red-600">{withCurrency(-totals.discounts)}</td>
+                <td className="py-2 text-right font-semibold text-red-600">{withDualCurrency(-totals.discounts)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">{t('metrics.coupons')}</td>
-                <td className="py-2 text-right font-semibold text-red-600">{withCurrency(-totals.coupons)}</td>
+                <td className="py-2 text-right font-semibold text-red-600">{withDualCurrency(-totals.coupons)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">{t('reports.voids')}</td>
-                <td className="py-2 text-right font-semibold text-red-600">{withCurrency(-totalVoids)}</td>
+                <td className="py-2 text-right font-semibold text-red-600">{withDualCurrency(-totalVoids)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">{t('reports.tips')}</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.tips)}</td>
+                <td className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.tips)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">{t('labels.amountDue')}</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.amountDue)}</td>
+                <td className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.amountDue)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">{t('labels.amountCollected')}</td>
                 <td
-                  className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.amountCollected)}</td>
+                  className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.amountCollected)}</td>
               </tr>
               <tr>
                 <td className="py-2 text-neutral-700">Rounding</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.rounding)}</td>
+                <td className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.rounding)}</td>
               </tr>
               <tr className="border-t-2 border-neutral-300">
                 <td className="py-2 font-semibold text-neutral-900">{t('metrics.net')}</td>
-                <td className="py-2 text-right font-bold text-neutral-900">{withCurrency(totals.net)}</td>
+                <td className="py-2 text-right font-bold text-neutral-900">{withDualCurrency(totals.net)}</td>
               </tr>
               </tbody>
             </table>
@@ -697,27 +697,27 @@ export const SalesAdvancedReport = () => {
                           <td
                             className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(orderTotals.covers)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.salePriceWithoutTax)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.salePriceWithoutTax)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.taxes)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.taxes)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.tips)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.tips)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.serviceCharges)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.serviceCharges)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.discounts)}</td>
+                            className="py-3 px-3 text-right text-sm text-danger-600">{withDualCurrency(-orderTotals.discounts)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.coupons)}</td>
+                            className="py-3 px-3 text-right text-sm text-danger-600">{withDualCurrency(-orderTotals.coupons)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountDue)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.amountDue)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountCollectedForDetail)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.amountCollectedForDetail)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.changeDue)}</td>
+                            className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(orderTotals.changeDue)}</td>
                           <td
                             className="py-3 px-3 text-sm text-neutral-700 whitespace-nowrap">{orderTotals.paymentBreakdown}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(orderTotals.net)}</td>
+                            className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(orderTotals.net)}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700 max-w-xs whitespace-pre-wrap break-words">
                             {notesText || '—'}
                           </td>
@@ -725,7 +725,7 @@ export const SalesAdvancedReport = () => {
                       )}
                       {!filters.showDetails && (
                         <td
-                          className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(orderTotals.net)}</td>
+                          className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(orderTotals.net)}</td>
                       )}
                     </tr>
                     {hasItems && isExpanded && (
@@ -760,11 +760,11 @@ export const SalesAdvancedReport = () => {
                                     </td>
                                     <td
                                       className="py-2 px-2 text-right text-neutral-700">{formatNumber(item.quantity)}</td>
-                                    <td className="py-2 px-2 text-right text-neutral-700">{withCurrency(itemPrice)}</td>
+                                    <td className="py-2 px-2 text-right text-neutral-700">{withDualCurrency(itemPrice)}</td>
                                     <td
-                                      className="py-2 px-2 text-right text-danger-600">{withCurrency(-itemDiscount)}</td>
+                                      className="py-2 px-2 text-right text-danger-600">{withDualCurrency(-itemDiscount)}</td>
                                     <td
-                                      className="py-2 pl-2 text-right font-semibold text-neutral-900">{withCurrency(itemTotal)}</td>
+                                      className="py-2 pl-2 text-right font-semibold text-neutral-900">{withDualCurrency(itemTotal)}</td>
                                   </tr>
                                 );
                               })}

@@ -1,7 +1,7 @@
 import {useMemo, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Order, OrderStatus} from '@/api/model/order.ts';
-import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {formatNumber, withDualCurrency} from '@/lib/utils.ts';
 import {aggregateOrderDiscountBreakdown, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
 import {calculateOrderItemPrice} from '@/lib/cart.ts';
 import {getOrdersTaxBreakdown} from '@/lib/tax-calculator.ts';
@@ -372,42 +372,42 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       >
         <Row
           label={t('report.rows.exclusiveSales')}
-          value={withCurrency(f.exclusiveSales)}
+          value={withDualCurrency(f.exclusiveSales)}
           hint={t('report.hints.exclusiveSales')}
         />
         <Row
           label={t('report.rows.extras')}
-          value={withCurrency(f.totalExtras)}
+          value={withDualCurrency(f.totalExtras)}
           hint={t('report.hints.extras')}
         />
         <Row
           label={t('report.rows.grossSales')}
-          value={withCurrency(f.grossSales)}
+          value={withDualCurrency(f.grossSales)}
           hint={t('report.hints.grossSales')}
         />
         <Row
           label={t('report.rows.itemDiscounts')}
-          value={withCurrency(f.itemDiscounts)}
+          value={withDualCurrency(f.itemDiscounts)}
           hint={t('report.hints.itemDiscounts')}
         />
         <Row
           label={t('report.rows.subtotalDiscounts')}
-          value={withCurrency(f.subtotalDiscounts)}
+          value={withDualCurrency(f.subtotalDiscounts)}
           hint={t('report.hints.subtotalDiscounts')}
         />
         <Row
           label={t('report.rows.couponDiscounts')}
-          value={withCurrency(f.couponDiscounts)}
+          value={withDualCurrency(f.couponDiscounts)}
           hint={t('report.hints.couponDiscounts')}
         />
         <Row
           label={t('report.rows.discounts')}
-          value={withCurrency(f.discounts)}
+          value={withDualCurrency(f.discounts)}
           hint={t('report.hints.discounts')}
         />
         <Row
           label={t('report.rows.netSales')}
-          value={withCurrency(f.netSales)}
+          value={withDualCurrency(f.netSales)}
           hint={t('report.hints.netSales')}
         />
       </Section>
@@ -418,18 +418,18 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       >
         <Row
           label={t('report.rows.serviceCharges')}
-          value={withCurrency(f.serviceCharges)}
+          value={withDualCurrency(f.serviceCharges)}
           hint={t('report.hints.serviceCharges')}
         />
         <Row
           label={t('report.rows.taxes')}
-          value={withCurrency(f.taxCollected)}
+          value={withDualCurrency(f.taxCollected)}
           hint={t('report.hints.taxes')}
         />
         <div className="border-b border-neutral-300 py-2">
           <div className="flex justify-between gap-3 text-sm font-bold">
             <span>{t('report.rows.totalRevenue')}</span>
-            <span className="tabular-nums">{withCurrency(f.totalRevenue)}</span>
+            <span className="tabular-nums">{withDualCurrency(f.totalRevenue)}</span>
           </div>
           <p className="mt-1 text-xs text-neutral-500">{t('report.hints.totalRevenue')}</p>
         </div>
@@ -438,45 +438,45 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       <Section title={t('report.sections.settlementCashier')} subtitle={t('report.subtitles.settlementCashier')}>
         <Row
           label={t('report.rows.amountDueBeforeTips')}
-          value={withCurrency(f.amountDue)}
+          value={withDualCurrency(f.amountDue)}
           hint={t('report.hints.amountDueBeforeTips')}
         />
         <Row
           label={t('report.rows.tips')}
-          value={withCurrency(f.tips)}
+          value={withDualCurrency(f.tips)}
           hint={t('report.hints.tips')}
         />
         <div className="border-b border-neutral-200 py-2">
           <div className="flex justify-between gap-3 text-sm font-bold">
             <span>{t('report.rows.grandTotalDue')}</span>
-            <span className="tabular-nums">{withCurrency(f.grandTotalDue)}</span>
+            <span className="tabular-nums">{withDualCurrency(f.grandTotalDue)}</span>
           </div>
           <p className="mt-1 text-xs text-neutral-500">{t('report.hints.grandTotalDue')}</p>
         </div>
         <Row
           label={t('report.rows.amountCollected')}
-          value={withCurrency(f.amountCollected)}
+          value={withDualCurrency(f.amountCollected)}
           hint={t('report.hints.amountCollected')}
         />
         <Row
           label={t('report.rows.rounding')}
-          value={withCurrency(f.rounding)}
+          value={withDualCurrency(f.rounding)}
           hint={t('report.hints.rounding')}
         />
         <Row
           label={t('report.rows.changeVariance')}
-          value={withCurrency(f.changeGiven)}
+          value={withDualCurrency(f.changeGiven)}
           hint={t('report.hints.changeVariance')}
         />
       </Section>
 
       <Section title={t('report.sections.operationalControls')} subtitle={t('report.subtitles.operationalControls')}>
-        <Row label={t('report.rows.voids')} value={withCurrency(f.voids)} hint={t('report.hints.voids')} />
-        <Row label={t('report.rows.refunds')} value={withCurrency(f.refunds)} hint={t('report.hints.refunds')} />
+        <Row label={t('report.rows.voids')} value={withDualCurrency(f.voids)} hint={t('report.hints.voids')} />
+        <Row label={t('report.rows.refunds')} value={withDualCurrency(f.refunds)} hint={t('report.hints.refunds')} />
         <Row label={t('report.rows.covers')} value={formatNumber(f.covers)} hint={t('report.hints.covers')} />
         <Row
           label={t('report.rows.averageCover')}
-          value={withCurrency(f.averageCover)}
+          value={withDualCurrency(f.averageCover)}
           hint={t('report.hints.averageCover')}
         />
         <Row
@@ -486,7 +486,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         />
         <Row
           label={t('report.rows.averageOrderCheck')}
-          value={withCurrency(f.averageOrderCheck)}
+          value={withDualCurrency(f.averageOrderCheck)}
           hint={t('report.hints.averageOrderCheck')}
         />
       </Section>
@@ -509,7 +509,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
                 <div className="flex">
                   <span className="w-1/2">{category.name}</span>
                   <span className="w-1/6 text-right tabular-nums">{formatNumber(category.quantity)}</span>
-                  <span className="w-1/6 text-right tabular-nums">{withCurrency(category.total)}</span>
+                  <span className="w-1/6 text-right tabular-nums">{withDualCurrency(category.total)}</span>
                   <span className="w-1/6 text-right tabular-nums">
                     {formatNumber(f.exclusiveSales > 0 ? (category.total / f.exclusiveSales) * 100 : 0)}%
                   </span>
@@ -537,7 +537,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
                       ))}
                     </div>
                     <span className="w-1/6 text-right tabular-nums">{formatNumber(dish.quantity)}</span>
-                    <span className="w-1/6 text-right tabular-nums">{withCurrency(dish.total)}</span>
+                    <span className="w-1/6 text-right tabular-nums">{withDualCurrency(dish.total)}</span>
                     <span className="w-1/6 text-right tabular-nums">
                       {formatNumber(f.exclusiveSales > 0 ? (dish.total / f.exclusiveSales) * 100 : 0)}%
                     </span>
@@ -557,7 +557,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={payment.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{payment.name}</span>
-                <span className="tabular-nums font-medium">{withCurrency(payment.total)}</span>
+                <span className="tabular-nums font-medium">{withDualCurrency(payment.total)}</span>
                 <span className="tabular-nums text-neutral-600">
                   {formatNumber(f.amountDue > 0 ? (payment.total / f.amountDue) * 100 : 0)}%
                 </span>
@@ -575,7 +575,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={tax.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{tax.name}</span>
-                <span className="tabular-nums font-medium">{withCurrency(tax.total)}</span>
+                <span className="tabular-nums font-medium">{withDualCurrency(tax.total)}</span>
                 <span className="tabular-nums text-neutral-600">
                   {formatNumber(f.taxCollected > 0 ? (tax.total / f.taxCollected) * 100 : 0)}%
                 </span>
@@ -593,7 +593,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={discount.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{discount.name}</span>
-                <span className="tabular-nums font-medium">{withCurrency(discount.total)}</span>
+                <span className="tabular-nums font-medium">{withDualCurrency(discount.total)}</span>
                 <span className="tabular-nums text-neutral-600">
                   {formatNumber(f.discounts > 0 ? (discount.total / f.discounts) * 100 : 0)}%
                 </span>
@@ -611,7 +611,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={extra.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{extra.name}</span>
-                <span className="tabular-nums font-medium">{withCurrency(extra.total)}</span>
+                <span className="tabular-nums font-medium">{withDualCurrency(extra.total)}</span>
                 <span className="tabular-nums text-neutral-600">
                   {formatNumber(f.totalExtras > 0 ? (extra.total / f.totalExtras) * 100 : 0)}%
                 </span>
@@ -629,7 +629,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={coupon.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{coupon.name}</span>
-                <span className="tabular-nums font-medium">{withCurrency(coupon.total)}</span>
+                <span className="tabular-nums font-medium">{withDualCurrency(coupon.total)}</span>
               </div>
             </div>
           ))

@@ -133,6 +133,23 @@
     "updated": "Paramètres de devise mis à jour",
     "saveDescription": "Enregistrer les paramètres de devise"
   },
+  "restaurantProfile": {
+    "title": "Restaurant",
+    "description": "Nom, adresse, téléphone et logo utilisés sur les tickets et les rapports. Les modèles d’impression peuvent encore remplacer le logo ou le texte d’en-tête.",
+    "name": "Nom du restaurant",
+    "address": "Adresse",
+    "phone": "Téléphone",
+    "email": "E-mail",
+    "website": "Site web",
+    "taxId": "NIF / TVA",
+    "logo": "Logo",
+    "logoHint": "Utilisé sur les reçus, tickets cuisine et rapports lorsqu’un type d’impression n’a pas son propre logo. Max. 10 Mo.",
+    "logoPreview": "Aperçu du logo",
+    "removeLogo": "Retirer le logo",
+    "logoError": "Impossible de charger le fichier logo",
+    "updated": "Informations du restaurant mises à jour",
+    "saveDescription": "Enregistrer les informations du restaurant"
+  },
   "translateReceipts": {
     "title": "Traduire les reçus",
     "description": "Lorsqu'il est activé, les libellés système des reçus imprimés (titres, facture, table, taxe, total, tickets cuisine et résumé) utilisent la langue sélectionnée sur cet appareil. Le texte d'en-tête et de pied personnalisé des paramètres d'impression n'est pas traduit.",

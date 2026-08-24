@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchaseReturn} from "@/api/model/inventory_purchase_return.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
@@ -183,7 +183,7 @@ export const PurchaseReturnReport = () => {
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Amount</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalAmount)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -254,8 +254,8 @@ export const PurchaseReturnReport = () => {
                           <td className="py-3 px-3 text-sm text-neutral-700">{locationName}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
                           <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(amount)}</td>
                           <td className="py-3 px-3 text-sm text-neutral-700">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-neutral-700">{item.comments || '-'}</td>
                         </tr>
@@ -273,7 +273,7 @@ export const PurchaseReturnReport = () => {
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalAmount)}
+                      {withDualCurrency(totals.totalAmount)}
                     </td>
                     <td colSpan={2}></td>
                   </tr>

@@ -133,6 +133,23 @@
     "usdToHtgRate": "USD → HTG döviz kuru",
     "usdToHtgRateHint": "Tutarların altında ikinci satır olarak gösterilir (örn. 132 = $1 = G132)."
   },
+  "restaurantProfile": {
+    "title": "Restoran",
+    "description": "Fiş ve raporlarda kullanılan ad, adres, telefon ve logo. Yazdırma şablonları logoyu veya başlığı yine geçersiz kılabilir.",
+    "name": "Restoran adı",
+    "address": "Adres",
+    "phone": "Telefon",
+    "email": "E-posta",
+    "website": "Web sitesi",
+    "taxId": "Vergi no / KDV",
+    "logo": "Logo",
+    "logoHint": "Yazdırma türünün kendi logosu yoksa fişlerde, mutfak fişlerinde ve raporlarda kullanılır.",
+    "logoPreview": "Logo önizleme",
+    "removeLogo": "Logoyu kaldır",
+    "logoError": "Logo dosyası yüklenemedi",
+    "updated": "Restoran bilgileri güncellendi",
+    "saveDescription": "Restoran bilgilerini kaydet"
+  },
   "translateReceipts": {
     "title": "Fişleri çevir",
     "description": "Etkinleştirildiğinde, yazdırılan fişlerdeki sistem etiketleri (fiş başlıkları, Fatura#, Masa, Vergi, Toplam, mutfak fişleri ve özet) bu cihazın seçili dilini kullanır. Yazdırma ayarlarındaki özel üst/alt bilgi metni çevrilmez.",

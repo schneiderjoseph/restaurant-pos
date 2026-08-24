@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES} from "@/api/model/order.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {calculateOrderNetSales} from "@/lib/order.ts";
 import {StringRecordId} from "surrealdb";
 
@@ -273,16 +273,16 @@ export const SaleVsConsumptionReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Sale Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.saleTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.consumptionTotal')}</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.consumptionTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(data.consumptionTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.consumptionProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {withCurrency(data.consumptionProfit)}
+                    {withDualCurrency(data.consumptionProfit)}
                   </td>
                 </tr>
                 <tr>
@@ -310,16 +310,16 @@ export const SaleVsConsumptionReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Sale Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.saleTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.issuanceTotal')}</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.issuanceTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(data.issuanceTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.issuanceProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {withCurrency(data.issuanceProfit)}
+                    {withDualCurrency(data.issuanceProfit)}
                   </td>
                 </tr>
                 <tr>
@@ -347,16 +347,16 @@ export const SaleVsConsumptionReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-white">
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Sale Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.saleTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">Purchase Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(data.purchaseTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(data.purchaseTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.purchaseProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {withCurrency(data.purchaseProfit)}
+                    {withDualCurrency(data.purchaseProfit)}
                   </td>
                 </tr>
                 <tr>

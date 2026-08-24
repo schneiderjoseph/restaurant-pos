@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {useShowInclusivePrices} from "@/hooks/useShowInclusivePrices.ts";
 import {
   getRecipeConsumptionSummary,
@@ -148,11 +148,11 @@ export const ConsumptionReport = () => {
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Sale Price</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalSalePrice)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalSalePrice)}</p>
           </div>
           <div className="bg-neutral-50 p-4 rounded-lg">
             <p className="text-sm text-neutral-600">Total Cost (Average)</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalCostAverage)}</p>
+            <p className="text-2xl font-bold text-neutral-900">{withDualCurrency(totals.totalCostAverage)}</p>
           </div>
         </div>
 
@@ -187,14 +187,14 @@ export const ConsumptionReport = () => {
                       <td className="py-3 px-3 text-sm text-neutral-700">{item.itemCode || "-"}</td>
                       <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.totalQuantity, 4)}</td>
                       <td className="py-3 px-3 text-sm text-neutral-700">{item.uom || "-"}</td>
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(item.totalSalePrice)}</td>
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(item.totalCostAverage)}</td>
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(item.totalCostCurrent)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(item.totalSalePrice)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(item.totalCostAverage)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(item.totalCostCurrent)}</td>
                       <td className={`py-3 px-3 text-right text-sm font-semibold ${item.differenceAverage >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                        {withCurrency(item.differenceAverage)}
+                        {withDualCurrency(item.differenceAverage)}
                       </td>
                       <td className={`py-3 pr-6 text-right text-sm font-semibold ${item.differenceCurrent >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                        {withCurrency(item.differenceCurrent)}
+                        {withDualCurrency(item.differenceCurrent)}
                       </td>
                     </tr>
                   ))
@@ -209,19 +209,19 @@ export const ConsumptionReport = () => {
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalSalePrice)}
+                      {withDualCurrency(totals.totalSalePrice)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalCostAverage)}
+                      {withDualCurrency(totals.totalCostAverage)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(totals.totalCostCurrent)}
+                      {withDualCurrency(totals.totalCostCurrent)}
                     </td>
                     <td className={`py-3 px-3 text-right text-sm font-bold ${totals.differenceAverage >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                      {withCurrency(totals.differenceAverage)}
+                      {withDualCurrency(totals.differenceAverage)}
                     </td>
                     <td className={`py-3 pr-6 text-right text-sm font-bold ${totals.differenceCurrent >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                      {withCurrency(totals.differenceCurrent)}
+                      {withDualCurrency(totals.differenceCurrent)}
                     </td>
                   </tr>
                 </tfoot>

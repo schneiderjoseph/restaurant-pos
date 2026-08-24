@@ -5,7 +5,7 @@ import {useDB} from '@/api/db/db.ts';
 import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getPayrollSummary} from '@/api/reports/labor';
 import type {PayrollSummaryResult} from '@/api/reports/labor/shared/types.ts';
-import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {formatNumber, withDualCurrency} from '@/lib/utils.ts';
 
 export const LaborPayrollSummaryReport = () => {
   const {t} = useTranslation('reports');
@@ -53,8 +53,8 @@ export const LaborPayrollSummaryReport = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white border rounded-lg p-4"><p className="text-sm text-neutral-500">Employees</p><p className="text-xl font-bold">{formatNumber(summary.employeeCount)}</p></div>
-            <div className="bg-white border rounded-lg p-4"><p className="text-sm text-neutral-500">Gross pay</p><p className="text-xl font-bold">{withCurrency(summary.totalGrossPay)}</p></div>
-            <div className="bg-white border rounded-lg p-4"><p className="text-sm text-neutral-500">Net pay</p><p className="text-xl font-bold">{withCurrency(summary.totalNetPay)}</p></div>
+            <div className="bg-white border rounded-lg p-4"><p className="text-sm text-neutral-500">Gross pay</p><p className="text-xl font-bold">{withDualCurrency(summary.totalGrossPay)}</p></div>
+            <div className="bg-white border rounded-lg p-4"><p className="text-sm text-neutral-500">Net pay</p><p className="text-xl font-bold">{withDualCurrency(summary.totalNetPay)}</p></div>
             <div className="bg-white border rounded-lg p-4"><p className="text-sm text-neutral-500">OT hours</p><p className="text-xl font-bold">{formatNumber(summary.totalOvertimeHours)}</p></div>
           </div>
           <div className="overflow-x-auto border rounded-lg">
@@ -77,9 +77,9 @@ export const LaborPayrollSummaryReport = () => {
                     <td className="px-4 py-2 text-sm text-neutral-800">{row.employeeName}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.regularHours)}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.overtimeHours)}</td>
-                    <td className="px-4 py-2 text-sm text-right">{withCurrency(row.grossPay)}</td>
-                    <td className="px-4 py-2 text-sm text-right">{withCurrency(row.deductions)}</td>
-                    <td className="px-4 py-2 text-sm text-right font-semibold">{withCurrency(row.netPay)}</td>
+                    <td className="px-4 py-2 text-sm text-right">{withDualCurrency(row.grossPay)}</td>
+                    <td className="px-4 py-2 text-sm text-right">{withDualCurrency(row.deductions)}</td>
+                    <td className="px-4 py-2 text-sm text-right font-semibold">{withDualCurrency(row.netPay)}</td>
                   </tr>
                 ))}
               </tbody>

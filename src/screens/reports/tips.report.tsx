@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from "@/screens/partials/reports.layout.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { withCurrency, toRecordId } from "@/lib/utils.ts";
+import { withDualCurrency, toRecordId } from "@/lib/utils.ts";
 
 const normalizeId = (value: any): string => {
   if (!value) return "";
@@ -127,7 +127,7 @@ export const TipsReport = () => {
       <div className="grid grid-cols-2 gap-4 mb-5">
         <div className="border rounded-lg p-4 bg-neutral-50">
           <div className="text-sm text-neutral-500">Total tips</div>
-          <div className="text-2xl font-semibold">{withCurrency(totalTips)}</div>
+          <div className="text-2xl font-semibold">{withDualCurrency(totalTips)}</div>
         </div>
         <div className="border rounded-lg p-4 bg-neutral-50">
           <div className="text-sm text-neutral-500">Saved distributions</div>
@@ -148,7 +148,7 @@ export const TipsReport = () => {
               tipsByUser.map((item) => (
                 <tr key={item.name}>
                   <td className="py-3 pl-6 pr-3 text-sm text-neutral-800">{item.name}</td>
-                  <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(item.amount)}</td>
+                  <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(item.amount)}</td>
                 </tr>
               ))
             ) : (

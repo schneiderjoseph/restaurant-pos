@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState, type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {DateTime} from "luxon";
 import {
@@ -504,7 +504,7 @@ export const InventoryDashboardReport = () => {
         location: p.location?.name || "-",
         createdBy: personName(p.created_by),
         items: p.items?.length || 0,
-        total: withCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
+        total: withDualCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
       };
     });
   }, [docs]);
@@ -517,7 +517,7 @@ export const InventoryDashboardReport = () => {
       location: pr.location?.name || "-",
       createdBy: personName(pr.created_by),
       items: pr.items?.length || 0,
-      total: withCurrency(
+      total: withDualCurrency(
         (pr.items ?? []).reduce(
           (sum: number, item: any) => sum + safeNumber(item.quantity) * safeNumber(item.price),
           0,
@@ -655,7 +655,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <KPIMetricWidget
               title={t("labels.totalPurchases")}
-              value={withCurrency(totals?.purchaseValue ?? 0)}
+              value={withDualCurrency(totals?.purchaseValue ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -663,7 +663,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.purchaseReturns")}
-              value={withCurrency(totals?.purchaseReturnValue ?? 0)}
+              value={withDualCurrency(totals?.purchaseReturnValue ?? 0)}
               gradientClass="from-info-100 to-info-200"
               borderColor="border-info-300"
               textColor="text-info-900"
@@ -671,7 +671,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.totalIssues")}
-              value={withCurrency(totals?.issueValue ?? 0)}
+              value={withDualCurrency(totals?.issueValue ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -727,7 +727,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.stockValue")}
-              value={withCurrency(stock?.totalStockValue ?? 0)}
+              value={withDualCurrency(stock?.totalStockValue ?? 0)}
               gradientClass="from-success-100 to-success-200"
               borderColor="border-success-300"
               textColor="text-success-900"
@@ -865,7 +865,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
             <KPIMetricWidget
               title={t("labels.todayNetSales")}
-              value={withCurrency(today?.netSales ?? 0)}
+              value={withDualCurrency(today?.netSales ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -897,7 +897,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayPurchases")}
-              value={withCurrency(today?.purchaseValue ?? 0)}
+              value={withDualCurrency(today?.purchaseValue ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -921,7 +921,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayConsumptionCost")}
-              value={withCurrency(today?.consumptionCost ?? 0)}
+              value={withDualCurrency(today?.consumptionCost ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -967,7 +967,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.projectedNeedCost")}
-              value={withCurrency(needed?.totalProjectedNeedCost ?? 0)}
+              value={withDualCurrency(needed?.totalProjectedNeedCost ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -975,7 +975,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.shortfallCost")}
-              value={withCurrency(needed?.totalShortfallCost ?? 0)}
+              value={withDualCurrency(needed?.totalShortfallCost ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -1156,7 +1156,7 @@ export const InventoryDashboardReport = () => {
                           <td className="py-3 pl-4 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
                           <td className="py-3 px-3 text-sm text-neutral-600 font-mono">{item.code}</td>
                           <td className="py-3 px-3 text-right text-sm font-semibold">{formatNumber(item.quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm">{withCurrency(item.value)}</td>
+                          <td className="py-3 px-3 text-right text-sm">{withDualCurrency(item.value)}</td>
                           <td className="py-3 px-3 text-sm text-neutral-600">{item.uom || "-"}</td>
                           <td className="py-3 pr-4 text-sm">
                             {item.belowReorder ? (

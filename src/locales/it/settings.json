@@ -133,6 +133,23 @@
     "usdToHtgRate": "Tasso USD → HTG",
     "usdToHtgRateHint": "Mostrato come seconda riga sotto gli importi (es. 132 = $1 = G132)."
   },
+  "restaurantProfile": {
+    "title": "Ristorante",
+    "description": "Nome, indirizzo, telefono e logo usati su scontrini e report. I modelli di stampa possono comunque sostituire logo o intestazione.",
+    "name": "Nome del ristorante",
+    "address": "Indirizzo",
+    "phone": "Telefono",
+    "email": "Email",
+    "website": "Sito web",
+    "taxId": "P. IVA",
+    "logo": "Logo",
+    "logoHint": "Usato su ricevute, ticket cucina e report quando il tipo di stampa non ha un logo proprio.",
+    "logoPreview": "Anteprima logo",
+    "removeLogo": "Rimuovi logo",
+    "logoError": "Impossibile caricare il file del logo",
+    "updated": "Dati ristorante aggiornati",
+    "saveDescription": "Salva dati ristorante"
+  },
   "translateReceipts": {
     "title": "Traduci ricevute",
     "description": "Se abilitato, le etichette di sistema sulle ricevute stampate (titoli, fattura, tavolo, tassa, totale, ticket cucina e riepilogo) usano la lingua selezionata su questo dispositivo. Il testo personalizzato di intestazione e piè di pagina delle impostazioni di stampa non viene tradotto.",

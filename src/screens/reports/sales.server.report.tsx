@@ -7,7 +7,7 @@ import {Order} from "@/api/model/order.ts";
 import {getOrderTaxAmount, getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
@@ -523,14 +523,14 @@ export const SalesServerReport = () => {
                       return (
                         <tr key={row.id}>
                           <td>{row.name}</td>
-                          <td className="text-right">{withCurrency(row.amountDue)}</td>
-                          <td className="text-right">{withCurrency(row.netSales)}</td>
-                          <td className="text-right">{withCurrency(row.discounts)}</td>
-                          <td className="text-right">{withCurrency(row.coupons)}</td>
-                          <td className="text-right">{withCurrency(row.taxes)}</td>
-                          <td className="text-right">{withCurrency(row.grossSale)}</td>
-                          <td className="text-right">{withCurrency(avgCheck)}</td>
-                          <td className="text-right">{withCurrency(avgGuest)}</td>
+                          <td className="text-right">{withDualCurrency(row.amountDue)}</td>
+                          <td className="text-right">{withDualCurrency(row.netSales)}</td>
+                          <td className="text-right">{withDualCurrency(row.discounts)}</td>
+                          <td className="text-right">{withDualCurrency(row.coupons)}</td>
+                          <td className="text-right">{withDualCurrency(row.taxes)}</td>
+                          <td className="text-right">{withDualCurrency(row.grossSale)}</td>
+                          <td className="text-right">{withDualCurrency(avgCheck)}</td>
+                          <td className="text-right">{withDualCurrency(avgGuest)}</td>
                         </tr>
                       );
                     })}
@@ -545,17 +545,17 @@ export const SalesServerReport = () => {
                   <tfoot>
                     <tr className="font-semibold">
                       <td>{t('columns.total')}</td>
-                      <td className="text-right">{withCurrency(categoryTotals.amountDue)}</td>
-                      <td className="text-right">{withCurrency(categoryTotals.netSales)}</td>
-                      <td className="text-right">{withCurrency(categoryTotals.discounts)}</td>
-                      <td className="text-right">{withCurrency(categoryTotals.coupons)}</td>
-                      <td className="text-right">{withCurrency(categoryTotals.taxes)}</td>
-                      <td className="text-right">{withCurrency(categoryTotals.grossSale)}</td>
+                      <td className="text-right">{withDualCurrency(categoryTotals.amountDue)}</td>
+                      <td className="text-right">{withDualCurrency(categoryTotals.netSales)}</td>
+                      <td className="text-right">{withDualCurrency(categoryTotals.discounts)}</td>
+                      <td className="text-right">{withDualCurrency(categoryTotals.coupons)}</td>
+                      <td className="text-right">{withDualCurrency(categoryTotals.taxes)}</td>
+                      <td className="text-right">{withDualCurrency(categoryTotals.grossSale)}</td>
                       <td className="text-right">
-                        {withCurrency(categoryTotals.checks > 0 ? categoryTotals.netSales / categoryTotals.checks : 0)}
+                        {withDualCurrency(categoryTotals.checks > 0 ? categoryTotals.netSales / categoryTotals.checks : 0)}
                       </td>
                       <td className="text-right">
-                        {withCurrency(categoryTotals.guests > 0 ? categoryTotals.netSales / categoryTotals.guests : 0)}
+                        {withDualCurrency(categoryTotals.guests > 0 ? categoryTotals.netSales / categoryTotals.guests : 0)}
                       </td>
                     </tr>
                   </tfoot>
@@ -583,26 +583,26 @@ export const SalesServerReport = () => {
                           <div>{row.label}</div>
                           <div className="text-xs text-gray-500">{getDayPartTimeRangeLabel(row.label)}</div>
                         </td>
-                        <td className="text-right">{withCurrency(row.netSales)}</td>
+                        <td className="text-right">{withDualCurrency(row.netSales)}</td>
                         <td className="text-right">{formatNumber(row.guests)}</td>
                         <td className="text-right">{formatNumber(row.checks)}</td>
-                        <td className="text-right">{withCurrency(row.taxes)}</td>
-                        <td className="text-right">{withCurrency(row.payments)}</td>
-                        <td className="text-right">{withCurrency(row.serviceCharges)}</td>
-                        <td className="text-right">{withCurrency(row.coupons)}</td>
+                        <td className="text-right">{withDualCurrency(row.taxes)}</td>
+                        <td className="text-right">{withDualCurrency(row.payments)}</td>
+                        <td className="text-right">{withDualCurrency(row.serviceCharges)}</td>
+                        <td className="text-right">{withDualCurrency(row.coupons)}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="font-semibold">
                       <td>{t('columns.total')}</td>
-                      <td className="text-right">{withCurrency(dayPartTotals.netSales)}</td>
+                      <td className="text-right">{withDualCurrency(dayPartTotals.netSales)}</td>
                       <td className="text-right">{formatNumber(dayPartTotals.guests)}</td>
                       <td className="text-right">{formatNumber(dayPartTotals.checks)}</td>
-                      <td className="text-right">{withCurrency(dayPartTotals.taxes)}</td>
-                      <td className="text-right">{withCurrency(dayPartTotals.payments)}</td>
-                      <td className="text-right">{withCurrency(dayPartTotals.serviceCharges)}</td>
-                      <td className="text-right">{withCurrency(dayPartTotals.coupons)}</td>
+                      <td className="text-right">{withDualCurrency(dayPartTotals.taxes)}</td>
+                      <td className="text-right">{withDualCurrency(dayPartTotals.payments)}</td>
+                      <td className="text-right">{withDualCurrency(dayPartTotals.serviceCharges)}</td>
+                      <td className="text-right">{withDualCurrency(dayPartTotals.coupons)}</td>
                     </tr>
                   </tfoot>
                 </table>

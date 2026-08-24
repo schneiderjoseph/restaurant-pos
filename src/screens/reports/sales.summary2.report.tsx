@@ -8,7 +8,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {aggregateOrderDiscountBreakdown, getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
@@ -795,121 +795,121 @@ export const SalesSummary2Report = () => {
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Sale price w/o tax</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.salePriceWithoutTax)}
+                      {withDualCurrency(financialMetrics.salePriceWithoutTax)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Tax collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.taxCollected)}
+                      {withDualCurrency(financialMetrics.taxCollected)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Service charges</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.serviceCharges)}
+                      {withDualCurrency(financialMetrics.serviceCharges)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Tips</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.tips)}
+                      {withDualCurrency(financialMetrics.tips)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">- Item discount</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
-                      {withCurrency(-financialMetrics.itemDiscounts)}
+                      {withDualCurrency(-financialMetrics.itemDiscounts)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">- Subtotal discount</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
-                      {withCurrency(-financialMetrics.subtotalDiscounts)}
+                      {withDualCurrency(-financialMetrics.subtotalDiscounts)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">- Coupon discount</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
-                      {withCurrency(-financialMetrics.couponDiscounts)}
+                      {withDualCurrency(-financialMetrics.couponDiscounts)}
                     </td>
                   </tr>
                   <tr className="border-t border-neutral-300">
                     <td className="py-1.5 font-semibold text-neutral-900">= Amount due</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
-                      {withCurrency(financialMetrics.amountDue)}
+                      {withDualCurrency(financialMetrics.amountDue)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Amount collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.amountCollected)}
+                      {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">- Amount due</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
-                      {withCurrency(-financialMetrics.amountDue)}
+                      {withDualCurrency(-financialMetrics.amountDue)}
                     </td>
                   </tr>
                   <tr className="border-t border-neutral-300">
                     <td className="py-1.5 font-semibold text-neutral-900">= Rounding</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
-                      {withCurrency(financialMetrics.rounding)}
+                      {withDualCurrency(financialMetrics.rounding)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Amount collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.amountCollected)}
+                      {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">- Service charges</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
-                      {withCurrency(-financialMetrics.serviceCharges)}
+                      {withDualCurrency(-financialMetrics.serviceCharges)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">- Tax collected</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
-                      {withCurrency(-financialMetrics.taxCollected)}
+                      {withDualCurrency(-financialMetrics.taxCollected)}
                     </td>
                   </tr>
                   <tr className="border-t border-neutral-300">
                     <td className="py-1.5 font-semibold text-neutral-900">= Net</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
-                      {withCurrency(financialMetrics.net)}
+                      {withDualCurrency(financialMetrics.net)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">Amount collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.amountCollected)}
+                      {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Refunds</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.refunds)}
+                      {withDualCurrency(financialMetrics.refunds)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Discounts</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.itemDiscounts + financialMetrics.subtotalDiscounts)}
+                      {withDualCurrency(financialMetrics.itemDiscounts + financialMetrics.subtotalDiscounts)}
                     </td>
                   </tr>
                   <tr>
                     <td className="py-1.5 text-neutral-700">+ Coupons</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(financialMetrics.couponDiscounts)}
+                      {withDualCurrency(financialMetrics.couponDiscounts)}
                     </td>
                   </tr>
                   <tr className="border-t-2 border-neutral-300">
                     <td className="py-1.5 font-semibold text-neutral-900">= Gross</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
-                      {withCurrency(financialMetrics.gross)}
+                      {withDualCurrency(financialMetrics.gross)}
                     </td>
                   </tr>
                 </tbody>
@@ -924,7 +924,7 @@ export const SalesSummary2Report = () => {
                   <tr>
                     <td className="py-1.5 text-neutral-700">Refunds</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
-                      {withCurrency(deletionMetrics.refunds)}
+                      {withDualCurrency(deletionMetrics.refunds)}
                     </td>
                   </tr>
                   <tr>
@@ -937,14 +937,14 @@ export const SalesSummary2Report = () => {
                     <tr key={reason}>
                       <td className="py-1.5 text-neutral-700">{reason}</td>
                       <td className="py-1.5 text-right text-neutral-700">
-                        {formatNumber(data.count)} - {withCurrency(data.amount)}
+                        {formatNumber(data.count)} - {withDualCurrency(data.amount)}
                       </td>
                     </tr>
                   ))}
                   <tr className="border-t-2 border-neutral-300">
                     <td className="py-1.5 font-semibold text-neutral-900">Total deletion</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
-                      {withCurrency(deletionMetrics.totalDeletion)}
+                      {withDualCurrency(deletionMetrics.totalDeletion)}
                     </td>
                   </tr>
                 </tbody>
@@ -1019,7 +1019,7 @@ export const SalesSummary2Report = () => {
                             </td>
                             <td className="py-1 text-right text-neutral-700">{formatNumber(discount.quantity)}</td>
                             <td className="py-1 text-right font-semibold text-neutral-900">
-                              {withCurrency(discount.total)}
+                              {withDualCurrency(discount.total)}
                             </td>
                           </tr>
                         ))}
@@ -1037,7 +1037,7 @@ export const SalesSummary2Report = () => {
                             <td className="py-1 text-neutral-700">{coupon.name}</td>
                             <td className="py-1 text-right text-neutral-700">{formatNumber(coupon.quantity)}</td>
                             <td className="py-1 text-right font-semibold text-neutral-900">
-                              {withCurrency(coupon.total)}
+                              {withDualCurrency(coupon.total)}
                             </td>
                           </tr>
                         ))}
@@ -1053,7 +1053,7 @@ export const SalesSummary2Report = () => {
                         {Object.entries(discountTypesBreakdown.serviceChargesBreakdown).map(([type, amount]) => (
                           <tr key={type}>
                             <td className="py-1 text-neutral-700">{type}</td>
-                            <td className="py-1 text-right font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                            <td className="py-1 text-right font-semibold text-neutral-900">{withDualCurrency(amount)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1068,7 +1068,7 @@ export const SalesSummary2Report = () => {
                         {Object.entries(discountTypesBreakdown.taxesBreakdown).map(([type, amount]) => (
                           <tr key={type}>
                             <td className="py-1 text-neutral-700">{type}</td>
-                            <td className="py-1 text-right font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                            <td className="py-1 text-right font-semibold text-neutral-900">{withDualCurrency(amount)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1090,7 +1090,7 @@ export const SalesSummary2Report = () => {
                             </td>
                             <td className="py-1 text-right text-neutral-700">{formatNumber(tipRow.quantity)}</td>
                             <td className="py-1 text-right font-semibold text-neutral-900">
-                              {withCurrency(tipRow.total)}
+                              {withDualCurrency(tipRow.total)}
                             </td>
                           </tr>
                         ))}
@@ -1106,7 +1106,7 @@ export const SalesSummary2Report = () => {
                         {Object.entries(discountTypesBreakdown.extrasBreakdown).map(([name, amount]) => (
                           <tr key={name}>
                             <td className="py-1 text-neutral-700">{name}</td>
-                            <td className="py-1 text-right font-semibold text-neutral-900">{withCurrency(amount)}</td>
+                            <td className="py-1 text-right font-semibold text-neutral-900">{withDualCurrency(amount)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1147,28 +1147,28 @@ export const SalesSummary2Report = () => {
                   <tr key={metrics.name}>
                     <td className="py-3 pl-6 pr-3 font-medium text-neutral-900">{metrics.name}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.salePriceWithoutTax)}
+                      {withDualCurrency(metrics.salePriceWithoutTax)}
                     </td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.taxes)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.amountDue)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.taxes)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.amountDue)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.serviceCharges)}
+                      {withDualCurrency(metrics.serviceCharges)}
                     </td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.tips)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.discounts)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.coupons)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.tips)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.discounts)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.coupons)}</td>
                     <td className="py-3 px-3 text-right font-semibold text-neutral-900">
-                      {withCurrency(metrics.net)}
+                      {withDualCurrency(metrics.net)}
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">
                       {formatNumber(metrics.percentOfTotal)}%
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.guests)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.avgGuest)}
+                      {withDualCurrency(metrics.avgGuest)}
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.checks)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.avgCheck)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.avgCheck)}</td>
                     <td className="py-3 pr-6 text-right text-neutral-700">{formatTurnTime(metrics.turnTime)}</td>
                   </tr>
                 ))}
@@ -1218,28 +1218,28 @@ export const SalesSummary2Report = () => {
                       </div>
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.salePriceWithoutTax)}
+                      {withDualCurrency(metrics.salePriceWithoutTax)}
                     </td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.taxes)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.amountDue)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.taxes)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.amountDue)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.serviceCharges)}
+                      {withDualCurrency(metrics.serviceCharges)}
                     </td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.tips)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.discounts)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.coupons)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.tips)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.discounts)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.coupons)}</td>
                     <td className="py-3 px-3 text-right font-semibold text-neutral-900">
-                      {withCurrency(metrics.net)}
+                      {withDualCurrency(metrics.net)}
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">
                       {formatNumber(metrics.percentOfTotal)}%
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.guests)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.avgGuest)}
+                      {withDualCurrency(metrics.avgGuest)}
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.checks)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.avgCheck)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.avgCheck)}</td>
                     <td className="py-3 pr-6 text-right text-neutral-700">{formatTurnTime(metrics.turnTime)}</td>
                   </tr>
                 ))}
@@ -1277,28 +1277,28 @@ export const SalesSummary2Report = () => {
                   <tr key={metrics.id}>
                     <td className="py-3 pl-6 pr-3 font-medium text-neutral-900">{metrics.name}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.salePriceWithoutTax)}
+                      {withDualCurrency(metrics.salePriceWithoutTax)}
                     </td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.taxes)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.amountDue)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.taxes)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.amountDue)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.serviceCharges)}
+                      {withDualCurrency(metrics.serviceCharges)}
                     </td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.tips)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.discounts)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.coupons)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.tips)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.discounts)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.coupons)}</td>
                     <td className="py-3 px-3 text-right font-semibold text-neutral-900">
-                      {withCurrency(metrics.net)}
+                      {withDualCurrency(metrics.net)}
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">
                       {formatNumber(metrics.percentOfTotal)}%
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.guests)}</td>
                     <td className="py-3 px-3 text-right text-neutral-700">
-                      {withCurrency(metrics.avgGuest)}
+                      {withDualCurrency(metrics.avgGuest)}
                     </td>
                     <td className="py-3 px-3 text-right text-neutral-700">{formatNumber(metrics.checks)}</td>
-                    <td className="py-3 px-3 text-right text-neutral-700">{withCurrency(metrics.avgCheck)}</td>
+                    <td className="py-3 px-3 text-right text-neutral-700">{withDualCurrency(metrics.avgCheck)}</td>
                     <td className="py-3 pr-6 text-right text-neutral-700">{formatTurnTime(metrics.turnTime)}</td>
                   </tr>
                 ))}
@@ -1381,7 +1381,7 @@ export const SalesSummary2Report = () => {
                             <span className="truncate">{category.name}</span>
                           </span>
                           <span className="w-1/6 text-right tabular-nums">{formatNumber(category.quantity)}</span>
-                          <span className="w-1/6 text-right tabular-nums">{withCurrency(category.total)}</span>
+                          <span className="w-1/6 text-right tabular-nums">{withDualCurrency(category.total)}</span>
                           <span className="w-1/6 text-right tabular-nums">{formatNumber(categoryShare)}%</span>
                         </button>
                         {isExpanded &&
@@ -1407,7 +1407,7 @@ export const SalesSummary2Report = () => {
                                   ))}
                                 </div>
                                 <span className="w-1/6 text-right tabular-nums">{formatNumber(dish.quantity)}</span>
-                                <span className="w-1/6 text-right tabular-nums">{withCurrency(dish.total)}</span>
+                                <span className="w-1/6 text-right tabular-nums">{withDualCurrency(dish.total)}</span>
                                 <span className="w-1/6 text-right tabular-nums">
                                   {formatNumber(
                                     financialMetrics.salePriceWithoutTax > 0
@@ -1452,7 +1452,7 @@ export const SalesSummary2Report = () => {
                           {formatNumber(userDiscount.quantity)}
                         </td>
                         <td className="py-1.5 text-right font-semibold text-neutral-900">
-                          {withCurrency(userDiscount.total)}
+                          {withDualCurrency(userDiscount.total)}
                         </td>
                       </tr>
                     ))}
@@ -1483,7 +1483,7 @@ export const SalesSummary2Report = () => {
                           {formatNumber(paymentType.quantity)}
                         </td>
                         <td className="py-1.5 text-right font-semibold text-neutral-900">
-                          {withCurrency(paymentType.total)}
+                          {withDualCurrency(paymentType.total)}
                         </td>
                       </tr>
                     ))}

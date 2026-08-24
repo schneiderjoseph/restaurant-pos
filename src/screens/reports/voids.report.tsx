@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   getOrderItemDisplayLineTotal,
@@ -314,7 +314,7 @@ export const VoidsReport = () => {
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
                         <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withCurrency(item.amount)}
+                          {withDualCurrency(item.amount)}
                         </td>
                       </tr>
                     ))
@@ -351,7 +351,7 @@ export const VoidsReport = () => {
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
                         <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withCurrency(item.amount)}
+                          {withDualCurrency(item.amount)}
                         </td>
                       </tr>
                     ))
@@ -388,7 +388,7 @@ export const VoidsReport = () => {
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
                         <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withCurrency(item.amount)}
+                          {withDualCurrency(item.amount)}
                         </td>
                       </tr>
                     ))
@@ -469,7 +469,7 @@ export const VoidsReport = () => {
                                             <span className="font-medium text-neutral-800">{modifier.name}</span>
                                             <span className="inline-flex items-center gap-2 text-neutral-600">
                                               <span className="rounded bg-neutral-100 px-1.5 py-0.5">Qty {formatNumber(modifier.quantity)}</span>
-                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">{withCurrency(modifier.price)}</span>
+                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">{withDualCurrency(modifier.price)}</span>
                                             </span>
                                           </div>
                                         ))}
@@ -484,7 +484,7 @@ export const VoidsReport = () => {
                           </div>
                         </td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(voidItem.quantity)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(lineTotal)}</td>
+                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(lineTotal)}</td>
                         <td className="py-3 px-3 text-sm text-neutral-700">{managerName}</td>
                         <td className="py-3 px-3 text-sm text-neutral-700">{cashierName}</td>
                         <td className="py-3 px-3 text-right text-sm text-neutral-700">{orderNumber}</td>
@@ -502,7 +502,7 @@ export const VoidsReport = () => {
                       {formatNumber(orderVoids.reduce((sum, v) => sum + safeNumber(v.quantity), 0))}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withCurrency(orderVoids.reduce((sum, v) => sum + getVoidItems(v).reduce((lineSum, item) => lineSum + getVoidLineAmount(v, item), 0), 0))}
+                      {withDualCurrency(orderVoids.reduce((sum, v) => sum + getVoidItems(v).reduce((lineSum, item) => lineSum + getVoidLineAmount(v, item), 0), 0))}
                     </td>
                     <td colSpan={4}></td>
                   </tr>

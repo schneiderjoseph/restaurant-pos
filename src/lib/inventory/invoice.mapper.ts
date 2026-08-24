@@ -14,6 +14,7 @@ import {
 } from "@/lib/inventory/line.cost.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {safeNumber, withCurrency} from "@/lib/utils.ts";
+import {getCachedRestaurantProfile} from "@/lib/restaurant-profile.ts";
 
 export type InventoryInvoiceMeta = {
   label: string;
@@ -67,10 +68,15 @@ const formatDate = (value?: unknown) => {
   }
 };
 
-const restaurantDefaults = () => ({
-  restaurantName: import.meta.env.VITE_RESTAURANT_NAME as string | undefined,
-  restaurantAddress: import.meta.env.VITE_RESTAURANT_ADDRESS as string | undefined,
-});
+const restaurantDefaults = () => {
+  const profile = getCachedRestaurantProfile();
+  return {
+    restaurantName:
+      profile.name || (import.meta.env.VITE_RESTAURANT_NAME as string | undefined),
+    restaurantAddress:
+      profile.address || (import.meta.env.VITE_RESTAURANT_ADDRESS as string | undefined),
+  };
+};
 
 const moneyTotal = (lines: InventoryInvoiceLine[]) =>
   lines.reduce((sum, line) => sum + safeNumber(line.total), 0);

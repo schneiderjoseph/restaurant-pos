@@ -133,6 +133,23 @@
     "updated": "Currency settings updated",
     "saveDescription": "Save currency settings"
   },
+  "restaurantProfile": {
+    "title": "Restaurant",
+    "description": "Name, address, phone, and logo used on tickets and reports. Print templates can still override the logo or header text.",
+    "name": "Restaurant name",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "website": "Website",
+    "taxId": "Tax ID / VAT",
+    "logo": "Logo",
+    "logoHint": "Used on receipts, kitchen tickets, and reports when a print type has no logo of its own. Max 10 MB.",
+    "logoPreview": "Logo preview",
+    "removeLogo": "Remove logo",
+    "logoError": "Could not load the logo file",
+    "updated": "Restaurant details updated",
+    "saveDescription": "Save restaurant details"
+  },
   "translateReceipts": {
     "title": "Translate receipts",
     "description": "When enabled, system labels on printed receipts (bill titles, Invoice#, Table, Tax, Total, kitchen tickets, and summary) use this device's selected language. Custom header and footer text from print settings is not translated.",

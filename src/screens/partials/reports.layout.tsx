@@ -17,6 +17,9 @@ import {
 import * as XLSX from "xlsx";
 import { DateTime } from "luxon";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
+import { useCurrencyDisplay } from "@/hooks/useCurrencyDisplay.ts";
+import { getExchangeRateLabel } from "@/lib/currency.ts";
+import { useRestaurantProfile } from "@/hooks/useRestaurantProfile.ts";
 
 export interface ReportsLayoutProps {
   /** Report title */
@@ -54,8 +57,8 @@ export interface ReportsLayoutProps {
 export const ReportsLayout = ({
   title,
   subtitle,
-  restaurantName = import.meta.env.VITE_RESTAURANT_NAME,
-  restaurantAddress = import.meta.env.VITE_RESTAURANT_ADDRESS,
+  restaurantName,
+  restaurantAddress,
   children,
   pagination,
   customActions,
@@ -68,6 +71,13 @@ export const ReportsLayout = ({
 }: ReportsLayoutProps) => {
   const { t } = useTranslation('reports');
   const { t: tNav } = useTranslation('navigation');
+  useCurrencyDisplay();
+  const { profile, logoDataUrl } = useRestaurantProfile();
+  const displayName = restaurantName ?? profile.name;
+  const displayAddress = restaurantAddress ?? profile.address;
+  const displayPhone = profile.phone;
+  const displayEmail = profile.email;
+  const exchangeRateLabel = getExchangeRateLabel();
   const reportRef = useRef<HTMLDivElement>(null);
   const [generatedAt] = useState(DateTime.now().toFormat(import.meta.env.VITE_DATE_TIME_FORMAT));
 
@@ -116,7 +126,8 @@ export const ReportsLayout = ({
     if (onExportPdf) {
       onExportPdf();
     } else {
-      await exportElementAsPdf(reportRef.current, "report.pdf");
+      const file = `${title || 'report'}.pdf`;
+      await exportElementAsPdf(reportRef.current, file);
     }
   };
 
@@ -192,18 +203,37 @@ export const ReportsLayout = ({
         <div className="max-w-full">
           {/* Header Section */}
           <div className="bg-white shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center">
+            {logoDataUrl && (
+              <img
+                src={logoDataUrl}
+                alt=""
+                className="mx-auto mb-2 max-h-16 max-w-[220px] object-contain"
+              />
+            )}
             <h1 className="text-3xl font-bold mb-1">{title}</h1>
             {subtitle && (
               <p className="text-lg text-gray-600 mb-1">{subtitle}</p>
             )}
             <div className="space-y-[3px] text-sm text-gray-700">
-              {restaurantName && (
-                <p className="font-semibold">{restaurantName}</p>
+              {displayName && (
+                <p className="font-semibold">{displayName}</p>
               )}
-              {restaurantAddress && <p>{restaurantAddress}</p>}
+              {displayAddress && (
+                <p className="whitespace-pre-line">{displayAddress}</p>
+              )}
+              {(displayPhone || displayEmail) && (
+                <p>{[displayPhone, displayEmail].filter(Boolean).join(' · ')}</p>
+              )}
+              {profile.website && <p>{profile.website}</p>}
+              {profile.taxId && <p>{profile.taxId}</p>}
               <p className="text-gray-500 mt-2">
-                Generated at: {generatedAt}
+                {t('layout.generatedAt')} {generatedAt}
               </p>
+              {exchangeRateLabel && (
+                <p className="text-gray-500">
+                  {t('layout.dualCurrency', { rate: exchangeRateLabel })}
+                </p>
+              )}
             </div>
           </div>
 
@@ -214,7 +244,10 @@ export const ReportsLayout = ({
 
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6 bg-white shadow-sm rounded-lg p-4">
+            <div
+              data-pdf-ignore
+              className="flex items-center justify-center gap-2 mt-6 bg-white shadow-sm rounded-lg p-4 print:hidden"
+            >
               <Button
                 variant="primary"
                 onClick={() => pagination.onPageChange(pagination.currentPage - 1)}

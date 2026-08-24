@@ -8,6 +8,7 @@ import {OrderTotals} from "@/components/orders/order.totals.tsx";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {ReactQrCode} from "@/lib/react-qr-code.tsx";
 import type {FiscalQrPrintItem} from "@/integrations/providers/fiscal/shared/runtime-config.ts";
+import {useRestaurantProfile} from "@/hooks/useRestaurantProfile.ts";
 
 const separatorStyle = {'--size': '10px', '--space': '5px'} as CSSProperties;
 
@@ -20,11 +21,15 @@ interface Props {
 
 export const OrderReceiptView = ({
   order,
-  restaurantName = import.meta.env.VITE_RESTAURANT_NAME,
-  restaurantAddress = import.meta.env.VITE_RESTAURANT_ADDRESS,
+  restaurantName,
+  restaurantAddress,
   qrcodes = [],
 }: Props) => {
   const {t} = useTranslation("reports");
+  const {profile, logoDataUrl} = useRestaurantProfile();
+  const displayName = restaurantName ?? profile.name;
+  const displayAddress = restaurantAddress ?? profile.address;
+  const contact = [profile.phone, profile.email].filter(Boolean).join(" · ");
   const items = getOrderFilteredItems(order);
   const printableQrs = qrcodes.filter((qr) => qr.value);
 
@@ -35,17 +40,27 @@ export const OrderReceiptView = ({
       className="mx-auto w-full max-w-md bg-white text-neutral-900 border border-neutral-300 shadow-sm print:shadow-none print:border-0"
     >
       <div className="p-4 flex flex-col gap-4">
-        {(restaurantName || restaurantAddress) && (
+        {(logoDataUrl || displayName || displayAddress || contact) && (
           <div className="text-center border-b border-neutral-200 pb-3">
-            {restaurantName && (
+            {logoDataUrl && (
+              <img
+                src={logoDataUrl}
+                alt=""
+                className="mx-auto mb-2 max-h-14 max-w-[180px] object-contain"
+              />
+            )}
+            {displayName && (
               <div className="text-lg font-semibold tracking-tight text-neutral-900">
-                {restaurantName}
+                {displayName}
               </div>
             )}
-            {restaurantAddress && (
+            {displayAddress && (
               <div className="mt-1 text-xs text-neutral-600 whitespace-pre-line">
-                {restaurantAddress}
+                {displayAddress}
               </div>
+            )}
+            {contact && (
+              <div className="mt-1 text-xs text-neutral-600">{contact}</div>
             )}
           </div>
         )}

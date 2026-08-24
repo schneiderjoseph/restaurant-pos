@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DateTime} from "luxon";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
@@ -250,7 +250,7 @@ export const SalesWeeklyReport = () => {
       label: t('columns.netSales'),
       values: netSalesValues,
       total: netSalesValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Cash Payments
@@ -259,7 +259,7 @@ export const SalesWeeklyReport = () => {
       label: t('labels.cashPayments'),
       values: cashPaymentsValues,
       total: cashPaymentsValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Non-Cash Payments
@@ -268,7 +268,7 @@ export const SalesWeeklyReport = () => {
       label: "Non-Cash Payments",
       values: nonCashPaymentsValues,
       total: nonCashPaymentsValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Amount Collected
@@ -277,7 +277,7 @@ export const SalesWeeklyReport = () => {
       label: t('labels.amountCollected'),
       values: amountCollectedValues,
       total: amountCollectedValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     const tipsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.tips || 0);
@@ -285,7 +285,7 @@ export const SalesWeeklyReport = () => {
       label: t('reports.tips'),
       values: tipsValues,
       total: tipsValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     const couponValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.coupons || 0);
@@ -293,7 +293,7 @@ export const SalesWeeklyReport = () => {
       label: t('metrics.coupons'),
       values: couponValues,
       total: couponValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Sales by Day Part
@@ -303,7 +303,7 @@ export const SalesWeeklyReport = () => {
         label: `Sales by Day Part - ${part.label} (${getDayPartTimeRangeLabel(part.label)})`,
         values: dayPartValues,
         total: dayPartValues.reduce((sum, val) => sum + val, 0),
-        formatter: withCurrency,
+        formatter: withDualCurrency,
       });
     });
 
@@ -322,7 +322,7 @@ export const SalesWeeklyReport = () => {
         label: `Sales by Order Mode - ${orderType}`,
         values: orderTypeValues,
         total: orderTypeValues.reduce((sum, val) => sum + val, 0),
-        formatter: withCurrency,
+        formatter: withDualCurrency,
       });
     });
 
@@ -332,7 +332,7 @@ export const SalesWeeklyReport = () => {
       label: t('reports.voids'),
       values: voidsValues,
       total: voidsValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Comps
@@ -341,7 +341,7 @@ export const SalesWeeklyReport = () => {
       label: t('metrics.comps'),
       values: compsValues,
       total: compsValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Service Charges Collected
@@ -350,7 +350,7 @@ export const SalesWeeklyReport = () => {
       label: "Service Charges Collected",
       values: serviceChargesCollectedValues,
       total: serviceChargesCollectedValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     // Service Charges Not Collected
@@ -359,7 +359,7 @@ export const SalesWeeklyReport = () => {
       label: "Service Charges Not Collected",
       values: serviceChargesNotCollectedValues,
       total: serviceChargesNotCollectedValues.reduce((sum, val) => sum + val, 0),
-      formatter: withCurrency,
+      formatter: withDualCurrency,
     });
 
     return rowData;

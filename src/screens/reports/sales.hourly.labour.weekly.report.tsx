@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
@@ -73,9 +73,9 @@ const createEmptyDayRecord = () => {
 export const SalesHourlyLabourWeeklyReport = () => {
   const { t } = useTranslation('reports');
   const METRICS = useMemo<{ key: MetricKey; label: string; formatter: (value: number) => string }[]>(() => [
-    { key: 'amountCollected', label: t('labels.amountCollected'), formatter: withCurrency },
-    { key: 'grossSales', label: t('columns.grossSales'), formatter: withCurrency },
-    { key: 'couponAmount', label: t('metrics.couponAmount'), formatter: withCurrency },
+    { key: 'amountCollected', label: t('labels.amountCollected'), formatter: withDualCurrency },
+    { key: 'grossSales', label: t('columns.grossSales'), formatter: withDualCurrency },
+    { key: 'couponAmount', label: t('metrics.couponAmount'), formatter: withDualCurrency },
     { key: 'labourMinutes', label: t('metrics.labourHoursMins'), formatter: (value) => formatNumber(value) },
   ], [t]);
   const db = useDB();

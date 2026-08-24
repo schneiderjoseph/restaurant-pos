@@ -3,16 +3,24 @@ import {getBusinessDateContext} from "@/api/reports/shared/filters.ts";
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
+import {
+  getAppCurrency,
+  getCurrencySymbol,
+  getExchangeRateLabel,
+  shouldShowSecondaryCurrency,
+} from "@/lib/currency.ts";
 
 const QUERY_DATE_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
-const APP_CURRENCY = (import.meta.env.VITE_CURRENCY as string) || "PKR";
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$",
-  PKR: "Rs",
-  EUR: "€",
-  GBP: "£",
+
+const buildCurrencyContext = () => {
+  const code = getAppCurrency();
+  const symbol = getCurrencySymbol(code);
+  const rateLabel = getExchangeRateLabel();
+  if (shouldShowSecondaryCurrency() && rateLabel) {
+    return `Business currency: ${code} (${symbol}). Dual currency is on (${rateLabel}). Monetary amounts from tools are in ${code}; also show the converted counterpart when quoting money.`;
+  }
+  return `Business currency: ${code} (${symbol}). Format all monetary amounts using ${code} or ${symbol}.`;
 };
-const CURRENCY_SYMBOL = CURRENCY_SYMBOLS[APP_CURRENCY] ?? APP_CURRENCY;
 
 const FORMAT_INSTRUCTIONS: Record<AiReportFormat, string> = {
   table: `Output format: TABLE
@@ -135,7 +143,7 @@ export const getAiReportCorePrompt = (format: AiReportFormat = "table"): string 
   `You are a POS restaurant reporting assistant. Use tools to fetch live data — never guess numbers.
 
 ${buildDateContextBlock()}
-Date format for tool parameters: ${QUERY_DATE_FORMAT}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
+Date format for tool parameters: ${QUERY_DATE_FORMAT}. ${buildCurrencyContext()}
 
 Rules:
 - For relative dates, call resolve_date_range or pass phrase to tools — do not compute startDate/endDate from memory.
@@ -163,7 +171,7 @@ ${buildDateContextBlock()}
 ${FULL_DATABASE_CONTEXT}
 - Date format for tool parameters: ${QUERY_DATE_FORMAT} (e.g. 2026-07-01 00:00)
 - Business timezone: ${getAppTimezone()}
-- Business currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}). Format all monetary amounts using ${APP_CURRENCY} or ${CURRENCY_SYMBOL}. Never use INR, USD, or other currencies.
+- ${buildCurrencyContext()}
 - Get local or national events for ${getAppTimezone()} timezone.
 
 You have tools to fetch live data. Always use tools when the user asks about sales, dishes, revenue, inventory, or time periods. Do not guess numbers.

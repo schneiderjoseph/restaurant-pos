@@ -5,7 +5,7 @@ import {useDB} from '@/api/db/db.ts';
 import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getLaborDashboardSnapshot, getLaborDashboardTrend} from '@/api/reports/labor/dashboard.ts';
 import type {LaborDashboardSnapshot, LaborCostResult} from '@/api/reports/labor/shared/types.ts';
-import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {formatNumber, withDualCurrency} from '@/lib/utils.ts';
 import {ResponsiveLine} from '@nivo/line';
 
 const MetricCard = ({label, value, subtitle}: {label: string; value: string; subtitle?: string}) => (
@@ -76,12 +76,12 @@ export const LaborDashboardReport = () => {
           <MetricCard label={t('hr:dashboard.missing')} value={formatNumber(snapshot.missingCount)} />
           <MetricCard label={t('hr:dashboard.lateToday')} value={formatNumber(snapshot.lateTodayCount)} />
           <MetricCard label={t('hr:dashboard.pendingApprovals')} value={formatNumber(snapshot.pendingApprovals)} />
-          <MetricCard label={t('hr:dashboard.laborCostToday')} value={withCurrency(snapshot.laborCostToday)} />
-          <MetricCard label={t('hr:dashboard.projectedCost')} value={withCurrency(snapshot.projectedEodCost)} />
+          <MetricCard label={t('hr:dashboard.laborCostToday')} value={withDualCurrency(snapshot.laborCostToday)} />
+          <MetricCard label={t('hr:dashboard.projectedCost')} value={withDualCurrency(snapshot.projectedEodCost)} />
           <MetricCard label={t('hr:dashboard.laborPercent')} value={`${formatNumber(snapshot.laborPercent)}%`} />
-          <MetricCard label={t('hr:dashboard.salesToday')} value={withCurrency(snapshot.salesToday)} />
-          <MetricCard label={t('hr:dashboard.salesPerLaborHour')} value={withCurrency(snapshot.salesPerLaborHour)} />
-          <MetricCard label={t('hr:dashboard.avgHourlyCost')} value={withCurrency(snapshot.avgHourlyCost)} />
+          <MetricCard label={t('hr:dashboard.salesToday')} value={withDualCurrency(snapshot.salesToday)} />
+          <MetricCard label={t('hr:dashboard.salesPerLaborHour')} value={withDualCurrency(snapshot.salesPerLaborHour)} />
+          <MetricCard label={t('hr:dashboard.avgHourlyCost')} value={withDualCurrency(snapshot.avgHourlyCost)} />
         </div>
 
         <div className="bg-white border rounded-lg p-5 shadow-sm h-[320px]">
@@ -93,7 +93,7 @@ export const LaborDashboardReport = () => {
               xScale={{type: 'point'}}
               yScale={{type: 'linear', min: 0}}
               axisBottom={{tickRotation: -35}}
-              axisLeft={{format: value => withCurrency(value).replace(/\.00$/, '')}}
+              axisLeft={{format: value => withDualCurrency(value).replace(/\.00$/, '')}}
               colors={['#0046FE']}
               pointSize={8}
               useMesh

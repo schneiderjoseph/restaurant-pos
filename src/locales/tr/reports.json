@@ -181,7 +181,8 @@
     "generatedAt": "Oluşturulma:",
     "previous": "Önceki",
     "next": "Sonraki",
-    "pageOf": "Sayfa {{current}} / {{total}}"
+    "pageOf": "Sayfa {{current}} / {{total}}",
+    "dualCurrency": "Tutarlar {{rate}}"
   },
   "filters": {
     "selectRange": "Aralık seçin",
