@@ -129,7 +129,9 @@
     "showOnReceipts": "Fişlerde göster",
     "updated": "Para birimi simgesi ayarları güncellendi",
     "saveDescription": "Para birimi simgesi ayarlarını kaydet",
-    "currency": "Para birimi"
+    "currency": "Para birimi",
+    "usdToHtgRate": "USD → HTG döviz kuru",
+    "usdToHtgRateHint": "Tutarların altında ikinci satır olarak gösterilir (örn. 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "Fişleri çevir",

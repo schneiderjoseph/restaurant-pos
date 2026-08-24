@@ -7,7 +7,7 @@ import {
   DEFAULT_CURRENCY_SYMBOL,
 } from "@/api/model/currency_symbol.ts";
 import { setShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
-import { APP_CURRENCIES, AppCurrencyCode, setAppCurrencyCode } from "@/lib/currency.ts";
+import { AppCurrencyCode, setAppCurrencyCode, setUsdToHtgRate } from "@/lib/currency.ts";
 
 export type CurrencySymbolDb = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -15,9 +15,7 @@ export type CurrencySymbolDb = {
 
 const resolveCode = (code?: string | null): AppCurrencyCode => {
   const upper = (code || "").toUpperCase();
-  return APP_CURRENCIES.includes(upper as AppCurrencyCode)
-    ? (upper as AppCurrencyCode)
-    : (DEFAULT_CURRENCY_SYMBOL.code ?? "HTG");
+  return upper === "HTG" || upper === "USD" ? (upper as AppCurrencyCode) : (DEFAULT_CURRENCY_SYMBOL.code ?? "USD");
 };
 
 export const fetchCurrencySymbolSettings = async (
@@ -31,6 +29,7 @@ export const fetchCurrencySymbolSettings = async (
   const values = (row as { values?: Partial<CurrencySymbolSettings> } | undefined)?.values;
   return {
     code: resolveCode(values?.code),
+    usdToHtgRate: Number(values?.usdToHtgRate) > 0 ? Number(values?.usdToHtgRate) : DEFAULT_CURRENCY_SYMBOL.usdToHtgRate,
     ui: values?.ui ?? DEFAULT_CURRENCY_SYMBOL.ui,
     receipts: values?.receipts ?? DEFAULT_CURRENCY_SYMBOL.receipts,
   };
@@ -48,11 +47,13 @@ export const useHydrateCurrencySymbol = () => {
         const settings = await fetchCurrencySymbolSettings(db);
         if (!cancelled) {
           setAppCurrencyCode(settings.code);
+          setUsdToHtgRate(settings.usdToHtgRate);
           setShowCurrencySymbolInUi(settings.ui);
         }
       } catch {
         if (!cancelled) {
           setAppCurrencyCode(DEFAULT_CURRENCY_SYMBOL.code);
+          setUsdToHtgRate(DEFAULT_CURRENCY_SYMBOL.usdToHtgRate);
           setShowCurrencySymbolInUi(DEFAULT_CURRENCY_SYMBOL.ui);
         }
       }
@@ -80,12 +81,14 @@ export const useCurrencySymbol = () => {
         if (!cancelled) {
           setSettings(value);
           setAppCurrencyCode(value.code);
+          setUsdToHtgRate(value.usdToHtgRate);
           setShowCurrencySymbolInUi(value.ui);
         }
       } catch {
         if (!cancelled) {
           setSettings(DEFAULT_CURRENCY_SYMBOL);
           setAppCurrencyCode(DEFAULT_CURRENCY_SYMBOL.code);
+          setUsdToHtgRate(DEFAULT_CURRENCY_SYMBOL.usdToHtgRate);
           setShowCurrencySymbolInUi(DEFAULT_CURRENCY_SYMBOL.ui);
         }
       } finally {

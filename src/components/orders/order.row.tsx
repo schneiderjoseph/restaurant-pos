@@ -1,7 +1,8 @@
 import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import React, {useMemo, useState} from "react";
-import {cn, withCurrency} from "@/lib/utils.ts";
+import {cn} from "@/lib/utils.ts";
+import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {getInvoiceNumber, getOrderFilteredItems, translateOrderStatus} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
@@ -101,7 +102,7 @@ export const OrderRow = ({
           </span> {t('totals.itemsShort')}
         </div>
         <div className="flex px-3 gap-1 items-center basis-[150px]">
-          {cardReady ? withCurrency(itemsTotal) : '…'}
+          {cardReady ? <DualCurrency amount={itemsTotal} primaryClassName="text-sm" secondaryClassName="text-[10px]" /> : '…'}
         </div>
         <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
           {order?.tax && Number(order?.tax_amount || 0) > 0 && (
@@ -109,7 +110,7 @@ export const OrderRow = ({
               <div className="flex-1">
                 {formatTaxLabel(order?.tax?.name, order?.tax?.rate)}
               </div>
-              <div className="text-right">{withCurrency(order?.tax_amount)}</div>
+              <div className="text-right"><DualCurrency amount={order?.tax_amount} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
             </>
           )}
         </div>
@@ -117,7 +118,7 @@ export const OrderRow = ({
           {Number(order?.service_charge_amount || 0) > 0 && (
             <>
               <div className="flex-1">{t('totals.sc', {value: order?.service_charge})}</div>
-              <div className="text-right">{withCurrency(order?.service_charge_amount)}</div>
+              <div className="text-right"><DualCurrency amount={order?.service_charge_amount} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
             </>
           )}
         </div>
@@ -127,13 +128,13 @@ export const OrderRow = ({
             <>
               <div className="flex-1">{t('totals.extras')}</div>
               <div
-                className="text-right">{withCurrency(order?.extras?.reduce((prev, item) => prev + Number(item?.value || 0), 0))}</div>
+                className="text-right"><DualCurrency amount={order?.extras?.reduce((prev, item) => prev + Number(item?.value || 0), 0)} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
             </>
           )}
         </div>
 
         <div className="flex items-center justify-end px-3 flex-1">
-          <div className="text-right font-bold text-lg text-danger-700">{cardReady ? withCurrency(total) : '…'}</div>
+          <div className="text-right font-bold text-lg text-danger-700">{cardReady ? <DualCurrency amount={total} primaryClassName="text-lg font-bold" /> : '…'}</div>
         </div>
       </div>
 

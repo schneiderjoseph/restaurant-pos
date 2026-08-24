@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "Remaining",
     "change": "Change",
+    "payIn": "Customer pays in",
     "tempBill": "Temp bill",
     "tempAlreadyPrinted": "Temp bill already printed",
     "complete": "Complete",

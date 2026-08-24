@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "Verbleibend",
     "change": "Wechselgeld",
+    "payIn": "Kunde zahlt in",
     "tempBill": "Zwischenrechnung",
     "complete": "Abschließen",
     "cannotAddCard": "Keine weitere Kartenzahlung möglich",

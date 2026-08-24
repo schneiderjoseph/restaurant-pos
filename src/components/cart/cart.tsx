@@ -55,15 +55,15 @@ export const MenuCart = () => {
             }}>{t('seats.deleteSeat')}</Button>
           </div>
         )}
-        <ScrollContainer className="h-full gap-[4px] flex flex-col select-none">
+        <ScrollContainer className="h-full gap-1 flex flex-col select-none">
           {newItems.map((item, index) => (
-            <CartItem item={item} key={index} index={index}/>
+            <CartItem item={item} key={item.id} index={index}/>
           ))}
           {newItems.length > 0 && oldItems.length > 0 && (
-            <div className="h-[3px] bg-neutral-900 my-2 rounded-full"></div>
+            <div className="h-[2px] bg-neutral-900 my-1 rounded-full"></div>
           )}
           {oldItems.map((item, index) => (
-            <CartItem item={item} key={index} index={index}/>
+            <CartItem item={item} key={item.id} index={index}/>
           ))}
         </ScrollContainer>
       </div>

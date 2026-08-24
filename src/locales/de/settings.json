@@ -129,7 +129,9 @@
     "showOnReceipts": "Auf Belegen anzeigen",
     "updated": "Währungssymbol-Einstellungen aktualisiert",
     "saveDescription": "Währungssymbol-Einstellungen speichern",
-    "currency": "Währung"
+    "currency": "Währung",
+    "usdToHtgRate": "USD → HTG Wechselkurs",
+    "usdToHtgRateHint": "Als zweite Zeile unter Beträgen angezeigt (z. B. 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "Belege übersetzen",

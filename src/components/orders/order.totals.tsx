@@ -8,7 +8,7 @@ import {
   getOrderTaxAmount,
   getOrderTaxBreakdown,
 } from "@/lib/tax-calculator.ts";
-import {withCurrency, cn} from "@/lib/utils.ts";
+import {cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getActiveOrderDiscounts, getOrderFilteredItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
@@ -16,6 +16,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {formatTaxLabel} from "@/lib/tax-label.ts";
+import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 
 const separatorStyle = {'--size': '10px', '--space': '5px'} as CSSProperties;
 
@@ -23,9 +24,10 @@ interface CartTotalsProps {
   cart: MenuItem[]
   itemCount: number
   className?: string
+  allowServiceCharges?: boolean
 }
 
-export const CartTotals = ({cart, itemCount, className}: CartTotalsProps) => {
+export const CartTotals = ({cart, itemCount, className, allowServiceCharges}: CartTotalsProps) => {
   const {t} = useTranslation('orders');
   const {data: taxesData} = useApi<SettingsData<Tax>>(
     Tables.taxes,
@@ -35,32 +37,66 @@ export const CartTotals = ({cart, itemCount, className}: CartTotalsProps) => {
     99999,
   );
 
+  const {data: serviceChargeSettings} = useApi<SettingsData<any>>(
+    Tables.settings,
+    ["(key = 'service_charges' and is_global = true)"],
+    [],
+    0,
+    1,
+    ["values"],
+  );
+
+  const serviceChargePreview = useMemo(() => {
+    if (!allowServiceCharges) return {amount: 0, label: ''};
+    const values = serviceChargeSettings?.data?.[0]?.values;
+    const typeRaw = values?.type?.value ?? values?.type;
+    const valueRaw = values?.value?.value ?? values?.value;
+    const type = String(typeRaw || DiscountType.Percent);
+    const value = Number(valueRaw || 0);
+    if (value <= 0) return {amount: 0, label: ''};
+    const itemsBase = calculateCartItemsBaseTotal(cart);
+    const amount = type === DiscountType.Fixed ? value : (itemsBase * value / 100);
+    const label = type === DiscountType.Fixed ? '' : `${value}%`;
+    return {amount, label};
+  }, [allowServiceCharges, serviceChargeSettings, cart]);
+
   const itemsBase = useMemo(() => calculateCartItemsBaseTotal(cart), [cart]);
   const taxPreviewTotals = useMemo(
     () => calculateCartTotalsWithTaxes(cart, taxesData?.data ?? []),
     [cart, taxesData?.data],
   );
 
+  const taxTotal = useMemo(
+    () => taxPreviewTotals.reduce((sum, row) => sum + row.taxAmount, 0),
+    [taxPreviewTotals],
+  );
+  const grandTotal = itemsBase + taxTotal + serviceChargePreview.amount;
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
       <div className="flex font-bold">
         <div className="flex-1">{t('totals.items', {count: itemCount})}</div>
-        <div className="text-right">{withCurrency(itemsBase)}</div>
+        <div className="text-right"><DualCurrency amount={itemsBase} /></div>
       </div>
-      <div className="separator h-[2px]" style={separatorStyle}></div>
-      {taxPreviewTotals.length > 0 ? (
-        taxPreviewTotals.map(({tax, total}) => (
-          <div className="flex font-bold text-2xl text-success-900" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
-            <div className="flex-1">{t('totals.totalWithTax', {label: formatTaxLabel(tax.name, tax.rate)})}</div>
-            <div className="text-right">{withCurrency(total)}</div>
+      {taxPreviewTotals.map(({tax, taxAmount}) => (
+        <div className="flex" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
+          <div className="flex-1">
+            {t('totals.tax')} ({formatTaxLabel(tax.name, tax.rate)})
           </div>
-        ))
-      ) : (
-        <div className="flex font-bold text-2xl text-success-900">
-          <div className="flex-1">{t('totals.total')}</div>
-          <div className="text-right">{withCurrency(itemsBase)}</div>
+          <div className="text-right"><DualCurrency amount={taxAmount} /></div>
+        </div>
+      ))}
+      {serviceChargePreview.amount > 0 && (
+        <div className="flex">
+          <div className="flex-1">{t('totals.serviceCharges', {value: serviceChargePreview.label, unit: ''})}</div>
+          <div className="text-right"><DualCurrency amount={serviceChargePreview.amount} /></div>
         </div>
       )}
+      <div className="separator h-[2px]" style={separatorStyle}></div>
+      <div className="flex font-bold text-2xl text-success-900">
+        <div className="flex-1">{t('totals.total')}</div>
+        <div className="text-right"><DualCurrency amount={grandTotal} /></div>
+      </div>
     </div>
   );
 };
@@ -143,7 +179,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
     <div className={cn("flex flex-col gap-1", className)}>
       <div className="flex font-bold">
         <div className="flex-1">{t('totals.items', {count: preview.itemCount})}</div>
-        <div className="text-right">{withCurrency(preview.itemsTotal)}</div>
+        <div className="text-right"><DualCurrency amount={preview.itemsTotal} /></div>
       </div>
       {preview.taxAmount > 0 && (
         taxBreakdown.length > 0 ? taxBreakdown.map((entry, index) => (
@@ -151,7 +187,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
             <div className="flex-1">
               {t('totals.tax')} ({formatTaxLabel(entry.name, entry.rate)})
             </div>
-            <div className="text-right">{withCurrency(entry.amount)}</div>
+            <div className="text-right"><DualCurrency amount={entry.amount} /></div>
           </div>
         )) : (
           <div className="flex">
@@ -159,7 +195,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
               {t('totals.tax')}
               {order?.tax && <> ({formatTaxLabel(order.tax.name, order.tax.rate)})</>}
             </div>
-            <div className="text-right">{withCurrency(preview.taxAmount)}</div>
+            <div className="text-right"><DualCurrency amount={preview.taxAmount} /></div>
           </div>
         )
       )}
@@ -172,25 +208,25 @@ export const OrderTotals = ({order, cart, className}: Props) => {
               activeDiscountLines[0].applied_rate
             )}
           </div>
-          <div className="text-right">{withCurrency(Number(activeDiscountLines[0].applied_amount ?? 0))}</div>
+          <div className="text-right"><DualCurrency amount={Number(activeDiscountLines[0].applied_amount ?? 0)} /></div>
         </div>
       ) : activeDiscountLines.length > 1 ? (
         <>
           <div className="flex">
             <div className="flex-1">{t('totals.discount')}</div>
-            <div className="text-right">{withCurrency(preview.discountAmount)}</div>
+            <div className="text-right"><DualCurrency amount={preview.discountAmount} /></div>
           </div>
           {activeDiscountLines.map((od, index) => (
             <div className="flex pl-3" key={od.id?.toString?.() ?? `${od.name}-${index}`}>
               <div className="flex-1">{formatDiscountDetail(od.name, od.value_type, od.applied_rate) || t('totals.discount')}</div>
-              <div className="text-right">{withCurrency(Number(od.applied_amount ?? 0))}</div>
+              <div className="text-right"><DualCurrency amount={Number(od.applied_amount ?? 0)} /></div>
             </div>
           ))}
         </>
       ) : showLegacyDiscount ? (
         <div className="flex">
           <div className="flex-1">{formatDiscountMinimal(order?.discount?.name, null, order?.discount_rate)}</div>
-          <div className="text-right">{withCurrency(preview.discountAmount)}</div>
+          <div className="text-right"><DualCurrency amount={preview.discountAmount} /></div>
         </div>
       ) : null}
       {preview.serviceChargeAmount > 0 ? (
@@ -199,21 +235,21 @@ export const OrderTotals = ({order, cart, className}: Props) => {
             value: order?.service_charge,
             unit: order?.service_charge_type === DiscountType.Percent ? '%' : ''
           })}</div>
-          <div className="text-right">{withCurrency(preview.serviceChargeAmount)}</div>
+          <div className="text-right"><DualCurrency amount={preview.serviceChargeAmount} /></div>
         </div>
       ) : null}
       {order?.extras && order?.extras?.filter(item => item !== undefined)
         ?.map((item, index) => (
         <div className="flex" key={index}>
           <div className="flex-1">{item.name}</div>
-          <div className="text-right">{withCurrency(item.value)}</div>
+          <div className="text-right"><DualCurrency amount={item.value} /></div>
         </div>
       ))}
       {preview.tipAmount > 0 && (
         <div className="flex">
           <div
             className="flex-1">{order?.tip_type === DiscountType.Percent ? t('totals.tipPercent') : t('totals.tip')}</div>
-          <div className="text-right">{withCurrency(preview.tipAmount)}</div>
+          <div className="text-right"><DualCurrency amount={preview.tipAmount} /></div>
         </div>
       )}
       {order?.payments?.length > 0 && (
@@ -223,20 +259,20 @@ export const OrderTotals = ({order, cart, className}: Props) => {
         ?.map((item, index) => (
         <div key={index} className="flex">
           <div className="flex-1">{item.payment_type?.name ?? 'Payment'}</div>
-          <div className="text-right">{withCurrency(item.amount)}</div>
+          <div className="text-right"><DualCurrency amount={item.amount} /></div>
         </div>
       ))}
       <div className="separator h-[2px]" style={separatorStyle}></div>
       <div className="flex font-bold text-2xl text-success-900">
         <div className="flex-1">{t('totals.total')}</div>
-        <div className="text-right">{withCurrency(preview.total)}</div>
+        <div className="text-right"><DualCurrency amount={preview.total} /></div>
       </div>
       {order?.payments?.length > 0 && changeDue !== 0 && (
         <>
           <div className="separator h-[2px]" style={separatorStyle}></div>
           <div className="flex">
             <div className="flex-1">{t('totals.change')}</div>
-            <div className="text-right">{withCurrency(changeDue)}</div>
+            <div className="text-right"><DualCurrency amount={changeDue} /></div>
           </div>
         </>
       )}

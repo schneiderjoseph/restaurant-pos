@@ -1,4 +1,5 @@
 import {MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
+import type { CartModifierGroup } from "@/api/model/cart_item.ts";
 import {Order} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {DiscountType} from "@/api/model/discount.ts";
@@ -176,4 +177,66 @@ export const calculateOrderTotalsPreview = (order: Order, cart?: MenuItem[]) => 
     tipAmount,
     total,
   };
+};
+
+const stableGroupsKey = (groups?: CartModifierGroup[]): string => {
+  if (!groups?.length) return '';
+  return groups
+    .map((group) => {
+      const mods = (group.selectedModifiers ?? [])
+        .map((mod) =>
+          `${mod.dish?.id?.toString?.() ?? ''}:${mod.quantity}:${stableGroupsKey(mod.selectedGroups)}`,
+        )
+        .sort()
+        .join(',');
+      return `${group.out?.id?.toString?.() ?? ''}:${mods}`;
+    })
+    .join('|');
+};
+
+/** Identity key for merging identical new cart lines (same dish, seat, modifiers, comment). */
+export const cartItemMergeKey = (item: MenuItem): string =>
+  [
+    item.dish?.id?.toString?.() ?? '',
+    item.seat ?? '',
+    item.comments ?? '',
+    item.category_id ?? item.category ?? '',
+    item.menu_name ?? '',
+    item.tax_mode ?? '',
+    item.isHold ? '1' : '0',
+    stableGroupsKey(item.selectedGroups),
+  ].join('\u001f');
+
+/**
+ * Add to cart: increment quantity when an identical pending line exists,
+ * otherwise prepend a new line.
+ */
+export const mergeCartItem = (cart: MenuItem[], incoming: MenuItem): MenuItem[] => {
+  const quantity = Math.max(1, Number(incoming.quantity) || 1);
+
+  if (incoming.newOrOld !== MenuItemType.new || incoming.deleted_at) {
+    return [{ ...incoming, quantity, selectedGroups: incoming.selectedGroups ?? [] }, ...cart];
+  }
+
+  const key = cartItemMergeKey(incoming);
+  const matchIndex = cart.findIndex(
+    (line) =>
+      !line.deleted_at &&
+      line.newOrOld === MenuItemType.new &&
+      line.seat === incoming.seat &&
+      cartItemMergeKey(line) === key,
+  );
+
+  if (matchIndex >= 0) {
+    return cart.map((line, index) =>
+      index === matchIndex
+        ? { ...line, quantity: Number(line.quantity || 1) + quantity }
+        : line,
+    );
+  }
+
+  return [
+    { ...incoming, quantity, selectedGroups: incoming.selectedGroups ?? [] },
+    ...cart,
+  ];
 };

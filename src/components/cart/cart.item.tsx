@@ -1,21 +1,17 @@
 import React, {useMemo, useState} from "react";
 import {MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {useAtom} from "jotai";
-import {appPage, appState} from "@/store/jotai.ts";
-import {cn, formatNumber} from "@/lib/utils.ts";
+import {appState} from "@/store/jotai.ts";
+import {cn} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinus, faPencil, faPlus, faTrash, faComment} from "@fortawesome/free-solid-svg-icons";
-import {Button} from "@/components/common/input/button.tsx";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
-import {Input} from "@/components/common/input/input.tsx";
-import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
-import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
-import {StringRecordId} from "surrealdb";
-import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {CartItemName} from "@/components/common/cart/cart.item.name.tsx";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
+import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 
 interface Props {
   item: MenuItem
@@ -23,214 +19,116 @@ interface Props {
 }
 
 export const CartItem = ({ item, index }: Props) => {
-  const db = useDB();
   const { t } = useTranslation(['cart', 'common']);
-  const [state, setState] = useAtom(appState);
-  const [page, ] = useAtom(appPage);
+  const [, setState] = useAtom(appState);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
   const [isCommentKeyboardOpen, setCommentKeyboardOpen] = useState(false);
   const [commentText, setCommentText] = useState(item.comments || "");
 
-  const [deleteReason, setDeleteReason] = useState('');
-  const [deleteComments, setDeleteComments] = useState('');
+  const lineTotal = useMemo(() => calculateCartItemPrice(item), [item]);
 
-  const hasOldItems = useMemo(() => {
-    return state.cart.filter(item => item.newOrOld === MenuItemType.old && item.isSelected).length > 0
-  }, [state.cart]);
-
-
-  const deleteOrderItem = async (item: MenuItem) => {
-    // TODO: ask for pin to confirm deletion
-    await db.merge(item.id, {
-      deleted_at: nowSurrealDateTime()
-    });
-
-    // TODO: ask for reason and comments
-    await db.create(Tables.order_voids, {
-      comments: deleteComments,
-      created_at: nowSurrealDateTime(),
-      deleted_by: new StringRecordId(page.user.id),
-      items: [item.id],
-      quantity: item.quantity,
-      reason: deleteReason,
-      logged_in_user: new StringRecordId(page.user.id)
-    });
-
+  const updateQuantity = (next: number) => {
     setState(prev => ({
       ...prev,
-      cart: prev.cart.map((_item) => {
-        if( item.id === _item.id ) {
-          _item.deleted_at = nowSurrealDateTime();
-        }
+      cart: prev.cart.map((_item) =>
+        item.id === _item.id ? { ..._item, quantity: Math.max(1, next) } : _item,
+      ),
+    }));
+  };
 
-        return _item;
-      })
-    }))
-  }
+  const isNew = item.newOrOld === MenuItemType.new;
+  const canSelect = item.deleted_at === undefined && (isNew || item.isHold);
 
   return (
     <>
       <div
         className={cn(
-          "flex rounded gap-3 cursor-pointer items-start select-none pr-2",
+          "flex items-center gap-2 rounded-md cursor-pointer select-none px-2 py-1.5 min-h-[44px]",
           item.isSelected ? 'bg-neutral-300' : (
             item.isHold ? 'bg-warning-100' : 'bg-neutral-100'
           ),
+          item.deleted_at && 'opacity-60',
         )}
         onClick={() => {
-          if(item.deleted_at === undefined && (item.newOrOld === 'new' || item.isHold)) {
+          if (canSelect) {
             setState(prev => ({
               ...prev,
-              cart: prev.cart.map(ci => {
-                if (ci.id === item.id) {
-                  ci.isSelected = !ci.isSelected;
-                }
-
-                return ci
-              })
-            }))
+              cart: prev.cart.map(ci =>
+                ci.id === item.id ? { ...ci, isSelected: !ci.isSelected } : ci,
+              ),
+            }));
           }
         }}
       >
-        <div className="flex flex-col items-start gap-3">
-          <div className="flex gap-2 items-center">
-            {item.newOrOld === MenuItemType.new && (
-              <>
-                <IconTooltipButton label={t('common:actions.add')}
-                  flat
-                 
-                  variant="primary"
-                  onClick={() => {
-                    setState(prev => ({
-                      ...prev,
-                      cart: prev.cart.map((_item) => {
-                        if( item.id === _item.id ) {
-                          _item.quantity++;
-                        }
-                        return _item;
-                      })
-                    }))
-                  }}
-                  className="!rounded-none"
-                ><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
-                <Input
-                  type="number"
-                  enableKeyboard
-                  value={item.quantity}
-                  onChange={(e) => {
-                    setState(prev => ({
-                      ...prev,
-                      cart: prev.cart.map((_item) => {
-                        if( item.id === _item.id ) {
-                          _item.quantity = Number(e.target.value);
-                        }
-                        return _item;
-                      })
-                    }))
-                  }}
-                  className="!w-[60px] !border-0 !bg-white !rounded-none"
-                />
-                {item.quantity <= 1 ? (
-                  <IconTooltipButton label={t('common:actions.remove')}
-                    flat
-                   
-                    variant={'danger'}
-                    onClick={() => {
-                      setState(prev => ({
-                        ...prev,
-                        cart: prev.cart.filter((_item) => {
-                          if( item.id !== _item.id ) {
-                            return _item;
-                          }
-                        })
-                      }))
-                    }}
-                    className="!rounded-none"
-                  ><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
-                ) : (
-                  <IconTooltipButton label={t('common:actions.remove')}
-                    flat
-                   
-                    variant="primary"
-                    onClick={() => {
-                      setState(prev => ({
-                        ...prev,
-                        cart: prev.cart.map((_item) => {
-                          if( item.id === _item.id ) {
-                            if( _item.quantity === 1 ) {
-                              return _item;
-                            }
-
-                            _item.quantity--;
-                          }
-                          return _item;
-                        })
-                      }))
-                    }}
-                  ><FontAwesomeIcon icon={faMinus}/></IconTooltipButton>
-                )}
-              </>
-            )}
-
-            {item.newOrOld === MenuItemType.old && (
-              <>
-                <span className="p-2 px-3 justify-center items-center flat !bg-white">{item.quantity}</span>
-                {/*{item.deleted_at === undefined && (*/}
-                {/*  <IconTooltipButton label={t('common:actions.remove')}*/}
-                {/*    flat*/}
-                {/*   */}
-                {/*    variant={'danger'}*/}
-                {/*    onClick={() => {*/}
-                {/*      deleteOrderItem(item)*/}
-                {/*    }}*/}
-                {/*  ><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>*/}
-                {/*)}*/}
-
-              </>
-            )}
+        {isNew ? (
+          <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="h-7 w-7 flex items-center justify-center rounded bg-white border border-neutral-300 text-sm"
+              aria-label={t('common:actions.remove')}
+              onClick={() => {
+                if (item.quantity <= 1) {
+                  setState(prev => ({
+                    ...prev,
+                    cart: prev.cart.filter((_item) => _item.id !== item.id),
+                  }));
+                } else {
+                  updateQuantity(item.quantity - 1);
+                }
+              }}
+            >
+              <FontAwesomeIcon icon={item.quantity <= 1 ? faTrash : faMinus} className="text-xs" />
+            </button>
+            <span className="min-w-[1.75rem] text-center text-sm font-bold tabular-nums">{item.quantity}</span>
+            <button
+              type="button"
+              className="h-7 w-7 flex items-center justify-center rounded bg-white border border-neutral-300 text-sm"
+              aria-label={t('common:actions.add')}
+              onClick={() => updateQuantity(item.quantity + 1)}
+            >
+              <FontAwesomeIcon icon={faPlus} className="text-xs" />
+            </button>
           </div>
-          {((item.newOrOld === MenuItemType.new && item?.selectedGroups?.length > 0) || (item.newOrOld === MenuItemType.new )) && (
-            <div>
-              {item.newOrOld === MenuItemType.new && item?.selectedGroups?.length > 0 && (
-                <>
-                  <IconTooltipButton label={t('common:actions.edit')}
-                    flat
-                    variant="primary"
-                   
-                    onClick={() => {
-                      setModifiersOpen(true)
-                    }}
-                    className="mr-2 !rounded-none"
-                  ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-                </>
-              )}
-              {item.newOrOld === MenuItemType.new && (
-                <>
-                  <IconTooltipButton label={t('common:actions.comment')}
-                    flat
-                    variant="primary"
-                   
-                    onClick={() => {
-                      setCommentText(item.comments || "");
-                      setCommentKeyboardOpen(true);
-                    }}
-                    className="!rounded-none"
-                  >
-                    <FontAwesomeIcon icon={faComment}/>
-                  </IconTooltipButton>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-        <div className={
-          cn(
-            "flex-grow items-center",
-            item.deleted_at ? 'line-through text-danger-500' : ''
-          )
-        }>
+        ) : (
+          <span className="shrink-0 min-w-[1.75rem] text-center text-sm font-bold tabular-nums bg-white rounded px-1">
+            {item.quantity}
+          </span>
+        )}
+
+        <div className={cn(
+          "flex-1 min-w-0 text-sm leading-snug",
+          item.deleted_at && 'line-through text-danger-500',
+        )}>
           <CartItemName item={item} mainItem={item} />
         </div>
+
+        <div className="shrink-0 text-right" onClick={(e) => e.stopPropagation()}>
+          <DualCurrency amount={lineTotal} primaryClassName="text-sm font-semibold" secondaryClassName="text-[10px]" />
+        </div>
+
+        {isNew && (
+          <div className="flex shrink-0 gap-0.5" onClick={(e) => e.stopPropagation()}>
+            {item?.selectedGroups?.length > 0 && (
+              <IconTooltipButton label={t('common:actions.edit')}
+                flat
+                variant="primary"
+                onClick={() => setModifiersOpen(true)}
+                className="!h-7 !w-7 !min-w-0 !p-0"
+              ><FontAwesomeIcon icon={faPencil} className="text-xs"/></IconTooltipButton>
+            )}
+            <IconTooltipButton label={t('common:actions.comment')}
+              flat
+              variant="primary"
+              onClick={() => {
+                setCommentText(item.comments || "");
+                setCommentKeyboardOpen(true);
+              }}
+              className="!h-7 !w-7 !min-w-0 !p-0"
+            >
+              <FontAwesomeIcon icon={faComment} className="text-xs"/>
+            </IconTooltipButton>
+          </div>
+        )}
       </div>
       {isModifiersOpen && (
         <MenuDishModifiers
@@ -241,7 +139,6 @@ export const CartItem = ({ item, index }: Props) => {
           editing={true}
           onClose={(groups) => {
             setModifiersOpen(false);
-            // update item
             setState(prev => ({
               ...prev,
               cart: prev.cart.map((cItem, cIndex) => {

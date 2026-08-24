@@ -129,7 +129,9 @@
     "showOnReceipts": "Mostra sulle ricevute",
     "updated": "Impostazioni simbolo valuta aggiornate",
     "saveDescription": "Salva impostazioni simbolo valuta",
-    "currency": "Valuta"
+    "currency": "Valuta",
+    "usdToHtgRate": "Tasso USD → HTG",
+    "usdToHtgRateHint": "Mostrato come seconda riga sotto gli importi (es. 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "Traduci ricevute",

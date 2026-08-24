@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "Kalan",
     "change": "Para üstü",
+    "payIn": "Müşteri şu para biriminde öder",
     "tempBill": "Geçici fatura",
     "complete": "Tamamla",
     "cannotAddCard": "Kart için daha fazla ödeme eklenemez",

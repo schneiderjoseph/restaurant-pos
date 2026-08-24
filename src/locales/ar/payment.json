@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "المتبقي",
     "change": "الباقي",
+    "payIn": "العميل يدفع بـ",
     "tempBill": "فاتورة مؤقتة",
     "complete": "إكمال",
     "cannotAddCard": "لا يمكن إضافة المزيد من الدفع للبطاقة",

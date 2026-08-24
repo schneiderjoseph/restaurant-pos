@@ -126,6 +126,8 @@
     "title": "Devise",
     "description": "Choisir HTG (G) ou USD ($) pour les montants dans l'application et sur les reçus. Vous pouvez aussi masquer le symbole (nombres seuls). Affichage uniquement — les valeurs stockées ne changent pas.",
     "currency": "Devise",
+    "usdToHtgRate": "Taux de change USD → HTG",
+    "usdToHtgRateHint": "Affiché en deuxième ligne sous les montants (ex. 132 = 1 $ = G132).",
     "showInUi": "Afficher à l'écran",
     "showOnReceipts": "Afficher sur les reçus",
     "updated": "Paramètres de devise mis à jour",

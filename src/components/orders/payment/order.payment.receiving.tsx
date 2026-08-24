@@ -1,7 +1,17 @@
 import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
-import {cn, DENOMINATION_COINS, toRecordId, withCurrency} from "@/lib/utils.ts";
-import { getQuickDenominations } from "@/lib/currency.ts";
+import {cn, toRecordId} from "@/lib/utils.ts";
+import {
+  convertPayToPrimary,
+  convertPrimaryToPay,
+  formatInCurrency,
+  getAppCurrency,
+  getQuickDenominations,
+  type PayCurrencyCode,
+} from "@/lib/currency.ts";
+import {PaymentCurrencyToggle} from "@/components/common/currency/payment-currency-toggle.tsx";
+import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
+import {useCurrencyDisplay} from "@/hooks/useCurrencyDisplay.ts";
 import {faClose, faPrint} from "@fortawesome/free-solid-svg-icons";
 import * as React from "react";
 import {useEffect, useMemo, useState} from "react";
@@ -137,6 +147,7 @@ const OrderPaymentReceivingContent = ({
   setSelectedAmount,
 }: ContentProps) => {
   const {t} = useTranslation('payment');
+  useCurrencyDisplay();
   const remote = useRemotePayment();
   const db = useDB();
   const {protectAction} = useSecurity();
@@ -176,11 +187,17 @@ const OrderPaymentReceivingContent = ({
 
   // const [paymentType, setPaymentType] = useState<string>();
   const [mode, setMode] = useState<'quick' | 'button'>('quick');
+  const [payCurrency, setPayCurrency] = useState<PayCurrencyCode>(() => getAppCurrency() as PayCurrencyCode);
 
-  const quickAmounts = [...DENOMINATION_COINS, ...getQuickDenominations()];
+  const quickAmounts = getQuickDenominations(payCurrency);
   const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const [closing, setClosing] = useState(false);
+
+  const formatPay = (amountPrimary: number) =>
+    formatInCurrency(convertPrimaryToPay(amountPrimary, payCurrency), payCurrency);
+
+  const toPrimary = (amountInPay: number) => convertPayToPrimary(amountInPay, payCurrency);
 
   const isTaxObject = (value: unknown): value is Tax => {
     return (
@@ -500,9 +517,17 @@ const OrderPaymentReceivingContent = ({
 
   return (
     <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px)]" data-testid="payment-receiving">
-      <div className="bg-white rounded-xl h-full" data-testid="payment-tender-panel">
-        <div className="mb-3 text-5xl p-5 text-center " data-testid="payment-tendered">
-          {withCurrency(tendered)}
+      <div className="bg-white rounded-xl h-full p-3" data-testid="payment-tender-panel">
+        <PaymentCurrencyToggle
+          value={payCurrency}
+          onChange={(code) => {
+            setPayCurrency(code);
+            setSelectedAmount('');
+          }}
+          className="mb-3"
+        />
+        <div className="mb-3 text-5xl p-5 text-center" data-testid="payment-tendered">
+          {formatPay(tendered)}
         </div>
         <div
           data-testid="payment-change-due"
@@ -513,7 +538,7 @@ const OrderPaymentReceivingContent = ({
             changeDue > 0 && 'text-success-700'
           )
         }>
-          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span className="">{withCurrency(changeDue)}</span>
+          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span>{formatPay(changeDue)}</span>
         </div>
         <div className="relative">
           <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">
@@ -529,8 +554,8 @@ const OrderPaymentReceivingContent = ({
               void addPayment(payable, pt, payable);
               setMode('quick');
             }}
-          >{withCurrency(total)}</span>
-            {quickAmounts.reverse().map(item => (
+          >{formatPay(total)}</span>
+            {[...quickAmounts].reverse().map(item => (
               <span
                 key={item}
                 className="btn btn-primary w-[100px] lg"
@@ -540,13 +565,12 @@ const OrderPaymentReceivingContent = ({
                   }
                   const pt = paymentTypes[0];
                   const payable = applyPaymentTypeTaxAndDiscount(pt);
-                  void addPayment(item, pt, payable);
+                  void addPayment(toPrimary(item), pt, payable);
                   setMode('quick');
                 }}
-              >{withCurrency(item)}</span>
+              >{formatInCurrency(item, payCurrency)}</span>
             ))}
           </ScrollContainer>
-          {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
         </div>
 
         <ScrollContainer className="gap-5 flex overflow-x-auto mb-5" data-testid="payment-types">
@@ -560,14 +584,10 @@ const OrderPaymentReceivingContent = ({
                 const payable = applyPaymentTypeTaxAndDiscount(item);
 
                 if (selectedAmount.trim().length > 0) {
-                  void addPayment(selectedAmount, item, payable)
+                  void addPayment(toPrimary(Number(selectedAmount)), item, payable)
                 } else if (changeDue < 0) {
                   const remaining = payable - tendered;
-                  const amt = remaining.toString();
-                  setSelectedAmount(amt);
-                  void addPayment(amt, item, payable)
-                } else {
-                  // Nothing typed and no remaining due – do nothing (card will be blocked inside addPayment)
+                  void addPayment(remaining, item, payable)
                 }
               }}
               size="lg"
@@ -578,7 +598,9 @@ const OrderPaymentReceivingContent = ({
         </ScrollContainer>
 
         <div className="flex justify-center items-center mb-3 text-xl h-[28px]" data-testid="payment-amount-entry">
-          {selectedAmount.trim().length > 0 && selectedAmount}
+          {selectedAmount.trim().length > 0 && (
+            <>{selectedAmount} {payCurrency}</>
+          )}
         </div>
 
         <div className="flex">
@@ -671,7 +693,7 @@ const OrderPaymentReceivingContent = ({
                                className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
               {payment.payment_type.name}
             </strong>
-            <span>{withCurrency(payment.amount)}</span>
+            <span><DualCurrency amount={payment.amount} layout="inline" /></span>
           </div>
         ))}
       </div>

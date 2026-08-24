@@ -15,6 +15,7 @@ import {useMediaQuery} from "react-responsive";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
+import {mergeCartItem} from "@/lib/cart.ts";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {useTranslation} from "react-i18next";
@@ -101,13 +102,10 @@ export const MenuDishes = () => {
 
     setState(prev => ({
       ...prev,
-      cart: [
-        {
-          ...item,
-          selectedGroups
-        },
-        ...prev.cart,
-      ]
+      cart: mergeCartItem(prev.cart, {
+        ...item,
+        selectedGroups,
+      }),
     }));
   };
 

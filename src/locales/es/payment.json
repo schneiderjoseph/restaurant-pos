@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "Restante",
     "change": "Cambio",
+    "payIn": "El cliente paga en",
     "tempBill": "Factura temporal",
     "complete": "Completar",
     "cannotAddCard": "No se puede agregar más pago con tarjeta",

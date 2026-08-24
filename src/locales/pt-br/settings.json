@@ -129,7 +129,9 @@
     "showOnReceipts": "Mostrar nos recibos",
     "updated": "Configurações do símbolo da moeda atualizadas",
     "saveDescription": "Salvar configurações do símbolo da moeda",
-    "currency": "Moeda"
+    "currency": "Moeda",
+    "usdToHtgRate": "Taxa USD → HTG",
+    "usdToHtgRateHint": "Exibida como segunda linha sob os valores (ex.: 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "Traduzir recibos",

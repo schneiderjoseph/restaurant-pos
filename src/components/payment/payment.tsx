@@ -475,7 +475,7 @@ export const Payment = () => {
         )}
         {!order && (
           <div className="p-3">
-            <CartTotals itemCount={cartItemCount} cart={state.cart} />
+            <CartTotals itemCount={cartItemCount} cart={state.cart} allowServiceCharges={state?.orderType?.allow_service_charges} />
           </div>
         )}
 

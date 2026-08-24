@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "Resto",
     "change": "Resto",
+    "payIn": "Il cliente paga in",
     "tempBill": "Preconto",
     "complete": "Completa",
     "cannotAddCard": "Impossibile aggiungere altro pagamento con carta",

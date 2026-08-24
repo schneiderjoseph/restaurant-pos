@@ -81,6 +81,7 @@
   "receiving": {
     "remaining": "Restant",
     "change": "Monnaie",
+    "payIn": "Le client paie en",
     "tempBill": "Note provisoire",
     "complete": "Terminer",
     "cannotAddCard": "Impossible d'ajouter un paiement supplémentaire par carte",

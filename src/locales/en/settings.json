@@ -126,6 +126,8 @@
     "title": "Currency",
     "description": "Choose HTG (G) or USD ($) for amounts in the app and on receipts. You can also hide the currency symbol (numbers only). Display-only — stored values are unchanged.",
     "currency": "Currency",
+    "usdToHtgRate": "USD → HTG exchange rate",
+    "usdToHtgRateHint": "Shown as a second line under primary amounts (e.g. 132 means $1 = G132).",
     "showInUi": "Show on screen",
     "showOnReceipts": "Show on receipts",
     "updated": "Currency settings updated",

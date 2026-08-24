@@ -129,7 +129,9 @@
     "showOnReceipts": "Tonen op bonnen",
     "updated": "Valutasymbool-instellingen bijgewerkt",
     "saveDescription": "Valutasymbool-instellingen opslaan",
-    "currency": "Valuta"
+    "currency": "Valuta",
+    "usdToHtgRate": "USD → HTG wisselkoers",
+    "usdToHtgRateHint": "Getoond als tweede regel onder bedragen (bijv. 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "Bonnen vertalen",

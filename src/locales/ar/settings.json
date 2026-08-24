@@ -129,7 +129,9 @@
     "showOnReceipts": "إظهار على الإيصالات",
     "updated": "تم تحديث إعدادات رمز العملة",
     "saveDescription": "حفظ إعدادات رمز العملة",
-    "currency": "العملة"
+    "currency": "العملة",
+    "usdToHtgRate": "سعر صرف USD → HTG",
+    "usdToHtgRateHint": "يُعرض كسطر ثانٍ تحت المبالغ (مثلاً 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "ترجمة الإيصالات",

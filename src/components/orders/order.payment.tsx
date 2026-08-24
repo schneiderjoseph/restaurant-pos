@@ -6,7 +6,8 @@ import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState}
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {computeOrderPaymentTotals} from "@/lib/order-payment-totals.ts";
-import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {cn, toRecordId} from "@/lib/utils.ts";
+import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
 import {Tax} from "@/api/model/tax.ts";
@@ -799,7 +800,7 @@ export const OrderPayment = ({
           <div className="flex flex-col font-bold text-lg" data-testid="payment-totals">
             <div className="flex justify-between p-3">
               <div>{t('totals.items', {count: getOrderFilteredItems(order).length})}</div>
-              <div className="text-right">{withCurrency(itemsTotal)}</div>
+              <div className="text-right"><DualCurrency amount={itemsTotal} /></div>
             </div>
             <div
               data-testid="payment-row-tax"
@@ -823,7 +824,7 @@ export const OrderPayment = ({
                   : t('tabs.tax')}{' '}
                 <FontAwesomeIcon icon={faPencil}/>
               </div>
-              <div className="text-right">{withCurrency(taxAmount)}</div>
+              <div className="text-right"><DualCurrency amount={taxAmount} /></div>
             </div>
 
             <div
@@ -847,7 +848,7 @@ export const OrderPayment = ({
                 {discountLines.length > 0 && `(${discountLines.length})`}{' '}
                 <FontAwesomeIcon icon={faPencil}/>
               </div>
-              <div className="text-right">{withCurrency(cartTotals.discountTotal)}</div>
+              <div className="text-right"><DualCurrency amount={cartTotals.discountTotal} /></div>
             </div>
 
             <div
@@ -867,7 +868,7 @@ export const OrderPayment = ({
               });
             }}>
               <div>{t('tabs.coupon')} <FontAwesomeIcon icon={faPencil}/></div>
-              <div className="text-right">{withCurrency(couponAmount)}</div>
+              <div className="text-right"><DualCurrency amount={couponAmount} /></div>
             </div>
 
             <div
@@ -891,7 +892,7 @@ export const OrderPayment = ({
                 unit: serviceChargeType === DiscountType.Percent ? '%' : ''
               })}{' '}
                 <FontAwesomeIcon icon={faPencil}/></div>
-              <div className="text-right">{withCurrency(serviceChargeAmount)}</div>
+              <div className="text-right"><DualCurrency amount={serviceChargeAmount} /></div>
             </div>
 
             <div
@@ -912,7 +913,7 @@ export const OrderPayment = ({
             }}>
               <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon
                 icon={faPencil}/></div>
-              <div className="text-right">{withCurrency(tipAmount)}</div>
+              <div className="text-right"><DualCurrency amount={tipAmount} /></div>
             </div>
 
             {Object.keys(extras).map(extra => (
@@ -939,7 +940,7 @@ export const OrderPayment = ({
                 }}
               >
                 <div>{extra}</div>
-                <div className="text-right">{withCurrency(extras[extra])}</div>
+                <div className="text-right"><DualCurrency amount={extras[extra]} /></div>
               </div>
             ))}
             <div
@@ -956,7 +957,7 @@ export const OrderPayment = ({
 
             <div className="flex justify-between p-3" data-testid="payment-total-row">
               <div className="text-2xl">{t('tabs.total')}</div>
-              <div className="text-right text-2xl">{withCurrency(total)}</div>
+              <div className="text-right text-2xl"><DualCurrency amount={total} primaryClassName="text-2xl" /></div>
             </div>
           </div>
         </div>

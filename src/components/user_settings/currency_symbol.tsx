@@ -13,11 +13,12 @@ import {
   DEFAULT_CURRENCY_SYMBOL,
 } from "@/api/model/currency_symbol.ts";
 import { setShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
-import { APP_CURRENCIES, AppCurrencyCode, getCurrencySymbol, setAppCurrencyCode } from "@/lib/currency.ts";
+import { APP_CURRENCIES, AppCurrencyCode, getCurrencySymbol, setAppCurrencyCode, setUsdToHtgRate } from "@/lib/currency.ts";
 import { useTranslation } from "react-i18next";
 
 interface FormValues {
   code: AppCurrencyCode;
+  usdToHtgRate: number;
   ui: boolean;
   receipts: boolean;
 }
@@ -30,7 +31,8 @@ export const CurrencySymbolSettingsCard = () => {
 
   const { control, handleSubmit, reset, watch, setValue } = useForm<FormValues>({
     defaultValues: {
-      code: DEFAULT_CURRENCY_SYMBOL.code ?? "HTG",
+      code: DEFAULT_CURRENCY_SYMBOL.code ?? "USD",
+      usdToHtgRate: DEFAULT_CURRENCY_SYMBOL.usdToHtgRate ?? 132,
       ui: DEFAULT_CURRENCY_SYMBOL.ui,
       receipts: DEFAULT_CURRENCY_SYMBOL.receipts,
     },
@@ -49,6 +51,7 @@ export const CurrencySymbolSettingsCard = () => {
   const saveSettings = async (values: FormValues) => {
     const payload: CurrencySymbolSettings = {
       code: values.code,
+      usdToHtgRate: Number(values.usdToHtgRate) || undefined,
       ui: values.ui,
       receipts: values.receipts,
     };
@@ -64,6 +67,7 @@ export const CurrencySymbolSettingsCard = () => {
     }
 
     setAppCurrencyCode(payload.code);
+    setUsdToHtgRate(payload.usdToHtgRate);
     setShowCurrencySymbolInUi(payload.ui);
     toast.success(t("settings:currencySymbol.updated"));
     await loadSettings();
@@ -88,10 +92,12 @@ export const CurrencySymbolSettingsCard = () => {
 
     reset({
       code,
+      usdToHtgRate: Number(values.usdToHtgRate) > 0 ? Number(values.usdToHtgRate) : (DEFAULT_CURRENCY_SYMBOL.usdToHtgRate ?? 132),
       ui: values.ui,
       receipts: values.receipts,
     });
     setAppCurrencyCode(code);
+    setUsdToHtgRate(values.usdToHtgRate);
     setShowCurrencySymbolInUi(values.ui);
   }, [settings, reset]);
 
@@ -125,6 +131,28 @@ export const CurrencySymbolSettingsCard = () => {
               ))}
             </div>
           </div>
+          <Controller
+            name="usdToHtgRate"
+            control={control}
+            render={({ field }) => (
+              <div>
+                <label className="text-sm font-medium mb-1 block">
+                  {t("settings:currencySymbol.usdToHtgRate")}
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  step={0.01}
+                  className="input input-bordered w-full max-w-xs"
+                  value={field.value}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+                <p className="text-xs text-neutral-500 mt-1">
+                  {t("settings:currencySymbol.usdToHtgRateHint")}
+                </p>
+              </div>
+            )}
+          />
           <Controller
             name="ui"
             control={control}

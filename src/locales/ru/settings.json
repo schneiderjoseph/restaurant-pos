@@ -129,7 +129,9 @@
     "showOnReceipts": "Показывать на чеках",
     "updated": "Настройки символа валюты обновлены",
     "saveDescription": "Сохранить настройки символа валюты",
-    "currency": "Валюта"
+    "currency": "Валюта",
+    "usdToHtgRate": "Курс USD → HTG",
+    "usdToHtgRateHint": "Показывается второй строкой под суммами (напр. 132 = $1 = G132)."
   },
   "translateReceipts": {
     "title": "Переводить чеки",
