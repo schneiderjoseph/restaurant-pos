@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} ya está tomando un pedido en esta mesa",
   "floor": {
     "switchTable": "Cambiar de la Mesa {{table}} a otra",
+    "switchHint": "Toque una mesa para mover este pedido",
     "reloadCachePrefix": "Presione el botón de recargar caché en",
-    "settings": "configuración"
+    "settings": "configuración",
+    "legendFree": "Libre",
+    "legendBusy": "Ocupada",
+    "legendLocked": "Bloqueada",
+    "legendLate": "Retrasada",
+    "occupied": "{{count}} ocupada(s)",
+    "free": "{{count}} libre(s)",
+    "emptyFloor": "No hay mesas en este piso",
+    "fitView": "Ajustar plano",
+    "mapHint": "Arrastre para mover · rueda o pellizco para zoom"
   },
   "guard": {
     "punchDisabled": "El registro está deshabilitado hasta que se cierre el ciclo actual, o elimine el cierre del ciclo actual.",

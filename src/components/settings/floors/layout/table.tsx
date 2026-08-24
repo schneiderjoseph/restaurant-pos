@@ -1,7 +1,8 @@
 import { Table } from "@/api/model/table.ts";
 import React, {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
 import { useMove } from 'react-aria';
-import { cn, withCurrency } from "@/lib/utils.ts";
+import { cn } from "@/lib/utils.ts";
+import { DualCurrency } from "@/components/common/currency/dual-currency.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -13,7 +14,8 @@ import {
   faExclamationCircle,
   faLock,
   faSquare,
-  faSquareFull
+  faSquareFull,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Slider } from "@/components/common/react-aria/slider.tsx";
@@ -40,6 +42,7 @@ interface Props {
   positionOverride?: { x: number; y: number }
   onGroupMove?: (deltaX: number, deltaY: number) => void
   onGroupMoveEnd?: () => void
+  suppressClick?: React.MutableRefObject<boolean>
 }
 
 export const FloorTable = ({
@@ -57,6 +60,7 @@ export const FloorTable = ({
   positionOverride,
   onGroupMove,
   onGroupMoveEnd,
+  suppressClick,
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
@@ -177,10 +181,15 @@ export const FloorTable = ({
     return false;
   }, [order]);
 
+  const isPos = !isEditing;
+  const isBlocked = table.is_block === true;
+  const isOccupied = Boolean(order);
+
   return (
     <div
       {...moveProps}
       tabIndex={0}
+      role={isPos ? 'button' : undefined}
       data-testid="floor-table"
       data-table-name={`${table.name ?? ''}${table.number ?? ''}`}
       style={{
@@ -191,14 +200,22 @@ export const FloorTable = ({
         left: clampAxis(displayX, getMaxX()),
         top: clampAxis(displayY, getMaxY()),
         borderColor: settings.color,
-        '--scale': 0.95,
+        '--scale': 0.97,
       } as CSSProperties}
       className={cn(
-        "border absolute z-0 cursor-pointer flex flex-col justify-center items-center",
+        "border-2 absolute z-0 flex flex-col justify-center items-center gap-0.5 px-1 text-center",
         settings.rounded,
-        isSelected && "ring-4 ring-primary-500 z-10"
+        isSelected && "ring-4 ring-primary-500 z-10",
+        isPos && !isLocked && !isBlocked && "pressable cursor-pointer shadow-md hover:shadow-xl hover:z-10",
+        isPos && isOccupied && "shadow-lg",
+        isPos && !isOccupied && "opacity-90",
+        isPos && isLateOrder && "ring-2 ring-danger-500",
+        (isLocked || isBlocked) && "cursor-not-allowed opacity-75"
       )}
       onClick={() => {
+        if (suppressClick?.current) {
+          return;
+        }
         onClick && onClick();
       }}
     >
@@ -243,12 +260,28 @@ export const FloorTable = ({
           )}
         </>
       )}
-      <span className="text-2xl">{table.name}{table.number}</span>
+      <span className="text-2xl font-black leading-none tracking-tight">{table.name}{table.number}</span>
       {order && (
-        <span className="text-lg font-bold rounded-2xl py-[2px] px-2" style={{
-          color: table.background,
-          background: table.color
-        }}>{withCurrency(total)}</span>
+        <>
+          {order.covers ? (
+            <span className="text-[11px] font-semibold opacity-90 inline-flex items-center gap-1">
+              <FontAwesomeIcon icon={faUser} className="text-[10px]"/>
+              {order.covers}
+            </span>
+          ) : null}
+          <span className="text-sm font-bold rounded-full py-[2px] px-2 leading-tight" style={{
+            color: table.background,
+            background: table.color
+          }}>
+            <DualCurrency
+              amount={total}
+              layout="stack"
+              className="items-center"
+              primaryClassName="text-sm font-bold"
+              secondaryClassName="text-[10px] opacity-80 !text-inherit"
+            />
+          </span>
+        </>
       )}
       {isEditing && (
         <>

@@ -87,7 +87,7 @@
     "discountSaved": "Desconto {{name}} salvo",
     "extraSaved": "Extra {{name}} salvo",
     "floorSaved": "Andar {{name}} salvo",
-    "kitchenSaved": "Cozinha {{name}} salva",
+    "kitchenSaved": "Estação {{name}} salva",
     "modifierGroupSaved": "Grupo de modificadores {{name}} salvo",
     "orderTypeSaved": "Tipo de pedido {{name}} salvo",
     "paymentTypeSaved": "Tipo de pagamento {{name}} salvo",

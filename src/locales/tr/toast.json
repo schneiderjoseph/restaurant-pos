@@ -87,7 +87,7 @@
     "discountSaved": "İndirim {{name}} kaydedildi",
     "extraSaved": "{{name}} ekstrası kaydedildi",
     "floorSaved": "{{name}} katı kaydedildi",
-    "kitchenSaved": "{{name}} mutfağı kaydedildi",
+    "kitchenSaved": "İstasyon {{name}} kaydedildi",
     "modifierGroupSaved": "{{name}} değiştirici grubu kaydedildi",
     "orderTypeSaved": "{{name}} sipariş türü kaydedildi",
     "paymentTypeSaved": "{{name}} ödeme türü kaydedildi",

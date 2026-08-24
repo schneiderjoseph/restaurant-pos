@@ -181,3 +181,50 @@ export function partitionDisplayOrders(
     ready: ready.slice(0, maxVisible).map((entry) => entry.order),
   };
 }
+
+export type KitchenStationStatus = {
+  kitchenId: string;
+  kitchenName: string;
+  ready: boolean;
+};
+
+/** Per-station progress for an order (which kitchens finished their part). */
+export function getKitchenStationStatuses(
+  order: Order,
+  kitchenRowsByOrderItemId: KitchenRowsByOrderItemId
+): KitchenStationStatus[] {
+  const items = getOrderFilteredItems(order);
+  const byKitchen = new Map<string, { kitchenName: string; ready: boolean }>();
+
+  for (const item of items) {
+    const rows = rowsForItem(item, kitchenRowsByOrderItemId);
+    for (const row of rows) {
+      const kitchen = row.kitchen as unknown;
+      const kitchenId =
+        kitchen != null && typeof kitchen === 'object'
+          ? kitchenOrderItemKey((kitchen as { id?: unknown }).id ?? kitchen)
+          : kitchenOrderItemKey(kitchen);
+      if (!kitchenId) {
+        continue;
+      }
+
+      const kitchenName =
+        kitchen != null && typeof kitchen === 'object' && 'name' in (kitchen as object)
+          ? String((kitchen as { name?: string }).name ?? kitchenId)
+          : kitchenId;
+      const incomplete = Boolean(row.status && INCOMPLETE_KITCHEN_STATUSES.has(row.status));
+      const existing = byKitchen.get(kitchenId);
+      if (!existing) {
+        byKitchen.set(kitchenId, { kitchenName, ready: !incomplete });
+      } else if (incomplete) {
+        existing.ready = false;
+      }
+    }
+  }
+
+  return [...byKitchen.entries()].map(([kitchenId, value]) => ({
+    kitchenId,
+    kitchenName: value.kitchenName,
+    ready: value.ready,
+  }));
+}

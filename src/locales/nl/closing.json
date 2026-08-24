@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} neemt al een bestelling op aan deze tafel",
   "floor": {
     "switchTable": "Wissel van Tafel {{table}} naar een andere",
+    "switchHint": "Tik op een tafel om deze rekening te verplaatsen",
     "reloadCachePrefix": "Druk op de cache herladen-knop in",
-    "settings": "instellingen"
+    "settings": "instellingen",
+    "legendFree": "Vrij",
+    "legendBusy": "Bezet",
+    "legendLocked": "Vergrendeld",
+    "legendLate": "Te laat",
+    "occupied": "{{count}} bezet",
+    "free": "{{count}} vrij",
+    "emptyFloor": "Geen tafels op deze verdieping",
+    "fitView": "Plattegrond passend maken",
+    "mapHint": "Sleep om te bewegen · scroll of pinch om te zoomen"
   },
   "guard": {
     "punchDisabled": "Invoeren is uitgeschakeld totdat de huidige cyclus is afgesloten, of verwijder de huidige cyclusafsluiting.",

@@ -3,6 +3,7 @@ import { toRecordId } from "@/lib/utils.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { OrderItemKitchenStatus } from "@/api/model/order_item_kitchen.ts";
 import { Dish } from "@/api/model/dish.ts";
+import { ensureKitchenShowsAllField, recordKey } from "@/lib/kitchen/routing.ts";
 
 /**
  * Multi-stage kitchen workflow engine.
@@ -16,8 +17,8 @@ import { Dish } from "@/api/model/dish.ts";
  * the next `waiting` stage to `pending`, which surfaces the item in the next
  * kitchen via the KDS live subscription.
  *
- * Dishes without a workflow fall back to the legacy parallel routing
- * (`kitchen.items ?= dish`), producing one terminal stage row per kitchen.
+ * Dishes without a workflow fall back to station assignment
+ * (`kitchen.items ?= dish`, plus any `shows_all` boards).
  */
 
 type AnyDb = any;
@@ -116,10 +117,34 @@ export const resolveStages = async (
   });
 };
 
+const createActivatedTerminalRow = async (
+  db: AnyDb,
+  params: {
+    kitchenId: string;
+    orderItemRef: ReturnType<typeof toRecordId>;
+  }
+) => {
+  await db.query(
+    `CREATE ${Tables.order_items_kitchen} SET
+      created_at = time::now(),
+      activated_at = time::now(),
+      kitchen = $kitchen,
+      order_item = $orderItem,
+      status = $status,
+      sequence = 0,
+      is_terminal = true`,
+    {
+      kitchen: toRecordId(params.kitchenId),
+      orderItem: params.orderItemRef,
+      status: OrderItemKitchenStatus.Pending,
+    }
+  );
+};
+
 /**
  * Create the kitchen routing rows for a freshly fired order item.
  * Populates `kitchenItems` with the items that should print a KOT now
- * (first stage for workflows, every kitchen for legacy dishes).
+ * (first stage for workflows, every matching station for legacy dishes).
  */
 export const createStageRows = async (
   db: AnyDb,
@@ -135,33 +160,42 @@ export const createStageRows = async (
 
   const stages = await resolveStages(db, dishId);
 
-  // Legacy parallel routing: one terminal row per kitchen that has the dish.
+  // Ensure optional show-all field exists before filtering on it.
+  try {
+    await ensureKitchenShowsAllField(db);
+  } catch {
+    // Older DBs / restricted roles — fall through without show-all boards.
+  }
+
+  // Legacy parallel routing: stations that own the dish + show-all boards.
+  // Use Surreal `items ?= $dish` so unfetched RecordIds still match.
   if (!stages) {
     const kitchens = rowsOf<any>(
       await db.query(
-        `SELECT * FROM ${Tables.kitchens} WHERE items ?= $dish AND deleted_at = none`,
+        `SELECT * FROM ${Tables.kitchens}
+         WHERE deleted_at = none
+           AND items ?= $dish`,
         { dish: toRecordId(dishId) }
       )
     );
 
-    for (const k of kitchens) {
-      const kitchenId = k.id.toString();
-      await db.query(
-        `CREATE ${Tables.order_items_kitchen} SET
-          created_at = time::now(),
-          activated_at = time::now(),
-          kitchen = $kitchen,
-          order_item = $orderItem,
-          status = $status,
-          sequence = 0,
-          is_terminal = true`,
-        {
-          kitchen: toRecordId(kitchenId),
-          orderItem: orderItemRef,
-          status: OrderItemKitchenStatus.Pending,
-        }
+    let displays: any[] = [];
+    try {
+      displays = rowsOf<any>(
+        await db.query(
+          `SELECT * FROM ${Tables.kitchens} WHERE deleted_at = none AND shows_all = true`
+        )
       );
+    } catch {
+      displays = [];
+    }
 
+    const seen = new Set<string>();
+    for (const k of [...kitchens, ...displays]) {
+      const kitchenId = k.id.toString();
+      if (seen.has(kitchenId)) continue;
+      seen.add(kitchenId);
+      await createActivatedTerminalRow(db, { kitchenId, orderItemRef });
       pushKitchenItem(kitchenItems, kitchenId, { ...orderItem, item: dish });
     }
     return;
@@ -230,6 +264,25 @@ export const createStageRows = async (
         isTerminal: stage.is_terminal || isLast,
       }
     );
+  }
+
+  // Mirror active first-stage tickets onto show-all boards (expo / pass).
+  let displays: any[] = [];
+  try {
+    displays = rowsOf<any>(
+      await db.query(
+        `SELECT * FROM ${Tables.kitchens} WHERE deleted_at = none AND shows_all = true`
+      )
+    );
+  } catch {
+    displays = [];
+  }
+  const stageKitchenIds = new Set(stages.map((stage) => recordKey(stage.kitchenId)));
+  for (const display of displays) {
+    const kitchenId = display.id.toString();
+    if (stageKitchenIds.has(recordKey(display.id))) continue;
+    await createActivatedTerminalRow(db, { kitchenId, orderItemRef });
+    pushKitchenItem(kitchenItems, kitchenId, { ...orderItem, item: dish });
   }
 };
 

@@ -87,7 +87,7 @@
     "discountSaved": "Скидка {{name}} сохранена",
     "extraSaved": "Дополнение {{name}} сохранено",
     "floorSaved": "Этаж {{name}} сохранён",
-    "kitchenSaved": "Кухня {{name}} сохранена",
+    "kitchenSaved": "Станция {{name}} сохранена",
     "modifierGroupSaved": "Группа модификаторов {{name}} сохранена",
     "orderTypeSaved": "Тип заказа {{name}} сохранён",
     "paymentTypeSaved": "Тип оплаты {{name}} сохранён",

@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} is already taking order on this table",
   "floor": {
     "switchTable": "Switch from Table {{table}} to another",
+    "switchHint": "Tap a table to move this check",
     "reloadCachePrefix": "Press reload cache button from",
-    "settings": "settings"
+    "settings": "settings",
+    "legendFree": "Free",
+    "legendBusy": "Occupied",
+    "legendLocked": "Locked",
+    "legendLate": "Late",
+    "occupied": "{{count}} occupied",
+    "free": "{{count}} free",
+    "emptyFloor": "No tables on this floor",
+    "fitView": "Fit floor",
+    "mapHint": "Drag to move · scroll or pinch to zoom"
   },
   "guard": {
     "punchDisabled": "Punching is disabled until current cycle is closed, or delete current cycle closing.",

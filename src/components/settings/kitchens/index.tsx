@@ -38,7 +38,15 @@ export const AdminKitchens = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: t('columns.name')
+      header: t('columns.name'),
+      cell: info => (
+        <span className="flex items-center gap-2">
+          {info.getValue()}
+          {info.row.original.shows_all ? (
+            <span className="tag">{t('forms.showsAllBadge')}</span>
+          ) : null}
+        </span>
+      )
     }),
     columnHelper.accessor("printers", {
       header: t('columns.printers'),
@@ -142,6 +150,7 @@ export const AdminKitchens = () => {
               priority: String(row.priority ?? ''),
               items: (row.items ?? []).filter(Boolean).map((item) => item?.name).filter(Boolean).join('|'),
               printers: (row.printers ?? []).filter(Boolean).map((item) => item?.name).filter(Boolean).join('|'),
+              shows_all: row.shows_all ? 'true' : 'false',
             }));
           }}
           onDone={() => loadHook.fetchData()}

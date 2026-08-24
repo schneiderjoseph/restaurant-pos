@@ -8,6 +8,8 @@ import {DateTime} from "surrealdb";
 export interface Kitchen extends ID, Name, Priority{
   items: Dish[]
   printers: Printer[]
+  /** When true, this KDS board shows every ticket (expo / pass). */
+  shows_all?: boolean
 
   deleted_at?: DateTime
 }

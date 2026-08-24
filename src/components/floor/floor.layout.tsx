@@ -1,6 +1,6 @@
 import {useAtom} from "jotai";
 import {appAlert, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
-import {CSSProperties, useEffect, useMemo, useState} from "react";
+import {CSSProperties, useEffect, useMemo, useRef, useState} from "react";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -10,18 +10,21 @@ import {FloorTable} from "@/components/settings/floors/layout/table.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faChair} from "@fortawesome/free-solid-svg-icons";
-import {ne, LiveSubscription} from "surrealdb";
+import {faChair, faExpand, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
+import {useFloorMapCamera} from "@/hooks/useFloorMapCamera.ts";
 
 
 export const FloorLayout = () => {
   const { t } = useTranslation('closing');
+  const { t: tAdmin } = useTranslation('admin');
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useAtom(appState);
   const [, setSettings] = useAtom(appSettings);
   const db = useDB();
@@ -45,6 +48,29 @@ export const FloorLayout = () => {
 
     return settings.tables;
   }, [settings.tables, state.floor]);
+
+  const tableBounds = useMemo(
+    () => tables.map((table) => ({
+      x: Number(table.x) || 0,
+      y: Number(table.y) || 0,
+      width: Number(table.width) || 50,
+      height: Number(table.height) || 50,
+    })),
+    [tables]
+  );
+
+  const {
+    camera,
+    worldSize,
+    suppressClickRef,
+    fitToView,
+    zoomIn,
+    zoomOut,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    isPanning,
+  } = useFloorMapCamera(viewportRef, tableBounds, state.floor?.id?.toString());
 
   const categories = useMemo(() => {
     return settings.categories.filter(item => item.show_in_menu !== false);
@@ -162,6 +188,36 @@ export const FloorLayout = () => {
     return orders?.data?.find(item =>
       item?.table?.id?.toString() === tableId.toString()
     )
+  }
+
+  const floorStats = useMemo(() => {
+    const visible = tables ?? [];
+    let occupied = 0;
+    let locked = 0;
+    let free = 0;
+
+    for (const table of visible) {
+      if (table.is_block) {
+        continue;
+      }
+      if (table.is_locked) {
+        locked += 1;
+      }
+      if (tableOrder(table.id.toString())) {
+        occupied += 1;
+      } else if (!table.is_locked) {
+        free += 1;
+      }
+    }
+
+    return {occupied, locked, free, total: visible.length};
+  }, [tables, orders?.data]);
+
+  const occupiedOnFloor = (floorId: string) => {
+    const floorTables = settings.tables.filter(
+      (table) => table.floor?.id?.toString() === floorId && !table.is_block
+    );
+    return floorTables.filter((table) => tableOrder(table.id.toString())).length;
   }
 
   const onClick = async (item: Table) => {
@@ -299,28 +355,75 @@ export const FloorLayout = () => {
 
   return (
     <>
-      <div className="flex flex-col transition-all delay-75" data-testid="menu-floor" style={{
+      <div className="flex flex-col h-full transition-all delay-75" data-testid="menu-floor" style={{
         background: state.floor?.background
       }}>
-        <div className="h-[80px] bg-white p-3 flex items-center">
-          {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> {t('floor.switchTable', {
-            table: `${state?.table?.name ?? ''}${state?.table?.number ?? ''}`
-          })}</div>}
+        <div className="min-h-[72px] bg-white/95 backdrop-blur border-b border-neutral-200 px-4 py-2 flex items-center gap-4">
+          {state.switchTable ? (
+            <div className="flex-1 rounded-xl bg-warning-100 text-warning-900 px-4 py-2 flex items-center gap-3">
+              <FontAwesomeIcon icon={faChair} className="text-xl"/>
+              <div className="leading-tight">
+                <div className="text-lg font-bold">{t('floor.switchTable', {
+                  table: `${state?.table?.name ?? ''}${state?.table?.number ?? ''}`
+                })}</div>
+                <div className="text-sm opacity-80">{t('floor.switchHint')}</div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="min-w-[120px]">
+                <div className="text-2xl font-black leading-none">{state.floor?.name}</div>
+              </div>
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <span className="rounded-full bg-success-100 text-success-800 px-3 py-1">{t('floor.free', {count: floorStats.free})}</span>
+                <span className="rounded-full bg-warning-100 text-warning-800 px-3 py-1">{t('floor.occupied', {count: floorStats.occupied})}</span>
+              </div>
+              <div className="ml-auto hidden lg:flex items-center gap-3 text-xs font-semibold text-neutral-600">
+                <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-success-500"/>{t('floor.legendFree')}</span>
+                <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-warning-500"/>{t('floor.legendBusy')}</span>
+                <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-neutral-700"/>{t('floor.legendLocked')}</span>
+                <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-danger-500"/>{t('floor.legendLate')}</span>
+              </div>
+            </>
+          )}
           {isClosingLocked && closingLockMessage && (
-            <div className="alert alert-warning w-full">
+            <div className="alert alert-warning flex-1">
               {closingLockMessage}
             </div>
           )}
         </div>
-        <div className="layout relative h-[calc(100vh_-_80px_-_80px)] p-3 overflow-hidden" data-testid="menu-floor-tables">
+        <div
+          ref={viewportRef}
+          className={cn(
+            "layout relative h-[calc(100vh_-_72px_-_80px)] overflow-hidden bg-grid touch-none",
+            isPanning ? "cursor-grabbing" : "cursor-grab"
+          )}
+          data-testid="menu-floor-tables"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+        >
           {floors?.length === 0 && (
-            <div className="flex items-center justify-center text-2xl">
+            <div className="flex items-center justify-center h-full text-xl text-neutral-700 cursor-default">
               {t('floor.reloadCachePrefix')}{" "}<span className="ml-2 btn btn-secondary"><Link to="/settings">{t('floor.settings')}</Link></span>
             </div>
           )}
-          {state.floor && (
-            <>
-              {tables?.map(item => (
+          {state.floor && tables?.length === 0 && (
+            <div className="flex items-center justify-center h-full text-xl text-neutral-600 font-semibold cursor-default">
+              {t('floor.emptyFloor')}
+            </div>
+          )}
+          {state.floor && tables?.length > 0 && (
+            <div
+              className="absolute top-0 left-0 origin-top-left will-change-transform"
+              style={{
+                width: worldSize.width,
+                height: worldSize.height,
+                transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})`,
+              }}
+            >
+              {tables.map(item => (
                 <FloorTable
                   order={tableOrder(item.id)}
                   table={item}
@@ -329,35 +432,62 @@ export const FloorLayout = () => {
                   onClick={() => onClick(item)}
                   key={item.id}
                   numberOfOrders={tableOrders(item.id)?.length}
+                  suppressClick={suppressClickRef}
                 />
               ))}
-            </>
+            </div>
+          )}
+          {state.floor && tables?.length > 0 && (
+            <div
+              data-floor-map-controls
+              className="absolute bottom-4 right-4 z-20 flex flex-col gap-2 cursor-default"
+            >
+              <div className="rounded-2xl bg-white/95 shadow-lg border border-neutral-200 p-1.5 flex flex-col gap-1">
+                <Button variant="primary" flat size="sm" icon={faPlus} iconButton onClick={zoomIn} aria-label={tAdmin('buttons.zoomIn')} />
+                <Button variant="primary" flat size="sm" icon={faMinus} iconButton onClick={zoomOut} aria-label={tAdmin('buttons.zoomOut')} />
+                <Button variant="primary" flat size="sm" icon={faExpand} iconButton onClick={fitToView} aria-label={t('floor.fitView')} />
+              </div>
+              <div className="rounded-xl bg-white/90 px-2 py-1 text-[11px] font-semibold text-neutral-600 shadow max-w-[160px] text-center">
+                {t('floor.mapHint')}
+              </div>
+            </div>
           )}
         </div>
-        <div className="floor-btns flex gap-3 p-3" data-testid="menu-floor-switcher">
-          {floors?.map(item => (
-            <Button
-              variant="custom"
-              key={item.id}
-              size="lg"
-              data-testid="menu-floor-btn"
-              className={
-                cn(
-                  "flex-1 relative outline-none pressable",
-                  state?.floor && item.id.toString() === state?.floor?.id?.toString() && 'bg-gradient'
-                )
-              }
-              onClick={() => setState(prev => ({
-                ...prev,
-                floor: item
-              }))}
-              style={{
-                '--background': item.background,
-                '--color': item.color,
-                '--scale': 0.98
-              } as CSSProperties}
-            >{item.name}</Button>
-          ))}
+        <div className="floor-btns flex gap-2 p-3 bg-white/90 border-t border-neutral-200" data-testid="menu-floor-switcher">
+          {floors?.map(item => {
+            const active = state?.floor && item.id.toString() === state?.floor?.id?.toString();
+            const busy = occupiedOnFloor(item.id.toString());
+            return (
+              <Button
+                variant="custom"
+                key={item.id}
+                size="lg"
+                data-testid="menu-floor-btn"
+                className={
+                  cn(
+                    "flex-1 relative outline-none pressable rounded-2xl min-h-[56px] font-bold shadow-sm",
+                    active ? 'ring-2 ring-neutral-900' : 'opacity-85'
+                  )
+                }
+                onClick={() => setState(prev => ({
+                  ...prev,
+                  floor: item
+                }))}
+                style={{
+                  '--background': item.background,
+                  '--color': item.color,
+                  '--scale': 0.98
+                } as CSSProperties}
+              >
+                <span className="flex flex-col items-center leading-tight">
+                  <span>{item.name}</span>
+                  {busy > 0 && (
+                    <span className="text-xs font-semibold opacity-80">{t('floor.occupied', {count: busy})}</span>
+                  )}
+                </span>
+              </Button>
+            );
+          })}
         </div>
       </div>
     </>

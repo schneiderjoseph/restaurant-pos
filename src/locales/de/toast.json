@@ -87,7 +87,7 @@
     "discountSaved": "Rabatt {{name}} gespeichert",
     "extraSaved": "Extra {{name}} gespeichert",
     "floorSaved": "Etage {{name}} gespeichert",
-    "kitchenSaved": "Küche {{name}} gespeichert",
+    "kitchenSaved": "Station {{name}} gespeichert",
     "modifierGroupSaved": "Modifikatorgruppe {{name}} gespeichert",
     "orderTypeSaved": "Bestelltyp {{name}} gespeichert",
     "paymentTypeSaved": "Zahlungsart {{name}} gespeichert",

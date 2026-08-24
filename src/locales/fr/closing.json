@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} prend déjà une commande sur cette table",
   "floor": {
     "switchTable": "Changer de la table {{table}} vers une autre",
+    "switchHint": "Touchez une table pour y déplacer cette commande",
     "reloadCachePrefix": "Appuyez sur le bouton de rechargement du cache depuis les",
-    "settings": "paramètres"
+    "settings": "paramètres",
+    "legendFree": "Libre",
+    "legendBusy": "Occupée",
+    "legendLocked": "Verrouillée",
+    "legendLate": "En retard",
+    "occupied": "{{count}} occupée(s)",
+    "free": "{{count}} libre(s)",
+    "emptyFloor": "Aucune table sur cet étage",
+    "fitView": "Ajuster le plan",
+    "mapHint": "Glisser pour déplacer · molette ou pincer pour zoomer"
   },
   "guard": {
     "punchDisabled": "La saisie est désactivée jusqu'à la clôture du cycle en cours, ou supprimez la clôture du cycle actuel.",

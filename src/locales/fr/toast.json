@@ -87,7 +87,7 @@
     "discountSaved": "Remise {{name}} enregistrée",
     "extraSaved": "Extra {{name}} enregistré",
     "floorSaved": "Étage {{name}} enregistré",
-    "kitchenSaved": "Cuisine {{name}} enregistrée",
+    "kitchenSaved": "Station {{name}} enregistrée",
     "modifierGroupSaved": "Groupe de modificateurs {{name}} enregistré",
     "orderTypeSaved": "Type de commande {{name}} enregistré",
     "paymentTypeSaved": "Type de paiement {{name}} enregistré",

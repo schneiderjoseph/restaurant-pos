@@ -20,6 +20,7 @@ import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {cancelItemStages} from "@/lib/kitchen/workflow.service.ts";
+import {kitchenMatchesDish} from "@/lib/kitchen/routing.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import {publishOrderCancelled} from "@/integrations/accounting/events/publish.ts";
@@ -208,9 +209,8 @@ export const OrderCancelModal = ({
           if (!qty) continue;
 
           for (const k of kitchens) {
-            const kitchenDishIds = (k.items || []).map((d: any) => d.id?.toString() ?? d.toString());
             const itemDishId = item.item?.id?.toString();
-            if (itemDishId && kitchenDishIds.includes(itemDishId)) {
+            if (kitchenMatchesDish(k, itemDishId)) {
               const kId = k.id.toString();
               if (!kitchenItemsMap[kId]) {
                 kitchenItemsMap[kId] = {kitchen: k, items: []};

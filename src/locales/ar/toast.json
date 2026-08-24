@@ -87,7 +87,7 @@
     "discountSaved": "تم حفظ الخصم {{name}}",
     "extraSaved": "تم حفظ الإضافة {{name}}",
     "floorSaved": "تم حفظ الطابق {{name}}",
-    "kitchenSaved": "تم حفظ المطبخ {{name}}",
+    "kitchenSaved": "تم حفظ المحطة {{name}}",
     "modifierGroupSaved": "تم حفظ مجموعة المعدّلات {{name}}",
     "orderTypeSaved": "تم حفظ نوع الطلب {{name}}",
     "paymentTypeSaved": "تم حفظ نوع الدفع {{name}}",

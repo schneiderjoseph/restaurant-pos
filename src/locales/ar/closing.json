@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} يستقبل طلباً على هذه الطاولة بالفعل",
   "floor": {
     "switchTable": "الانتقال من الطاولة {{table}} إلى أخرى",
+    "switchHint": "المس طاولة لنقل هذا الطلب",
     "reloadCachePrefix": "اضغط زر إعادة تحميل ذاكرة التخزين المؤقت من",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "legendFree": "شاغرة",
+    "legendBusy": "مشغولة",
+    "legendLocked": "مقفلة",
+    "legendLate": "متأخرة",
+    "occupied": "{{count}} مشغولة",
+    "free": "{{count}} شاغرة",
+    "emptyFloor": "لا توجد طاولات في هذا الطابق",
+    "fitView": "ملاءمة المخطط",
+    "mapHint": "اسحب للتحريك · مرّر أو اضغط للتكبير"
   },
   "guard": {
     "punchDisabled": "الإدخال معطّل حتى إغلاق الدورة الحالية، أو حذف إغلاق الدورة الحالية.",

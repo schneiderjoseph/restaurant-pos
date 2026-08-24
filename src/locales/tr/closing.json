@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} bu masada zaten sipariş alıyor",
   "floor": {
     "switchTable": "Masa {{table}}'den başka bir masaya geç",
+    "switchHint": "Bu hesabı taşımak için bir masaya dokunun",
     "reloadCachePrefix": "Önbelleği yeniden yükle düğmesine basın",
-    "settings": "ayarlar"
+    "settings": "ayarlar",
+    "legendFree": "Boş",
+    "legendBusy": "Dolu",
+    "legendLocked": "Kilitli",
+    "legendLate": "Gecikmiş",
+    "occupied": "{{count}} dolu",
+    "free": "{{count}} boş",
+    "emptyFloor": "Bu katta masa yok",
+    "fitView": "Planı sığdır",
+    "mapHint": "Taşımak için sürükleyin · zoom için kaydırın veya kıstırın"
   },
   "guard": {
     "punchDisabled": "Mevcut döngü kapatılana veya mevcut döngü kapanışı silinene kadar giriş devre dışı.",

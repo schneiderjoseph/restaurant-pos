@@ -3,7 +3,7 @@ import { Kitchen } from "@/api/model/kitchen.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { InputField } from "@/components/common/form/rhf-fields.tsx";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { transformValue } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -25,6 +25,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { PrinterForm } from "@/components/settings/printers/printer.form.tsx";
 import { ensureLocationForKitchen } from "@/lib/inventory/location.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { claimDishesForKitchen, ensureKitchenShowsAllField } from "@/lib/kitchen/routing.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
@@ -42,8 +43,9 @@ const validationSchema = z.object({
   items: z.array(z.object({
     label: z.string(),
     value: z.string()
-  })),
+  })).optional().default([]),
   priority: z.number().min(1, i18n.t('validation:required')),
+  shows_all: z.boolean().optional(),
 });
 
 export const KitchenForm = ({
@@ -60,7 +62,8 @@ export const KitchenForm = ({
       name: null,
       printers: [],
       priority: null,
-      items: []
+      items: [],
+      shows_all: false,
     });
   }
 
@@ -70,14 +73,19 @@ export const KitchenForm = ({
         ...data,
         name: data.name,
         priority: data.priority,
-        printers: data?.printers?.map(item => ({
-          label: item.name,
-          value: item.id.toString()
-        })),
-        items: data?.items?.map(item => ({
-          label: item.name,
-          value: item.id.toString()
-        })),
+        printers: (data?.printers ?? [])
+          .filter((item): item is NonNullable<typeof item> => !!item?.id)
+          .map(item => ({
+            label: item.name,
+            value: item.id.toString()
+          })),
+        items: (data?.items ?? [])
+          .filter((item): item is NonNullable<typeof item> => !!item?.id)
+          .map(item => ({
+            label: item.name,
+            value: item.id.toString()
+          })),
+        shows_all: !!data?.shows_all,
       });
     }
   }, [data]);
@@ -99,16 +107,27 @@ export const KitchenForm = ({
   });
 
   const { control, handleSubmit, formState: {errors}, reset } = useForm({
-    resolver: zodResolver(validationSchema)
+    resolver: zodResolver(validationSchema),
+    defaultValues: {
+      name: "",
+      printers: [],
+      items: [],
+      priority: undefined,
+      shows_all: false,
+    }
   });
 
-  console.log(errors)
+  const showsAll = useWatch({ control, name: "shows_all" });
 
   const onSubmit = async (values: any) => {
     const vals = {...values};
-    if(values.items){
+    if(values.items && !values.shows_all){
       vals.items = values.items.map(item => new StringRecordId(item.value));
+    } else {
+      vals.items = [];
     }
+
+    vals.shows_all = !!values.shows_all;
 
     if(values.printers){
       vals.printers = values.printers.map(item => new StringRecordId(item.value));
@@ -117,6 +136,7 @@ export const KitchenForm = ({
     vals.priority = Number(values.priority);
 
     try {
+      await ensureKitchenShowsAllField(db);
       let kitchenId = data?.id ? recordIdToString(data.id) : "";
       if(data?.id){
         await db.update(data.id, {
@@ -129,7 +149,14 @@ export const KitchenForm = ({
         kitchenId = recordIdToString(created?.id) || String(created?.id ?? "");
       }
 
-      // Phase 8: keep inventory_location shim in sync with kitchens
+      if (kitchenId && !vals.shows_all) {
+        await claimDishesForKitchen(
+          db,
+          kitchenId,
+          (vals.items ?? []).map((item: { toString: () => string }) => item.toString()),
+        );
+      }
+
       if (kitchenId) {
         await ensureLocationForKitchen(db, kitchenId, {
           name: values.name,
@@ -178,7 +205,23 @@ export const KitchenForm = ({
             </div>
 
             <div className="flex-1">
-              <label htmlFor="">Dishes</label>
+              <Controller
+                name="shows_all"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    label={t('forms.showsAllItems')}
+                    checked={!!field.value}
+                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
+                  />
+                )}
+              />
+              <p className="text-sm text-neutral-500 mt-1">{t('forms.showsAllItemsHint')}</p>
+            </div>
+
+            {!showsAll && (
+            <div className="flex-1">
+              <label htmlFor="">{t('tabs.dishes')}</label>
               <div className="mt-2">
                 <Input
                   placeholder={t('forms.searchDishes')}
@@ -326,6 +369,7 @@ export const KitchenForm = ({
                 control={control}
               />
             </div>
+            )}
 
             <div className="flex gap-2 items-end">
               <div className="flex-1">

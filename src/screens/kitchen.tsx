@@ -163,7 +163,7 @@ const buildBoardTickets = (
 
 
 export const KitchenScreen = () => {
-  const {t} = useTranslation(["kitchen", "toast"]);
+  const {t} = useTranslation(["kitchen", "toast", "admin"]);
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [enforcement] = useAtom(closingEnforcementAtom);
@@ -173,7 +173,7 @@ export const KitchenScreen = () => {
   const [kitchen, setKitchen] = useState<Kitchen>();
   const {
     data: kitchens
-  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
+  } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 99999, ['items', 'printers']);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
   const [ordersHydrated, setOrdersHydrated] = useState(false);
   const orders = useMemo(() => {
@@ -592,6 +592,9 @@ export const KitchenScreen = () => {
                 className="min-w-[200px]"
               >
                 {item.name}
+                {item.shows_all ? (
+                  <span className="ml-2 text-xs font-normal opacity-80">{t("admin:forms.showsAllBadge")}</span>
+                ) : null}
               </Button>
             ))}
           </div>

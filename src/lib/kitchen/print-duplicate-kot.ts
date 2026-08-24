@@ -3,6 +3,7 @@ import { Kitchen } from "@/api/model/kitchen.ts";
 import { Order } from "@/api/model/order.ts";
 import { getOrderFilteredItems } from "@/lib/order.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
+import { kitchenMatchesDish } from "@/lib/kitchen/routing.ts";
 
 /**
  * Re-print full-order KOT(s) grouped by kitchen dish routing (same match as
@@ -32,9 +33,8 @@ export async function printDuplicateKotForOrder(opts: {
 
   for (const item of items) {
     for (const k of kitchens) {
-      const kitchenDishIds = (k.items || []).map((d: any) => d.id?.toString() ?? d.toString());
       const itemDishId = item.item?.id?.toString();
-      if (itemDishId && kitchenDishIds.includes(itemDishId)) {
+      if (kitchenMatchesDish(k, itemDishId)) {
         const kId = k.id.toString();
         if (!kitchenItemsMap[kId]) {
           kitchenItemsMap[kId] = { kitchen: k, items: [] };

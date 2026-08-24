@@ -1261,6 +1261,7 @@ DEFINE FIELD items ON kitchen TYPE array<record<menu_item>> PERMISSIONS FULL;
 DEFINE FIELD name ON kitchen TYPE string PERMISSIONS FULL;
 DEFINE FIELD printers ON kitchen TYPE none | array<record<printer>> | null PERMISSIONS FULL;
 DEFINE FIELD priority ON kitchen TYPE int PERMISSIONS FULL;
+DEFINE FIELD shows_all ON kitchen TYPE bool DEFAULT false PERMISSIONS FULL;
 
 
 

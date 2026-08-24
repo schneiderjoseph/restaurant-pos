@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} sta già prendendo ordini su questo tavolo",
   "floor": {
     "switchTable": "Passa dal Tavolo {{table}} a un altro",
+    "switchHint": "Tocca un tavolo per spostare questo conto",
     "reloadCachePrefix": "Premi il pulsante ricarica cache dalle",
-    "settings": "impostazioni"
+    "settings": "impostazioni",
+    "legendFree": "Libero",
+    "legendBusy": "Occupato",
+    "legendLocked": "Bloccato",
+    "legendLate": "In ritardo",
+    "occupied": "{{count}} occupati",
+    "free": "{{count}} liberi",
+    "emptyFloor": "Nessun tavolo su questo piano",
+    "fitView": "Adatta pianta",
+    "mapHint": "Trascina per spostare · rotella o pinch per lo zoom"
   },
   "guard": {
     "punchDisabled": "L'inserimento ordini è disabilitato finché il ciclo corrente non è chiuso, oppure elimina la chiusura del ciclo corrente.",

@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { translateOrderStatus } from '@/lib/order.ts';
 import {
   buildKitchenRowsMap,
+  getKitchenStationStatuses,
   ORDER_DISPLAY_MAX_VISIBLE,
   partitionDisplayOrders,
 } from '@/lib/order-display.ts';
@@ -106,7 +107,7 @@ export const OrderDisplayScreen = () => {
        FETCH items, table, user, order_type, customer;
        SELECT * FROM ${Tables.order_items_kitchen}
        WHERE created_at >= $startDate
-       FETCH order_item`,
+       FETCH order_item, kitchen`,
       { startDate }
     );
 
@@ -224,7 +225,12 @@ export const OrderDisplayScreen = () => {
             <div className="flex-1 overflow-auto p-4">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {preparing.map((order) => (
-                  <OrderTile key={order.id.toString()} order={order} variant="preparing" />
+                  <OrderTile
+                    key={order.id.toString()}
+                    order={order}
+                    variant="preparing"
+                    stations={getKitchenStationStatuses(order, kitchenRowsByOrderItemId)}
+                  />
                 ))}
               </div>
             </div>
@@ -244,6 +250,7 @@ export const OrderDisplayScreen = () => {
                     order={order}
                     variant="ready"
                     celebrate={highlightedOrderIds.has(order.id.toString())}
+                    stations={getKitchenStationStatuses(order, kitchenRowsByOrderItemId)}
                   />
                 ))}
               </div>

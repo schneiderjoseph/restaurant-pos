@@ -8,6 +8,7 @@ import type {
 } from "@/lib/data-import/types.ts";
 import {type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import {claimDishesForKitchen} from "@/lib/kitchen/routing.ts";
 import {ensureLocationForKitchen} from "@/lib/inventory/location.service.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {
@@ -41,6 +42,14 @@ export function createKitchenImportConfig({
       type: "number",
       defaultValue: 1,
       aliases: ["Priority", "Sort"],
+    },
+    {
+      name: "shows_all",
+      label: t("admin:forms.showsAllItems"),
+      type: "boolean",
+      optional: true,
+      defaultValue: false,
+      aliases: ["Show all", "Shows all", "Display all", "Expo"],
     },
     {
       name: "items",
@@ -88,6 +97,7 @@ export function createKitchenImportConfig({
         priority: Number(values.priority ?? 1) || 1,
         items: refIds(values.items as ResolvedReference[]),
         printers: refIds(values.printers as ResolvedReference[]),
+        shows_all: Boolean(values.shows_all),
       };
 
       const rowData: Record<string, string> = {name};
@@ -128,6 +138,15 @@ export function createKitchenImportConfig({
           name,
           type: "Kitchen",
         });
+        if (!payload.shows_all) {
+          await claimDishesForKitchen(
+            db as any,
+            kitchenId,
+            (payload.items ?? []).map((item: { toString?: () => string }) =>
+              item?.toString?.() ?? String(item)
+            ),
+          );
+        }
       }
     },
   };

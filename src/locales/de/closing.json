@@ -4,8 +4,18 @@
   "tableLocked": "{{user}} nimmt bereits eine Bestellung an diesem Tisch auf",
   "floor": {
     "switchTable": "Von Tisch {{table}} zu einem anderen wechseln",
+    "switchHint": "Tippen Sie auf einen Tisch, um diesen Bon zu verschieben",
     "reloadCachePrefix": "Cache-Neuladen-Schaltfläche drücken in",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "legendFree": "Frei",
+    "legendBusy": "Besetzt",
+    "legendLocked": "Gesperrt",
+    "legendLate": "Verspätet",
+    "occupied": "{{count}} besetzt",
+    "free": "{{count}} frei",
+    "emptyFloor": "Keine Tische auf dieser Etage",
+    "fitView": "Grundriss einpassen",
+    "mapHint": "Ziehen zum Verschieben · scrollen oder pinch zum Zoomen"
   },
   "guard": {
     "punchDisabled": "Erfassung ist deaktiviert, bis der aktuelle Zyklus abgeschlossen ist oder der aktuelle Zyklusabschluss gelöscht wird.",

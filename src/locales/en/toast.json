@@ -96,7 +96,7 @@
     "discountSaved": "Discount {{name}} saved",
     "extraSaved": "Extra {{name}} saved",
     "floorSaved": "Floor {{name}} saved",
-    "kitchenSaved": "Kitchen {{name}} saved",
+    "kitchenSaved": "Station {{name}} saved",
     "modifierGroupSaved": "Modifier group {{name}} saved",
     "orderTypeSaved": "Order type {{name}} saved",
     "paymentTypeSaved": "Payment type {{name}} saved",

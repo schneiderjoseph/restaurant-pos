@@ -87,7 +87,7 @@
     "discountSaved": "Korting {{name}} opgeslagen",
     "extraSaved": "Extra {{name}} opgeslagen",
     "floorSaved": "Verdieping {{name}} opgeslagen",
-    "kitchenSaved": "Keuken {{name}} opgeslagen",
+    "kitchenSaved": "Station {{name}} opgeslagen",
     "modifierGroupSaved": "Modificatiegroep {{name}} opgeslagen",
     "orderTypeSaved": "Bestellingstype {{name}} opgeslagen",
     "paymentTypeSaved": "Betaaltype {{name}} opgeslagen",
