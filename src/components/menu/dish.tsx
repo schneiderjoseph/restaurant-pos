@@ -19,6 +19,7 @@ import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {MenuModifierOverrides} from "@/api/model/menu.ts";
 import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
+import {isAsiMode} from "@/lib/pos-mode.ts";
 
 const dishImageCache = new Map<string, string>();
 
@@ -48,7 +49,8 @@ export const MenuDish = ({
   const [{groups_dishes}] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const db = useDB();
-  const showDishNumber = page.menuConfig?.showDishNumber === true;
+  // ASI aliases (COKE, JUSOR…) crush 10" tiles; never show PLU badges in ASI mode.
+  const showDishNumber = !isAsiMode() && page.menuConfig?.showDishNumber === true;
   const showDishPhotos = page.menuConfig?.showDishPhotos === true;
 
   const [modifiersModal, setModifiersModal] = useState(false);
@@ -225,7 +227,7 @@ export const MenuDish = ({
           )}
           <div className="flex flex-1 flex-col px-3 py-2 min-w-0 justify-center gap-1">
             <h6
-              className="text-ellipsis line-clamp-2 min-h-[2.5rem] text-pretty text-neutral-900 font-semibold leading-snug"
+              className="text-ellipsis line-clamp-2 min-h-0 text-pretty text-neutral-900 font-semibold leading-snug text-sm sm:text-base"
               title={item.name}
             >
               {item.name || item.number || '—'}
@@ -245,7 +247,9 @@ export const MenuDish = ({
             </span>
           </div>
         </div>
-        <span className="absolute bottom-2 right-2 text-primary-500 text-xs font-bold">{dishCount(item)}</span>
+        {Number(dishCount(item)) > 0 && (
+          <span className="absolute bottom-2 right-2 text-primary-500 text-xs font-bold">{dishCount(item)}</span>
+        )}
       </div>
 
       {modifierGroups.length > 0 && modifiersModal && (

@@ -392,10 +392,97 @@ async function dedupeAsiCategories(db, keepIds) {
 }
 
 /**
- * Merge ASI dishes into existing kitchen stations tagged station=cuisine|bar.
+ * Resolve the POSR kitchen board for an ASI station.
+ * Prefer live tagged boards, then revive soft-deleted CUISINE/BAR by name.
+ * Never uses / creates kitchen:station_* boards.
+ */
+async function resolveKitchenForStation(db, station) {
+  const isLegacyId = (id) => {
+    const s = recordIdString(id);
+    return s.includes('station_cuisine') || s.includes('station_bar');
+  };
+
+  const tagged = await queryRows(
+    db,
+    `SELECT id, items, priority, name FROM kitchen
+     WHERE station = $station
+       AND (deleted_at = NONE OR deleted_at = NULL)
+     ORDER BY priority ASC`,
+    { station },
+  );
+  const taggedLive = tagged.find((row) => row?.id && !isLegacyId(row.id));
+  if (taggedLive) {
+    return taggedLive;
+  }
+
+  const names =
+    station === 'bar'
+      ? ['BAR', 'Bar', 'bar']
+      : ['CUISINE', 'Cuisine', 'cuisine', 'KITCHEN', 'Kitchen'];
+
+  const live = await queryRows(
+    db,
+    `SELECT id, items, priority, name FROM kitchen
+     WHERE name IN $names
+       AND (deleted_at = NONE OR deleted_at = NULL)
+     ORDER BY priority ASC`,
+    { names },
+  );
+  const livePreferred = live.find((row) => row?.id && !isLegacyId(row.id));
+  if (livePreferred?.id) {
+    await queryRows(db, `UPDATE $id SET station = $station, deleted_at = NONE`, {
+      id: asRecord(livePreferred.id),
+      station,
+    });
+    return livePreferred;
+  }
+
+  // Revive soft-deleted user board (e.g. accidentally deleted in Manage)
+  const soft = await queryRows(
+    db,
+    `SELECT id, items, priority, name FROM kitchen
+     WHERE name IN $names
+       AND deleted_at != NONE
+     ORDER BY priority ASC`,
+    { names },
+  );
+  const softPreferred = soft.find((row) => row?.id && !isLegacyId(row.id));
+  if (softPreferred?.id) {
+    await queryRows(
+      db,
+      `UPDATE $id SET station = $station, deleted_at = NONE, shows_all = false`,
+      { id: asRecord(softPreferred.id), station },
+    );
+    console.log(
+      `[asi-sync] Revived kitchen ${recordIdString(softPreferred.id)} as station=${station}`,
+    );
+    return softPreferred;
+  }
+
+  return null;
+}
+
+/** Always hard-delete auto-created kitchen:station_* (never keep them). */
+async function purgeLegacyStationKitchens(db) {
+  const legacyIds = ['kitchen:station_cuisine', 'kitchen:station_bar'];
+  let n = 0;
+  for (const id of legacyIds) {
+    const rows = await queryRows(db, `SELECT id FROM $id`, { id: asRecord(id) });
+    if (!rows[0]?.id) continue;
+    await queryRows(db, `DELETE $id`, { id: asRecord(id) });
+    n += 1;
+  }
+  return n;
+}
+
+/**
+ * Merge ASI dishes into existing kitchen stations (station tag or CUISINE/BAR name).
  * Never auto-creates Cuisine/Bar boards — use Manage → Stations.
  */
 async function assignKitchenItems(db, cuisineIds, barIds) {
+  // Kill fork leftovers first so they cannot win name matching.
+  const legacyRemoved = await purgeLegacyStationKitchens(db);
+
   const asiRows = await queryRows(
     db,
     `SELECT id FROM menu_item
@@ -404,41 +491,47 @@ async function assignKitchenItems(db, cuisineIds, barIds) {
   const asiSet = new Set(asiRows.map((r) => recordIdString(r.id)));
 
   async function mergeStation(station, asiDishIds) {
-    const kitchens = await queryRows(
-      db,
-      `SELECT id, items, priority FROM kitchen
-       WHERE station = $station
-         AND (deleted_at = NONE OR deleted_at = NULL)
-       ORDER BY priority ASC
-       LIMIT 1`,
-      { station },
-    );
-    const kitchen = kitchens[0];
+    const kitchen = await resolveKitchenForStation(db, station);
     if (!kitchen?.id) {
       return false;
     }
     const kitchenId = recordIdString(kitchen.id);
+    if (kitchenId.includes('station_cuisine') || kitchenId.includes('station_bar')) {
+      return false;
+    }
     const existing = Array.isArray(kitchen.items) ? kitchen.items : [];
     const kept = existing.map(recordIdString).filter((id) => id && !asiSet.has(id));
     const merged = [...new Set([...kept, ...asiDishIds])].map(asRecord);
-    await queryRows(db, `UPDATE $id SET items = $items`, {
-      id: asRecord(kitchenId),
-      items: merged,
-    });
+    await queryRows(
+      db,
+      `UPDATE $id SET items = $items, station = $station, deleted_at = NONE, shows_all = false`,
+      {
+        id: asRecord(kitchenId),
+        items: merged,
+        station,
+      },
+    );
     return true;
   }
 
   const cuisineOk = await mergeStation('cuisine', cuisineIds);
   const barOk = await mergeStation('bar', barIds);
+  // Purge again in case anything raced
+  const legacyRemoved2 = await purgeLegacyStationKitchens(db);
+
   if (!cuisineOk && cuisineIds.length > 0) {
     console.warn(
-      '[asi-sync] No kitchen with station=cuisine; skipped cuisine dish assignment (create/tag a Station in Manage).',
+      '[asi-sync] No Cuisine/Kitchen station found; skipped cuisine dish assignment (create one in Manage → Stations).',
     );
   }
   if (!barOk && barIds.length > 0) {
     console.warn(
-      '[asi-sync] No kitchen with station=bar; skipped bar dish assignment (create/tag a Station in Manage).',
+      '[asi-sync] No Bar station found; skipped bar dish assignment (create one in Manage → Stations).',
     );
+  }
+  const removed = legacyRemoved + legacyRemoved2;
+  if (removed > 0) {
+    console.log(`[asi-sync] Purged ${removed} duplicate kitchen:station_* board(s).`);
   }
 }
 

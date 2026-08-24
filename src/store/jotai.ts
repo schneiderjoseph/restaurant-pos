@@ -133,7 +133,7 @@ export const appPage = atomWithStorage<AppPageInterface>(
       showModifierPriceInOrderCard: false,
       showModifiersInOrderCard: false,
       enableDishSearch: false,
-      showDishNumber: true,
+      showDishNumber: false,
       showDishPhotos: false,
       dishSearchType: 'number',
     }

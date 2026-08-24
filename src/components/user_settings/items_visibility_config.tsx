@@ -74,7 +74,7 @@ export const ItemsVisibilityConfig = () => {
         </div>
         <div>
           <Switch
-            checked={config.menuConfig?.showDishNumber !== false}
+            checked={config.menuConfig?.showDishNumber === true}
             onChange={(event) => {
               setConfig(prev => ({
                 ...prev,

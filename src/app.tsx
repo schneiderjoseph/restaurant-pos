@@ -23,6 +23,7 @@ import {AutoClockOutProvider} from "@/providers/auto-clock-out.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
+import {ForceFullscreenProvider} from "@/providers/force-fullscreen.provider.tsx";
 
 
 // react query client wrapper
@@ -55,6 +56,7 @@ function App() {
   }, []);
 
   return (
+    <ForceFullscreenProvider>
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={appAntdTheme}>
         <DatabaseProvider>
@@ -89,6 +91,7 @@ function App() {
         </DatabaseProvider>
       </ConfigProvider>
     </QueryClientProvider>
+    </ForceFullscreenProvider>
   );
 }
 
