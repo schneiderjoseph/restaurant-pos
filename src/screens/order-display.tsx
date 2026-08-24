@@ -1,6 +1,6 @@
 import { Layout } from '@/screens/partials/layout.tsx';
 import useApi, { SettingsData } from '@/api/db/use.api.ts';
-import { Order as OrderModel, ORDER_FETCHES, OrderStatus } from '@/api/model/order.ts';
+import { Order as OrderModel, OrderStatus } from '@/api/model/order.ts';
 import { OrderItemKitchen } from '@/api/model/order_item_kitchen.ts';
 import { Tables } from '@/api/db/tables.ts';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -99,16 +99,13 @@ export const OrderDisplayScreen = () => {
   const fetchOrders = useCallback(async () => {
     const startDate = getAppStartOfDaySurreal();
     const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
-    const fetchList = ORDER_FETCHES.join(', ');
-
     const [rows, kitchenRows] = await db.query(
       `SELECT * FROM ${Tables.orders}
        WHERE created_at >= $startDate ${filterSql}
        ORDER BY created_at DESC
-       FETCH ${fetchList};
+       FETCH items, table, user, order_type, customer;
        SELECT * FROM ${Tables.order_items_kitchen}
        WHERE created_at >= $startDate
-         AND order_item.is_suspended != true
        FETCH order_item`,
       { startDate }
     );

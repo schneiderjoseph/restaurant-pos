@@ -16,9 +16,20 @@ export const getInvoiceNumber = (order?: OrderModel | null) => {
   return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
 }
 
+/** SurrealDB FETCH can return a single record instead of `[record]` for one-item arrays. */
+export const asRecordArray = <T>(value: unknown): T[] => {
+  if (Array.isArray(value)) {
+    return (value as T[]).filter((item) => item != null);
+  }
+  if (value == null) {
+    return [];
+  }
+  return [value as T];
+};
+
 export const getOrderFilteredItems = (order: OrderModel) => {
-  return (order?.items ?? [])
-    .filter(item => item?.deleted_at === undefined)
+  return asRecordArray(order?.items)
+    .filter(item => item?.deleted_at == null)
     .filter(item => item?.is_refunded !== true)
     .filter(item => item?.is_suspended !== true);
 }
@@ -29,21 +40,10 @@ export const getOrderFilteredItems = (order: OrderModel) => {
  */
 export const getOrderDisplayItems = (order: OrderModel) => {
   if (order?.status === OrderStatus.Cancelled) {
-    return (order?.items ?? []).filter(item => item?.is_suspended !== true);
+    return asRecordArray(order?.items).filter(item => item?.is_suspended !== true);
   }
   return getOrderFilteredItems(order);
 }
-
-/** SurrealDB FETCH can return a single record instead of `[record]` for one-item arrays. */
-const asRecordArray = <T>(value: unknown): T[] => {
-  if (Array.isArray(value)) {
-    return value as T[];
-  }
-  if (value == null) {
-    return [];
-  }
-  return [value as T];
-};
 
 /** Resolved extras only — drops null/undefined FETCH holes from stale order.extras IDs. */
 export const getOrderExtras = (order?: OrderModel | null): OrderExtra[] =>

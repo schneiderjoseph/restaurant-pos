@@ -40,8 +40,21 @@ const firstRow = <T = any>(result: any): T | undefined => {
 };
 
 const rowsOf = <T = any>(result: any): T[] => {
-  const rows = Array.isArray(result) ? result[0] : undefined;
-  return Array.isArray(rows) ? (rows as T[]) : [];
+  if (!Array.isArray(result)) {
+    return result ? [result as T] : [];
+  }
+  const first = result[0];
+  if (Array.isArray(first)) {
+    return first as T[];
+  }
+  if (first == null) {
+    return [];
+  }
+  // Single-record statement results come back as [row] instead of [[row]].
+  if (typeof first === 'object' && ('id' in first || result.length > 1)) {
+    return result as T[];
+  }
+  return [];
 };
 
 const pushKitchenItem = (
@@ -320,12 +333,22 @@ export const completeStages = async (
 
   const ids = oikIds.map((id) => toRecordId(id));
 
-  const rows = rowsOf<any>(
+  let rows = rowsOf<any>(
     await db.query(
       `SELECT * FROM ${Tables.order_items_kitchen} WHERE id IN $ids`,
       { ids }
     )
   );
+
+  if (rows.length < ids.length) {
+    const found = new Set(rows.map((row) => recordKey(row.id)));
+    const missing = ids.filter((id) => !found.has(recordKey(id)));
+    const extras = await Promise.all(
+      missing.map(async (id) => firstRow<any>(await db.query(`SELECT * FROM $id`, { id })))
+    );
+    rows = [...rows, ...extras.filter(Boolean)];
+  }
+
   if (rows.length === 0) return;
 
   if (userId) {
@@ -342,7 +365,7 @@ export const completeStages = async (
   );
   if (toComplete.length === 0) return;
 
-  const toCompleteIds = toComplete.map((row) => row.id);
+  const toCompleteIds = toComplete.map((row) => toRecordId(row.id));
 
   await db.query(
     `UPDATE ${Tables.order_items_kitchen}
@@ -356,8 +379,19 @@ export const completeStages = async (
   );
 
   const orderItems = [
-    ...new Set(toComplete.map((row) => row.order_item)),
-  ];
+    ...new Set(
+      toComplete.map((row) => {
+        const ref = row.order_item;
+        if (ref && typeof ref === 'object' && 'tb' in ref && 'id' in ref) {
+          return recordKey(ref);
+        }
+        if (ref && typeof ref === 'object' && ref.id) {
+          return recordKey(ref.id);
+        }
+        return recordKey(ref);
+      })
+    ),
+  ].map((key) => toRecordId(key));
 
   const allWaiting = rowsOf<any>(
     await db.query(

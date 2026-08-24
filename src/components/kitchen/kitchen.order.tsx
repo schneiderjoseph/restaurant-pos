@@ -58,14 +58,22 @@ export const KitchenOrder = ({
     : 0;
 
   const ready = async () => {
-    const ids = batch.items
-      .filter((item) => !item.order_item?.deleted_at)
-      .map((item) => item.id.toString());
-    await completeStages(db, ids, page?.user?.id);
+    try {
+      const ids = batch.items
+        .filter((item) => !item.order_item?.deleted_at)
+        .map((item) => item.id.toString());
+      await completeStages(db, ids, page?.user?.id);
+    } catch (error) {
+      console.error('Kitchen ready failed', error);
+    }
   };
 
   const singleReady = async (item: string) => {
-    await completeStage(db, item, page?.user?.id);
+    try {
+      await completeStage(db, item, page?.user?.id);
+    } catch (error) {
+      console.error('Kitchen item ready failed', error);
+    }
   };
 
   const doReprint = async () => {

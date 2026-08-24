@@ -29,7 +29,7 @@ export const OrderItemName = ({
       <div className={cn("pl-x flex text-lg gap-1", isVoided && "line-through text-neutral-500")} style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>
-        <span className="flex-1">{item.item.name}</span>
+        <span className="flex-1">{item?.item?.name ?? ''}</span>
         <div className="flex gap-1 text-right">
           {showQuantity && <span className="flex-0 w-[50px]">{formatNumber(item.quantity)}</span>}
           {showPrice && <span className="flex-0 w-[70px]">{formatNumber(unitPrice)}</span>}
