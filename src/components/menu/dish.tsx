@@ -48,7 +48,7 @@ export const MenuDish = ({
   const [{groups_dishes}] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const db = useDB();
-  const showDishNumber = page.menuConfig?.showDishNumber !== false;
+  const showDishNumber = page.menuConfig?.showDishNumber === true;
   const showDishPhotos = page.menuConfig?.showDishPhotos === true;
 
   const [modifiersModal, setModifiersModal] = useState(false);
@@ -223,23 +223,26 @@ export const MenuDish = ({
                 className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
             </div>
           )}
-          <div className="flex flex-1 flex-col px-3 py-2">
-            <span className="flex flex-row gap-2 mb-1 flex-wrap">
+          <div className="flex flex-1 flex-col px-3 py-2 min-w-0 justify-center gap-1">
+            <h6
+              className="text-ellipsis line-clamp-2 min-h-[2.5rem] text-pretty text-neutral-900 font-semibold leading-snug"
+              title={item.name}
+            >
+              {item.name || item.number || '—'}
+            </h6>
+            <span className="flex flex-row gap-2 flex-wrap items-center">
               {showDishNumber && item.number != null && String(item.number).trim() !== '' && (
                 <span
-                  className="bg-primary-100 text-primary-700 rounded-full border-2 border-primary-300 py-1 px-3 text-sm font-bold"
+                  className="bg-primary-100 text-primary-700 rounded-full border-2 border-primary-300 py-0.5 px-2 text-xs font-bold"
                   title={String(item.number)}
                 >
                   #{String(item.number).trim()}
                 </span>
               )}
-              <span
-                className="bg-neutral-900 text-warning-500 rounded-full border-2 border-warning-500 py-1 px-3 text-sm font-bold">{withCurrency(price)}</span>
+              <span className="bg-neutral-900 text-warning-500 rounded-full border-2 border-warning-500 py-0.5 px-2 text-xs font-bold">
+                {withCurrency(price)}
+              </span>
             </span>
-            <h6 className="text-ellipsis line-clamp-2 flex-shrink flex-grow-0 text-pretty text-neutral-700"
-                title={item.name}>
-              {item.name}
-            </h6>
           </div>
         </div>
         <span className="absolute bottom-2 right-2 text-primary-500 text-xs font-bold">{dishCount(item)}</span>

@@ -173,14 +173,6 @@ export const OrderRefundModal = ({
           : {}),
       });
 
-      if (isFullRefund) {
-        for (const extra of order.extras ?? []) {
-          if (extra?.id) {
-            await db.merge(new StringRecordId(extra.id.toString()), { value: 0 });
-          }
-        }
-      }
-
       // Recompute order_taxes / tax_amount from remaining (non-refunded) items
       await syncOrderTaxes(db, orderId);
       await publishSaleRefunded(integrationManager, {

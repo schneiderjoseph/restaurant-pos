@@ -17,6 +17,7 @@ import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useSearchParams} from "react-router";
 import {useResortFb} from "@/hooks/useResortFb.ts";
+import {useEnsureAsiMenuCache} from "@/hooks/useEnsureAsiMenuCache.ts";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
@@ -27,6 +28,7 @@ export const Menu = () => {
   const db = useDB();
   const [searchParams] = useSearchParams();
   const {enabled: resortFb} = useResortFb();
+  useEnsureAsiMenuCache();
   /** Docs capture only — never write this into persisted appState. */
   const docsTableless = searchParams.get('docs_tableless') === '1';
   /** User preference (Settings → table selection). */

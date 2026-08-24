@@ -22,6 +22,22 @@ function parseOrigins(raw) {
 }
 
 /** localhost and 127.0.0.1 are the same host; browsers treat them as different origins. */
+function isPrivateLanHostname(hostname) {
+  if (!hostname) return false;
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+  if (/^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+  // Tailscale CGNAT / common VPN ranges used on POS tablets
+  if (/^100\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+  if (/^26\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) return true;
+  return false;
+}
+
+const allowedOrigins = parseOrigins(process.env.GATEWAY_ALLOWED_ORIGINS);
+const allowLan = ['1', 'true', 'yes', 'on'].includes(
+  String(process.env.GATEWAY_ALLOW_LAN || '').toLowerCase()
+);
+
 function originAllowed(origin, allowed) {
   if (allowed.includes('*') || allowed.includes(origin)) {
     return true;
@@ -35,14 +51,18 @@ function originAllowed(origin, allowed) {
         : u.hostname === '127.0.0.1'
           ? 'localhost'
           : null;
-    if (!altHost) return false;
-    return allowed.includes(`${u.protocol}//${altHost}${port}`);
+    if (altHost && allowed.includes(`${u.protocol}//${altHost}${port}`)) {
+      return true;
+    }
+    // Dev / LAN POS devices: allow private hosts when GATEWAY_ALLOW_LAN is on.
+    if (allowLan && isPrivateLanHostname(u.hostname)) {
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }
 }
-
-const allowedOrigins = parseOrigins(process.env.GATEWAY_ALLOWED_ORIGINS);
 
 app.use(
   cors({
@@ -51,14 +71,17 @@ app.use(
       if (!origin) {
         return cb(null, true);
       }
-      // An unset/empty allow-list must NOT mean "allow every origin" — only
-      // an explicit '*' or an explicitly listed origin passes.
       if (originAllowed(origin, allowedOrigins)) {
-        return cb(null, true);
+        // Echo the request origin (required when credentials: true).
+        return cb(null, origin);
       }
+      console.warn(`[gateway] CORS denied origin=${origin} allowLan=${allowLan}`);
       return cb(null, false);
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 204,
   })
 );
 

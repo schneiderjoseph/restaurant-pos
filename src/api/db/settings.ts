@@ -2,6 +2,7 @@ import {
   getSessionToken,
   getSurrealToken,
   isGatewayAuthEnabled,
+  rewriteServiceUrlForPageHost,
   withGatewayWsToken,
 } from '@/lib/session.ts';
 
@@ -22,11 +23,11 @@ export const DB_REST_DB = (import.meta.env.VITE_DB_DATABASE as string | undefine
 export const DB_REST_NS = (import.meta.env.VITE_DB_NAMESPACE as string | undefined) || 'posr';
 
 export const withApi = (path: string) => {
-  return (DB_REST_API || '') + path;
+  return rewriteServiceUrlForPageHost((DB_REST_API || '') + path);
 };
 
 export function resolveDbWebsocketUrl(): string {
-  const base = DB_REST_API || '';
+  const base = withApi('');
   if (!isGatewayAuthEnabled()) {
     return base;
   }

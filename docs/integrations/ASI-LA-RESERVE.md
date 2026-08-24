@@ -258,6 +258,18 @@ Room posting write-back still needs Anand-supported path (phase 2+).
 
 **Out of scope phase 1:** posting charges back to ASI folio, payment gateway `ASIPGPOS`, recipe → Kontrest.
 
+### 6.1 Dining tables (phase 1b — implemented in `asi-sync`)
+
+| ASI | POSR field |
+|-----|------------|
+| `mTable.tableID` | `floor_table:asi_t_{id}` + `asi_table_id` |
+| `mTable.tableAlias` | `asi_alias` (e.g. `TB1`, `B16`) |
+| `mTable.tableName` | Display via short `name`+`number` (e.g. `T`+`1`, `B`+`16`) |
+| `tTablePOS` left/top | Used only when ≥40% of tables have coords; else compact grid |
+| Soft-delete | Missing ASI tables + local `resort_t_*` seed on Salle |
+
+Env: `ASI_TABLE_SYNC` (defaults to follow `ASI_MENU_SYNC` when unset).
+
 ---
 
 ## 7. Reference SQL (run on ASI host)

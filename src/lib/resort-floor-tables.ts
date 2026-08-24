@@ -194,6 +194,34 @@ async function relayoutResortFloorTables(
   }
 }
 
+async function loadFloorTables(db: AnyDb, floor: Floor): Promise<Table[]> {
+  return rowsOf<Table>(
+    await db.query(
+      `SELECT * FROM ${Tables.tables}
+       WHERE deleted_at = none
+         AND floor = $floor
+       ORDER BY priority ASC, number ASC
+       FETCH floor`,
+      { floor: toRecordId(floor.id) },
+    ),
+  );
+}
+
+/** When asi-sync has populated mTable → floor_table, do not seed local 1–32. */
+async function hasAsiSyncedTables(db: AnyDb, floor: Floor): Promise<boolean> {
+  const rows = rowsOf<{ n?: number }>(
+    await db.query(
+      `SELECT count() AS n FROM ${Tables.tables}
+       WHERE deleted_at = none
+         AND floor = $floor
+         AND source = 'asi'
+       GROUP ALL`,
+      { floor: toRecordId(floor.id) },
+    ),
+  );
+  return Number(rows[0]?.n ?? 0) > 0;
+}
+
 async function ensureResortFloorTablesOnce(
   db: AnyDb,
   tableCount = RESORT_TABLE_COUNT,
@@ -203,6 +231,13 @@ async function ensureResortFloorTablesOnce(
   }
 
   const floor = await ensureResortFloor(db);
+
+  if (await hasAsiSyncedTables(db, floor)) {
+    const tables = await loadFloorTables(db, floor);
+    ensureCache = { floor, tables };
+    return ensureCache;
+  }
+
   const have = await existingNumbersOnFloor(db, floor);
 
   for (let n = 1; n <= tableCount; n += 1) {
@@ -218,16 +253,7 @@ async function ensureResortFloorTablesOnce(
 
   await relayoutResortFloorTables(db, floor);
 
-  const tables = rowsOf<Table>(
-    await db.query(
-      `SELECT * FROM ${Tables.tables}
-       WHERE deleted_at = none
-         AND floor = $floor
-       ORDER BY priority ASC, number ASC
-       FETCH floor`,
-      { floor: toRecordId(floor.id) },
-    ),
-  );
+  const tables = await loadFloorTables(db, floor);
 
   ensureCache = { floor, tables };
   return ensureCache;
@@ -269,7 +295,10 @@ export async function findTableByNumber(
     await db.query(
       `SELECT * FROM ${Tables.tables}
        WHERE deleted_at = none
-         AND number IN $numbers
+         AND (
+           number IN $numbers
+           OR asi_alias IN $numbers
+         )
        ORDER BY priority ASC
        LIMIT 1
        FETCH floor`,

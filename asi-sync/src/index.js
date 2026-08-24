@@ -6,6 +6,8 @@ const { connectSurreal } = require('./surreal');
 const { upsertCatalog } = require('./posr-upsert');
 const { fetchInHouseGuests } = require('./fd-query');
 const { upsertGuests } = require('./guest-upsert');
+const { fetchAsiTables } = require('./table-query');
+const { upsertTables } = require('./table-upsert');
 
 function log(msg, extra) {
   const ts = new Date().toISOString();
@@ -41,6 +43,18 @@ async function syncGuests(db) {
   return stats;
 }
 
+async function syncTables(db) {
+  log('Fetching ASI dining tables…', {
+    server: `${config.asi.server},${config.asi.port}`,
+    database: config.asi.database,
+  });
+  const { tables } = await fetchAsiTables(config.asi);
+  log('ASI dining tables loaded', { count: tables.length });
+  const stats = await upsertTables(db, { tables });
+  log('Table sync complete', stats);
+  return stats;
+}
+
 async function runOnce() {
   log('Connecting Surreal…', { url: config.surreal.url });
   const db = await connectSurreal(config.surreal);
@@ -51,13 +65,18 @@ async function runOnce() {
     } else {
       log('Menu sync skipped (ASI_MENU_SYNC=0)');
     }
+    if (config.syncTables) {
+      out.tables = await syncTables(db);
+    } else {
+      log('Table sync skipped (ASI_TABLE_SYNC=0)');
+    }
     if (config.fd.enabled) {
       out.guests = await syncGuests(db);
     } else {
       log('Guest sync skipped (ASI_FD_SYNC=0)');
     }
-    if (!config.syncMenu && !config.fd.enabled) {
-      log('Nothing to sync — enable ASI_MENU_SYNC and/or ASI_FD_SYNC in asi-sync/.env');
+    if (!config.syncMenu && !config.syncTables && !config.fd.enabled) {
+      log('Nothing to sync — enable ASI_MENU_SYNC, ASI_TABLE_SYNC and/or ASI_FD_SYNC in asi-sync/.env');
     }
     log('Sync complete', out);
     return out;
@@ -76,6 +95,7 @@ async function main() {
 
   log(`Starting ASI→POSR poll every ${config.intervalMs}ms`, {
     menu: config.syncMenu,
+    tables: config.syncTables,
     fd: config.fd.enabled,
   });
   // eslint-disable-next-line no-constant-condition

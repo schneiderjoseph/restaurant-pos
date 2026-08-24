@@ -59,6 +59,10 @@ const config = {
     pass: required('SURREAL_PASS'),
   },
   syncMenu: bool('ASI_MENU_SYNC', false),
+  /** Dining tables (mTable). Defaults to ASI_MENU_SYNC when ASI_TABLE_SYNC unset. */
+  syncTables: process.env.ASI_TABLE_SYNC === undefined || process.env.ASI_TABLE_SYNC === ''
+    ? bool('ASI_MENU_SYNC', false)
+    : bool('ASI_TABLE_SYNC', false),
   intervalMs: Number(process.env.ASI_SYNC_INTERVAL_MS || 30000),
   once: bool('ASI_SYNC_ONCE', false) || process.argv.includes('--once'),
 };

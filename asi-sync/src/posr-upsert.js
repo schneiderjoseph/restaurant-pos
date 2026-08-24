@@ -406,7 +406,7 @@ async function assignKitchenItems(db, cuisineIds, barIds) {
   async function mergeStation(station, asiDishIds) {
     const kitchens = await queryRows(
       db,
-      `SELECT id, items FROM kitchen
+      `SELECT id, items, priority FROM kitchen
        WHERE station = $station
          AND (deleted_at = NONE OR deleted_at = NULL)
        ORDER BY priority ASC

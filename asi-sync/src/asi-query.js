@@ -76,9 +76,13 @@ function resolveTaxes(row, captions = {}) {
 
 function scoreRateRow(row) {
   let score = 0;
-  if (row.isDefaultUnit === true || row.isDefaultUnit === 1) score += 10;
+  if (row.isDefaultUnit === true || row.isDefaultUnit === 1) score += 100;
+  const price = resolvePriceUsd(row);
+  if (price > 0) score += 20;
+  // Prefer the defaultRate slot when set.
   if (row.defaultRate != null) score += 2;
-  if (resolvePriceUsd(row) > 0) score += 1;
+  // Tie-break: higher selling price (avoids 0-rate outlet rows winning).
+  score += Math.min(price, 1_000_000) / 1_000_000;
   return score;
 }
 

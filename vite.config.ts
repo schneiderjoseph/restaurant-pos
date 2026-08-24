@@ -9,10 +9,22 @@ export default defineConfig({
     alias: { "@": path.resolve(__dirname, "./src") }
   },
   server: {
-    // Same-origin proxy avoids CORS + Edge Tracking Prevention noise in local DEV.
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+    // Same-origin proxies: LAN tablets hit only :5173 (no CORS to :3142).
     proxy: {
       '/tracking': {
         target: 'http://127.0.0.1:3138',
+        changeOrigin: true,
+      },
+      '/auth': {
+        target: 'http://127.0.0.1:3142',
+        changeOrigin: true,
+      },
+      '/rpc': {
+        target: 'ws://127.0.0.1:3142',
+        ws: true,
         changeOrigin: true,
       },
     },

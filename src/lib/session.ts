@@ -20,6 +20,31 @@ function readStorage(key: string): string | null {
   }
 }
 
+/**
+ * When the SPA is opened via LAN IP (e.g. http://192.168.x.x:5173), rewrite
+ * localhost / 127.0.0.1 service URLs to that same host so devices on the
+ * network hit this machine's gateway — not their own localhost.
+ */
+export function rewriteServiceUrlForPageHost(url: string): string {
+  if (!url || typeof window === 'undefined') {
+    return url;
+  }
+  const pageHost = window.location?.hostname;
+  if (!pageHost || pageHost === 'localhost' || pageHost === '127.0.0.1') {
+    return url;
+  }
+  try {
+    const parsed = new URL(url, window.location.origin);
+    if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+      parsed.hostname = pageHost;
+      return parsed.toString().replace(/\/$/, '');
+    }
+  } catch {
+    // ignore
+  }
+  return url;
+}
+
 export function isGatewayAuthEnabled(): boolean {
   const raw = String(import.meta.env.VITE_GATEWAY_AUTH ?? 'true').toLowerCase();
   return raw !== 'false' && raw !== '0' && raw !== 'no';
@@ -28,7 +53,7 @@ export function isGatewayAuthEnabled(): boolean {
 export function getGatewayBaseUrl(): string {
   const explicit = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.trim();
   if (explicit) {
-    return explicit.replace(/\/$/, '');
+    return rewriteServiceUrlForPageHost(explicit.replace(/\/$/, ''));
   }
   if (typeof window !== 'undefined' && window.location?.origin) {
     return window.location.origin;
