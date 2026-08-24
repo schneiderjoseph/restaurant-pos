@@ -13,7 +13,9 @@
       "address": "Адрес",
       "secondaryAddress": "Доп. адрес",
       "points": "Баллы"
-    }
+    },
+    "firstName": "First name",
+    "lastName": "Last name"
   },
   "filters": {
     "status": "Статус заказа",

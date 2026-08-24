@@ -13,7 +13,9 @@
       "address": "العنوان",
       "secondaryAddress": "عنوان إضافي",
       "points": "النقاط"
-    }
+    },
+    "firstName": "First name",
+    "lastName": "Last name"
   },
   "filters": {
     "status": "حالة الطلب",

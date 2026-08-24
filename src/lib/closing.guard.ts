@@ -12,6 +12,7 @@ import {
 } from "@/lib/closing-cycle.ts";
 import {toSurrealDateTime} from "@/lib/datetime.ts";
 import {OrderStatus} from "@/api/model/order.ts";
+import {isClosingModuleEnabled} from "@/lib/feature-modules.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -72,20 +73,27 @@ export const isCurrentCycleClosed = async (db: DBLike, now: Date = new Date()): 
   return closing?.status === "completed";
 };
 
+const openEnforcementState = (): ClosingEnforcementState => ({
+  orderTakingBlocked: false,
+  orderMutationsBlocked: false,
+  cycleEndedAt: null,
+  dayClosingCompleted: false,
+  message: null,
+});
+
 export const getClosingEnforcementState = async (
   db: DBLike,
   now: Date = new Date()
 ): Promise<ClosingEnforcementState> => {
+  // Module off via VITE_MODULE_CLOSING — never block orders.
+  if (!isClosingModuleEnabled()) {
+    return openEnforcementState();
+  }
+
   const {config} = await loadClosingCycleConfig(db);
 
   if (!isClosingCycleEnabled(config)) {
-    return {
-      orderTakingBlocked: false,
-      orderMutationsBlocked: false,
-      cycleEndedAt: null,
-      dayClosingCompleted: false,
-      message: null,
-    };
+    return openEnforcementState();
   }
 
   const dayClosingCompleted = await isCurrentCycleClosed(db, now);

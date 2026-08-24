@@ -13,7 +13,9 @@
       "address": "Adr.",
       "secondaryAddress": "İkincil Adr.",
       "points": "Puan"
-    }
+    },
+    "firstName": "First name",
+    "lastName": "Last name"
   },
   "filters": {
     "status": "Sipariş durumu",

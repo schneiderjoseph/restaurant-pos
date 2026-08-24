@@ -24,6 +24,11 @@ import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {ForceFullscreenProvider} from "@/providers/force-fullscreen.provider.tsx";
+import {
+  isClosingModuleEnabled,
+  isDeliveryModuleEnabled,
+  isHrModuleEnabled,
+} from "@/lib/feature-modules.ts";
 
 
 // react query client wrapper
@@ -47,6 +52,32 @@ function GlobalDeliveryOrderPopup() {
   );
 }
 
+function DeliveryLayer({children}: {children: React.ReactNode}) {
+  if (!isDeliveryModuleEnabled()) {
+    return <>{children}</>;
+  }
+  return (
+    <DeliveryOrdersProvider>
+      {children}
+      <GlobalDeliveryOrderPopup/>
+    </DeliveryOrdersProvider>
+  );
+}
+
+function ClockOutLayer({children}: {children: React.ReactNode}) {
+  if (!isHrModuleEnabled()) {
+    return <>{children}</>;
+  }
+  return <AutoClockOutProvider>{children}</AutoClockOutProvider>;
+}
+
+function ClosingLayer({children}: {children: React.ReactNode}) {
+  if (!isClosingModuleEnabled()) {
+    return <>{children}</>;
+  }
+  return <ClosingCycleEnforcementProvider>{children}</ClosingCycleEnforcementProvider>;
+}
+
 
 // Wrapper for app
 function App() {
@@ -62,18 +93,17 @@ function App() {
         <DatabaseProvider>
           <IntegrationProvider>
             <AutoCheckCloseProvider>
-              <ClosingCycleEnforcementProvider>
-                <DeliveryOrdersProvider>
+              <ClosingLayer>
+                <DeliveryLayer>
                   <PrintProvider>
                     <TableLockProvider>
                       <SecurityProvider>
                         <BrowserRouter>
                           <I18nProvider>
                             <SessionIdleProvider>
-                              <AutoClockOutProvider>
-                                <GlobalDeliveryOrderPopup/>
+                              <ClockOutLayer>
                                 <AppRoutes/>
-                              </AutoClockOutProvider>
+                              </ClockOutLayer>
                             </SessionIdleProvider>
                           </I18nProvider>
                         </BrowserRouter>
@@ -81,8 +111,8 @@ function App() {
                       </SecurityProvider>
                     </TableLockProvider>
                   </PrintProvider>
-                </DeliveryOrdersProvider>
-              </ClosingCycleEnforcementProvider>
+                </DeliveryLayer>
+              </ClosingLayer>
             </AutoCheckCloseProvider>
           </IntegrationProvider>
 

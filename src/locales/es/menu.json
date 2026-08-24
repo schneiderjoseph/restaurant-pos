@@ -64,6 +64,11 @@
     "required": "Select a guest first",
     "subtitlePms": "Select an in-house hotel guest (PMS), or open the floor plan for a walk-in.",
     "pickGuestPms": "Select an in-house guest to continue",
-    "roomRequiresGuest": "No se puede pedir en una habitación sin cliente. Elija una habitación ocupada."
+    "roomRequiresGuest": "No se puede pedir en una habitación sin cliente. Elija una habitación ocupada.",
+    "createWalkInTitle": "Walk-in (new guest)",
+    "regenCode": "New code",
+    "createAndAttach": "Create and attach",
+    "createAndOrder": "Create and order",
+    "nameRequired": "Enter a first or last name"
   }
 }

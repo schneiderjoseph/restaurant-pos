@@ -13,7 +13,9 @@
       "address": "End.",
       "secondaryAddress": "End. secundário",
       "points": "Pontos"
-    }
+    },
+    "firstName": "First name",
+    "lastName": "Last name"
   },
   "filters": {
     "status": "Status do pedido",

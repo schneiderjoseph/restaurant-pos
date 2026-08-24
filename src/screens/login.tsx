@@ -30,6 +30,7 @@ import {
   isGatewayAuthEnabled,
   setSessionTokens,
 } from "@/lib/session.ts";
+import { isHrModuleEnabled } from "@/lib/feature-modules.ts";
 
 const TIME_ENTRY_CHECK_RETRIES = 3;
 const TIME_ENTRY_RETRY_DELAY_MS = 400;
@@ -82,6 +83,12 @@ export const Login = () => {
     if (page.locked && page.lockedBy?.login !== normalizedUser.login) {
       denyLogin();
       return false;
+    }
+
+    // HR / clock-in disabled via VITE_MODULE_HR — skip attendance gate.
+    if (!isHrModuleEnabled()) {
+      allowLogin(normalizedUser);
+      return true;
     }
 
     for (let attempt = 0; attempt < TIME_ENTRY_CHECK_RETRIES; attempt++) {

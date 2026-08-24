@@ -64,6 +64,11 @@
     "required": "Select a guest first",
     "subtitlePms": "Select an in-house hotel guest (PMS), or open the floor plan for a walk-in.",
     "pickGuestPms": "Select an in-house guest to continue",
-    "roomRequiresGuest": "Kan niet bestellen op een kamer zonder gast. Kies een bezette kamer."
+    "roomRequiresGuest": "Kan niet bestellen op een kamer zonder gast. Kies een bezette kamer.",
+    "createWalkInTitle": "Walk-in (new guest)",
+    "regenCode": "New code",
+    "createAndAttach": "Create and attach",
+    "createAndOrder": "Create and order",
+    "nameRequired": "Enter a first or last name"
   }
 }

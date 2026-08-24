@@ -1,6 +1,8 @@
 {
   "customer": {
     "name": "Nom",
+    "firstName": "Prénom",
+    "lastName": "Nom",
     "phone": "Numéro de téléphone",
     "address": "Adresse",
     "attach": "Associer",

@@ -1,6 +1,8 @@
 {
   "customer": {
     "name": "Name",
+    "firstName": "First name",
+    "lastName": "Last name",
     "phone": "Phone Number",
     "address": "Address",
     "attach": "Attach",

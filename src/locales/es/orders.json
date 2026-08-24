@@ -13,7 +13,9 @@
       "address": "Dir.",
       "secondaryAddress": "Dir. secundaria",
       "points": "Puntos"
-    }
+    },
+    "firstName": "First name",
+    "lastName": "Last name"
   },
   "filters": {
     "status": "Estado pedido",

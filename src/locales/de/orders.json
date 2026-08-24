@@ -13,7 +13,9 @@
       "address": "Adr.",
       "secondaryAddress": "Zweite Adr.",
       "points": "Punkte"
-    }
+    },
+    "firstName": "First name",
+    "lastName": "Last name"
   },
   "filters": {
     "status": "Bestellstatus",

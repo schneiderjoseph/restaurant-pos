@@ -11,7 +11,6 @@ import {
   faMotorcycle,
   faStore,
   faUtensils, faUsers, faWarehouse, faWrench,
-  faClock,
   faPowerOff,
   faReceipt,
   faUser,
@@ -39,11 +38,17 @@ import {
   SUMMARY,
   TIP_DISTRIBUTION, ACCOUNTS
 } from "@/routes/posr.ts";
-import { getUserModules } from "@/lib/access.rules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
 import { lockSession, logoutSession } from "@/lib/session.actions.ts";
+import {
+  isAccountingModuleEnabled,
+  isClosingModuleEnabled,
+  isDeliveryModuleEnabled,
+  isHrModuleEnabled,
+  isIntegrationsModuleEnabled,
+} from "@/lib/feature-modules.ts";
 
 const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [MENU]: 'nav-menu',
@@ -63,7 +68,7 @@ const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
 };
 
 export const Sidebar = () => {
-  const [page, setPage] = useAtom(appPage);
+  const [, setPage] = useAtom(appPage);
   const { t } = useTranslation(['navigation', 'common']);
 
   const pathInfo = location.pathname;
@@ -86,34 +91,37 @@ export const Sidebar = () => {
     lockSession(setPage, navigation);
   }
 
+  const hrEnabled = isHrModuleEnabled();
+  const deliveryEnabled = isDeliveryModuleEnabled();
+  const integrationsEnabled = isIntegrationsModuleEnabled();
+  const accountingEnabled = isAccountingModuleEnabled();
+  const closingEnabled = isClosingModuleEnabled();
+
   const allSidebarItems = useMemo(() => [
     { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'menu' },
     { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
     { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
     { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
     { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
-    { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery' },
-    { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing' },
+    { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery', module: 'delivery' as const },
+    { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing', module: 'closing' as const },
     { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'inventory' },
     { title: t('sidebar.manage'), icon: <FontAwesomeIcon icon={faGear} size="lg"/>, link: ADMIN, role: 'admin' },
     { title: t('sidebar.reports'), icon: <FontAwesomeIcon icon={faLineChart} size="lg"/>, link: REPORTS, role: 'reports' },
     { title: t('sidebar.tipDist'), icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'tips' },
-    { title: t('sidebar.accounts'), icon: <FontAwesomeIcon icon={faReceipt} size="lg"/>, link: ACCOUNTS, role: 'accounts' },
-    { title: t('sidebar.hr'), icon: <FontAwesomeIcon icon={faUsers} size="lg"/>, link: HR, role: 'hr' },
-    { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'integrations' },
+    { title: t('sidebar.accounts'), icon: <FontAwesomeIcon icon={faReceipt} size="lg"/>, link: ACCOUNTS, role: 'accounts', module: 'accounting' as const },
+    { title: t('sidebar.hr'), icon: <FontAwesomeIcon icon={faUsers} size="lg"/>, link: HR, role: 'hr', module: 'hr' as const },
+    { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'integrations', module: 'integrations' as const },
   ], [t]);
 
-  // Filter sidebar items based on user roles
-  const userRoles = getUserModules(page.user);
+  // Filter sidebar items based on feature-module env flags
   const sidebarItems = allSidebarItems.filter(item => {
-    return true; // show all pages and handle the auth to manage pages permissions
-
-    // If user has no roles, show nothing (or you could show all if that's the desired behavior)
-    if (userRoles.length === 0) {
-      // return false;
-    }
-    // Check if user has the required role for this item
-    return userRoles.includes(item.role);
+    if (item.module === 'hr' && !hrEnabled) return false;
+    if (item.module === 'delivery' && !deliveryEnabled) return false;
+    if (item.module === 'integrations' && !integrationsEnabled) return false;
+    if (item.module === 'accounting' && !accountingEnabled) return false;
+    if (item.module === 'closing' && !closingEnabled) return false;
+    return true;
   });
 
   return (
@@ -161,19 +169,21 @@ export const Sidebar = () => {
           >
             <FontAwesomeIcon icon={faWrench} />
           </button>
-          <NavLink
-            to={CLOCK}
-            data-testid="nav-clock"
-            className={cn(
-              'btn btn-primary lg flex-1',
-              pathInfo === CLOCK ? 'active' : ''
-            )}
-            style={{
-              '--padding': '0.5rem'
-            } as CSSProperties}
-          >
-            <FontAwesomeIcon icon={faUser} />
-          </NavLink>
+          {hrEnabled && (
+            <NavLink
+              to={CLOCK}
+              data-testid="nav-clock"
+              className={cn(
+                'btn btn-primary lg flex-1',
+                pathInfo === CLOCK ? 'active' : ''
+              )}
+              style={{
+                '--padding': '0.5rem'
+              } as CSSProperties}
+            >
+              <FontAwesomeIcon icon={faUser} />
+            </NavLink>
+          )}
         </div>
         <div className="input-group">
           <IconTooltipButton

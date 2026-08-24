@@ -141,26 +141,40 @@ import {
   WasteReport,
 } from "@/routes/lazy-screens.ts";
 import {AccountsScreen} from "@/screens/accounts.tsx";
+import {
+  isAccountingModuleEnabled,
+  isClosingModuleEnabled,
+  isDeliveryModuleEnabled,
+  isHrModuleEnabled,
+  isIntegrationsModuleEnabled,
+} from "@/lib/feature-modules.ts";
 
-export const AppRoutes = () => (
+export const AppRoutes = () => {
+  const hr = isHrModuleEnabled();
+  const delivery = isDeliveryModuleEnabled();
+  const integrations = isIntegrationsModuleEnabled();
+  const accounting = isAccountingModuleEnabled();
+  const closing = isClosingModuleEnabled();
+
+  return (
   <Routes>
     <Route path={LOGIN} element={<Login/>}/>
     <Route element={<ProtectedRoute/>}>
       <Route path={MENU} element={<Menu/>}/>
       <Route path={ORDERS} element={<Orders/>}/>
       <Route path={SUMMARY} element={<Summary/>}/>
-      <Route path={CLOSING} element={<Closing/>}/>
+      {closing && <Route path={CLOSING} element={<Closing/>}/>}
       <Route path={KITCHEN} element={<KitchenScreen/>}/>
       <Route path={ORDER_DISPLAY} element={<OrderDisplayScreen/>}/>
-      <Route path={DELIVERY} element={<Delivery/>}/>
+      {delivery && <Route path={DELIVERY} element={<Delivery/>}/>}
       <Route path={ADMIN} element={<Admin/>}/>
       <Route path={SETTINGS} element={<Settings/>}/>
-      <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>
-      <Route path={CLOCK} element={<Clock/>}/>
+      {integrations && <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>}
+      {hr && <Route path={CLOCK} element={<Clock/>}/>}
       <Route path={INVENTORY} element={<Inventory/>}/>
-      <Route path={HR} element={<HrScreen/>}/>
+      {hr && <Route path={HR} element={<HrScreen/>}/>}
       <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
-      <Route path={ACCOUNTS} element={<AccountsScreen/>}/>
+      {accounting && <Route path={ACCOUNTS} element={<AccountsScreen/>}/>}
       <Route path={REPORTS} element={<Reports/>}/>
 
       <Route element={<SuspenseOutlet/>}>
@@ -168,7 +182,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>
         <Route path={REPORTS_INVENTORY_DASHBOARD} element={<InventoryDashboardReport/>}/>
         <Route path={REPORTS_AUDIT} element={<AuditReport/>}/>
-        <Route path={REPORTS_CASH_CLOSING} element={<CashClosingReport/>}/>
+        {closing && <Route path={REPORTS_CASH_CLOSING} element={<CashClosingReport/>}/>}
         <Route path={REPORTS_DISCOUNTS} element={<DiscountsReport/>}/>
         <Route path={REPORTS_TAX} element={<TaxReport/>}/>
         <Route path={REPORTS_COUPON} element={<CouponReport/>}/>
@@ -185,7 +199,7 @@ export const AppRoutes = () => (
         <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
         <Route path={REPORTS_PRODUCT_MIX_WEEKLY} element={<ProductMixWeeklyReport/>}/>
         <Route path={REPORTS_SALES_ADVANCED} element={<SalesAdvancedReport/>}/>
-        <Route path={REPORTS_DELIVERY_DENSITY} element={<DeliveryDensityReport/>}/>
+        {delivery && <Route path={REPORTS_DELIVERY_DENSITY} element={<DeliveryDensityReport/>}/>}
         <Route path={REPORTS_SALES_HOURLY_LABOUR} element={<SalesHourlyLabourReport/>}/>
         <Route path={REPORTS_SALES_HOURLY_LABOUR_WEEKLY} element={<SalesHourlyLabourWeeklyReport/>}/>
         <Route path={REPORTS_SALES_SERVER} element={<SalesServerReport/>}/>
@@ -208,15 +222,16 @@ export const AppRoutes = () => (
         <Route path={REPORTS_KITCHEN_RECONCILIATION} element={<KitchenReconciliationReport/>}/>
         <Route path={REPORTS_PRODUCTION} element={<ProductionReport/>}/>
         <Route path={REPORTS_BUFFET} element={<BuffetReport/>}/>
-        <Route path={REPORTS_LABOR_DASHBOARD} element={<LaborDashboardReport/>}/>
-        <Route path={REPORTS_LABOR_DAILY_COST} element={<LaborDailyCostReport/>}/>
-        <Route path={REPORTS_LABOR_OVERTIME} element={<LaborOvertimeReport/>}/>
-        <Route path={REPORTS_LABOR_ATTENDANCE} element={<LaborAttendanceReport/>}/>
-        <Route path={REPORTS_LABOR_PAYROLL_SUMMARY} element={<LaborPayrollSummaryReport/>}/>
-        <Route path={REPORTS_LABOR_SCHEDULED_VS_ACTUAL} element={<LaborScheduledVsActualReport/>}/>
-        <Route path={REPORTS_LABOR_SCHEDULE_ROSTER} element={<LaborScheduleRosterReport/>}/>
+        {hr && <Route path={REPORTS_LABOR_DASHBOARD} element={<LaborDashboardReport/>}/>}
+        {hr && <Route path={REPORTS_LABOR_DAILY_COST} element={<LaborDailyCostReport/>}/>}
+        {hr && <Route path={REPORTS_LABOR_OVERTIME} element={<LaborOvertimeReport/>}/>}
+        {hr && <Route path={REPORTS_LABOR_ATTENDANCE} element={<LaborAttendanceReport/>}/>}
+        {hr && <Route path={REPORTS_LABOR_PAYROLL_SUMMARY} element={<LaborPayrollSummaryReport/>}/>}
+        {hr && <Route path={REPORTS_LABOR_SCHEDULED_VS_ACTUAL} element={<LaborScheduledVsActualReport/>}/>}
+        {hr && <Route path={REPORTS_LABOR_SCHEDULE_ROSTER} element={<LaborScheduleRosterReport/>}/>}
       </Route>
     </Route>
     <Route path="*" element={<NotFound/>}/>
   </Routes>
-);
+  );
+};

@@ -38,7 +38,12 @@
     "searchPlaceholder": "Code, name or room",
     "noResults": "No guest found",
     "createTitle": "New guest",
+    "createWalkInTitle": "Walk-in (new guest)",
     "code": "Guest code",
+    "regenCode": "New code",
+    "createAndAttach": "Create and attach",
+    "createAndOrder": "Create and order",
+    "nameRequired": "Enter a first or last name",
     "room": "Room",
     "create": "Create guest",
     "created": "Guest created",
@@ -62,7 +67,7 @@
     "folioEmpty": "No previous orders",
     "pickGuest": "Search or create a guest to continue",
     "required": "Select a guest first",
-    "subtitlePms": "Select an in-house hotel guest (PMS), or open the floor plan for a walk-in.",
+    "subtitlePms": "Select an in-house hotel guest (PMS), create a walk-in (first/last name), or open the floor plan.",
     "pickGuestPms": "Select an in-house guest to continue",
     "roomRequiresGuest": "Cannot order on a room without a guest. Pick an occupied room."
   }

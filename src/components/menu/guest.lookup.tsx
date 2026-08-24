@@ -10,7 +10,7 @@ import { Table } from '@/api/model/table.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { getInvoiceNumber } from '@/lib/order.ts';
-import { formatGuestLabel, guestCodeLabel, orderZoneLabel } from '@/lib/guest.ts';
+import { formatGuestLabel, guestCodeLabel, orderZoneLabel, generateWalkInGuestCode, joinGuestName } from '@/lib/guest.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import {
   ensureResortFloorTables,
@@ -36,9 +36,9 @@ export const GuestLookup = () => {
   const [results, setResults] = useState<Customer[]>([]);
   const [selected, setSelected] = useState<Customer | undefined>(state.customer);
   const [folio, setFolio] = useState<FolioOrder[]>([]);
-  const [newCode, setNewCode] = useState('');
-  const [newName, setNewName] = useState('');
-  const [newRoom, setNewRoom] = useState('');
+  const [newFirstName, setNewFirstName] = useState('');
+  const [newLastName, setNewLastName] = useState('');
+  const [newCode, setNewCode] = useState(() => generateWalkInGuestCode());
   const [tableNumber, setTableNumber] = useState(state.table?.number ?? '');
   const [saving, setSaving] = useState(false);
 
@@ -157,42 +157,49 @@ export const GuestLookup = () => {
     }));
   };
 
-  const createGuest = async () => {
-    const guest_code = newCode.trim().toUpperCase();
-    const name = newName.trim() || guest_code;
+  const createGuest = async (andStartOrder = false) => {
+    const name = joinGuestName(newFirstName, newLastName);
     if (!name) {
-      toast.error(t('menu:guest.nameOrCodeRequired'));
+      toast.error(t('menu:guest.nameRequired'));
       return;
     }
 
     setSaving(true);
     try {
-      if (guest_code) {
+      let guest_code = newCode.trim().toUpperCase() || generateWalkInGuestCode();
+      for (let attempt = 0; attempt < 5; attempt += 1) {
         const [existing] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers} WHERE guest_code = $code LIMIT 1`,
           { code: guest_code }
         );
-        if (Array.isArray(existing) && existing[0]) {
-          toast.error(t('menu:guest.codeTaken'));
-          selectGuest(existing[0]);
-          return;
+        if (!Array.isArray(existing) || !existing[0]) {
+          break;
         }
+        guest_code = generateWalkInGuestCode();
       }
 
       const [created] = await db.insert(Tables.customers, {
         name,
-        guest_code: guest_code || null,
-        room: newRoom.trim() || null,
-        in_house: preferInHouse ? true : null,
-        source: preferInHouse ? 'local' : null,
-        tags: [],
+        guest_code,
+        room: null,
+        in_house: false,
+        source: 'walk-in',
+        tags: ['walk-in'],
       });
-      if (created) {
-        selectGuest(created as Customer);
-        setNewCode('');
-        setNewName('');
-        setNewRoom('');
-        toast.success(t('menu:guest.created'));
+      if (!created) {
+        toast.error(t('menu:guest.createFailed'));
+        return;
+      }
+
+      const guest = created as Customer;
+      selectGuest(guest);
+      setNewFirstName('');
+      setNewLastName('');
+      setNewCode(generateWalkInGuestCode());
+      toast.success(t('menu:guest.created'));
+
+      if (andStartOrder) {
+        await startNewOrderFor(guest);
       }
     } catch (error) {
       console.error(error);
@@ -202,16 +209,10 @@ export const GuestLookup = () => {
     }
   };
 
-  const startNewOrder = async () => {
-    if (!selected?.id) {
-      toast.error(t('menu:guest.required'));
-      return;
-    }
-
+  const startNewOrderFor = async (guest: Customer) => {
     let table: Table | undefined;
-    const wantedTable = tableNumber.trim() || String(selected.room ?? '').trim();
+    const wantedTable = tableNumber.trim() || String(guest.room ?? '').trim();
     if (wantedTable) {
-      // Prefer hotel room when the guest has a PMS room; dining table only if typed as such.
       table =
         (await findRoomByNumber(db, wantedTable)) ??
         (await findTableByNumber(db, wantedTable));
@@ -224,7 +225,7 @@ export const GuestLookup = () => {
     const floorFromTable = table?.floor;
     setState((prev) => ({
       ...prev,
-      customer: selected,
+      customer: guest,
       table,
       resortEntry: 'guest',
       showFloor: false,
@@ -236,6 +237,14 @@ export const GuestLookup = () => {
       floor: floorFromTable ?? prev.floor ?? floors[0],
       orderType: prev.orderType ?? settings.order_types[0],
     }));
+  };
+
+  const startNewOrder = async () => {
+    if (!selected?.id) {
+      toast.error(t('menu:guest.required'));
+      return;
+    }
+    await startNewOrderFor(selected);
   };
 
   const openFloorWalkIn = async () => {
@@ -338,45 +347,68 @@ export const GuestLookup = () => {
             ))}
           </div>
 
-          {!preferInHouse && (
-          <div className="pt-4 border-t">
-            <h2 className="font-semibold mb-3">{t('menu:guest.createTitle')}</h2>
+          <div className="pt-4 border-t" data-testid="guest-create-walkin">
+            <h2 className="font-semibold mb-3">{t('menu:guest.createWalkInTitle')}</h2>
             <div className="flex flex-col gap-3">
-              <Input
-                label={t('orders:customer.name')}
-                value={newName}
-                onChange={(event) => setNewName(event.target.value)}
-                enableKeyboard
-              />
               <div className="grid grid-cols-2 gap-3">
                 <Input
-                  label={t('menu:guest.code')}
-                  placeholder="A184"
-                  value={newCode}
-                  onChange={(event) => setNewCode(event.target.value)}
+                  label={t('orders:customer.firstName')}
+                  value={newFirstName}
+                  onChange={(event) => setNewFirstName(event.target.value)}
                   enableKeyboard
+                  data-testid="guest-walkin-first"
                 />
                 <Input
-                  label={t('menu:guest.room')}
-                  placeholder="184"
-                  value={newRoom}
-                  onChange={(event) => setNewRoom(event.target.value)}
+                  label={t('orders:customer.lastName')}
+                  value={newLastName}
+                  onChange={(event) => setNewLastName(event.target.value)}
                   enableKeyboard
+                  data-testid="guest-walkin-last"
                 />
               </div>
-              <Button
-                variant="primary"
-                filled
-                size="lg"
-                className="w-full"
-                isLoading={saving}
-                onClick={() => void createGuest()}
-              >
-                {t('menu:guest.create')}
-              </Button>
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex-1 min-w-[120px]">
+                  <Input
+                    label={t('menu:guest.code')}
+                    value={newCode}
+                    readOnly
+                    data-testid="guest-walkin-code"
+                  />
+                </div>
+                <Button
+                  variant="neutral"
+                  flat
+                  onClick={() => setNewCode(generateWalkInGuestCode())}
+                  data-testid="guest-walkin-regen"
+                >
+                  {t('menu:guest.regenCode')}
+                </Button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Button
+                  variant="primary"
+                  flat
+                  size="lg"
+                  className="w-full"
+                  isLoading={saving}
+                  onClick={() => void createGuest(false)}
+                >
+                  {t('menu:guest.create')}
+                </Button>
+                <Button
+                  variant="primary"
+                  filled
+                  size="lg"
+                  className="w-full"
+                  isLoading={saving}
+                  onClick={() => void createGuest(true)}
+                  data-testid="guest-create-and-order"
+                >
+                  {t('menu:guest.createAndOrder')}
+                </Button>
+              </div>
             </div>
           </div>
-          )}
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow space-y-4">

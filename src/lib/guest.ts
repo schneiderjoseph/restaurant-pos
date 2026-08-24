@@ -32,6 +32,37 @@ export function guestDisplayLabel(
   return customer.guest_code?.trim() ?? '';
 }
 
+/** Build "Prénom Nom" from walk-in fields. */
+export function joinGuestName(firstName?: string, lastName?: string): string {
+  return [firstName, lastName]
+    .map((part) => (part ?? '').trim())
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+}
+
+/**
+ * Short unique walk-in guest code (e.g. W4K8M2).
+ * Collision is rare; callers should still verify uniqueness if needed.
+ */
+export function generateWalkInGuestCode(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let suffix = '';
+  const seed =
+    Date.now().toString(36).toUpperCase() +
+    Math.random().toString(36).slice(2).toUpperCase();
+  for (let i = 0; i < seed.length && suffix.length < 5; i += 1) {
+    const ch = seed[i];
+    if (alphabet.includes(ch)) {
+      suffix += ch;
+    }
+  }
+  while (suffix.length < 5) {
+    suffix += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return `W${suffix}`;
+}
+
 export function orderZoneLabel(order?: Pick<Order, 'floor'> | null): string {
   return order?.floor?.name?.trim() ?? '';
 }

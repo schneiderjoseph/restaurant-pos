@@ -55,6 +55,11 @@ import {LaborPayrollSummaryFilter} from "@/components/reports/filters/labor.payr
 import {LaborScheduledVsActualFilter} from "@/components/reports/filters/labor.scheduled.vs.actual.filter.tsx";
 import {LaborScheduleRosterFilter} from "@/components/reports/filters/labor.schedule.roster.filter.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {
+  isClosingModuleEnabled,
+  isDeliveryModuleEnabled,
+  isHrModuleEnabled,
+} from "@/lib/feature-modules.ts";
 
 type ReportEntry = {
   filter: ReactNode;
@@ -135,7 +140,7 @@ export const Reports = () => {
   const { t } = useTranslation('reports');
   const { t: tNav } = useTranslation('navigation');
   const reportCategories = useMemo((): ReportCategory[] => {
-    return [
+    const categories: ReportCategory[] = [
       {
         id: 'ai',
         title: t('categories.ai'),
@@ -238,6 +243,23 @@ export const Reports = () => {
         ]),
       },
     ];
+
+    const hrEnabled = isHrModuleEnabled();
+    const deliveryEnabled = isDeliveryModuleEnabled();
+    const closingEnabled = isClosingModuleEnabled();
+
+    return categories
+      .filter((category) => hrEnabled || category.id !== 'labor')
+      .filter((category) => closingEnabled || category.id !== 'cashClosing')
+      .map((category) => {
+        if (category.id !== 'sales' || deliveryEnabled) {
+          return category;
+        }
+        return {
+          ...category,
+          reports: category.reports.filter((report) => report.reportKey !== 'deliveryDensity'),
+        };
+      });
   }, [t]);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [subReports, setSubReports] = useState<ReportEntry[]>([]);

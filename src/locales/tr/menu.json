@@ -64,6 +64,11 @@
     "required": "Select a guest first",
     "subtitlePms": "Select an in-house hotel guest (PMS), or open the floor plan for a walk-in.",
     "pickGuestPms": "Select an in-house guest to continue",
-    "roomRequiresGuest": "Misafirsiz odaya siparis verilemez. Dolu bir oda secin."
+    "roomRequiresGuest": "Misafirsiz odaya siparis verilemez. Dolu bir oda secin.",
+    "createWalkInTitle": "Walk-in (new guest)",
+    "regenCode": "New code",
+    "createAndAttach": "Create and attach",
+    "createAndOrder": "Create and order",
+    "nameRequired": "Enter a first or last name"
   }
 }
