@@ -23,6 +23,17 @@ export const getOrderFilteredItems = (order: OrderModel) => {
     .filter(item => item?.is_suspended !== true);
 }
 
+/**
+ * Items shown on order cards/rows.
+ * Cancelled orders keep voided lines for history; active orders hide them.
+ */
+export const getOrderDisplayItems = (order: OrderModel) => {
+  if (order?.status === OrderStatus.Cancelled) {
+    return (order?.items ?? []).filter(item => item?.is_suspended !== true);
+  }
+  return getOrderFilteredItems(order);
+}
+
 /** SurrealDB FETCH can return a single record instead of `[record]` for one-item arrays. */
 const asRecordArray = <T>(value: unknown): T[] => {
   if (Array.isArray(value)) {

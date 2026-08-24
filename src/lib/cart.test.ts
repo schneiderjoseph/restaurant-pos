@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { MenuItemType, type MenuItem } from '@/api/model/cart_item.ts';
-import { cartItemMergeKey, mergeCartItem } from '@/lib/cart.ts';
+import { cartItemMergeKey, getOrderServiceChargeAmount, mergeCartItem } from '@/lib/cart.ts';
+import { DiscountType } from '@/api/model/discount.ts';
+import type { Order } from '@/api/model/order.ts';
 
 const baseItem = (overrides: Partial<MenuItem> = {}): MenuItem =>
   ({
@@ -69,5 +71,28 @@ describe('cartItemMergeKey', () => {
     const a = baseItem({ comments: 'extra sauce' });
     const b = baseItem({ id: 'other', comments: 'extra sauce' });
     expect(cartItemMergeKey(a)).toBe(cartItemMergeKey(b));
+  });
+});
+
+describe('getOrderServiceChargeAmount', () => {
+  it('returns 0 when remaining items total is 0 even if stored service charge remains', () => {
+    const order = {
+      service_charge: 10,
+      service_charge_type: DiscountType.Percent,
+      service_charge_amount: 12,
+      items: [],
+    } as unknown as Order;
+
+    expect(getOrderServiceChargeAmount(order, 0)).toBe(0);
+  });
+
+  it('recalculates percent service charge from remaining items', () => {
+    const order = {
+      service_charge: 10,
+      service_charge_type: DiscountType.Percent,
+      service_charge_amount: 12,
+    } as unknown as Order;
+
+    expect(getOrderServiceChargeAmount(order, 80)).toBe(8);
   });
 });

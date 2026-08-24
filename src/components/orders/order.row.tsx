@@ -1,10 +1,10 @@
 import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
-import {calculateOrderTotal} from "@/lib/cart.ts";
+import {calculateOrderTotal, getOrderServiceChargeAmount} from "@/lib/cart.ts";
 import React, {useMemo, useState} from "react";
 import {cn} from "@/lib/utils.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {getInvoiceNumber, getOrderFilteredItems, translateOrderStatus} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderDisplayItems, translateOrderStatus} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
@@ -25,6 +25,9 @@ export const OrderRow = ({
   const db = useDB();
   const {rootRef, displayOrder: order, cardReady, isHydrating} = useOrderCardHydrate(snapshot);
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
+  const serviceChargeAmount = cardReady
+    ? getOrderServiceChargeAmount(order, itemsTotal)
+    : Number(order?.service_charge_amount ?? 0);
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
 
@@ -35,14 +38,17 @@ export const OrderRow = ({
   };
 
   const total = useMemo(() => {
-    if (!cardReady) {
-      return Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order?.service_charge_amount ?? 0)
-        + (order?.extras ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0);
-    }
     const extrasTotal = order?.extras
       ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0)
       : 0;
-    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order?.service_charge_amount ?? 0);
+    const serviceChargeAmount = cardReady
+      ? getOrderServiceChargeAmount(order, itemsTotal)
+      : Number(order?.service_charge_amount ?? 0);
+    if (!cardReady) {
+      return Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + serviceChargeAmount
+        + extrasTotal;
+    }
+    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + serviceChargeAmount;
   }, [cardReady, itemsTotal, order]);
 
   const tableOrGuestLabel = order?.table
@@ -98,7 +104,7 @@ export const OrderRow = ({
         </div>
         <div className="flex items-center px-3 gap-1">
           <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-gray-900 text-white justify-center items-center">
-            {cardReady ? getOrderFilteredItems(order).length : (isHydrating ? '…' : '—')}
+            {cardReady ? getOrderDisplayItems(order).length : (isHydrating ? '…' : '—')}
           </span> {t('totals.itemsShort')}
         </div>
         <div className="flex px-3 gap-1 items-center basis-[150px]">
@@ -115,10 +121,10 @@ export const OrderRow = ({
           )}
         </div>
         <div className="flex items-center px-3 basis-[180px]">
-          {Number(order?.service_charge_amount || 0) > 0 && (
+          {serviceChargeAmount > 0 && (
             <>
               <div className="flex-1">{t('totals.sc', {value: order?.service_charge})}</div>
-              <div className="text-right"><DualCurrency amount={order?.service_charge_amount} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
+              <div className="text-right"><DualCurrency amount={serviceChargeAmount} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
             </>
           )}
         </div>

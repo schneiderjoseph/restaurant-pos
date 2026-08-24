@@ -1,7 +1,7 @@
 import {Order as OrderModel} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import React, {CSSProperties, useMemo} from "react";
-import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
+import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview, getOrderServiceChargeAmount} from "@/lib/cart.ts";
 import {
   calculateCartItemsBaseTotal,
   calculateCartTotalsWithTaxes,
@@ -10,7 +10,7 @@ import {
 } from "@/lib/tax-calculator.ts";
 import {cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
-import {getActiveOrderDiscounts, getOrderFilteredItems} from "@/lib/order.ts";
+import {getActiveOrderDiscounts, getOrderDisplayItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -117,16 +117,19 @@ export const OrderTotals = ({order, cart, className}: Props) => {
 
     const itemsTotal = calculateOrderTotal(order);
     const extrasTotal = calculateOrderExtrasTotal(order);
-    const taxAmount = getOrderTaxAmount(order);
-    const total = itemsTotal + extrasTotal + taxAmount - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
+    const taxAmount = itemsTotal <= 0 ? 0 : getOrderTaxAmount(order);
+    const serviceChargeAmount = getOrderServiceChargeAmount(order, itemsTotal);
+    const discountAmount = itemsTotal <= 0 ? 0 : Number(order?.discount_amount ?? 0);
+    const tipAmount = itemsTotal <= 0 ? 0 : Number(order?.tip_amount ?? 0);
+    const total = itemsTotal + extrasTotal + taxAmount - discountAmount + serviceChargeAmount + tipAmount;
 
     return {
       itemsTotal,
-      itemCount: getOrderFilteredItems(order).length,
+      itemCount: getOrderDisplayItems(order).length,
       taxAmount,
-      serviceChargeAmount: Number(order?.service_charge_amount ?? 0),
-      discountAmount: Number(order?.discount_amount ?? 0),
-      tipAmount: Number(order?.tip_amount ?? 0),
+      serviceChargeAmount,
+      discountAmount,
+      tipAmount,
       total,
     };
   }, [order, cart]);

@@ -11,6 +11,8 @@ import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
 import {getOrderFilteredItems, translateVoidReason} from "@/lib/order.ts";
+import {calculateOrderTotal, getOrderServiceChargeAmount} from "@/lib/cart.ts";
+import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -179,6 +181,19 @@ export const OrderCancelModal = ({
           items: [itemId],
         });
       }
+
+      const remainingItems = filteredItems
+        .map((item) => {
+          const voidQty = selectedItems[item.id.toString()] ?? 0;
+          return {...item, quantity: item.quantity - voidQty};
+        })
+        .filter((item) => item.quantity > 0);
+      const remainingOrder = {...order, items: remainingItems};
+      const remainingItemsTotal = calculateOrderTotal(remainingOrder);
+      await db.merge(orderId, {
+        service_charge_amount: getOrderServiceChargeAmount(remainingOrder, remainingItemsTotal),
+      });
+      await syncOrderTaxes(db, orderId);
 
       // Dispatch deletion prints grouped by kitchen
       try {

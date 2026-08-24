@@ -1,4 +1,4 @@
-import { formatNumber } from "@/lib/utils.ts";
+import { cn, formatNumber } from "@/lib/utils.ts";
 import React from "react";
 import { OrderItem, OrderItemModifier } from "@/api/model/order_item.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
@@ -8,7 +8,7 @@ import {
 } from "@/lib/order-item-display.ts";
 
 export const OrderItemName = ({
-  item, showGroups, showQuantity, showPrice, showModifierPrice, showTotal, showModifiers = true
+  item, showGroups, showQuantity, showPrice, showModifierPrice, showTotal, showModifiers = true, cancelled = false
 }: {
   item: OrderItem,
   showGroups?: boolean
@@ -17,14 +17,16 @@ export const OrderItemName = ({
   showTotal?: boolean
   showModifierPrice?: boolean
   showModifiers?: boolean
+  cancelled?: boolean
 }) => {
   const { enabled: showInclusive } = useShowInclusivePrices();
   const unitPrice = getOrderItemDisplayUnitPrice(item, showInclusive);
   const lineTotal = unitPrice * (item.quantity || 1);
+  const isVoided = cancelled || item.deleted_at != null;
 
   return (
-    <div className="hover:bg-neutral-200 flex-1">
-      <div className="pl-x flex text-lg gap-1" style={{
+    <div className={cn("hover:bg-neutral-200 flex-1", isVoided && "opacity-55")}>
+      <div className={cn("pl-x flex text-lg gap-1", isVoided && "line-through text-neutral-500")} style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>
         <span className="flex-1">{item.item.name}</span>

@@ -1,5 +1,5 @@
 import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
-import React, {CSSProperties, useEffect, useMemo, useState} from "react";
+import React, {CSSProperties, useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
 import {useDB} from "@/api/db/db.ts";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
@@ -9,6 +9,7 @@ import ScrollContainer from "react-indiana-drag-scroll";
 import {OrderHeader} from "@/components/orders/order.header.tsx";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {
+  faAnglesDown,
   faChair,
   faCodeBranch,
   faCreditCard,
@@ -29,7 +30,7 @@ import {SplitAmount} from "@/components/orders/split/split.amount.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {OrderCancelModal} from "@/components/orders/order.cancel.modal.tsx";
 import {OrderRefundModal} from "@/components/orders/order.refund.modal.tsx";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getOrderDisplayItems, getOrderFilteredItems} from "@/lib/order.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
@@ -75,6 +76,8 @@ export const OrderBox = ({
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [refundOrderOpen, setRefundOrderOpen] = useState(false);
   const [tempPrintedLocal, setTempPrintedLocal] = useState(false);
+  const itemsContainerRef = useRef<HTMLDivElement | null>(null);
+  const [hasMoreItemsBelow, setHasMoreItemsBelow] = useState(false);
 
   const tempPrinted = tempPrintedProp ?? tempPrintedLocal;
 
@@ -195,14 +198,37 @@ export const OrderBox = ({
 
   const modalOrder = actionOrder ?? order;
 
+  useEffect(() => {
+    const el = itemsContainerRef.current;
+    if (!el) {
+      setHasMoreItemsBelow(false);
+      return;
+    }
+
+    const updateScrollHint = () => {
+      const nextHasMore = el.scrollHeight - el.scrollTop - el.clientHeight > 8;
+      setHasMoreItemsBelow(nextHasMore);
+    };
+
+    updateScrollHint();
+    el.addEventListener('scroll', updateScrollHint);
+    window.addEventListener('resize', updateScrollHint);
+
+    return () => {
+      el.removeEventListener('scroll', updateScrollHint);
+      window.removeEventListener('resize', updateScrollHint);
+    };
+  }, [cardReady, order]);
+
   return (
     <>
-      <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none" data-testid="order-card">
+      <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none h-[540px]" data-testid="order-card">
         <OrderHeader order={order} tempPrinted={tempPrinted}/>
         <OrderTimes order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
-        <ScrollContainer>
-          <div className="overflow-auto max-h-[400px] min-h-[80px]">
+        <div className="relative h-[190px] overflow-hidden">
+          <ScrollContainer className="h-full">
+            <div ref={itemsContainerRef} className="overflow-y-auto overflow-x-hidden h-full min-h-[80px] pr-1">
             {!cardReady && (
               <div className="py-6 text-center text-sm text-neutral-500">
                 {hydrateError ? (
@@ -214,7 +240,7 @@ export const OrderBox = ({
                 )}
               </div>
             )}
-            {cardReady && getOrderFilteredItems(order).map((item, index) => (
+            {cardReady && getOrderDisplayItems(order).map((item, index) => (
               <OrderItemName
                 item={item}
                 showQuantity={showQuantityInOrderCard}
@@ -224,10 +250,20 @@ export const OrderBox = ({
                 showTotal={showTotalInOrderCard}
                 showGroups={showGroupsInOrderCard}
                 showModifiers={showModifiersInOrderCard}
+                cancelled={order.status === OrderStatus.Cancelled || item.deleted_at != null}
               />
             ))}
-          </div>
-        </ScrollContainer>
+            </div>
+          </ScrollContainer>
+          {hasMoreItemsBelow && (
+            <div className="pointer-events-none absolute bottom-0 inset-x-0 flex justify-center pb-2">
+              <div className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-neutral-600 shadow">
+                <FontAwesomeIcon icon={faAnglesDown}/>
+                <span>...</span>
+              </div>
+            </div>
+          )}
+        </div>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         {cardReady ? (
           <OrderTotals order={order} />

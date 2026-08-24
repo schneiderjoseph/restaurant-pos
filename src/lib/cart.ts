@@ -72,6 +72,24 @@ export const calculateOrderTotal = (order?: Order) => {
   return price;
 }
 
+/** Service charge on remaining (non-voided) items. Zero when the order has no items left. */
+export const getOrderServiceChargeAmount = (order?: Order, itemsTotal = calculateOrderTotal(order)) => {
+  if (!order || itemsTotal <= 0) {
+    return 0;
+  }
+
+  const rate = Number(order.service_charge ?? 0);
+  if (rate <= 0) {
+    return 0;
+  }
+
+  if (order.service_charge_type === DiscountType.Percent) {
+    return itemsTotal * rate / 100;
+  }
+
+  return Number(order.service_charge_amount ?? 0);
+};
+
 export const calculateOrderExtrasTotal = (order?: Order) => {
   return (order?.extras ?? []).reduce(
     (sum, extra) => sum + safeNumber(extra?.value),
@@ -139,11 +157,7 @@ export const calculateOrderTotalsPreview = (order: Order, cart?: MenuItem[]) => 
     ? itemsTotal * order.tax.rate / 100
     : Number(order?.tax_amount ?? 0);
 
-  const serviceChargeAmount = order?.service_charge && order.service_charge > 0
-    ? order.service_charge_type === DiscountType.Percent
-      ? itemsTotal * order.service_charge / 100
-      : Number(order.service_charge_amount ?? 0)
-    : 0;
+  const serviceChargeAmount = getOrderServiceChargeAmount(order, itemsTotal);
 
   const discountAmount = order?.discount
     ? order.discount.type === DiscountType.Percent
