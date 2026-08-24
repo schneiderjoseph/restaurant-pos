@@ -21,6 +21,8 @@
     "payment-server": "cd payments && npm start",
     "tracking-server": "cd tracking-api && npm start",
     "api-server": "cd api && npm start",
+    "asi-sync": "cd asi-sync && npm start",
+    "asi-sync:once": "cd asi-sync && npm run once",
     "docs:guide:capture": "node docs-automation/capture.mjs",
     "docs:guide:capture:one": "playwright test --config docs-automation/playwright.config.ts",
     "docs:guide:assemble": "node docs-automation/assemble.mjs",

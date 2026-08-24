@@ -10,6 +10,8 @@ import {MenuItemType} from "@/api/model/cart_item.ts";
 import {Payment} from "@/components/payment/payment.tsx";
 import {Customers} from "@/components/customer/customer.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
+import {formatGuestLabel} from "@/lib/guest.ts";
+import {useResortFb} from "@/hooks/useResortFb.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {toast} from "sonner";
@@ -25,6 +27,8 @@ export const MenuHeader = () => {
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const hideTableSelection = state.hideTableSelection === true;
+  const {enabled: resortFb} = useResortFb();
+  const skipTableUi = hideTableSelection || (resortFb && state.resortEntry !== 'floor');
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
 
@@ -85,7 +89,10 @@ export const MenuHeader = () => {
       order: undefined,
       orders: [],
       customer: undefined,
-      table: undefined
+      table: undefined,
+      resortEntry: resortFb
+        ? (prev.resortEntry === 'floor' ? 'floor' : 'guest')
+        : prev.resortEntry,
     }));
   }
 
@@ -183,8 +190,23 @@ export const MenuHeader = () => {
     <>
       <div className="flex justify-between items-center w-full" data-testid="menu-header">
         <div className="flex items-center gap-2">
-          {!hideTableSelection && (
+          {!skipTableUi && !resortFb && (
             <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-floor">{state?.floor?.name}</Button>
+          )}
+          {resortFb && (
+            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-guest">
+              {state.resortEntry === 'floor'
+                ? (state?.table
+                  ? `${state.table.name ?? ''}${state.table.number ?? ''}`
+                  : (state?.floor?.name ?? t('guest.openFloor')))
+                : (
+                  <>
+                    {state?.customer ? formatGuestLabel(state.customer) : t('guest.title')}
+                    {state?.table?.number ? ` · T${state.table.number}` : ''}
+                    {!state?.table?.number && state?.floor?.name ? ` · ${state.floor.name}` : ''}
+                  </>
+                )}
+            </Button>
           )}
           {state?.orders?.length > 0 ? (
             <>
@@ -217,7 +239,7 @@ export const MenuHeader = () => {
             </>
           ) : null}
 
-          {!hideTableSelection && (
+          {!skipTableUi && (
             <Button
               type="button"
               className="btn btn-primary lg btn-flat min-w-[50px]"
@@ -225,6 +247,14 @@ export const MenuHeader = () => {
               icon={faTable}
               data-testid="menu-table"
             >{state?.table?.name}{state?.table?.number}</Button>
+          )}
+          {resortFb && state?.table?.number && (
+            <Button
+              type="button"
+              className="btn btn-primary lg btn-flat min-w-[50px]"
+              icon={faTable}
+              data-testid="menu-table-resort"
+            >{state.table.name}{state.table.number}</Button>
           )}
           <Button type="button"
                   className="btn btn-primary lg btn-flat"
@@ -237,7 +267,9 @@ export const MenuHeader = () => {
 
           <div className="input-group">
             <Button flat variant="primary" size="lg" icon={faUser} onClick={() => setCustomerModal(true)} data-testid="menu-customer">
-              {state?.customer ? state.customer?.name : t('header.customer')}
+              {state?.customer
+                ? formatGuestLabel(state.customer)
+                : t('header.customer')}
             </Button>
           </div>
           {state.cart.filter(item => item.newOrOld === MenuItemType.new).length > 0 && (

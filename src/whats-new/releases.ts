@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-08-24',
+    title: 'Resort F&B (env flags)',
+    items: [
+      'Optional Resort mode via VITE_RESORT_FB: guest/room lookup plus Salle floor plan without hiding existing POS features.',
+      'VITE_POS_MODE=asi expects ASI menu sync and PMS in-house guests (asi-sync); native keeps local menu and guests.',
+      'asi-sync FrontDesk mapping: fCheckInInfo + cUnit → customer:asi_fd_{id} / FD-{id} (ASI_FD_SYNC off by default; own Surreal only).',
+    ],
+  },
+  {
+    date: '2026-08-24',
     title: 'Restaurant profile',
     items: [
       'Settings → Restaurant stores name, address, phone, email, website, tax ID, and logo for tickets and reports.',

@@ -4,6 +4,7 @@ import {MenuCart} from "@/components/cart/cart.tsx";
 import {useEffect, useMemo, useRef} from "react";
 import {FloorLayout} from "@/components/floor/floor.layout.tsx";
 import {MenuHeader} from "@/components/menu/header.tsx";
+import {GuestLookup} from "@/components/menu/guest.lookup.tsx";
 import {useAtom} from "jotai";
 import {appAlert, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {MenuPersons} from "@/components/menu/persons.tsx";
@@ -15,6 +16,7 @@ import 'swiper/css';
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useSearchParams} from "react-router";
+import {useResortFb} from "@/hooks/useResortFb.ts";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
@@ -24,10 +26,13 @@ export const Menu = () => {
   const [, setAlert] = useAtom(appAlert);
   const db = useDB();
   const [searchParams] = useSearchParams();
+  const {enabled: resortFb} = useResortFb();
   /** Docs capture only — never write this into persisted appState. */
   const docsTableless = searchParams.get('docs_tableless') === '1';
   /** User preference (Settings → table selection). */
   const hideTableSelectionSetting = state.hideTableSelection === true;
+  const resortFloorMode = resortFb && state.resortEntry === 'floor';
+  const tablelessMode = hideTableSelectionSetting || (resortFb && !resortFloorMode);
 
   // One-time recovery: earlier docs capture wrote hideTableSelection into app-state.
   useEffect(() => {
@@ -56,7 +61,10 @@ export const Menu = () => {
   }, [docsTableless, setState]);
 
   useEffect(() => {
-    // Product tableless mode only (not docs query).
+    // Product tableless mode only (not docs query). Resort guest entry skips this.
+    if (resortFb) {
+      return;
+    }
     if (!hideTableSelectionSetting || state.showFloor !== true || enforcement.orderTakingBlocked) {
       return;
     }
@@ -84,13 +92,15 @@ export const Menu = () => {
     settings.floors,
     settings.order_types,
     state.showFloor,
+    resortFb,
   ]);
 
   const tablelessOrdersLiveRef = useRef<{kill: () => Promise<void>} | null>(null);
 
   useEffect(() => {
     // Live tableless order list only for product setting (not docs-only flag).
-    if (!hideTableSelectionSetting) {
+    // Resort guest mode loads orders per guest instead.
+    if (!hideTableSelectionSetting || resortFb) {
       return;
     }
 
@@ -150,7 +160,7 @@ export const Menu = () => {
       tablelessOrdersLiveRef.current?.kill().catch(() => undefined);
       tablelessOrdersLiveRef.current = null;
     };
-  }, [db, hideTableSelectionSetting, setState]);
+  }, [db, hideTableSelectionSetting, resortFb, setState]);
 
   useEffect(() => {
     if (!enforcement.orderTakingBlocked || state.showFloor) {
@@ -206,10 +216,22 @@ export const Menu = () => {
   ]);
 
   // Docs capture: never force persisted showFloor/persons off — only branch UI here.
-  const showFloorLayout = !docsTableless && state.showFloor === true && !hideTableSelectionSetting;
-  const showPersonsLayout = !docsTableless && state.showPersons === true;
+  const showGuestLookup =
+    resortFb &&
+    !resortFloorMode &&
+    (state.showFloor === true || !state.customer?.id);
+  const showFloorLayout =
+    !docsTableless &&
+    state.showFloor === true &&
+    !hideTableSelectionSetting &&
+    (!resortFb || resortFloorMode);
+  const showPersonsLayout = !docsTableless && !showGuestLookup && state.showPersons === true;
 
   const screen = useMemo(() => {
+    if (showGuestLookup) {
+      return <GuestLookup/>;
+    }
+
     if (showFloorLayout) {
       return <FloorLayout/>;
     }
@@ -227,9 +249,6 @@ export const Menu = () => {
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-testid="menu-dishes">
             <MenuDishes/>
           </div>
-          {/*<div className="mt-3">
-            <MenuActions/>
-          </div>*/}
         </div>
         <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
           <MenuCart/>
@@ -237,15 +256,15 @@ export const Menu = () => {
       </div>
     )
 
-  }, [showFloorLayout, showPersonsLayout]);
+  }, [showFloorLayout, showPersonsLayout, showGuestLookup]);
 
-  const isMenuOrderingScreen = !showFloorLayout && !showPersonsLayout;
+  const isMenuOrderingScreen = !showFloorLayout && !showPersonsLayout && !showGuestLookup;
 
   return (
     <Layout
       overflowHidden={isMenuOrderingScreen}
       containerClassName={isMenuOrderingScreen ? "overflow-hidden" : undefined}
-      showSidebar={showFloorLayout || showPersonsLayout || hideTableSelectionSetting || docsTableless}
+      showSidebar={showFloorLayout || showPersonsLayout || showGuestLookup || tablelessMode || docsTableless}
     >
       <DocumentTitle parts={[tNav('sidebar.menu')]} />
       {screen}

@@ -41,6 +41,8 @@ export interface AppStateInterface {
   seat?: string
   switchTable?: boolean
   hideTableSelection?: boolean
+  /** Resort F&B entry: guest lookup vs walk-in floor (ignored when VITE_RESORT_FB is off). */
+  resortEntry?: 'guest' | 'floor'
   ordersFilters: {
     users: LabelValue[]
     floors: LabelValue[]

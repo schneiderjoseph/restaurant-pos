@@ -10,7 +10,7 @@ import {FloorTable} from "@/components/settings/floors/layout/table.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faChair, faExpand, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faChair, faExpand, faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {LiveSubscription} from "surrealdb";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
@@ -19,10 +19,12 @@ import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import {useFloorMapCamera} from "@/hooks/useFloorMapCamera.ts";
+import {useResortFb} from "@/hooks/useResortFb.ts";
+import {ensureResortFloorTables} from "@/lib/resort-floor-tables.ts";
 
 
 export const FloorLayout = () => {
-  const { t } = useTranslation('closing');
+  const { t } = useTranslation(['closing', 'menu']);
   const { t: tAdmin } = useTranslation('admin');
   const viewportRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useAtom(appState);
@@ -34,6 +36,7 @@ export const FloorLayout = () => {
   const [, setAlert] = useAtom(appAlert);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const {enabled: resortFb} = useResortFb();
   const isClosingLocked = enforcement.orderTakingBlocked;
   const closingLockMessage = enforcement.message;
 
@@ -159,6 +162,50 @@ export const FloorLayout = () => {
       tablesLiveQuery?.kill().catch(() => undefined);
     }
   }, []);
+
+  useEffect(() => {
+    if (!resortFb) {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const seeded = await ensureResortFloorTables(db);
+        if (cancelled) {
+          return;
+        }
+        setSettings((prev) => {
+          const floorMap = new Map(
+            (prev.floors ?? []).map((floor) => [floor.id?.toString(), floor]),
+          );
+          floorMap.set(seeded.floor.id?.toString(), seeded.floor);
+          const tableMap = new Map(
+            (prev.tables ?? []).map((table) => [table.id?.toString(), table]),
+          );
+          for (const table of seeded.tables) {
+            tableMap.set(table.id?.toString(), table);
+          }
+          return {
+            ...prev,
+            floors: Array.from(floorMap.values()),
+            tables: Array.from(tableMap.values()),
+          };
+        });
+        setState((prev) => ({
+          ...prev,
+          floor:
+            prev.resortEntry === 'floor'
+              ? (seeded.floor ?? prev.floor)
+              : (prev.floor ?? seeded.floor),
+        }));
+      } catch (error) {
+        console.error('Failed to layout resort floor tables', error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [db, resortFb, setSettings, setState]);
 
   useEffect(() => {
     if (isClosingLocked && closingLockMessage) {
@@ -335,6 +382,7 @@ export const FloorLayout = () => {
         },
         switchTable: false, // turn off switch table flag
         customer: order?.customer, // clear customer
+        resortEntry: prev.resortEntry === 'floor' ? 'floor' : prev.resortEntry,
         orderType: (item.order_types?.length > 0 ? item.order_types : orderTypes)[0]
       }));
 
@@ -359,6 +407,28 @@ export const FloorLayout = () => {
         background: state.floor?.background
       }}>
         <div className="min-h-[72px] bg-white/95 backdrop-blur border-b border-neutral-200 px-4 py-2 flex items-center gap-4">
+          {resortFb && state.resortEntry === 'floor' && (
+            <Button
+              variant="primary"
+              flat
+              size="lg"
+              icon={faArrowLeft}
+              data-testid="floor-back-guest"
+              onClick={() => setState((prev) => ({
+                ...prev,
+                resortEntry: 'guest',
+                showFloor: true,
+                showPersons: false,
+                table: undefined,
+                customer: undefined,
+                order: undefined,
+                orders: [],
+                cart: [],
+              }))}
+            >
+              {t('menu:guest.backToGuests')}
+            </Button>
+          )}
           {state.switchTable ? (
             <div className="flex-1 rounded-xl bg-warning-100 text-warning-900 px-4 py-2 flex items-center gap-3">
               <FontAwesomeIcon icon={faChair} className="text-xl"/>
