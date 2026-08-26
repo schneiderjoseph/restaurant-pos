@@ -4,7 +4,7 @@
     "total": "Total"
   },
   "actions": {
-    "toKitchen": "A cocina",
+    "toKitchen": "Enviar",
     "payNow": "Pagar ahora",
     "cancel": "Cancelar"
   },

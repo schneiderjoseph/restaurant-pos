@@ -16,9 +16,9 @@
     },
     {
       "id": "actions",
-      "title": "Cuisine, Payer, Annuler",
+      "title": "Envoyer, Payer, Annuler",
       "steps": [
-        "En cuisine enregistre et envoie.",
+        "Envoyer enregistre la commande et envoie les nouveaux articles aux stations / impression (une fiche par station).",
         "Payer maintenant ouvre le paiement (chapitre Paiement).",
         "Annuler retire les nouvelles lignes."
       ],

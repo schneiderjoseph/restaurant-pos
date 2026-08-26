@@ -42,7 +42,9 @@ const PORT = process.env.PRINT_PORT || 3132;
 const requireSession = createSessionAuthMiddleware();
 
 app.use(cors({ origin: createCorsOriginDelegate() }));
-app.use(express.json({ limit: '1mb' }));
+// Receipts often embed logo/images as base64; 1mb is too small for those payloads.
+const jsonLimit = process.env.PRINT_JSON_LIMIT || '15mb';
+app.use(express.json({ limit: jsonLimit }));
 
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'posr-print-server' });

@@ -16,9 +16,9 @@
     },
     {
       "id": "actions",
-      "title": "To kitchen, Pay now, Cancel",
+      "title": "Send, Pay now, Cancel",
       "steps": [
-        "To kitchen saves the order and sends new items to kitchen workflows/print when configured, then returns to the floor when tables are used.",
+        "Send saves the order and sends new items to kitchen workflows/print when configured (one KOT per station), then returns to the floor when tables are used.",
         "Pay now saves the order if needed and opens the full payment screen (see the Payment chapter).",
         "Cancel drops new cart lines (or returns) according to current cart rules."
       ],
