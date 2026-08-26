@@ -30,15 +30,16 @@ Print settings control templates and options for temp bills, final receipts, kit
 
 1. Open Admin → Printing → Printers.
 2. Add name and connection: network IP/port or USB identifiers.
-3. Choose printer type (receipt, kitchen, label).
-4. Save — assign in kitchens and device settings.
+3. Choose type: `Network`, `USB`, `Serial`, or `Bluetooth`.
+4. Save — then assign in **Stations** (KOT) and/or **Settings → Default printers** (temp/final).
 
 **Fields**
 
 - **Name** — Friendly name in admin and device pickers.
-- **Type** — Receipt, kitchen, or label driver profile.
-- **IP address / port** — Network ESC/POS connection.
-- **VID / PID** — USB vendor/product IDs for direct-attached printers.
+- **Type** — Driver family (`Network` / `USB` / `Serial` / `Bluetooth`).
+- **IP address / port** — Network ESC/POS (default port `9100`). Serial/Bluetooth device path is stored in the IP/path field (schema has no separate `path` column).
+- **VID / PID** — USB only.
+- **prints** — Legacy required int (UI defaults to `1`); physical copy counts use Settings → Print options.
 
 ![Printer form.](images/en/admin-printing-printer-form.png)
 

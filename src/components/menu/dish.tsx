@@ -19,7 +19,7 @@ import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {MenuModifierOverrides} from "@/api/model/menu.ts";
 import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
-import {isAsiMode} from "@/lib/pos-mode.ts";
+import {isExternalCatalogueMode} from "@/lib/pos-mode.ts";
 
 const dishImageCache = new Map<string, string>();
 
@@ -49,8 +49,8 @@ export const MenuDish = ({
   const [{groups_dishes}] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const db = useDB();
-  // ASI aliases (COKE, JUSOR…) crush 10" tiles; never show PLU badges in ASI mode.
-  const showDishNumber = !isAsiMode() && page.menuConfig?.showDishNumber === true;
+  // External catalogue PLUs / SKUs crush 10" tiles; hide badges in ASI & Loyverse modes.
+  const showDishNumber = !isExternalCatalogueMode() && page.menuConfig?.showDishNumber === true;
   const showDishPhotos = page.menuConfig?.showDishPhotos === true;
 
   const [modifiersModal, setModifiersModal] = useState(false);

@@ -8,6 +8,8 @@ import {OrderBox} from "@/components/orders/order.box.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {User} from "@/api/model/user.ts";
+import {Customer} from "@/api/model/customer.ts";
+import {formatGuestLabel} from "@/lib/guest-label.ts";
 import {useAtom} from "jotai";
 import {appAlert, appPage, appSettings, appState, AppStateInterface} from "@/store/jotai.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
@@ -57,6 +59,7 @@ export const Orders = () => {
     floors: state?.ordersFilters?.floors ?? [],
     statuses: state?.ordersFilters?.statuses ?? [],
     orderTypes: state?.ordersFilters?.orderTypes ?? [],
+    customers: state?.ordersFilters?.customers ?? [],
   }), [state?.ordersFilters]);
 
   const [merging, setMerging] = useState<boolean>(false);
@@ -77,6 +80,7 @@ export const Orders = () => {
         floors: prev?.ordersFilters?.floors ?? [],
         statuses: prev?.ordersFilters?.statuses ?? [],
         orderTypes: prev?.ordersFilters?.orderTypes ?? [],
+        customers: prev?.ordersFilters?.customers ?? [],
         [key]: value ?? [],
       }
     }));
@@ -88,6 +92,7 @@ export const Orders = () => {
     const userFilters = [];
     const orderTypeFilters = [];
     const statusFilters = [];
+    const customerFilters = [];
 
     const f = [];
     const params: Record<string, unknown> = {};
@@ -121,6 +126,13 @@ export const Orders = () => {
     });
     if (orderTypeFilters.length > 0) {
       f.push(`(${orderTypeFilters.join(' or ')})`);
+    }
+
+    selectedOrderFilters?.customers?.forEach(customer => {
+      customerFilters.push(`customer = ${customer.value}`);
+    });
+    if (customerFilters.length > 0) {
+      f.push(`(${customerFilters.join(' or ')})`);
     }
 
     if (date) {
@@ -178,6 +190,10 @@ export const Orders = () => {
   const {
     data: users,
   } = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 99999);
+
+  const {
+    data: customers,
+  } = useApi<SettingsData<Customer>>(Tables.customers, [], ['name asc'], 0, 99999);
 
   useEffect(() => {
     let cancelled = false;
@@ -374,6 +390,19 @@ export const Orders = () => {
               placeholder={t('filters.users')}
               value={selectedOrderFilters.users}
               onChange={(value: LabelValue[]) => updateOrderFilter('users', value)}
+            />
+          </div>
+          <div className="min-w-[220px]">
+            <ReactSelect
+              options={(customers?.data ?? []).map(item => ({
+                label: formatGuestLabel(item) || item.guest_code || String(item.id),
+                value: item.id
+              }))}
+              isMulti
+              placeholder={t('filters.customers')}
+              value={selectedOrderFilters.customers}
+              onChange={(value: LabelValue[]) => updateOrderFilter('customers', value)}
+              data-testid="orders-filter-customers"
             />
           </div>
           <div>

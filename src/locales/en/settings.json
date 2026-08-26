@@ -58,7 +58,9 @@
     "loadFailed": "Failed to load printer settings",
     "loginRequired": "Please log in to save printer settings.",
     "saved": "Printer settings saved",
-    "saveFailed": "Failed to save printer settings"
+    "saveFailed": "Failed to save printer settings",
+    "orphanedRemoved": "{{count}} missing printer(s) removed — reselect and save",
+    "noneConfigured": "No printer for this print type. Settings → Default printers → Temp/Final → select your printer → Save"
   },
   "printOptions": {
     "title": "Print options",

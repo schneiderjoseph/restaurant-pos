@@ -103,7 +103,7 @@ export const Printersettings = () => {
 
   const { data: printersData } = useApi<SettingsData<Printer>>(
     Tables.printers,
-    [],
+    ['deleted_at = none'],
     ["priority asc"],
     0,
     99999
@@ -134,7 +134,16 @@ export const Printersettings = () => {
           const ids: string[] = Array.isArray(values)
             ? values.map((v: unknown) => toIdString(v))
             : [];
-          loaded[key as keyof PrinterSettingsForm] = idsToOptions(ids, printers);
+          const options = idsToOptions(ids, printers);
+          const orphanCount = ids.filter(
+            (id) => !printers.some((p) => idsMatch(toIdString(p.id), toIdString(id)))
+          ).length;
+          if (orphanCount > 0) {
+            toast.warning(t('settings:printers.orphanedRemoved', { count: orphanCount }));
+          }
+          loaded[key as keyof PrinterSettingsForm] = options.filter((o) =>
+            printers.some((p) => idsMatch(toIdString(p.id), o.value))
+          );
         }
 
         reset({
@@ -183,7 +192,9 @@ export const Printersettings = () => {
       for (const formKey of keys) {
         const key = PRINTER_SETTING_KEYS[formKey];
         const options = values[formKey];
-        const value = Array.isArray(options) ? options.map((o) => toIdString(o.value)) : [];
+        const value = Array.isArray(options)
+          ? options.map((o) => new StringRecordId(toIdString(o.value)))
+          : [];
 
         const [raw] = await db.query(
           `SELECT * FROM ${Tables.settings} WHERE key = $key`,

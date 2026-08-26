@@ -5,7 +5,7 @@ import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
 import { Customer } from '@/api/model/customer.ts';
 import { Floor } from '@/api/model/floor.ts';
-import { Order } from '@/api/model/order.ts';
+import { Order, OrderStatus } from '@/api/model/order.ts';
 import { Table } from '@/api/model/table.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
@@ -18,10 +18,12 @@ import {
   findTableByNumber,
   loadResortChambresFloor,
 } from '@/lib/resort-floor-tables.ts';
-import { isAsiMode } from '@/lib/pos-mode.ts';
+import { usesAsiPmsRooms } from '@/lib/pos-mode.ts';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { cn } from '@/lib/utils.ts';
+import { cn, toRecordId } from '@/lib/utils.ts';
+import { Modal } from '@/components/common/react-aria/modal.tsx';
+import { Customers } from '@/components/customer/customer.tsx';
 
 type FolioOrder = Order & { item_count?: number };
 
@@ -30,7 +32,7 @@ export const GuestLookup = () => {
   const { t } = useTranslation(['menu', 'orders', 'common']);
   const [state, setState] = useAtom(appState);
   const [settings, setSettings] = useAtom(appSettings);
-  const preferInHouse = isAsiMode();
+  const preferInHouse = usesAsiPmsRooms();
 
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<Customer[]>([]);
@@ -41,6 +43,7 @@ export const GuestLookup = () => {
   const [newCode, setNewCode] = useState(() => generateWalkInGuestCode());
   const [tableNumber, setTableNumber] = useState(state.table?.number ?? '');
   const [saving, setSaving] = useState(false);
+  const [transferOrder, setTransferOrder] = useState<FolioOrder | undefined>();
 
   const floors: Floor[] = settings.floors ?? [];
 
@@ -79,9 +82,13 @@ export const GuestLookup = () => {
   }, [db, setSettings]);
   const loadGuests = async (term: string) => {
     const trimmed = term.trim();
-    // ASI FD sync: tags contain 'in-house' (+ in_house bool mirror).
-    const inHouseClause = preferInHouse
-      ? "AND (in_house = true OR tags CONTAINS 'in-house')"
+    // ASI mode: show PMS in-house AND POSR walk-in / local guests (never hide local registry).
+    const visibleClause = preferInHouse
+      ? `AND (
+           in_house = true OR tags CONTAINS 'in-house'
+           OR source = 'walk-in' OR tags CONTAINS 'walk-in'
+           OR source = 'local'
+         )`
       : '';
 
     if (trimmed.length === 0) {
@@ -92,8 +99,10 @@ export const GuestLookup = () => {
       const [list] = await db.query<Customer[]>(
         `SELECT * FROM ${Tables.customers}
          WHERE in_house = true OR tags CONTAINS 'in-house'
-         ORDER BY room, name
-         LIMIT 50`
+            OR source = 'walk-in' OR tags CONTAINS 'walk-in'
+            OR source = 'local'
+         ORDER BY in_house DESC, room, name
+         LIMIT 80`
       );
       setResults(Array.isArray(list) ? list : []);
       return;
@@ -104,9 +113,9 @@ export const GuestLookup = () => {
        WHERE (guest_code CONTAINS $q
           OR name CONTAINS $q
           OR room CONTAINS $q)
-       ${inHouseClause}
+       ${visibleClause}
        ORDER BY name
-       LIMIT 20`,
+       LIMIT 30`,
       { q: trimmed }
     );
 
@@ -342,6 +351,9 @@ export const GuestLookup = () => {
                 <div className="text-sm text-neutral-600">
                   {guest.guest_code && guest.name?.trim() ? `#${guestCodeLabel(guest)} · ` : ''}
                   {guest.room ? `${t('menu:guest.room')} ${guest.room}` : ''}
+                  {(guest.source === 'walk-in' || guest.tags?.includes('walk-in')) && !guest.room
+                    ? `${guest.guest_code || guest.name ? ' · ' : ''}${t('menu:guest.walkInBadge')}`
+                    : ''}
                 </div>
               </button>
             ))}
@@ -476,7 +488,7 @@ export const GuestLookup = () => {
                   {folio.map((order) => (
                     <div
                       key={order.id?.toString()}
-                      className="border rounded-lg p-3 flex justify-between gap-3"
+                      className="border rounded-lg p-3 flex justify-between gap-3 items-start"
                     >
                       <div>
                         <div className="font-bold">
@@ -487,10 +499,21 @@ export const GuestLookup = () => {
                           {order.table?.number ? ` · T${order.table.number}` : ''}
                           {!order.table?.number && orderZoneLabel(order) ? ` · ${orderZoneLabel(order)}` : ''}
                         </div>
+                        <div className="text-sm text-neutral-500 mt-1">
+                          {toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}
+                        </div>
                       </div>
-                      <div className="text-sm text-neutral-500">
-                        {toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}
-                      </div>
+                      {order.status === OrderStatus['In Progress'] && (
+                        <Button
+                          variant="primary"
+                          flat
+                          size="sm"
+                          data-testid="guest-folio-transfer"
+                          onClick={() => setTransferOrder(order)}
+                        >
+                          {t('orders:actions.transferToClient')}
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -503,6 +526,43 @@ export const GuestLookup = () => {
           )}
         </div>
       </div>
+
+      {transferOrder && (
+        <Modal
+          open={Boolean(transferOrder)}
+          onClose={() => setTransferOrder(undefined)}
+          title={t('orders:actions.transferToClient')}
+          size="md"
+          testId="guest-transfer-order"
+        >
+          <p className="text-sm text-neutral-600 mb-3">{t('orders:customer.transferHint')}</p>
+          <Customers
+            onCustomerChosen={async (customer) => {
+              if (!customer?.id || !transferOrder?.id) return;
+              if (selected?.id?.toString() === customer.id.toString()) {
+                toast.error(t('orders:customer.transferSame'));
+                return;
+              }
+              try {
+                await db.merge(toRecordId(transferOrder.id), {
+                  customer: toRecordId(customer.id),
+                });
+                toast.success(t('orders:customer.transferred', {
+                  name: customer.name || customer.guest_code || '',
+                }));
+                setTransferOrder(undefined);
+                if (selected?.id) {
+                  void loadFolio(selected);
+                }
+              } catch (error) {
+                console.error(error);
+                toast.error(t('orders:customer.transferFailed'));
+              }
+            }}
+            onAttach={() => undefined}
+          />
+        </Modal>
+      )}
     </div>
   );
 };

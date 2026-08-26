@@ -33,7 +33,10 @@ Configure which printers are used for different types of receipts and documents 
 - **User-specific priority**: When system printers are off, user-specific settings override global settings
 - **Global fallback**: If no user-specific configuration exists (and system mode is off), the system uses global settings
 - **Multi-printer support**: You can select multiple printers for each print type
-- **Printer availability**: Only printers configured in the system appear in the dropdown
+- **Printer availability**: Only non-deleted printers (`deleted_at = none`) appear in the dropdown
+- **Orphan IDs**: If a saved printer id no longer exists, it is dropped on load with a warning — reselect and Save
+- **Admin vs Settings**: Creating a printer under Admin does not assign it to temp/final — use this Settings card (or System printers)
+- **Kitchen KOT**: Station (kitchen) printer lists control kitchen tickets only, not temp/final bills
 - **Priority ordering**: Printers are displayed in priority order (as configured in printer settings)
 
 ## Permissions

@@ -60,4 +60,5 @@ gateway/.env
 payments/.env
 
 asi-sync/.env
+loyverse-sync/.env
 

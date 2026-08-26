@@ -58,7 +58,9 @@
     "loadFailed": "Échec du chargement des paramètres d'impression",
     "loginRequired": "Veuillez vous connecter pour enregistrer les paramètres d'impression.",
     "saved": "Paramètres d'impression enregistrés",
-    "saveFailed": "Échec de l'enregistrement des paramètres d'impression"
+    "saveFailed": "Échec de l'enregistrement des paramètres d'impression",
+    "orphanedRemoved": "{{count}} imprimante(s) introuvable(s) retirée(s) — resélectionnez et enregistrez",
+    "noneConfigured": "Aucune imprimante pour ce type. Paramètres → Imprimantes par défaut → Temp/Final → choisir CUISINE → Enregistrer"
   },
   "printOptions": {
     "title": "Options d'impression",

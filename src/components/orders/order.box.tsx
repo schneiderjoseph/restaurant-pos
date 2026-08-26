@@ -16,7 +16,9 @@ import {
   faEllipsisV,
   faMoneyBillTransfer,
   faObjectGroup,
-  faPrint
+  faPrint,
+  faUser,
+  faUsers
 } from "@fortawesome/free-solid-svg-icons";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {Dropdown, DropdownItem, DropdownSeparator} from "@/components/common/react-aria/dropdown.tsx";
@@ -27,6 +29,11 @@ import {OrderTotals} from "@/components/orders/order.totals.tsx";
 import {SplitBySeats} from "@/components/orders/split/split.seats.tsx";
 import {SplitItems} from "@/components/orders/split/split.items.tsx";
 import {SplitAmount} from "@/components/orders/split/split.amount.tsx";
+import {SplitByClients} from "@/components/orders/split/split.clients.tsx";
+import {Customers} from "@/components/customer/customer.tsx";
+import {Modal} from "@/components/common/react-aria/modal.tsx";
+import {toRecordId} from "@/lib/utils.ts";
+import {Customer} from "@/api/model/customer.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {OrderCancelModal} from "@/components/orders/order.cancel.modal.tsx";
 import {OrderRefundModal} from "@/components/orders/order.refund.modal.tsx";
@@ -73,6 +80,8 @@ export const OrderBox = ({
   const [splitBySeats, setSplitBySeats] = useState(false);
   const [splitByManually, setSplitByManually] = useState(false);
   const [splitByAmount, setSplitByAmount] = useState(false);
+  const [splitByClients, setSplitByClients] = useState(false);
+  const [transferCustomerOpen, setTransferCustomerOpen] = useState(false);
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false);
   const [refundOrderOpen, setRefundOrderOpen] = useState(false);
   const [tempPrintedLocal, setTempPrintedLocal] = useState(false);
@@ -344,6 +353,30 @@ export const OrderBox = ({
                     });
                   }
 
+                  if (key === 'split_by_clients') {
+                    protectAction(() => {
+                      void withFullOrder(() => setSplitByClients(true));
+                    }, {
+                      module: 'orders.split_by_items',
+                      description: 'Split by clients',
+                      payload: {
+                        order: snapshot.id.toString()
+                      }
+                    });
+                  }
+
+                  if (key === 'transfer_customer') {
+                    protectAction(() => {
+                      void withFullOrder(() => setTransferCustomerOpen(true));
+                    }, {
+                      module: 'orders',
+                      description: 'Transfer order to another client file',
+                      payload: {
+                        order: snapshot.id.toString()
+                      }
+                    });
+                  }
+
                   if (key === 'cancel') {
                     protectAction(() => {
                       void withFullOrder(() => setCancelOrderOpen(true));
@@ -405,6 +438,14 @@ export const OrderBox = ({
                     <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_amount" key="split_by_amount"
                                   data-testid="order-menu-split_by_amount" className="min-w-[50px]">
                       <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByAmount')}
+                    </DropdownItem>
+                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_clients" key="split_by_clients"
+                                  data-testid="order-menu-split_by_clients" className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faUsers}/> {t('actions.splitByClients')}
+                    </DropdownItem>
+                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="transfer_customer" key="transfer_customer"
+                                  data-testid="order-menu-transfer_customer" className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faUser}/> {t('actions.transferToClient')}
                     </DropdownItem>
                     <DropdownSeparator/>
                     <DropdownItem isDisabled={mutationsBlocked || !cardReady} id="merge" key="merge" data-testid="order-menu-merge" className="min-w-[50px]">
@@ -496,6 +537,54 @@ export const OrderBox = ({
           setActionOrder(null);
           onAction && onAction();
         }}/>
+      )}
+
+      {splitByClients && (
+        <SplitByClients order={modalOrder} onClose={() => {
+          setSplitByClients(false);
+          setActionOrder(null);
+          onAction && onAction();
+        }}/>
+      )}
+
+      {transferCustomerOpen && (
+        <Modal
+          open={transferCustomerOpen}
+          onClose={() => {
+            setTransferCustomerOpen(false);
+            setActionOrder(null);
+          }}
+          title={t('actions.transferToClient')}
+          size="md"
+          testId="order-transfer-customer"
+        >
+          <p className="text-sm text-neutral-600 mb-3">{t('customer.transferHint')}</p>
+          <Customers
+            onCustomerChosen={async (customer: Customer) => {
+              if (!customer?.id) return;
+              const currentId = modalOrder.customer?.id?.toString();
+              if (currentId && currentId === customer.id.toString()) {
+                toast.error(t('customer.transferSame'));
+                return;
+              }
+              try {
+                await db.merge(toRecordId(modalOrder.id), {
+                  customer: toRecordId(customer.id),
+                });
+                toast.success(t('customer.transferred', {
+                  name: customer.name || customer.guest_code || '',
+                }));
+                setTransferCustomerOpen(false);
+                setActionOrder(null);
+                onAction && onAction();
+              } catch (error) {
+                console.error(error);
+                toast.error(t('customer.transferFailed'));
+              }
+            }}
+            onAttach={() => undefined}
+          />
+        </Modal>
       )}
 
       {cancelOrderOpen && (

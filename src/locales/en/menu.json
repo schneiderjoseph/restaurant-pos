@@ -69,6 +69,7 @@
     "required": "Select a guest first",
     "subtitlePms": "Select an in-house hotel guest (PMS), create a walk-in (first/last name), or open the floor plan.",
     "pickGuestPms": "Select an in-house guest to continue",
-    "roomRequiresGuest": "Cannot order on a room without a guest. Pick an occupied room."
+    "roomRequiresGuest": "Cannot order on a room without a guest. Pick an occupied room.",
+    "walkInBadge": "Walk-in"
   }
 }

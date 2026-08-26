@@ -48,6 +48,7 @@ export interface AppStateInterface {
     floors: LabelValue[]
     statuses: LabelValue[]
     orderTypes: LabelValue[]
+    customers: LabelValue[]
   }
   orderDisplayFilters: {
     statuses: LabelValue[]
@@ -69,6 +70,7 @@ export const appState = atomWithStorage<AppStateInterface>(
       floors: [],
       statuses: [],
       orderTypes: [],
+      customers: [],
     },
     orderDisplayFilters: {
       statuses: [{ label: OrderStatus['In Progress'], value: OrderStatus['In Progress'] }],

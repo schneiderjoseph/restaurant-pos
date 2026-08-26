@@ -14,9 +14,12 @@ import { toast } from "sonner";
 
 export interface Props {
   onAttach?: () => void;
+  /** When set, called with the chosen customer (create or pick). Still updates appState. */
+  onCustomerChosen?: (customer: Customer) => void | Promise<void>;
 }
 export const Customers = ({
-  onAttach
+  onAttach,
+  onCustomerChosen,
 }: Props) => {
   const [state, setState] = useAtom(appState);
   const db = useDB();
@@ -53,11 +56,12 @@ export const Customers = ({
     void loadCustomers(search)
   }, [search]);
 
-  const attachCustomer = (customer: Customer) => {
+  const attachCustomer = async (customer: Customer) => {
     setState(prev => ({
       ...prev,
       customer,
     }));
+    await onCustomerChosen?.(customer);
     onAttach?.();
   };
 
@@ -100,7 +104,7 @@ export const Customers = ({
       setLastName('');
       setAutoCode(generateWalkInGuestCode());
       toast.success(t("menu:guest.created"));
-      attachCustomer(created as Customer);
+      await attachCustomer(created as Customer);
     } catch (error) {
       console.error(error);
       toast.error(t("menu:guest.createFailed"));
@@ -196,7 +200,9 @@ export const Customers = ({
                 <IconTooltipButton
                   label={t('common:actions.select')}
                   icon={faCheck}
-                  onClick={() => attachCustomer(item)}
+                  onClick={() => {
+                    void attachCustomer(item);
+                  }}
                   variant="secondary"
                 />
               </td>

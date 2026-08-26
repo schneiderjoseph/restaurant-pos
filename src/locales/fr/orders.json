@@ -7,6 +7,10 @@
     "address": "Adresse",
     "attach": "Associer",
     "search": "Rechercher",
+    "transferHint": "Choisissez le fichier client de destination. La commande quittera le client actuel.",
+    "transferred": "Commande déplacée vers {{name}}",
+    "transferFailed": "Impossible de déplacer la commande",
+    "transferSame": "Choisissez un autre client que celui déjà lié",
     "columns": {
       "select": "Sélectionner",
       "name": "Nom",
@@ -21,7 +25,8 @@
     "status": "Statut commande",
     "orderTypes": "Types commande",
     "floors": "Salles",
-    "users": "Utilisateurs"
+    "users": "Utilisateurs",
+    "customers": "Clients"
   },
   "view": {
     "blocks": "Blocs",
@@ -68,6 +73,8 @@
     "splitBySeats": "Diviser par places",
     "splitByItems": "Diviser par articles",
     "splitByAmount": "Diviser par montant",
+    "splitByClients": "Diviser par clients",
+    "transferToClient": "Déplacer vers un autre client",
     "mergeOrders": "Fusionner les commandes",
     "refund": "Rembourser",
     "printFinalBillCopy": "Imprimer une copie de la note finale",
@@ -179,6 +186,12 @@
       "exceedsTotal": "Dépasse le total de {{amount}}",
       "creating": "Création des divisions...",
       "save": "Enregistrer {{count}} division(s)"
+    },
+    "byClients": {
+      "title": "Diviser par clients — Commande {{invoice}}",
+      "hint": "Créez une division par client, attribuez un client à chacune, puis glissez les articles.",
+      "pickCustomer": "Choisir un client",
+      "customerRequired": "Chaque division doit avoir un client et au moins un article"
     }
   },
   "print": {

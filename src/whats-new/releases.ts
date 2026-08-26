@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-08-26',
+    title: 'Loyverse catalogue mode',
+    items: [
+      'VITE_POS_MODE=loyverse loads the Loyverse-synced menu (loyverse-sync); orthogonal to ASI — one external mode at a time.',
+      'loyverse-sync pulls categories, item variants, and taxes from the Loyverse API into Surreal (PAT server-side only).',
+    ],
+  },
+  {
     date: '2026-08-24',
     title: 'Resort F&B (env flags)',
     items: [

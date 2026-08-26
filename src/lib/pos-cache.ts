@@ -24,11 +24,19 @@ const toRows = <T,>(result: unknown): T[] => {
 };
 
 export const ASI_MENU_RECORD_ID = 'menu:asi_restaurant';
+export const LOYVERSE_MENU_RECORD_ID = 'menu:loyverse_catalog';
 
 export function cacheHasAsiMenu(menus: Menu[] | undefined): boolean {
   return (menus ?? []).some((menu) => {
     const id = menu?.id?.toString() ?? '';
     return id === ASI_MENU_RECORD_ID || id.endsWith(':asi_restaurant');
+  });
+}
+
+export function cacheHasLoyverseMenu(menus: Menu[] | undefined): boolean {
+  return (menus ?? []).some((menu) => {
+    const id = menu?.id?.toString() ?? '';
+    return id === LOYVERSE_MENU_RECORD_ID || id.endsWith(':loyverse_catalog');
   });
 }
 

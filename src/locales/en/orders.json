@@ -15,13 +15,18 @@
       "address": "Addr.",
       "secondaryAddress": "Secondary Addr.",
       "points": "Points"
-    }
+    },
+    "transferHint": "Pick the destination client file. The order will leave the current client.",
+    "transferred": "Order moved to {{name}}",
+    "transferFailed": "Could not move the order",
+    "transferSame": "Pick a different client than the one already linked"
   },
   "filters": {
     "status": "Order status",
     "orderTypes": "Order types",
     "floors": "Floors",
-    "users": "Users"
+    "users": "Users",
+    "customers": "Customers"
   },
   "view": {
     "blocks": "Blocks",
@@ -74,7 +79,9 @@
     "openCashDrawer": "Open cash drawer",
     "tempBill": "Temp bill",
     "payNow": "Pay Now",
-    "printKotCopy": "Print KOT copy"
+    "printKotCopy": "Print KOT copy",
+    "splitByClients": "Split by clients",
+    "transferToClient": "Move to another client file"
   },
   "print": {
     "tempAlreadyPrinted": "Temp bill already printed"
@@ -182,6 +189,12 @@
       "exceedsTotal": "Exceeds total by {{amount}}",
       "creating": "Creating splits...",
       "save": "Save {{count}} split(s)"
+    },
+    "byClients": {
+      "title": "Split by clients — Order {{invoice}}",
+      "hint": "Create one split per client, assign a customer to each, then drag items.",
+      "pickCustomer": "Pick a customer",
+      "customerRequired": "Each split needs a customer and at least one item"
     }
   },
   "loadingItems": "Loading items…",

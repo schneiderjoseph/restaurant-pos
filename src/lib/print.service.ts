@@ -65,8 +65,14 @@ const PRINT_CONFIG_KEYS: Record<string, string> = {
   pulse: 'Final Print',
 };
 
-// Set VITE_PRINT_SERVER_URL in .env (e.g. http://localhost:3132) to override.
-const DEFAULT_PRINT_URL = 'http://localhost:3132';
+// Empty VITE_PRINT_SERVER_URL → same-origin /print (Vite proxies to the print server).
+const DEFAULT_PRINT_URL = '';
+
+function printServerBaseUrl(): string {
+  const configured = String(import.meta.env.VITE_PRINT_SERVER_URL ?? '').trim();
+  if (configured) return configured.replace(/\/$/, '');
+  return DEFAULT_PRINT_URL;
+}
 
 function toIdString(v: unknown): string {
   if (v == null) return '';
@@ -292,8 +298,8 @@ export async function dispatchPrint<Payload = any>(
     printers?: Printer[]
   }
 ): Promise<boolean> {
-  const baseUrl = (import.meta.env.VITE_PRINT_SERVER_URL as string) || DEFAULT_PRINT_URL;
-  const url = `${baseUrl.replace(/\/$/, '')}/print`;
+  const baseUrl = printServerBaseUrl();
+  const url = `${baseUrl}/print`;
   const uid = options?.userId != null ? toIdString(options.userId) : null;
 
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
@@ -314,6 +320,7 @@ export async function dispatchPrint<Payload = any>(
   const driverPrinters = printers?.map(printerToDriverConfig);
   if (!driverPrinters || driverPrinters.length === 0) {
     console.error('No printers configured for this print type.');
+    toast.error(i18n.t('settings:printers.noneConfigured'));
     return false;
   }
 

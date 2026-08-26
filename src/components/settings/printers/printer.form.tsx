@@ -44,31 +44,65 @@ export const PrinterForm = ({
   }
 
   const { control, handleSubmit, formState: {errors}, reset } = useForm({
-    resolver: zodResolver(validationSchema)
+    resolver: zodResolver(validationSchema),
+    defaultValues: {
+      name: '',
+      ip_address: '',
+      port: 9100,
+      type: null as { label: string; value: string } | null,
+      vid: '',
+      pid: '',
+      path: '',
+    },
   });
 
   useEffect(() => {
-    if(data){
+    if (data) {
       reset({
-        ...data,
-        name: data.name,
+        name: data.name ?? '',
         priority: data.priority,
-        ip_address: data.ip_address,
-        port: data.port,
+        ip_address: data.ip_address ?? '',
+        port: data.port ?? 9100,
         type: data.type ? {
           label: data.type,
-          value: data.type
-        } : null
+          value: data.type,
+        } : null,
+        vid: data.vid ?? '',
+        pid: data.pid ?? '',
+      });
+    } else {
+      reset({
+        name: '',
+        ip_address: '',
+        port: 9100,
+        type: null,
+        vid: '',
+        pid: '',
+        path: '',
       });
     }
-  }, [data]);
+  }, [data, reset]);
 
   const db = useDB();
 
   const onSubmit = async (values: any) => {
-    const vals = {
-      ...values,
-      type: values?.type ? values.type.value : null
+    const printerType = values?.type ? values.type.value : null;
+    // Schema has no `path` field — Serial/Bluetooth device path is stored in ip_address.
+    const address =
+      printerType === 'Serial' || printerType === 'Bluetooth'
+        ? (values.path || values.ip_address || null)
+        : (values.ip_address || null);
+
+    // Schema still requires `prints` (int); copy count moved to global print_options.
+    const vals: Record<string, unknown> = {
+      name: values.name,
+      type: printerType,
+      ip_address: address,
+      port: printerType === 'Network' ? (values.port ?? 9100) : (values.port ?? null),
+      vid: printerType === 'USB' ? (values.vid || null) : null,
+      pid: printerType === 'USB' ? (values.pid || null) : null,
+      prints: typeof data?.prints === 'number' ? data.prints : 1,
+      priority: values.priority ?? 0,
     };
 
     try {
@@ -94,8 +128,9 @@ export const PrinterForm = ({
       closeModal();
       toast.success(t('toast:admin.printerSaved', { name: values.name }));
     }catch(e){
-      toast.error(e);
-      console.log(e)
+      const message = e instanceof Error ? e.message : String(e);
+      toast.error(message);
+      console.error(e);
     }
   }
 
@@ -143,7 +178,7 @@ export const PrinterForm = ({
                     render={({field}) => (
                       <Input
                         label={t('columns.path')}
-                        value={field.value}
+                        value={field.value ?? ''}
                         onChange={field.onChange}
                         error={errors?.ip_address?.message}/>
                     )}
@@ -177,7 +212,7 @@ export const PrinterForm = ({
                     render={({field}) => (
                       <Input
                         label={t('forms.vid')}
-                        value={field.value}
+                        value={field.value ?? ''}
                         onChange={field.onChange}
                         error={errors?.vid?.message}/>
                     )}
@@ -190,7 +225,7 @@ export const PrinterForm = ({
                       <Input
                         label={t('forms.pid')}
                         error={errors?.pid?.message}
-                        value={field.value}
+                        value={field.value ?? ''}
                         onChange={field.onChange}
                       />
                     )}
@@ -210,7 +245,7 @@ export const PrinterForm = ({
                     render={({field}) => (
                       <Input
                         label={t('columns.path')}
-                        value={field.value}
+                        value={field.value ?? ''}
                         onChange={field.onChange}
                         error={errors?.path?.message}/>
                     )}
