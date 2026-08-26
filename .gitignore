@@ -55,8 +55,10 @@ backups/surrealdb
 # Never commit them. Only the .env.example templates are tracked.
 .env
 .env.local
+.env.loyverse
 api/.env
 gateway/.env
+gateway/.env.loyverse
 payments/.env
 
 asi-sync/.env

@@ -135,6 +135,9 @@ cd loyverse-sync && npm run bootstrap-db && npm install && npm run once
 ## 5. Limits
 
 - Receipt push not hooked to payment UI yet (`receipt-push.js` only).
-- Modifiers empty on some merchants — sync is no-op.
-- Do not run `asi-sync` against `loyverse/loyverse`.
-- Do not run `loyverse-sync` against `posr/posr`.
+- Modifiers empty on some merchants — stored as `setting` meta (POSR modifiers are dish-linked).
+- On the **Loyverse** worktree, `asi-sync` may target `loyverse`/`loyverse` with **`ASI_MENU_SYNC=0` / `ASI_TABLE_SYNC=0`** and rooms/guests only. Never enable ASI menu sync into that DB.
+- Never run `loyverse-sync` against `posr`/`posr`.
+- Never point the ASI checkout (`:5173` / `:3142`) at the Loyverse Surreal NS/DB.
+
+See also [LOYVERSE-SETUP.md](./LOYVERSE-SETUP.md) for the full build log / ops checklist.

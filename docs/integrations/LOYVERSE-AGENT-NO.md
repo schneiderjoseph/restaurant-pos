@@ -19,13 +19,8 @@ The default local checkout (`:5173` Vite + `:3142` gateway + `.env`) belongs to 
 - Alternate: second gateway+Vite on other ports with copies of env — never share ASI `.env` / ports
 - In Loyverse mode, ASI may supply **rooms / PMS guests only** (`ASI_MENU_SYNC=0`) — never ASI catalogue into the Loyverse app
 
-## If you already flipped this checkout
+See also:
 
-Restore immediately:
-
-```text
-.root .env     → VITE_POS_MODE=asi , VITE_RESORT_FB=true
-gateway/.env   → SURREAL_NS=posr , SURREAL_DB=posr
-```
-
-Restart gateway + Vite for ASI only. Leave `loyverse-sync` on its own NS/DB if needed — it must not touch `posr/posr`.
+- [LOYVERSE.md](./LOYVERSE.md) — mapping, scopes, env
+- [LOYVERSE-SETUP.md](./LOYVERSE-SETUP.md) — what was built + worktree ops
+- Preferred folder: `C:\CODE\restaurant-pos-loyverse`
