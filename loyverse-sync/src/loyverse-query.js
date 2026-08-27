@@ -1,6 +1,6 @@
 'use strict';
 
-const { LoyverseClient } = require('./loyverse-client');
+const { loadMirrorPayloads } = require('./mirror-upsert');
 
 /**
  * Pick store-specific pricing row when LOYVERSE_STORE_ID is set.
@@ -49,27 +49,57 @@ function variantPlu(variant) {
   return `LV-${id || 'unknown'}`;
 }
 
+function mapPaymentType(loyverseType) {
+  const t = String(loyverseType || 'OTHER').toUpperCase();
+  if (t === 'CASH') return 'cash';
+  if (t === 'CHECK') return 'cheque';
+  if (t.includes('CARD')) return 'card';
+  return 'other';
+}
+
+function mapDiscount(d, idx) {
+  const type = String(d.type || '').toUpperCase();
+  let valueType = 'percent';
+  let value = 0;
+  if (type === 'FIXED_PERCENT' || type === 'VARIABLE_PERCENT') {
+    valueType = 'percent';
+    value = Number(d.discount_percent) || 0;
+  } else if (type === 'FIXED_AMOUNT' || type === 'VARIABLE_AMOUNT') {
+    valueType = 'amount';
+    value = Number(d.discount_amount) || 0;
+  } else {
+    valueType = 'percent';
+    value = Number(d.discount_percent) || 0;
+  }
+  return {
+    loyverseId: String(d.id),
+    name: String(d.name || 'Discount').trim() || 'Discount',
+    type: valueType === 'percent' ? 'percentage' : 'fixed',
+    valueType,
+    value,
+    requiresApproval: !!d.restricted_access,
+    priority: (idx + 1) * 10,
+    loyverseType: type,
+  };
+}
+
 /**
- * Pull every catalogue-related resource we need for POSR.
- * @param {{ token: string, baseUrl: string, storeId: string|null }} cfg
+ * Build POSR-shaped catalogue from raw Loyverse API objects (full payloads).
+ * @param {object} raw
+ * @param {string|null} storeId
  */
-async function fetchLoyverseCatalog(cfg) {
-  const client = new LoyverseClient({ token: cfg.token, baseUrl: cfg.baseUrl });
+function buildCatalogFromRaw(raw, storeId) {
+  const categories = raw.categories || [];
+  const items = raw.items || [];
+  const taxes = raw.taxes || [];
+  const stores = raw.stores || [];
+  const modifiers = raw.modifiers || [];
+  const customers = raw.customers || [];
+  const paymentTypes = raw.payment_types || [];
+  const discounts = raw.discounts || [];
+  const employees = raw.employees || [];
 
-  const [categories, items, taxes, stores, modifiers, customers, paymentTypes, discounts, employees] =
-    await Promise.all([
-      client.listAll('/categories', 'categories'),
-      client.listAll('/items', 'items'),
-      client.listAll('/taxes', 'taxes'),
-      client.listAll('/stores', 'stores'),
-      client.listAll('/modifiers', 'modifiers'),
-      client.listAll('/customers', 'customers'),
-      client.listAll('/payment_types', 'payment_types'),
-      client.listAll('/discounts', 'discounts'),
-      client.listAll('/employees', 'employees'),
-    ]);
-
-  const storeId = cfg.storeId || (stores[0]?.id ?? null);
+  const resolvedStoreId = storeId || (stores[0]?.id ?? null);
 
   const mappedCategories = categories.map((c, idx) => ({
     loyverseId: String(c.id),
@@ -87,7 +117,7 @@ async function fetchLoyverseCatalog(cfg) {
     const modifierIds = Array.isArray(item.modifier_ids) ? item.modifier_ids.map(String) : [];
 
     for (const variant of variants) {
-      const { price, available } = resolveVariantPrice(variant, storeId);
+      const { price, available } = resolveVariantPrice(variant, resolvedStoreId);
       mappedVariants.push({
         loyverseItemId: String(item.id),
         loyverseVariantId: String(variant.variant_id),
@@ -105,6 +135,8 @@ async function fetchLoyverseCatalog(cfg) {
         modifierIds,
         description: item.description || null,
         trackStock: !!item.track_stock,
+        rawItem: item,
+        rawVariant: variant,
       });
     }
   }
@@ -119,7 +151,6 @@ async function fetchLoyverseCatalog(cfg) {
       priority: (idx + 1) * 10,
     }));
 
-  /** Loyverse modifier = group with options[] */
   const mappedModifiers = (modifiers || [])
     .filter((m) => !m.deleted_at)
     .map((m, idx) => ({
@@ -187,7 +218,7 @@ async function fetchLoyverseCatalog(cfg) {
   }));
 
   return {
-    storeId,
+    storeId: resolvedStoreId,
     stores: mappedStores,
     categories: mappedCategories,
     variants: mappedVariants,
@@ -200,42 +231,82 @@ async function fetchLoyverseCatalog(cfg) {
   };
 }
 
-function mapPaymentType(loyverseType) {
-  const t = String(loyverseType || 'OTHER').toUpperCase();
-  if (t === 'CASH') return 'cash';
-  if (t === 'CHECK') return 'cheque';
-  if (t.includes('CARD')) return 'card';
-  return 'other';
+/**
+ * Load catalogue projection from loyverse_mirror table.
+ * @param {import('surrealdb').Surreal} db
+ * @param {string|null} storeId
+ */
+async function loadCatalogFromMirror(db, storeId) {
+  const [categories, items, taxes, stores, modifiers, customers, paymentTypes, discounts, employees] =
+    await Promise.all([
+      loadMirrorPayloads(db, 'category', { activeOnly: false }),
+      loadMirrorPayloads(db, 'item', { activeOnly: false }),
+      loadMirrorPayloads(db, 'tax', { activeOnly: false }),
+      loadMirrorPayloads(db, 'store', { activeOnly: false }),
+      loadMirrorPayloads(db, 'modifier', { activeOnly: false }),
+      loadMirrorPayloads(db, 'customer', { activeOnly: false }),
+      loadMirrorPayloads(db, 'payment_type', { activeOnly: false }),
+      loadMirrorPayloads(db, 'discount', { activeOnly: false }),
+      loadMirrorPayloads(db, 'employee', { activeOnly: false }),
+    ]);
+
+  return buildCatalogFromRaw(
+    {
+      categories,
+      items,
+      taxes,
+      stores,
+      modifiers,
+      customers,
+      payment_types: paymentTypes,
+      discounts,
+      employees,
+    },
+    storeId,
+  );
 }
 
-function mapDiscount(d, idx) {
-  const type = String(d.type || '').toUpperCase();
-  let valueType = 'percent';
-  let value = 0;
-  if (type === 'FIXED_PERCENT' || type === 'VARIABLE_PERCENT') {
-    valueType = 'percent';
-    value = Number(d.discount_percent) || 0;
-  } else if (type === 'FIXED_AMOUNT' || type === 'VARIABLE_AMOUNT') {
-    valueType = 'amount';
-    value = Number(d.discount_amount) || 0;
-  } else {
-    valueType = 'percent';
-    value = Number(d.discount_percent) || 0;
-  }
-  return {
-    loyverseId: String(d.id),
-    name: String(d.name || 'Discount').trim() || 'Discount',
-    type: valueType === 'percent' ? 'percentage' : 'fixed',
-    valueType,
-    value,
-    requiresApproval: !!d.restricted_access,
-    priority: (idx + 1) * 10,
-    loyverseType: type,
-  };
+/**
+ * Pull every catalogue-related resource directly from Loyverse API (legacy path).
+ * @param {{ token: string, baseUrl: string, storeId: string|null }} cfg
+ */
+async function fetchLoyverseCatalog(cfg) {
+  const { LoyverseClient } = require('./loyverse-client');
+  const client = new LoyverseClient({ token: cfg.token, baseUrl: cfg.baseUrl });
+
+  const [categories, items, taxes, stores, modifiers, customers, paymentTypes, discounts, employees] =
+    await Promise.all([
+      client.listAll('/categories', 'categories'),
+      client.listAll('/items', 'items'),
+      client.listAll('/taxes', 'taxes'),
+      client.listAll('/stores', 'stores'),
+      client.listAll('/modifiers', 'modifiers'),
+      client.listAll('/customers', 'customers'),
+      client.listAll('/payment_types', 'payment_types'),
+      client.listAll('/discounts', 'discounts'),
+      client.listAll('/employees', 'employees'),
+    ]);
+
+  return buildCatalogFromRaw(
+    {
+      categories,
+      items,
+      taxes,
+      stores,
+      modifiers,
+      customers,
+      payment_types: paymentTypes,
+      discounts,
+      employees,
+    },
+    cfg.storeId,
+  );
 }
 
 module.exports = {
   fetchLoyverseCatalog,
+  loadCatalogFromMirror,
+  buildCatalogFromRaw,
   resolveVariantPrice,
   variantDisplayName,
   variantPlu,

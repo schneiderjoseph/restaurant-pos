@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
-  "description": "Read-only near-real-time catalogue sync from Loyverse API into POSR SurrealDB",
+  "description": "Loyverse API mirror + POSR projection into isolated SurrealDB",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -12,7 +12,11 @@
     "cleanup-posr": "node scripts/cleanup-posr-loyverse.js",
     "clean-db": "node scripts/clean-loyverse-db.js",
     "clean-resync": "node scripts/clean-loyverse-db.js --resync",
-    "demo-ui": "node scripts/start-demo-ui.js"
+    "demo-ui": "node scripts/start-demo-ui.js",
+    "verify-mirror": "node scripts/verify-mirror-parity.js",
+    "backfill-receipts": "node scripts/backfill-receipts.js",
+    "backfill-shifts": "node scripts/backfill-shifts.js",
+    "webhook": "node src/webhook-server.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

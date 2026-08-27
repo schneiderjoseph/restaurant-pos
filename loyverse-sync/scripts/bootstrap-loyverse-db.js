@@ -84,6 +84,7 @@ async function main() {
 
   await runFile(db, 'migrations/latest.surql');
   await runFile(db, 'migrations/2026_08_26_loyverse_sync_fields.surql');
+  await runFile(db, 'migrations/2026_08_27_loyverse_mirror.surql');
 
   console.log('Applying Loyverse extra fields (idempotent) …');
   const extras = [
@@ -101,6 +102,18 @@ async function main() {
   for (const [sql, label] of extras) {
     await tryQuery(db, sql, label);
   }
+
+  console.log('Patching mirror schema (flexible JSON) …');
+  await tryQuery(
+    db,
+    'DEFINE FIELD OVERWRITE payload ON loyverse_mirror TYPE any PERMISSIONS FULL',
+    'mirror.payload any',
+  );
+  await tryQuery(
+    db,
+    'DEFINE FIELD OVERWRITE stats ON loyverse_sync_state TYPE any DEFAULT {} PERMISSIONS FULL',
+    'sync_state.stats any',
+  );
 
   console.log(`Ready: ${ns}/${dbName}`);
   await db.close();

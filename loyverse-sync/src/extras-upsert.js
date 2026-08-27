@@ -1,6 +1,21 @@
 'use strict';
 
-const { queryRows, asRecord } = require('./surreal');
+const { queryRows, asRecord, recordIdString } = require('./surreal');
+
+function loyverseGroupRecordId(loyverseId) {
+  const key = String(loyverseId).replace(/-/g, '');
+  return `modifier_group:loyverse_${key}`;
+}
+
+function loyverseModifierRecordId(loyverseId) {
+  const key = String(loyverseId).replace(/-/g, '');
+  return `modifier:loyverse_${key}`;
+}
+
+function loyverseOptionDishId(loyverseId) {
+  const key = String(loyverseId).replace(/-/g, '');
+  return `menu_item:loyverse_mod_${key}`;
+}
 
 async function upsertCustomers(db, customers) {
   let created = 0;
@@ -64,8 +79,6 @@ async function upsertCustomers(db, customers) {
     }
   }
 
-  // Soft-clear: we don't have deleted_at on all customer schemas consistently —
-  // mark missing as tag without loyverse-active via source keep; optional soft delete if field exists
   const existing = await queryRows(
     db,
     `SELECT id, loyverse_id FROM customer WHERE source = 'loyverse'`,
@@ -156,7 +169,6 @@ async function upsertDiscounts(db, discounts) {
   const keep = new Set();
 
   for (const d of discounts) {
-    // Skip points-only discounts that have no usable value for POSR cart
     if (d.loyverseType === 'DISCOUNT_BY_POINTS' && !(d.value > 0)) {
       continue;
     }
@@ -231,11 +243,130 @@ async function upsertDiscounts(db, discounts) {
   return { upserted, deactivated };
 }
 
+async function ensureOptionDish(db, option) {
+  const dishId = loyverseOptionDishId(option.loyverseId);
+  const existing = await queryRows(db, `SELECT id FROM ${dishId}`);
+  const plu = `LV-MO-${String(option.loyverseId).replace(/-/g, '').slice(0, 10)}`;
+  if (existing[0]?.id) {
+    await queryRows(
+      db,
+      `UPDATE $id SET name = $name, price = $price, source = 'loyverse_modifier_option', deleted_at = NONE`,
+      { id: asRecord(existing[0].id), name: option.name, price: option.price },
+    );
+    return dishId;
+  }
+  await queryRows(
+    db,
+    `CREATE ${dishId} SET
+      name = $name,
+      number = $plu,
+      price = $price,
+      source = 'loyverse_modifier_option',
+      deleted_at = NONE`,
+    { name: option.name, plu, price: option.price },
+  );
+  return dishId;
+}
+
 /**
- * POSR modifiers are dish-linked (modifier.modifier → menu_item), unlike Loyverse
- * option lists. Persist Loyverse modifiers as setting meta for now; dish wiring later.
+ * Create modifier_group + modifier records from Loyverse modifier groups.
+ * @returns {{ groups: number, options: number, groupMap: Map<string, string> }}
  */
-async function upsertModifiers(db, modifiers) {
+async function upsertModifiersToPosr(db, modifiers) {
+  /** @type {Map<string, string>} */
+  const groupMap = new Map();
+  let options = 0;
+  const keepGroups = new Set();
+
+  for (const group of modifiers) {
+    keepGroups.add(group.loyverseId);
+    const groupId = loyverseGroupRecordId(group.loyverseId);
+    groupMap.set(group.loyverseId, groupId);
+
+    /** @type {string[]} */
+    const modifierRefs = [];
+    for (const option of group.options || []) {
+      const dishId = await ensureOptionDish(db, option);
+      const modId = loyverseModifierRecordId(option.loyverseId);
+      const existingMod = await queryRows(db, `SELECT id FROM ${modId}`);
+      if (existingMod[0]?.id) {
+        await queryRows(
+          db,
+          `UPDATE $id SET modifier = $dish, price = $price, loyverse_id = $loyverse_id`,
+          {
+            id: asRecord(existingMod[0].id),
+            dish: asRecord(dishId),
+            price: option.price,
+            loyverse_id: option.loyverseId,
+          },
+        );
+      } else {
+        await queryRows(
+          db,
+          `CREATE ${modId} SET modifier = $dish, price = $price, loyverse_id = $loyverse_id`,
+          {
+            dish: asRecord(dishId),
+            price: option.price,
+            loyverse_id: option.loyverseId,
+          },
+        );
+      }
+      modifierRefs.push(modId);
+      options += 1;
+    }
+
+    const modRecords = modifierRefs.map(asRecord);
+    const existingGroup = await queryRows(db, `SELECT id FROM ${groupId}`);
+    if (existingGroup[0]?.id) {
+      await queryRows(
+        db,
+        `UPDATE $id SET
+          name = $name,
+          priority = $priority,
+          modifiers = $modifiers,
+          source = 'loyverse',
+          loyverse_id = $loyverse_id,
+          deleted_at = NONE`,
+        {
+          id: asRecord(existingGroup[0].id),
+          name: group.name,
+          priority: group.priority,
+          modifiers: modRecords,
+          loyverse_id: group.loyverseId,
+        },
+      );
+    } else {
+      await queryRows(
+        db,
+        `CREATE ${groupId} SET
+          name = $name,
+          priority = $priority,
+          modifiers = $modifiers,
+          source = 'loyverse',
+          loyverse_id = $loyverse_id,
+          deleted_at = NONE`,
+        {
+          name: group.name,
+          priority: group.priority,
+          modifiers: modRecords,
+          loyverse_id: group.loyverseId,
+        },
+      );
+    }
+  }
+
+  const existingGroups = await queryRows(
+    db,
+    `SELECT id, loyverse_id FROM modifier_group
+     WHERE source = 'loyverse' AND (deleted_at = NONE OR deleted_at = NULL)`,
+  );
+  for (const row of existingGroups) {
+    if (!keepGroups.has(String(row.loyverse_id || ''))) {
+      await queryRows(db, `UPDATE $id SET deleted_at = time::now()`, { id: asRecord(row.id) });
+    }
+  }
+
+  // Legacy setting meta (UI fallback)
   const settings = await queryRows(
     db,
     `SELECT id FROM setting WHERE key = 'loyverse_modifiers' AND is_global = true LIMIT 1`,
@@ -252,8 +383,62 @@ async function upsertModifiers(db, modifiers) {
       { values: modifiers },
     );
   }
-  const options = modifiers.reduce((n, m) => n + (m.options?.length || 0), 0);
-  return { groups: modifiers.length, options, groupMap: new Map() };
+
+  return { groups: modifiers.length, options, groupMap };
+}
+
+/**
+ * Link menu_item ↔ modifier_group from item.modifier_ids.
+ * @param {Map<string, string>} groupMap loyverse modifier group id → Surreal id
+ */
+async function linkItemModifierGroups(db, variants, groupMap) {
+  let linked = 0;
+  for (const variant of variants) {
+    if (variant.deleted || !variant.available) continue;
+    const dishRows = await queryRows(
+      db,
+      `SELECT id FROM menu_item WHERE loyverse_variant_id = $vid LIMIT 1`,
+      { vid: variant.loyverseVariantId },
+    );
+    if (!dishRows[0]?.id) continue;
+    const dishId = recordIdString(dishRows[0].id);
+
+    for (let i = 0; i < (variant.modifierIds || []).length; i += 1) {
+      const lvGroupId = variant.modifierIds[i];
+      const groupId = groupMap.get(lvGroupId);
+      if (!groupId) continue;
+
+      const rel = await queryRows(
+        db,
+        `SELECT id FROM menu_item_modifier_group
+         WHERE in = $dish AND out = $group LIMIT 1`,
+        { dish: asRecord(dishId), group: asRecord(groupId) },
+      );
+      if (rel[0]?.id) {
+        await queryRows(
+          db,
+          `UPDATE $id SET priority = $priority, has_required_modifiers = false, required_modifiers = 0`,
+          { id: asRecord(rel[0].id), priority: i },
+        );
+      } else {
+        await queryRows(
+          db,
+          `RELATE $dish->menu_item_modifier_group->$group SET
+            priority = $priority,
+            has_required_modifiers = false,
+            required_modifiers = 0`,
+          { dish: asRecord(dishId), group: asRecord(groupId), priority: i },
+        );
+      }
+      linked += 1;
+    }
+  }
+  return { linked };
+}
+
+/** @deprecated use upsertModifiersToPosr */
+async function upsertModifiers(db, modifiers) {
+  return upsertModifiersToPosr(db, modifiers);
 }
 
 async function upsertStoreMeta(db, stores, activeStoreId) {
@@ -311,6 +496,8 @@ module.exports = {
   upsertPaymentTypes,
   upsertDiscounts,
   upsertModifiers,
+  upsertModifiersToPosr,
+  linkItemModifierGroups,
   upsertStoreMeta,
   upsertEmployeeMeta,
 };
