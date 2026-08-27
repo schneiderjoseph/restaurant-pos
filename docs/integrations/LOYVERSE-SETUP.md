@@ -26,7 +26,10 @@ Never flip root `.env` / `gateway/.env` on the ASI checkout to Loyverse.
 ### Poller `loyverse-sync/`
 
 - PAT Bearer client, cursor pagination, 429 backoff
-- Pull: categories, item **variants**, taxes, customers, payment types, discounts, stores/employees meta, modifiers (meta)
+- Migration `migrations/2026_08_27_loyverse_mirror.surql` — `loyverse_mirror`, `loyverse_sync_state`, `order.loyverse_receipt_number`
+- Mirror pipeline: `src/resources.js`, `mirror-upsert.js`, `sync-state.js`, `fetch-all.js`, `rate-limit.js`
+- Projection from mirror: `loyverse-query.loadCatalogFromMirror`, modifiers → `modifier_group` + dish links
+- Scripts: `verify-mirror-parity.js`, `backfill-receipts.js`, `backfill-shifts.js`, `webhook-server.js` (:3150)
 - Upsert with `source='loyverse'` + `loyverse_id` / `loyverse_variant_id`
 - Menu `menu:loyverse_catalog` + `setting key=menus`
 - Refuses `posr`/`posr`
@@ -74,5 +77,5 @@ Never commit: `loyverse-sync/.env`, `asi-sync/.env`, `gateway/.env`, `gateway/.e
 ## Still TODO
 
 - Wire receipt push on POSR payment close
-- Full Loyverse modifier → POSR dish-linked modifiers
+- Full receipt line_items → POSR order_item projection
 - Multi-store beyond `LOYVERSE_STORE_ID`

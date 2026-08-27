@@ -1,6 +1,6 @@
 # Loyverse ↔ POSR integration
 
-**Status:** phase 1+1b catalogue + customers/payments/discounts on **isolated** Surreal NS/DB  
+**Status:** mirror JSON (`loyverse_mirror`) + POSR projection on **isolated** Surreal NS/DB  
 **Goal:** Pull Loyverse cloud data into POSR without touching the ASI/native `posr/posr` database.  
 **Orthogonal to ASI:** one external mode at a time (`VITE_POS_MODE=asi` **or** `loyverse`).
 
@@ -67,12 +67,57 @@ In Loyverse mode: catalogue = Loyverse; **only hotel rooms / in-house guests** m
 |-------|--------|
 | `CATEGORIES_READ` `ITEMS_READ` `TAXES_READ` `MODIFIERS_READ` `STORES_READ` | 1 |
 | `CUSTOMERS_READ` `PAYMENT_TYPES_READ` (discounts via discounts API) | 1b |
-| `EMPLOYEES_READ` | meta only |
-| `RECEIPTS_WRITE` | 2 (push on POSR close) |
+| `EMPLOYEES_READ` `SUPPLIERS_READ` `MERCHANT_READ` `INVENTORY_READ` | mirror |
+| `RECEIPTS_READ` `SHIFTS_READ` | backfill / incremental |
+| `RECEIPTS_WRITE` | push on POSR close (helper ready) |
 
 ---
 
-## 2. Data flow
+## 2. Architecture (mirror + projection)
+
+```text
+Loyverse API ──fetch──► loyverse_mirror (JSON brut)
+                              │
+                              └──► POSR tables (menu_item, customer, …)
+```
+
+| Table | Role |
+|-------|------|
+| `loyverse_mirror` | Payload API intégral par ressource + `loyverse_id` |
+| `loyverse_sync_state` | Curseurs backfill receipts/shifts |
+
+Pipeline (`loyverse-sync/src/index.js`): **fetch → mirror → project POSR**.
+
+Flags: `LOYVERSE_MIRROR_SYNC=1` (default). Receipts/shifts off by default — enable for backfill jobs only.
+
+| Ressource API | Mirror key | Projection POSR |
+|---------------|------------|-----------------|
+| categories | `category` | `category` |
+| items | `item` | `menu_item` (variants) |
+| taxes | `tax` | `tax` |
+| modifiers | `modifier` | `modifier_group` + `modifier` + links |
+| customers | `customer` | `customer` |
+| payment_types | `payment_type` | `payment_type` |
+| discounts | `discount` | `discount` |
+| stores / employees | `store` / `employee` | `setting` meta |
+| suppliers / pos_devices / merchant | mirror only | — |
+| inventory | `inventory:{variant}:{store}` | optional stock |
+| receipts | `receipt` (receipt_number) | `order` read-only shell |
+
+Commands (worktree only):
+
+```bash
+cd loyverse-sync
+npm run once              # mirror catalogue + project
+npm run verify-mirror     # API count vs mirror
+npm run backfill-receipts # long job — LOYVERSE_SYNC_RECEIPTS=1
+npm run backfill-shifts
+npm run webhook           # :3150/webhooks/loyverse
+```
+
+---
+
+## 3. Data flow (legacy summary)
 
 ```text
 Loyverse API ──pull──► loyverse-sync ──upsert──► Surreal loyverse/loyverse
