@@ -7,6 +7,7 @@ import React, {useEffect, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {MenuItemType} from "@/api/model/cart_item.ts";
+import {orderToCartItems, seatsFromOrder} from "@/lib/order-edit.ts";
 import {Payment} from "@/components/payment/payment.tsx";
 import {Customers} from "@/components/customer/customer.tsx";
 import {getInvoiceNumber} from "@/lib/order.ts";
@@ -113,15 +114,7 @@ export const MenuHeader = () => {
       }))
     } else {
       const order = state.orders.find(item => item.id === key);
-      const seats = new Map();
-      order?.items.forEach(item => {
-        if (item.seat) {
-          seats.set(item.seat, item.seat);
-        }
-      });
-
-      const seatsArray = Array.from(seats.values());
-
+      const seatsArray = seatsFromOrder(order);
       const noSeat = state.cart.some(item => item.seat === undefined);
 
       setState(prev => ({
@@ -130,22 +123,7 @@ export const MenuHeader = () => {
           order,
           id: order?.id ?? MenuItemType.new,
         },
-        cart: order?.items?.map(item => ({
-          dish: item.item,
-          level: item.level,
-          quantity: item.quantity,
-          seat: item.seat,
-          id: item.id,
-          selectedGroups: item.modifiers || [] as any,
-          newOrOld: MenuItemType.old,
-          price: item.price,
-          updated_at: item.updated_at,
-          deleted_at: item.deleted_at,
-          category: item.category,
-          category_id: item.category_id,
-          comments: item.comments,
-          isHold: item.is_suspended
-        })) ?? [],
+        cart: orderToCartItems(order),
         seats: seatsArray,
         seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),
         customer: order?.customer, // attach customer

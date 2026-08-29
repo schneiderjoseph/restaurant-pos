@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
-import { appSettings, appState } from '@/store/jotai.ts';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
 import { Customer } from '@/api/model/customer.ts';
@@ -20,7 +19,7 @@ import {
   guestMatchesSearchTerm,
   namesAreSamePerson,
 } from '@/lib/guest.ts';
-import { toLuxonDateTime } from '@/lib/datetime.ts';
+import { toLuxonDateTime, nowSurrealDateTime } from '@/lib/datetime.ts';
 import {
   ensureResortFloorTables,
   findRoomByNumber,
@@ -33,15 +32,24 @@ import { useTranslation } from 'react-i18next';
 import { cn, toRecordId } from '@/lib/utils.ts';
 import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { Customers } from '@/components/customer/customer.tsx';
+import { canEditOrder, orderToCartItems, seatsFromOrder } from '@/lib/order-edit.ts';
+import { fetchOrderById } from '@/lib/order-fetch.ts';
+import { ORDER_FETCHES } from '@/api/model/order.ts';
+import { MENU } from '@/routes/posr.ts';
+import { useNavigate } from 'react-router';
+import { appPage, appSettings, appState } from '@/store/jotai.ts';
 
 type FolioOrder = Order & { item_count?: number };
 
 export const GuestLookup = () => {
   const db = useDB();
+  const navigate = useNavigate();
   const { t } = useTranslation(['menu', 'orders', 'common']);
   const [state, setState] = useAtom(appState);
   const [settings, setSettings] = useAtom(appSettings);
+  const [page] = useAtom(appPage);
   const preferInHouse = usesAsiPmsRooms();
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
 
   const [search, setSearch] = useState('');
   const [guests, setGuests] = useState<Customer[]>([]);
@@ -286,6 +294,71 @@ export const GuestLookup = () => {
       return;
     }
     await startNewOrderFor(selected);
+  };
+
+  const openFolioOrderForEdit = async (folioOrder: FolioOrder) => {
+    if (!canEditOrder(folioOrder)) {
+      toast.error(t('orders:actions.editOnlyUnpaid'));
+      return;
+    }
+
+    const orderId = folioOrder.id?.toString();
+    if (!orderId) {
+      return;
+    }
+
+    setEditingOrderId(orderId);
+    try {
+      const full = await fetchOrderById(db, folioOrder.id, [...ORDER_FETCHES, 'floor', 'table.floor']);
+      if (!full || !canEditOrder(full)) {
+        toast.error(t('orders:actions.editOnlyUnpaid'));
+        return;
+      }
+
+      const seatsArray = seatsFromOrder(full);
+      setState((prev) => ({
+        ...prev,
+        showFloor: false,
+        showPersons: false,
+        switchTable: false,
+        table: full.table,
+        customer: full.customer ?? selected,
+        floor: full.floor ?? full.table?.floor ?? prev.floor,
+        orderType: full.order_type ?? prev.orderType,
+        persons: full.covers != null ? String(full.covers) : prev.persons,
+        orders: [full],
+        order: {
+          id: full.id,
+          order: full,
+        },
+        cart: orderToCartItems(full),
+        seats: seatsArray,
+        seat: seatsArray.length > 0 ? seatsArray[0] : undefined,
+        resortEntry: 'guest',
+      }));
+
+      if (full.table?.id) {
+        try {
+          await db.merge(toRecordId(full.table.id), {
+            is_locked: true,
+            locked_at: nowSurrealDateTime(),
+            locked_by: page?.user
+              ? `${page.user.first_name ?? ''} ${page.user.last_name ?? ''}`.trim()
+              : null,
+          });
+        } catch (error) {
+          console.error('Failed to lock table for edit', error);
+        }
+      }
+
+      toast.success(t('orders:actions.editOpened'));
+      navigate(MENU);
+    } catch (error) {
+      console.error(error);
+      toast.error(t('orders:loadFailed'));
+    } finally {
+      setEditingOrderId(null);
+    }
   };
 
   const openFloorWalkIn = async () => {
@@ -538,15 +611,27 @@ export const GuestLookup = () => {
                         </div>
                       </div>
                       {order.status === OrderStatus['In Progress'] && (
-                        <Button
-                          variant="primary"
-                          flat
-                          size="sm"
-                          data-testid="guest-folio-transfer"
-                          onClick={() => setTransferOrder(order)}
-                        >
-                          {t('orders:actions.transferToClient')}
-                        </Button>
+                        <div className="flex flex-col gap-2 shrink-0">
+                          <Button
+                            variant="primary"
+                            filled
+                            size="sm"
+                            data-testid="guest-folio-edit"
+                            isLoading={editingOrderId === order.id?.toString()}
+                            onClick={() => void openFolioOrderForEdit(order)}
+                          >
+                            {t('orders:actions.editOrder')}
+                          </Button>
+                          <Button
+                            variant="primary"
+                            flat
+                            size="sm"
+                            data-testid="guest-folio-transfer"
+                            onClick={() => setTransferOrder(order)}
+                          >
+                            {t('orders:actions.transferToClient')}
+                          </Button>
+                        </div>
                       )}
                     </div>
                   ))}

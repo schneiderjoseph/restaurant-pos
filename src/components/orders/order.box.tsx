@@ -2,7 +2,7 @@ import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
 import React, {CSSProperties, useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
 import {useDB} from "@/api/db/db.ts";
-import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
+import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -16,6 +16,7 @@ import {
   faEllipsisV,
   faMoneyBillTransfer,
   faObjectGroup,
+  faPenToSquare,
   faPrint,
   faUser,
   faUsers
@@ -45,8 +46,13 @@ import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/s
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import { printDuplicateKotForOrder } from "@/lib/kitchen/print-duplicate-kot.ts";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
-import {fetchOrderFull} from "@/lib/order-fetch.ts";
+import {fetchOrderById, fetchOrderFull} from "@/lib/order-fetch.ts";
+import {ORDER_FETCHES} from "@/api/model/order.ts";
 import {toast} from "sonner";
+import {useNavigate} from "react-router";
+import {MENU} from "@/routes/posr.ts";
+import {canEditOrder, orderToCartItems, seatsFromOrder} from "@/lib/order-edit.ts";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
 
 interface Props {
   order: OrderModel
@@ -69,7 +75,9 @@ export const OrderBox = ({
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
+  const navigate = useNavigate();
   const [page] = useAtom(appPage);
+  const [, setAppState] = useAtom(appState);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const mutationsBlocked = enforcement.orderMutationsBlocked;
   const {rootRef, displayOrder: order, cardReady, hydrateError, retryHydrate} = useOrderCardHydrate(snapshot);
@@ -129,6 +137,70 @@ export const OrderBox = ({
       await run(full);
     } catch (error) {
       console.error('Failed to load full order', error);
+      toast.error(t('loadFailed'));
+    } finally {
+      setIsLoadingFull(false);
+    }
+  };
+
+  const openOrderForEdit = async () => {
+    setIsLoadingFull(true);
+    try {
+      const full = await fetchOrderById(db, snapshot.id, [...ORDER_FETCHES, 'floor', 'table.floor']);
+      if (!full) {
+        toast.error(t('loadFailed'));
+        return;
+      }
+      if (!canEditOrder(full)) {
+        toast.error(t('actions.editOnlyUnpaid'));
+        return;
+      }
+      if (enforcement.orderTakingBlocked) {
+        toast.warning(enforcement.message ?? t('actions.editBlocked'));
+        return;
+      }
+
+      const seatsArray = seatsFromOrder(full);
+      setAppState((prev) => ({
+        ...prev,
+        showFloor: false,
+        showPersons: false,
+        switchTable: false,
+        table: full.table,
+        customer: full.customer,
+        floor: full.floor ?? full.table?.floor ?? prev.floor,
+        orderType: full.order_type ?? prev.orderType,
+        persons: full.covers != null ? String(full.covers) : prev.persons,
+        orders: [full],
+        order: {
+          id: full.id,
+          order: full,
+        },
+        cart: orderToCartItems(full),
+        seats: seatsArray,
+        seat: seatsArray.length > 0 ? seatsArray[0] : undefined,
+        resortEntry: full.customer ? 'guest' : prev.resortEntry,
+      }));
+
+      if (full.table?.id) {
+        try {
+          await db.merge(toRecordId(full.table.id), {
+            is_locked: true,
+            locked_at: nowSurrealDateTime(),
+            locked_by: page?.user
+              ? `${page.user.first_name ?? ''} ${page.user.last_name ?? ''}`.trim()
+              : null,
+          });
+        } catch (error) {
+          console.error('Failed to lock table for edit', error);
+        }
+      }
+
+      toast.success(t('actions.editOpened'));
+      navigate(MENU);
+      onAction?.();
+    } catch (error) {
+      console.error('Failed to open order for edit', error);
       toast.error(t('loadFailed'));
     } finally {
       setIsLoadingFull(false);
@@ -305,6 +377,11 @@ export const OrderBox = ({
                 className="flex-1"
                 data-testid="order-card-menu"
                 onAction={(key) => {
+                  if (key === 'edit') {
+                    void openOrderForEdit();
+                    return;
+                  }
+
                   if (key === 'temp_bill') {
                     printTempBill();
                   }
@@ -421,6 +498,12 @@ export const OrderBox = ({
               >
                 {order.status === OrderStatus["In Progress"] && (
                   <>
+                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="edit" key="edit"
+                                  data-testid="order-menu-edit"
+                                  className="min-w-[50px]">
+                      <FontAwesomeIcon icon={faPenToSquare}/> {t('actions.editOrder')}
+                    </DropdownItem>
+                    <DropdownSeparator/>
                     <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="cancel" key="cancel"
                                   data-testid="order-menu-cancel"
                                   className="min-w-[50px] bg-danger-100 text-danger-500">
@@ -475,6 +558,17 @@ export const OrderBox = ({
               </Dropdown>
               {order.status === OrderStatus["In Progress"] && (
                 <>
+                  <Button
+                    variant="primary"
+                    flat
+                    size="lg"
+                    className="flex-1"
+                    disabled={mutationsBlocked || isLoadingFull}
+                    onClick={() => void openOrderForEdit()}
+                    icon={faPenToSquare}
+                    data-testid="order-card-edit"
+                    title={t('actions.editOrder')}
+                  />
                   <span title={tempPrinted ? t('print.tempAlreadyPrinted') : undefined} className="flex-1 flex">
                     <Button
                       onClick={printTempBill}

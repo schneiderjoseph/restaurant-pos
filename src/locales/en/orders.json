@@ -81,7 +81,11 @@
     "payNow": "Pay Now",
     "printKotCopy": "Print KOT copy",
     "splitByClients": "Split by clients",
-    "transferToClient": "Move to another client file"
+    "transferToClient": "Move to another client file",
+    "editOrder": "Edit",
+    "editOnlyUnpaid": "Only unpaid orders can be edited",
+    "editOpened": "Order opened for editing",
+    "editBlocked": "Order taking is temporarily unavailable"
   },
   "print": {
     "tempAlreadyPrinted": "Temp bill already printed"
