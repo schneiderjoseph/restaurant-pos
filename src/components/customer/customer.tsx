@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -9,7 +9,11 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {useTranslation} from "react-i18next";
-import { generateWalkInGuestCode, joinGuestName } from "@/lib/guest.ts";
+import {
+  canRegisterGuestFromSearch,
+  generateWalkInGuestCode,
+  previewGuestCode,
+} from "@/lib/guest.ts";
 import { toast } from "sonner";
 
 export interface Props {
@@ -27,10 +31,19 @@ export const Customers = ({
 
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [autoCode, setAutoCode] = useState(() => generateWalkInGuestCode());
+  const [codeOverride, setCodeOverride] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const canRegister = customers.length === 0 && canRegisterGuestFromSearch(search);
+
+  const displayCode = useMemo(() => {
+    if (codeOverride) return codeOverride;
+    return previewGuestCode(search.trim());
+  }, [codeOverride, search]);
+
+  useEffect(() => {
+    setCodeOverride(null);
+  }, [search]);
 
   const loadCustomers = async (term: string) => {
     if(term.trim().length === 0){
@@ -38,22 +51,32 @@ export const Customers = ({
       return;
     }
 
-    const [list] = await db.query<Customer[]>(
-      `SELECT * FROM ${Tables.customers}
-       WHERE name CONTAINS $q
-          OR phone CONTAINS $q
-          OR email CONTAINS $q
-          OR guest_code CONTAINS $q
-       ORDER BY name
-       LIMIT 10`,
-      { q: term.trim() }
-    );
+    const q = term.trim().toLowerCase();
+    try {
+      const [list] = await db.query<Customer[]>(
+        `SELECT * FROM ${Tables.customers}
+         WHERE string::contains(string::lowercase(name ?? ''), $q)
+            OR string::contains(string::lowercase(guest_code ?? ''), $q)
+            OR string::contains(string::lowercase(type::string(phone ?? '')), $q)
+            OR string::contains(string::lowercase(email ?? ''), $q)
+            OR string::contains(string::lowercase(type::string(room ?? '')), $q)
+         ORDER BY name
+         LIMIT 25`,
+        { q }
+      );
 
-    setCustomers(Array.isArray(list) ? list : []);
+      setCustomers(Array.isArray(list) ? list : []);
+    } catch (error) {
+      console.error('Customer search failed', error);
+      setCustomers([]);
+    }
   }
 
   useEffect(() => {
-    void loadCustomers(search)
+    const handle = window.setTimeout(() => {
+      void loadCustomers(search);
+    }, 150);
+    return () => window.clearTimeout(handle);
   }, [search]);
 
   const attachCustomer = async (customer: Customer) => {
@@ -65,17 +88,17 @@ export const Customers = ({
     onAttach?.();
   };
 
-  const createWalkIn = async () => {
-    const name = joinGuestName(firstName, lastName);
-    if (!name) {
+  const createFromSearch = async () => {
+    const name = search.trim().replace(/\s+/g, ' ');
+    if (!canRegisterGuestFromSearch(name)) {
       toast.error(t("menu:guest.nameRequired"));
       return;
     }
 
     setSaving(true);
     try {
-      let guest_code = autoCode.trim().toUpperCase() || generateWalkInGuestCode();
-      for (let attempt = 0; attempt < 5; attempt += 1) {
+      let guest_code = displayCode.trim().toUpperCase() || generateWalkInGuestCode(name);
+      for (let attempt = 0; attempt < 8; attempt += 1) {
         const [existing] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers} WHERE guest_code = $code LIMIT 1`,
           { code: guest_code }
@@ -83,7 +106,7 @@ export const Customers = ({
         if (!Array.isArray(existing) || !existing[0]) {
           break;
         }
-        guest_code = generateWalkInGuestCode();
+        guest_code = generateWalkInGuestCode(name);
       }
 
       const [created] = await db.insert(Tables.customers, {
@@ -100,9 +123,6 @@ export const Customers = ({
         return;
       }
 
-      setFirstName('');
-      setLastName('');
-      setAutoCode(generateWalkInGuestCode());
       toast.success(t("menu:guest.created"));
       await attachCustomer(created as Customer);
     } catch (error) {
@@ -113,72 +133,67 @@ export const Customers = ({
     }
   };
 
+  const selectedLabel = useMemo(() => {
+    if (!state.customer?.id) return null;
+    return (
+      <div className="text-sm text-neutral-600 mb-3">
+        {t("menu:guest.selected")}: <span className="font-semibold">{state.customer.name}</span>
+        {state.customer.guest_code ? ` · #${state.customer.guest_code}` : ''}
+      </div>
+    );
+  }, [state.customer, t]);
+
   return (
     <>
-      <div className="mb-4 rounded-xl border border-neutral-200 p-4 space-y-3" data-testid="walkin-create">
-        <div className="font-semibold text-lg">{t("menu:guest.createWalkInTitle")}</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Input
-            label={t("customer.firstName")}
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
-            enableKeyboard
-            data-testid="walkin-first-name"
-          />
-          <Input
-            label={t("customer.lastName")}
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
-            enableKeyboard
-            data-testid="walkin-last-name"
-          />
-        </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex-1 min-w-[120px]">
-            <Input
-              label={t("menu:guest.code")}
-              value={autoCode}
-              readOnly
-              data-testid="walkin-code"
-            />
-          </div>
-          <Button
-            type="button"
-            variant="neutral"
-            flat
-            onClick={() => setAutoCode(generateWalkInGuestCode())}
-            data-testid="walkin-regen-code"
-          >
-            {t("menu:guest.regenCode")}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            filled
-            isLoading={saving}
-            onClick={() => void createWalkIn()}
-            data-testid="walkin-create-attach"
-          >
-            {t("menu:guest.createAndAttach")}
-          </Button>
-        </div>
-        {state.customer?.id && (
-          <div className="text-sm text-neutral-600">
-            {t("menu:guest.selected")}: <span className="font-semibold">{state.customer.name}</span>
-            {state.customer.guest_code ? ` · #${state.customer.guest_code}` : ''}
-          </div>
-        )}
-      </div>
-
-      <div className="h-[2px] bg-gray-300 my-5"/>
       <div className="mb-3">
         <Input
-          placeholder={t("customer.search")}
+          placeholder={t("menu:guest.searchPlaceholder")}
           className="search-field"
+          value={search}
           onChange={(event) => setSearch(event.target.value)}
-          enableKeyboard
+          data-testid="customer-search"
         />
       </div>
+
+      {canRegister && (
+        <div className="mb-4 rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3" data-testid="walkin-create">
+          <div className="font-semibold text-lg">
+            {t("menu:guest.registerFromSearchTitle", { name: search.trim() })}
+          </div>
+          <p className="text-sm text-neutral-600">{t("menu:guest.registerFromSearchHint")}</p>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[120px]">
+              <Input
+                label={t("menu:guest.code")}
+                value={displayCode}
+                readOnly
+                data-testid="walkin-code"
+              />
+            </div>
+            <Button
+              type="button"
+              variant="neutral"
+              flat
+              onClick={() => setCodeOverride(generateWalkInGuestCode(search.trim()))}
+              data-testid="walkin-regen-code"
+            >
+              {t("menu:guest.regenCode")}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              filled
+              isLoading={saving}
+              onClick={() => void createFromSearch()}
+              data-testid="walkin-create-attach"
+            >
+              {t("menu:guest.register")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {selectedLabel}
 
       <div className="mb-3">
         <table className="table">

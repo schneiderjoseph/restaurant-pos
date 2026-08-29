@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import { appSettings, appState } from '@/store/jotai.ts';
 import { useDB } from '@/api/db/db.ts';
@@ -10,7 +10,16 @@ import { Table } from '@/api/model/table.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { getInvoiceNumber } from '@/lib/order.ts';
-import { formatGuestLabel, guestCodeLabel, orderZoneLabel, generateWalkInGuestCode, joinGuestName } from '@/lib/guest.ts';
+import {
+  formatGuestLabel,
+  guestCodeLabel,
+  orderZoneLabel,
+  generateWalkInGuestCode,
+  canRegisterGuestFromSearch,
+  previewGuestCode,
+  guestMatchesSearchTerm,
+  namesAreSamePerson,
+} from '@/lib/guest.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import {
   ensureResortFloorTables,
@@ -35,17 +44,40 @@ export const GuestLookup = () => {
   const preferInHouse = usesAsiPmsRooms();
 
   const [search, setSearch] = useState('');
-  const [results, setResults] = useState<Customer[]>([]);
+  const [guests, setGuests] = useState<Customer[]>([]);
+  const [loadingGuests, setLoadingGuests] = useState(false);
   const [selected, setSelected] = useState<Customer | undefined>(state.customer);
   const [folio, setFolio] = useState<FolioOrder[]>([]);
-  const [newFirstName, setNewFirstName] = useState('');
-  const [newLastName, setNewLastName] = useState('');
-  const [newCode, setNewCode] = useState(() => generateWalkInGuestCode());
+  /** Only set when user clicks "Nouveau code" — otherwise preview is stable from the name. */
+  const [codeOverride, setCodeOverride] = useState<string | null>(null);
   const [tableNumber, setTableNumber] = useState(state.table?.number ?? '');
   const [saving, setSaving] = useState(false);
   const [transferOrder, setTransferOrder] = useState<FolioOrder | undefined>();
 
   const floors: Floor[] = settings.floors ?? [];
+
+  const results = useMemo(() => {
+    const trimmed = search.trim();
+    if (!trimmed) {
+      return guests;
+    }
+    return guests.filter((guest) => guestMatchesSearchTerm(guest, trimmed));
+  }, [guests, search]);
+
+  const canRegisterFromSearch =
+    results.length === 0 && canRegisterGuestFromSearch(search);
+
+  const displayCode = useMemo(() => {
+    if (codeOverride) {
+      return codeOverride;
+    }
+    return previewGuestCode(search.trim());
+  }, [codeOverride, search]);
+
+  useEffect(() => {
+    // Name changed → drop manual override so the stable preview tracks the typed name.
+    setCodeOverride(null);
+  }, [search]);
 
   useEffect(() => {
     void (async () => {
@@ -80,46 +112,33 @@ export const GuestLookup = () => {
       }
     })();
   }, [db, setSettings]);
-  const loadGuests = async (term: string) => {
-    const trimmed = term.trim();
-    // ASI mode: show PMS in-house AND POSR walk-in / local guests (never hide local registry).
-    const visibleClause = preferInHouse
-      ? `AND (
-           in_house = true OR tags CONTAINS 'in-house'
-           OR source = 'walk-in' OR tags CONTAINS 'walk-in'
-           OR source = 'local'
-         )`
-      : '';
 
-    if (trimmed.length === 0) {
-      if (!preferInHouse) {
-        setResults([]);
-        return;
-      }
-      const [list] = await db.query<Customer[]>(
-        `SELECT * FROM ${Tables.customers}
-         WHERE in_house = true OR tags CONTAINS 'in-house'
-            OR source = 'walk-in' OR tags CONTAINS 'walk-in'
-            OR source = 'local'
-         ORDER BY in_house DESC, room, name
-         LIMIT 80`
-      );
-      setResults(Array.isArray(list) ? list : []);
-      return;
+  const loadGuests = async () => {
+    setLoadingGuests(true);
+    try {
+      // ASI mode: PMS in-house + POSR walk-in / local guests (never hide local registry).
+      const [list] = preferInHouse
+        ? await db.query<Customer[]>(
+            `SELECT * FROM ${Tables.customers}
+             WHERE in_house = true OR tags CONTAINS 'in-house'
+                OR source = 'walk-in' OR tags CONTAINS 'walk-in'
+                OR source = 'local'
+             ORDER BY in_house DESC, name
+             LIMIT 500`
+          )
+        : await db.query<Customer[]>(
+            `SELECT * FROM ${Tables.customers}
+             ORDER BY name
+             LIMIT 500`
+          );
+
+      setGuests(Array.isArray(list) ? list : []);
+    } catch (error) {
+      console.error('Guest list failed', error);
+      setGuests([]);
+    } finally {
+      setLoadingGuests(false);
     }
-
-    const [list] = await db.query<Customer[]>(
-      `SELECT * FROM ${Tables.customers}
-       WHERE (guest_code CONTAINS $q
-          OR name CONTAINS $q
-          OR room CONTAINS $q)
-       ${visibleClause}
-       ORDER BY name
-       LIMIT 30`,
-      { q: trimmed }
-    );
-
-    setResults(Array.isArray(list) ? list : []);
   };
 
   const loadFolio = async (customer: Customer) => {
@@ -141,11 +160,9 @@ export const GuestLookup = () => {
   };
 
   useEffect(() => {
-    const handle = window.setTimeout(() => {
-      void loadGuests(search);
-    }, 200);
-    return () => window.clearTimeout(handle);
-  }, [search]);
+    void loadGuests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load once per PMS mode; db identity changes every render
+  }, [preferInHouse]);
 
   useEffect(() => {
     if (selected?.id) {
@@ -166,17 +183,29 @@ export const GuestLookup = () => {
     }));
   };
 
-  const createGuest = async (andStartOrder = false) => {
-    const name = joinGuestName(newFirstName, newLastName);
-    if (!name) {
+  const createGuestFromSearch = async (andStartOrder = false) => {
+    const name = search.trim().replace(/\s+/g, ' ');
+    if (!canRegisterGuestFromSearch(name)) {
       toast.error(t('menu:guest.nameRequired'));
+      return;
+    }
+
+    // Same words, any order → treat as existing client (John Michel ≈ Michel John)
+    const samePerson = guests.find((guest) => namesAreSamePerson(guest.name, name));
+    if (samePerson) {
+      selectGuest(samePerson);
+      setSearch(samePerson.name?.trim() || name);
+      toast.message(t('menu:guest.alreadyExists', { name: samePerson.name }));
+      if (andStartOrder) {
+        await startNewOrderFor(samePerson);
+      }
       return;
     }
 
     setSaving(true);
     try {
-      let guest_code = newCode.trim().toUpperCase() || generateWalkInGuestCode();
-      for (let attempt = 0; attempt < 5; attempt += 1) {
+      let guest_code = displayCode.trim().toUpperCase() || generateWalkInGuestCode(name);
+      for (let attempt = 0; attempt < 8; attempt += 1) {
         const [existing] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers} WHERE guest_code = $code LIMIT 1`,
           { code: guest_code }
@@ -184,7 +213,7 @@ export const GuestLookup = () => {
         if (!Array.isArray(existing) || !existing[0]) {
           break;
         }
-        guest_code = generateWalkInGuestCode();
+        guest_code = generateWalkInGuestCode(name);
       }
 
       const [created] = await db.insert(Tables.customers, {
@@ -202,9 +231,12 @@ export const GuestLookup = () => {
 
       const guest = created as Customer;
       selectGuest(guest);
-      setNewFirstName('');
-      setNewLastName('');
-      setNewCode(generateWalkInGuestCode());
+      setGuests((prev) => {
+        const id = guest.id?.toString();
+        const without = prev.filter((item) => item.id?.toString() !== id);
+        return [guest, ...without];
+      });
+      setSearch(name);
       toast.success(t('menu:guest.created'));
 
       if (andStartOrder) {
@@ -331,10 +363,17 @@ export const GuestLookup = () => {
             placeholder={t('menu:guest.searchPlaceholder')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            enableKeyboard
+            autoFocus
+            data-testid="guest-search"
           />
-          <div className="divide-y rounded-lg border border-neutral-200 max-h-[280px] overflow-auto">
-            {results.length === 0 && (search.trim() || preferInHouse) && (
+          <div
+            className="divide-y rounded-lg border border-neutral-200 max-h-[320px] overflow-auto"
+            data-testid="guest-search-results"
+          >
+            {loadingGuests && results.length === 0 && (
+              <div className="p-4 text-neutral-500">{t('menu:guest.searching')}</div>
+            )}
+            {!loadingGuests && results.length === 0 && !canRegisterFromSearch && (
               <div className="p-4 text-neutral-500">{t('menu:guest.noResults')}</div>
             )}
             {results.map((guest) => (
@@ -359,30 +398,24 @@ export const GuestLookup = () => {
             ))}
           </div>
 
-          <div className="pt-4 border-t" data-testid="guest-create-walkin">
-            <h2 className="font-semibold mb-3">{t('menu:guest.createWalkInTitle')}</h2>
-            <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  label={t('orders:customer.firstName')}
-                  value={newFirstName}
-                  onChange={(event) => setNewFirstName(event.target.value)}
-                  enableKeyboard
-                  data-testid="guest-walkin-first"
-                />
-                <Input
-                  label={t('orders:customer.lastName')}
-                  value={newLastName}
-                  onChange={(event) => setNewLastName(event.target.value)}
-                  enableKeyboard
-                  data-testid="guest-walkin-last"
-                />
+          {canRegisterFromSearch && (
+            <div
+              className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3"
+              data-testid="guest-register-from-search"
+            >
+              <div>
+                <div className="font-semibold text-lg">
+                  {t('menu:guest.registerFromSearchTitle', { name: search.trim() })}
+                </div>
+                <p className="text-sm text-neutral-600 mt-1">
+                  {t('menu:guest.registerFromSearchHint')}
+                </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
-                <div className="flex-1 min-w-[120px]">
+                <div className="flex-1 min-w-[140px]">
                   <Input
                     label={t('menu:guest.code')}
-                    value={newCode}
+                    value={displayCode}
                     readOnly
                     data-testid="guest-walkin-code"
                   />
@@ -390,7 +423,7 @@ export const GuestLookup = () => {
                 <Button
                   variant="neutral"
                   flat
-                  onClick={() => setNewCode(generateWalkInGuestCode())}
+                  onClick={() => setCodeOverride(generateWalkInGuestCode(search.trim()))}
                   data-testid="guest-walkin-regen"
                 >
                   {t('menu:guest.regenCode')}
@@ -403,9 +436,10 @@ export const GuestLookup = () => {
                   size="lg"
                   className="w-full"
                   isLoading={saving}
-                  onClick={() => void createGuest(false)}
+                  onClick={() => void createGuestFromSearch(false)}
+                  data-testid="guest-register"
                 >
-                  {t('menu:guest.create')}
+                  {t('menu:guest.register')}
                 </Button>
                 <Button
                   variant="primary"
@@ -413,14 +447,14 @@ export const GuestLookup = () => {
                   size="lg"
                   className="w-full"
                   isLoading={saving}
-                  onClick={() => void createGuest(true)}
+                  onClick={() => void createGuestFromSearch(true)}
                   data-testid="guest-create-and-order"
                 >
-                  {t('menu:guest.createAndOrder')}
+                  {t('menu:guest.registerAndOrder')}
                 </Button>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="bg-white rounded-xl p-5 shadow space-y-4">
