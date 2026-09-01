@@ -1,4 +1,3 @@
-import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCopy, faSquareCheck} from "@fortawesome/free-regular-svg-icons";
 import {faPause, faPlay, faTrash} from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +14,7 @@ import {toRecordId} from "@/lib/utils.ts";
 import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
 
 export const CartActions = () => {
   const db = useDB();
@@ -23,9 +23,17 @@ export const CartActions = () => {
   const { t } = useTranslation(['cart', 'payment', 'common']);
   const [selected, setSelected] = useState(false);
 
-  const hasNewItems = useMemo(() => {
-    return state.cart.filter(item => item.newOrOld === MenuItemType.new && item.isSelected).length > 0
-  }, [state.cart]);
+  const isEditingExisting =
+    state.order?.id != null && String(state.order.id) !== 'new';
+
+  const hasRemovableSelected = useMemo(() => {
+    return state.cart.some((item) => {
+      if (!item.isSelected || item.deleted_at) {
+        return false;
+      }
+      return item.newOrOld === MenuItemType.new || isEditingExisting;
+    });
+  }, [state.cart, isEditingExisting]);
 
   const hasHoldItems = useMemo(() => {
     return state.cart.some(item => item.isSelected && item.isHold)
@@ -58,16 +66,28 @@ export const CartActions = () => {
   }
 
   const deleteSelectedCartItems = () => {
-    setState(prev => ({
+    const voidedAt = nowSurrealDateTime();
+    setState((prev) => ({
       ...prev,
-      cart: prev.cart.filter(item => {
-        if(item.newOrOld === 'new' && item.isSelected){
-          return false;
-        }
-
-        return true;
-      })
-    }))
+      cart: prev.cart
+        .map((item) => {
+          if (!item.isSelected) {
+            return item;
+          }
+          if (item.newOrOld === MenuItemType.new) {
+            return null;
+          }
+          if (isEditingExisting) {
+            return {
+              ...item,
+              deleted_at: voidedAt as typeof item.deleted_at,
+              isSelected: false,
+            };
+          }
+          return item;
+        })
+        .filter((item): item is NonNullable<typeof item> => item != null),
+    }));
   }
 
   const copySelectedCartItems = () => {
@@ -100,7 +120,10 @@ export const CartActions = () => {
     setState(prev => ({
       ...prev,
       cart: prev.cart.map(cartItem => {
-        if(cartItem.newOrOld === MenuItemType.new || cartItem.isHold) {
+        if (cartItem.deleted_at) {
+          return cartItem;
+        }
+        if (cartItem.newOrOld === MenuItemType.new || cartItem.isHold || isEditingExisting) {
           cartItem.isSelected = !selected;
         }
 
@@ -230,7 +253,7 @@ export const CartActions = () => {
       <IconTooltipButton label={t('common:actions.selectAll')} size="lg" variant="primary" onClick={toggleCartItems}>
         <FontAwesomeIcon icon={faSquareCheck} size="lg"/>
       </IconTooltipButton>
-      {hasNewItems && (
+      {hasRemovableSelected && (
         <>
           <span className="bg-neutral-400 h-[48px] w-[2px]"></span>
           <IconTooltipButton label={t('common:actions.copy')} size="lg" variant="primary" onClick={copySelectedCartItems}>
@@ -253,7 +276,7 @@ export const CartActions = () => {
         </IconTooltipButton>
       )}
 
-      {hasNewItems && (
+      {hasRemovableSelected && (
         <Dropdown label={t('seats.seat')} btnSize="lg" onAction={onClickSeatItem}>
           {state.seats.map((seat, index) => (
             <DropdownItem id={seat} key={seat} className="min-w-[50px]">{index + 1}</DropdownItem>

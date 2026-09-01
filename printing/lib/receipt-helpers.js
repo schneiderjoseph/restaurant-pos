@@ -11,8 +11,9 @@ const PRINTER_WIDTH = 42;
 const PAPER_IMAGE_WIDTH_PX = 576;
 /** Max content width when scaling full-bleed images (safe for 58mm). */
 const MAX_IMAGE_WIDTH_PX = 384;
-/** Store logo + header/footer + provider logos: fixed contain box (no stretch). */
-const STORE_LOGO_BOX_PX = 150;
+/** Store / restaurant logo: max print width on 58–80mm paper (no stretch). */
+const STORE_LOGO_BOX_PX = 280;
+const STORE_LOGO_MAX_HEIGHT_PX = 180;
 /** @deprecated use MAX_IMAGE_WIDTH_PX */
 const MAX_LOGO_WIDTH_PX = MAX_IMAGE_WIDTH_PX;
 
@@ -398,75 +399,54 @@ function applyMargins(printer, config) {
 }
 
 /**
- * Resize/re-encode image for thermal.
- * - boxSize: tight N×N contain square (no stretch). Horizontal center is done at print via ESC $.
- * - maxWidth only: scale preserving aspect, pad width to multiple of 8
- * Always returns PNG so get-pixels / escpos Image.load get a consistent format.
+ * Resize/re-encode image for thermal printing via sharp (canvas native module is unreliable on Node 24+).
  * @param {Buffer} buf
  * @param {string} [mime]
  * @param {{ maxWidth?: number, forceMono?: boolean, boxSize?: number, paperWidth?: number, hAlign?: string }} [opts]
  * @returns {Promise<Buffer|null>}
  */
-function prepareImageForPrint(buf, mime, opts) {
+async function prepareImageForPrint(buf, mime, opts) {
   const options = opts || {};
   const maxWidth = Math.max(8, options.maxWidth || MAX_IMAGE_WIDTH_PX);
   const forceMono = options.forceMono !== false;
   const boxSize = options.boxSize != null ? Math.max(8, Number(options.boxSize) || 0) : 0;
-  const hAlign = options.hAlign === 'left' || options.hAlign === 'right' ? options.hAlign : 'center';
+  const maxHeight = options.maxHeight != null
+    ? Math.max(8, Number(options.maxHeight) || 0)
+    : STORE_LOGO_MAX_HEIGHT_PX;
 
-  return new Promise((resolve) => {
-    try {
-      const { loadImage, createCanvas } = require('canvas');
-      loadImage(buf)
-        .then((img) => {
-          if (!img || !img.width || !img.height) {
-            resolve(null);
-            return;
-          }
+  try {
+    const sharp = require('sharp');
+    let pipeline = sharp(buf, { failOn: 'none' }).rotate();
 
-          if (boxSize > 0) {
-            // Tight square only — padding left/right white on a full paper canvas left-aligns
-            // on 80mm printers (paper wider than 384). Centering is applyAbsoluteHorizontalPosition.
-            const side = Math.max(8, Math.ceil(boxSize / 8) * 8);
-            const canvas = createCanvas(side, side);
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, side, side);
-            drawContainInSquare(ctx, img, 0, 0, side);
-            if (forceMono) forceCanvasMono(ctx, side, side);
-            resolve(canvas.toBuffer('image/png'));
-            return;
-          }
-
-          let outW = img.width;
-          let outH = img.height;
-          if (outW > maxWidth) {
-            const scale = maxWidth / outW;
-            outW = maxWidth;
-            outH = Math.max(1, Math.round(img.height * scale));
-          }
-          const canvasW = Math.max(8, Math.ceil(outW / 8) * 8);
-          const canvas = createCanvas(canvasW, outH);
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvasW, outH);
-          // Image starts at left of its own canvas; print time ESC $ does centering
-          let dx = 0;
-          if (hAlign === 'center') dx = Math.floor((canvasW - outW) / 2);
-          else if (hAlign === 'right') dx = canvasW - outW;
-          ctx.drawImage(img, dx, 0, outW, outH);
-          if (forceMono) forceCanvasMono(ctx, canvasW, outH);
-          resolve(canvas.toBuffer('image/png'));
-        })
-        .catch((err) => {
-          console.warn('[print] prepareImageForPrint load failed', err && err.message);
-          resolve(null);
-        });
-    } catch (e) {
-      console.warn('[print] prepareImageForPrint error', e && e.message);
-      resolve(null);
+    if (boxSize > 0) {
+      pipeline = pipeline.resize(boxSize, maxHeight, {
+        fit: 'inside',
+        withoutEnlargement: false,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      });
+    } else {
+      pipeline = pipeline.resize({
+        width: maxWidth,
+        fit: 'inside',
+        withoutEnlargement: false,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      });
     }
-  });
+
+    if (forceMono) {
+      pipeline = pipeline
+        .greyscale()
+        .normalise()
+        .linear(1.25, -32)
+        .threshold(145);
+    }
+
+    const out = await pipeline.png().toBuffer();
+    return out && out.length ? out : null;
+  } catch (e) {
+    console.warn('[print] prepareImageForPrint sharp failed', e && e.message);
+    return null;
+  }
 }
 
 /**
@@ -593,7 +573,6 @@ function printSections(printer, sections) {
           console.warn('[print] skipping empty image section');
           return Promise.resolve();
         }
-        // Same pipeline as store logo: 150×150 contain + paper pad + feed after
         return printLogo(printer, section.content, { align: section.align, hAlign: section.align });
       }
       if (section.type === 'text' && section.content) {
@@ -617,11 +596,21 @@ function printSections(printer, sections) {
 function printReceiptHeader(printer, config) {
   applyMargins(printer, config);
   hardResetLayout(printer);
-  const logoPromise = config.showLogo && config.logo
-    ? printLogo(printer, config.logo, { align: 'center' })
+  const headerLogo =
+    (config.showLogo && config.logo)
+      ? config.logo
+      : (config.restaurantLogo && String(config.restaurantLogo).trim())
+        ? config.restaurantLogo
+        : null;
+  const logoPromise = headerLogo
+    ? printLogo(printer, headerLogo, { align: 'center' })
     : Promise.resolve();
+  const headerSections = Array.isArray(config.headerSections) ? config.headerSections : [];
+  const sections = headerLogo
+    ? headerSections.filter((section) => !(section && section.type === 'image' && section.enabled !== false))
+    : headerSections;
   return logoPromise
-    .then(() => printSections(printer, config.headerSections || []))
+    .then(() => printSections(printer, sections))
     .then(() => hardResetLayout(printer));
 }
 
@@ -830,104 +819,69 @@ function forceCanvasMono(ctx, width, height) {
  * @param {string} [logoDataUri]
  * @returns {Promise<Buffer|null>}
  */
-function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
-  return new Promise((resolve) => {
-    try {
-      const qr = require('qr-image');
-      const { loadImage, createCanvas } = require('canvas');
+async function composeFiscalQrRowBuffer(qrValue, logoDataUri) {
+  try {
+    const sharp = require('sharp');
+    const qr = require('qr-image');
+    const qrPng = qr.imageSync(String(qrValue), { type: 'png', size: 6, margin: 1 });
+    const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
 
-      const qrPng = qr.imageSync(String(qrValue), { type: 'png', size: 6, margin: 1 });
-      const hasLogo = Boolean(logoDataUri && String(logoDataUri).trim());
+    const contentW = hasLogo
+      ? FISCAL_LOGO_PX + FISCAL_QR_GAP_PX + FISCAL_QR_PX
+      : FISCAL_QR_PX;
+    const height = Math.max(FISCAL_LOGO_PX, FISCAL_QR_PX);
+    const width = Math.max(contentW, Math.ceil(FISCAL_STRIP_WIDTH_PX / 8) * 8);
+    const offsetX = Math.floor((width - contentW) / 2);
 
-      const contentW = hasLogo
-        ? FISCAL_LOGO_PX + FISCAL_QR_GAP_PX + FISCAL_QR_PX
-        : FISCAL_QR_PX;
-      const height = Math.max(FISCAL_LOGO_PX, FISCAL_QR_PX);
-      // Width as multiple of 8 for clean raster packing
-      const width = Math.max(
-        contentW,
-        Math.ceil(FISCAL_STRIP_WIDTH_PX / 8) * 8
-      );
-      const offsetX = Math.floor((width - contentW) / 2);
+    const qrBuf = await sharp(qrPng)
+      .resize(FISCAL_QR_PX, FISCAL_QR_PX, {
+        fit: 'contain',
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      })
+      .png()
+      .toBuffer();
 
-      const canvas = createCanvas(width, height);
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, height);
-
-      const finish = (logoImg) => {
-        loadImage(qrPng)
-          .then((qrImg) => {
-            if (hasLogo) {
-              if (logoImg) {
-                drawContainInSquare(ctx, logoImg, offsetX, 0, FISCAL_LOGO_PX);
-              } else {
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(offsetX + 2, 2, FISCAL_LOGO_PX - 4, FISCAL_LOGO_PX - 4);
-              }
-              drawContainInSquare(
-                ctx,
-                qrImg,
-                offsetX + FISCAL_LOGO_PX + FISCAL_QR_GAP_PX,
-                0,
-                FISCAL_QR_PX
-              );
-            } else {
-              drawContainInSquare(ctx, qrImg, offsetX, 0, FISCAL_QR_PX);
-            }
-            forceCanvasMono(ctx, width, height);
-            resolve(canvas.toBuffer('image/png'));
+    const composites = [];
+    if (hasLogo) {
+      const decoded = decodeImageInput(String(logoDataUri).trim());
+      if (decoded) {
+        const logoBuf = await sharp(decoded.buf)
+          .resize(FISCAL_LOGO_PX, FISCAL_LOGO_PX, {
+            fit: 'contain',
+            background: { r: 255, g: 255, b: 255, alpha: 1 },
           })
-          .catch((err) => {
-            console.warn('[print] fiscal QR canvas load failed', err && err.message);
-            resolve(null);
-          });
-      };
-
-      if (!hasLogo) {
-        finish(null);
-        return;
+          .png()
+          .toBuffer();
+        composites.push({ input: logoBuf, left: offsetX, top: 0 });
       }
-
-      const raw = String(logoDataUri).trim();
-      let loadPromise;
-      if (raw.startsWith('data:')) {
-        const m = /^data:([^;]+);base64,([\s\S]+)$/i.exec(raw);
-        if (m) {
-          const cleaned = `data:${m[1]};base64,${m[2].replace(/\s+/g, '')}`;
-          loadPromise = loadImage(cleaned);
-        } else {
-          loadPromise = loadImage(raw);
-        }
-      } else {
-        const decoded = decodeImageInput(raw);
-        if (!decoded) {
-          console.warn('[print] fiscal logo decode failed');
-          finish(null);
-          return;
-        }
-        loadPromise = loadImage(decoded.buf);
-      }
-
-      loadPromise
-        .then((img) => finish(img))
-        .catch((err) => {
-          console.warn('[print] fiscal logo load failed', err && err.message);
-          const decoded = decodeImageInput(raw);
-          if (!decoded) {
-            finish(null);
-            return;
-          }
-          loadImage(decoded.buf)
-            .then((img) => finish(img))
-            .catch(() => finish(null));
-        });
-    } catch (e) {
-      console.warn('[print] fiscal QR compose error', e && e.message);
-      resolve(null);
+      composites.push({
+        input: qrBuf,
+        left: offsetX + FISCAL_LOGO_PX + FISCAL_QR_GAP_PX,
+        top: 0,
+      });
+    } else {
+      composites.push({ input: qrBuf, left: offsetX, top: 0 });
     }
-  });
+
+    return await sharp({
+      create: {
+        width,
+        height,
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      },
+    })
+      .composite(composites)
+      .greyscale()
+      .normalise()
+      .linear(1.25, -32)
+      .threshold(145)
+      .png()
+      .toBuffer();
+  } catch (e) {
+    console.warn('[print] fiscal QR compose error', e && e.message);
+    return null;
+  }
 }
 
 /**

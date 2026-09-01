@@ -12,22 +12,24 @@ export function orderToCartItems(order?: Order | null): MenuItem[] {
     return [];
   }
 
-  return order.items.map((item) => ({
-    dish: item.item,
-    level: item.level,
-    quantity: item.quantity,
-    seat: item.seat,
-    id: item.id,
-    selectedGroups: (item.modifiers || []) as MenuItem['selectedGroups'],
-    newOrOld: MenuItemType.old,
-    price: item.price,
-    updated_at: item.updated_at,
-    deleted_at: item.deleted_at,
-    category: item.category,
-    category_id: item.category_id,
-    comments: item.comments,
-    isHold: item.is_suspended,
-  }));
+  return order.items
+    .filter((item) => !item.deleted_at)
+    .map((item) => ({
+      dish: item.item,
+      level: item.level,
+      quantity: item.quantity,
+      seat: item.seat != null && item.seat !== '' ? String(item.seat) : undefined,
+      id: item.id,
+      selectedGroups: (item.modifiers || []) as MenuItem['selectedGroups'],
+      newOrOld: MenuItemType.old,
+      price: item.price,
+      updated_at: item.updated_at,
+      deleted_at: item.deleted_at,
+      category: item.category,
+      category_id: item.category_id,
+      comments: item.comments,
+      isHold: item.is_suspended,
+    }));
 }
 
 export function seatsFromOrder(order?: Order | null): string[] {
@@ -36,8 +38,12 @@ export function seatsFromOrder(order?: Order | null): string[] {
   }
   const seats = new Map<string, string>();
   for (const item of order.items) {
-    if (item.seat) {
-      seats.set(item.seat, item.seat);
+    if (item.deleted_at) {
+      continue;
+    }
+    if (item.seat != null && item.seat !== '') {
+      const seat = String(item.seat);
+      seats.set(seat, seat);
     }
   }
   return Array.from(seats.values());

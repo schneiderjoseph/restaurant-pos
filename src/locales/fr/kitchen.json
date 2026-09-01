@@ -14,7 +14,10 @@
     "original": "ORIGINAL",
     "completed": "Terminé : {{time}}",
     "items": "Articles : {{count}}",
-    "continued": "SUITE"
+    "continued": "SUITE",
+    "room": "Chambre",
+    "table": "Table",
+    "guest": "Client"
   },
   "announcements": {
     "newOrder": "Nouvelle commande. {{context}}. {{number}}.",

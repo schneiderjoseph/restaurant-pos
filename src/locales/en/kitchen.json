@@ -14,7 +14,10 @@
     "original": "ORIGINAL",
     "completed": "Completed: {{time}}",
     "items": "Items: {{count}}",
-    "continued": "CONTINUED"
+    "continued": "CONTINUED",
+    "room": "Room",
+    "table": "Table",
+    "guest": "Guest"
   },
   "announcements": {
     "newOrder": "New order. {{context}}. {{number}}.",

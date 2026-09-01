@@ -218,6 +218,61 @@ export const ItemsVisibilityConfig = () => {
           {t('settings:visibilityConfig.showModifierPriceInOrderCard')}
         </Switch>
       </div>
+
+      <h3 className="mb-3 mt-2">{t('settings:visibilityConfig.kitchen')}</h3>
+      <p className="text-sm text-neutral-500 mb-3">
+        {t('settings:visibilityConfig.kitchenGuestLabelHint')}
+      </p>
+      <div className="flex flex-wrap gap-2 mb-2">
+        <Button
+          size="lg"
+          variant="primary"
+          active={(config.menuConfig?.kitchenGuestLabel ?? 'name') === 'name'}
+          onClick={() => {
+            setConfig(prev => ({
+              ...prev,
+              menuConfig: {
+                ...prev.menuConfig,
+                kitchenGuestLabel: 'name',
+              }
+            }))
+          }}
+        >
+          {t('settings:visibilityConfig.kitchenGuestLabelName')}
+        </Button>
+        <Button
+          size="lg"
+          variant="primary"
+          active={(config.menuConfig?.kitchenGuestLabel ?? 'name') === 'code'}
+          onClick={() => {
+            setConfig(prev => ({
+              ...prev,
+              menuConfig: {
+                ...prev.menuConfig,
+                kitchenGuestLabel: 'code',
+              }
+            }))
+          }}
+        >
+          {t('settings:visibilityConfig.kitchenGuestLabelCode')}
+        </Button>
+        <Button
+          size="lg"
+          variant="primary"
+          active={(config.menuConfig?.kitchenGuestLabel ?? 'name') === 'both'}
+          onClick={() => {
+            setConfig(prev => ({
+              ...prev,
+              menuConfig: {
+                ...prev.menuConfig,
+                kitchenGuestLabel: 'both',
+              }
+            }))
+          }}
+        >
+          {t('settings:visibilityConfig.kitchenGuestLabelBoth')}
+        </Button>
+      </div>
     </div>
   );
 };

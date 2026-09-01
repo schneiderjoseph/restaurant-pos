@@ -15,7 +15,11 @@ import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { useTranslation } from "react-i18next";
 import { useSecurity } from "@/hooks/useSecurity.ts";
-import { formatGuestLabel } from "@/lib/guest-label.ts";
+import {
+  formatKitchenGuestLabel,
+  formatKitchenPlaceLabel,
+  type KitchenGuestLabelMode,
+} from "@/lib/kitchen-ticket-label.ts";
 
 export type KitchenBoardTicket = {
   order: Order
@@ -56,6 +60,13 @@ export const KitchenOrder = ({
   const diff = stageStart
     ? nowInAppTimezone().diff(toLuxonDateTime(stageStart)).as('minutes')
     : 0;
+
+  const guestLabelMode = (page?.menuConfig?.kitchenGuestLabel ?? 'name') as KitchenGuestLabelMode;
+  const placeLabel = formatKitchenPlaceLabel(order?.table, {
+    room: t('labels.room'),
+    table: t('labels.table'),
+  });
+  const guestLabel = formatKitchenGuestLabel(order?.customer, guestLabelMode);
 
   const ready = async () => {
     try {
@@ -99,6 +110,9 @@ export const KitchenOrder = ({
         order,
         kitchenName: kitchen.name,
         table: order?.table,
+        guestLabel,
+        placeLabel,
+        placeKind: order?.table?.source === 'asi-room' ? 'room' : 'table',
         duplicate: true,
       }, {
         title: t("payment:print.kitchenTitle"),
@@ -143,19 +157,24 @@ export const KitchenOrder = ({
         )
       }>
         <div className="flex gap-2 min-w-0">
-          {order?.table && (
+          {placeLabel && (
             <span className="p-2 text-base rounded-lg min-w-[48px] flex justify-center items-center shrink-0" style={{
               color: order?.table?.color,
-              background: order?.table?.background
-            }}>{order?.table?.name}{order?.table?.number}</span>
+              background: order?.table?.background || undefined,
+            }}>{placeLabel}</span>
           )}
-          {!order?.table && formatGuestLabel(order?.customer) && (
+          {!placeLabel && guestLabel && (
             <span className="p-2 text-base rounded-lg min-w-[48px] flex justify-center items-center shrink-0 bg-neutral-100">
-              {formatGuestLabel(order?.customer)}
+              {guestLabel}
             </span>
           )}
 
           <div className="flex flex-col items-start gap-0.5 min-w-0">
+            {placeLabel && guestLabel && (
+              <span className="font-black text-base truncate max-w-full" data-testid="kitchen-guest-label">
+                {guestLabel}
+              </span>
+            )}
             <span className="font-bold text-lg truncate max-w-full">
               {[order?.order_type?.name, getInvoiceNumber(order)].filter(Boolean).join(' / ')}
             </span>

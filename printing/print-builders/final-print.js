@@ -29,6 +29,8 @@ function build(printer, data = {}, config = {}) {
       qrcode: data.qrcode,
       qrcodes: data.qrcodes,
       thankYou: bill.thankYou,
+      customerName: order.customer?.name || undefined,
+      phone: order.customer?.phone || undefined,
       showPayments: true,
       showChange: true,
       showDeliveryLine: false,

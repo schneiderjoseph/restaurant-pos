@@ -7,6 +7,7 @@ import {MenuHeader} from "@/components/menu/header.tsx";
 import {GuestLookup} from "@/components/menu/guest.lookup.tsx";
 import {useAtom} from "jotai";
 import {appAlert, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {MenuPersons} from "@/components/menu/persons.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {toRecordId} from "@/lib/utils.ts";
@@ -23,6 +24,7 @@ import {useEnsureLoyverseMenuCache} from "@/hooks/useEnsureLoyverseMenuCache.ts"
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
   const [state, setState] = useAtom(appState);
+  const [editSession] = useAtom(orderEditSessionAtom);
   const [settings, setSettings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [, setAlert] = useAtom(appAlert);
@@ -219,10 +221,51 @@ export const Menu = () => {
     state.table?.id,
   ]);
 
+  // Keep cart/order graph alive if localStorage slimmed appState after edit open.
+  useEffect(() => {
+    if (!editSession) {
+      return;
+    }
+    setState((prev) => {
+      const sameOrder = String(prev.order?.id ?? '') === editSession.orderId;
+      const cartOk = prev.cart?.length > 0;
+      if (sameOrder && cartOk && prev.order?.order) {
+        return prev;
+      }
+      return {
+        ...prev,
+        showFloor: false,
+        showPersons: false,
+        switchTable: false,
+        resortEntry: 'guest',
+        table: editSession.table ?? prev.table,
+        customer: editSession.customer ?? prev.customer,
+        floor: editSession.floor ?? prev.floor,
+        orderType: editSession.orderType ?? prev.orderType,
+        persons: editSession.persons ?? prev.persons,
+        orders: [editSession.order],
+        order: {
+          id: editSession.orderId,
+          order: editSession.order,
+        },
+        cart: editSession.cart,
+        seats: editSession.seats,
+        seat: editSession.seat,
+      };
+    });
+  }, [editSession, setState]);
+
   // Docs capture: never force persisted showFloor/persons off — only branch UI here.
+  /** Open order loaded for edit/continue — never bounce back to guest picker. */
+  const editingExistingOrder =
+    editSession != null ||
+    (state.order?.id != null &&
+      String(state.order.id) !== 'new' &&
+      (Boolean(state.order?.order) || (state.cart?.length ?? 0) > 0));
   const showGuestLookup =
     resortFb &&
     !resortFloorMode &&
+    !editingExistingOrder &&
     (state.showFloor === true || !state.customer?.id);
   const showFloorLayout =
     !docsTableless &&

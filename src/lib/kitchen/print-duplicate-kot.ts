@@ -4,6 +4,10 @@ import { Order } from "@/api/model/order.ts";
 import { getOrderFilteredItems } from "@/lib/order.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { kitchenMatchesDish } from "@/lib/kitchen/routing.ts";
+import {
+  formatKitchenGuestLabel,
+  formatKitchenPlaceLabel,
+} from "@/lib/kitchen-ticket-label.ts";
 
 /**
  * Re-print full-order KOT(s) grouped by kitchen dish routing (same match as
@@ -14,6 +18,8 @@ export async function printDuplicateKotForOrder(opts: {
   order: Order;
   userId?: string | { id?: string; toString?: () => string } | null;
   title?: string;
+  guestLabelMode?: 'name' | 'code' | 'both';
+  placeLabels?: { room: string; table: string };
 }): Promise<boolean> {
   const { db, order, userId } = opts;
   const items = getOrderFilteredItems(order);
@@ -53,6 +59,11 @@ export async function printDuplicateKotForOrder(opts: {
     return false;
   }
 
+  const placeLabels = opts.placeLabels ?? { room: 'Room', table: 'Table' };
+  const guestLabel = formatKitchenGuestLabel(order.customer, opts.guestLabelMode ?? 'name');
+  const placeLabel = formatKitchenPlaceLabel(order.table, placeLabels);
+  const placeKind = order.table?.source === 'asi-room' ? 'room' : 'table';
+
   await Promise.all(
     jobs.map(({ kitchen, items: kitchenItems }) =>
       dispatchPrint(
@@ -63,6 +74,9 @@ export async function printDuplicateKotForOrder(opts: {
           order,
           kitchenName: kitchen.name,
           table: order.table,
+          guestLabel,
+          placeLabel,
+          placeKind,
           duplicate: true,
         },
         {

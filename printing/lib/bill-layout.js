@@ -77,6 +77,8 @@ function printBillLayout(printer, bill, config, opts) {
 
   const invoiceLabel = L.invoice || 'Invoice#';
   const tableLabel = L.table || 'Table';
+  const roomLabel = L.room || 'Room';
+  const guestLabelText = L.guest || 'Guest';
   const orderTypeLabel = L.orderType || 'Order Type';
   const cashierLabel = L.cashier || 'Cashier';
   const customerLabel = L.customer || 'Customer';
@@ -96,9 +98,21 @@ function printBillLayout(printer, bill, config, opts) {
   const checkClosedLabel = L.checkClosed || 'Check Closed';
 
   printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
-  printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const placeKind = bill.placeKind === 'room' ? 'room' : 'table';
+  const placeLabel = placeKind === 'room' ? roomLabel : tableLabel;
+  const placeValue = bill.placeValue || bill.table || '-';
+  printLineLeftRight(
+    printer,
+    `${placeLabel}: ${placeValue}`,
+    `${orderTypeLabel}: ${bill.orderType || '-'}`,
+  );
+  if (bill.guestLabel) {
+    printFixedLine(printer, `${guestLabelText}: ${String(bill.guestLabel)}`, { align: 'left' });
+  }
   printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
-  if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
+  if (customerName && !bill.guestLabel) {
+    printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
+  }
   if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
   if (address) printFixedLine(printer, `${addressLabel}: ${String(address).slice(0, 40)}`, { align: 'left' });
   if (deliveryTime) printFixedLine(printer, `${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
@@ -112,13 +126,14 @@ function printBillLayout(printer, bill, config, opts) {
   printDivider(printer);
 
   printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
-  if (bill.tax != null && Number(bill.tax) !== 0) {
-    printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym));
-    if (Array.isArray(bill.taxLines) && bill.taxLines.length > 0) {
-      bill.taxLines.forEach((t) => {
+  if (Array.isArray(bill.taxLines) && bill.taxLines.length > 0) {
+    bill.taxLines.forEach((t) => {
+      if (t && Number(t.amount) !== 0) {
         printLineLeftRight(printer, t.label || taxLabel, formatMoney(t.amount, sym));
-      });
-    }
+      }
+    });
+  } else if (bill.tax != null && Number(bill.tax) !== 0) {
+    printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym));
   }
   if (Array.isArray(bill.discountLines) && bill.discountLines.length === 1) {
     const d = bill.discountLines[0];

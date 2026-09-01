@@ -23,6 +23,8 @@ import { CURRENCY_SYMBOLS, getAppCurrency, getCurrencySymbol } from '@/lib/curre
 import {
   applyRestaurantProfileToPrintConfig,
   fetchRestaurantProfile,
+  getCachedRestaurantLogoDataUrl,
+  logoToDataUrl,
 } from '@/lib/restaurant-profile.ts';
 
 
@@ -94,19 +96,7 @@ function toPrinterQueryId(id: unknown): StringRecordId {
 }
 
 function logoToBase64(logo: unknown): string | undefined {
-  if (logo == null) return undefined;
-  if (typeof logo === 'string') return logo;
-  let u8: Uint8Array;
-  if (logo instanceof ArrayBuffer) u8 = new Uint8Array(logo);
-  else if (logo instanceof Uint8Array) u8 = logo;
-  else if (Array.isArray(logo)) u8 = new Uint8Array(logo);
-  else return undefined;
-  let b = '';
-  const chunk = 8192;
-  for (let i = 0; i < u8.length; i += chunk) {
-    b += String.fromCharCode.apply(null, Array.from(u8.subarray(i, i + chunk)));
-  }
-  return `data:image/png;base64,${btoa(b)}`;
+  return logoToDataUrl(logo) ?? undefined;
 }
 
 function normalizeReceiptSections(sections: unknown): unknown[] {
@@ -167,6 +157,8 @@ function orderNeedsEnrichment(order: Record<string, unknown>): boolean {
   if (!order?.id) return false;
   if (isBareRecordRef(order.order_type)) return true;
   if (isBareRecordRef(order.user)) return true;
+  if (isBareRecordRef(order.customer)) return true;
+  if (isBareRecordRef(order.table)) return true;
   return false;
 }
 
@@ -174,7 +166,7 @@ async function enrichOrderForPrint(db: PrintDB, order: Record<string, unknown>):
   if (!orderNeedsEnrichment(order)) return order;
   try {
     const [res] = await db.query(
-      `SELECT * FROM $id FETCH order_type, user, table`,
+      `SELECT * FROM $id FETCH order_type, user, table, customer`,
       { id: order.id }
     );
     const rows = Array.isArray(res) ? res : [];
@@ -185,6 +177,7 @@ async function enrichOrderForPrint(db: PrintDB, order: Record<string, unknown>):
       order_type: fetched.order_type ?? order.order_type,
       user: fetched.user ?? order.user,
       table: order.table ?? fetched.table,
+      customer: order.customer ?? fetched.customer,
     };
   } catch {
     return order;
@@ -325,8 +318,16 @@ export async function dispatchPrint<Payload = any>(
   }
 
   let printPayload = { ...(payload as Record<string, unknown>) };
-  if (printPayload.order && (template === 'kitchen' || template === 'deletion')) {
-    printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
+  if (printPayload.order) {
+    const needsEnrich =
+      template === 'kitchen' ||
+      template === 'deletion' ||
+      template === 'temp' ||
+      template === 'final' ||
+      template === 'delivery';
+    if (needsEnrich) {
+      printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
+    }
   }
 
   const copyKey = copiesKeyForTemplate(template);
@@ -338,10 +339,20 @@ export async function dispatchPrint<Payload = any>(
     : settingsCopies;
 
   if (restaurantProfile) {
+    const forceProfileBranding =
+      template === 'temp' ||
+      template === 'final' ||
+      template === 'delivery' ||
+      template === 'refund';
+    const resolvedLogoUrl =
+      restaurantProfile.logoDataUrl ??
+      logoToDataUrl(restaurantProfile.profile.logo) ??
+      getCachedRestaurantLogoDataUrl();
     config = applyRestaurantProfileToPrintConfig(
       config,
       restaurantProfile.profile,
-      restaurantProfile.logoDataUrl
+      resolvedLogoUrl,
+      { forceProfileBranding }
     );
   }
 

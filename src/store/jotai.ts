@@ -56,6 +56,43 @@ export interface AppStateInterface {
   }
 }
 
+/** Persist UI flags only — cart/order graphs belong in memory / orderEditSessionAtom. */
+function slimAppStateForStorage(value: AppStateInterface): AppStateInterface {
+  return {
+    ...value,
+    cart: [],
+    orders: [],
+    order: value.order?.id
+      ? { id: typeof value.order.id === 'string' ? value.order.id : String(value.order.id), order: undefined }
+      : undefined,
+    // Keep customer/table as light refs when possible (ids + names only would be ideal;
+    // full objects are usually small enough compared to order item graphs).
+  };
+}
+
+const appStateJsonStorage = createJSONStorage<AppStateInterface>(() => ({
+  getItem: (key) => {
+    const raw = localStorage.getItem(key);
+    return raw;
+  },
+  setItem: (key, value) => {
+    try {
+      const parsed = JSON.parse(value) as AppStateInterface;
+      localStorage.setItem(key, JSON.stringify(slimAppStateForStorage(parsed)));
+    } catch {
+      // Quota / circular — keep last good persisted snapshot; memory atom still holds live state.
+      try {
+        localStorage.setItem(key, value);
+      } catch {
+        // ignore
+      }
+    }
+  },
+  removeItem: (key) => {
+    localStorage.removeItem(key);
+  },
+}));
+
 export const appState = atomWithStorage<AppStateInterface>(
   "app-state",
   {
@@ -76,7 +113,9 @@ export const appState = atomWithStorage<AppStateInterface>(
       statuses: [{ label: OrderStatus['In Progress'], value: OrderStatus['In Progress'] }],
       orderTypes: [],
     },
-  }
+  },
+  appStateJsonStorage,
+  { getOnInit: true },
 );
 
 export type DishSearchType = 'number' | 'both';
@@ -101,6 +140,11 @@ export interface MenuConfigInterface {
   showDishPhotos?: boolean
   /** Search by dish number only, or by name and number. */
   dishSearchType?: DishSearchType
+  /**
+   * Kitchen / station tickets: how to show the guest.
+   * name = display name (shortened), code = guest code, both = name · #CODE
+   */
+  kitchenGuestLabel?: 'name' | 'code' | 'both'
 }
 
 export interface AppPageInterface {
@@ -138,6 +182,7 @@ export const appPage = atomWithStorage<AppPageInterface>(
       showDishNumber: false,
       showDishPhotos: false,
       dishSearchType: 'number',
+      kitchenGuestLabel: 'name',
     }
   },
   createJSONStorage<AppPageInterface>(),

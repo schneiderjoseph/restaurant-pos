@@ -16,6 +16,8 @@ const {
  * @param {string} [opts.bannerLabel] - e.g. "New Order", "ADDON", "DELETION"
  * @param {string} [opts.orderId]
  * @param {string} [opts.table]
+ * @param {string} [opts.guestLabel]
+ * @param {'table'|'room'} [opts.placeKind]
  * @param {string} [opts.orderType]
  * @param {string} [opts.orderTaker]
  * @param {string} opts.createdAt
@@ -28,6 +30,8 @@ function printKotHeader(printer, opts) {
     bannerLabel,
     orderId,
     table,
+    guestLabel,
+    placeKind,
     orderType,
     orderTaker,
     createdAt,
@@ -61,11 +65,19 @@ function printKotHeader(printer, opts) {
     printCenteredText(printer, orderBannerLine, { style: 'bold', size: 'normal' });
   }
 
-  // Two meta lines: Table | Order Type, Order Taker | Time
-  const tableLeft = table ? `${tableLabel}: ${table}` : '';
+  // Place | Order Type, then Guest, then Order Taker | Time
+  const resolvedPlaceKind = placeKind === 'room' ? 'room' : 'table';
+  const placeTitle = resolvedPlaceKind === 'room' ? (L.room || 'Room') : tableLabel;
+  const tableLeft = table ? `${placeTitle}: ${table}` : '';
   const typeRight = orderType ? `${orderTypeLabel}: ${orderType}` : '';
   if (tableLeft || typeRight) {
     printLineLeftRight(printer, tableLeft, typeRight);
+  }
+
+  const guest = guestLabel ? String(guestLabel).trim() : '';
+  if (guest) {
+    const guestTitle = L.guest || 'Guest';
+    printFixedLine(printer, `${guestTitle}: ${guest.slice(0, 40)}`, { align: 'left', style: 'bold' });
   }
 
   const takerLeft = orderTaker ? `${orderTakerLabel}: ${orderTaker}` : '';

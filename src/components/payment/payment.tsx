@@ -3,6 +3,7 @@ import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
@@ -26,7 +27,7 @@ import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
-import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
+import {cancelItemStages, createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {DateTime} from "luxon";
@@ -35,11 +36,19 @@ import {
   publishOrderCreated,
 } from "@/integrations/events/index.ts";
 import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
+import {
+  formatKitchenGuestLabel,
+  formatKitchenPlaceLabel,
+  type KitchenGuestLabelMode,
+} from "@/lib/kitchen-ticket-label.ts";
+import {OrderVoidReason} from "@/api/model/order_void.ts";
+import {orderIdToString} from "@/store/order-edit-session.ts";
 
 export const Payment = () => {
-  const {t} = useTranslation(["payment", "toast"]);
+  const {t} = useTranslation(["payment", "toast", "kitchen"]);
   const db = useDB();
   const [state, setState] = useAtom(appState);
+  const [editSession, setEditSession] = useAtom(orderEditSessionAtom);
   const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
@@ -118,17 +127,78 @@ export const Payment = () => {
   }, [state?.order?.id, paymentOpen]);
 
   const hasNewCartItems = () =>
-    state.cart.some((item) => item.newOrOld === MenuItemType.new);
+    state.cart.some((item) => item.newOrOld === MenuItemType.new && !item.deleted_at);
 
   const isPersistedCartItem = (item: { id?: unknown; newOrOld?: MenuItemType }) =>
     item.newOrOld === MenuItemType.old || item.id?.toString().includes('order_item:');
 
+  const originalOrderItems = () =>
+    editSession?.order?.items ?? state.order?.order?.items ?? [];
+
+  const hasPersistedCartEdits = () => {
+    if (state?.order?.id === 'new') {
+      return false;
+    }
+    if (state.cart.some((item) => isPersistedCartItem(item) && item.deleted_at)) {
+      return true;
+    }
+    const originals = originalOrderItems();
+    const byId = new Map(
+      state.cart
+        .filter((item) => isPersistedCartItem(item))
+        .map((item) => [orderIdToString(item.id), item]),
+    );
+    for (const orig of originals) {
+      if (orig?.deleted_at) {
+        continue;
+      }
+      const id = orderIdToString(orig.id);
+      const cur = byId.get(id);
+      if (!cur || cur.deleted_at) {
+        return true;
+      }
+      if (Number(cur.quantity) !== Number(orig.quantity)) {
+        return true;
+      }
+      if ((cur.comments || '') !== (orig.comments || '')) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const hasCartChangesToPersist = () => hasNewCartItems() || hasPersistedCartEdits();
+
+  const softVoidPersistedItem = async (itemId: string, quantity: number) => {
+    const now = nowSurrealDateTime();
+    const itemRef = toRecordId(itemId);
+    await db.merge(itemRef, { deleted_at: now });
+    await cancelItemStages(db, itemId);
+    if (page?.user?.id && state?.order?.id && state.order.id !== 'new') {
+      try {
+        await db.create(Tables.order_voids, {
+          comments: 'POS order edit',
+          created_at: now,
+          deleted_by: toRecordId(page.user.id),
+          logged_in_user: toRecordId(page.user.id),
+          order: toRecordId(state.order.id),
+          quantity,
+          reason: OrderVoidReason.PunchByMistake,
+          items: [itemRef],
+        });
+      } catch (error) {
+        console.error('Failed to record void for edited line', error);
+      }
+    }
+  };
+
   const createOrder = async () => {
     const isNewOrder = state?.order?.id === 'new';
     const hasNewItems = hasNewCartItems();
+    const hasOldEdits = hasPersistedCartEdits();
 
-    // Existing order with only old lines: nothing to persist.
-    if (!isNewOrder && !hasNewItems) {
+    // Existing order with no cart mutations: nothing to persist.
+    if (!isNewOrder && !hasNewItems && !hasOldEdits) {
       return state?.order?.order ?? { id: state?.order?.id };
     }
 
@@ -153,6 +223,26 @@ export const Payment = () => {
 
       for (const item of state.cart) {
         if (isPersistedCartItem(item)) {
+          if (item.deleted_at) {
+            await softVoidPersistedItem(
+              orderIdToString(item.id) || String(item.id),
+              Number(item.quantity) || 1,
+            );
+            continue;
+          }
+
+          const pricing = buildOrderItemPayload(item);
+          await db.merge(toRecordId(item.id), {
+            quantity: item.quantity,
+            comments: item.comments,
+            modifiers: pricing.modifiers,
+            price: pricing.price,
+            tax: pricing.tax,
+            tax_mode: pricing.tax_mode,
+            seat: item.seat,
+            is_suspended: item.isHold,
+            updated_at: date,
+          });
           items.push(toRecordId(item.id));
           continue;
         }
@@ -202,6 +292,30 @@ export const Payment = () => {
         }
       }
 
+      // Soft-void originals removed from the cart entirely (not just marked deleted_at).
+      if (!isNewOrder) {
+        const keptIds = new Set(
+          items.map((id) => orderIdToString(id)).filter(Boolean),
+        );
+        for (const orig of originalOrderItems()) {
+          if (orig?.deleted_at) {
+            continue;
+          }
+          const id = orderIdToString(orig.id);
+          if (!id || keptIds.has(id)) {
+            continue;
+          }
+          const stillInCart = state.cart.some(
+            (c) => orderIdToString(c.id) === id,
+          );
+          if (stillInCart) {
+            // Already handled via deleted_at branch above.
+            continue;
+          }
+          await softVoidPersistedItem(id, Number(orig.quantity) || 1);
+        }
+      }
+
       let customer = null;
       if (state?.customer && state.customer.id) {
         customer = toRecordId(state.customer.id);
@@ -230,8 +344,9 @@ export const Payment = () => {
         });
       }
 
-      // Allocate numbers immediately before insert so the race window stays minimal.
-      let invoiceNumber = state?.order?.order?.invoice_number ?? 1;
+      // Allocate invoice/auto ids only for brand-new orders (globally unique invoice_number).
+      let invoiceNumber: number | undefined =
+        state?.order?.order?.invoice_number ?? editSession?.order?.invoice_number;
       if (isNewOrder) {
         invoiceNumber = await generateNextInvoiceNumber(db);
       }
@@ -239,23 +354,26 @@ export const Payment = () => {
       const data: any = {
         floor: state?.floor?.id ? toRecordId(state.floor.id) : null,
         covers: parseInt(state?.persons) || 1,
-        tax: null,
-        tax_amount: 0,
-        tags: ['Normal'],
-        discount: null,
-        discount_amount: 0,
         customer: customer,
         order_type: state?.orderType?.id ? toRecordId(state.orderType.id) : null,
-        status: OrderStatus["In Progress"],
-        invoice_number: invoiceNumber,
         items: items,
         // NONE when tableless; never pass undefined (Surreal error "undefined doesn't exist")
         table: state?.table?.id ? toRecordId(state.table.id) : null,
         user: page?.user?.id ? toRecordId(page.user.id) : null,
-        service_charge: 0,
-        service_charge_amount: 0,
-        service_charge_type: DiscountType.Percent,
       };
+
+      if (isNewOrder) {
+        data.tax = null;
+        data.tax_amount = 0;
+        data.tags = ['Normal'];
+        data.discount = null;
+        data.discount_amount = 0;
+        data.status = OrderStatus["In Progress"];
+        data.invoice_number = invoiceNumber;
+        data.service_charge = 0;
+        data.service_charge_amount = 0;
+        data.service_charge_type = DiscountType.Percent;
+      }
 
       if (isNewOrder && state?.orderType?.allow_service_charges) {
         const [serviceChargeSettingResult] = await db.query(
@@ -351,9 +469,20 @@ export const Payment = () => {
                   ...normalizedOrder,
                   order_type: state?.orderType ?? normalizedOrder.order_type,
                   user: page?.user ?? normalizedOrder.user,
+                  customer: state?.customer ?? normalizedOrder.customer,
+                  table: state?.table ?? normalizedOrder.table,
                 },
                 kitchenName: k.name,
                 table: state?.table,
+                guestLabel: formatKitchenGuestLabel(
+                  state?.customer ?? normalizedOrder.customer,
+                  (page?.menuConfig?.kitchenGuestLabel ?? 'name') as KitchenGuestLabelMode,
+                ),
+                placeLabel: formatKitchenPlaceLabel(state?.table, {
+                  room: t('kitchen:labels.room'),
+                  table: t('kitchen:labels.table'),
+                }),
+                placeKind: state?.table?.source === 'asi-room' ? 'room' : 'table',
                 isAddOn: !isNewOrder,
               }, {
                 title: t("payment:print.kitchenTitle"),
@@ -379,7 +508,7 @@ export const Payment = () => {
 
   const createOrderAndBack = async () => {
     try {
-      if (hasNewCartItems()) {
+      if (hasCartChangesToPersist()) {
         const result = await createOrder();
         if (result === 'busy') {
           return;
@@ -404,6 +533,7 @@ export const Payment = () => {
     }
 
     // clear cart and go back to floor screen
+    setEditSession(null);
     setState(prev => ({
       ...prev,
       cart: [],
@@ -422,7 +552,7 @@ export const Payment = () => {
   const openPayment = async () => {
     try {
       const isExistingOrderOnly =
-        state?.order?.id !== 'new' && !hasNewCartItems();
+        state?.order?.id !== 'new' && !hasCartChangesToPersist();
 
       let orderId: unknown = state?.order?.id;
       if (!isExistingOrderOnly) {
@@ -483,10 +613,10 @@ export const Payment = () => {
         <div className="p-3" data-testid="cart-payment-actions">
           <div className="flex gap-3 mt-3">
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                    disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
             <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                    disabled={isLoading || cartItemCount === 0 || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
             <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>

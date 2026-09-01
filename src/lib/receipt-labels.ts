@@ -14,6 +14,8 @@ export function buildReceiptLabels(t: TFunction): ReceiptLabels {
     thankYou: t("receipts:thankYou"),
     invoice: t("receipts:invoice"),
     table: t("receipts:table"),
+    room: t("receipts:room"),
+    guest: t("receipts:guest"),
     orderType: t("receipts:orderType"),
     cashier: t("receipts:cashier"),
     customer: t("receipts:customer"),

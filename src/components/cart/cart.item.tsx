@@ -12,6 +12,7 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
 
 interface Props {
   item: MenuItem
@@ -20,12 +21,19 @@ interface Props {
 
 export const CartItem = ({ item, index }: Props) => {
   const { t } = useTranslation(['cart', 'common']);
-  const [, setState] = useAtom(appState);
+  const [state, setState] = useAtom(appState);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
   const [isCommentKeyboardOpen, setCommentKeyboardOpen] = useState(false);
   const [commentText, setCommentText] = useState(item.comments || "");
 
   const lineTotal = useMemo(() => calculateCartItemPrice(item), [item]);
+
+  const isNew = item.newOrOld === MenuItemType.new;
+  const isEditingExisting =
+    state.order?.id != null && String(state.order.id) !== 'new';
+  /** New lines always; old lines when editing an unpaid order. */
+  const isLineEditable = !item.deleted_at && (isNew || isEditingExisting);
+  const canSelect = isLineEditable || (!!item.isHold && !item.deleted_at);
 
   const updateQuantity = (next: number) => {
     setState(prev => ({
@@ -36,8 +44,25 @@ export const CartItem = ({ item, index }: Props) => {
     }));
   };
 
-  const isNew = item.newOrOld === MenuItemType.new;
-  const canSelect = item.deleted_at === undefined && (isNew || item.isHold);
+  const removeOrVoidLine = () => {
+    setState((prev) => {
+      if (isNew) {
+        return {
+          ...prev,
+          cart: prev.cart.filter((_item) => _item.id !== item.id),
+        };
+      }
+      // Soft-void persisted lines so createOrder can write deleted_at.
+      return {
+        ...prev,
+        cart: prev.cart.map((_item) =>
+          _item.id === item.id
+            ? { ..._item, deleted_at: nowSurrealDateTime() as MenuItem['deleted_at'], isSelected: false }
+            : _item,
+        ),
+      };
+    });
+  };
 
   return (
     <>
@@ -60,7 +85,7 @@ export const CartItem = ({ item, index }: Props) => {
           }
         }}
       >
-        {isNew ? (
+        {isLineEditable ? (
           <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
@@ -68,10 +93,7 @@ export const CartItem = ({ item, index }: Props) => {
               aria-label={t('common:actions.remove')}
               onClick={() => {
                 if (item.quantity <= 1) {
-                  setState(prev => ({
-                    ...prev,
-                    cart: prev.cart.filter((_item) => _item.id !== item.id),
-                  }));
+                  removeOrVoidLine();
                 } else {
                   updateQuantity(item.quantity - 1);
                 }
@@ -106,7 +128,7 @@ export const CartItem = ({ item, index }: Props) => {
           <DualCurrency amount={lineTotal} primaryClassName="text-sm font-semibold" secondaryClassName="text-[10px]" />
         </div>
 
-        {isNew && (
+        {isLineEditable && (
           <div className="flex shrink-0 gap-0.5" onClick={(e) => e.stopPropagation()}>
             {item?.selectedGroups?.length > 0 && (
               <IconTooltipButton label={t('common:actions.edit')}

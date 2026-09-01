@@ -145,7 +145,7 @@
     "website": "Website",
     "taxId": "Tax ID / VAT",
     "logo": "Logo",
-    "logoHint": "Used on receipts, kitchen tickets, and reports when a print type has no logo of its own. Max 10 MB.",
+    "logoHint": "Used on receipts, kitchen tickets, and reports when a print type has no logo of its own. Max 15 MB.",
     "logoPreview": "Logo preview",
     "removeLogo": "Remove logo",
     "logoError": "Could not load the logo file",
@@ -177,7 +177,12 @@
     "showModifiersInOrderCard": "Show modifiers for items in order card",
     "showModifierPriceInOrderCard": "Show modifier price for items in order card",
     "showTotalInPaymentCard": "Show totals for items in payment box",
-    "showDishPhotos": "Show dish photos on menu tiles"
+    "showDishPhotos": "Show dish photos on menu tiles",
+    "kitchen": "Stations / Kitchen",
+    "kitchenGuestLabelHint": "On station tickets: show guest name, guest code, or both.",
+    "kitchenGuestLabelName": "Name (short)",
+    "kitchenGuestLabelCode": "Guest code",
+    "kitchenGuestLabelBoth": "Name + code"
   },
   "inventory": {
     "title": "Inventory",

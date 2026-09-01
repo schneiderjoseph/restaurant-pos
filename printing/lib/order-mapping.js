@@ -62,40 +62,52 @@ function calculateOrderItemPricePrint(item) {
 const MODIFIER_WALK_MAX_DEPTH = 32;
 
 /**
- * Depth-first modifier lines (matches OrderItemModifiers: selectedGroups nest per selected modifier).
- * @param {Object} group - OrderItemModifier-shaped { selectedModifiers? }
- * @param {Array<{ depth: number, name: string }>} out
- * @param {number} depth
- */
-function walkModifierGroup(group, out, depth) {
-  if (!group || depth > MODIFIER_WALK_MAX_DEPTH) return;
-  if (!Array.isArray(group.selectedModifiers)) return;
-  group.selectedModifiers.forEach((sel) => {
-    if (!sel) return;
-    const dish = sel.dish || sel.item;
-    const n = (dish && (dish.name || dish.title)) || '';
-    const name = String(n).trim();
-    if (name) out.push({ depth, name });
-    if (depth >= MODIFIER_WALK_MAX_DEPTH) return;
-    const nested = sel.selectedGroups;
-    if (!Array.isArray(nested)) return;
-    nested.forEach((nestedGroup) => {
-      walkModifierGroup(nestedGroup, out, depth + 1);
-    });
-  });
-}
-
-/**
- * Modifier display lines from an order item (OrderItem). Names only, no price; any nesting depth.
- * @param {Object} orderItem - raw order item with modifiers
+ * Depth-first modifier lines with path dedup (avoids duplicate addon lines on bills/KOT).
+ * @param {Object} orderItem - raw order item with modifiers[]
  * @returns {Array<{ depth: number, name: string }>}
  */
 function getOrderItemModifierLines(orderItem) {
   if (!orderItem || !Array.isArray(orderItem.modifiers)) return [];
+
+  const dish = orderItem.item || orderItem.dish;
+  const parentName = String((dish && (dish.name || dish.title)) || '')
+    .trim()
+    .toLowerCase();
+  const seen = new Set();
   const lines = [];
-  orderItem.modifiers.forEach((group) => {
-    walkModifierGroup(group, lines, 0);
-  });
+
+  const walkGroups = (groups, depth, parentPath) => {
+    if (depth > MODIFIER_WALK_MAX_DEPTH) return;
+    (Array.isArray(groups) ? groups : []).forEach((group) => {
+      if (!group || !Array.isArray(group.selectedModifiers)) return;
+      group.selectedModifiers.forEach((sel) => {
+        if (!sel) return;
+        const modDish = sel.dish || sel.item;
+        const modifierName = String(
+          (modDish && (modDish.name || modDish.title)) || sel.name || '',
+        ).trim();
+        if (!modifierName) return;
+
+        const currentPath = parentPath ? `${parentPath}>${modifierName}` : modifierName;
+        if (seen.has(currentPath)) return;
+        seen.add(currentPath);
+
+        // Skip echo of the parent dish name (common when modifier tree mirrors the line).
+        if (parentName && modifierName.toLowerCase() === parentName && depth === 0) {
+          // still walk nested groups under this node
+        } else {
+          lines.push({ depth, name: modifierName });
+        }
+
+        const nested = sel.selectedGroups;
+        if (Array.isArray(nested) && nested.length > 0) {
+          walkGroups(nested, depth + 1, currentPath);
+        }
+      });
+    });
+  };
+
+  walkGroups(orderItem.modifiers, 0, '');
   return lines;
 }
 
@@ -300,6 +312,82 @@ function getOrderTable(order) {
   if (!order || !order.table) return '';
   const t = order.table;
   return String(t.name || '') + String(t.number || '');
+}
+
+function getOrderPlaceKind(order) {
+  if (!order || !order.table) return 'table';
+  return order.table.source === 'asi-room' ? 'room' : 'table';
+}
+
+function getOrderPlaceValue(order) {
+  if (!order || !order.table) return '';
+  const t = order.table;
+  if (t.source === 'asi-room') {
+    return String(t.number || t.asi_alias || t.name || '').trim();
+  }
+  return getOrderTable(order);
+}
+
+function getOrderGuestLabel(order) {
+  if (!order || !order.customer || typeof order.customer !== 'object') return '';
+  const name = String(order.customer.name || '').trim();
+  const codeRaw = String(order.customer.guest_code || '').trim();
+  const code = codeRaw ? (codeRaw.startsWith('#') ? codeRaw : `#${codeRaw}`) : '';
+  if (name && code) return `${name} / ${code}`;
+  return name || code;
+}
+
+/**
+ * Per-tax rows for bill footer (aggregated from line items).
+ * @param {Object} order
+ * @returns {Array<{ label: string, amount: number }>}
+ */
+function getOrderTaxLines(order) {
+  if (!order || !Array.isArray(order.items)) return [];
+  const map = new Map();
+
+  order.items
+    .filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true)
+    .forEach((item) => {
+      const qty = Number(item.quantity || 1);
+      let lineNet = Number(item.price || 0) * qty;
+      if (Array.isArray(item.modifiers)) {
+        lineNet = calculateOrderItemPricePrint(item);
+      }
+
+      if (Array.isArray(item.taxes) && item.taxes.length > 0) {
+        item.taxes.forEach((tax) => {
+          const name = tax?.name || 'Tax';
+          const rate = Number(tax?.rate || 0);
+          const key = `${name}|${rate}`;
+          const label = rate ? `${name} ${rate}%` : name;
+          const amount = (lineNet * rate) / 100;
+          const prev = map.get(key) || { label, amount: 0 };
+          prev.amount += amount;
+          map.set(key, prev);
+        });
+        return;
+      }
+
+      const itemTax = Number(item.tax || 0);
+      if (itemTax > 0) {
+        const key = 'line-tax';
+        const prev = map.get(key) || { label: 'Tax', amount: 0 };
+        prev.amount += itemTax;
+        map.set(key, prev);
+      }
+    });
+
+  const lines = Array.from(map.values()).map((row) => ({
+    label: row.label,
+    amount: Math.round(Number(row.amount || 0) * 100) / 100,
+  }));
+
+  if (lines.length === 0 && Number(order.tax_amount || 0) > 0) {
+    return [{ label: getOrderTaxLabel(order), amount: Number(order.tax_amount) }];
+  }
+
+  return lines;
 }
 
 /**
@@ -524,6 +612,9 @@ function mapOrderToBill(order, opts) {
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
+    placeKind: getOrderPlaceKind(order),
+    placeValue: getOrderPlaceValue(order),
+    guestLabel: getOrderGuestLabel(order),
     orderType: getOrderType(order),
     date: getOrderDate(order, opts),
     userName: getOrderUserName(order),
@@ -536,6 +627,7 @@ function mapOrderToBill(order, opts) {
     discountLabel: formatDiscountMinimal(discountName, null, discountRate),
     tax: tot.tax,
     taxLabel: getOrderTaxLabel(order),
+    taxLines: getOrderTaxLines(order),
     serviceChargeLabel: getOrderServiceChargeLabel(order),
     serviceChargeAmount: tot.service,
     extras: (order.extras || []).filter(Boolean),
@@ -704,6 +796,10 @@ module.exports = {
   getOrderTotals,
   getOrderPaymentsString,
   getOrderTable,
+  getOrderPlaceKind,
+  getOrderPlaceValue,
+  getOrderGuestLabel,
+  getOrderTaxLines,
   getOrderType,
   getOrderDeliveryAddress,
   getOrderPhone,

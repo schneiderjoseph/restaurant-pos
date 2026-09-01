@@ -1,5 +1,6 @@
 import {useAtom} from "jotai";
 import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {orderEditSessionAtom, orderIdToString} from "@/store/order-edit-session.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn, toRecordId} from "@/lib/utils.ts";
@@ -24,6 +25,8 @@ export const MenuHeader = () => {
   const { t } = useTranslation('menu');
 
   const [state, setState] = useAtom(appState);
+  const [editSession] = useAtom(orderEditSessionAtom);
+  const [, setEditSession] = useAtom(orderEditSessionAtom);
   const [setting] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
@@ -43,11 +46,15 @@ export const MenuHeader = () => {
   }, [setting?.order_types, state.orderType]);
 
   useEffect(() => {
-    // load old items into cart
-    if (state?.order?.id !== 'new' && state.orders.length > 0) {
-      onOrderClick(state?.order?.id);
+    // load old items into cart — skip when edit session already hydrated the cart
+    if (state?.order?.id === 'new' || state.orders.length === 0) {
+      return;
     }
-  }, [state.orders, state?.order?.id]);
+    if (editSession && (state.cart?.length ?? 0) > 0) {
+      return;
+    }
+    onOrderClick(state?.order?.id);
+  }, [state.orders, state?.order?.id, editSession?.orderId]);
 
   useEffect(() => {
     if (!state.table?.id) {
@@ -81,6 +88,7 @@ export const MenuHeader = () => {
       });
     }
 
+    setEditSession(null);
     setState(prev => ({
       ...prev,
       orderType: undefined,
@@ -97,7 +105,7 @@ export const MenuHeader = () => {
     }));
   }
 
-  const onOrderClick = (key: string) => {
+  const onOrderClick = (key: string | unknown) => {
     if (key === 'new') {
       if (orderTakingBlocked) {
         toast.warning(enforcement.message ?? i18n.t('closing:orderTakingDisabled'));
@@ -112,23 +120,36 @@ export const MenuHeader = () => {
         },
         cart: []
       }))
-    } else {
-      const order = state.orders.find(item => item.id === key);
-      const seatsArray = seatsFromOrder(order);
-      const noSeat = state.cart.some(item => item.seat === undefined);
-
-      setState(prev => ({
-        ...prev,
-        order: {
-          order,
-          id: order?.id ?? MenuItemType.new,
-        },
-        cart: orderToCartItems(order),
-        seats: seatsArray,
-        seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),
-        customer: order?.customer, // attach customer
-      }));
+      return;
     }
+
+    const keyStr = orderIdToString(key);
+    const order =
+      state.orders.find((item) => orderIdToString(item.id) === keyStr) ??
+      (orderIdToString(state.order?.order?.id) === keyStr ? state.order?.order : undefined) ??
+      (editSession && editSession.orderId === keyStr ? editSession.order : undefined);
+
+    if (!order) {
+      // Don't wipe a hydrated cart when id formats don't match yet.
+      return;
+    }
+
+    const seatsArray = seatsFromOrder(order);
+    const cart = orderToCartItems(order);
+    const noSeat = cart.some((item) => item.seat === undefined || item.seat === null || item.seat === '');
+
+    setState((prev) => ({
+      ...prev,
+      order: {
+        order,
+        id: keyStr || orderIdToString(order.id) || String(order.id),
+      },
+      cart,
+      seats: seatsArray,
+      // Unseated lines only show when seat is undefined (cart filters by exact seat).
+      seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),
+      customer: order?.customer ?? prev.customer,
+    }));
   }
 
   const switchTable = async () => {

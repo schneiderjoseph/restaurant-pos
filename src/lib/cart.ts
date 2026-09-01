@@ -224,8 +224,14 @@ export const cartItemMergeKey = (item: MenuItem): string =>
 /**
  * Add to cart: increment quantity when an identical pending line exists,
  * otherwise prepend a new line.
+ * When `mergeWithOld` is true (order edit), also bump matching persisted lines
+ * so we don't create a second "new" block separated by the cart divider.
  */
-export const mergeCartItem = (cart: MenuItem[], incoming: MenuItem): MenuItem[] => {
+export const mergeCartItem = (
+  cart: MenuItem[],
+  incoming: MenuItem,
+  options?: { mergeWithOld?: boolean },
+): MenuItem[] => {
   const quantity = Math.max(1, Number(incoming.quantity) || 1);
 
   if (incoming.newOrOld !== MenuItemType.new || incoming.deleted_at) {
@@ -233,11 +239,13 @@ export const mergeCartItem = (cart: MenuItem[], incoming: MenuItem): MenuItem[] 
   }
 
   const key = cartItemMergeKey(incoming);
+  const mergeWithOld = options?.mergeWithOld === true;
   const matchIndex = cart.findIndex(
     (line) =>
       !line.deleted_at &&
-      line.newOrOld === MenuItemType.new &&
-      line.seat === incoming.seat &&
+      (line.newOrOld === MenuItemType.new ||
+        (mergeWithOld && line.newOrOld === MenuItemType.old)) &&
+      String(line.seat ?? '') === String(incoming.seat ?? '') &&
       cartItemMergeKey(line) === key,
   );
 

@@ -145,7 +145,7 @@
     "website": "Site web",
     "taxId": "NIF / TVA",
     "logo": "Logo",
-    "logoHint": "Utilisé sur les reçus, tickets cuisine et rapports lorsqu’un type d’impression n’a pas son propre logo. Max. 10 Mo.",
+    "logoHint": "Utilisé sur les reçus, tickets cuisine et rapports lorsqu’un type d’impression n’a pas son propre logo. Max. 15 Mo.",
     "logoPreview": "Aperçu du logo",
     "removeLogo": "Retirer le logo",
     "logoError": "Impossible de charger le fichier logo",
@@ -177,7 +177,12 @@
     "showModifiersInOrderCard": "Afficher les modificateurs des articles dans la fiche commande",
     "showModifierPriceInOrderCard": "Afficher le prix des modificateurs dans la fiche commande",
     "showTotalInPaymentCard": "Afficher les totaux des articles dans l'encadré de paiement",
-    "showDishPhotos": "Afficher les photos des plats sur le menu"
+    "showDishPhotos": "Afficher les photos des plats sur le menu",
+    "kitchen": "Stations / Cuisine",
+    "kitchenGuestLabelHint": "Sur les tickets station : afficher le nom du client, son code guest, ou les deux.",
+    "kitchenGuestLabelName": "Nom (raccourci)",
+    "kitchenGuestLabelCode": "Code guest",
+    "kitchenGuestLabelBoth": "Nom + code"
   },
   "inventory": {
     "title": "Inventaire",

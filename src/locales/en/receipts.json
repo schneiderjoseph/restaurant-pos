@@ -7,6 +7,8 @@
   "thankYou": "Thank you!",
   "invoice": "Invoice#",
   "table": "Table",
+  "room": "Room",
+  "guest": "Guest",
   "orderType": "Order Type",
   "cashier": "Cashier",
   "customer": "Customer",

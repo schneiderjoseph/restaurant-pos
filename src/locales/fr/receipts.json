@@ -7,6 +7,8 @@
   "thankYou": "Merci !",
   "invoice": "Facture#",
   "table": "Table",
+  "room": "Chambre",
+  "guest": "Client",
   "orderType": "Type de commande",
   "cashier": "Caissier",
   "customer": "Client",

@@ -100,12 +100,19 @@ export const MenuDishes = () => {
       return;
     }
 
+    const mergeWithOld =
+      state.order?.id != null && String(state.order.id) !== 'new';
+
     setState(prev => ({
       ...prev,
-      cart: mergeCartItem(prev.cart, {
-        ...item,
-        selectedGroups,
-      }),
+      cart: mergeCartItem(
+        prev.cart,
+        {
+          ...item,
+          selectedGroups,
+        },
+        { mergeWithOld },
+      ),
     }));
   };
 

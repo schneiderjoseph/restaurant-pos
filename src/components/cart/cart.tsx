@@ -16,7 +16,11 @@ export const MenuCart = () => {
   const { t } = useTranslation('cart');
 
   const cartItems = useMemo(() => {
-    return state.cart.filter(item => item.seat === state.seat);
+    const activeSeat = state.seat == null || state.seat === '' ? undefined : String(state.seat);
+    return state.cart.filter((item) => {
+      const itemSeat = item.seat == null || item.seat === '' ? undefined : String(item.seat);
+      return itemSeat === activeSeat;
+    });
   }, [state.cart, state.seat]);
 
   const isSelected = useMemo(() => {

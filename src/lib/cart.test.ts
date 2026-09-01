@@ -54,7 +54,7 @@ describe('mergeCartItem', () => {
     expect(mergeCartItem([existing], incoming)).toHaveLength(2);
   });
 
-  it('does not merge persisted (old) lines', () => {
+  it('does not merge persisted (old) lines by default', () => {
     const existing = baseItem({ id: 'line-1', newOrOld: MenuItemType.old });
     const incoming = baseItem({ id: 'line-2' });
 
@@ -63,6 +63,18 @@ describe('mergeCartItem', () => {
     expect(next).toHaveLength(2);
     expect(next[0].id).toBe('line-2');
     expect(next[1].id).toBe('line-1');
+  });
+
+  it('merges into persisted (old) lines when mergeWithOld is set', () => {
+    const existing = baseItem({ id: 'line-1', newOrOld: MenuItemType.old, quantity: 2 });
+    const incoming = baseItem({ id: 'line-2' });
+
+    const next = mergeCartItem([existing], incoming, { mergeWithOld: true });
+
+    expect(next).toHaveLength(1);
+    expect(next[0].id).toBe('line-1');
+    expect(next[0].newOrOld).toBe(MenuItemType.old);
+    expect(next[0].quantity).toBe(3);
   });
 });
 

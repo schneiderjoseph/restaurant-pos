@@ -3,6 +3,8 @@ import React, {CSSProperties, useEffect, useMemo, useRef, useState} from "react"
 import {useAtom} from "jotai";
 import {useDB} from "@/api/db/db.ts";
 import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
+import {buildOrderEditSession, commitOrderEditSession} from "@/lib/commit-order-edit.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
@@ -51,8 +53,9 @@ import {ORDER_FETCHES} from "@/api/model/order.ts";
 import {toast} from "sonner";
 import {useNavigate} from "react-router";
 import {MENU} from "@/routes/posr.ts";
-import {canEditOrder, orderToCartItems, seatsFromOrder} from "@/lib/order-edit.ts";
+import {canEditOrder} from "@/lib/order-edit.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {flushSync} from "react-dom";
 
 interface Props {
   order: OrderModel
@@ -78,6 +81,7 @@ export const OrderBox = ({
   const navigate = useNavigate();
   const [page] = useAtom(appPage);
   const [, setAppState] = useAtom(appState);
+  const [, setEditSession] = useAtom(orderEditSessionAtom);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const mutationsBlocked = enforcement.orderMutationsBlocked;
   const {rootRef, displayOrder: order, cardReady, hydrateError, retryHydrate} = useOrderCardHydrate(snapshot);
@@ -146,7 +150,7 @@ export const OrderBox = ({
   const openOrderForEdit = async () => {
     setIsLoadingFull(true);
     try {
-      const full = await fetchOrderById(db, snapshot.id, [...ORDER_FETCHES, 'floor', 'table.floor']);
+      const full = await fetchOrderById(db, snapshot.id, [...ORDER_FETCHES, 'floor', 'table.floor', 'customer']);
       if (!full) {
         toast.error(t('loadFailed'));
         return;
@@ -160,27 +164,18 @@ export const OrderBox = ({
         return;
       }
 
-      const seatsArray = seatsFromOrder(full);
-      setAppState((prev) => ({
-        ...prev,
-        showFloor: false,
-        showPersons: false,
-        switchTable: false,
-        table: full.table,
-        customer: full.customer,
-        floor: full.floor ?? full.table?.floor ?? prev.floor,
-        orderType: full.order_type ?? prev.orderType,
-        persons: full.covers != null ? String(full.covers) : prev.persons,
-        orders: [full],
-        order: {
-          id: full.id,
-          order: full,
-        },
-        cart: orderToCartItems(full),
-        seats: seatsArray,
-        seat: seatsArray.length > 0 ? seatsArray[0] : undefined,
-        resortEntry: full.customer ? 'guest' : prev.resortEntry,
-      }));
+      const session = buildOrderEditSession(full);
+      if (!session) {
+        toast.error(t('loadFailed'));
+        return;
+      }
+
+      flushSync(() => {
+        commitOrderEditSession(
+          { setSession: setEditSession, setAppState },
+          session,
+        );
+      });
 
       if (full.table?.id) {
         try {
@@ -197,7 +192,7 @@ export const OrderBox = ({
       }
 
       toast.success(t('actions.editOpened'));
-      navigate(MENU);
+      navigate(MENU, { replace: true });
       onAction?.();
     } catch (error) {
       console.error('Failed to open order for edit', error);

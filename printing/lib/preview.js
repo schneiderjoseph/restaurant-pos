@@ -128,7 +128,7 @@ const receiptPreviewStyles = `
     .size-large { font-size: 16px; font-weight: bold; }
     hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }
     .logo { text-align: center; margin-bottom: 4px; }
-    .receipt-img { width: 150px; height: 150px; max-width: 100%; object-fit: contain; display: inline-block; vertical-align: middle; }
+    .receipt-img { width: 280px; max-width: 100%; height: auto; max-height: 180px; object-fit: contain; display: inline-block; vertical-align: middle; }
     .fiscal-block { margin: 8px 0; text-align: center; }
     .fiscal-qr { font-size: 10px; border: 1px solid #999; padding: 12px 8px; margin: 4px auto; max-width: 150px; }
     .fiscal-logo { margin-bottom: 4px; }

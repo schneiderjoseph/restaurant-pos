@@ -1,5 +1,4 @@
 import {Tables} from "@/api/db/tables.ts";
-import {getBusinessDayUnixRange} from "@/lib/datetime.ts";
 
 type QueryableDb = {
   query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
@@ -9,9 +8,8 @@ type MaxRow = {
   max_value?: number | null;
 };
 
-/** Record id key for today's invoice counter (digits only for safe Surreal ids). */
-const invoiceCounterKey = (businessDay: string): string =>
-  `invoice_${businessDay.replace(/-/g, "")}`;
+/** Single global counter — invoice_number never resets per business day. */
+const GLOBAL_INVOICE_COUNTER_KEY = 'invoice_global';
 
 const asFiniteNumber = (value: unknown, fallback = 0): number => {
   const n = Number(value);
@@ -92,15 +90,12 @@ const allocateFromCounter = async (
     : new Error(`Failed to allocate counter ${counterKey}`);
 };
 
-const maxInvoiceForBusinessDay = async (db: QueryableDb): Promise<number> => {
-  const {startUnix, endUnix} = getBusinessDayUnixRange();
+const maxInvoiceNumber = async (db: QueryableDb): Promise<number> => {
   const [result] = await db.query<MaxRow[]>(
     `SELECT math::max(invoice_number) as max_value
      FROM ${Tables.orders}
-     WHERE time::unix(created_at) >= $startUnix
-       AND time::unix(created_at) < $endUnix
+     WHERE invoice_number != NONE
      GROUP ALL`,
-    {startUnix, endUnix},
   );
 
   return asFiniteNumber(result?.[0]?.max_value, 0);
@@ -117,13 +112,12 @@ const maxAutoId = async (db: QueryableDb): Promise<number> => {
 };
 
 /**
- * Next invoice number for the current business day (day-scoped).
+ * Next invoice number (globally unique across all orders / business days).
  * Uses an atomic DB counter so concurrent creates cannot share a number.
  */
 export const generateNextInvoiceNumber = async (db: QueryableDb): Promise<number> => {
-  const {day} = getBusinessDayUnixRange();
-  const seed = await maxInvoiceForBusinessDay(db);
-  return allocateFromCounter(db, invoiceCounterKey(day), seed);
+  const seed = await maxInvoiceNumber(db);
+  return allocateFromCounter(db, GLOBAL_INVOICE_COUNTER_KEY, seed);
 };
 
 /**

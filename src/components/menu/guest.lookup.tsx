@@ -32,12 +32,15 @@ import { useTranslation } from 'react-i18next';
 import { cn, toRecordId } from '@/lib/utils.ts';
 import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { Customers } from '@/components/customer/customer.tsx';
-import { canEditOrder, orderToCartItems, seatsFromOrder } from '@/lib/order-edit.ts';
+import { canEditOrder } from '@/lib/order-edit.ts';
+import { buildOrderEditSession, commitOrderEditSession } from '@/lib/commit-order-edit.ts';
 import { fetchOrderById } from '@/lib/order-fetch.ts';
 import { ORDER_FETCHES } from '@/api/model/order.ts';
 import { MENU } from '@/routes/posr.ts';
 import { useNavigate } from 'react-router';
 import { appPage, appSettings, appState } from '@/store/jotai.ts';
+import { orderEditSessionAtom } from '@/store/order-edit-session.ts';
+import { flushSync } from 'react-dom';
 
 type FolioOrder = Order & { item_count?: number };
 
@@ -46,6 +49,7 @@ export const GuestLookup = () => {
   const navigate = useNavigate();
   const { t } = useTranslation(['menu', 'orders', 'common']);
   const [state, setState] = useAtom(appState);
+  const [, setEditSession] = useAtom(orderEditSessionAtom);
   const [settings, setSettings] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const preferInHouse = usesAsiPmsRooms();
@@ -272,6 +276,7 @@ export const GuestLookup = () => {
     }
 
     const floorFromTable = table?.floor;
+    setEditSession(null);
     setState((prev) => ({
       ...prev,
       customer: guest,
@@ -309,33 +314,24 @@ export const GuestLookup = () => {
 
     setEditingOrderId(orderId);
     try {
-      const full = await fetchOrderById(db, folioOrder.id, [...ORDER_FETCHES, 'floor', 'table.floor']);
+      const full = await fetchOrderById(db, folioOrder.id, [...ORDER_FETCHES, 'floor', 'table.floor', 'customer']);
       if (!full || !canEditOrder(full)) {
         toast.error(t('orders:actions.editOnlyUnpaid'));
         return;
       }
 
-      const seatsArray = seatsFromOrder(full);
-      setState((prev) => ({
-        ...prev,
-        showFloor: false,
-        showPersons: false,
-        switchTable: false,
-        table: full.table,
-        customer: full.customer ?? selected,
-        floor: full.floor ?? full.table?.floor ?? prev.floor,
-        orderType: full.order_type ?? prev.orderType,
-        persons: full.covers != null ? String(full.covers) : prev.persons,
-        orders: [full],
-        order: {
-          id: full.id,
-          order: full,
-        },
-        cart: orderToCartItems(full),
-        seats: seatsArray,
-        seat: seatsArray.length > 0 ? seatsArray[0] : undefined,
-        resortEntry: 'guest',
-      }));
+      const session = buildOrderEditSession(full, selected ?? undefined);
+      if (!session) {
+        toast.error(t('orders:loadFailed'));
+        return;
+      }
+
+      flushSync(() => {
+        commitOrderEditSession(
+          { setSession: setEditSession, setAppState: setState },
+          session,
+        );
+      });
 
       if (full.table?.id) {
         try {
@@ -352,7 +348,7 @@ export const GuestLookup = () => {
       }
 
       toast.success(t('orders:actions.editOpened'));
-      navigate(MENU);
+      navigate(MENU, { replace: true });
     } catch (error) {
       console.error(error);
       toast.error(t('orders:loadFailed'));

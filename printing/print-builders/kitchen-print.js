@@ -33,16 +33,42 @@ function mapPrintItems(items) {
   });
 }
 
-function getTableLabel(data) {
-  if (data.table) {
-    return String(data.table.name || '') + String(data.table.number || '');
+function getPlaceMeta(data, labels = {}) {
+  const table = data.table || (data.order && data.order.table) || null;
+  const L = labels || {};
+  if (!table) {
+    return { placeValue: '', placeKind: 'table' };
   }
-  return '';
+  if (table.source === 'asi-room') {
+    const roomNo = String(table.number || table.asi_alias || table.name || '').trim();
+    return {
+      placeValue: roomNo,
+      placeKind: 'room',
+    };
+  }
+  return {
+    placeValue: String(table.name || '') + String(table.number || ''),
+    placeKind: 'table',
+  };
+}
+
+function getGuestLabel(order) {
+  const customer = order && order.customer;
+  if (!customer || typeof customer !== 'object') {
+    return '';
+  }
+  const name = String(customer.name || '').trim();
+  const codeRaw = String(customer.guest_code || '').trim();
+  const code = codeRaw ? (codeRaw.startsWith('#') ? codeRaw : `#${codeRaw}`) : '';
+  if (name && code) {
+    return `${name} / ${code}`;
+  }
+  return name || code;
 }
 
 /**
  * Kitchen print builder (KOT).
- * Expects data: { order, items, kitchenName?, table?, isAddOn?, duplicate? }
+ * Expects data: { order, items, kitchenName?, table?, guestLabel?, placeLabel?, placeKind?, isAddOn?, duplicate? }
  */
 function build(printer, data = {}, config = {}) {
   const order = data.order;
@@ -59,10 +85,15 @@ function build(printer, data = {}, config = {}) {
     : getOrderCreatedAt(null, dateOpts);
   const orderTaker = order ? getOrderUserName(order) : '';
   const orderType = order ? getOrderType(order) : '';
-  const table = getTableLabel(data);
+  const L = cfg.labels || {};
+  const placeMeta = getPlaceMeta(data, L);
+  const table = data.placeLabel
+    ? String(data.placeLabel).replace(/^(Chambre|Room|Table)\s+/i, '').trim() || data.placeLabel
+    : placeMeta.placeValue;
+  const placeKind = data.placeKind || placeMeta.placeKind;
+  const guestLabel = data.guestLabel || getGuestLabel(order);
   const printItems = mapPrintItems(items);
 
-  const L = cfg.labels || {};
   const bannerLabel = isDuplicate
     ? (L.duplicateKot || 'COPY')
     : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'NEW'));
@@ -73,6 +104,8 @@ function build(printer, data = {}, config = {}) {
       bannerLabel,
       orderId,
       table,
+      guestLabel,
+      placeKind,
       orderType,
       orderTaker,
       createdAt,
