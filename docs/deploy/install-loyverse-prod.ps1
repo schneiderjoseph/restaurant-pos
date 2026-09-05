@@ -1,9 +1,9 @@
-<#
+﻿<#
   Install / start the Loyverse profile of POSR on a dedicated production PC.
   Run in an elevated (Administrator) PowerShell.
 
   What it does:
-    1. Checks git / Node.js / Docker Desktop / pm2 — installs whatever is missing.
+    1. Checks git / Node.js / Docker Desktop / pm2 - installs whatever is missing.
     2. Clones (or updates) the repo.
     3. Generates .env / gateway/.env / loyverse-sync/.env from the examples,
        auto-filling the JWT secret and detected LAN IP (secrets you must
@@ -88,7 +88,7 @@ if (-not (Test-Cmd mkcert)) {
   try {
     winget install --id FiloSottile.mkcert -e --source winget --accept-package-agreements --accept-source-agreements
   } catch {
-    Write-Host "mkcert install a echoue — pas bloquant, voir printing/README.md pour l'installer a la main." -ForegroundColor Yellow
+    Write-Host "mkcert install a echoue - pas bloquant, voir printing/README.md pour l'installer a la main." -ForegroundColor Yellow
   }
 } else {
   Write-Host "mkcert OK"
@@ -169,7 +169,7 @@ VITE_RESTAURANT_PHONE=
 "@ | Out-File -FilePath ".env" -Encoding utf8
   Write-Host "Ecrit .env" -ForegroundColor Green
 } else {
-  Write-Host ".env existe deja — pas touche."
+  Write-Host ".env existe deja - pas touche."
 }
 
 if (-not (Test-Path "gateway\.env")) {
@@ -190,7 +190,7 @@ SURREAL_CONNECT_TIMEOUT_MS=10000
 "@ | Out-File -FilePath "gateway\.env" -Encoding utf8
   Write-Host "Ecrit gateway\.env" -ForegroundColor Green
 } else {
-  Write-Host "gateway\.env existe deja — pas touche."
+  Write-Host "gateway\.env existe deja - pas touche."
 }
 
 if (-not (Test-Path "loyverse-sync\.env")) {
@@ -214,11 +214,11 @@ LOYVERSE_SYNC_ONCE=0
 "@ | Out-File -FilePath "loyverse-sync\.env" -Encoding utf8
   Write-Host "Ecrit loyverse-sync\.env" -ForegroundColor Green
 } else {
-  Write-Host "loyverse-sync\.env existe deja — pas touche."
+  Write-Host "loyverse-sync\.env existe deja - pas touche."
 }
 
 Write-Host ""
-Write-Host "STOP — avant de continuer, edite ces 3 fichiers :" -ForegroundColor Red
+Write-Host "STOP - avant de continuer, edite ces 3 fichiers :" -ForegroundColor Red
 Write-Host "  - .env, gateway\.env, loyverse-sync\.env : SURREAL_PASS (meme valeur forte partout)"
 Write-Host "  - loyverse-sync\.env : LOYVERSE_ACCESS_TOKEN (Back Office Loyverse -> Access Tokens)"
 Read-Host "Appuie sur Entree une fois que c'est fait"
@@ -258,7 +258,7 @@ if (-not (Test-Path "$NginxRoot\nginx.exe")) {
 Copy-Item "$RepoPath\nginx.conf" "$NginxRoot\conf\nginx-posr.conf" -Force
 $nginxMain = Get-Content "$NginxRoot\conf\nginx.conf" -Raw
 if ($nginxMain -notmatch "nginx-posr\.conf") {
-  Write-Host "IMPORTANT: edite $NginxRoot\conf\nginx.conf a la main — remplace le bloc 'server { ... }' par :" -ForegroundColor Red
+  Write-Host "IMPORTANT: edite $NginxRoot\conf\nginx.conf a la main - remplace le bloc 'server { ... }' par :" -ForegroundColor Red
   Write-Host "    include conf/nginx-posr.conf;"
 }
 Remove-Item "$NginxRoot\html" -Recurse -Force -ErrorAction SilentlyContinue
@@ -272,7 +272,7 @@ pm2 delete loyverse-sync 2>$null | Out-Null
 pm2 start npm --name loyverse-sync --cwd "$RepoPath\loyverse-sync" -- start
 
 pm2 delete nginx 2>$null | Out-Null
-# `-g "daemon off;"` keeps nginx in the foreground — nginx daemonizes by
+# `-g "daemon off;"` keeps nginx in the foreground - nginx daemonizes by
 # default, which would make pm2 think the process exited immediately.
 pm2 start "$NginxRoot\nginx.exe" --name nginx --cwd $NginxRoot -- -g "daemon off;"
 
