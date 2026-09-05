@@ -30,7 +30,7 @@ function gridPosition(indexZeroBased) {
 
 /**
  * Use ASI pixel layout only when enough tables have coordinates.
- * La Réserve currently has layout for ~1/26 tables — fall back to grid.
+ * Some properties only have layout coords for a handful of tables — fall back to grid.
  */
 function shouldUseAsiCoords(tables) {
   const withXy = tables.filter((t) => t.left != null && t.top != null).length;

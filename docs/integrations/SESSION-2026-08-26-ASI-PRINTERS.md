@@ -1,6 +1,6 @@
 # Session notes — 2026-08-26 (ASI stack + printers + Loyverse isolation)
 
-Operational notes for the Cormier / native fork checkout. Complements [PROD-CORMIER.md](../deploy/PROD-CORMIER.md) and [LOYVERSE.md](./LOYVERSE.md).
+Operational notes for the ASI / native fork checkout. Complements [PROD-ASI.md](../deploy/PROD-ASI.md) and [LOYVERSE.md](./LOYVERSE.md).
 
 ## Stack ownership (hard rule)
 

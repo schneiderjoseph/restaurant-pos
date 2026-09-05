@@ -4,7 +4,7 @@ const sql = require('mssql');
 
 /**
  * Hotel rooms from ASI FrontDesk ASIFD600 (cUnit + cFloor + cUnitType).
- * La Réserve: ~21 active units on ETAGE1 (aliases 14–35).
+ * Example property: ~21 active units on one floor (aliases 14–35).
  */
 
 function mapRoom(row) {

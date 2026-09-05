@@ -4,7 +4,7 @@ const sql = require('mssql');
 
 /**
  * Dining tables from ASIPOS600 mTable (+ optional tTablePOS layout).
- * La Réserve today: TB1–TB10 (salle) + B1–B16 (bar); layout mostly empty.
+ * Example property: TB1–TB10 (salle) + B1–B16 (bar); layout mostly empty.
  */
 
 function shortLabel(tableName, alias) {

@@ -1,6 +1,6 @@
-# Guide déploiement prod — Cormier (POSR + ASI)
+# Guide déploiement prod — profil ASI (POSR + Resort F&B)
 
-Checklist pratique pour installer / préparer l’environnement **production** du POS restaurant **Cormier** (mode Resort F&B + sync ASI).
+Checklist pratique pour installer / préparer l’environnement **production** du POS restaurant en mode **Resort F&B + sync ASI**.
 
 ## Topologie (confirmée)
 
@@ -8,7 +8,7 @@ Checklist pratique pour installer / préparer l’environnement **production** d
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│  SERVERCORMIER  (ex. 192.168.0.190)                      │
+│  PMS_HOST  (ex. <PROPERTY_LAN_IP>)                      │
 │                                                         │
 │  ASI POS (ASIPOS600)  +  ASI FrontDesk (ASIFD600)       │
 │           │                        │                    │
@@ -22,7 +22,7 @@ Checklist pratique pour installer / préparer l’environnement **production** d
 └──────────────────────┬──────────────────────────────────┘
                        │ LAN (tablettes Chrome)
                        ▼
-              http(s)://192.168.0.190  (ou nom DNS)
+              http(s)://<PROPERTY_LAN_IP>  (ou nom DNS)
 ```
 
 Conséquences :
@@ -36,7 +36,7 @@ Conséquences :
 Docs liées :
 
 - [Gateway / sécurité](../security/GATEWAY.md)
-- [ASI discovery / mapping SQL](../integrations/ASI-LA-RESERVE.md) *(hôte = **SERVERCORMIER**)*
+- [ASI discovery / mapping SQL](../integrations/ASI-DISCOVERY.md) *(hôte = **PMS_HOST**)*
 - Exemples env : [`.env.example`](../../.env.example), [`asi-sync/.env.example`](../../asi-sync/.env.example), [`gateway/.env.example`](../../gateway/.env.example)
 
 ---
@@ -56,7 +56,7 @@ Docs liées :
 
 **Déjà présents sur le PC (ne pas casser) :** ASI POS, ASI FrontDesk, SQL Server `ASI2017`.
 
-**Profil Cormier (build) :**
+**Profil ASI / Resort F&B (build) :**
 
 - `VITE_POS_MODE=asi`
 - `VITE_RESORT_FB=true`
@@ -66,7 +66,7 @@ Docs liées :
 
 ## 2. Téléchargements & prérequis
 
-Installe **sur SERVERCORMIER** (le PC qui a déjà POS + PMS). Les tablettes = navigateur seulement.
+Installe **sur PMS_HOST** (le PC qui a déjà POS + PMS). Les tablettes = navigateur seulement.
 
 ### 2.1 Obligatoire
 
@@ -100,8 +100,8 @@ surreal version
 
 | Élément | Valeur |
 |---------|--------|
-| Hostname | `SERVERCORMIER` |
-| LAN (tablettes → POSR) | `192.168.0.190` *(confirmer `ipconfig`)* |
+| Hostname | `PMS_HOST` |
+| LAN (tablettes → POSR) | `<PROPERTY_LAN_IP>` *(confirmer `ipconfig`)* |
 | Instance SQL | `ASI2017` |
 | Port TCP SQL | **56479** |
 | DB menu POS | **`ASIPOS600`** |
@@ -109,7 +109,7 @@ surreal version
 | Accès sync depuis POSR | **`127.0.0.1,56479`** (même machine) |
 | Vendor | https://anandsystems.com / https://asifrontdesk.com |
 
-Détail tables : [ASI-LA-RESERVE.md](../integrations/ASI-LA-RESERVE.md) § SERVERCORMIER.
+Détail tables : [ASI-DISCOVERY.md](../integrations/ASI-DISCOVERY.md) § PMS_HOST.
 
 **Firewall (même PC) :**
 
@@ -121,7 +121,7 @@ Détail tables : [ASI-LA-RESERVE.md](../integrations/ASI-LA-RESERVE.md) § SERVE
 
 ## 3. Récupérer le code
 
-Sur **SERVERCORMIER** :
+Sur **PMS_HOST** :
 
 ```powershell
 cd C:\CODE   # ou C:\POSR, etc.
@@ -164,9 +164,9 @@ Copy-Item asi-sync\.env.example asi-sync\.env
 Copy-Item api\.env.example api\.env
 ```
 
-### 4.3 Racine `.env` — profil Cormier (même PC)
+### 4.3 Racine `.env` — profil ASI / Resort F&B (même PC)
 
-Les tablettes utilisent l’**IP LAN** du PC (ex. `192.168.0.190`). Adapte le domaine si tu en as un.
+Les tablettes utilisent l’**IP LAN** du PC (ex. `<PROPERTY_LAN_IP>`). Adapte le domaine si tu en as un.
 
 ```env
 # --- Surreal (doit matcher la DB existante si déjà créée) ---
@@ -176,14 +176,14 @@ SURREAL_PASS=CHANGE_ME_STRONG
 # --- Gateway (partagé gateway + print + payment + tracking + api) ---
 GATEWAY_JWT_SECRET=PASTE_HEX_48_BYTES_HERE
 # Origines tablettes + navigateur local
-GATEWAY_ALLOWED_ORIGINS=http://192.168.0.190,https://192.168.0.190,http://localhost,http://127.0.0.1
+GATEWAY_ALLOWED_ORIGINS=http://<PROPERTY_LAN_IP>,https://<PROPERTY_LAN_IP>,http://localhost,http://127.0.0.1
 GATEWAY_ALLOW_LAN=true
 
 VITE_GATEWAY_AUTH=true
 # Derrière nginx sur ce PC (même origine = IP LAN)
-# VITE_GATEWAY_URL=http://192.168.0.190
-VITE_DB_WEBDOCKET=ws://192.168.0.190/rpc
-# Si HTTPS : wss://192.168.0.190/rpc
+# VITE_GATEWAY_URL=http://<PROPERTY_LAN_IP>
+VITE_DB_WEBDOCKET=ws://<PROPERTY_LAN_IP>/rpc
+# Si HTTPS : wss://<PROPERTY_LAN_IP>/rpc
 
 VITE_LOCALE=fr-HT
 VITE_DEFAULT_LANGUAGE=fr
@@ -192,9 +192,9 @@ VITE_CURRENCY=HTG
 # VITE_SECONDARY_CURRENCY=USD
 VITE_DECIMAL_PLACES=0
 
-VITE_PRINT_SERVER_URL=http://192.168.0.190:3132
-VITE_API_SERVER_URL=http://192.168.0.190:3140
-VITE_TRACKING_SERVER_URL=http://192.168.0.190:3138
+VITE_PRINT_SERVER_URL=http://<PROPERTY_LAN_IP>:3132
+VITE_API_SERVER_URL=http://<PROPERTY_LAN_IP>:3140
+VITE_TRACKING_SERVER_URL=http://<PROPERTY_LAN_IP>:3138
 VITE_TRACKING_ENABLED=true
 VITE_PROTECT_MODULES_SOURCE=server
 
@@ -209,7 +209,7 @@ VITE_MODULE_INTEGRATIONS=false
 VITE_MODULE_ACCOUNTING=false
 VITE_MODULE_CLOSING=false
 
-VITE_RESTAURANT_NAME=Cormier
+VITE_RESTAURANT_NAME=
 VITE_RESTAURANT_ADDRESS=
 VITE_RESTAURANT_PHONE=
 ```
@@ -219,7 +219,7 @@ VITE_RESTAURANT_PHONE=
 ### 4.4 `asi-sync/.env` — SQL en localhost (même PC)
 
 ```env
-# Menu + tables ASI (SQL local sur SERVERCORMIER)
+# Menu + tables ASI (SQL local sur PMS_HOST)
 ASI_SQL_SERVER=127.0.0.1
 ASI_SQL_PORT=56479
 ASI_SQL_DATABASE=ASIPOS600
@@ -266,7 +266,7 @@ Règles dures :
 
 ## 5. Démarrage services
 
-### Option A — Docker Compose (recommandé, sur SERVERCORMIER)
+### Option A — Docker Compose (recommandé, sur PMS_HOST)
 
 ```powershell
 cd C:\CODE\restaurant-pos
@@ -329,7 +329,7 @@ PIN / rôles : s’assurer qu’un rôle Master a les permissions nécessaires (
 
 - [ ] Login PIN (gateway on) OK  
 - [ ] Nav **sans** HR / Livraison / Intégrations / Accounting / Clôture  
-- [ ] Guest lookup : clients **in-house** PMS (SERVERCORMIER) visibles  
+- [ ] Guest lookup : clients **in-house** PMS (PMS_HOST) visibles  
 - [ ] Walk-in : prénom + nom → code auto → commande  
 - [ ] Plan **Salle** : tables T…  
 - [ ] Plan **Chambres** : R… ; chambre occupée → client auto ; chambre vide → refus  
@@ -376,6 +376,6 @@ PIN / rôles : s’assurer qu’un rôle Master a les permissions nécessaires (
 | Node LTS | https://nodejs.org/en/download |
 | Docker Desktop | https://www.docker.com/products/docker-desktop/ |
 | nginx | https://nginx.org/en/download.html |
-| Doc ASI / SERVERCORMIER | [ASI-LA-RESERVE.md](../integrations/ASI-LA-RESERVE.md) |
+| Doc ASI / PMS_HOST | [ASI-DISCOVERY.md](../integrations/ASI-DISCOVERY.md) |
 
-Quand les mots de passe SQL / JWT sont figés, remplace tous les `CHANGE_ME` et confirme l’IP LAN (`ipconfig`) avant le go-live sur **SERVERCORMIER**.
+Quand les mots de passe SQL / JWT sont figés, remplace tous les `CHANGE_ME` et confirme l’IP LAN (`ipconfig`) avant le go-live sur **PMS_HOST**.

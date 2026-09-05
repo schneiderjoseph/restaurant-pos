@@ -13,7 +13,7 @@ const sql = require('mssql');
 const { stationForGroup } = require('./stations');
 
 /**
- * Pick selling price from ASI rate row (USD base in La Réserve).
+ * Pick selling price from ASI rate row (USD base — confirm currency per property).
  * defaultRate is 1..5 → rate1..rate5; fall back to rate1.
  *
  * Photos: ASI mItem currently has no per-item image column (only empty

@@ -5,7 +5,7 @@ const sql = require('mssql');
 /**
  * In-house guests from ASI FrontDesk ASIFD600.
  * Room number comes from cUnit.unitAlias (e.g. "21").
- * Mapping validated on SERVERCORMIER (see docs/integrations/ASI-LA-RESERVE.md §9.2).
+ * Mapping validated on PMS_HOST (see docs/integrations/ASI-DISCOVERY.md §9.2).
  */
 async function fetchInHouseGuests(cfg) {
   const pool = await sql.connect({

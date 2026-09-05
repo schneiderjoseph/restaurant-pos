@@ -2,7 +2,7 @@
 
 /**
  * ASI group aliases that route to Bar (BDS).
- * Keep in sync with docs/integrations/ASI-LA-RESERVE.md and resort-stations BAR hints.
+ * Keep in sync with docs/integrations/ASI-DISCOVERY.md and resort-stations BAR hints.
  */
 const BAR_GROUP_ALIASES = new Set([
   'MOC',

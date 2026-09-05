@@ -1,7 +1,6 @@
-# ASI Point of Sale — La Réserve (discovery & sync plan)
+# ASI Point of Sale — discovery & sync plan
 
 **Status:** phase 1 menu sync **implemented** (2026-08-22) — package `asi-sync/`  
-**Property:** La Réserve  
 **Goal:** Near-real-time read sync from ASI (source of truth) into POSR (resort F&B POS)
 
 This document records everything found on-site so implementation can proceed without re-discovering the stack.
@@ -12,7 +11,7 @@ This document records everything found on-site so implementation can proceed wit
 
 | Field | Value |
 |-------|-------|
-| Hostname | `LARESERVEPOS-SE` |
+| Hostname | `POS_HOST` |
 | LAN IP | `192.168.15.160` |
 | OS | Windows 10 (build 16299) |
 | RDP | TCP **3389** open |
@@ -52,7 +51,7 @@ Observed POS capabilities (from binaries / UI strings): items, groups, modifiers
 
 ## 3. SQL Server
 
-### 3.1 Instances (on `LARESERVEPOS-SE`)
+### 3.1 Instances (on `POS_HOST`)
 
 | Instance | Registry / version | Role |
 |----------|-------------------|------|
@@ -65,7 +64,7 @@ Services observed running: `MSSQL$ASI2008`, `SQLBrowser`, etc.
 
 | Field | Value |
 |-------|--------|
-| Instance | `.\ASI2008` or `LARESERVEPOS-SE\ASI2008` |
+| Instance | `.\ASI2008` or `POS_HOST\ASI2008` |
 | TCP port | **52788** (dynamic; set in SQL config `TcpDynamicPorts`) |
 | Listen | `0.0.0.0:52788` / `[::]:52788` (`sqlservr`) |
 | From POSR PC | Prefer `192.168.15.160,52788` once firewall allows |
@@ -208,7 +207,7 @@ Other tables seen in catalog prefix: `mAccount*`, `mCreditor*`, `mCompanyInforma
 
 ### 4.8 Sample items (`sales=1`, active)
 
-Examples: Alaska Milk, Acras, Croquettes de morue, Poutine, Wings, Fish and Chips, La Réserve Platter, Fritay Lakay, Crème de poireaux, …
+Examples: Alaska Milk, Acras, Croquettes de morue, Poutine, Wings, Fish and Chips, Fritay Lakay, Crème de poireaux, …
 
 ---
 
@@ -217,13 +216,13 @@ Examples: Alaska Milk, Acras, Croquettes de morue, Poutine, Wings, Fish and Chip
 | Source | Finding |
 |--------|---------|
 | `mCustomerMaster` / `mRoom` on POS box `ASIPOS600` | Empty — not the in-house guest list |
-| **PMS host `SERVERCORMIER`** | **FrontDesk found 2026-08-24** |
+| **PMS host `PMS_HOST`** | **FrontDesk found 2026-08-24** |
 
 ### 5.1 PMS / FrontDesk (discovered)
 
 | Field | Value |
 |-------|--------|
-| Hostname | `SERVERCORMIER` |
+| Hostname | `PMS_HOST` |
 | LAN IP | **`192.168.0.190`** |
 | Instance | **`ASI2017`** (`MSSQL14.ASI2017`, SQL Server 2017) |
 | TCP port | **`56479`** (dynamic — freeze static later) |
@@ -236,7 +235,7 @@ Guest / folio tables already visible in `ASIFD600` (sample):
 - `fGuestMaster`, `fCheckInGuestInfo`, `fCheckinGuestInfo_MBR`
 - `fSplitFolioMaster`, `cGuestCategory`, `cParameterGuestInfo`
 
-**Implication:** guest/room sync = read from **`SERVERCORMIER\ASI2017` / `ASIFD600`**, not from the POS-only box.  
+**Implication:** guest/room sync = read from **`PMS_HOST\ASI2017` / `ASIFD600`**, not from the POS-only box.  
 Room posting write-back still needs Anand-supported path (phase 2+).
 
 ---
@@ -277,7 +276,7 @@ Env: `ASI_TABLE_SYNC` (defaults to follow `ASI_MENU_SYNC` when unset).
 | `cUnit.unitID` | `floor_table:asi_r_{id}` + `asi_unit_id` |
 | `cUnit.unitAlias` | `number` / `asi_alias` (e.g. `21`) |
 | Display | `name`=`R` + `number` → **R21** on floor **Chambres** |
-| `cFloor.floorName` | informational (La Réserve: ETAGE1) |
+| `cFloor.floorName` | informational (example: `ETAGE1`) |
 | Soft-delete | Missing ASI units removed from Chambres |
 
 Env: `ASI_ROOM_SYNC` (defaults to follow `ASI_FD_SYNC` when unset). Uses FD SQL credentials.
@@ -325,19 +324,19 @@ ORDER BY g.itemgroupName, i.itemName;
 
 ## 8. Connectivity checklist (before coding sync)
 
-### 8.1 Menu sync — POS SQL (`LARESERVEPOS-SE` / historical path)
+### 8.1 Menu sync — POS SQL (`POS_HOST` / historical path)
 
-On **LARESERVEPOS-SE** (admin) — or wherever live `ASIPOS600` for menu is served:
+On **POS_HOST** (admin) — or wherever live `ASIPOS600` for menu is served:
 
 1. **Firewall:** allow inbound TCP **52788** (or current POS SQL port) from POSR machine IP only.  
 2. Prefer fixing a **static** TCP port later so it does not change after SQL restart.  
 3. Create read-only SQL login on `ASIPOS600` (`posr_sync` / `db_datareader`).
 
-> Note 2026-08-24: PMS box `SERVERCORMIER` also hosts `ASIPOS600` on `ASI2017:56479`. Confirm which host is the live menu source of truth before pointing `asi-sync`.
+> Note 2026-08-24: PMS box `PMS_HOST` also hosts `ASIPOS600` on `ASI2017:56479`. Confirm which host is the live menu source of truth before pointing `asi-sync`.
 
-### 8.2 Guest / room sync — FrontDesk (`SERVERCORMIER`)
+### 8.2 Guest / room sync — FrontDesk (`PMS_HOST`)
 
-On **SERVERCORMIER** (admin):
+On **PMS_HOST** (admin):
 
 1. **Firewall:** allow inbound TCP **56479** from the POSR machine IP only (not whole LAN).  
 2. Prefer freezing **56479** to a static TCP port later.  
@@ -377,7 +376,7 @@ Never commit passwords to git.
 ### 9.1 Menu (implemented)
 
 ```text
-ASIPOS600 (read-only posr_sync)  ← confirm live host: POS box and/or SERVERCORMIER
+ASIPOS600 (read-only posr_sync)  ← confirm live host: POS box and/or PMS_HOST
         │  poll 30s (asi-sync/)
         ▼
    SurrealDB POSR
@@ -388,7 +387,7 @@ ASIPOS600 (read-only posr_sync)  ← confirm live host: POS box and/or SERVERCOR
 ### 9.2 Guests / rooms (FrontDesk — implemented in `asi-sync`, off by default)
 
 ```text
-SERVERCORMIER\ASI2017
+PMS_HOST\ASI2017
   ASIFD600 (read-only posr_fd_sync)   192.168.0.190:56479
         │  poll 30s when ASI_FD_SYNC=1
         ▼
@@ -441,7 +440,7 @@ Tooling already in repo:
 
 | # | Question | Impact |
 |---|----------|--------|
-| 1 | ~~Where is ASI FrontDesk DB?~~ **Found:** `SERVERCORMIER\ASI2017` / `ASIFD600` @ `192.168.0.190:56479` | Guest/room sync |
+| 1 | ~~Where is ASI FrontDesk DB?~~ **Found:** `PMS_HOST\ASI2017` / `ASIFD600` @ `192.168.0.190:56479` | Guest/room sync |
 | 2 | Which `posID` is the live outlet for restaurant vs bar? | Filter `tItemPOS` (`ASI_POS_ID`) |
 | 3 | Which rate tier is used on property (`defaultRate` → rate1–5)? | Correct selling price |
 | 4 | Currency in ASI vs POSR (`HTG` / `USD`)? | Display + payment |
@@ -464,7 +463,7 @@ Tooling already in repo:
 | 2026-08-22 | **Verified from POSR PC:** TCP 52788 + SQL auth → `ASIPOS600`; sellable active items **216** |
 | 2026-08-22 | **Implemented** `asi-sync/` phase 1: upsert categories/dishes, soft-delete, cuisine/bar `kitchen.items` |
 | 2026-08-22 | **Verified once:** 24 ASI groups → 25 categories; **213** active `ASI-*` dishes; kitchen cuisine **111** / bar **102**; re-run idempotent |
-| 2026-08-24 | **PMS found** on `SERVERCORMIER`: instance `ASI2017`, port **56479**, DB **`ASIFD600`** ONLINE; LAN **192.168.0.190**; guest tables `fGuestMaster`, `fCheckInGuestInfo`, `fSplitFolioMaster`, … |
+| 2026-08-24 | **PMS found** on `PMS_HOST`: instance `ASI2017`, port **56479**, DB **`ASIFD600`** ONLINE; LAN **192.168.0.190**; guest tables `fGuestMaster`, `fCheckInGuestInfo`, `fSplitFolioMaster`, … |
 
 ### Verified connection string (read-only)
 
@@ -486,4 +485,4 @@ Password lives only on the ASI box / ops secrets — never commit. Test script: 
 
 ---
 
-*Document owner: POSR / La Réserve integration. Update this file when FrontDesk location or TCP port changes.*
+*Document owner: POSR / ASI integration. Update this file when FrontDesk location or TCP port changes.*
