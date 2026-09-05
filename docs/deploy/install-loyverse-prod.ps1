@@ -42,6 +42,42 @@ function Step([string]$Text) {
   Write-Host "== $Text ==" -ForegroundColor Cyan
 }
 
+function Ensure-Tool {
+  param(
+    [string]$Name,
+    [string]$CommandName,
+    [string]$WingetId,
+    [string]$ManualUrl,
+    [switch]$Required
+  )
+  if (Test-Cmd $CommandName) {
+    Write-Host "$Name OK: $(& $CommandName --version)"
+    return $true
+  }
+  if (Test-Cmd winget) {
+    Write-Host "Installing $Name via winget..." -ForegroundColor Yellow
+    try {
+      winget install --id $WingetId -e --source winget --accept-package-agreements --accept-source-agreements
+      Sync-PathFromRegistry
+      if (Test-Cmd $CommandName) {
+        Write-Host "$Name OK"
+        return $true
+      }
+    } catch {
+      Write-Host "winget install de $Name a echoue: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+  } else {
+    Write-Host "winget n'est pas disponible sur cette machine." -ForegroundColor Yellow
+  }
+  Write-Host "$Name n'est pas installe. Ouverture de la page de telechargement : $ManualUrl" -ForegroundColor Red
+  Start-Process $ManualUrl
+  if ($Required) {
+    Write-Host "Installe $Name manuellement (options par defaut), ferme/rouvre PowerShell en Administrateur, puis relance ce script." -ForegroundColor Red
+    exit 0
+  }
+  return $false
+}
+
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
   Write-Host "Re-lance ce script en PowerShell Administrateur (winget / pm2-startup en ont besoin)." -ForegroundColor Red
@@ -51,49 +87,23 @@ if (-not $isAdmin) {
 # ---------------------------------------------------------------------------
 Step "1. Prerequisites"
 
-if (-not (Test-Cmd git)) {
-  Write-Host "Installing Git..." -ForegroundColor Yellow
-  winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
-} else {
-  Write-Host "Git OK: $(git --version)"
-}
-
-if (-not (Test-Cmd node)) {
-  Write-Host "Installing Node.js LTS..." -ForegroundColor Yellow
-  winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-package-agreements --accept-source-agreements
-} else {
-  Write-Host "Node OK: $(node --version)"
-}
-
+Ensure-Tool -Name "Git" -CommandName git -WingetId "Git.Git" -ManualUrl "https://git-scm.com/download/win" -Required | Out-Null
 Sync-PathFromRegistry
 
-if (-not (Test-Cmd docker)) {
-  Write-Host "Installing Docker Desktop..." -ForegroundColor Yellow
-  winget install --id Docker.DockerDesktop -e --source winget --accept-package-agreements --accept-source-agreements
-  Write-Host "Docker Desktop vient d'etre installe : ouvre-le une fois manuellement (compte / WSL2), active 'Start Docker Desktop when you log in' dans Settings > General, puis relance ce script." -ForegroundColor Red
-  exit 0
-} else {
-  Write-Host "Docker OK: $(docker --version)"
-}
+Ensure-Tool -Name "Node.js" -CommandName node -WingetId "OpenJS.NodeJS.LTS" -ManualUrl "https://nodejs.org/en/download" -Required | Out-Null
+Sync-PathFromRegistry
 
-try {
-  docker info *> $null
-} catch {
-  Write-Host "Docker Desktop est installe mais pas demarre. Lance-le, attends qu'il soit pret, puis relance ce script." -ForegroundColor Red
+Ensure-Tool -Name "Docker Desktop" -CommandName docker -WingetId "Docker.DockerDesktop" -ManualUrl "https://www.docker.com/products/docker-desktop/" -Required | Out-Null
+Sync-PathFromRegistry
+
+docker info *> $null
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Docker Desktop est installe mais pas demarre (ou premier lancement pas termine : compte / WSL2)." -ForegroundColor Red
+  Write-Host "Lance-le, attends qu'il soit pret, active Settings > General > Start Docker Desktop when you log in, puis relance ce script." -ForegroundColor Red
   exit 0
 }
 
-if (-not (Test-Cmd mkcert)) {
-  Write-Host "Installing mkcert (optional, HTTPS LAN pour l'impression)..." -ForegroundColor Yellow
-  try {
-    winget install --id FiloSottile.mkcert -e --source winget --accept-package-agreements --accept-source-agreements
-  } catch {
-    Write-Host "mkcert install a echoue - pas bloquant, voir printing/README.md pour l'installer a la main." -ForegroundColor Yellow
-  }
-} else {
-  Write-Host "mkcert OK"
-}
-
+Ensure-Tool -Name "mkcert" -CommandName mkcert -WingetId "FiloSottile.mkcert" -ManualUrl "https://github.com/FiloSottile/mkcert/releases" | Out-Null
 Sync-PathFromRegistry
 
 if (-not (Test-Cmd pm2)) {
