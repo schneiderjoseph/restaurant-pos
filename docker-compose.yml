@@ -42,6 +42,7 @@ services:
     volumes:
       # Host /database -> container /database (surrealkv://database resolves to ./database = /database)
       - ./database:/database
+    restart: unless-stopped
 
   printer:
     build:
@@ -61,9 +62,12 @@ services:
     command: sh -c "npm install && node server.js"
     ports:
       - "3132:3132"
-    # USB access for local USB printers
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
+    restart: unless-stopped
+    # USB printers: do NOT add a `/dev/bus/usb` device mapping here — it is
+    # Linux-only and breaks `docker compose up` on Docker Desktop for Windows
+    # (see printing/README.md). Network/serial printers work as-is from this
+    # container. For Linux hosts with USB printers, use
+    # printing/docker-compose.standalone.usb.yml instead of this service.
 
   payment:
     image: node:20-alpine
@@ -81,8 +85,8 @@ services:
       - PAYMENT_HOST=0.0.0.0
       - PAYMENT_BASE_URL=${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}
       - SURREAL_URL=ws://surrealdb:8000/rpc
-      - SURREAL_NS=posr
-      - SURREAL_DB=posr
+      - SURREAL_NS=${SURREAL_NS:-posr}
+      - SURREAL_DB=${SURREAL_DB:-posr}
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - PAYMENT_LOG_LEVEL=debug
@@ -94,6 +98,7 @@ services:
     depends_on:
       - surrealdb
       - gateway
+    restart: unless-stopped
 
   sync:
     image: node:20-alpine
@@ -192,8 +197,8 @@ services:
       - GATEWAY_JWT_TTL=${GATEWAY_JWT_TTL:-12h}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       - SURREAL_URL=ws://surrealdb:8000/rpc
-      - SURREAL_NS=posr
-      - SURREAL_DB=posr
+      - SURREAL_NS=${SURREAL_NS:-posr}
+      - SURREAL_DB=${SURREAL_DB:-posr}
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
     command: sh -c "npm install && node server.js"
@@ -201,6 +206,7 @@ services:
       - "3142:3142"
     depends_on:
       - surrealdb
+    restart: unless-stopped
 
   backup:
     image: docker:27-cli

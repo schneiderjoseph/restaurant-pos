@@ -4,6 +4,8 @@ Checklist pratique pour installer l'environnement **production** du POS avec cat
 
 **Portée de ce soir : catalogue seulement.** Loyverse fournit le menu/catégories/clients/moyens de paiement ; POSR encaisse et fait ses propres rapports. Le push des reçus POSR → Loyverse (`loyverse-sync/src/receipt-push.js`) n'est **pas branché** au flux de paiement — les ventes ne remonteront pas dans le Back Office Loyverse. C'est un choix assumé pour ce déploiement, pas un bug à corriger ce soir.
 
+**Script tout-en-un :** [`install-loyverse-prod.ps1`](./install-loyverse-prod.ps1) (PowerShell **Administrateur**) fait les étapes 1 à 8 ci-dessous automatiquement — vérifie/installe git, Node, Docker Desktop, pm2 ; clone/MAJ le repo ; génère les `.env` (JWT + IP LAN auto-détectés, secrets à coller toi-même) ; démarre Docker + le sync + build + nginx ; enregistre `loyverse-sync` et nginx sous **pm2** avec démarrage au boot Windows. Relis quand même la checklist §8 avant l'ouverture — le script ne teste pas l'app elle-même.
+
 ## Topologie
 
 **Tout sur le même PC dédié** : POSR (SPA + gateway + Surreal) + poller `loyverse-sync`. Optionnel : `asi-sync` en mode « rooms only » si cette propriété a aussi un PMS ASI pour les chambres.
@@ -110,6 +112,10 @@ Copy-Item loyverse-sync\.env.example loyverse-sync\.env
 ```env
 SURREAL_USER=posr_prod_user
 SURREAL_PASS=CHANGE_ME_STRONG
+# Read by docker-compose's gateway/payment services (Option A below) — must
+# match gateway/.env and loyverse-sync/.env.
+SURREAL_NS=loyverse
+SURREAL_DB=loyverse
 
 GATEWAY_JWT_SECRET=PASTE_HEX_48_BYTES_HERE
 GATEWAY_ALLOWED_ORIGINS=http://<PROPERTY_LAN_IP>,https://<PROPERTY_LAN_IP>,http://localhost,http://127.0.0.1
@@ -291,6 +297,7 @@ Si cette propriété n'a pas de chambres à suivre : ignorer cette section enti�
 - [ ] Depuis une autre machine : port Surreal `8000` **fermé**
 - [ ] Si §7 activé : Plan Chambres, chambre occupée → client auto, chambre vide → refus
 - [ ] Vérifié que personne n'attend un retour de vente dans le Back Office Loyverse (§ Portée de ce soir)
+- [ ] **Redémarrage du PC** : tout revient seul (Docker + `pm2 status` montre `loyverse-sync` et `nginx` en ligne) sans relancer quoi que ce soit à la main
 
 ---
 
@@ -304,6 +311,13 @@ Si cette propriété n'a pas de chambres à suivre : ignorer cette section enti�
 | Backfill reçus (rapport lecture seule, pas de push) | `npm run backfill-receipts` |
 | Backup Surreal | snapshot / export `./database` (NS/DB `loyverse`) |
 | Réactiver un module | `VITE_MODULE_XXX=true` → rebuild |
+| État pm2 (loyverse-sync + nginx) | `pm2 status` / `pm2 logs loyverse-sync` |
+
+### Persistance après redémarrage du PC
+
+- **Docker** (surrealdb/gateway/printer) : reviennent seuls **si** Docker Desktop → Settings → General → *Start Docker Desktop when you log in* est coché, **et** que les conteneurs ont `restart: unless-stopped` (déjà le cas dans `docker-compose.yml`).
+- **loyverse-sync + nginx** : gérés par **pm2** (`pm2-startup install` enregistre une tâche planifiée Windows qui relance `pm2 resurrect` à l'ouverture de session) — fait automatiquement par `install-loyverse-prod.ps1` §8.
+- Test réel : redémarre le PC une fois avant l'ouverture et vérifie que l'UI répond sans intervention manuelle.
 
 ---
 
@@ -317,6 +331,8 @@ Si cette propriété n'a pas de chambres à suivre : ignorer cette section enti�
 | Pas de chambres/guests | §7 non activé, ou `ASI_FD_SYNC` off |
 | Ventes absentes du Back Office Loyverse | Normal — receipt-push non branché, voir portée §0 |
 | Tablettes ne joignent pas | firewall 80/443, mauvaise IP dans `GATEWAY_ALLOWED_ORIGINS` / `VITE_*` |
+| nginx redémarre en boucle sous pm2 | nginx daemonize par défaut — il faut `-g "daemon off;"` (déjà géré par le script) |
+| Rien ne redémarre après reboot | Docker Desktop pas lancé au login, ou `pm2 save` jamais exécuté après avoir ajouté un process |
 
 ---
 
