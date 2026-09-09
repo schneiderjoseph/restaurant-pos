@@ -21,7 +21,8 @@
     "shifts": "الورديات",
     "tipsDefinition": "تعريف الإكراميات",
     "accessTab": "الوصول إلى {{title}}",
-    "ariaLabel": "علامات تبويب الإدارة"
+    "ariaLabel": "علامات تبويب الإدارة",
+    "securityAlerts": "تنبيهات الأمان"
   },
   "columns": {
     "photo": "الصورة",
@@ -90,7 +91,11 @@
     "isPriceLocked": "السعر مقفل",
     "hasRequiredModifiers": "يحتوي على معدّلات مطلوبة",
     "shouldAutoOpen": "فتح تلقائي",
-    "shouldAutoSelect": "اختيار تلقائي"
+    "shouldAutoSelect": "اختيار تلقائي",
+    "recordType": "نوع الصف",
+    "dishName": "الطبق",
+    "parentModifier": "الحجم الأب",
+    "nextGroup": "المجموعة التالية"
   },
   "entities": {
     "dish": "طبق",
@@ -146,7 +151,8 @@
     "smartImportDishes": "استيراد بالذكاء الاصطناعي",
     "smartImport": "استيراد بالذكاء الاصطناعي",
     "smartImportIngredients": "استيراد بالذكاء الاصطناعي للمكونات",
-    "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات"
+    "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
+    "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -234,6 +240,8 @@
     "updatePaymentType": "تحديث {{name}}",
     "selectProvider": "اختر مزود الخدمة (اختياري)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "يتم تخزين بيانات الاعتماد مشفرة.",
+    "encryptedCredentialsExplanation": "الحقول فارغة لأسباب أمنية — أدخل قيمًا جديدة فقط لاستبدال بيانات الاعتماد الموجودة. اتركها فارغة للاحتفاظ بالقيم الحالية.",
     "createExtra": "إنشاء إضافة جديدة",
     "updateExtra": "تحديث {{name}}",
     "createTax": "إنشاء ضريبة جديدة",
@@ -271,6 +279,8 @@
     "rightMargin": "الهامش الأيمن",
     "bottomDescription": "الوصف السفلي",
     "removeLogo": "إزالة الشعار",
+    "logoOffsetX": "الإزاحة الأفقية للشعار",
+    "logoOffsetXHint": "انقل الشعار بالنقاط (سالب = يسار، موجب = يمين). اضبطه لكل طابعة حتى يتماشى مع النص المتمركز.",
     "nameOfItem": "اسم الصنف",
     "numberOfItem": "رقم الصنف",
     "costOfItem": "تكلفة الصنف",
@@ -351,6 +361,7 @@
     "smartImportExtrasTitle": "استيراد بالذكاء الاصطناعي للإضافات",
     "smartImportKitchensTitle": "استيراد المحطات بالذكاء الاصطناعي",
     "smartImportStandaloneModifierGroupsTitle": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
+    "smartImportMenuStructureTitle": "استيراد هيكل القائمة (الأحجام والإضافات والروابط)",
     "showsAllItems": "عرض جميع التذاكر",
     "showsAllItemsHint": "تعرض هذه المحطة كل الأصناف من كل المحطات (الممر / الإكسبو). لا تسحب الأطباق من المحطات الأخرى.",
     "showsAllBadge": "كل التذاكر"
@@ -626,6 +637,7 @@
       "admin.tips_definition.create": "إنشاء تعريف الإكراميات",
       "admin.tips_definition.update": "تحديث تعريف الإكراميات",
       "admin.tips_definition.delete": "حذف تعريف الإكراميات",
+      "admin.security_alerts": "تنبيهات الأمان",
       "tips": "الإكراميات",
       "tips.calculation": "حساب الإكراميات",
       "tips.payout": "إدارة المدفوعات",
@@ -872,5 +884,29 @@
       "saveFailed": "تعذر حفظ الخصم.",
       "createReasonFailed": "تعذر إنشاء سبب الخصم."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "مطلوب دور المسؤول لعرض تنبيهات الأمان.",
+    "loading": "جاري تحميل التنبيهات…",
+    "error": "فشل تحميل التنبيهات",
+    "critical": "حرج",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "noAlerts": "لا توجد تنبيهات مفتوحة",
+    "noAlertsDescription": "لم يحدد كاشف الشذوذ أي نشاط مشبوه.",
+    "count": "×{{n}}",
+    "actor": "الفاعل",
+    "actorId": "معرف الفاعل",
+    "actorRoles": "أدوار الفاعل",
+    "sourceIp": "عنوان IP المصدر",
+    "emittedAt": "صدر في",
+    "ruleType": "نوع القاعدة",
+    "detailTitle": "تنبيه أمني",
+    "resolutionNotes": "ملاحظات الحل (اختياري)",
+    "resolutionNotesPlaceholder": "مثال: تم التحقيق — إنذار كاذب من اختبار آلي",
+    "acknowledge": "إقرار",
+    "hideDetails": "▼ إخفاء التفاصيل",
+    "showDetails": "▶ إظهار التفاصيل",
+    "badgeTooltip": "{{count}} تنبيه حرج مفتوح"
   }
 }

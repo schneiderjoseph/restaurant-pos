@@ -102,17 +102,25 @@ export function createDishImportConfig({
       },
     },
     {
-      name: "tax",
-      label: t("admin:columns.tax", {defaultValue: "Tax"}),
+      name: "workflow",
+      label: "Workflow",
       type: "reference",
       optional: true,
-      aliases: ["Tax", "VAT", "GST"],
-      description: "Tax name if shown on the document",
+      aliases: ["Workflow"],
+      description: "Kitchen workflow name for multi-stage routing",
       lookup: {
-        table: Tables.taxes,
+        table: Tables.workflows,
         searchFields: ["name"],
-        strategy: "require_selection",
+        strategy: "case_insensitive",
       },
+    },
+    {
+      name: "stage_overrides",
+      label: "Stage overrides",
+      type: "string",
+      optional: true,
+      aliases: ["Stage overrides", "Overrides"],
+      description: "JSON object mapping workflow stage name to kitchen name",
     },
   ];
 
@@ -130,7 +138,7 @@ export function createDishImportConfig({
       "Map product names to `name`, prices to `price`, and section/category headings to `categories`.",
       "If a section header applies to multiple items below it, use that section as the category for those items.",
       "Do not invent missing prices or names. Use null when unknown.",
-      "Ignore modifiers, extras, and allergen notes unless they are clearly priced as separate products.",
+      "Ignore modifiers, extras, taxes, and allergen notes unless they are clearly priced as separate products.",
     ].join(" "),
     onImportRow: async (record: ImportRecord, ctx) => {
       const values = record.values;
@@ -162,17 +170,6 @@ export function createDishImportConfig({
         return toRecordId(ref.id);
       });
 
-      const taxRef = values.tax as ResolvedReference | null;
-      let taxId: any | undefined;
-      if (taxRef?.label) {
-        if (!taxRef.id) {
-          throw new Error(
-            t("common:dataImport.unresolvedTax", {name: taxRef.label})
-          );
-        }
-        taxId = toRecordId(taxRef.id);
-      }
-
       const rowData: Record<string, string> = {
         name,
         number,
@@ -193,8 +190,41 @@ export function createDishImportConfig({
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
       };
-      if (taxId) {
-        dishData.tax = taxId;
+
+      const workflowRef = values.workflow as ResolvedReference | undefined;
+      if (workflowRef?.id) {
+        dishData.workflow = toRecordId(workflowRef.id);
+        const overridesRaw = String(values.stage_overrides ?? "").trim();
+        if (overridesRaw) {
+          let overrideMap: Record<string, string>;
+          try {
+            overrideMap = JSON.parse(overridesRaw) as Record<string, string>;
+          } catch {
+            throw new Error("Invalid stage_overrides JSON");
+          }
+          const [stages] = await db.query(
+            `SELECT id, name, kitchen FROM ${Tables.workflow_stages} WHERE workflow = $wf FETCH kitchen`,
+            {wf: toRecordId(workflowRef.id)},
+          );
+          const stageOverrides: Record<string, unknown> = {};
+          for (const [stageName, kitchenName] of Object.entries(overrideMap)) {
+            const stage = (stages ?? []).find((s: any) =>
+              String(s.name ?? "").toLowerCase() === stageName.toLowerCase(),
+            );
+            const kitchen = (stages ?? []).find((s: any) =>
+              String(s.kitchen?.name ?? "").toLowerCase() === String(kitchenName).toLowerCase(),
+            )?.kitchen;
+            if (stage?.id && kitchen?.id) {
+              stageOverrides[String(stage.id)] = toRecordId(kitchen.id);
+            }
+          }
+          dishData.stage_overrides = Object.keys(stageOverrides).length > 0 ? stageOverrides : null;
+        } else {
+          dishData.stage_overrides = null;
+        }
+      } else if (values.workflow === null || values.workflow === "") {
+        dishData.workflow = null;
+        dishData.stage_overrides = null;
       }
 
       const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
@@ -207,7 +237,7 @@ export function createDishImportConfig({
         if (field === "priority") {
           return {column: "priority", value: Number(value)};
         }
-        if (field === "categories" || field === "tax") {
+        if (field === "categories") {
           throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
         }
         return {column: field, value};

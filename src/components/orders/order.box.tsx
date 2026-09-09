@@ -600,7 +600,8 @@ export const OrderBox = ({
         <OrderPayment order={paymentOrder} onClose={() => {
           setPaymentOrder(null);
           setActionOrder(null);
-          onAction && onAction();
+          void retryHydrate();
+          onAction?.();
         }}/>
       )}
 

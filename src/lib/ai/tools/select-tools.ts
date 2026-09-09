@@ -6,6 +6,8 @@ import {isTipsPrompt} from "@/lib/ai/tip-query.ts";
 import {FRAUD_AUDIT_TOOL_NAMES, isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
 import {isPurchaseOrderPrompt} from "@/lib/ai/purchase-order-query.ts";
 import {isInventoryNeedPrompt, isStaffNeedPrompt} from "@/lib/ai/demand-query.ts";
+import {isPurchaseLedgerPrompt, shouldExcludePurchaseOrderTool, shouldExcludePosVoidTools, shouldPreferInventoryDocumentsTool} from "@/lib/ai/inventory-operation-query.ts";
+import {isEmployeeDetailPrompt, isHrEmployeePrompt, isHrOperationPrompt} from "@/lib/ai/employee-query.ts";
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
 import {AI_REPORT_COMPACT_TOOLS, getCompactToolByName} from "@/lib/ai/tools/compact-definitions.ts";
@@ -15,7 +17,7 @@ import {
 } from "@/lib/ai/tools/categories.ts";
 import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
 
-const SALES_KEYWORDS = /\b(sales|revenue|dishes?|dish|product|menu|items|server|servers|tips?|tip|voids?|discount|coupon|tax|day[\s-]?part|product mix|top selling|unsold|haven't sold|hasn't sold|dashboard|health overview|kpi|ticket\s*time|fastest|slowest|plowhorses?|puzzles?|menu\s+engineering|accountability|turn[\s-]?around)\b/i;
+const SALES_KEYWORDS = /\b(sales|revenue|dishes?|dish|product|menu|items|server|servers|tips?|tip|voids?|discount|coupon|tax|day[\s-]?part|product mix|top selling|unsold|haven't sold|hasn't sold|dashboard|health overview|kpi|ticket\s*time|fastest|slowest|plowhorses?|puzzles?|menu\s+engineering|accountability|turn[\s-]?around|yemek|yemeği|menü)\b/i;
 const INVENTORY_KEYWORDS = /\b(inventory|stock|reorder|consumption|issuance|issued|waste|purchase\s+orders?|pending\s+approval|awaiting\s+approval|purchase|issue|adjustment|ledger|location|transfer|kitchen reconciliation|sale vs consumption|below reorder)\b/i;
 const OPERATIONS_KEYWORDS = /\b(orders?|order\s*id|order:|order\s+detail|dossier|everything\s+for\s+order|delivery|expense|activity log|audit|cash closing|closing|clocked in|clock[\s-]?in|active session|prep|preparation|delay|kitchen|station|cancel|comp|modified|settled|fraud|fraudulent|suspicious|anomal\w*|tamper(?:ing)?|unauthorized|theft)\b/i;
 const LABOR_KEYWORDS = /\b(labor|labour|payroll|overtime|attendance|scheduled|shift|employee|staff cost|labor cost|labor percent|labor %|workforce|hr|over[\s-]?staff|hourly)\b/i;
@@ -23,6 +25,15 @@ const ACCOUNTS_KEYWORDS = /\b(trial balance|balance sheet|profit(?:\s*(?:&|and)\
 const ANALYSIS_KEYWORDS = /\b(forecast|predict|compare|comparison|vs\.?|versus|trend|time series|projection|estimate)\b/i;
 const CHART_KEYWORDS = /\b(chart|graph|plot|visuali[sz]e|line chart|bar chart|pie chart)\b/i;
 const LOOKUP_KEYWORDS = /\b(staff|server named|cashier|category|categories|menu item|inventory item|find item|lookup)\b/i;
+const MANAGE_ENTITY_KEYWORDS =
+  /\b(floors?|tables?|modifier groups?|modifiers?|kitchens?|coupons?|menus?|workflows?|printers?|users?|roles?|shifts?|discount rules?|extras?|payment types?|order types?|which tables?)\b/i;
+const MANAGE_READ_KEYWORDS =
+  /\b(show|list|display|which|what are|get all|configured|active automatic)\b/i;
+const MANAGE_DISCOUNT_CONFIG =
+  /\b(discount rule|automatic discount|buy.?x.?get.?y|bxgy|list.*discounts?|active discounts?|buy \d+ get \d+)\b/i;
+const SALES_DISCOUNT_REPORT =
+  /\b(discount summary|total discounts?|discounts? (given|applied|amount)|discount report)\b/i;
+const SALES_TAX_REPORT = /\b(tax summary|tax report|total tax)\b/i;
 
 export interface SelectToolsResult {
   tools: OpenAIToolDefinition[];
@@ -51,8 +62,14 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
     domains.add("labor");
     domains.add("analysis");
   }
+  if (isHrOperationPrompt(prompt)) {
+    domains.add("hr");
+    domains.add("labor");
+  }
 
-  if (SALES_KEYWORDS.test(prompt)) {
+  if (SALES_KEYWORDS.test(prompt) && !isPurchaseLedgerPrompt(prompt)) {
+    domains.add("sales");
+  } else if (SALES_KEYWORDS.test(prompt.replace(/\bvoid(?:ed|s)?\b/gi, ""))) {
     domains.add("sales");
   }
   if (INVENTORY_KEYWORDS.test(prompt)) {
@@ -75,6 +92,18 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
   }
   if (LOOKUP_KEYWORDS.test(prompt)) {
     domains.add("lookup");
+  }
+
+  const isManageDiscount = MANAGE_DISCOUNT_CONFIG.test(prompt) && !SALES_DISCOUNT_REPORT.test(prompt);
+  const isManageTax = /\b(list|show|configured)\b/i.test(prompt) && /\btaxes?\b/i.test(prompt) && !SALES_TAX_REPORT.test(prompt);
+  const isManageEntity =
+    MANAGE_ENTITY_KEYWORDS.test(prompt)
+    || isManageDiscount
+    || isManageTax
+    || (MANAGE_READ_KEYWORDS.test(prompt) && /\b(floor|table|user|role|shift|coupon|menu|workflow|printer|kitchen|modifier|extra|payment type|order type)\b/i.test(prompt));
+
+  if (isManageEntity) {
+    domains.add("manage");
   }
 
   if (isFraudSuspiciousPrompt(prompt)) {
@@ -118,6 +147,43 @@ const collectToolNames = (domains: Set<AiReportToolDomain>, prompt: string): str
   return Array.from(names);
 };
 
+const filterInventoryToolsForPrompt = (toolNames: string[], prompt: string): string[] => {
+  let names = toolNames;
+  if (shouldExcludePurchaseOrderTool(prompt)) {
+    names = names.filter(name => name !== "get_purchase_orders");
+  }
+  if (shouldExcludePosVoidTools(prompt)) {
+    names = names.filter(name => name !== "get_voids" && name !== "get_void_and_cancel_summary");
+  }
+  if (isHrEmployeePrompt(prompt)) {
+    names = names.filter(name => name !== "list_users" && name !== "list_staff");
+  }
+  return names;
+};
+
+const prioritizeEmployeeDetailTool = (toolNames: string[], prompt: string): string[] => {
+  if (!isEmployeeDetailPrompt(prompt)) {
+    return toolNames;
+  }
+  const rest = toolNames.filter(name => name !== "get_employee_detail");
+  return ["get_employee_detail", ...rest];
+};
+
+const prioritizeInventoryDocumentTool = (toolNames: string[], prompt: string): string[] => {
+  if (!shouldPreferInventoryDocumentsTool(prompt)) {
+    return toolNames;
+  }
+  const rest = toolNames.filter(name => name !== "get_inventory_documents");
+  return ["get_inventory_documents", ...rest];
+};
+
+export const applyPromptToolFilters = (toolNames: string[], prompt: string): string[] => {
+  let names = filterInventoryToolsForPrompt(toolNames, prompt);
+  names = prioritizeInventoryDocumentTool(names, prompt);
+  names = prioritizeEmployeeDetailTool(names, prompt);
+  return names;
+};
+
 const resolveToolDefinitions = (toolNames: string[], compact: boolean): OpenAIToolDefinition[] => {
   if (!compact) {
     const nameSet = new Set(toolNames);
@@ -149,7 +215,7 @@ export const selectToolsForPrompt = (
   }
 
   const domains = detectDomainsFromPrompt(prompt, format);
-  const toolNames = collectToolNames(domains, prompt);
+  let toolNames = applyPromptToolFilters(collectToolNames(domains, prompt), prompt);
   let tools = resolveToolDefinitions(toolNames, true);
 
   if (allowedModules.length) {

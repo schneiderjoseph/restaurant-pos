@@ -1,6 +1,6 @@
 import './assets/css/app.scss';
 import 'react-indiana-drag-scroll/dist/style.css'
-import {ConfigProvider} from "antd";
+import ConfigProvider from "antd/es/config-provider";
 import {QueryClient, QueryClientProvider,} from '@tanstack/react-query'
 import {appAntdTheme} from "@/lib/antd-theme.ts";
 import {Toaster} from "sonner";
@@ -29,6 +29,8 @@ import {
   isDeliveryModuleEnabled,
   isHrModuleEnabled,
 } from "@/lib/feature-modules.ts";
+import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
+import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
 
 
 // react query client wrapper
@@ -91,6 +93,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={appAntdTheme}>
         <DatabaseProvider>
+          <OfflineModeBanner />
           <IntegrationProvider>
             <AutoCheckCloseProvider>
               <ClosingLayer>
@@ -102,6 +105,7 @@ function App() {
                           <I18nProvider>
                             <SessionIdleProvider>
                               <ClockOutLayer>
+                                <AiAssistantWidget/>
                                 <AppRoutes/>
                               </ClockOutLayer>
                             </SessionIdleProvider>

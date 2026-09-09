@@ -21,7 +21,8 @@
     "shifts": "Turni",
     "tipsDefinition": "Definizione mance",
     "accessTab": "Accedi a {{title}}",
-    "ariaLabel": "Schede amministrazione"
+    "ariaLabel": "Schede amministrazione",
+    "securityAlerts": "Avvisi di Sicurezza"
   },
   "columns": {
     "photo": "Foto",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Prezzo bloccato",
     "hasRequiredModifiers": "Ha modificatori obbligatori",
     "shouldAutoOpen": "Apri automaticamente",
-    "shouldAutoSelect": "Seleziona automaticamente"
+    "shouldAutoSelect": "Seleziona automaticamente",
+    "recordType": "Tipo riga",
+    "dishName": "Piatto",
+    "parentModifier": "Taglia padre",
+    "nextGroup": "Gruppo successivo"
   },
   "entities": {
     "dish": "Piatto",
@@ -146,7 +151,8 @@
     "smartImportDishes": "Importazione IA",
     "smartImport": "Importazione IA",
     "smartImportIngredients": "Importazione IA ingredienti",
-    "smartImportModifierGroups": "Importazione IA gruppi modificatori"
+    "smartImportModifierGroups": "Importazione IA gruppi modificatori",
+    "smartImportMenuStructure": "Importa struttura menu con IA"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -234,6 +240,8 @@
     "updatePaymentType": "Aggiorna {{name}}",
     "selectProvider": "Seleziona provider (facoltativo)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Le credenziali sono memorizzate in forma crittografata.",
+    "encryptedCredentialsExplanation": "I campi sono vuoti per sicurezza — inserisci nuovi valori solo per sostituire le credenziali esistenti. Lascia vuoto per mantenere i valori attuali.",
     "createExtra": "Crea nuovo extra",
     "updateExtra": "Aggiorna {{name}}",
     "createTax": "Crea nuova IVA",
@@ -271,6 +279,8 @@
     "rightMargin": "Margine destro",
     "bottomDescription": "Descrizione inferiore",
     "removeLogo": "Rimuovi logo",
+    "logoOffsetX": "Offset orizzontale logo",
+    "logoOffsetXHint": "Sposta il logo in punti (negativo = sinistra, positivo = destra). Regola per stampante fino all'allineamento con il testo centrato.",
     "nameOfItem": "Nome articolo",
     "numberOfItem": "Numero articolo",
     "costOfItem": "Costo articolo",
@@ -351,6 +361,7 @@
     "smartImportExtrasTitle": "Importazione IA extra",
     "smartImportKitchensTitle": "Importazione IA stazioni",
     "smartImportStandaloneModifierGroupsTitle": "Importazione IA gruppi modificatori",
+    "smartImportMenuStructureTitle": "Importa struttura menu (taglie, topping, collegamenti)",
     "showsAllItems": "Mostra tutti i ticket",
     "showsAllItemsHint": "Questa stazione mostra ogni articolo di ogni stazione (pass / expo). Non toglie i piatti alle altre stazioni.",
     "showsAllBadge": "Tutti i ticket"
@@ -626,6 +637,7 @@
       "admin.tips_definition.create": "Crea Definizione mance",
       "admin.tips_definition.update": "Aggiorna Definizione mance",
       "admin.tips_definition.delete": "Elimina Definizione mance",
+      "admin.security_alerts": "Avvisi di sicurezza",
       "tips": "Mance",
       "tips.calculation": "Calcolo mance",
       "tips.payout": "Gestione pagamenti",
@@ -872,5 +884,29 @@
       "saveFailed": "Impossibile salvare lo sconto.",
       "createReasonFailed": "Impossibile creare il motivo sconto."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Ruolo amministratore richiesto per visualizzare avvisi di sicurezza.",
+    "loading": "Caricamento avvisi…",
+    "error": "Caricamento avvisi fallito",
+    "critical": "Critico",
+    "warning": "Avviso",
+    "info": "Info",
+    "noAlerts": "Nessun avviso aperto",
+    "noAlertsDescription": "Il rilevatore di anomalie non ha segnalato attività sospette.",
+    "count": "×{{n}}",
+    "actor": "Attore",
+    "actorId": "ID attore",
+    "actorRoles": "Ruoli attore",
+    "sourceIp": "IP sorgente",
+    "emittedAt": "Emesso il",
+    "ruleType": "Tipo di regola",
+    "detailTitle": "Avviso di Sicurezza",
+    "resolutionNotes": "Note di risoluzione (opzionale)",
+    "resolutionNotesPlaceholder": "es. Investigato — falso allarme da test automatizzato",
+    "acknowledge": "Riconosci",
+    "hideDetails": "▼ Nascondi dettagli",
+    "showDetails": "▶ Mostra dettagli",
+    "badgeTooltip": "{{count}} avviso/i critico/i aperto/i"
   }
 }

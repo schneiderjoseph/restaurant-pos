@@ -21,7 +21,8 @@
     "shifts": "Services",
     "tipsDefinition": "Définition des pourboires",
     "accessTab": "Accéder à {{title}}",
-    "ariaLabel": "Onglets d'administration"
+    "ariaLabel": "Onglets d'administration",
+    "securityAlerts": "Alertes de Sécurité"
   },
   "columns": {
     "photo": "Photo",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Prix verrouillé",
     "hasRequiredModifiers": "Modificateurs requis",
     "shouldAutoOpen": "Ouverture auto",
-    "shouldAutoSelect": "Sélection auto"
+    "shouldAutoSelect": "Sélection auto",
+    "recordType": "Type de ligne",
+    "dishName": "Plat",
+    "parentModifier": "Taille parente",
+    "nextGroup": "Groupe suivant"
   },
   "entities": {
     "dish": "Plat",
@@ -146,7 +151,8 @@
     "smartImportDishes": "Import IA",
     "smartImport": "Import IA",
     "smartImportIngredients": "Import IA des ingrédients",
-    "smartImportModifierGroups": "Import IA des groupes de modificateurs"
+    "smartImportModifierGroups": "Import IA des groupes de modificateurs",
+    "smartImportMenuStructure": "Import IA structure du menu"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -234,6 +240,8 @@
     "updatePaymentType": "Mettre à jour {{name}}",
     "selectProvider": "Sélectionner un fournisseur (facultatif)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Les identifiants sont stockés de manière chiffrée.",
+    "encryptedCredentialsExplanation": "Les champs sont vides pour des raisons de sécurité — saisissez de nouvelles valeurs uniquement pour remplacer les identifiants existants. Laissez vide pour conserver les valeurs actuelles.",
     "createExtra": "Créer un nouveau supplément",
     "updateExtra": "Mettre à jour {{name}}",
     "createTax": "Créer une nouvelle taxe",
@@ -291,6 +299,8 @@
     "removeSectionImage": "Supprimer l'image de section",
     "deleteReceiptSection": "Supprimer cette section du ticket ? Les changements ne seront définitifs qu'après enregistrement.",
     "removeLogo": "Supprimer le logo",
+    "logoOffsetX": "Décalage horizontal du logo",
+    "logoOffsetXHint": "Décale le logo en points (négatif = gauche, positif = droite). Ajustez par imprimante jusqu'à l'alignement avec le texte centré.",
     "nameOfItem": "Nom de l'article",
     "numberOfItem": "Numéro de l'article",
     "costOfItem": "Coût de l'article",
@@ -371,6 +381,7 @@
     "smartImportExtrasTitle": "Import IA des suppléments",
     "smartImportKitchensTitle": "Import IA des stations",
     "smartImportStandaloneModifierGroupsTitle": "Import IA des groupes de modificateurs",
+    "smartImportMenuStructureTitle": "Import IA structure du menu (tailles, suppléments, liens)",
     "showsAllItems": "Afficher tous les tickets",
     "showsAllItemsHint": "Cette station affiche tous les articles de toutes les stations (passe / expo). Elle ne retire pas les plats des autres stations.",
     "showsAllBadge": "Tous les tickets"
@@ -646,6 +657,7 @@
       "admin.tips_definition.create": "Créer Définition des pourboires",
       "admin.tips_definition.update": "Mettre à jour Définition des pourboires",
       "admin.tips_definition.delete": "Supprimer Définition des pourboires",
+      "admin.security_alerts": "Alertes de sécurité",
       "tips": "Pourboires",
       "tips.calculation": "Calcul des pourboires",
       "tips.payout": "Gestion des versements",
@@ -892,5 +904,29 @@
       "saveFailed": "Impossible d'enregistrer la remise.",
       "createReasonFailed": "Impossible de créer le motif de remise."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Rôle administrateur requis pour consulter les alertes de sécurité.",
+    "loading": "Chargement des alertes…",
+    "error": "Échec du chargement des alertes",
+    "critical": "Critique",
+    "warning": "Avertissement",
+    "info": "Info",
+    "noAlerts": "Aucune alerte ouverte",
+    "noAlertsDescription": "Le détecteur d'anomalies n'a signalé aucune activité suspecte.",
+    "count": "×{{n}}",
+    "actor": "Acteur",
+    "actorId": "ID acteur",
+    "actorRoles": "Rôles de l'acteur",
+    "sourceIp": "IP source",
+    "emittedAt": "Émis le",
+    "ruleType": "Type de règle",
+    "detailTitle": "Alerte de Sécurité",
+    "resolutionNotes": "Notes de résolution (optionnel)",
+    "resolutionNotesPlaceholder": "ex. Enquêté — fausse alarme de test automatisé",
+    "acknowledge": "Accuser réception",
+    "hideDetails": "▼ Masquer détails",
+    "showDetails": "▶ Afficher détails",
+    "badgeTooltip": "{{count}} alerte(s) critique(s) ouverte(s)"
   }
 }

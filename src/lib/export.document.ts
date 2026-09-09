@@ -1,4 +1,3 @@
-import html2canvas from "html2canvas";
 import { exportElementAsRealPdf } from "@/lib/export.pdf.ts";
 
 export const printDocument = () => {
@@ -18,6 +17,8 @@ export const exportElementAsImage = async (
   filename = "document.png",
 ) => {
   if (!element) return;
+
+  const {default: html2canvas} = await import("html2canvas");
 
   const canvas = await html2canvas(element, {
     scale: 2,

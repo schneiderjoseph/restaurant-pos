@@ -1,4 +1,6 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
+import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
+import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
 
 const dateParams = {
   phrase: {type: "string"},
@@ -159,7 +161,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_inventory_movements",
-      description: "Ledger movements by type (purchase, issue, waste, adjustment, transfer, production, buffet).",
+      description: "Posted ledger movements by type. For purchase receipts use get_inventory_documents instead.",
       parameters: {
         type: "object",
         properties: {
@@ -182,6 +184,37 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
           },
         },
         required: ["type"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_inventory_documents",
+      description: "Posted inventory docs: purchases, returns, issues, waste, adjustments, transfers (not POs). Use documentStatus=voided for voided purchases — not get_voids.",
+      parameters: {
+        type: "object",
+        properties: {
+          ...dateParams,
+          documentType: {
+            type: "string",
+            enum: [
+              "purchase",
+              "purchase_return",
+              "issue",
+              "issue_return",
+              "waste",
+              "adjustment",
+              "transfer",
+            ],
+          },
+          documentStatus: {
+            type: "string",
+            enum: ["draft", "approved", "posted", "cancelled", "voided"],
+          },
+          limit: {type: "number", default: 50},
+        },
+        required: ["documentType"],
       },
     },
   },
@@ -229,7 +262,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_purchase_orders",
-      description: "Purchase order documents by status/date (not ledger purchases).",
+      description: "Purchase ORDER approval docs (Draft/Pending/Approved) — never for posted purchases/receipts.",
       parameters: {
         type: "object",
         properties: {
@@ -241,6 +274,22 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
           limit: {type: "number", default: 50},
         },
       },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_suppliers",
+      description: "Inventory suppliers.",
+      parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number", default: 50}}},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_inventory_locations",
+      description: "Inventory stock locations.",
+      parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number", default: 50}}},
     },
   },
   {
@@ -784,6 +833,8 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
       },
     },
   },
+  ...AI_MANAGE_READ_TOOLS,
+  ...AI_HR_READ_TOOLS,
 ];
 
 const COMPACT_TOOL_BY_NAME = new Map(

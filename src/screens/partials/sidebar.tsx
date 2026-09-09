@@ -49,6 +49,7 @@ import {
   isHrModuleEnabled,
   isIntegrationsModuleEnabled,
 } from "@/lib/feature-modules.ts";
+import { SecurityAlertsBadge } from "@/components/admin/security-alerts/alert-badge.tsx";
 
 const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [MENU]: 'nav-menu',
@@ -137,7 +138,7 @@ export const Sidebar = () => {
                   protectedNavigate(item.link, item.role);
                 }}
                 className={cn(
-                  'flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
+                  'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
                   pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900 border-[3px] border-transparent'
                 )}
                 key={item.title}
@@ -147,6 +148,7 @@ export const Sidebar = () => {
               >
                 <span className="icon">{item.icon}</span>
                 <span className="label text-[12px]">{item.title}</span>
+                {item.link === ADMIN && <SecurityAlertsBadge />}
               </button>
             ))}
           </div>

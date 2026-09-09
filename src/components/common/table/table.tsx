@@ -11,7 +11,6 @@ import {
 } from "@tanstack/react-table";
 import React, {FC, ReactNode, useEffect, useState,} from "react";
 import { useTranslation } from "react-i18next";
-import _ from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faRefresh, faSearch, } from "@fortawesome/free-solid-svg-icons";
 import { Input } from "@/components/common/input/input.tsx";
@@ -194,11 +193,11 @@ export const TableComponent: FC<TableComponentProps> = ({
   const handleColumnFilter = (values: any) => {
     if( values.value && values.value.trim() !== '' ) {
       handleFilterChange([
-        `string::similarity::fuzzy(string::lowercase($this[$column]), string::lowercase($value)) > 0`
+        `string::similarity::fuzzy(string::lowercase($this[$column] ?? ''), string::lowercase($value ?? '')) > 0`
       ]);
       handleParameterChange({
-        'column': values.column.value,
-        'value': values.value
+        column: values.column.value,
+        value: values.value.toString().toLowerCase()
       });
     }
 
@@ -442,7 +441,7 @@ export const TableComponent: FC<TableComponentProps> = ({
               table.setPageIndex(Number(e.target.value) - 1);
             }}
             className="w-auto form-control">
-            {_.range(0, table.getPageCount()).map((pageSize) => (
+            {Array.from({length: table.getPageCount()}, (_, i) => i).map((pageSize) => (
               <option key={pageSize} value={pageSize + 1}>
                 {pageSize + 1}
               </option>

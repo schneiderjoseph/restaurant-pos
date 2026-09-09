@@ -21,7 +21,8 @@
     "shifts": "Schichten",
     "tipsDefinition": "Trinkgeld-Definition",
     "accessTab": "Zugriff auf {{title}}",
-    "ariaLabel": "Verwaltungsregisterkarten"
+    "ariaLabel": "Verwaltungsregisterkarten",
+    "securityAlerts": "Sicherheitswarnungen"
   },
   "columns": {
     "photo": "Foto",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Preis gesperrt",
     "hasRequiredModifiers": "Erforderliche Modifier",
     "shouldAutoOpen": "Automatisch öffnen",
-    "shouldAutoSelect": "Automatisch auswählen"
+    "shouldAutoSelect": "Automatisch auswählen",
+    "recordType": "Zeilentyp",
+    "dishName": "Gericht",
+    "parentModifier": "Übergeordnete Größe",
+    "nextGroup": "Nächste Gruppe"
   },
   "entities": {
     "dish": "Gericht",
@@ -146,7 +151,8 @@
     "smartImportDishes": "KI-Import",
     "smartImport": "KI-Import",
     "smartImportIngredients": "Zutaten KI-Import",
-    "smartImportModifierGroups": "Modifiergruppen KI-Import"
+    "smartImportModifierGroups": "Modifiergruppen KI-Import",
+    "smartImportMenuStructure": "KI-Import Menüstruktur"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -234,6 +240,8 @@
     "updatePaymentType": "{{name}} aktualisieren",
     "selectProvider": "Anbieter auswählen (optional)",
     "sandboxLive": "Sandbox / Live",
+    "encryptedCredentialsHint": "Zugangsdaten werden verschlüsselt gespeichert.",
+    "encryptedCredentialsExplanation": "Felder sind aus Sicherheitsgründen leer — geben Sie nur neue Werte ein, um vorhandene Zugangsdaten zu ersetzen. Leer lassen, um die aktuellen Werte beizubehalten.",
     "createExtra": "Neues Extra erstellen",
     "updateExtra": "{{name}} aktualisieren",
     "createTax": "Neue Steuer erstellen",
@@ -271,6 +279,8 @@
     "rightMargin": "Rechter Rand",
     "bottomDescription": "Untere Beschreibung",
     "removeLogo": "Logo entfernen",
+    "logoOffsetX": "Horizontale Logo-Verschiebung",
+    "logoOffsetXHint": "Logo in Punkten verschieben (negativ = links, positiv = rechts). Pro Drucker anpassen, bis es mit zentriertem Text übereinstimmt.",
     "nameOfItem": "Artikelname",
     "numberOfItem": "Artikelnummer",
     "costOfItem": "Artikelkosten",
@@ -351,6 +361,7 @@
     "smartImportExtrasTitle": "Extras KI-Import",
     "smartImportKitchensTitle": "KI-Import Stationen",
     "smartImportStandaloneModifierGroupsTitle": "Modifiergruppen KI-Import",
+    "smartImportMenuStructureTitle": "KI-Import Menüstruktur (Größen, Toppings, Verknüpfungen)",
     "showsAllItems": "Alle Tickets anzeigen",
     "showsAllItemsHint": "Diese Station zeigt jeden Artikel aus jeder Station (Pass / Expo). Gerichte anderer Stationen werden nicht entfernt.",
     "showsAllBadge": "Alle Tickets"
@@ -626,6 +637,7 @@
       "admin.tips_definition.create": "Erstellen Trinkgeld-Definition",
       "admin.tips_definition.update": "Aktualisieren Trinkgeld-Definition",
       "admin.tips_definition.delete": "Löschen Trinkgeld-Definition",
+      "admin.security_alerts": "Sicherheitswarnungen",
       "tips": "Trinkgeld",
       "tips.calculation": "Trinkgeldberechnung",
       "tips.payout": "Auszahlungsverwaltung",
@@ -872,5 +884,29 @@
       "saveFailed": "Rabatt konnte nicht gespeichert werden.",
       "createReasonFailed": "Rabattgrund konnte nicht erstellt werden."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Administratorrolle erforderlich, um Sicherheitswarnungen anzuzeigen.",
+    "loading": "Warnungen werden geladen…",
+    "error": "Warnungen konnten nicht geladen werden",
+    "critical": "Kritisch",
+    "warning": "Warnung",
+    "info": "Info",
+    "noAlerts": "Keine offenen Warnungen",
+    "noAlertsDescription": "Der Anomalie-Detektor hat keine verdächtige Aktivität markiert.",
+    "count": "×{{n}}",
+    "actor": "Akteur",
+    "actorId": "Akteur-ID",
+    "actorRoles": "Akteur-Rollen",
+    "sourceIp": "Quell-IP",
+    "emittedAt": "Ausgegeben am",
+    "ruleType": "Regeltyp",
+    "detailTitle": "Sicherheitswarnung",
+    "resolutionNotes": "Lösungshinweise (optional)",
+    "resolutionNotesPlaceholder": "z.B. Untersucht — Fehlalarm vom automatisierten Test",
+    "acknowledge": "Bestätigen",
+    "hideDetails": "▼ Details ausblenden",
+    "showDetails": "▶ Details anzeigen",
+    "badgeTooltip": "{{count}} offene kritische Warnung(en)"
   }
 }

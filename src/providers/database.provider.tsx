@@ -21,6 +21,31 @@ import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import { useTranslation } from "react-i18next";
 
 const SESSION_EVENT = "posr-session";
+const CONNECTED_ONCE_KEY = "posr-db-connected-once";
+
+function readBrowserOnline(): boolean {
+  return typeof navigator === "undefined" || navigator.onLine;
+}
+
+function readConnectedOnceFlag(): boolean {
+  try {
+    return sessionStorage.getItem(CONNECTED_ONCE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function persistConnectedOnce(value: boolean) {
+  try {
+    if (value) {
+      sessionStorage.setItem(CONNECTED_ONCE_KEY, "1");
+    } else {
+      sessionStorage.removeItem(CONNECTED_ONCE_KEY);
+    }
+  } catch {
+    // ignore private browsing / disabled storage
+  }
+}
 
 const dbEndpointLabel = () => {
   const endpoint = withApi("") || DB_REST_API || "(missing VITE_DB_WEBDOCKET)";
@@ -45,6 +70,12 @@ export interface DatabaseProviderState {
   connect: () => Promise<void>;
   /** Close the Surreal instance */
   close: () => Promise<void>;
+  /** Whether the browser reports network connectivity (navigator.onLine). */
+  isBrowserOnline: boolean;
+  /** Socket connected AND browser online — use for offline banner / queue. */
+  isEffectivelyConnected: boolean;
+  /** Whether the user has a POS session (logged in). */
+  hasSession: boolean;
 }
 
 export const DatabaseContext = createContext<DatabaseProviderState | undefined>(undefined);
@@ -67,8 +98,10 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   const [isConnected, setIsConnected] = useState(false);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [isBrowserOnline, setIsBrowserOnline] = useState(readBrowserOnline);
   const connectInFlight = useRef<Promise<void> | null>(null);
   const wasSessionReady = useRef(sessionReady);
+  const hasConnectedOnce = useRef(readConnectedOnceFlag());
 
   useEffect(() => {
     if (!gatewayMode) {
@@ -81,7 +114,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     return () => window.removeEventListener(SESSION_EVENT, sync);
   }, [gatewayMode]);
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (options?: { silent?: boolean }) => {
     if (connectInFlight.current) {
       return connectInFlight.current;
     }
@@ -94,10 +127,17 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       return;
     }
 
+    const initialAttempt = !hasConnectedOnce.current;
+    const silent = options?.silent ?? false;
+
     const pending = (async () => {
-      setIsConnecting(true);
-      setIsError(false);
-      setError(null);
+      if (initialAttempt && !silent) {
+        setIsConnecting(true);
+      }
+      if (initialAttempt) {
+        setIsError(false);
+        setError(null);
+      }
 
       const openSocket = async () => {
         const endpoint = resolveDbWebsocketUrl();
@@ -165,13 +205,19 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
 
         console.log("Successfully connected to SurrealDB");
         setIsConnected(true);
+        hasConnectedOnce.current = true;
+        persistConnectedOnce(true);
       } catch (err) {
         setIsConnected(false);
-        setIsError(true);
-        setError(err);
+        if (initialAttempt) {
+          setIsError(true);
+          setError(err);
+        }
         throw err;
       } finally {
-        setIsConnecting(false);
+        if (initialAttempt) {
+          setIsConnecting(false);
+        }
       }
     })();
 
@@ -196,7 +242,30 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     setIsConnecting(false);
     setIsError(false);
     setError(null);
+    hasConnectedOnce.current = false;
+    persistConnectedOnce(false);
   }, [surrealInstance]);
+
+  // React immediately when the OS reports offline/online (WiFi toggle, airplane mode).
+  useEffect(() => {
+    const onOnline = () => {
+      setIsBrowserOnline(true);
+      if (getSessionToken()) {
+        void connect({ silent: hasConnectedOnce.current }).catch(() => {});
+      }
+    };
+    const onOffline = () => {
+      setIsBrowserOnline(false);
+      setIsConnected(false);
+      void surrealInstance.close().catch(() => {});
+    };
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
+  }, [surrealInstance, connect]);
 
   // Auto-connect when session allows it.
   // IMPORTANT: do not close the socket in this effect's cleanup — React StrictMode
@@ -225,27 +294,55 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   // Keep React flags aligned with the real socket (handles StrictMode / drops).
   useEffect(() => {
     const id = window.setInterval(() => {
-      const live = surrealInstance.isConnected;
+      const live = surrealInstance.isConnected && readBrowserOnline();
       setIsConnected((prev) => (prev === live ? prev : live));
-      if (!live && getSessionToken() && !connectInFlight.current) {
-        void connect().catch(() => {});
+      if (!readBrowserOnline()) {
+        setIsBrowserOnline(false);
+      }
+      if (!live && getSessionToken() && readBrowserOnline() && !connectInFlight.current) {
+        void connect({ silent: true }).catch(() => {});
       }
     }, 2000);
     return () => window.clearInterval(id);
   }, [surrealInstance, connect]);
+
+  const hasSession = gatewayMode ? sessionReady && Boolean(getSessionToken()) : true;
+  const isEffectivelyConnected = isConnected && isBrowserOnline;
 
   const value: DatabaseProviderState = useMemo(
     () => ({
       client: surrealInstance,
       isConnecting,
       isConnected,
+      isBrowserOnline,
+      isEffectivelyConnected,
+      hasSession,
       isError,
       error,
       connect,
       close,
     }),
-    [surrealInstance, isConnecting, isConnected, isError, error, connect, close],
+    [
+      surrealInstance,
+      isConnecting,
+      isConnected,
+      isBrowserOnline,
+      isEffectivelyConnected,
+      hasSession,
+      isError,
+      error,
+      connect,
+      close,
+    ],
   );
+
+  useEffect(() => {
+    const onReconnect = () => {
+      void connect({ silent: hasConnectedOnce.current }).catch(() => {});
+    };
+    window.addEventListener('posr-db-reconnect', onReconnect);
+    return () => window.removeEventListener('posr-db-reconnect', onReconnect);
+  }, [connect]);
 
   useEffect(() => {
     const onUnhandledRejection = (event: PromiseRejectionEvent) => {
@@ -274,7 +371,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     );
   }
 
-  if (isError && !isConnected) {
+  if (!hasConnectedOnce.current && isError && !isConnected) {
     return (
       <DatabaseContext.Provider value={value}>
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -296,7 +393,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
     );
   }
 
-  if (isConnecting || !isConnected) {
+  if (!hasConnectedOnce.current && (isConnecting || !isConnected)) {
     console.log(`connecting to ${dbEndpointLabel()}...`);
     return (
       <DatabaseContext.Provider value={value}>

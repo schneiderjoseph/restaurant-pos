@@ -105,11 +105,17 @@ export function authHeaders(init?: HeadersInit): Headers {
 
 export type GatewayLoginResponse = {
   ok: boolean;
+  status?: number;
   token?: string;
   surrealToken?: string;
   expiresIn?: number;
   user?: unknown;
   error?: string;
+  code?: string;
+  attemptsRemaining?: number;
+  maxAttempts?: number;
+  lockoutMs?: number;
+  retryAfterMs?: number;
 };
 
 export async function gatewayLogin(payload: {
@@ -122,11 +128,20 @@ export async function gatewayLogin(payload: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse;
+  const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse & Record<string, unknown>;
   if (!res.ok) {
-    return { ok: false, error: data.error || `Login failed (${res.status})` };
+    return {
+      ok: false,
+      status: res.status,
+      error: data.error || `Login failed (${res.status})`,
+      code: typeof data.code === 'string' ? data.code : undefined,
+      attemptsRemaining: typeof data.attemptsRemaining === 'number' ? data.attemptsRemaining : undefined,
+      maxAttempts: typeof data.maxAttempts === 'number' ? data.maxAttempts : undefined,
+      lockoutMs: typeof data.lockoutMs === 'number' ? data.lockoutMs : undefined,
+      retryAfterMs: typeof data.retryAfterMs === 'number' ? data.retryAfterMs : undefined,
+    };
   }
-  return data;
+  return { ...data, ok: true, status: res.status };
 }
 
 export async function gatewayLogout(): Promise<void> {
@@ -200,6 +215,68 @@ export function invalidateGatewaySession(): void {
   } catch {
     // ignore
   }
+}
+
+export class SessionAuthError extends Error {
+  constructor(message = 'Session expired. Please sign in again.') {
+    super(message);
+    this.name = 'SessionAuthError';
+  }
+}
+
+export function isSidecarSessionAuthFailure(status: number, errorMessage?: string): boolean {
+  if (status !== 401) {
+    return false;
+  }
+  const msg = String(errorMessage ?? '').toLowerCase();
+  return (
+    msg.includes('unauthorized') ||
+    msg.includes('invalid or expired session') ||
+    msg.includes('invalid token type')
+  );
+}
+
+export type ApiErrorBody = {
+  ok?: boolean;
+  success?: boolean;
+  error?: string;
+};
+
+/**
+ * Decide whether a failed fetch to a sidecar (api, payments, etc.) should clear
+ * the POS session. Module routes wrap errors as `{ success: false }`; gateway
+ * session middleware uses `{ ok: false }`. Upstream AI 401s must not log the
+ * user out.
+ */
+export function shouldInvalidateSessionFromApiError(
+  status: number,
+  body: ApiErrorBody | null,
+  errorMessage?: string,
+): boolean {
+  if (!isGatewayAuthEnabled() || status !== 401) {
+    return false;
+  }
+  if (body?.ok === false) {
+    return isSidecarSessionAuthFailure(status, errorMessage);
+  }
+  if (body?.success === false) {
+    return false;
+  }
+  const msg = String(errorMessage ?? '').toLowerCase();
+  return msg.includes('invalid or expired session') || msg.includes('invalid token type');
+}
+
+/** Invalidate gateway session when a sidecar rejects the POS session JWT. */
+export function invalidateSessionOnSidecarAuthFailure(
+  status: number,
+  errorMessage?: string,
+  body: ApiErrorBody | null = null,
+): boolean {
+  if (!shouldInvalidateSessionFromApiError(status, body, errorMessage)) {
+    return false;
+  }
+  invalidateGatewaySession();
+  return true;
 }
 
 /** Append gateway session JWT to the Surreal WS URL for the relay. */

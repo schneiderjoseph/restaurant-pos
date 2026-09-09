@@ -16,7 +16,12 @@ const DEFAULT_OPTIONS = { encoding: 'UTF-8', width: 42 };
  * @returns {Promise<void>}
  */
 function printOnDevice(device, escposOptions, printType, data, config) {
-  const printer = new escpos.Printer(device, { ...DEFAULT_OPTIONS, ...escposOptions });
+  const escposOpts = { ...DEFAULT_OPTIONS, ...escposOptions };
+  const printer = new escpos.Printer(device, escposOpts);
+  const configWithPrinter = {
+    ...config,
+    escposLineWidth: escposOpts.width,
+  };
 
   return new Promise((resolve, reject) => {
     device.open((openErr) => {
@@ -26,7 +31,7 @@ function printOnDevice(device, escposOptions, printType, data, config) {
 
       const builder = getBuilder(printType);
 
-      Promise.resolve(builder.build(printer, data, config))
+      Promise.resolve(builder.build(printer, data, configWithPrinter))
         .then(() => {
           return new Promise((res, rej) => {
             printer.close((closeErr) => (closeErr ? rej(closeErr) : res()));
@@ -72,7 +77,10 @@ async function handlePrint(body) {
         error: err && (err.message || String(err)),
       });
 
-      console.log(Object.keys(err), Object.values(err))
+      // SECURITY: was console.log(Object.keys(err), Object.values(err)) —
+      // leaked err object contents (including potentially sensitive device
+      // info) to stdout. Replaced with sanitized error logging.
+      console.error(`[print] Printer ${i} failed:`, err && err.message ? err.message : String(err));
     }
   }
 

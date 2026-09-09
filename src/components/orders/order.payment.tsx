@@ -75,10 +75,6 @@ export const OrderPayment = ({
 
   const [page] = useAtom(appPage);
 
-  const closeModal = () => {
-    onClose();
-  }
-
   const itemsTotal = calculateOrderTotal(order);
   const [paymentTypes, setPaymentTypes] = useState<OrderPaymentModal[]>([]);
 
@@ -748,6 +744,35 @@ export const OrderPayment = ({
     void run();
   }, [saveOrderProgress, isInitialized]);
 
+  const flushOrderProgress = async () => {
+    if (!isInitialized) {
+      return;
+    }
+
+    while (saveInFlightRef.current || savePendingRef.current) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+
+    saveInFlightRef.current = true;
+    try {
+      do {
+        savePendingRef.current = false;
+        await saveOrderProgressRef.current();
+      } while (savePendingRef.current);
+    } finally {
+      saveInFlightRef.current = false;
+    }
+  };
+
+  const closeModal = async () => {
+    try {
+      await flushOrderProgress();
+    } catch (error) {
+      console.error('Failed to flush order progress on close', error);
+    }
+    onClose();
+  };
+
   const [pageState] = useAtom(appPage);
   const {
     showTotalInOrderCard = false,
@@ -845,7 +870,7 @@ export const OrderPayment = ({
             }}>
               <div>
                 {t('tabs.discount')}{' '}
-                {discountLines.length > 0 && `(${discountLines.length})`}{' '}
+                {cartTotals.discountLines.length > 0 && `(${cartTotals.discountLines.length})`}{' '}
                 <FontAwesomeIcon icon={faPencil}/>
               </div>
               <div className="text-right"><DualCurrency amount={cartTotals.discountTotal} /></div>
@@ -969,6 +994,7 @@ export const OrderPayment = ({
             <OrderPaymentDiscountEngine
               order={order}
               discountLines={discountLines.filter(l => l.applicationType === 'manual')}
+              automaticLines={cartTotals.discountLines.filter(l => l.applicationType === 'automatic')}
               onApply={(manualLines) => {
                 const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
                 setDiscountLines([...autoLines, ...manualLines]);

@@ -21,7 +21,8 @@
     "shifts": "Vardiyalar",
     "tipsDefinition": "Bahşiş tanımı",
     "accessTab": "{{title}} modülüne eriş",
-    "ariaLabel": "Yönetim sekmeleri"
+    "ariaLabel": "Yönetim sekmeleri",
+    "securityAlerts": "Güvenlik Uyarıları"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Fiyat kilitli",
     "hasRequiredModifiers": "Zorunlu modifikatörler var",
     "shouldAutoOpen": "Otomatik aç",
-    "shouldAutoSelect": "Otomatik seç"
+    "shouldAutoSelect": "Otomatik seç",
+    "recordType": "Satır tipi",
+    "dishName": "Yemek",
+    "parentModifier": "Üst boyut",
+    "nextGroup": "Sonraki grup"
   },
   "entities": {
     "dish": "Yemek",
@@ -146,7 +151,8 @@
     "smartImportDishes": "YZ içe aktarma",
     "smartImport": "YZ içe aktarma",
     "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
-    "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar"
+    "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar",
+    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -234,6 +240,8 @@
     "updatePaymentType": "{{name}} güncelle",
     "selectProvider": "Sağlayıcı seçin (isteğe bağlı)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Kimlik bilgileri şifreli olarak saklanır.",
+    "encryptedCredentialsExplanation": "Alanlar güvenlik nedeniyle boştur — yalnızca mevcut kimlik bilgilerini değiştirmek için yeni değerler girin. Mevcut değerleri korumak için boş bırakın.",
     "createExtra": "Yeni ekstra oluştur",
     "updateExtra": "{{name}} güncelle",
     "createTax": "Yeni vergi oluştur",
@@ -271,6 +279,8 @@
     "rightMargin": "Sağ kenar boşluğu",
     "bottomDescription": "Alt açıklama",
     "removeLogo": "Logoyu kaldır",
+    "logoOffsetX": "Logo yatay konumu",
+    "logoOffsetXHint": "Logoyu nokta cinsinden kaydırın (negatif = sola, pozitif = sağa). Ortalanmış metinle hizalanana kadar yazıcıya göre ayarlayın.",
     "nameOfItem": "Ürün adı",
     "numberOfItem": "Ürün numarası",
     "costOfItem": "Ürün maliyeti",
@@ -351,6 +361,7 @@
     "smartImportExtrasTitle": "Ekstraları YZ ile içe aktar",
     "smartImportKitchensTitle": "AI istasyon içe aktarma",
     "smartImportStandaloneModifierGroupsTitle": "Modifikatör gruplarını YZ ile içe aktar",
+    "smartImportMenuStructureTitle": "YZ ile menü yapısı içe aktar (boyutlar, ekstralar, bağlantılar)",
     "showsAllItems": "Tüm fişleri göster",
     "showsAllItemsHint": "Bu istasyon tüm istasyonlardaki tüm ürünleri gösterir (pass / expo). Diğer istasyonlardan yemek almaz.",
     "showsAllBadge": "Tüm fişler"
@@ -626,6 +637,7 @@
       "admin.tips_definition.create": "Oluştur Bahşiş tanımı",
       "admin.tips_definition.update": "Güncelle Bahşiş tanımı",
       "admin.tips_definition.delete": "Sil Bahşiş tanımı",
+      "admin.security_alerts": "Güvenlik uyarıları",
       "tips": "Bahşişler",
       "tips.calculation": "Bahşiş Hesaplama",
       "tips.payout": "Ödeme Yönetimi",
@@ -872,5 +884,29 @@
       "saveFailed": "İndirim kaydedilemedi.",
       "createReasonFailed": "İndirim nedeni oluşturulamadı."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Güvenlik uyarılarını görüntülemek için yönetici rolü gereklidir.",
+    "loading": "Uyarılar yükleniyor…",
+    "error": "Uyarılar yüklenemedi",
+    "critical": "Kritik",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "noAlerts": "Açık uyarı yok",
+    "noAlertsDescription": "Anomali dedektörü şüpheli aktivite işaretlemedi.",
+    "count": "×{{n}}",
+    "actor": "Aktör",
+    "actorId": "Aktör ID",
+    "actorRoles": "Aktör rolleri",
+    "sourceIp": "Kaynak IP",
+    "emittedAt": "Yayınlandı",
+    "ruleType": "Kural türü",
+    "detailTitle": "Güvenlik Uyarısı",
+    "resolutionNotes": "Çözüm notları (isteğe bağlı)",
+    "resolutionNotesPlaceholder": "ör. İncelendi — otomatik testten yanlış alarm",
+    "acknowledge": "Kabul et",
+    "hideDetails": "▼ Detayları gizle",
+    "showDetails": "▶ Detayları göster",
+    "badgeTooltip": "{{count}} açık kritik uyarı"
   }
 }

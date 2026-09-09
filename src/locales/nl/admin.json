@@ -21,7 +21,8 @@
     "shifts": "Diensten",
     "tipsDefinition": "Fooidefinitie",
     "accessTab": "Toegang tot {{title}}",
-    "ariaLabel": "Beheertabs"
+    "ariaLabel": "Beheertabs",
+    "securityAlerts": "Beveiligingsmeldingen"
   },
   "columns": {
     "photo": "Foto",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Prijs vergrendeld",
     "hasRequiredModifiers": "Heeft verplichte modifiers",
     "shouldAutoOpen": "Automatisch openen",
-    "shouldAutoSelect": "Automatisch selecteren"
+    "shouldAutoSelect": "Automatisch selecteren",
+    "recordType": "Rijtype",
+    "dishName": "Gerecht",
+    "parentModifier": "Bovenliggende maat",
+    "nextGroup": "Volgende groep"
   },
   "entities": {
     "dish": "Gerecht",
@@ -146,7 +151,8 @@
     "smartImportDishes": "AI-import",
     "smartImport": "AI-import",
     "smartImportIngredients": "Ingrediënten AI-importeren",
-    "smartImportModifierGroups": "Modifiergroepen AI-importeren"
+    "smartImportModifierGroups": "Modifiergroepen AI-importeren",
+    "smartImportMenuStructure": "AI-import menustructuur"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -234,6 +240,8 @@
     "updatePaymentType": "{{name}} bijwerken",
     "selectProvider": "Selecteer provider (optioneel)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Inloggegevens worden versleuteld opgeslagen.",
+    "encryptedCredentialsExplanation": "Velden zijn om veiligheidsredenen leeg — voer alleen nieuwe waarden in om bestaande inloggegevens te vervangen. Laat leeg om de huidige waarden te behouden.",
     "createExtra": "Nieuw extra aanmaken",
     "updateExtra": "{{name}} bijwerken",
     "createTax": "Nieuwe belasting aanmaken",
@@ -271,6 +279,8 @@
     "rightMargin": "Rechtermarge",
     "bottomDescription": "Onderste beschrijving",
     "removeLogo": "Logo verwijderen",
+    "logoOffsetX": "Horizontale logo-offset",
+    "logoOffsetXHint": "Verschuif het logo in dots (negatief = links, positief = rechts). Stel per printer af tot het uitlijnt met gecentreerde tekst.",
     "nameOfItem": "Naam van artikel",
     "numberOfItem": "Nummer van artikel",
     "costOfItem": "Kosten van artikel",
@@ -351,6 +361,7 @@
     "smartImportExtrasTitle": "Extra's AI-importeren",
     "smartImportKitchensTitle": "AI-import stations",
     "smartImportStandaloneModifierGroupsTitle": "Modifiergroepen AI-importeren",
+    "smartImportMenuStructureTitle": "AI-import menustructuur (maten, topping, koppelingen)",
     "showsAllItems": "Alle tickets tonen",
     "showsAllItemsHint": "Dit station toont elk artikel van elk station (pass / expo). Gerechten van andere stations worden niet weggehaald.",
     "showsAllBadge": "Alle tickets"
@@ -626,6 +637,7 @@
       "admin.tips_definition.create": "Aanmaken Fooidefinitie",
       "admin.tips_definition.update": "Bijwerken Fooidefinitie",
       "admin.tips_definition.delete": "Verwijderen Fooidefinitie",
+      "admin.security_alerts": "Beveiligingsmeldingen",
       "tips": "Fooien",
       "tips.calculation": "Fooiberekening",
       "tips.payout": "Uitbetalingsbeheer",
@@ -872,5 +884,29 @@
       "saveFailed": "Korting kon niet worden opgeslagen.",
       "createReasonFailed": "Kortingsreden kon niet worden aangemaakt."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Beheerdersrol vereist om beveiligingsmeldingen te bekijken.",
+    "loading": "Meldingen laden…",
+    "error": "Meldingen laden mislukt",
+    "critical": "Kritiek",
+    "warning": "Waarschuwing",
+    "info": "Info",
+    "noAlerts": "Geen open meldingen",
+    "noAlertsDescription": "De anomaliedetector heeft geen verdachte activiteit gemarkeerd.",
+    "count": "×{{n}}",
+    "actor": "Actor",
+    "actorId": "Actor ID",
+    "actorRoles": "Actor rollen",
+    "sourceIp": "Bron-IP",
+    "emittedAt": "Uitgegeven op",
+    "ruleType": "Regeltype",
+    "detailTitle": "Beveiligingsmelding",
+    "resolutionNotes": "Oplossingsnotities (optioneel)",
+    "resolutionNotesPlaceholder": "bijv. Onderzocht — valse melding van geautomatiseerde test",
+    "acknowledge": "Erkennen",
+    "hideDetails": "▼ Details verbergen",
+    "showDetails": "▶ Details tonen",
+    "badgeTooltip": "{{count}} open kritieke melding(en)"
   }
 }

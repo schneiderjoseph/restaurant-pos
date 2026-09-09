@@ -4,18 +4,8 @@ import {NotFound} from "@/screens/not-found.tsx";
 import {Menu} from "@/screens/menu";
 import {Orders} from "@/screens/orders.tsx";
 import {Summary} from "@/screens/summary.tsx";
-import {Closing} from "@/screens/closing.tsx";
 import {KitchenScreen} from "@/screens/kitchen.tsx";
-import {OrderDisplayScreen} from "@/screens/order-display.tsx";
-import {Index as Delivery} from "@/screens/delivery/";
-import {Admin} from "@/screens/admin";
-import {Reports} from "@/screens/reports/";
-import {Settings} from "@/screens/settings.tsx";
-import {IntegrationsScreen} from "@/screens/integrations/index.tsx";
 import {Clock} from "@/screens/clock.tsx";
-import {Inventory} from "@/screens/inventory/";
-import {HrScreen} from "@/screens/hr/";
-import {TipDistributionScreen} from "@/screens/tip.distribution.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
 import {SuspenseOutlet} from "@/routes/suspense-outlet.tsx";
 import {
@@ -88,10 +78,17 @@ import {
   TIP_DISTRIBUTION, ACCOUNTS,
 } from "@/routes/posr.ts";
 import {
+  AccountsScreen,
   ActivityReport,
+  Admin,
   AiReport,
   AuditReport,
   BuffetReport,
+  Closing,
+  Delivery,
+  HrScreen,
+  IntegrationsScreen,
+  Inventory,
   LaborAttendanceReport,
   LaborDailyCostReport,
   LaborDashboardReport,
@@ -113,6 +110,7 @@ import {
   IssueReturnReport,
   KitchenReconciliationReport,
   MergeOrdersReport,
+  OrderDisplayScreen,
   OrderFiscalReport,
   OrderLifecycleReport,
   OrderReceiptReport,
@@ -124,6 +122,7 @@ import {
   PurchaseOrderReport,
   PurchaseReport,
   PurchaseReturnReport,
+  Reports,
   SaleVsConsumptionReport,
   SalesAdvancedReport,
   SalesDashboardReport,
@@ -133,9 +132,11 @@ import {
   SalesSummary2Report,
   SalesSummaryReport,
   SalesWeeklyReport,
+  Settings,
   SplitOrdersReport,
   TablesSummaryReport,
   TaxReport,
+  TipDistributionScreen,
   TipsReport,
   VoidsReport,
   WasteReport,
@@ -163,21 +164,21 @@ export const AppRoutes = () => {
       <Route path={MENU} element={<Menu/>}/>
       <Route path={ORDERS} element={<Orders/>}/>
       <Route path={SUMMARY} element={<Summary/>}/>
-      {closing && <Route path={CLOSING} element={<Closing/>}/>}
       <Route path={KITCHEN} element={<KitchenScreen/>}/>
-      <Route path={ORDER_DISPLAY} element={<OrderDisplayScreen/>}/>
-      {delivery && <Route path={DELIVERY} element={<Delivery/>}/>}
-      <Route path={ADMIN} element={<Admin/>}/>
-      <Route path={SETTINGS} element={<Settings/>}/>
-      {integrations && <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>}
       {hr && <Route path={CLOCK} element={<Clock/>}/>}
-      <Route path={INVENTORY} element={<Inventory/>}/>
-      {hr && <Route path={HR} element={<HrScreen/>}/>}
-      <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
-      {accounting && <Route path={ACCOUNTS} element={<AccountsScreen/>}/>}
-      <Route path={REPORTS} element={<Reports/>}/>
 
       <Route element={<SuspenseOutlet/>}>
+        {closing && <Route path={CLOSING} element={<Closing/>}/>}
+        <Route path={ORDER_DISPLAY} element={<OrderDisplayScreen/>}/>
+        {delivery && <Route path={DELIVERY} element={<Delivery/>}/>}
+        <Route path={ADMIN} element={<Admin/>}/>
+        <Route path={SETTINGS} element={<Settings/>}/>
+        {integrations && <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>}
+        <Route path={INVENTORY} element={<Inventory/>}/>
+        {hr && <Route path={HR} element={<HrScreen/>}/>}
+        <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
+        {accounting && <Route path={ACCOUNTS} element={<AccountsScreen/>}/>}
+        <Route path={REPORTS} element={<Reports/>}/>
         <Route path={INVENTORY_PRINT} element={<InventoryDocumentPrintPage/>}/>
         <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>
         <Route path={REPORTS_INVENTORY_DASHBOARD} element={<InventoryDashboardReport/>}/>

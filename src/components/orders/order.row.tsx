@@ -23,7 +23,7 @@ export const OrderRow = ({
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
-  const {rootRef, displayOrder: order, cardReady, isHydrating} = useOrderCardHydrate(snapshot);
+  const {rootRef, displayOrder: order, cardReady, isHydrating, retryHydrate} = useOrderCardHydrate(snapshot);
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
   const serviceChargeAmount = cardReady
     ? getOrderServiceChargeAmount(order, itemsTotal)
@@ -147,6 +147,7 @@ export const OrderRow = ({
       {paymentOrder && (
         <OrderPayment order={paymentOrder} onClose={() => {
           setPaymentOrder(null);
+          void retryHydrate();
         }}/>
       )}
     </>

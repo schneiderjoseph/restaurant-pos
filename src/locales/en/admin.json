@@ -21,7 +21,8 @@
     "shifts": "Shifts",
     "tipsDefinition": "Tips definition",
     "accessTab": "Access {{title}}",
-    "ariaLabel": "Administration tabs"
+    "ariaLabel": "Administration tabs",
+    "securityAlerts": "Security Alerts"
   },
   "columns": {
     "photo": "Photo",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Price locked",
     "hasRequiredModifiers": "Has required modifiers",
     "shouldAutoOpen": "Auto open",
-    "shouldAutoSelect": "Auto select"
+    "shouldAutoSelect": "Auto select",
+    "recordType": "Row type",
+    "dishName": "Dish",
+    "parentModifier": "Parent size",
+    "nextGroup": "Next group"
   },
   "entities": {
     "dish": "Dish",
@@ -146,7 +151,8 @@
     "importModifierGroups": "Import Modifier Groups",
     "smartImport": "AI Import",
     "smartImportIngredients": "AI Import Ingredients",
-    "smartImportModifierGroups": "AI Import Modifier Groups"
+    "smartImportModifierGroups": "AI Import Modifier Groups",
+    "smartImportMenuStructure": "AI Import Menu Structure"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -234,6 +240,8 @@
     "updatePaymentType": "Update {{name}}",
     "selectProvider": "Select provider (optional)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "Credentials are stored encrypted.",
+    "encryptedCredentialsExplanation": "Fields are empty for security — enter new values only to replace existing credentials. Leave blank to keep the current values.",
     "createExtra": "Create new extra",
     "updateExtra": "Update {{name}}",
     "createTax": "Create new tax",
@@ -291,6 +299,8 @@
     "removeSectionImage": "Remove section image",
     "deleteReceiptSection": "Are you sure you want to remove this receipt section? This cannot be undone until you save.",
     "removeLogo": "Remove logo",
+    "logoOffsetX": "Logo horizontal offset",
+    "logoOffsetXHint": "Shift the logo in dots (negative = left, positive = right). Tune per printer until it matches centered text.",
     "nameOfItem": "Name of item",
     "numberOfItem": "Number of item",
     "costOfItem": "Cost of item",
@@ -371,6 +381,7 @@
     "smartImportExtrasTitle": "AI Import extras",
     "smartImportKitchensTitle": "AI Import stations",
     "smartImportStandaloneModifierGroupsTitle": "AI Import modifier groups",
+    "smartImportMenuStructureTitle": "AI Import menu structure (sizes, toppings, links)",
     "showsAllItems": "Show all tickets",
     "showsAllItemsHint": "This station displays every item from every station (expo / pass). It does not take dishes away from other stations.",
     "showsAllBadge": "All tickets"
@@ -800,6 +811,7 @@
       "admin.tips_definition.create": "Create tips definition",
       "admin.tips_definition.update": "Update tips definition",
       "admin.tips_definition.delete": "Delete tips definition",
+      "admin.security_alerts": "Security alerts",
       "tips": "Tips",
       "tips.calculation": "Tip Calculation",
       "tips.payout": "Payout Management",
@@ -892,5 +904,30 @@
       "integrations.open_configuration": "Open integration configuration",
       "integrations.save_configuration": "Save integration configuration"
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Admin role required to view security alerts.",
+    "loading": "Loading alerts…",
+    "error": "Failed to load alerts",
+    "critical": "Critical",
+    "warning": "Warning",
+    "info": "Info",
+    "noAlerts": "No open alerts",
+    "noAlertsDescription": "The anomaly detector has not flagged any suspicious activity.",
+    "count": "×{{n}}",
+    "actor": "Actor",
+    "actorId": "Actor ID",
+    "actorRoles": "Actor roles",
+    "sourceIp": "Source IP",
+    "emittedAt": "Emitted at",
+    "ruleType": "Rule type",
+    "detailTitle": "Security Alert",
+    "resolutionNotes": "Resolution notes (optional)",
+    "resolutionNotesPlaceholder": "e.g. Investigated — false alarm from automated test",
+    "acknowledge": "Acknowledge",
+    "hideDetails": "▼ Hide details",
+    "showDetails": "▶ Show details",
+    "badgeTooltip": "{{count}} open critical alert(s)",
+    "badgeTooltipPlural": "{{count}} open critical alerts"
   }
 }

@@ -1,5 +1,7 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {normalizeModules} from "@/lib/access.rules.ts";
+import {MANAGE_TOOL_PERMISSION_MODULES} from "@/lib/ai/tools/manage-permissions.ts";
+import {HR_TOOL_PERMISSION_MODULES} from "@/lib/ai/tools/hr-permissions.ts";
 
 /** Maps tool names to report permission modules. */
 export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
@@ -19,12 +21,23 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_hourly_product_sales: "reports.products_hourly",
   get_current_inventory: "reports.current_inventory",
   get_inventory_movements: ["reports.purchase", "reports.issue", "reports.waste", "inventory.adjustments", "reports.current_inventory"],
+  get_inventory_documents: [
+    "reports.purchase",
+    "reports.purchase_return",
+    "reports.issue",
+    "reports.issue_return",
+    "reports.waste",
+    "inventory.adjustments",
+    "reports.current_inventory",
+  ],
   get_consumption: "reports.consumption",
   get_issuance: "reports.sale_vs_inventory",
   get_waste_summary: "reports.waste",
   get_sale_vs_consumption: "reports.sale_vs_inventory",
   get_kitchen_reconciliation: "reports.kitchen_reconciliation",
   get_purchase_orders: ["reports.purchase_order", "inventory.purchase_orders"],
+  list_suppliers: "inventory.suppliers",
+  list_inventory_locations: "inventory.locations",
   get_expenses: "reports.expense",
   get_activity_log: "reports.activity",
   get_cash_closing: "reports.cash_closing",
@@ -42,7 +55,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   resolve_date_range: "reports.ai",
   list_staff: "reports.ai",
   list_categories: "reports.ai",
-  list_menu_items: "reports.product_mix_summary",
+  list_menu_items: ["admin.dishes", "reports.product_mix_summary"],
   list_inventory_items: "reports.current_inventory",
   get_labor_dashboard_snapshot: "reports.labor_dashboard",
   get_daily_labor_cost: "reports.daily_labor_cost",
@@ -71,6 +84,22 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   get_journal_entries: "accounts.journal_entries",
   get_account_statement: ["accounts.customer_statement", "accounts.supplier_statement"],
   list_accounts: "accounts.chart_of_accounts",
+  ...MANAGE_TOOL_PERMISSION_MODULES,
+  ...HR_TOOL_PERMISSION_MODULES,
+};
+
+const hasReadModuleAccess = (module: string, normalizedAllowed: string[]): boolean => {
+  if (normalizedAllowed.includes(module) || normalizedAllowed.includes("reports.ai")) {
+    return true;
+  }
+  if (module.startsWith("admin.") || module.startsWith("hr.")) {
+    return normalizedAllowed.some(allowed =>
+      allowed === module
+      || module.startsWith(`${allowed}.`)
+      || allowed.startsWith(`${module}.`),
+    );
+  }
+  return false;
 };
 
 export const filterToolsByPermissions = (
@@ -88,7 +117,6 @@ export const filterToolsByPermissions = (
       return true;
     }
     const modules = Array.isArray(module) ? module : [module];
-    return modules.some(name => normalizedAllowed.includes(name))
-      || normalizedAllowed.includes("reports.ai");
+    return modules.some(name => hasReadModuleAccess(name, normalizedAllowed));
   });
 };

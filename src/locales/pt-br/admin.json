@@ -21,7 +21,8 @@
     "shifts": "Turnos",
     "tipsDefinition": "Definição de gorjetas",
     "accessTab": "Acessar {{title}}",
-    "ariaLabel": "Abas de administração"
+    "ariaLabel": "Abas de administração",
+    "securityAlerts": "Alertas de Segurança"
   },
   "columns": {
     "photo": "Foto",
@@ -90,7 +91,11 @@
     "isPriceLocked": "Preço bloqueado",
     "hasRequiredModifiers": "Tem modificadores obrigatórios",
     "shouldAutoOpen": "Abrir automaticamente",
-    "shouldAutoSelect": "Selecionar automaticamente"
+    "shouldAutoSelect": "Selecionar automaticamente",
+    "recordType": "Tipo de linha",
+    "dishName": "Prato",
+    "parentModifier": "Tamanho pai",
+    "nextGroup": "Próximo grupo"
   },
   "entities": {
     "dish": "Prato",
@@ -146,7 +151,8 @@
     "smartImportDishes": "Importação IA",
     "smartImport": "Importação IA",
     "smartImportIngredients": "Importação IA de ingredientes",
-    "smartImportModifierGroups": "Importação IA de grupos de modificadores"
+    "smartImportModifierGroups": "Importação IA de grupos de modificadores",
+    "smartImportMenuStructure": "Importar estrutura do cardápio com IA"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -234,6 +240,8 @@
     "updatePaymentType": "Atualizar {{name}}",
     "selectProvider": "Selecionar provedor (opcional)",
     "sandboxLive": "sandbox / live",
+    "encryptedCredentialsHint": "As credenciais são armazenadas criptografadas.",
+    "encryptedCredentialsExplanation": "Os campos estão vazios por segurança — insira novos valores apenas para substituir as credenciais existentes. Deixe em branco para manter os valores atuais.",
     "createExtra": "Criar novo extra",
     "updateExtra": "Atualizar {{name}}",
     "createTax": "Criar novo imposto",
@@ -271,6 +279,8 @@
     "rightMargin": "Margem direita",
     "bottomDescription": "Descrição inferior",
     "removeLogo": "Remover logo",
+    "logoOffsetX": "Deslocamento horizontal do logo",
+    "logoOffsetXHint": "Desloque o logo em pontos (negativo = esquerda, positivo = direita). Ajuste por impressora até alinhar com o texto centralizado.",
     "nameOfItem": "Nome do item",
     "numberOfItem": "Número do item",
     "costOfItem": "Custo do item",
@@ -351,6 +361,7 @@
     "smartImportExtrasTitle": "Importação IA de extras",
     "smartImportKitchensTitle": "Importação IA de estações",
     "smartImportStandaloneModifierGroupsTitle": "Importação IA de grupos de modificadores",
+    "smartImportMenuStructureTitle": "Importar estrutura do cardápio (tamanhos, adicionais, vínculos)",
     "showsAllItems": "Exibir todos os tickets",
     "showsAllItemsHint": "Esta estação exibe todos os itens de todas as estações (passa / expo). Não remove pratos das outras estações.",
     "showsAllBadge": "Todos os tickets"
@@ -626,6 +637,7 @@
       "admin.tips_definition.create": "Criar Definição de gorjetas",
       "admin.tips_definition.update": "Atualizar Definição de gorjetas",
       "admin.tips_definition.delete": "Excluir Definição de gorjetas",
+      "admin.security_alerts": "Alertas de segurança",
       "tips": "Gorjetas",
       "tips.calculation": "Cálculo de gorjetas",
       "tips.payout": "Gestão de pagamentos",
@@ -872,5 +884,29 @@
       "saveFailed": "Não foi possível salvar o desconto.",
       "createReasonFailed": "Não foi possível criar o motivo de desconto."
     }
+  },
+  "securityAlerts": {
+    "noAccess": "Requer papel de administrador para visualizar alertas de segurança.",
+    "loading": "Carregando alertas…",
+    "error": "Falha ao carregar alertas",
+    "critical": "Crítico",
+    "warning": "Aviso",
+    "info": "Info",
+    "noAlerts": "Sem alertas abertos",
+    "noAlertsDescription": "O detector de anomalias não sinalizou atividade suspeita.",
+    "count": "×{{n}}",
+    "actor": "Ator",
+    "actorId": "ID do ator",
+    "actorRoles": "Papéis do ator",
+    "sourceIp": "IP de origem",
+    "emittedAt": "Emitido em",
+    "ruleType": "Tipo de regra",
+    "detailTitle": "Alerta de Segurança",
+    "resolutionNotes": "Notas de resolução (opcional)",
+    "resolutionNotesPlaceholder": "ex. Investigado — falso alarme de teste automatizado",
+    "acknowledge": "Reconhecer",
+    "hideDetails": "▼ Ocultar detalhes",
+    "showDetails": "▶ Mostrar detalhes",
+    "badgeTooltip": "{{count}} alerta(s) crítico(s) aberto(s)"
   }
 }

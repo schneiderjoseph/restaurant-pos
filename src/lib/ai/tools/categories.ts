@@ -4,9 +4,11 @@ export type AiReportToolDomain =
   | "operations"
   | "analysis"
   | "labor"
+  | "hr"
   | "accounts"
   | "chart"
-  | "lookup";
+  | "lookup"
+  | "manage";
 
 export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", readonly string[]> = {
   core: ["resolve_date_range"],
@@ -33,6 +35,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
   ],
   inventory: [
     "get_current_inventory",
+    "get_inventory_documents",
     "get_inventory_movements",
     "get_consumption",
     "get_issuance",
@@ -40,6 +43,8 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_sale_vs_consumption",
     "get_kitchen_reconciliation",
     "get_purchase_orders",
+    "list_suppliers",
+    "list_inventory_locations",
   ],
   operations: [
     "get_orders",
@@ -72,6 +77,14 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_ai_labor_datasets",
     "get_hourly_labor_vs_sales",
   ],
+  hr: [
+    "list_employees",
+    "get_employee_detail",
+    "list_departments",
+    "list_positions",
+    "list_cost_centers",
+    "list_hr_leave_requests",
+  ],
   accounts: [
     "get_trial_balance",
     "get_balance_sheet",
@@ -89,6 +102,26 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "list_menu_items",
     "list_inventory_items",
   ],
+  manage: [
+    "list_floors",
+    "list_tables",
+    "list_modifier_groups",
+    "get_kitchen_detail",
+    "list_kitchens",
+    "list_taxes",
+    "list_discounts",
+    "list_order_types",
+    "list_payment_types",
+    "list_extras",
+    "list_coupons",
+    "list_menus",
+    "get_menu_items",
+    "list_workflows",
+    "list_printers",
+    "list_users",
+    "list_roles",
+    "list_shifts",
+  ],
 };
 
 export const ALL_AI_REPORT_TOOL_NAMES = [
@@ -98,7 +131,9 @@ export const ALL_AI_REPORT_TOOL_NAMES = [
   ...AI_REPORT_TOOL_CATEGORIES.operations,
   ...AI_REPORT_TOOL_CATEGORIES.analysis,
   ...AI_REPORT_TOOL_CATEGORIES.labor,
+  ...AI_REPORT_TOOL_CATEGORIES.hr,
   ...AI_REPORT_TOOL_CATEGORIES.accounts,
   ...AI_REPORT_TOOL_CATEGORIES.chart,
   ...AI_REPORT_TOOL_CATEGORIES.lookup,
+  ...AI_REPORT_TOOL_CATEGORIES.manage,
 ];

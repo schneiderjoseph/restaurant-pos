@@ -42,6 +42,8 @@ import {
   resolveInventoryNeedArgsFromPrompt,
   resolveStaffNeedArgsFromPrompt,
 } from "@/lib/ai/demand-query.ts";
+import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
+import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
 import {forecastInventoryNeed} from "@/api/reports/inventory/need-forecast.ts";
 import {forecastStaffNeed} from "@/api/reports/labor/staff-need.ts";
 import {forecastFromPoints} from "@/lib/ai/forecast.ts";
@@ -143,6 +145,53 @@ export const runAiReportAgent = async (
     }
     return {answer, toolsUsed, charts: dedupeCharts(charts), orderRefs: collectOrderRefs(toolResults)};
   };
+
+  const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmedPrompt, {
+    onToolStart: options.onToolStart,
+  });
+  if (inventoryFastPath) {
+    toolsUsed.push({name: inventoryFastPath.toolName, args: inventoryFastPath.args});
+    toolResults.push({name: inventoryFastPath.toolName, result: inventoryFastPath.result});
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {role: "user", content: inventoryFastPath.instruction},
+      ],
+      tools: [],
+      task,
+    });
+
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  const employeeFastPath = await tryEmployeeDetailFastPath(db, trimmedPrompt, {
+    onToolStart: options.onToolStart,
+  });
+  if (employeeFastPath) {
+    toolsUsed.push({name: employeeFastPath.toolName, args: employeeFastPath.args});
+    toolResults.push({name: employeeFastPath.toolName, result: employeeFastPath.result});
+
+    const response = await callOpenAIChat({
+      messages: [
+        {role: "user", content: employeeFastPath.instruction},
+      ],
+      tools: [],
+      task,
+    });
+
+    const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
 
   if (isPurchaseOrderPrompt(trimmedPrompt)) {
     options.onToolStart?.("get_purchase_orders");

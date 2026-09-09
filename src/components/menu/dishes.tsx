@@ -1,6 +1,5 @@
-import {Swiper, SwiperSlide} from "swiper/react";
+import {Swiper, SwiperSlide} from "@/components/common/swiper/lazy-swiper.tsx";
 import type {Swiper as SwiperInstance} from "swiper";
-import _ from "lodash";
 import {cn} from "@/lib/utils.ts";
 import {useAtom} from "jotai";
 import {
@@ -158,7 +157,7 @@ export const MenuDishes = () => {
           setActiveSlide(swiper.activeIndex);
         }}
       >
-        {_.range(0, slides).map(rowId => (
+        {Array.from({length: slides}, (_, i) => i).map(rowId => (
           <SwiperSlide
             key={rowId}
             className={cn(
@@ -186,7 +185,7 @@ export const MenuDishes = () => {
             orderTakingBlocked && "pointer-events-none opacity-50"
           )}
         >
-          {_.range(0, slides).map((index) => (
+          {Array.from({length: slides}, (_, i) => i).map((index) => (
             <button
               key={index}
               type="button"

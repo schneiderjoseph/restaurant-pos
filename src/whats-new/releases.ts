@@ -7,11 +7,198 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-01',
+    title: 'Offline POS write queue',
+    items: [
+      'When the SurrealDB WebSocket drops, create/update/merge/delete writes are queued in IndexedDB instead of failing.',
+      'A top banner shows offline status, pending change count, and retry/sync controls (logged-in sessions only).',
+      'Queued writes replay automatically when the connection is restored (after a 2-second stability delay).',
+      'The app stays usable after the first successful connection — WiFi/airplane-mode changes are detected via navigator.onLine so clicks are not blocked waiting on a stale WebSocket.',
+    ],
+  },
+  {
+    date: '2026-09-01',
+    title: 'Security audit log and alerts',
+    items: [
+      'Login success, failed login, logout, and permission denials are now written to a structured audit_log table.',
+      'Anomaly detector script (migrations/scripts/anomaly-detector.cjs) surfaces suspicious patterns as security alerts.',
+      'Admin → Security Alerts shows open alerts with acknowledge workflow and a sidebar badge for critical items.',
+      'Run anomaly-detector.cjs on a schedule (e.g. cron every 5 minutes) after deploying migrations.',
+    ],
+  },
+  {
+    date: '2026-08-30',
+    title: 'Security hardening (Phase 3)',
+    items: [
+      'Payment type settings now save gateway credentials via the encrypted /payments/credentials endpoint instead of writing plaintext to the database.',
+      'When editing a remote payment type, credential fields stay empty for security — enter new values only to replace stored credentials.',
+    ],
+  },
+  {
+    date: '2026-08-30',
+    title: 'Security hardening (Phase 2)',
+    items: [
+      'Payment gateway credentials (Stripe, M-Pesa, Telebirr, etc.) are now encrypted at rest with AES-256-GCM in gateway_config_encrypted.',
+      'New POST/DELETE /payments/credentials/:paymentTypeId endpoints encrypt credentials server-side and clear the legacy plaintext gateway_config field.',
+      'Existing plaintext credentials are migrated by encrypt-existing-payment-credentials.cjs — set PAYMENT_CREDENTIAL_ENCRYPTION_KEY (or reuse INTEGRATION_TOKEN_ENCRYPTION_KEY) before deploy.',
+    ],
+  },
+  {
+    date: '2026-08-30',
+    title: 'Security hardening (Phase 1)',
+    items: [
+      'Login rate limiting: 5 failed PIN attempts per IP/login triggers a 15-minute lockout (configurable via AUTH_LOGIN_* env vars).',
+      'JWT session revocation now persists across gateway restarts (revoked_session table).',
+      'PayPal webhooks reject unsigned payloads by default; set PAYPAL_ALLOW_UNSIGNED_WEBHOOKS=true only in dev.',
+      'API CORS denies cross-origin requests when API_ALLOWED_ORIGINS is unset (fail-closed).',
+      'Fiscal invoice proxy restricted to an SSRF allow-list; OAuth tokens refuse plaintext storage in production without INTEGRATION_TOKEN_ENCRYPTION_KEY.',
+      'Sync /stats endpoint can require SYNC_STATS_SECRET; tracking IDs validated to prevent record overwrite.',
+    ],
+  },
+  {
+    date: '2026-08-30',
+    title: 'Menu structure AI import persist fix',
+    items: [
+      'AI Import Menu Structure now reliably creates modifier groups, size options, dish links, and nested topping overrides on confirm — not just in the review grid.',
+      'Menu structure import always creates new parent dishes for the uploaded menu instead of attaching Size groups to an existing catalog dish with a similar name.',
+      'Size and addon options only reuse existing dishes when they are already modifier options (or when you explicitly pick them in review).',
+      'Modifier groups append options safely without dropping earlier sizes when confirming a large import.',
+    ],
+  },
+  {
+    date: '2026-08-30',
+    title: 'AI assistant capability expansion',
+    items: [
+      'Kitchen routing: get_kitchen_detail shows dish assignments; propose_update_kitchens supports items_add and items_remove.',
+      'Dish workflow routing via propose_update_dishes (workflow + stage_overrides).',
+      'Inventory write proposals: purchases, issues, waste, adjustments, suppliers, and locations.',
+      'HR write proposals: positions, cost centers, leave requests, and attendance corrections.',
+      'Accounts write proposals: chart of accounts and journal entries.',
+      'Soft-delete proposals for kitchens and dishes (propose_delete_*).',
+      'list_suppliers and list_inventory_locations read tools for inventory write prompts.',
+    ],
+  },
+  {
+    date: '2026-08-30',
+    title: 'Database performance indexes',
+    items: [
+      'Added hot-path SurrealDB indexes on orders, inventory documents, time entries, journal entries, tracking, and related line-item tables to speed up list screens and reports.',
+      'Index builds run concurrently on large tables so POS writes are not blocked during deployment.',
+      'Report date filters still use time::format — a follow-up change will switch those to datetime ranges so created_at indexes apply to all sales and inventory reports.',
+    ],
+  },
+  {
+    date: '2026-08-29',
+    title: 'Receipt logo centering on thermal printers',
+    items: [
+      'Store logos, header/footer images, and fiscal provider logos bake horizontal centering into the printed bitmap for consistent placement across printer firmware.',
+      'Print settings now include a logo horizontal offset (dots) so you can fine-tune alignment per printer — use negative values to shift left, positive to shift right.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'AI assistant help and markdown tables',
+    items: [
+      'The assistant toolbar now has a ? button with clickable example prompts for sales, tables, discounts, dishes, users, and inventory.',
+      'Assistant display name is configurable via VITE_AI_ASSISTANT_NAME (defaults to Kashif).',
+      'Markdown tables in assistant answers now render correctly instead of showing raw pipe text.',
+      'Write proposal review for wide configs (e.g. discounts) now uses a readable card layout with only filled-in fields instead of squeezing dozens of columns into one row.',
+      'Discount write proposals no longer send null max_cap values that could fail SurrealDB schema coercion on confirm.',
+      'The floating AI assistant now appears only on back-office screens (Manage, Inventory, Reports, HR, Accounts, Integrations, Tips, and Clock) and is hidden on cashier-facing POS screens.',
+      'Discount import and list tools now preserve full Surreal record ids (e.g. category:…) for BXGY targets instead of stripping the table prefix.',
+      'Assistant write tools now recognize create/update requests in Turkish and other supported languages, not only English keywords.',
+      'Assistant now routes purchase history to posted inventory purchases (get_inventory_documents) instead of purchase orders, with dedicated support for issues, returns, waste, adjustments, and transfers.',
+      'Voided inventory purchases now query get_inventory_documents with documentStatus=voided instead of POS order voids (get_voids) or purchase orders.',
+      'HR employee lookups (employee#, employee number) now use get_employee_detail / list_employees from HR — not POS list_users.',
+      'get_employee_detail now returns the full employee dossier (pay, schedule, attendance, leave, payroll, documents, performance) automatically.',
+      'HR read tools added for departments, positions, cost centers, and leave requests.',
+      'Assistant answers each message in isolation so a new question no longer repeats results from earlier ones in the chat.',
+      'Modifier group option price changes now use propose_update_modifier_groups (group + option + price), not base dish updates.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'Kashif Manage parity',
+    items: [
+      'The AI assistant can now list Manage configuration data — floors, tables, discounts, users, roles, kitchens, coupons, menus, workflows, printers, and more — using dedicated list_* read tools gated on admin permissions.',
+      'Discount write proposals now support BXGY rules, targets, schedules, stacking/tax fields, and automatic discounts scoped to categories or items.',
+      'Write tools added for modifier groups, kitchens, extras, smart menu import, coupons, menus, workflows, printers, print settings, users, roles, shifts, and tip distribution.',
+      'Manage questions like "tables on Delivery floor" route to list_tables and list_floors instead of reporting-only tools.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'AI assistant CRUD expansion',
+    items: [
+      'The AI assistant can now propose create/update changes for categories, tables, floors, taxes, order types, payment types, discounts, dish modifiers, dish ingredients, inventory items, scheduled shifts, employees, and departments.',
+      'Write tools reuse the same import validation pipeline as AI Import, with permission checks matching each Manage, Inventory, and HR screen.',
+      'Inventory and floor write tools require an explicit action verb in the prompt to avoid clashing with read-only inventory questions.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'AI assistant improvements',
+    items: [
+      'The floating AI assistant now renders markdown tables and lists properly, so sales summaries and order lists are easy to read.',
+      'Expand the assistant panel from the header to view wide tables and long answers more comfortably.',
+      'The assistant sends only relevant tools per question to reduce token usage and improve response speed.',
+      'Write proposal previews are now generic and ready for more Manage entities beyond dishes.',
+      'The assistant now uses the same Kashif reporting persona and domain-aware prompts as AI Report, with a lightweight compact mode for everyday questions.',
+      'Assistant conversations are saved per user in IndexedDB on this device and survive page reloads until server persistence is added.',
+    ],
+  },
+  {
+    date: '2026-08-28',
+    title: 'Faster AI Import review for large menus',
+    items: [
+      'The AI Import review grid now virtualizes rows with TanStack Virtual, so large menu imports stay responsive while you edit cells.',
+      'Cell edits update only the changed row instead of re-rendering the entire grid, reducing input lag on big payloads.',
+      'Filter buttons let you show all, valid, or invalid rows only, and invalid cells now use a red border instead of blue.',
+      'Fixed review grid scroll jitter by using stable row heights and transform-based virtual row positioning.',
+    ],
+  },
+  {
+    date: '2026-08-27',
+    title: 'Safer Size groups in menu structure AI Import',
+    items: [
+      'AI Import Menu Structure keeps a distinct Size modifier group per size price matrix (e.g. Size – Classic vs Size – Crust).',
+      'Re-importing a second menu with different M/L/F/P prices no longer overwrites an existing Size group; a new unique group name is allocated instead.',
+      'OCR is guided with known Size groups and instructed not to model per-dish size prices as nested Size groups.',
+    ],
+  },
+  {
+    date: '2026-08-26',
+    title: 'Smarter inventory item AI Import',
+    items: [
+      'Inventory item AI Import now auto-corrects related data when the input is close but not exact (for example "Main store" → "Main"), and shows a review warning so you can confirm or override.',
+      'Units of measure are normalized to the standard list (KG, G, L, ML, PC, DZN, PK), including common synonyms like kilogram or pcs.',
+      'OCR extraction is guided with known categories, locations, suppliers, and allowed UOMs so the model prefers real catalog values.',
+    ],
+  },
+  {
+    date: '2026-08-26',
+    title: 'Smart menu AI import for modifiers',
+    items: [
+      'Dishes → AI Import Menu Structure extracts size price matrices and extras from menu images into dishes, Size groups, dish links, and nested topping price overrides.',
+      'Modifier group AI Import now suggests Size / Extra Topping group names and lets you create or pick existing modifier dishes in review.',
+      'Dish↔modifier-group AI Import defaults Size-like groups to required (1) and auto-open.',
+    ],
+  },
+  {
     date: '2026-08-26',
     title: 'Loyverse catalogue mode',
     items: [
       'VITE_POS_MODE=loyverse loads the Loyverse-synced menu (loyverse-sync); orthogonal to ASI — one external mode at a time.',
       'loyverse-sync pulls categories, item variants, and taxes from the Loyverse API into Surreal (PAT server-side only).',
+    ],
+  },
+  {
+    date: '2026-08-25',
+    title: 'Faster initial load',
+    items: [
+      'Non-core screens (Inventory, Settings, Admin, HR, Accounts, Reports, Delivery, Closing, and more) now lazy-load so the first visit downloads a much smaller main bundle.',
+      'Purchase document OCR upload was removed; use AI Import on the purchase form instead.',
+      'Validation standardized on yup; icons on FontAwesome. Heavy libraries (PDF export, Stripe/PayPal, Swiper) load only when needed.',
     ],
   },
   {

@@ -1,4 +1,4 @@
-import type { Discount, DiscountTargets } from '@/api/model/discount.ts'
+import type { BuyXGetYCondition, Discount, DiscountTargets } from '@/api/model/discount.ts'
 
 export type SelectOption = { label: string; value: string }
 
@@ -49,7 +49,8 @@ export const mergeTargetsFromRecord = (discount: Discount): DiscountTargets => {
   return targets
 }
 
-export const sanitizeTargetsForSave = (targets: DiscountTargets): DiscountTargets | null => {
+export const sanitizeTargetsForSave = (targets: DiscountTargets | null | undefined): DiscountTargets | null => {
+  if (!targets) return null;
   const result: DiscountTargets = {}
 
   if (targets.item_ids?.length) {
@@ -82,17 +83,18 @@ export const targetIdsInclude = (haystack: string[] | undefined, needle: unknown
 
 export const validateTargetsForScope = (
   scope: string | undefined,
-  targets: DiscountTargets
+  targets: DiscountTargets | null | undefined
 ): boolean => {
+  const safeTargets = targets ?? {};
   switch (scope) {
     case 'item':
-      return (targets.item_ids?.length ?? 0) >= 1
+      return (safeTargets.item_ids?.length ?? 0) >= 1
     case 'category':
-      return (targets.category_ids?.length ?? 0) >= 1
+      return (safeTargets.category_ids?.length ?? 0) >= 1
     case 'floor':
-      return (targets.floor_ids?.length ?? 0) >= 1
+      return (safeTargets.floor_ids?.length ?? 0) >= 1
     case 'customer':
-      return (targets.customer_tags?.length ?? 0) >= 1
+      return (safeTargets.customer_tags?.length ?? 0) >= 1
     default:
       return true
   }
@@ -104,4 +106,34 @@ export const anyCategoryMatches = (
 ): boolean => {
   if (!targetCategoryIds?.length) return false
   return (categoryIds || []).some(cid => targetIdsInclude(targetCategoryIds, cid))
+}
+
+export const bxgyPoolsOverlap = (
+  conditions: BuyXGetYCondition,
+  options?: { manualSelection?: boolean }
+): boolean => {
+  if (options?.manualSelection) return true
+
+  const buy = conditions.buy_targets || {}
+  const get = conditions.get_targets || {}
+  const getEmpty = !get.item_ids?.length && !get.category_ids?.length
+  if (getEmpty) return true
+
+  const buyItemIds = buy.item_ids || []
+  const buyCategoryIds = buy.category_ids || []
+  const getItemIds = get.item_ids || []
+  const getCategoryIds = get.category_ids || []
+
+  if (buyItemIds.length && getItemIds.length) {
+    return getItemIds.every(id => targetIdsInclude(buyItemIds, id))
+  }
+
+  if (buyCategoryIds.length && getCategoryIds.length) {
+    return getCategoryIds.every(id => targetIdsInclude(buyCategoryIds, id))
+  }
+
+  if (buyItemIds.length && getCategoryIds.length) return true
+  if (buyCategoryIds.length && getItemIds.length) return true
+
+  return false
 }

@@ -18,7 +18,7 @@ const {
 } = require('./receipt-helpers');
 
 /**
- * Single-discount header: "Discount (Summer Sale 10%)".
+ * Single-discount header: "Discount (10% Summer Sale)" — value before name.
  * @param {string|null|undefined} name
  * @param {string|null|undefined} valueType
  * @param {number|null|undefined} rate
@@ -29,8 +29,11 @@ function formatDiscountMinimalPrint(name, valueType, rate, fallback) {
   const label = fallback || 'Discount';
   const n = Number(rate || 0);
   const isPercent = valueType === 'percent' || (!valueType && n > 0);
+  if (name && valueType === 'fixed_amount' && n > 0) {
+    return label + ' (' + n + ' ' + name + ')';
+  }
   if (name && isPercent && n > 0) {
-    return label + ' (' + name + ' ' + n + '%)';
+    return label + ' (' + n + '% ' + name + ')';
   }
   if (name) {
     return label + ' (' + name + ')';
@@ -144,8 +147,8 @@ function printBillLayout(printer, bill, config, opts) {
     bill.discountLines.forEach((d) => {
       printLineLeftRight(printer, '  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym));
     });
-  } else if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    printLineLeftRight(printer, bill.discountLabel || discountLabel, formatMoney(bill.discountAmount, sym));
+  } else if (bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
+    printLineLeftRight(printer, bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
@@ -188,7 +191,6 @@ function printBillLayout(printer, bill, config, opts) {
   if (thankYou) {
     printer.feed(1);
     printCenteredText(printer, thankYou);
-    printer.feed(2);
   }
 
   const qrItems = normalizeQrItems(qrcodes, qrcode);
@@ -200,7 +202,7 @@ function printBillLayout(printer, bill, config, opts) {
       printCenteredText(printer, checkClosedLabel, { style: 'bold' });
     }
 
-    return printQrCodes(printer, qrItems).then(() => {
+    return printQrCodes(printer, qrItems, cfg).then(() => {
       printPrintingTimestamp(printer, cfg);
       printer.cut();
     });
@@ -246,15 +248,15 @@ function printQrDescription(printer, description) {
     .forEach((line) => printCenteredText(printer, line));
 }
 
-function printQrCodes(printer, items) {
+function printQrCodes(printer, items, config) {
   if (!items || items.length === 0) return Promise.resolve();
 
   return items.reduce((chain, item, index) => {
     return chain.then(() =>
-      printQrCode(printer, item.value, item.logo).then(() => {
+      printQrCode(printer, item.value, item.logo, config).then(() => {
         printQrDescription(printer, item.description);
         if (index < items.length - 1) {
-          printer.feed(2);
+          printer.feed(1);
         }
       })
     );
@@ -266,17 +268,12 @@ function printQrCodes(printer, items) {
  * @param {Object} printer
  * @param {string} value
  * @param {string} [logo]
+ * @param {Object} [config]
  */
-function printQrCode(printer, value, logo) {
+function printQrCode(printer, value, logo, config) {
   if (!value) return Promise.resolve();
 
-  return printFiscalQrRow(printer, value, logo).then(() => {
-    try {
-      printer.feed(1);
-    } catch (e) {
-      // ignore
-    }
-  });
+  return printFiscalQrRow(printer, value, logo, config);
 }
 
 module.exports = { printBillLayout };
