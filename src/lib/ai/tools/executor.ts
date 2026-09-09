@@ -12,6 +12,7 @@ import {
   listCategories,
   listStaff,
 } from "@/api/reports/sales/extended.ts";
+import {getTips} from "@/api/reports/sales/tips.ts";
 import {
   getKitchenDetail,
   getMenuItems,

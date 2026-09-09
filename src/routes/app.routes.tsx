@@ -141,7 +141,6 @@ import {
   VoidsReport,
   WasteReport,
 } from "@/routes/lazy-screens.ts";
-import {AccountsScreen} from "@/screens/accounts.tsx";
 import {
   isAccountingModuleEnabled,
   isClosingModuleEnabled,

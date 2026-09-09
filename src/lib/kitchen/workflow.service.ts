@@ -368,8 +368,6 @@ const advanceFrom = async (
   }
 };
 
-const recordKey = (value: any): string => value?.toString?.() ?? String(value);
-
 /**
  * Complete multiple stage rows in a fixed number of DB round trips.
  *

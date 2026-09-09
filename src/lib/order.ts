@@ -1,4 +1,5 @@
 import {Order as OrderModel, OrderExtra, OrderStatus} from '@/api/model/order';
+import {OrderItem} from '@/api/model/order_item.ts';
 import {OrderDiscount} from '@/api/model/order_discount.ts';
 import {getDiscountValueType} from '@/api/model/discount.ts';
 import {OrderPayment} from "@/api/model/order_payment.ts";
@@ -27,8 +28,8 @@ export const asRecordArray = <T>(value: unknown): T[] => {
   return [value as T];
 };
 
-export const getOrderFilteredItems = (order: OrderModel) => {
-  return asRecordArray(order?.items)
+export const getOrderFilteredItems = (order: OrderModel): OrderItem[] => {
+  return asRecordArray<OrderItem>(order?.items)
     .filter(item => item?.deleted_at == null)
     .filter(item => item?.is_refunded !== true)
     .filter(item => item?.is_suspended !== true);
@@ -38,9 +39,9 @@ export const getOrderFilteredItems = (order: OrderModel) => {
  * Items shown on order cards/rows.
  * Cancelled orders keep voided lines for history; active orders hide them.
  */
-export const getOrderDisplayItems = (order: OrderModel) => {
+export const getOrderDisplayItems = (order: OrderModel): OrderItem[] => {
   if (order?.status === OrderStatus.Cancelled) {
-    return asRecordArray(order?.items).filter(item => item?.is_suspended !== true);
+    return asRecordArray<OrderItem>(order?.items).filter(item => item?.is_suspended !== true);
   }
   return getOrderFilteredItems(order);
 }
