@@ -4,9 +4,13 @@ Checklist pratique pour installer / préparer l’environnement **production** d
 
 **Script tout-en-un :** [`install-asi-prod.ps1`](./install-asi-prod.ps1) (PowerShell **Administrateur**) fait les étapes 1 à 8 ci-dessous automatiquement — vérifie/installe git, Node, Docker Desktop, pm2 ; clone/MAJ le repo ; génère les `.env` (JWT + IP LAN auto-détectés, secrets SQL/Surreal à coller toi-même) ; démarre Docker (surrealdb/gateway/api/printer/tracking/payment) ; applique les migrations `posr`/`posr` + premier sync ASI ; build + nginx ; enregistre `asi-sync` et nginx sous **pm2** avec démarrage au boot Windows. Relis quand même la checklist §7 avant l'ouverture — le script ne teste pas l'app elle-même, et ne touche jamais à ASI POS / ASI FrontDesk / SQL Server déjà en place.
 
-## Topologie (confirmée)
+## Topologie
 
-**Tout sur le même PC** : ASI POS + ASI FrontDesk (PMS) + **POSR**.
+Deux variantes selon l'installation. **Vérifie laquelle s'applique avant de lancer le script.**
+
+### Variante A — tout sur le même PC (installation d'origine, confirmée)
+
+ASI POS + ASI FrontDesk (PMS) + **POSR** sur une seule machine.
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
@@ -29,11 +33,41 @@ Checklist pratique pour installer / préparer l’environnement **production** d
 
 Conséquences :
 
-- `asi-sync` parle à SQL en **`127.0.0.1`** (ou `localhost`) — pas besoin d’ouvrir SQL au LAN pour le sync.
-- Les **tablettes** n’ouvrent que l’UI POSR (nginx / Vite) sur l’IP LAN du PC.
+- `asi-sync` parle à SQL en **`127.0.0.1`** (ou `localhost`) — pas besoin d'ouvrir SQL au LAN pour le sync.
+- Les **tablettes** n'ouvrent que l'UI POSR (nginx / Vite) sur l'IP LAN du PC.
 - Surreal reste en **127.0.0.1:8000** (jamais exposé au LAN).
 - Un seul poller `asi-sync` sur cette machine.
 - Surveille CPU/RAM : ASI + SQL + Docker/Node + Surreal cohabitent.
+
+### Variante B — machines séparées (jusqu'à 3 PC sur le même LAN)
+
+ASI POS, ASI FrontDesk et POSR peuvent être trois machines distinctes. `asi-sync` (qui tourne sur la machine POSR) parle aux deux SQL Server **par IP LAN**, plus jamais en localhost.
+
+```text
+┌────────────────────┐   SQL :<port> LAN   ┌──────────────────────────┐
+│  POS_ASI_IP          │◄───────────────────┤                          │
+│  ASI POS (ASIPOS600) │                    │  POSR_LAN_IP             │
+└────────────────────┘                    │                          │
+                                            │  asi-sync                │
+┌────────────────────┐   SQL :<port> LAN   │  SurrealDB :8000 loopback│
+│  PMS_LAN_IP          │◄───────────────────┤  gateway / nginx / SPA   │
+│  ASI FrontDesk       │                    │                          │
+│  (ASIFD600)          │                    └──────────────┬───────────┘
+└────────────────────┘                                     │ LAN (tablettes)
+                                                             ▼
+                                                  http(s)://POSR_LAN_IP
+```
+
+Conséquences (nouvelles par rapport à la Variante A) :
+
+- **SQL Server doit accepter des connexions réseau** sur les machines ASI POS et ASI FrontDesk — ce n'est plus du loopback :
+  1. Active TCP/IP : SQL Server Configuration Manager → SQL Server Network Configuration → Protocols → TCP/IP → Enabled, puis redémarre le service SQL Server.
+  2. Ouvre le port SQL réel dans le pare-feu Windows de **chaque** machine ASI/PMS — idéalement restreint à l'IP de la machine POSR (`POSR_LAN_IP`), jamais "Any" si évitable.
+  3. Les logins `posr_sync` (sur ASIPOS600) et `posr_fd_sync` (sur ASIFD600) doivent avoir un accès réseau (pas seulement local).
+- Le port SQL réel peut différer d'une machine à l'autre — **confirme-le sur place** (SQL Server Configuration Manager) ; `56479` n'est qu'un exemple observé sur une autre installation, pas une valeur universelle.
+- Surreal (`127.0.0.1:8000`) et `asi-sync` restent sur la machine POSR — seule la connexion SQL sort du PC.
+- Attention latence réseau : `asi-sync` fait des requêtes SQL répétées (`ASI_SYNC_INTERVAL_MS`) — un LAN lent ou instable peut ralentir la synchro menu/tables/guests.
+- `install-asi-prod.ps1` gère cette variante nativement (placeholders `<POS_ASI_IP>` / `<PMS_LAN_IP>` dans `asi-sync\.env`).
 
 Docs liées :
 
@@ -98,7 +132,9 @@ surreal version
 | **SSMS / Azure Data Studio** | https://learn.microsoft.com/sql/ssms/download-sql-server-management-studio-ssms | Vérifier SQL local |
 | **Chrome** | https://www.google.com/chrome/ | Tablettes / kiosks |
 
-### 2.3 ASI déjà sur ce PC
+### 2.3 ASI déjà sur ce PC (Variante A — même PC)
+
+Le tableau et le firewall ci-dessous supposent la **Variante A**. En **Variante B** (machines séparées), voir § Topologie ci-dessus pour les règles firewall qui s'appliquent à la place (SQL doit être ouvert au LAN, restreint à l'IP de la machine POSR).
 
 | Élément | Valeur |
 |---------|--------|
@@ -123,7 +159,7 @@ Détail tables : [ASI-DISCOVERY.md](../integrations/ASI-DISCOVERY.md) § PMS_HOS
 
 ## 3. Récupérer le code
 
-Sur **PMS_HOST** :
+Sur la machine dédiée à POSR (**PMS_HOST** en Variante A, **POSR_LAN_IP** en Variante B) :
 
 ```powershell
 cd C:\CODE   # ou C:\POSR, etc.

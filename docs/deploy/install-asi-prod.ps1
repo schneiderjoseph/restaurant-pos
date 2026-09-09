@@ -1,7 +1,8 @@
 ﻿<#
   Install / start the ASI (Resort F&B) profile of POSR on a dedicated production PC.
-  Run in an elevated (Administrator) PowerShell, on the SAME machine that already
-  runs ASI POS (ASIPOS600) + ASI FrontDesk (ASIFD600) SQL Server.
+  Run in an elevated (Administrator) PowerShell, on the machine dedicated to POSR
+  (NOT the ASI POS or ASI FrontDesk machines - those run their own SQL Server and
+  are reached over the LAN, see asi-sync\.env below).
 
   What it does:
     1. Checks git / Node.js / Docker Desktop / pm2 - installs whatever is missing.
@@ -89,7 +90,12 @@ if (-not $isAdmin) {
 # ---------------------------------------------------------------------------
 Step "1. Prerequisites"
 
-Write-Host "IMPORTANT: ce script s'installe sur le PC qui fait deja tourner ASI POS + ASI FrontDesk (SQL Server ASI2017, port 56479). Ne touche pas a ces services." -ForegroundColor Yellow
+Write-Host "IMPORTANT: ce script s'installe sur la machine dediee a POSR (Docker/gateway/nginx/asi-sync)." -ForegroundColor Yellow
+Write-Host "ASI POS et ASI FrontDesk tournent sur d'autres machines du meme LAN - asi-sync leur parlera par IP LAN (SQL Server), jamais en localhost." -ForegroundColor Yellow
+Write-Host "AVANT de lancer ce script, sur les machines ASI POS et ASI FrontDesk :" -ForegroundColor Yellow
+Write-Host "  1. Active le protocole TCP/IP (SQL Server Configuration Manager > SQL Server Network Configuration > Protocols > TCP/IP > Enabled), redemarre le service SQL Server." -ForegroundColor Yellow
+Write-Host "  2. Ouvre le port SQL dans le pare-feu Windows (idealement limite au sous-reseau des tablettes / a l'IP de la machine POSR, pas 'Any')." -ForegroundColor Yellow
+Write-Host "  3. Cree/verifie les logins SQL posr_sync (sur ASIPOS600) et posr_fd_sync (sur ASIFD600) avec acces reseau." -ForegroundColor Yellow
 
 Ensure-Tool -Name "Git" -CommandName git -WingetId "Git.Git" -ManualUrl "https://git-scm.com/download/win" -Required | Out-Null
 Sync-PathFromRegistry
@@ -213,8 +219,12 @@ SURREAL_CONNECT_TIMEOUT_MS=10000
 
 if (-not (Test-Path "asi-sync\.env")) {
 @"
-# Menu + tables ASI (SQL local sur ce PC)
-ASI_SQL_SERVER=127.0.0.1
+# Menu + tables ASI POS (SQL Server sur la machine ASI POS, PAS ce PC).
+# Remplace <POS_ASI_IP> par l'IP LAN reelle de la machine ASI POS.
+# Confirme le port sur place (SQL Server Configuration Manager > SQL Server
+# Network Configuration > Protocols > TCP/IP) - 56479 est juste un exemple,
+# rien ne garantit qu'il soit identique sur une autre machine/instance.
+ASI_SQL_SERVER=<POS_ASI_IP>
 ASI_SQL_PORT=56479
 ASI_SQL_DATABASE=ASIPOS600
 ASI_SQL_USER=posr_sync
@@ -224,10 +234,11 @@ ASI_SQL_TRUST_CERT=true
 ASI_MENU_SYNC=1
 ASI_TABLE_SYNC=1
 
-# FrontDesk guests + chambres (meme SQL local)
+# FrontDesk guests + chambres (SQL Server sur la machine PMS, une 3e machine
+# possible - remplace <PMS_LAN_IP> par son IP LAN reelle).
 ASI_FD_SYNC=1
 ASI_ROOM_SYNC=1
-ASI_FD_SQL_SERVER=127.0.0.1
+ASI_FD_SQL_SERVER=<PMS_LAN_IP>
 ASI_FD_SQL_PORT=56479
 ASI_FD_SQL_DATABASE=ASIFD600
 ASI_FD_SQL_USER=posr_fd_sync
@@ -252,8 +263,9 @@ ASI_SYNC_ONCE=0
 Write-Host ""
 Write-Host "STOP - avant de continuer, edite ces 3 fichiers :" -ForegroundColor Red
 Write-Host "  - .env, gateway\.env, asi-sync\.env : SURREAL_PASS (meme valeur forte partout)"
+Write-Host "  - asi-sync\.env : ASI_SQL_SERVER (IP LAN de la machine ASI POS) et ASI_FD_SQL_SERVER (IP LAN de la machine ASI FrontDesk/PMS)"
 Write-Host "  - asi-sync\.env : ASI_SQL_PASSWORD (login posr_sync sur ASIPOS600) et ASI_FD_SQL_PASSWORD (login posr_fd_sync sur ASIFD600)"
-Write-Host "  - Si SQL Server ASI n'est pas en 127.0.0.1:56479, corrige ASI_SQL_SERVER / ASI_FD_SQL_SERVER / *_SQL_PORT dans asi-sync\.env"
+Write-Host "  - Confirme les ports SQL reels sur chaque machine (*_SQL_PORT) - 56479 n'est qu'un exemple d'une autre installation"
 Read-Host "Appuie sur Entree une fois que c'est fait"
 
 # ---------------------------------------------------------------------------
