@@ -84,6 +84,10 @@ if (-not $isAdmin) {
   exit 1
 }
 
+# npm/npx/pm2 are .ps1 shims - blocked by the default RemoteSigned policy in a
+# fresh shell. Loosen it for this process only.
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
 # ---------------------------------------------------------------------------
 Step "1. Prerequisites"
 
