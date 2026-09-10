@@ -282,12 +282,31 @@ if (-not (Test-Path "$NginxRoot\nginx.exe")) {
   Move-Item $extracted.FullName $NginxRoot
 }
 
-Copy-Item "$RepoPath\nginx.conf" "$NginxRoot\conf\nginx-posr.conf" -Force
-$nginxMain = Get-Content "$NginxRoot\conf\nginx.conf" -Raw
-if ($nginxMain -notmatch "nginx-posr\.conf") {
-  Write-Host "IMPORTANT: edite $NginxRoot\conf\nginx.conf a la main - remplace le bloc 'server { ... }' par :" -ForegroundColor Red
-  Write-Host "    include conf/nginx-posr.conf;"
+# The repo nginx.conf targets the Docker image (root /usr/share/nginx/html);
+# this host nginx serves from <prefix>\html, so rewrite that one line on copy.
+((Get-Content "$RepoPath\nginx.conf" -Raw) -replace 'root\s+/usr/share/nginx/html;', 'root html;') |
+  Out-File -FilePath "$NginxRoot\conf\nginx-posr.conf" -Encoding ascii
+
+# Stock nginx.conf ships its own `server { listen 80; }` which collides with
+# ours - replace the whole file with a minimal one that just includes our
+# server block (old file kept as nginx.conf.bak-posr). Idempotent.
+$mainConf = "$NginxRoot\conf\nginx.conf"
+if ((Get-Content $mainConf -Raw) -notmatch "nginx-posr\.conf") {
+  Copy-Item $mainConf "$mainConf.bak-posr" -Force
+@"
+worker_processes  1;
+events { worker_connections  1024; }
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    keepalive_timeout  65;
+    include       nginx-posr.conf;
 }
+"@ | Out-File -FilePath $mainConf -Encoding ascii
+  Write-Host "nginx.conf remplace par une config minimale POSR (backup: nginx.conf.bak-posr)." -ForegroundColor Green
+}
+
 Remove-Item "$NginxRoot\html" -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item "$RepoPath\dist" "$NginxRoot\html" -Recurse -Force
 
@@ -295,10 +314,13 @@ Copy-Item "$RepoPath\dist" "$NginxRoot\html" -Recurse -Force
 Step "8. Persistence (pm2 + Windows startup)"
 
 Set-Location $RepoPath
-pm2 delete loyverse-sync 2>$null | Out-Null
+# `2>$null` on a native command trips $ErrorActionPreference='Stop' in
+# PowerShell 5.1 (NativeCommandError) when pm2 prints "process not found" on a
+# first run - `*> $null` swallows every stream without that side effect.
+pm2 delete loyverse-sync *> $null
 pm2 start npm --name loyverse-sync --cwd "$RepoPath\loyverse-sync" -- start
 
-pm2 delete nginx 2>$null | Out-Null
+pm2 delete nginx *> $null
 # `-g "daemon off;"` keeps nginx in the foreground - nginx daemonizes by
 # default, which would make pm2 think the process exited immediately.
 pm2 start "$NginxRoot\nginx.exe" --name nginx --cwd $NginxRoot -- -g "daemon off;"

@@ -356,7 +356,7 @@ Ordre de boot conseillé : **SQL ASI → Surreal → gateway/sidecars → asi-sy
 
 ## 6. Migrations / seed
 
-Si DB neuve : appliquer les migrations Surreal du dossier [`migrations/`](../../migrations/) (dont champs ASI tables/rooms/customers).  
+Si DB neuve : `node migrations/scripts/bootstrap-posr-db.cjs` (applique `migrations/latest.surql` = schéma de base complet, puis les migrations post-snapshot et les champs ASI tables/rooms/customers). `run-prod-migrations.cjs` est le chemin *mise à niveau* d'une DB existante et échoue sur une base vide.  
 Ne pas réutiliser une `./database` créée avec d’anciens `root`/`root` sans aligner `SURREAL_USER` / `SURREAL_PASS` ([GATEWAY.md](../security/GATEWAY.md)).
 
 PIN / rôles : s’assurer qu’un rôle Master a les permissions nécessaires (voir migrations Master permissions).
