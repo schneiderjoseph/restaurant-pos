@@ -301,13 +301,18 @@ $env:SURREAL_DB = "posr"
 $env:SURREAL_USER = Get-EnvValue $envFile "SURREAL_USER"
 $env:SURREAL_PASS = Get-EnvValue $envFile "SURREAL_PASS"
 
-# npm install first: run-prod-migrations.cjs and bootstrap-asi-fields.cjs both
-# need the root `ws` + `surrealdb` packages to run outside Docker.
+# npm install first: the bootstrap script needs the root `ws` + `surrealdb`
+# packages to run outside Docker.
 npm install
-node migrations/scripts/run-prod-migrations.cjs
-# run-prod-migrations.cjs's plan predates the ASI/Resort F&B fields below -
-# applied separately here (idempotent, safe to re-run).
-node migrations/scripts/bootstrap-asi-fields.cjs
+# Fresh-install schema bootstrap: latest.surql (full base schema) + the
+# post-snapshot migrations + ASI/Resort fields. NOT run-prod-migrations.cjs -
+# that is the upgrade path and hard-fails on an empty database.
+node migrations/scripts/bootstrap-posr-db.cjs
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Le bootstrap du schema posr/posr a echoue - regarde l'erreur ci-dessus." -ForegroundColor Red
+  Write-Host "Si tu re-tentes : arrete surrealdb, vide C:\restaurant-pos\database\, relance." -ForegroundColor Yellow
+  exit 1
+}
 
 Set-Location "$RepoPath\asi-sync"
 npm install
