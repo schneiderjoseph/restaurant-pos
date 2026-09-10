@@ -378,24 +378,46 @@ Step "8. Persistence (pm2 + Windows startup)"
 
 Set-Location $RepoPath
 
-# pm2 writes to stderr + exits non-zero on a first-run `delete` (nothing to
-# delete yet). Under $ErrorActionPreference='Stop', ANY stream redirect
-# (`2>$null`, `*> $null`, ...) makes PowerShell 5.1 turn that into a
-# terminating NativeCommandError and the step aborts before `pm2 save`.
-# Fix: drop to 'Continue' for the block and never redirect a pm2 call.
+# pm2 on Windows mangles `pm2 start npm -- start` (it looks for a file named
+# `start`) and `-- -g "daemon off;"` (its arg parser swallows `-g`). An
+# ecosystem file sidesteps both. `pm2 save` then snapshots the running list
+# to dump.pm2, which pm2-startup resurrects at logon.
+$eco = Join-Path $env:TEMP "pm2-posr.config.cjs"
+$repoFwd = $RepoPath -replace '\\', '/'
+$nginxFwd = $NginxRoot -replace '\\', '/'
+@"
+module.exports = {
+  apps: [
+    {
+      name: 'asi-sync',
+      script: 'src/index.js',
+      cwd: '$repoFwd/asi-sync',
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 20,
+    },
+    {
+      name: 'nginx',
+      script: '$nginxFwd/nginx.exe',
+      args: ['-p', '$nginxFwd/', '-g', 'daemon off;'],
+      cwd: '$nginxFwd',
+      autorestart: true,
+    },
+  ],
+};
+"@ | Out-File -FilePath $eco -Encoding ascii
+
+# A first-run `pm2 delete` writes to stderr + exits non-zero; under 'Stop'
+# any redirect turns that into a fatal NativeCommandError. 'Continue' + no
+# redirect keeps the step alive.
 $ErrorActionPreference = 'Continue'
-
 pm2 delete asi-sync | Out-Null
-pm2 start npm --name asi-sync --cwd "$RepoPath\asi-sync" -- start
-
 pm2 delete nginx | Out-Null
-# `-g "daemon off;"` keeps nginx in the foreground - nginx daemonizes by
-# default, which would make pm2 think the process exited immediately.
-pm2 start "$NginxRoot\nginx.exe" --name nginx --cwd $NginxRoot -- -g "daemon off;"
-
+pm2 start $eco
 pm2 save
-
 $ErrorActionPreference = 'Stop'
+
+pm2 list
 
 Write-Host ""
 Write-Host "== Termine ==" -ForegroundColor Green
