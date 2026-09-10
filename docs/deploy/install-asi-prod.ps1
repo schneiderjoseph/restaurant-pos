@@ -378,32 +378,21 @@ Step "8. Persistence (pm2 + Windows startup)"
 
 Set-Location $RepoPath
 
-# pm2 on Windows mangles `pm2 start npm -- start` (it looks for a file named
-# `start`) and `-- -g "daemon off;"` (its arg parser swallows `-g`). An
-# ecosystem file sidesteps both. `pm2 save` then snapshots the running list
-# to dump.pm2, which pm2-startup resurrects at logon.
+# asi-sync under pm2. Ecosystem file, not `pm2 start npm -- start` - the
+# latter makes pm2 on Windows look for a file literally named `start`.
+# `pm2 save` snapshots the running list to dump.pm2, resurrected at logon.
 $eco = Join-Path $env:TEMP "pm2-posr.config.cjs"
 $repoFwd = $RepoPath -replace '\\', '/'
-$nginxFwd = $NginxRoot -replace '\\', '/'
 @"
 module.exports = {
-  apps: [
-    {
-      name: 'asi-sync',
-      script: 'src/index.js',
-      cwd: '$repoFwd/asi-sync',
-      autorestart: true,
-      restart_delay: 5000,
-      max_restarts: 20,
-    },
-    {
-      name: 'nginx',
-      script: '$nginxFwd/nginx.exe',
-      args: ['-p', '$nginxFwd/', '-g', 'daemon off;'],
-      cwd: '$nginxFwd',
-      autorestart: true,
-    },
-  ],
+  apps: [{
+    name: 'asi-sync',
+    script: 'src/index.js',
+    cwd: '$repoFwd/asi-sync',
+    autorestart: true,
+    restart_delay: 5000,
+    max_restarts: 20,
+  }],
 };
 "@ | Out-File -FilePath $eco -Encoding ascii
 
@@ -412,17 +401,30 @@ module.exports = {
 # redirect keeps the step alive.
 $ErrorActionPreference = 'Continue'
 pm2 delete asi-sync | Out-Null
-pm2 delete nginx | Out-Null
+pm2 delete nginx | Out-Null       # older installs tried (and failed) to run nginx under pm2
+pm2 delete pm2-nginx | Out-Null
 pm2 start $eco
 pm2 save
+
+# nginx: pm2 can't reliably supervise nginx.exe on Windows (it forks + the
+# `-g "daemon off;"` / arg quirks make pm2 restart-loop it). Run it directly
+# and use a logon scheduled task for reboot persistence.
+& "$NginxRoot\nginx.exe" -s stop -p "$NginxRoot\"
+Start-Sleep -Seconds 1
+& "$NginxRoot\nginx.exe" -p "$NginxRoot\"
 $ErrorActionPreference = 'Stop'
+
+Register-ScheduledTask -TaskName "nginx-posr" `
+  -Action (New-ScheduledTaskAction -Execute "$NginxRoot\nginx.exe" -Argument ('-p "{0}"' -f $NginxRoot) -WorkingDirectory $NginxRoot) `
+  -Trigger (New-ScheduledTaskTrigger -AtLogOn) -RunLevel Highest -Force | Out-Null
+Write-Host "nginx demarre + tache planifiee 'nginx-posr' (au logon)." -ForegroundColor Green
 
 pm2 list
 
 Write-Host ""
 Write-Host "== Termine ==" -ForegroundColor Green
 Write-Host "Docker (surrealdb/gateway/api/printer/tracking/payment) redemarre seul si Docker Desktop est configure pour se lancer a l'ouverture de session (Settings > General)."
-Write-Host "asi-sync + nginx redemarrent via pm2 (pm2-startup) au reboot."
+Write-Host "asi-sync redemarre via pm2 (pm2-startup) au reboot ; nginx via la tache planifiee 'nginx-posr' (au logon)."
 Write-Host "Il faut aussi creer le premier compte admin (PIN + role Master) - voir docs/user-guide/ADMIN-USERS.md."
 Write-Host "Verifie la checklist smoke test : docs/deploy/PROD-ASI.md #7"
 Write-Host "UI: http://$ip/"

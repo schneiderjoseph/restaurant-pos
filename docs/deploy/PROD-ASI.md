@@ -2,7 +2,7 @@
 
 Checklist pratique pour installer / préparer l’environnement **production** du POS restaurant en mode **Resort F&B + sync ASI**.
 
-**Script tout-en-un :** [`install-asi-prod.ps1`](./install-asi-prod.ps1) (PowerShell **Administrateur**) fait les étapes 1 à 8 ci-dessous automatiquement — vérifie/installe git, Node, Docker Desktop, pm2 ; clone/MAJ le repo ; génère les `.env` (JWT + IP LAN auto-détectés, secrets SQL/Surreal à coller toi-même) ; démarre Docker (surrealdb/gateway/api/printer/tracking/payment) ; applique les migrations `posr`/`posr` + premier sync ASI ; build + nginx ; enregistre `asi-sync` et nginx sous **pm2** avec démarrage au boot Windows. Relis quand même la checklist §7 avant l'ouverture — le script ne teste pas l'app elle-même, et ne touche jamais à ASI POS / ASI FrontDesk / SQL Server déjà en place.
+**Script tout-en-un :** [`install-asi-prod.ps1`](./install-asi-prod.ps1) (PowerShell **Administrateur**) fait les étapes 1 à 8 ci-dessous automatiquement — vérifie/installe git, Node, Docker Desktop, pm2 ; clone/MAJ le repo ; génère les `.env` (JWT + IP LAN auto-détectés, secrets SQL/Surreal à coller toi-même) ; démarre Docker (surrealdb/gateway/api/printer/tracking/payment) ; applique les migrations `posr`/`posr` + premier sync ASI ; build + nginx ; enregistre `asi-sync` sous **pm2** (et nginx en tâche planifiée `nginx-posr`) avec démarrage au boot Windows. Relis quand même la checklist §7 avant l'ouverture — le script ne teste pas l'app elle-même, et ne touche jamais à ASI POS / ASI FrontDesk / SQL Server déjà en place.
 
 ## Topologie
 
