@@ -314,18 +314,25 @@ Copy-Item "$RepoPath\dist" "$NginxRoot\html" -Recurse -Force
 Step "8. Persistence (pm2 + Windows startup)"
 
 Set-Location $RepoPath
-# `2>$null` on a native command trips $ErrorActionPreference='Stop' in
-# PowerShell 5.1 (NativeCommandError) when pm2 prints "process not found" on a
-# first run - `*> $null` swallows every stream without that side effect.
-pm2 delete loyverse-sync *> $null
+
+# pm2 writes to stderr + exits non-zero on a first-run `delete` (nothing to
+# delete yet). Under $ErrorActionPreference='Stop', ANY stream redirect
+# (`2>$null`, `*> $null`, ...) makes PowerShell 5.1 turn that into a
+# terminating NativeCommandError and the step aborts before `pm2 save`.
+# Fix: drop to 'Continue' for the block and never redirect a pm2 call.
+$ErrorActionPreference = 'Continue'
+
+pm2 delete loyverse-sync | Out-Null
 pm2 start npm --name loyverse-sync --cwd "$RepoPath\loyverse-sync" -- start
 
-pm2 delete nginx *> $null
+pm2 delete nginx | Out-Null
 # `-g "daemon off;"` keeps nginx in the foreground - nginx daemonizes by
 # default, which would make pm2 think the process exited immediately.
 pm2 start "$NginxRoot\nginx.exe" --name nginx --cwd $NginxRoot -- -g "daemon off;"
 
 pm2 save
+
+$ErrorActionPreference = 'Stop'
 
 Write-Host ""
 Write-Host "== Termine ==" -ForegroundColor Green
