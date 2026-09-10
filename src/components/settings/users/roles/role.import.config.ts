@@ -9,7 +9,7 @@ const allowedModuleSet = new Set(normalizeModules(Object.keys(ACCESS_RULE_MODULE
 export function createRoleImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
     {name: "name", label: t("admin:columns.name"), type: "string", required: true},
-    {name: "modules", label: t("admin:forms.modules"), type: "string[]", required: true},
+    {name: "modules", label: t("admin:forms.modules"), type: "string", required: true},
   ];
 
   return {

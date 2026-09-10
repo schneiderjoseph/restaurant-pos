@@ -278,7 +278,6 @@ export const ScheduleTemplateForm = ({open, onClose, data}: Props) => {
                   />
                 )}
                 name="break_minutes"
-                rules={{valueAsNumber: true}}
                 control={control}
               />
 

@@ -29,7 +29,7 @@ const personName = (row: {first_name?: string; last_name?: string; login?: strin
   return full || row.login || undefined;
 };
 
-const summarizeLines = (items: Array<{quantity?: unknown; price?: unknown}> | null | undefined) => ({
+const summarizeLines = (items: Array<{quantity?: number | string | null; price?: number | string | null}> | null | undefined) => ({
   itemCount: items?.length ?? 0,
   totalAmount: itemsSubtotal(items ?? []),
 });

@@ -34,13 +34,13 @@ export function createAiPurchaseImportConfig({
   context?: WriteToolContext;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "item", type: "string", required: true, description: "Inventory item code or name"},
-    {name: "quantity", type: "number", required: true},
-    {name: "price", type: "number", required: true, description: "Unit price"},
-    {name: "supplier", type: "string", required: true},
-    {name: "location", type: "string", required: true},
-    {name: "post", type: "boolean", description: "Post to ledger after save (default true)"},
-    {name: "comments", type: "string"},
+    {name: "item", label: "Item", type: "string", required: true, description: "Inventory item code or name"},
+    {name: "quantity", label: "Quantity", type: "number", required: true},
+    {name: "price", label: "Price", type: "number", required: true, description: "Unit price"},
+    {name: "supplier", label: "Supplier", type: "string", required: true},
+    {name: "location", label: "Location", type: "string", required: true},
+    {name: "post", label: "Post", type: "boolean", description: "Post to ledger after save (default true)"},
+    {name: "comments", label: "Comments", type: "string"},
   ];
 
   return {
@@ -130,11 +130,11 @@ export function createAiWasteImportConfig({
   context?: WriteToolContext;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "item", type: "string", required: true},
-    {name: "quantity", type: "number", required: true},
-    {name: "location", type: "string", required: true},
-    {name: "post", type: "boolean"},
-    {name: "comments", type: "string"},
+    {name: "item", label: "Item", type: "string", required: true},
+    {name: "quantity", label: "Quantity", type: "number", required: true},
+    {name: "location", label: "Location", type: "string", required: true},
+    {name: "post", label: "Post", type: "boolean"},
+    {name: "comments", label: "Comments", type: "string"},
   ];
 
   return {
@@ -206,11 +206,11 @@ export function createAiIssueImportConfig({
   context?: WriteToolContext;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "item", type: "string", required: true},
-    {name: "quantity", type: "number", required: true},
-    {name: "location", type: "string", required: true, description: "Source stock location"},
-    {name: "post", type: "boolean"},
-    {name: "comments", type: "string"},
+    {name: "item", label: "Item", type: "string", required: true},
+    {name: "quantity", label: "Quantity", type: "number", required: true},
+    {name: "location", label: "Location", type: "string", required: true, description: "Source stock location"},
+    {name: "post", label: "Post", type: "boolean"},
+    {name: "comments", label: "Comments", type: "string"},
   ];
 
   return {
@@ -283,11 +283,11 @@ export function createAiAdjustmentImportConfig({
   context?: WriteToolContext;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "item", type: "string", required: true},
-    {name: "quantity_change", type: "number", required: true, description: "Signed quantity change"},
-    {name: "location", type: "string", required: true},
-    {name: "post", type: "boolean"},
-    {name: "comments", type: "string"},
+    {name: "item", label: "Item", type: "string", required: true},
+    {name: "quantity_change", label: "Quantity change", type: "number", required: true, description: "Signed quantity change"},
+    {name: "location", label: "Location", type: "string", required: true},
+    {name: "post", label: "Post", type: "boolean"},
+    {name: "comments", label: "Comments", type: "string"},
   ];
 
   return {

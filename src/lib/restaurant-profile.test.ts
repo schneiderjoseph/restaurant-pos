@@ -82,6 +82,7 @@ describe('restaurant profile print merge', () => {
       content: 'data:image/png;base64,profile',
     });
     expect(merged.headerSections?.[1]?.content).toBe('Cafe Test');
-    expect(merged.headerSections?.at(-1)?.content).toBe('Custom promo');
+    const headerSections = merged.headerSections as any[] | undefined;
+    expect(headerSections?.[(headerSections?.length ?? 1) - 1]?.content).toBe('Custom promo');
   });
 });

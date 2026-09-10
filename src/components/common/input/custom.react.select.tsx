@@ -3,9 +3,16 @@ import Select, {
   components as selectComponents,
   GroupBase,
   Props,
+  ThemeConfig,
 } from "react-select";
-import {Theme} from "react-select/dist/declarations/src/";
 import Spinner from "@/assets/images/spinner.svg";
+
+// react-select doesn't re-export `Theme` itself (only `ThemeConfig`), and its
+// package.json `exports` map blocks deep imports under moduleResolution
+// "bundler" - extract it from the function-form branch of ThemeConfig instead.
+// Wrapped in its own generic so the conditional distributes over the union.
+type ExtractThemeArg<T> = T extends (theme: infer U) => any ? U : never;
+type Theme = ExtractThemeArg<ThemeConfig>;
 
 const primaryColor = "23 23 23";
 const focusRingColor = "152 189 254";

@@ -124,7 +124,7 @@ export const Customers = ({
       }
 
       toast.success(t("menu:guest.created"));
-      await attachCustomer(created as Customer);
+      await attachCustomer(created as unknown as Customer);
     } catch (error) {
       console.error(error);
       toast.error(t("menu:guest.createFailed"));

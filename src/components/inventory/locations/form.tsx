@@ -125,18 +125,20 @@ export const InventoryLocationForm = ({ open, onClose, data }: Props) => {
             autoFocus
             error={errors?.name?.message}
           />
-          <Controller
-            name="type"
-            control={control}
-            render={({ field }) => (
-              <ReactSelect
-                label={t("columns.locationType")}
-                options={typeOptions}
-                value={typeOptions.find((o) => o.value === field.value) ?? null}
-                onChange={(opt: any) => field.onChange(opt?.value ?? "Store")}
-              />
-            )}
-          />
+          <div>
+            <label htmlFor="">{t("columns.locationType")}</label>
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <ReactSelect
+                  options={typeOptions}
+                  value={typeOptions.find((o) => o.value === field.value) ?? null}
+                  onChange={(opt: any) => field.onChange(opt?.value ?? "Store")}
+                />
+              )}
+            />
+          </div>
           <Controller
             name="is_active"
             control={control}

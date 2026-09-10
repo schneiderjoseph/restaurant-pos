@@ -3,6 +3,7 @@ import {faCopy, faSquareCheck} from "@fortawesome/free-regular-svg-icons";
 import {faPause, faPlay, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
 import React, {useMemo, useState} from "react";
+import type {Order} from "@/api/model/order.ts";
 import {useAtom} from "jotai";
 import {appPage, appState} from "@/store/jotai.ts";
 import {nanoid} from "nanoid";
@@ -213,8 +214,8 @@ export const CartActions = () => {
             items: kitchenItems[kitchenId],
             order: {
               ...order,
-              order_type: state?.orderType ?? order?.order_type,
-              user: page?.user ?? order?.user,
+              order_type: state?.orderType ?? (order as Order | undefined)?.order_type,
+              user: page?.user ?? (order as Order | undefined)?.user,
             },
             kitchenName: k.name,
             table: state?.table,

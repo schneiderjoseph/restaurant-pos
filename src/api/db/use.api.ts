@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDB } from "@/api/db/db.ts";
 import { useQueryBuilder } from "@/api/db/query-builder.ts";
 import {useDatabase} from "@/hooks/useDatabase.ts";
@@ -109,7 +109,7 @@ function useApi<T>(
     isFetching,
     error,
     refetch,
-  }: UseQueryResult<T> = useQuery({
+  } = useQuery({
     queryKey: queryKeys,
     queryFn: fetchFilteredData,
     enabled: isConnected && !!db && !!table && enabledOverride,
@@ -211,7 +211,7 @@ function useApi<T>(
     sorts, handleSortChange,
     page, pageSize,
     handlePageChange, handlePageSizeChange,
-    data,
+    data: data as T | undefined,
     fetchData: refetch, fetch: manualFetch, isFetching, isLoading,
     parameters, handleParameterChange,
   };

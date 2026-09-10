@@ -66,7 +66,7 @@ export async function exitFullscreen(): Promise<void> {
 export async function lockLandscape(): Promise<void> {
   try {
     const orientation = screen.orientation as ScreenOrientation & {
-      lock?: (orientation: OrientationLockType) => Promise<void>
+      lock?: (orientation: OrientationType | "landscape" | "portrait") => Promise<void>
     }
     if (typeof orientation?.lock === 'function') {
       await orientation.lock('landscape')

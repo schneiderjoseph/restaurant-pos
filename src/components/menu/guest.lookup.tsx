@@ -241,7 +241,7 @@ export const GuestLookup = () => {
         return;
       }
 
-      const guest = created as Customer;
+      const guest = created as unknown as Customer;
       selectGuest(guest);
       setGuests((prev) => {
         const id = guest.id?.toString();

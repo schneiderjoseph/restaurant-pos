@@ -203,7 +203,7 @@ export const OrderBox = ({
   };
 
   const printTempBill = () => {
-    void withFullOrder((full) => requestBillPrint({
+    void withFullOrder(async (full) => { await requestBillPrint({
       db,
       protectAction,
       orderId: full.id.toString(),
@@ -217,11 +217,11 @@ export const OrderBox = ({
         setTempPrintedLocal(true);
         onAction?.();
       },
-    }));
+    }); });
   };
 
   const printFinalCopy = () => {
-    void withFullOrder((full) => requestBillPrint({
+    void withFullOrder(async (full) => { await requestBillPrint({
       db,
       protectAction,
       orderId: full.id.toString(),
@@ -240,19 +240,19 @@ export const OrderBox = ({
           qrcode: qrcodes[0]?.value,
         }, {userId: page?.user?.id});
       },
-    }));
+    }); });
   };
 
   const printKotCopy = () => {
     void protectAction(() => {
-      void withFullOrder((full) => printDuplicateKotForOrder({
+      void withFullOrder(async (full) => { await printDuplicateKotForOrder({
         db,
         order: full,
         userId: page?.user?.id,
         title: t("actions.printKotCopy"),
       }).catch((error) => {
         console.error("Order KOT reprint failed", error);
-      }));
+      }); });
     }, {
       module: "orders.print_kot",
       description: t("actions.printKotCopy"),
@@ -553,17 +553,18 @@ export const OrderBox = ({
               </Dropdown>
               {order.status === OrderStatus["In Progress"] && (
                 <>
-                  <Button
-                    variant="primary"
-                    flat
-                    size="lg"
-                    className="flex-1"
-                    disabled={mutationsBlocked || isLoadingFull}
-                    onClick={() => void openOrderForEdit()}
-                    icon={faPenToSquare}
-                    data-testid="order-card-edit"
-                    title={t('actions.editOrder')}
-                  />
+                  <span title={t('actions.editOrder')} className="flex-1 flex">
+                    <Button
+                      variant="primary"
+                      flat
+                      size="lg"
+                      className="flex-1"
+                      disabled={mutationsBlocked || isLoadingFull}
+                      onClick={() => void openOrderForEdit()}
+                      icon={faPenToSquare}
+                      data-testid="order-card-edit"
+                    />
+                  </span>
                   <span title={tempPrinted ? t('print.tempAlreadyPrinted') : undefined} className="flex-1 flex">
                     <Button
                       onClick={printTempBill}

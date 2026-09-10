@@ -41,11 +41,11 @@ async function resolveLeaveTypeId(db: ImportDbLike, name: string) {
 
 export function createPositionImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "code", type: "string", required: true},
-    {name: "name", type: "string", required: true},
-    {name: "department", type: "string", description: "Department name"},
-    {name: "default_cost_center", type: "string", description: "Cost center name"},
-    {name: "is_active", type: "boolean"},
+    {name: "code", label: "Code", type: "string", required: true},
+    {name: "name", label: "Name", type: "string", required: true},
+    {name: "department", label: "Department", type: "string", description: "Department name"},
+    {name: "default_cost_center", label: "Default cost center", type: "string", description: "Cost center name"},
+    {name: "is_active", label: "Is active", type: "boolean"},
   ];
 
   return {
@@ -99,9 +99,9 @@ export function createPositionImportConfig({db, t}: {db: ImportDbLike; t: TFunc}
 
 export function createCostCenterImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "code", type: "string", required: true},
-    {name: "name", type: "string", required: true},
-    {name: "is_active", type: "boolean"},
+    {name: "code", label: "Code", type: "string", required: true},
+    {name: "name", label: "Name", type: "string", required: true},
+    {name: "is_active", label: "Is active", type: "boolean"},
   ];
 
   return {
@@ -137,14 +137,14 @@ export function createCostCenterImportConfig({db, t}: {db: ImportDbLike; t: TFun
   };
 }
 
-export function createLeaveRequestImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
+export function createLeaveRequestImportConfig({db, t, context = {}}: {db: ImportDbLike; t: TFunc; context?: WriteToolContext}): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "employee", type: "string", required: true, description: "Employee number or name"},
-    {name: "leave_type", type: "string", required: true},
-    {name: "start_date", type: "string", required: true},
-    {name: "end_date", type: "string", required: true},
-    {name: "days", type: "number"},
-    {name: "reason", type: "string"},
+    {name: "employee", label: "Employee", type: "string", required: true, description: "Employee number or name"},
+    {name: "leave_type", label: "Leave type", type: "string", required: true},
+    {name: "start_date", label: "Start date", type: "string", required: true},
+    {name: "end_date", label: "End date", type: "string", required: true},
+    {name: "days", label: "Days", type: "number"},
+    {name: "reason", label: "Reason", type: "string"},
   ];
 
   return {
@@ -187,10 +187,10 @@ export function createAiAttendanceImportConfig({
   context?: WriteToolContext;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "employee", type: "string", required: true},
-    {name: "clock_in", type: "string", required: true},
-    {name: "clock_out", type: "string", required: true},
-    {name: "notes", type: "string"},
+    {name: "employee", label: "Employee", type: "string", required: true},
+    {name: "clock_in", label: "Clock in", type: "string", required: true},
+    {name: "clock_out", label: "Clock out", type: "string", required: true},
+    {name: "notes", label: "Notes", type: "string"},
   ];
 
   return {

@@ -32,14 +32,14 @@ export function createCouponImportConfig({db, t}: {db: ImportDbLike; t: TFunc}):
     {name: "usage_limit", label: t("admin:columns.usageLimit"), type: "number", optional: true},
     {name: "usage_limit_per_user", label: t("admin:columns.usageLimitPerUser"), type: "number", optional: true},
     {name: "priority", label: t("admin:columns.priority"), type: "number", defaultValue: 0},
-    {name: "valid_days", label: t("admin:columns.validDays"), type: "string[]", optional: true},
+    {name: "valid_days", label: t("admin:columns.validDays"), type: "string", optional: true},
     {name: "stackable", label: t("admin:columns.stackable"), type: "boolean", defaultValue: false},
     {name: "first_order_only", label: t("admin:columns.firstOrderOnly"), type: "boolean", defaultValue: false},
     {name: "is_active", label: t("admin:columns.active"), type: "boolean", defaultValue: true},
     {name: "start_time", label: t("admin:columns.startTime"), type: "string", optional: true},
     {name: "end_time", label: t("admin:columns.endTime"), type: "string", optional: true},
-    {name: "category_names", label: t("admin:columns.categories"), type: "string[]", optional: true},
-    {name: "item_names", label: t("admin:tabs.dishes"), type: "string[]", optional: true},
+    {name: "category_names", label: t("admin:columns.categories"), type: "string", optional: true},
+    {name: "item_names", label: t("admin:tabs.dishes"), type: "string", optional: true},
   ];
 
   return {

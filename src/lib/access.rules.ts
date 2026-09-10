@@ -678,7 +678,7 @@ export const getUserModules = (user?: User): string[] => {
 };
 
 type DbQueryClient = {
-  query: (sql: string, params?: unknown) => Promise<unknown>;
+  query: (sql: string, params?: Record<string, unknown>) => Promise<unknown>;
 };
 
 /**

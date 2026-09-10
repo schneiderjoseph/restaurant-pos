@@ -145,7 +145,7 @@ const emptySegmentMetrics = (name: string): SegmentMetrics => ({
 const getOrderEmployeeName = (order: Order): string => {
   const user = order.user as {first_name?: string; last_name?: string; login?: string} | string | undefined;
   if (!user || typeof user === "string") {
-    return user?.trim() || "Unknown";
+    return (user as string | undefined)?.trim() || "Unknown";
   }
   const name = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
   return name || user.login || "Unknown";

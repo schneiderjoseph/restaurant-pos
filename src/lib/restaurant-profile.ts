@@ -7,7 +7,7 @@ import {
 import { detectMimeType } from '@/utils/files.ts';
 
 type AnyDb = {
-  query: (sql: string, vars?: Record<string, unknown>) => Promise<unknown>;
+  query: <R extends unknown[] = any[]>(sql: string, vars?: Record<string, unknown>) => Promise<R>;
   create?: (table: string, data: unknown) => Promise<unknown>;
   merge?: (id: unknown, data: unknown) => Promise<unknown>;
 };

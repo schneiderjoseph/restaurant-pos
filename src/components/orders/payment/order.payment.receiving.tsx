@@ -652,7 +652,7 @@ const OrderPaymentReceivingContent = ({
                         if (!full) {
                           throw new Error('Failed to load order for temp bill print');
                         }
-                        await dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                        return dispatchPrint(db, PRINT_TYPE.presale_bill, {
                           order: full,
                           taxes: allTaxes?.data
                         }, {userId: page?.user?.id});

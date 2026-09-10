@@ -44,6 +44,7 @@ const validationSchema = yup.object({
   printers: yup.array().of(selectOptionSchema).nullable().optional(),
   items: yup.array().of(selectOptionSchema),
   priority: yup.number().min(1, i18n.t('validation:required')).required(i18n.t('validation:required')),
+  shows_all: yup.boolean().optional(),
 });
 
 export const KitchenForm = ({

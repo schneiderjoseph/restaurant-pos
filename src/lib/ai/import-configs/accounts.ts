@@ -14,15 +14,15 @@ import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const NORMAL_BALANCES = ["debit", "credit"];
 
-export function createAiAccountImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
+export function createAiAccountImportConfig({db}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "code", type: "string", required: true},
-    {name: "name", type: "string", required: true},
-    {name: "group_code", type: "string", required: true},
-    {name: "normal_balance", type: "string", required: true, description: "debit or credit"},
-    {name: "parent_code", type: "string"},
-    {name: "is_active", type: "boolean"},
-    {name: "notes", type: "string"},
+    {name: "code", label: "Code", type: "string", required: true},
+    {name: "name", label: "Name", type: "string", required: true},
+    {name: "group_code", label: "Group code", type: "string", required: true},
+    {name: "normal_balance", label: "Normal balance", type: "string", required: true, description: "debit or credit"},
+    {name: "parent_code", label: "Parent code", type: "string"},
+    {name: "is_active", label: "Is active", type: "boolean"},
+    {name: "notes", label: "Notes", type: "string"},
   ];
 
   return {
@@ -100,7 +100,6 @@ async function resolveAccountId(db: ImportDbLike, key: string) {
 
 export function createAiJournalEntryImportConfig({
   db,
-  t,
   context = {},
 }: {
   db: ImportDbLike;
@@ -108,13 +107,13 @@ export function createAiJournalEntryImportConfig({
   context?: WriteToolContext;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "reference", type: "string", required: true, description: "Groups lines into one journal entry"},
-    {name: "entry_date", type: "string", required: true},
-    {name: "description", type: "string"},
-    {name: "account", type: "string", required: true, description: "Account code or name"},
-    {name: "debit", type: "number"},
-    {name: "credit", type: "number"},
-    {name: "line_description", type: "string"},
+    {name: "reference", label: "Reference", type: "string", required: true, description: "Groups lines into one journal entry"},
+    {name: "entry_date", label: "Entry date", type: "string", required: true},
+    {name: "description", label: "Description", type: "string"},
+    {name: "account", label: "Account", type: "string", required: true, description: "Account code or name"},
+    {name: "debit", label: "Debit", type: "number"},
+    {name: "credit", label: "Credit", type: "number"},
+    {name: "line_description", label: "Line description", type: "string"},
   ];
 
   const entryCache = new Map<string, string>();
