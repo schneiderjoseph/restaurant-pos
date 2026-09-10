@@ -257,6 +257,27 @@ npm run bootstrap-db
 npm run once
 Set-Location $RepoPath
 
+# First admin account: a fresh loyverse DB has zero users and the UI has no
+# "create first user" screen. The script no-ops if users already exist.
+$envFile = Get-Content ".env" -Raw
+$env:SURREAL_URL = "ws://127.0.0.1:8000/rpc"
+$env:SURREAL_NS = "loyverse"
+$env:SURREAL_DB = "loyverse"
+$env:SURREAL_USER = ([regex]::Match($envFile, "(?m)^SURREAL_USER=(.*)$").Groups[1].Value).Trim()
+$env:SURREAL_PASS = ([regex]::Match($envFile, "(?m)^SURREAL_PASS=(.*)$").Groups[1].Value).Trim()
+npm install
+$adminPin = Read-Host "PIN a 4 chiffres pour le premier compte admin (Entree pour sauter)"
+if ($adminPin -match '^\d{4}$') {
+  $env:ADMIN_PIN = $adminPin
+  node migrations/scripts/bootstrap-admin-user.cjs
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Creation du compte admin en echec - relance 'node migrations/scripts/bootstrap-admin-user.cjs' plus tard." -ForegroundColor Yellow
+  }
+  $env:ADMIN_PIN = $null
+} elseif ($adminPin) {
+  Write-Host "PIN invalide (4 chiffres attendus) - compte admin non cree." -ForegroundColor Yellow
+}
+
 # ---------------------------------------------------------------------------
 Step "6. Build SPA"
 

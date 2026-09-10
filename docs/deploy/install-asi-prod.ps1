@@ -320,6 +320,21 @@ Write-Host "Test de connexion SQL ASI (ASI POS + FrontDesk doivent deja tourner)
 npm run once
 Set-Location $RepoPath
 
+# First admin account: a fresh posr DB has zero users and the UI has no
+# "create first user" screen. The script no-ops if users already exist, so
+# only prompt for a PIN when there is (probably) none yet.
+$adminPin = Read-Host "PIN a 4 chiffres pour le premier compte admin (Entree pour sauter)"
+if ($adminPin -match '^\d{4}$') {
+  $env:ADMIN_PIN = $adminPin
+  node migrations/scripts/bootstrap-admin-user.cjs
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "Creation du compte admin en echec - relance 'node migrations/scripts/bootstrap-admin-user.cjs' plus tard." -ForegroundColor Yellow
+  }
+  $env:ADMIN_PIN = $null
+} elseif ($adminPin) {
+  Write-Host "PIN invalide (4 chiffres attendus) - compte admin non cree. Relance le script ou 'node migrations/scripts/bootstrap-admin-user.cjs'." -ForegroundColor Yellow
+}
+
 # ---------------------------------------------------------------------------
 Step "6. Build SPA"
 
