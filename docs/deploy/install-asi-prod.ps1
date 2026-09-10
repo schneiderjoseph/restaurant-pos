@@ -269,9 +269,22 @@ Write-Host "  - Confirme les ports SQL reels sur chaque machine (*_SQL_PORT) - 5
 Read-Host "Appuie sur Entree une fois que c'est fait"
 
 # ---------------------------------------------------------------------------
-Step "4. Docker services (surrealdb + gateway + api + printer + tracking + payment)"
+Step "4. Docker services"
 
-docker compose up -d surrealdb gateway api printer tracking payment
+# Core services first - these must come up (SurrealDB + gateway are the POS).
+docker compose up -d surrealdb gateway api tracking payment
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "docker compose up des services de base a echoue - le POS ne peut pas demarrer sans." -ForegroundColor Red
+  Write-Host "Regarde l'erreur ci-dessus (souvent : Docker pas demarre, ou pas de reseau pour telecharger les images)." -ForegroundColor Red
+  exit 1
+}
+
+# Printer service: best-effort. If its image build/start fails (reseau, natif),
+# le POS marche quand meme - l'impression se rajoute apres.
+docker compose up -d printer
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Le service 'printer' n'a pas demarre - on continue sans (impression a configurer plus tard)." -ForegroundColor Yellow
+}
 
 # ---------------------------------------------------------------------------
 Step "5. Migrations posr/posr + premier sync ASI"

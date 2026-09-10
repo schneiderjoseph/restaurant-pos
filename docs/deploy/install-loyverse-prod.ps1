@@ -234,9 +234,19 @@ Write-Host "  - loyverse-sync\.env : LOYVERSE_ACCESS_TOKEN (Back Office Loyverse
 Read-Host "Appuie sur Entree une fois que c'est fait"
 
 # ---------------------------------------------------------------------------
-Step "4. Docker services (surrealdb + gateway + printer)"
+Step "4. Docker services"
 
-docker compose up -d surrealdb gateway printer
+docker compose up -d surrealdb gateway
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "docker compose up (surrealdb + gateway) a echoue - le POS ne peut pas demarrer sans." -ForegroundColor Red
+  exit 1
+}
+
+# Printer: best-effort (voir install-asi-prod.ps1 pour le detail).
+docker compose up -d printer
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Le service 'printer' n'a pas demarre - on continue sans." -ForegroundColor Yellow
+}
 
 # ---------------------------------------------------------------------------
 Step "5. Bootstrap loyverse/loyverse + premier sync"
