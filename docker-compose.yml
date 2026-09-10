@@ -167,6 +167,7 @@ services:
     command: sh -c "npm install && npm start"
     ports:
       - "3138:3138"
+    restart: unless-stopped
     depends_on:
       - surrealdb
       - gateway
