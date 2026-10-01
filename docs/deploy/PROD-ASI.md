@@ -361,6 +361,8 @@ Ne pas réutiliser une `./database` créée avec d’anciens `root`/`root` sans 
 
 Premier compte : `$env:ADMIN_PIN="4271"; node migrations/scripts/bootstrap-admin-user.cjs` crée le rôle **Master** (toutes permissions, source unique : `migrations/2026_08_24_master_all_permissions.surql`) + un login PIN. No-op si des utilisateurs existent déjà. Le reste se gère depuis Admin → Users.
 
+Types de commande : `node migrations/scripts/bootstrap-order-types.cjs` crée « Sur place » et « À emporter » (frais de service désactivés). Sans au moins un type, chaque envoi de commande échoue (`order_type` est obligatoire sur `order`). No-op si des types existent déjà ; le reste se gère depuis Admin → Order types, puis recharger le cache POS.
+
 ---
 
 ## 7. Checklist smoke test prod

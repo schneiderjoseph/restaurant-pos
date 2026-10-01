@@ -258,11 +258,8 @@ Step "5. Bootstrap loyverse/loyverse + premier sync"
 Set-Location "$RepoPath\loyverse-sync"
 npm install
 npm run bootstrap-db
-npm run once
 Set-Location $RepoPath
 
-# First admin account: a fresh loyverse DB has zero users and the UI has no
-# "create first user" screen. The script no-ops if users already exist.
 $envFile = Get-Content ".env" -Raw
 $env:SURREAL_URL = "ws://127.0.0.1:8000/rpc"
 $env:SURREAL_NS = "loyverse"
@@ -270,6 +267,21 @@ $env:SURREAL_DB = "loyverse"
 $env:SURREAL_USER = ([regex]::Match($envFile, "(?m)^SURREAL_USER=(.*)$").Groups[1].Value).Trim()
 $env:SURREAL_PASS = ([regex]::Match($envFile, "(?m)^SURREAL_PASS=(.*)$").Groups[1].Value).Trim()
 npm install
+
+# Default order types, BEFORE the first sync: order.order_type is required,
+# a fresh DB has none, and the sync skips every receipt without one.
+# No-op if order types already exist.
+node migrations/scripts/bootstrap-order-types.cjs
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Creation des types de commande en echec - relance 'node migrations/scripts/bootstrap-order-types.cjs' plus tard." -ForegroundColor Yellow
+}
+
+Set-Location "$RepoPath\loyverse-sync"
+npm run once
+Set-Location $RepoPath
+
+# First admin account: a fresh loyverse DB has zero users and the UI has no
+# "create first user" screen. The script no-ops if users already exist.
 $adminPin = Read-Host "PIN a 4 chiffres pour le premier compte admin (Entree pour sauter)"
 if ($adminPin -match '^\d{4}$') {
   $env:ADMIN_PIN = $adminPin

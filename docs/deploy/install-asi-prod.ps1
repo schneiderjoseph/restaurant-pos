@@ -318,6 +318,13 @@ if ($LASTEXITCODE -ne 0) {
   exit 1
 }
 
+# Default order types: order.order_type is required, a fresh DB has none, so
+# every "send order" would fail. No-op if order types already exist.
+node migrations/scripts/bootstrap-order-types.cjs
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "Creation des types de commande en echec - relance 'node migrations/scripts/bootstrap-order-types.cjs' plus tard." -ForegroundColor Yellow
+}
+
 Set-Location "$RepoPath\asi-sync"
 npm install
 Write-Host "Test de connexion SQL ASI (ASI POS + FrontDesk doivent deja tourner)..." -ForegroundColor Yellow
