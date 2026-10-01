@@ -10,7 +10,8 @@
   },
   "errors": {
     "createOrder": "Sipariş oluşturulamadı.",
-    "openPayment": "Ödeme açılamadı."
+    "openPayment": "Ödeme açılamadı.",
+    "noOrderType": "Tanımlı sipariş türü yok. Yönetim → Sipariş türleri bölümünden bir tane oluşturun, ardından önbelleği yeniden yükleyin."
   },
   "tracking": {
     "createOrder": "Sipariş oluştur",

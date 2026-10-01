@@ -10,7 +10,8 @@
   },
   "errors": {
     "createOrder": "Impossibile creare l'ordine.",
-    "openPayment": "Impossibile aprire il pagamento."
+    "openPayment": "Impossibile aprire il pagamento.",
+    "noOrderType": "Nessun tipo di ordine configurato. Creane uno in Admin → Tipi di ordine, poi ricarica la cache."
   },
   "tracking": {
     "createOrder": "Crea ordine",

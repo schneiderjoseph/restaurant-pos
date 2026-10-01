@@ -215,6 +215,12 @@ export const Payment = () => {
     try {
       await assertOrderTakingAllowed(db);
 
+      // order.order_type is a required record: fail before any write, otherwise
+      // order items and kitchen rows are created for an order that never exists.
+      if (isNewOrder && !state?.orderType?.id) {
+        throw new Error(t("payment:errors.noOrderType"));
+      }
+
       const date = DateTime.now().toJSDate();
 
       const kitchenItems: Record<string, any[]> = {};
@@ -355,12 +361,16 @@ export const Payment = () => {
         floor: state?.floor?.id ? toRecordId(state.floor.id) : null,
         covers: parseInt(state?.persons) || 1,
         customer: customer,
-        order_type: state?.orderType?.id ? toRecordId(state.orderType.id) : null,
         items: items,
         // NONE when tableless; never pass undefined (Surreal error "undefined doesn't exist")
         table: state?.table?.id ? toRecordId(state.table.id) : null,
         user: page?.user?.id ? toRecordId(page.user.id) : null,
       };
+
+      // Required field: on an existing order with no type in state, keep the stored one.
+      if (state?.orderType?.id) {
+        data.order_type = toRecordId(state.orderType.id);
+      }
 
       if (isNewOrder) {
         data.tax = null;

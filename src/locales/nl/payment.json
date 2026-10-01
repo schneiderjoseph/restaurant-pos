@@ -10,7 +10,8 @@
   },
   "errors": {
     "createOrder": "Kan bestelling niet aanmaken.",
-    "openPayment": "Kan betaling niet openen."
+    "openPayment": "Kan betaling niet openen.",
+    "noOrderType": "Er is geen ordertype ingesteld. Maak er een aan in Admin → Ordertypes en laad daarna de cache opnieuw."
   },
   "tracking": {
     "createOrder": "Bestelling aanmaken",

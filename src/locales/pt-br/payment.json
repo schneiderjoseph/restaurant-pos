@@ -10,7 +10,8 @@
   },
   "errors": {
     "createOrder": "Não foi possível criar o pedido.",
-    "openPayment": "Não foi possível abrir o pagamento."
+    "openPayment": "Não foi possível abrir o pagamento.",
+    "noOrderType": "Nenhum tipo de pedido configurado. Crie um em Admin → Tipos de pedido e recarregue o cache."
   },
   "tracking": {
     "createOrder": "Criar pedido",

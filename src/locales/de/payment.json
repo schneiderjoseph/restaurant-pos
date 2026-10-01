@@ -10,7 +10,8 @@
   },
   "errors": {
     "createOrder": "Bestellung konnte nicht erstellt werden.",
-    "openPayment": "Zahlung konnte nicht geöffnet werden."
+    "openPayment": "Zahlung konnte nicht geöffnet werden.",
+    "noOrderType": "Keine Bestellart eingerichtet. Lege eine unter Admin → Bestellarten an und lade dann den Cache neu."
   },
   "tracking": {
     "createOrder": "Bestellung erstellen",
