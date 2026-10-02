@@ -42,6 +42,7 @@ if (-not $RepoPath) {
 # would replay pre-snapshot migrations.
 $UpgradeMigrations = @(
   '2026_10_01_customer_notes.surql'
+  '2026_10_02_session_security_default.surql'
 )
 
 # Docker services the ASI profile runs, and the folder each one mounts.

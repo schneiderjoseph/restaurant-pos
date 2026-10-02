@@ -2,8 +2,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBackspace, faCircle, faClock } from "@fortawesome/free-solid-svg-icons";
 import {faCircle as circleRegular} from '@fortawesome/free-regular-svg-icons';
 import {useEffect, useLayoutEffect, useState} from "react";
-import { useAtom } from "jotai";
-import { appPage } from "@/store/jotai.ts";
+import { useAtom, useSetAtom } from "jotai";
+import { appPage, appState } from "@/store/jotai.ts";
+import { orderEditSessionAtom } from "@/store/order-edit-session.ts";
 import { cn, toRecordId } from "@/lib/utils.ts";
 import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
@@ -32,6 +33,8 @@ import {
   type GatewayLoginResponse,
 } from "@/lib/session.ts";
 import { isHrModuleEnabled } from "@/lib/feature-modules.ts";
+import { clearResumePoint, decideResume, readResumePoint } from "@/lib/session-resume.ts";
+import { clearedOrderSelection } from "@/lib/browser-session.ts";
 
 const TIME_ENTRY_CHECK_RETRIES = 3;
 const TIME_ENTRY_RETRY_DELAY_MS = 400;
@@ -59,6 +62,8 @@ export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [page, setPage] = useAtom(appPage);
+  const setAppState = useSetAtom(appState);
+  const setEditSession = useSetAtom(orderEditSessionAtom);
   const [error, setError] = useState(false);
   const [showClockInModal, setShowClockInModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<User | null>(null);
@@ -276,6 +281,15 @@ export const Login = () => {
   }
 
   const allowLogin = (user: User) => {
+    // Same user as the session that ended → back to that screen; anyone else starts
+    // clean at the menu instead of inheriting the previous user's open order.
+    const resume = decideResume(readResumePoint(), user.id);
+    clearResumePoint();
+    if (resume.kind === 'switch-user') {
+      setEditSession(null);
+      setAppState(prev => ({ ...prev, ...clearedOrderSelection }));
+    }
+
     setPage(prev => ({
       ...prev,
       page: 'Menu',
@@ -290,8 +304,7 @@ export const Login = () => {
     setShowClockInModal(false);
     setPendingUser(null);
 
-    // redirect to menu
-    navigation(MENU);
+    navigation(resume.kind === 'resume' ? resume.path : MENU, { replace: true });
   }
 
   const handleClockIn = async () => {

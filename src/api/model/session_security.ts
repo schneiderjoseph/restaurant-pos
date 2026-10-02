@@ -18,14 +18,15 @@ export interface SessionSecuritySettings {
   action?: SessionSecurityAction;
 }
 
+/** On for every user without their own row: idle sign-out, resumable by the same user. */
 export const DEFAULT_SESSION_SECURITY: SessionSecuritySettings = {
-  enabled: false,
+  enabled: true,
   idle_minutes: 15,
-  idle_action: 'lock',
+  idle_action: 'logout',
 };
 
 export const normalizeSessionAction = (value: unknown): SessionSecurityAction =>
-  value === 'logout' ? 'logout' : 'lock';
+  value === 'logout' || value === 'lock' ? value : DEFAULT_SESSION_SECURITY.idle_action;
 
 export const normalizeIdleMinutes = (value: unknown): number => {
   const parsed = Number(value);
@@ -42,7 +43,7 @@ export const normalizeSessionSecurity = (
 ): SessionSecuritySettings => {
   const raw = values ?? {};
   return {
-    enabled: Boolean(raw.enabled),
+    enabled: raw.enabled === undefined ? DEFAULT_SESSION_SECURITY.enabled : Boolean(raw.enabled),
     idle_minutes: normalizeIdleMinutes(raw.idle_minutes),
     idle_action: normalizeSessionAction(raw.idle_action ?? raw.action),
   };
