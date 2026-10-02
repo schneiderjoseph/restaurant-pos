@@ -25,7 +25,7 @@ export interface ProtectedActionOptions {
 
 export const useSecurity = () => {
   const { requestSecurity } = useSecurityContext();
-  const [{user, page}] = useAtom(appPage);
+  const [{user, page, locked}] = useAtom(appPage);
   const db = useDB();
 
   const getManagerId = useCallback((manager?: SecurityManager) => {
@@ -69,7 +69,7 @@ export const useSecurity = () => {
       payload,
     } = options;
 
-    if (!forceAuth) {
+    if (!forceAuth && !locked) {
       let userModules: string[];
       if (getProtectModulesSource() === 'memory') {
         userModules = getUserModules(user);
@@ -102,7 +102,7 @@ export const useSecurity = () => {
       onError,
       payload
     });
-  }, [db, requestSecurity, trackProtectActionSuccess, user]);
+  }, [db, requestSecurity, trackProtectActionSuccess, user, locked]);
 
   const protectFormSubmit = useCallback((
     submitHandler: (e: React.FormEvent) => void,

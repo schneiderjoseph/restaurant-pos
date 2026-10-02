@@ -8,12 +8,16 @@ import {useHydrateCurrencySymbol} from "@/hooks/useCurrencySymbol.ts";
 import {useRestaurantProfile} from "@/hooks/useRestaurantProfile.ts";
 
 export const ProtectedRoute = () => {
-  const {user} = useAtomValue(appPage);
+  const {user, locked} = useAtomValue(appPage);
   const location = useLocation();
   useHydrateCurrencySymbol();
   useRestaurantProfile();
 
   if (!user) {
+    return <Navigate to={LOGIN} replace state={{from: location}}/>;
+  }
+
+  if (locked) {
     return <Navigate to={LOGIN} replace state={{from: location}}/>;
   }
 
