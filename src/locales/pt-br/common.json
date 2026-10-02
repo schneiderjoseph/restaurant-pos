@@ -101,7 +101,10 @@
     "retry": "Tentar reconectar",
     "syncing": "Sincronizando {{count}} alterações offline…",
     "pendingSync": "{{count}} alterações na fila para sincronizar",
-    "syncNow": "Sincronizar agora"
+    "syncNow": "Sincronizar agora",
+    "failedSync": "{{count}} alterações offline foram recusadas pelo banco de dados e não foram salvas",
+    "clearFailed": "Descartar",
+    "clearFailedConfirm": "Confirmar descarte"
   },
   "lock": {
     "lockedBy": "Bloqueado por {{name}}",

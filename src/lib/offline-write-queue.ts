@@ -31,6 +31,7 @@
  */
 
 import { createStore, get, set, del, keys } from 'idb-keyval';
+import { DateTime, Decimal, Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 
 // Dedicated DB name — `posr-react` already exists with only `jotai-storage`;
 // idb-keyval cannot add new object stores to an existing database.
@@ -51,6 +52,52 @@ export interface QueuedWrite {
 }
 
 const MAX_RETRIES = 3;
+
+/**
+ * IndexedDB stores values with the structured clone algorithm, which drops
+ * class prototypes: a surrealdb DateTime comes back as `{}` and Surreal then
+ * rejects the replay ("Expected datetime but found {}"). So Surreal value
+ * classes are stored as tagged strings and rebuilt before replay.
+ */
+const SURREAL_TAG = '__surreal';
+
+type SurrealKind = 'datetime' | 'record' | 'duration' | 'decimal' | 'uuid';
+
+function tagged(kind: SurrealKind, value: string) {
+  return { [SURREAL_TAG]: kind, value };
+}
+
+export function toStorable(value: unknown): unknown {
+  if (value instanceof DateTime) return tagged('datetime', value.toISOString());
+  if (value instanceof RecordId || value instanceof StringRecordId) return tagged('record', String(value));
+  if (value instanceof Duration) return tagged('duration', String(value));
+  if (value instanceof Decimal) return tagged('decimal', String(value));
+  if (value instanceof Uuid) return tagged('uuid', String(value));
+  if (Array.isArray(value)) return value.map(toStorable);
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, toStorable(v)]));
+  }
+  return value; // primitives and Date survive structured clone as-is
+}
+
+export function fromStorable(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(fromStorable);
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    const record = value as Record<string, unknown>;
+    const kind = record[SURREAL_TAG];
+    if (typeof kind === 'string' && typeof record.value === 'string') {
+      switch (kind as SurrealKind) {
+        case 'datetime': return new DateTime(record.value);
+        case 'record': return new StringRecordId(record.value);
+        case 'duration': return new Duration(record.value);
+        case 'decimal': return new Decimal(record.value);
+        case 'uuid': return new Uuid(record.value);
+      }
+    }
+    return Object.fromEntries(Object.entries(record).map(([k, v]) => [k, fromStorable(v)]));
+  }
+  return value;
+}
 
 /**
  * Generate a unique ID for the queue entry.
@@ -74,7 +121,7 @@ export async function enqueueWrite(
     operation,
     table: params.table,
     recordId: params.recordId,
-    data: params.data,
+    data: toStorable(params.data),
     createdAt: Date.now(),
     status: 'pending',
     attempts: 0,
@@ -83,19 +130,26 @@ export async function enqueueWrite(
   return entry.id;
 }
 
-/**
- * Get all pending writes, sorted by creation time (FIFO).
- */
-export async function getPendingWrites(): Promise<QueuedWrite[]> {
+async function getWritesWithStatus(
+  statuses: QueuedWrite['status'][],
+): Promise<QueuedWrite[]> {
   const allKeys = await keys(QUEUE_STORE);
   const entries: QueuedWrite[] = [];
   for (const key of allKeys) {
     const entry = await get(key, QUEUE_STORE);
-    if (entry && (entry.status === 'pending' || entry.status === 'failed')) {
+    if (entry && statuses.includes(entry.status)) {
       entries.push(entry);
     }
   }
   return entries.sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/**
+ * Get all pending writes, sorted by creation time (FIFO). An interrupted
+ * replay can leave an entry in 'syncing' — it is retried too.
+ */
+export async function getPendingWrites(): Promise<QueuedWrite[]> {
+  return getWritesWithStatus(['pending', 'syncing']);
 }
 
 /**
@@ -107,25 +161,48 @@ export async function getPendingCount(): Promise<number> {
 }
 
 /**
+ * Writes the database refused MAX_RETRIES times. Kept (not silently dropped)
+ * so the UI can show them, but no longer replayed or counted as pending.
+ */
+export async function getFailedWrites(): Promise<QueuedWrite[]> {
+  return getWritesWithStatus(['failed']);
+}
+
+export async function getFailedCount(): Promise<number> {
+  const failed = await getFailedWrites();
+  return failed.length;
+}
+
+/** Discard the refused writes (explicit user action only). */
+export async function clearFailedWrites(): Promise<number> {
+  const failed = await getFailedWrites();
+  for (const entry of failed) {
+    await del(entry.id, QUEUE_STORE);
+  }
+  return failed.length;
+}
+
+/**
  * Execute a single queued write against the database.
  * Returns true on success, false on failure.
  */
 async function executeWrite(db: any, entry: QueuedWrite): Promise<boolean> {
+  const data = fromStorable(entry.data);
   try {
     switch (entry.operation) {
       case 'create': {
         if (!entry.table) throw new Error('Missing table for create operation');
-        await db.create(entry.table, entry.data);
+        await db.create(entry.table, data);
         break;
       }
       case 'update': {
         if (!entry.recordId) throw new Error('Missing recordId for update operation');
-        await db.update(entry.recordId, entry.data);
+        await db.update(entry.recordId, data);
         break;
       }
       case 'merge': {
         if (!entry.recordId) throw new Error('Missing recordId for merge operation');
-        await db.merge(entry.recordId, entry.data);
+        await db.merge(entry.recordId, data);
         break;
       }
       case 'delete': {

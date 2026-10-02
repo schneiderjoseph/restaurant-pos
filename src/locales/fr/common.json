@@ -101,7 +101,10 @@
     "retry": "Réessayer la connexion",
     "syncing": "Synchronisation de {{count}} changements hors ligne…",
     "pendingSync": "{{count}} changements en attente de synchronisation",
-    "syncNow": "Synchroniser maintenant"
+    "syncNow": "Synchroniser maintenant",
+    "failedSync": "{{count}} changements hors ligne refusés par la base, non enregistrés",
+    "clearFailed": "Effacer",
+    "clearFailedConfirm": "Confirmer l’effacement"
   },
   "lock": {
     "lockedBy": "Verrouillé par {{name}}",

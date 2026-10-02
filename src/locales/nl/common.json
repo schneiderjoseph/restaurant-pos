@@ -101,7 +101,10 @@
     "retry": "Opnieuw verbinden",
     "syncing": "{{count}} offline wijzigingen synchroniseren…",
     "pendingSync": "{{count}} wijzigingen wachten op synchronisatie",
-    "syncNow": "Nu synchroniseren"
+    "syncNow": "Nu synchroniseren",
+    "failedSync": "{{count}} offline wijzigingen zijn door de database geweigerd en niet opgeslagen",
+    "clearFailed": "Verwijderen",
+    "clearFailedConfirm": "Verwijderen bevestigen"
   },
   "lock": {
     "lockedBy": "Vergrendeld door {{name}}",

@@ -101,7 +101,10 @@
     "retry": "Reintentar conexión",
     "syncing": "Sincronizando {{count}} cambios sin conexión…",
     "pendingSync": "{{count}} cambios en cola para sincronizar",
-    "syncNow": "Sincronizar ahora"
+    "syncNow": "Sincronizar ahora",
+    "failedSync": "{{count}} cambios sin conexión fueron rechazados por la base de datos y no se guardaron",
+    "clearFailed": "Descartar",
+    "clearFailedConfirm": "Confirmar descarte"
   },
   "lock": {
     "lockedBy": "Bloqueado por {{name}}",

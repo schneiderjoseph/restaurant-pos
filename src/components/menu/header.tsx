@@ -4,9 +4,10 @@ import {orderEditSessionAtom, orderIdToString} from "@/store/order-edit-session.
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn, toRecordId} from "@/lib/utils.ts";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
+import {useDatabase} from "@/hooks/useDatabase.ts";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {orderToCartItems, seatsFromOrder} from "@/lib/order-edit.ts";
 import {Payment} from "@/components/payment/payment.tsx";
@@ -22,6 +23,10 @@ import i18n from "@/lib/i18n.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
+  const {isEffectivelyConnected} = useDatabase();
+  // Live value for the heartbeat interval below (its closure outlives renders).
+  const connectedRef = useRef(isEffectivelyConnected);
+  connectedRef.current = isEffectivelyConnected;
   const { t } = useTranslation('menu');
 
   const [state, setState] = useAtom(appState);
@@ -62,6 +67,11 @@ export const MenuHeader = () => {
     }
 
     const heartBeat = async () => {
+      // A lock refresh only matters now: skip it offline rather than queue it
+      // (queued heartbeats piled up by the hundreds and replayed stale times).
+      if (!connectedRef.current) {
+        return;
+      }
       await db.merge(toRecordId(state.table.id), {
         locked_at: nowSurrealDateTime()
       })

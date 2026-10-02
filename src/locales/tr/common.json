@@ -101,7 +101,10 @@
     "retry": "Bağlantıyı yeniden dene",
     "syncing": "{{count}} çevrimdışı değişiklik senkronize ediliyor…",
     "pendingSync": "{{count}} değişiklik senkronizasyon için kuyrukta",
-    "syncNow": "Şimdi senkronize et"
+    "syncNow": "Şimdi senkronize et",
+    "failedSync": "{{count}} çevrimdışı değişiklik veritabanı tarafından reddedildi ve kaydedilmedi",
+    "clearFailed": "Sil",
+    "clearFailedConfirm": "Silmeyi onayla"
   },
   "lock": {
     "lockedBy": "{{name}} tarafından kilitlendi",

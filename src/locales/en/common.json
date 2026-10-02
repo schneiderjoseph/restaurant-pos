@@ -101,7 +101,10 @@
     "retry": "Retry connection",
     "syncing": "Syncing {{count}} offline changes…",
     "pendingSync": "{{count}} changes queued for sync",
-    "syncNow": "Sync now"
+    "syncNow": "Sync now",
+    "failedSync": "{{count}} offline changes were refused by the database and not saved",
+    "clearFailed": "Discard",
+    "clearFailedConfirm": "Confirm discard"
   },
   "lock": {
     "lockedBy": "Locked by {{name}}",

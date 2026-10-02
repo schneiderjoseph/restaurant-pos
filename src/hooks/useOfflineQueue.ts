@@ -6,13 +6,21 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { StringRecordId, Table } from 'surrealdb';
 import { useDatabase } from '@/hooks/useDatabase.ts';
-import { replayQueue, getPendingCount } from '@/lib/offline-write-queue.ts';
+import {
+  replayQueue,
+  getPendingCount,
+  getFailedCount,
+  clearFailedWrites,
+} from '@/lib/offline-write-queue.ts';
 
 export interface UseOfflineQueueResult {
   pendingCount: number;
+  /** Writes the database refused MAX_RETRIES times — no longer replayed. */
+  failedCount: number;
   isReplaying: boolean;
   lastReplayResult: { synced: number; failed: number; remaining: number } | null;
   replayNow: () => Promise<void>;
+  clearFailed: () => Promise<void>;
 }
 
 function buildReplayDb(client: ReturnType<typeof useDatabase>['client']) {
@@ -32,6 +40,7 @@ function buildReplayDb(client: ReturnType<typeof useDatabase>['client']) {
 export function useOfflineQueue(): UseOfflineQueueResult {
   const { isEffectivelyConnected, client } = useDatabase();
   const [pendingCount, setPendingCount] = useState(0);
+  const [failedCount, setFailedCount] = useState(0);
   const [isReplaying, setIsReplaying] = useState(false);
   const [lastReplayResult, setLastReplayResult] = useState<
     { synced: number; failed: number; remaining: number } | null
@@ -41,8 +50,9 @@ export function useOfflineQueue(): UseOfflineQueueResult {
 
   const refreshCount = useCallback(async () => {
     try {
-      const count = await getPendingCount();
-      setPendingCount(count);
+      const [pending, failed] = await Promise.all([getPendingCount(), getFailedCount()]);
+      setPendingCount(pending);
+      setFailedCount(failed);
     } catch {
       // IndexedDB might not be available in all environments
     }
@@ -98,10 +108,17 @@ export function useOfflineQueue(): UseOfflineQueueResult {
     return () => clearInterval(interval);
   }, [isReplaying, refreshCount]);
 
+  const clearFailed = useCallback(async () => {
+    await clearFailedWrites();
+    await refreshCount();
+  }, [refreshCount]);
+
   return {
     pendingCount,
+    failedCount,
     isReplaying,
     lastReplayResult,
     replayNow: doReplay,
+    clearFailed,
   };
 }

@@ -10,6 +10,7 @@ import {
   Table,
   Values
 } from "surrealdb";
+import {useRef} from "react";
 import {toast} from "sonner";
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {getSessionToken, isGatewayAuthEnabled} from "@/lib/session.ts";
@@ -92,6 +93,10 @@ export const useDB = () => {
   const liveConnected = isEffectivelyConnected;
   // Offline writes when logged in and browser/socket is down.
   const isOfflineCapable = !liveConnected && !allowDisconnected;
+  // Read at call time: a `db` captured by a long-lived closure (setInterval,
+  // effect) must not keep queueing writes once the connection is back.
+  const offlineRef = useRef(isOfflineCapable);
+  offlineRef.current = isOfflineCapable;
 
   if (!liveConnected && !allowDisconnected && !isOfflineCapable) {
     throw new Error('Database is not connected. Please ensure DatabaseProvider is wrapping your app and connection is established.');
@@ -136,7 +141,7 @@ export const useDB = () => {
     label: string,
     offlineOp?: { operation: 'create' | 'update' | 'merge' | 'delete'; table?: string; recordId?: string; data?: any }
   ): Promise<T> => {
-    if (isOfflineCapable && offlineOp) {
+    if (offlineRef.current && offlineOp) {
       const queueId = await enqueueWrite(offlineOp.operation, {
         table: offlineOp.table,
         recordId: offlineOp.recordId,

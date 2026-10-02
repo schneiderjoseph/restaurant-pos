@@ -10,9 +10,10 @@ import { useTranslation } from "react-i18next";
 
 export function OfflineModeBanner() {
   const { isEffectivelyConnected, hasSession } = useDatabase();
-  const { pendingCount, isReplaying, replayNow } = useOfflineQueue();
+  const { pendingCount, failedCount, isReplaying, replayNow, clearFailed } = useOfflineQueue();
   const { t } = useTranslation(["common"]);
   const [showBanner, setShowBanner] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const [wasConnected, setWasConnected] = useState(isEffectivelyConnected);
 
   const handleRetry = () => {
@@ -32,7 +33,53 @@ export function OfflineModeBanner() {
 
   if (!hasSession) return null;
 
-  if (isEffectivelyConnected && pendingCount === 0 && !showBanner) return null;
+  if (isEffectivelyConnected && pendingCount === 0 && failedCount === 0 && !showBanner) return null;
+
+  // Refused writes: shown apart from "pending" (they are never replayed again).
+  if (isEffectivelyConnected && pendingCount === 0 && !isReplaying && failedCount > 0 && !showBanner) {
+    return (
+      <div
+        className="fixed top-0 left-0 right-0 z-[9999] bg-danger-600 text-white text-center py-1.5 text-sm font-medium shadow-md shadow-danger-600/30 flex items-center justify-center gap-3"
+        data-testid="offline-banner-failed"
+        role="alert"
+      >
+        <span>
+          {t("common:offline.failedSync", {
+            defaultValue: "{{count}} offline changes were refused by the database and not saved",
+            count: failedCount,
+          })}
+        </span>
+        {confirmClear ? (
+          <>
+            <button
+              onClick={() => {
+                setConfirmClear(false);
+                void clearFailed();
+              }}
+              className="ml-2 px-3 py-0.5 bg-white text-danger-700 rounded text-xs font-bold hover:bg-danger-100 transition-colors"
+              data-testid="offline-banner-clear-confirm"
+            >
+              {t("common:offline.clearFailedConfirm", { defaultValue: "Confirm discard" })}
+            </button>
+            <button
+              onClick={() => setConfirmClear(false)}
+              className="px-3 py-0.5 border border-white rounded text-xs font-bold"
+            >
+              {t("common:actions.cancel", { defaultValue: "Cancel" })}
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setConfirmClear(true)}
+            className="ml-2 px-3 py-0.5 bg-white text-danger-700 rounded text-xs font-bold hover:bg-danger-100 transition-colors"
+            data-testid="offline-banner-clear"
+          >
+            {t("common:offline.clearFailed", { defaultValue: "Discard" })}
+          </button>
+        )}
+      </div>
+    );
+  }
 
   if (isEffectivelyConnected && !showBanner && pendingCount === 0) return null;
 

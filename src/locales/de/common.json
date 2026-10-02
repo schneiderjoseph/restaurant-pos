@@ -101,7 +101,10 @@
     "retry": "Erneut verbinden",
     "syncing": "{{count}} Offline-Änderungen werden synchronisiert…",
     "pendingSync": "{{count}} Änderungen warten auf Synchronisierung",
-    "syncNow": "Jetzt synchronisieren"
+    "syncNow": "Jetzt synchronisieren",
+    "failedSync": "{{count}} Offline-Änderungen wurden von der Datenbank abgelehnt und nicht gespeichert",
+    "clearFailed": "Verwerfen",
+    "clearFailedConfirm": "Verwerfen bestätigen"
   },
   "lock": {
     "lockedBy": "Gesperrt von {{name}}",
