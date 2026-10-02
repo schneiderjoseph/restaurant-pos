@@ -46,6 +46,9 @@ $UpgradeMigrations = @(
   '2026_10_02_general_settings_access.surql'
   '2026_10_02_user_unique_pin.surql'
   '2026_10_02_pin_only_login.surql'
+  '2026_10_02_customer_id_document.surql'
+  '2026_10_02_customer_asi_date_out.surql'
+  '2026_10_02_outlets.surql'
 )
 
 # Docker services the ASI profile runs, and the folder each one mounts.
