@@ -1,5 +1,6 @@
 export enum Tables {
   categories = 'category',
+  outlets = 'outlet',
   closings = 'day_closing',
   customers = 'customer',
   discounts = 'discount',

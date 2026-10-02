@@ -2,7 +2,8 @@ import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
-import {appPage, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {resolveOutlet} from "@/lib/outlet.ts";
 import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
@@ -50,6 +51,7 @@ export const Payment = () => {
   const [state, setState] = useAtom(appState);
   const [editSession, setEditSession] = useAtom(orderEditSessionAtom);
   const [page] = useAtom(appPage);
+  const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
 
@@ -278,6 +280,14 @@ export const Payment = () => {
 
         if (pricing.original_price !== undefined) {
           itemData.original_price = pricing.original_price;
+        }
+
+        // Point of sale copied at the time of sale; left out when unclassified, which also
+        // keeps this insert valid on a DB without migrations/2026_10_02_outlets.surql.
+        const outlet = resolveOutlet(item, settings.categories ?? []);
+        if (outlet) {
+          itemData.outlet_id = toRecordId(outlet.id);
+          itemData.outlet = outlet.name;
         }
 
         if (pricing.taxes && pricing.taxes.length > 0) {

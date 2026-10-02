@@ -1,6 +1,7 @@
 import type {DateRangeFilter, DbClient, ProductMixFilters} from "@/api/reports/shared/types.ts";
 import {
   aggregateProductMixByCategory,
+  aggregateSalesByOutlet,
   aggregateSalesSummary,
   aggregateTopSellingDishes,
 } from "@/api/reports/sales/aggregate.ts";
@@ -17,11 +18,14 @@ export {
   aggregateAccumulatedModifiersSummary,
   aggregateModifiersSummary,
   aggregateProductMixByCategory,
+  aggregateSalesByOutlet,
   aggregateSalesSummary,
   aggregateTopSellingDishes,
   calculateOrderNetSales,
   getOrderFigures,
+  UNCLASSIFIED_OUTLET_ID,
 } from "@/api/reports/sales/aggregate.ts";
+export type {OutletSales} from "@/api/reports/sales/aggregate.ts";
 
 export {
   fetchDashboardOrders,
@@ -50,6 +54,15 @@ export const getSalesSummary = async (
     fetchOrderVoids(db, options),
   ]);
   return aggregateSalesSummary(orders, voids);
+};
+
+/** Paid sales split by point of sale (Bar, Restaurant, …) over a date range. */
+export const getSalesByOutlet = async (
+  db: DbClient,
+  options: DateRangeFilter,
+) => {
+  const orders = await fetchPaidOrders(db, {...options, fetches: SALES_SUMMARY_FETCHES});
+  return aggregateSalesByOutlet(orders);
 };
 
 export const getProductMix = async (

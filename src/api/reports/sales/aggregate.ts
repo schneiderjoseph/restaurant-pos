@@ -338,6 +338,66 @@ const walkSelectedModifiers = (
   return results;
 };
 
+/** Sales line for one point of sale (outlet). `outletId` is UNCLASSIFIED_OUTLET_ID for lines sold unclassified. */
+export interface OutletSales {
+  outletId: string;
+  /** Name copied on the line when sold; undefined for unclassified lines. */
+  outletName?: string;
+  quantity: number;
+  /** Exclusive of tax, sides and other modifiers included (calculateOrderItemPrice). */
+  netSales: number;
+  discount: number;
+  tax: number;
+  serviceCharges: number;
+  total: number;
+}
+
+export const UNCLASSIFIED_OUTLET_ID = "unclassified";
+
+/**
+ * Paid sales split by point of sale, from the outlet copied on each order line when it was
+ * sold — not the category's current outlet, so reclassifying never moves past sales.
+ * Sides and modifiers are part of their dish's line, so they count with the dish's outlet.
+ */
+export const aggregateSalesByOutlet = (orders: Order[]): OutletSales[] => {
+  const outlets = new Map<string, OutletSales>();
+
+  orders.forEach(order => {
+    getOrderFilteredItems(order).forEach(item => {
+      const outletId = recordIdToString(item.outlet_id) || UNCLASSIFIED_OUTLET_ID;
+      const row = outlets.get(outletId) ?? {
+        outletId,
+        outletName: outletId === UNCLASSIFIED_OUTLET_ID ? undefined : item.outlet || undefined,
+        quantity: 0,
+        netSales: 0,
+        discount: 0,
+        tax: 0,
+        serviceCharges: 0,
+        total: 0,
+      };
+
+      const netSales = safeNumber(calculateOrderItemPrice(item));
+      const discount = safeNumber(item.discount || 0);
+      const tax = safeNumber(getOrderItemTaxAmount(item, order));
+      const serviceCharges = safeNumber(item.service_charges || 0);
+
+      row.quantity += safeNumber(item.quantity);
+      row.netSales += netSales;
+      row.discount += discount;
+      row.tax += tax;
+      row.serviceCharges += serviceCharges;
+      row.total += netSales + tax + serviceCharges - discount;
+      outlets.set(outletId, row);
+    });
+  });
+
+  return Array.from(outlets.values()).sort((a, b) => {
+    if (a.outletId === UNCLASSIFIED_OUTLET_ID) return 1;
+    if (b.outletId === UNCLASSIFIED_OUTLET_ID) return -1;
+    return b.netSales - a.netSales;
+  });
+};
+
 export const aggregateProductMixByCategory = (
   orders: Order[],
   filters: ProductMixFilters = {},

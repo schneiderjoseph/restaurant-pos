@@ -65,7 +65,7 @@ export async function fetchPosCacheSnapshot(
     db.query(`SELECT *
               FROM ${Tables.categories}
               WHERE deleted_at = none
-              ORDER BY priority ASC`),
+              ORDER BY priority ASC FETCH outlet`),
     db.query(`SELECT *
               FROM ${Tables.dishes}
               WHERE deleted_at = none

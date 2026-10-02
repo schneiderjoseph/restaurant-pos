@@ -4,12 +4,15 @@ import { Dish } from "@/api/model/dish.ts";
 import { Order } from "@/api/model/order.ts";
 import { OrderItemKitchen } from "@/api/model/order_item_kitchen.ts";
 import {DateTime} from "surrealdb";
+import { Outlet } from "@/api/model/outlet.ts";
 
 export interface Kitchen extends ID, Name, Priority{
   items: Dish[]
   printers: Printer[]
   /** When true, this KDS board shows every ticket (expo / pass). */
   shows_all?: boolean
+  /** Point of sale this station serves; only used to suggest a category's outlet. */
+  outlet?: Outlet
 
   deleted_at?: DateTime
 }
@@ -36,5 +39,5 @@ export interface KitchenOrderTicket {
 }
 
 export const KITCHEN_FETCHES = [
-  'items', 'printers'
+  'items', 'printers', 'outlet'
 ]

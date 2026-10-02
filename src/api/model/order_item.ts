@@ -31,6 +31,9 @@ export interface OrderItem extends ID {
   level?: number
   category?: string
   category_id?: string
+  /** Point of sale when sold (name and id copied, so reclassifying a category never moves past sales). */
+  outlet?: string
+  outlet_id?: string
   is_addition?: boolean
   is_refunded?: boolean
   created_by?: User
