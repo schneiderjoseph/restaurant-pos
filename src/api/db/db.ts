@@ -159,14 +159,14 @@ export const useDB = () => {
       const result = await client.query<R>(sql, parameters).collect<R>();
       const t1 = performance.now();
 
-      console.group('DB Debug')
       if (import.meta.env.DEV) {
+        console.group('DB Debug')
         console.info(sql.trim());
         console.info(parameters);
         console.info(result);
+        console.info(`Query fetch time: ${t1 - t0}ms`);
+        console.groupEnd()
       }
-      console.info(`Query fetch time: ${t1 - t0}ms`);
-      console.groupEnd()
       return result as R;
     }, 'query');
   }
