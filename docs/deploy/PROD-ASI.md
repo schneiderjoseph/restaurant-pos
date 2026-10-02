@@ -363,7 +363,7 @@ Premier compte : `$env:ADMIN_PIN="4271"; node migrations/scripts/bootstrap-admin
 
 Types de commande : `node migrations/scripts/bootstrap-order-types.cjs` crée « Sur place » et « À emporter » (frais de service désactivés). Sans au moins un type, chaque envoi de commande échoue (`order_type` est obligatoire sur `order`). No-op si des types existent déjà ; le reste se gère depuis Admin → Order types, puis recharger le cache POS.
 
-Notes client (DB déjà installée avant le 2026-10-01) : `node migrations/scripts/apply-migration.cjs migrations/2026_10_01_customer_notes.surql` ajoute le champ `notes` sur `customer` (idempotent). Une DB neuve l'a déjà via `bootstrap-posr-db.cjs`.
+Mise à niveau d'une install existante : [`update-asi-prod.ps1`](./update-asi-prod.ps1) applique à chaque passage les migrations listées dans `$UpgradeMigrations` (toutes idempotentes — y ajouter chaque nouvelle migration de schéma). Une DB neuve les a déjà via `bootstrap-posr-db.cjs`.
 
 ---
 
@@ -387,6 +387,7 @@ Notes client (DB déjà installée avant le 2026-10-01) : `node migrations/scrip
 
 | Action | Commande / note |
 |--------|------------------|
+| **Mettre à jour la prod** | `powershell -ExecutionPolicy Bypass -File docs\deploy\update-asi-prod.ps1` (Admin) — sauvegarde la base, pull, migrations, rebuild SPA, redémarre ce qui a changé ; affiche le retour arrière à la fin |
 | Rebuild UI après env | `npm run build` |
 | Relancer sync | restart process `asi-sync` (1 instance) |
 | Logs sync | console du poller |
