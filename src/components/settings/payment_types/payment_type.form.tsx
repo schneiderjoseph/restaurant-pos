@@ -188,7 +188,8 @@ export const PaymentTypeForm = ({
   });
 
   const types = [
-    'Cash', 'Card', 'Points', 'Remote'
+    // Room: charge to the guest's FrontDesk stay, allowed only while it is open (room-charge.ts).
+    'Cash', 'Card', 'Points', 'Remote', 'Room'
   ];
   const gatewayModes = ['sandbox', 'live'];
   const selectedType = watch('type');

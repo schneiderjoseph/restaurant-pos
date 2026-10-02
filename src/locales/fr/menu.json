@@ -86,12 +86,24 @@
     "lastOrder": "Dernière commande : {{date}}",
     "noOrders": "Aucune commande",
     "phone": "Téléphone",
-    "phonePlaceholder": "Optionnel",
     "addPhone": "Ajouter un téléphone",
     "editPhone": "Modifier le téléphone",
     "phoneExists": "Ce numéro appartient à {{name}}, client sélectionné",
     "phoneTaken": "Ce numéro est déjà utilisé par {{name}}",
     "phoneSaved": "Téléphone enregistré",
-    "phoneSaveFailed": "Impossible d’enregistrer le téléphone"
+    "phoneSaveFailed": "Impossible d’enregistrer le téléphone",
+    "idDocument": "Pièce d’identité",
+    "idDocumentPlaceholder": "CIN, NIF, passeport…",
+    "addIdDocument": "Ajouter une pièce d’identité",
+    "editIdDocument": "Remplacer la pièce d’identité",
+    "idDocumentExists": "Cette pièce d’identité appartient à {{name}}, client sélectionné",
+    "idDocumentTaken": "Cette pièce d’identité est déjà utilisée par {{name}}",
+    "idDocumentSaved": "Pièce d’identité enregistrée",
+    "idDocumentSaveFailed": "Impossible d’enregistrer la pièce d’identité",
+    "contactHint": "Téléphone ou pièce d’identité : au moins un des deux.",
+    "contactRequired": "Saisissez un téléphone ou une pièce d’identité"
+  },
+  "outlets": {
+    "all": "Tous"
   }
 }

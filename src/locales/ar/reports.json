@@ -378,7 +378,8 @@
     "menu": "قائمة",
     "issue": "صرف",
     "employee": "الموظف",
-    "turnTime": "وقت الالتفاف (دقيقة)"
+    "turnTime": "وقت الالتفاف (دقيقة)",
+    "outlet": "نقطة البيع"
   },
   "labels": {
     "modifiers": "الإضافات",
@@ -559,7 +560,8 @@
     "saleByDayPart": "المبيعات حسب فترة اليوم",
     "saleByEmployees": "المبيعات حسب الموظفين",
     "expandAll": "توسيع الكل",
-    "collapseAll": "طي الكل"
+    "collapseAll": "طي الكل",
+    "unclassifiedOutlet": "غير مصنف"
   },
   "metrics": {
     "gross": "إجمالي",
@@ -659,5 +661,8 @@
     "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد.",
     "noEmployeeSales": "لا توجد بيانات مبيعات حسب الموظفين",
     "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد"
+  },
+  "sections": {
+    "salesByOutlet": "المبيعات حسب نقطة البيع"
   }
 }

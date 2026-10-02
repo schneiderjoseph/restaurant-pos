@@ -18,6 +18,7 @@ import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {DEFAULT_LANGUAGE, DEFAULT_TEXT_DIRECTION, type AppTextDirection} from "@/lib/languages.ts";
+import {keepOrderGraphInMemory} from "@/store/app-state-storage.ts";
 
 
 export interface AppStateInterface {
@@ -70,7 +71,7 @@ function slimAppStateForStorage(value: AppStateInterface): AppStateInterface {
   };
 }
 
-const appStateJsonStorage = createJSONStorage<AppStateInterface>(() => ({
+const appStateJsonStorage = keepOrderGraphInMemory(createJSONStorage<AppStateInterface>(() => ({
   getItem: (key) => {
     const raw = localStorage.getItem(key);
     return raw;
@@ -91,7 +92,7 @@ const appStateJsonStorage = createJSONStorage<AppStateInterface>(() => ({
   removeItem: (key) => {
     localStorage.removeItem(key);
   },
-}));
+})));
 
 export const appState = atomWithStorage<AppStateInterface>(
   "app-state",
@@ -145,6 +146,8 @@ export interface MenuConfigInterface {
    * name = display name (shortened), code = guest code, both = name · #CODE
    */
   kitchenGuestLabel?: 'name' | 'code' | 'both'
+  /** Last selected point-of-sale filter tab on the menu (this device). */
+  outletTab?: string
 }
 
 export interface AppPageInterface {

@@ -18,6 +18,7 @@ import { PRINT_TYPE } from "@/lib/print.registry.tsx";
 import { requestBillPrint } from "@/lib/order-print.ts";
 import { nowSurrealDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
+import { isRoomPaymentType } from "@/lib/room-charge.ts";
 import { StringRecordId } from "surrealdb";
 import { IntegrationManager } from "@/integrations/core/integration-manager.ts";
 import {
@@ -302,6 +303,16 @@ export async function closeOpenChecks(options: {
   const { db, paymentTypeId, printOnClose, userId, window, integrationManager } = options;
 
   if (!hasPaymentTypeConfigured(paymentTypeId)) {
+    return { closed: 0, failed: 0, candidates: 0, skipped: 0 };
+  }
+
+  // Never settle every open order on a room: a Room tender needs each guest's stay checked.
+  const [paymentTypeRows] = await db.query<[{ type?: string }[]]>(
+    `SELECT type FROM $id`,
+    { id: toRecordId(paymentTypeId) }
+  );
+  if (isRoomPaymentType(paymentTypeRows?.[0])) {
+    console.warn('Auto check close skipped: its payment type charges the room');
     return { closed: 0, failed: 0, candidates: 0, skipped: 0 };
   }
 

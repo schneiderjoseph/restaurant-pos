@@ -86,12 +86,24 @@
     "lastOrder": "Ultimo ordine: {{date}}",
     "noOrders": "Nessun ordine ancora",
     "phone": "Telefono",
-    "phonePlaceholder": "Opzionale",
     "addPhone": "Aggiungi un telefono",
     "editPhone": "Modifica telefono",
     "phoneExists": "Questo numero appartiene a {{name}}, cliente selezionato",
     "phoneTaken": "Questo numero è già usato da {{name}}",
     "phoneSaved": "Telefono salvato",
-    "phoneSaveFailed": "Impossibile salvare il telefono"
+    "phoneSaveFailed": "Impossibile salvare il telefono",
+    "idDocument": "Documento d’identità",
+    "idDocumentPlaceholder": "Carta d’identità, codice fiscale, passaporto…",
+    "addIdDocument": "Aggiungi un documento d’identità",
+    "editIdDocument": "Sostituisci il documento d’identità",
+    "idDocumentExists": "Questo documento appartiene a {{name}}, cliente selezionato",
+    "idDocumentTaken": "Questo documento è già usato da {{name}}",
+    "idDocumentSaved": "Documento d’identità salvato",
+    "idDocumentSaveFailed": "Impossibile salvare il documento d’identità",
+    "contactHint": "Telefono o documento d’identità: almeno uno dei due.",
+    "contactRequired": "Inserisci un telefono o un documento d’identità"
+  },
+  "outlets": {
+    "all": "Tutti"
   }
 }

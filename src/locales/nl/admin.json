@@ -96,7 +96,9 @@
     "recordType": "Rijtype",
     "dishName": "Gerecht",
     "parentModifier": "Bovenliggende maat",
-    "nextGroup": "Volgende groep"
+    "nextGroup": "Volgende groep",
+    "color": "Kleur",
+    "outlet": "Verkooppunt"
   },
   "entities": {
     "dish": "Gerecht",
@@ -116,7 +118,8 @@
     "tax": "Belasting",
     "user": "Gebruiker",
     "role": "Rol",
-    "shift": "Dienst"
+    "shift": "Dienst",
+    "outlet": "Verkooppunt"
   },
   "buttons": {
     "dish": "Gerecht",
@@ -153,7 +156,10 @@
     "smartImport": "AI-import",
     "smartImportIngredients": "Ingrediënten AI-importeren",
     "smartImportModifierGroups": "Modifiergroepen AI-importeren",
-    "smartImportMenuStructure": "AI-import menustructuur"
+    "smartImportMenuStructure": "AI-import menustructuur",
+    "manageOutlets": "Verkooppunten beheren",
+    "applyOutletSuggestions": "Suggesties toepassen",
+    "outlet": "Verkooppunt"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -173,7 +179,8 @@
     "tax": "Belasting {{name}} verwijderen",
     "user": "Gebruiker {{name}} verwijderen",
     "role": "Rol {{name}} verwijderen",
-    "shift": "Dienst {{name}} verwijderen"
+    "shift": "Dienst {{name}} verwijderen",
+    "outlet": "Verkooppunt {{name}} verwijderen"
   },
   "forms": {
     "createDish": "Nieuw gerecht aanmaken",
@@ -365,7 +372,18 @@
     "smartImportMenuStructureTitle": "AI-import menustructuur (maten, topping, koppelingen)",
     "showsAllItems": "Alle tickets tonen",
     "showsAllItemsHint": "Dit station toont elk artikel van elk station (pass / expo). Gerechten van andere stations worden niet weggehaald.",
-    "showsAllBadge": "Alle tickets"
+    "showsAllBadge": "Alle tickets",
+    "createOutlet": "Verkooppunt maken",
+    "updateOutlet": "{{name}} bijwerken",
+    "outlet": "Verkooppunt",
+    "outletNone": "Geen — overnemen van bovenliggende categorie",
+    "outletSuggested": "Voorgesteld: {{name}}",
+    "applySuggestion": "Toepassen",
+    "manageOutlets": "Verkooppunten",
+    "applyOutletSuggestionsTitle": "Suggesties voor verkooppunten toepassen",
+    "applyOutletSuggestionsConfirm": "{{count}} categorieën worden geclassificeerd",
+    "outletColor": "Kleur",
+    "noOutlets": "Nog geen verkooppunten"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

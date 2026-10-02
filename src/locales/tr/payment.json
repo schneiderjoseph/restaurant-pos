@@ -88,7 +88,11 @@
     "complete": "Tamamla",
     "cannotAddCard": "Kart için daha fazla ödeme eklenemez",
     "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi",
-    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı"
+    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı",
+    "roomCheckedOut": "ASI’de çıkış yapıldı: bu misafir doğrudan öder, dışarıdan gelen müşteri gibi",
+    "roomSyncStale": "Konaklama doğrulanamıyor (ASI senkronizasyonu gecikti): misafir doğrudan öder",
+    "roomNotHotelGuest": "Odaya yazmak için konaklayan bir otel misafiri gerekir",
+    "roomDepartsToday": "Bugün ayrılış planlandı"
   },
   "remote": {
     "remoteLabel": "{{name}} (Uzaktan)",

@@ -132,7 +132,10 @@
     "invalidModifierGroup": "Modifiergroep is ongeldig",
     "duplicateDishModifierGroup": "Modifiergroep is al gekoppeld aan dit gerecht",
     "invalidPriority": "Prioriteit is ongeldig",
-    "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig"
+    "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig",
+    "outletSaved": "Verkooppunt {{name}} opgeslagen",
+    "outletDeleted": "Verkooppunt {{name}} verwijderd",
+    "outletSuggestionsApplied": "{{count}} categorieën geclassificeerd"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",

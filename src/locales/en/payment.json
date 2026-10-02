@@ -88,7 +88,11 @@
     "tempAlreadyPrinted": "Temp bill already printed",
     "complete": "Complete",
     "cannotAddCard": "Cannot add more payment for card",
-    "exactCardAmount": "Added exact amount for card based payment"
+    "exactCardAmount": "Added exact amount for card based payment",
+    "roomCheckedOut": "Checked out in ASI: this guest pays directly, like a walk-in",
+    "roomSyncStale": "Stay cannot be verified (ASI sync is late): the guest pays directly",
+    "roomNotHotelGuest": "Room charge needs an in-house hotel guest",
+    "roomDepartsToday": "Departure planned today"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

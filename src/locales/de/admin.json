@@ -96,7 +96,9 @@
     "recordType": "Zeilentyp",
     "dishName": "Gericht",
     "parentModifier": "Übergeordnete Größe",
-    "nextGroup": "Nächste Gruppe"
+    "nextGroup": "Nächste Gruppe",
+    "color": "Farbe",
+    "outlet": "Verkaufsstelle"
   },
   "entities": {
     "dish": "Gericht",
@@ -116,7 +118,8 @@
     "tax": "Steuer",
     "user": "Benutzer",
     "role": "Rolle",
-    "shift": "Schicht"
+    "shift": "Schicht",
+    "outlet": "Verkaufsstelle"
   },
   "buttons": {
     "dish": "Gericht",
@@ -153,7 +156,10 @@
     "smartImport": "KI-Import",
     "smartImportIngredients": "Zutaten KI-Import",
     "smartImportModifierGroups": "Modifiergruppen KI-Import",
-    "smartImportMenuStructure": "KI-Import Menüstruktur"
+    "smartImportMenuStructure": "KI-Import Menüstruktur",
+    "manageOutlets": "Verkaufsstellen verwalten",
+    "applyOutletSuggestions": "Vorschläge anwenden",
+    "outlet": "Verkaufsstelle"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -173,7 +179,8 @@
     "tax": "Steuer {{name}} löschen",
     "user": "Benutzer {{name}} löschen",
     "role": "Rolle {{name}} löschen",
-    "shift": "Schicht {{name}} löschen"
+    "shift": "Schicht {{name}} löschen",
+    "outlet": "Verkaufsstelle {{name}} löschen"
   },
   "forms": {
     "createDish": "Neues Gericht erstellen",
@@ -365,7 +372,18 @@
     "smartImportMenuStructureTitle": "KI-Import Menüstruktur (Größen, Toppings, Verknüpfungen)",
     "showsAllItems": "Alle Tickets anzeigen",
     "showsAllItemsHint": "Diese Station zeigt jeden Artikel aus jeder Station (Pass / Expo). Gerichte anderer Stationen werden nicht entfernt.",
-    "showsAllBadge": "Alle Tickets"
+    "showsAllBadge": "Alle Tickets",
+    "createOutlet": "Verkaufsstelle erstellen",
+    "updateOutlet": "{{name}} aktualisieren",
+    "outlet": "Verkaufsstelle",
+    "outletNone": "Keine — von übergeordneter Kategorie erben",
+    "outletSuggested": "Vorschlag: {{name}}",
+    "applySuggestion": "Anwenden",
+    "manageOutlets": "Verkaufsstellen",
+    "applyOutletSuggestionsTitle": "Verkaufsstellen-Vorschläge anwenden",
+    "applyOutletSuggestionsConfirm": "{{count}} Kategorien werden klassifiziert",
+    "outletColor": "Farbe",
+    "noOutlets": "Noch keine Verkaufsstellen"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

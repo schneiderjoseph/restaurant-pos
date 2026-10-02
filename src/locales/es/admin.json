@@ -96,7 +96,9 @@
     "recordType": "Tipo de fila",
     "dishName": "Plato",
     "parentModifier": "Tamaño padre",
-    "nextGroup": "Grupo siguiente"
+    "nextGroup": "Grupo siguiente",
+    "color": "Color",
+    "outlet": "Punto de venta"
   },
   "entities": {
     "dish": "Plato",
@@ -116,7 +118,8 @@
     "tax": "Impuesto",
     "user": "Usuario",
     "role": "Rol",
-    "shift": "Turno"
+    "shift": "Turno",
+    "outlet": "Punto de venta"
   },
   "buttons": {
     "dish": "Plato",
@@ -153,7 +156,10 @@
     "smartImport": "Importación IA",
     "smartImportIngredients": "Importación IA de ingredientes",
     "smartImportModifierGroups": "Importación IA de grupos de modificadores",
-    "smartImportMenuStructure": "Importar estructura del menú con IA"
+    "smartImportMenuStructure": "Importar estructura del menú con IA",
+    "manageOutlets": "Gestionar puntos de venta",
+    "applyOutletSuggestions": "Aplicar sugerencias",
+    "outlet": "Punto de venta"
   },
   "delete": {
     "dish": "Eliminar artículo {{name}}",
@@ -173,7 +179,8 @@
     "tax": "Eliminar impuesto {{name}}",
     "user": "Eliminar usuario {{name}}",
     "role": "Eliminar rol {{name}}",
-    "shift": "Eliminar turno {{name}}"
+    "shift": "Eliminar turno {{name}}",
+    "outlet": "Eliminar punto de venta {{name}}"
   },
   "forms": {
     "createDish": "Crear nuevo plato",
@@ -365,7 +372,18 @@
     "smartImportMenuStructureTitle": "Importar estructura del menú (tamaños, extras, enlaces)",
     "showsAllItems": "Mostrar todos los tickets",
     "showsAllItemsHint": "Esta estación muestra todos los artículos de todas las estaciones (pase / expo). No quita platos de las otras estaciones.",
-    "showsAllBadge": "Todos los tickets"
+    "showsAllBadge": "Todos los tickets",
+    "createOutlet": "Crear punto de venta",
+    "updateOutlet": "Actualizar {{name}}",
+    "outlet": "Punto de venta",
+    "outletNone": "Ninguno — hereda de la categoría padre",
+    "outletSuggested": "Sugerido: {{name}}",
+    "applySuggestion": "Aplicar",
+    "manageOutlets": "Puntos de venta",
+    "applyOutletSuggestionsTitle": "Aplicar sugerencias de punto de venta",
+    "applyOutletSuggestionsConfirm": "{{count}} categorías serán clasificadas",
+    "outletColor": "Color",
+    "noOutlets": "Aún no hay puntos de venta"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

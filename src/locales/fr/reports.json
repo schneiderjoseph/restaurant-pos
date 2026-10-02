@@ -378,7 +378,8 @@
     "menu": "Menu",
     "issue": "Sortie",
     "employee": "Employé",
-    "turnTime": "Temps de rotation (min)"
+    "turnTime": "Temps de rotation (min)",
+    "outlet": "Point de vente"
   },
   "labels": {
     "modifiers": "Modificateurs",
@@ -559,7 +560,8 @@
     "saleByDayPart": "Ventes par période de la journée",
     "saleByEmployees": "Ventes par employés",
     "expandAll": "Tout développer",
-    "collapseAll": "Tout réduire"
+    "collapseAll": "Tout réduire",
+    "unclassifiedOutlet": "Non classé"
   },
   "metrics": {
     "gross": "Brut",
@@ -659,5 +661,8 @@
     "noDiscountRows": "Aucune ligne de remise trouvée pour la période sélectionnée.",
     "noEmployeeSales": "Aucune donnée de ventes par employé disponible",
     "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée"
+  },
+  "sections": {
+    "salesByOutlet": "Ventes par point de vente"
   }
 }

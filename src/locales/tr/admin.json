@@ -96,7 +96,9 @@
     "recordType": "Satır tipi",
     "dishName": "Yemek",
     "parentModifier": "Üst boyut",
-    "nextGroup": "Sonraki grup"
+    "nextGroup": "Sonraki grup",
+    "color": "Renk",
+    "outlet": "Satış noktası"
   },
   "entities": {
     "dish": "Yemek",
@@ -116,7 +118,8 @@
     "tax": "Vergi",
     "user": "Kullanıcı",
     "role": "Rol",
-    "shift": "Vardiya"
+    "shift": "Vardiya",
+    "outlet": "Satış noktası"
   },
   "buttons": {
     "dish": "Yemek",
@@ -153,7 +156,10 @@
     "smartImport": "YZ içe aktarma",
     "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
     "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar",
-    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar"
+    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar",
+    "manageOutlets": "Satış noktalarını yönet",
+    "applyOutletSuggestions": "Önerileri uygula",
+    "outlet": "Satış noktası"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -173,7 +179,8 @@
     "tax": "{{name}} vergisini sil",
     "user": "{{name}} kullanıcısını sil",
     "role": "{{name}} rolünü sil",
-    "shift": "{{name}} vardiyasını sil"
+    "shift": "{{name}} vardiyasını sil",
+    "outlet": "{{name}} satış noktasını sil"
   },
   "forms": {
     "createDish": "Yeni yemek oluştur",
@@ -365,7 +372,18 @@
     "smartImportMenuStructureTitle": "YZ ile menü yapısı içe aktar (boyutlar, ekstralar, bağlantılar)",
     "showsAllItems": "Tüm fişleri göster",
     "showsAllItemsHint": "Bu istasyon tüm istasyonlardaki tüm ürünleri gösterir (pass / expo). Diğer istasyonlardan yemek almaz.",
-    "showsAllBadge": "Tüm fişler"
+    "showsAllBadge": "Tüm fişler",
+    "createOutlet": "Satış noktası oluştur",
+    "updateOutlet": "{{name}} güncelle",
+    "outlet": "Satış noktası",
+    "outletNone": "Yok — üst kategoriden miras al",
+    "outletSuggested": "Önerilen: {{name}}",
+    "applySuggestion": "Uygula",
+    "manageOutlets": "Satış noktaları",
+    "applyOutletSuggestionsTitle": "Satış noktası önerilerini uygula",
+    "applyOutletSuggestionsConfirm": "{{count}} kategori sınıflandırılacak",
+    "outletColor": "Renk",
+    "noOutlets": "Henüz satış noktası yok"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

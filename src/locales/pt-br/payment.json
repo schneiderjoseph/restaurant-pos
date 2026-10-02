@@ -88,7 +88,11 @@
     "complete": "Concluir",
     "cannotAddCard": "Não é possível adicionar mais pagamento para cartão",
     "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
-    "tempAlreadyPrinted": "Conta provisória já impressa"
+    "tempAlreadyPrinted": "Conta provisória já impressa",
+    "roomCheckedOut": "Check-out feito no ASI: este cliente paga diretamente, como um cliente avulso",
+    "roomSyncStale": "Estadia não verificável (sincronização ASI atrasada): o cliente paga diretamente",
+    "roomNotHotelGuest": "Cobrança no quarto exige um hóspede hospedado",
+    "roomDepartsToday": "Saída prevista para hoje"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

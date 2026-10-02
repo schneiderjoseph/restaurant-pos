@@ -7,7 +7,7 @@ type AnyDb = {
 };
 
 /** Shortest number treated as a real phone when checking for an existing client. */
-const MIN_PHONE_DIGITS = 6;
+export const MIN_PHONE_DIGITS = 6;
 
 /**
  * Existing customer with the same phone number (digits compared, formatting ignored),

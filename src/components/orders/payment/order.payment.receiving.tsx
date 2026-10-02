@@ -43,7 +43,14 @@ import {
 } from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
-import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {nowInAppTimezone, nowSurrealDateTime} from "@/lib/datetime.ts";
+import {
+  checkRoomCharge,
+  isRoomPaymentType,
+  loadCustomerForRoomCharge,
+  type RoomChargeCheck,
+  type RoomChargeRefusal,
+} from "@/lib/room-charge.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
@@ -170,6 +177,62 @@ const OrderPaymentReceivingContent = ({
 
   const [, setAlert] = useAtom(appAlert);
 
+  const roomRefusalMessage: Record<RoomChargeRefusal, string> = {
+    'checked-out': t('receiving.roomCheckedOut'),
+    'sync-stale': t('receiving.roomSyncStale'),
+    'not-hotel-guest': t('receiving.roomNotHotelGuest'),
+  };
+
+  /** Room tender state for this order's guest, read from the database (shown on the buttons). */
+  const [roomCheck, setRoomCheck] = useState<RoomChargeCheck>();
+
+  /** Reads the stay again right now: the guest may have checked out since the order was taken. */
+  const verifyRoomCharge = async (): Promise<RoomChargeCheck> => {
+    const customer = await loadCustomerForRoomCharge(db, order?.customer);
+    const check = checkRoomCharge(customer, nowInAppTimezone());
+    setRoomCheck(check);
+    return check;
+  };
+
+  /** Refuses the Room tender with the reason shown to the cashier; true when it may proceed. */
+  const ensureRoomChargeAllowed = async (): Promise<boolean> => {
+    let check: RoomChargeCheck;
+    try {
+      check = await verifyRoomCharge();
+    } catch (error) {
+      console.error('Room charge check failed', error);
+      check = {ok: false, reason: 'sync-stale'};
+      setRoomCheck(check);
+    }
+    if (!check.ok) {
+      setAlert(prev => ({
+        ...prev,
+        opened: true,
+        type: 'error',
+        message: roomRefusalMessage[check.reason],
+      }));
+      return false;
+    }
+    return true;
+  };
+
+  const customerKey = String((order?.customer as { id?: unknown } | undefined)?.id ?? order?.customer ?? '');
+  useEffect(() => {
+    let cancelled = false;
+    void loadCustomerForRoomCharge(db, order?.customer)
+      .then((customer) => {
+        if (!cancelled) setRoomCheck(checkRoomCharge(customer, nowInAppTimezone()));
+      })
+      .catch((error) => {
+        console.error('Room charge check failed', error);
+        if (!cancelled) setRoomCheck({ok: false, reason: 'sync-stale'});
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-check when the order's customer changes; db identity changes every render
+  }, [customerKey]);
+
   const {
     data: allPaymentTypes
   } = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 99999, ['tax']);
@@ -250,6 +313,11 @@ const OrderPaymentReceivingContent = ({
             toast.warning('Some fiscal providers failed; check Integrations queue');
           }
         }
+      }
+
+      // Last check before money is recorded: a Room tender added earlier may now be on a closed stay.
+      if (payments.some(payment => isRoomPaymentType(payment.payment_type)) && !(await ensureRoomChargeAllowed())) {
+        return;
       }
 
       // Sync payments incrementally — reuse existing order_payment rows when present
@@ -450,6 +518,10 @@ const OrderPaymentReceivingContent = ({
       return;
     }
 
+    if (isRoomPaymentType(paymentType) && !(await ensureRoomChargeAllowed())) {
+      return;
+    }
+
     // Compute change due relative to this payable (may include tax for selected payment type)
     const localChangeDue = tendered - payable;
 
@@ -576,6 +648,19 @@ const OrderPaymentReceivingContent = ({
           </ScrollContainer>
         </div>
 
+        {paymentTypes?.some(item => isRoomPaymentType(item)) && roomCheck && (
+          !roomCheck.ok ? (
+            roomCheck.reason !== 'not-hotel-guest' && (
+              <div className="alert alert-warning mb-3" role="status" data-testid="payment-room-refused">
+                {roomRefusalMessage[roomCheck.reason]}
+              </div>
+            )
+          ) : roomCheck.departsToday && (
+            <div className="alert alert-info mb-3" role="status" data-testid="payment-room-departs-today">
+              {t('receiving.roomDepartsToday')}
+            </div>
+          )
+        )}
         <ScrollContainer className="gap-5 flex overflow-x-auto mb-5" data-testid="payment-types">
           {paymentTypes?.map(item => (
             <Button
@@ -583,6 +668,7 @@ const OrderPaymentReceivingContent = ({
               variant="primary"
               key={item.id}
               data-testid="payment-type"
+              disabled={isRoomPaymentType(item) && roomCheck?.ok !== true}
               onClick={() => {
                 const payable = applyPaymentTypeTaxAndDiscount(item);
 

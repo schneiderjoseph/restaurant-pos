@@ -86,12 +86,24 @@
     "lastOrder": "آخر طلب: {{date}}",
     "noOrders": "لا طلبات بعد",
     "phone": "الهاتف",
-    "phonePlaceholder": "اختياري",
     "addPhone": "إضافة هاتف",
     "editPhone": "تعديل الهاتف",
     "phoneExists": "هذا الرقم يخص {{name}}، تم اختيار العميل",
     "phoneTaken": "هذا الرقم مستخدم مسبقاً من قبل {{name}}",
     "phoneSaved": "تم حفظ الهاتف",
-    "phoneSaveFailed": "تعذّر حفظ الهاتف"
+    "phoneSaveFailed": "تعذّر حفظ الهاتف",
+    "idDocument": "وثيقة الهوية",
+    "idDocumentPlaceholder": "بطاقة الهوية، الرقم الضريبي، جواز السفر…",
+    "addIdDocument": "إضافة وثيقة هوية",
+    "editIdDocument": "استبدال وثيقة الهوية",
+    "idDocumentExists": "وثيقة الهوية هذه تخص {{name}}، تم اختيار العميل",
+    "idDocumentTaken": "وثيقة الهوية هذه مستخدمة من قبل {{name}}",
+    "idDocumentSaved": "تم حفظ وثيقة الهوية",
+    "idDocumentSaveFailed": "تعذر حفظ وثيقة الهوية",
+    "contactHint": "الهاتف أو وثيقة الهوية: واحد منهما على الأقل.",
+    "contactRequired": "أدخل رقم هاتف أو وثيقة هوية"
+  },
+  "outlets": {
+    "all": "الكل"
   }
 }

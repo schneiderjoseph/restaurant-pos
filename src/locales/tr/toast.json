@@ -132,7 +132,10 @@
     "invalidModifierGroup": "Modifikatör grubu geçersiz",
     "duplicateDishModifierGroup": "Modifikatör grubu bu yemeğe zaten eklenmiş",
     "invalidPriority": "Öncelik geçersiz",
-    "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz"
+    "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz",
+    "outletSaved": "Satış noktası {{name}} kaydedildi",
+    "outletDeleted": "Satış noktası {{name}} silindi",
+    "outletSuggestionsApplied": "{{count}} kategori sınıflandırıldı"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} kullanımda olduğu için devre dışı bırakıldı.",

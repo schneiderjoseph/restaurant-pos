@@ -378,7 +378,8 @@
     "menu": "Menü",
     "issue": "Çıkış",
     "employee": "Çalışan",
-    "turnTime": "Dönüş süresi (dk)"
+    "turnTime": "Dönüş süresi (dk)",
+    "outlet": "Satış noktası"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -559,7 +560,8 @@
     "saleByDayPart": "Günün dilimine göre satış",
     "saleByEmployees": "Çalışanlara göre satış",
     "expandAll": "Tümünü genişlet",
-    "collapseAll": "Tümünü daralt"
+    "collapseAll": "Tümünü daralt",
+    "unclassifiedOutlet": "Sınıflandırılmamış"
   },
   "metrics": {
     "gross": "Brüt",
@@ -659,5 +661,8 @@
     "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı.",
     "noEmployeeSales": "Çalışan satış verisi yok",
     "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok"
+  },
+  "sections": {
+    "salesByOutlet": "Satış noktasına göre satışlar"
   }
 }

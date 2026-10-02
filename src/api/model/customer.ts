@@ -24,9 +24,13 @@ export interface Customer extends ID, Name{
   asi_folio_no?: string | null
   /** ASI FrontDesk unit / room id */
   asi_unit_id?: number | null
+  /** ASI FrontDesk planned departure day (YYYY-MM-DD), informational: ASI decides check-out */
+  asi_date_out?: string | null
   /** Provenance: local | asi-fd */
   source?: string | null
   asi_synced_at?: string | null
+  /** ID document number (CIN, NIF, passport…), stored normalized; only ever displayed masked. */
+  id_document_number?: string | null
   /** Free-text staff note, shown when the guest is selected. */
   notes?: string | null
   /** Read-only projection (guest lookup query): created_at of the latest order. Never written. */

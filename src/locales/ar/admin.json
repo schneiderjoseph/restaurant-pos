@@ -96,7 +96,9 @@
     "recordType": "نوع الصف",
     "dishName": "الطبق",
     "parentModifier": "الحجم الأب",
-    "nextGroup": "المجموعة التالية"
+    "nextGroup": "المجموعة التالية",
+    "color": "اللون",
+    "outlet": "نقطة البيع"
   },
   "entities": {
     "dish": "طبق",
@@ -116,7 +118,8 @@
     "tax": "ضريبة",
     "user": "مستخدم",
     "role": "دور",
-    "shift": "وردية"
+    "shift": "وردية",
+    "outlet": "نقطة البيع"
   },
   "buttons": {
     "dish": "طبق",
@@ -153,7 +156,10 @@
     "smartImport": "استيراد بالذكاء الاصطناعي",
     "smartImportIngredients": "استيراد بالذكاء الاصطناعي للمكونات",
     "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
-    "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي"
+    "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي",
+    "manageOutlets": "إدارة نقاط البيع",
+    "applyOutletSuggestions": "تطبيق الاقتراحات",
+    "outlet": "نقطة البيع"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -173,7 +179,8 @@
     "tax": "حذف الضريبة {{name}}",
     "user": "حذف المستخدم {{name}}",
     "role": "حذف الدور {{name}}",
-    "shift": "حذف الوردية {{name}}"
+    "shift": "حذف الوردية {{name}}",
+    "outlet": "حذف نقطة البيع {{name}}"
   },
   "forms": {
     "createDish": "إنشاء طبق جديد",
@@ -365,7 +372,18 @@
     "smartImportMenuStructureTitle": "استيراد هيكل القائمة (الأحجام والإضافات والروابط)",
     "showsAllItems": "عرض جميع التذاكر",
     "showsAllItemsHint": "تعرض هذه المحطة كل الأصناف من كل المحطات (الممر / الإكسبو). لا تسحب الأطباق من المحطات الأخرى.",
-    "showsAllBadge": "كل التذاكر"
+    "showsAllBadge": "كل التذاكر",
+    "createOutlet": "إنشاء نقطة بيع",
+    "updateOutlet": "تحديث {{name}}",
+    "outlet": "نقطة البيع",
+    "outletNone": "لا شيء — يرث من الفئة الأم",
+    "outletSuggested": "مقترح: {{name}}",
+    "applySuggestion": "تطبيق",
+    "manageOutlets": "نقاط البيع",
+    "applyOutletSuggestionsTitle": "تطبيق اقتراحات نقاط البيع",
+    "applyOutletSuggestionsConfirm": "سيتم تصنيف {{count}} فئات",
+    "outletColor": "اللون",
+    "noOutlets": "لا توجد نقاط بيع بعد"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

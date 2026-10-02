@@ -132,7 +132,10 @@
     "invalidModifierGroup": "Grupo de modificadores é inválido",
     "duplicateDishModifierGroup": "Grupo de modificadores já está vinculado a este prato",
     "invalidPriority": "Prioridade é inválida",
-    "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido"
+    "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido",
+    "outletSaved": "Ponto de venda {{name}} salvo",
+    "outletDeleted": "Ponto de venda {{name}} excluído",
+    "outletSuggestionsApplied": "{{count}} categorias classificadas"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está em uso e foi desativado.",

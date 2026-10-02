@@ -132,7 +132,10 @@
     "invalidModifierGroup": "Le groupe de modificateurs est invalide",
     "duplicateDishModifierGroup": "Le groupe de modificateurs est déjà associé à ce plat",
     "invalidPriority": "La priorité est invalide",
-    "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide"
+    "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide",
+    "outletSaved": "Point de vente {{name}} enregistré",
+    "outletDeleted": "Point de vente {{name}} supprimé",
+    "outletSuggestionsApplied": "{{count}} catégories classées"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} est utilisé et a été désactivé.",

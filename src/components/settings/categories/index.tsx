@@ -1,6 +1,8 @@
 import {useMemo, useState} from "react";
 import {Tables} from "@/api/db/tables.ts";
 import {Category} from "@/api/model/category.ts";
+import {Dish} from "@/api/model/dish.ts";
+import {Kitchen, KITCHEN_FETCHES} from "@/api/model/kitchen.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
@@ -10,6 +12,7 @@ import {faCheck, faPencil, faPlus, faTimes} from "@fortawesome/free-solid-svg-ic
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import {CategoryBulkForm} from "@/components/settings/categories/category.bulk.form.tsx";
+import {OutletsManage} from "@/components/settings/categories/outlets.manage.tsx";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
@@ -21,10 +24,15 @@ import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import {Modal} from "@/components/common/react-aria/modal.tsx";
+import {suggestOutlet} from "@/lib/outlet.ts";
+import {toRecordId} from "@/lib/utils.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {toast} from "sonner";
 
 export const AdminCategories = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
-  const loadHook = useApi<SettingsData<Category>>(Tables.categories, ['deleted_at = none']);
+  const loadHook = useApi<SettingsData<Category>>(Tables.categories, ['deleted_at = none'], [], undefined, undefined, ['outlet']);
   const db = useDB();
   const { protectAction } = useSecurity();
   const isVisible = useActionVisible();
@@ -35,6 +43,10 @@ export const AdminCategories = () => {
 
   const [data, setData] = useState<Category>();
   const [formModal, setFormModal] = useState(false);
+  const [outletsModal, setOutletsModal] = useState(false);
+  const [applySuggestionsOpen, setApplySuggestionsOpen] = useState(false);
+  const [applySuggestionsCount, setApplySuggestionsCount] = useState(0);
+  const [applySuggestionsLoading, setApplySuggestionsLoading] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkEdit, setBulkEdit] = useState({
     state: false,
@@ -127,6 +139,58 @@ export const AdminCategories = () => {
     })] : []),
   ];
 
+  const openApplySuggestions = async () => {
+    protectAction(async () => {
+      const [[categories], [dishes], [kitchens]] = await Promise.all([
+        db.query(`SELECT * FROM ${Tables.categories} WHERE deleted_at = none FETCH outlet`),
+        db.query(`SELECT id, categories FROM ${Tables.dishes} WHERE deleted_at = none FETCH categories`),
+        db.query(`SELECT items, outlet FROM ${Tables.kitchens} WHERE deleted_at = none FETCH ${KITCHEN_FETCHES.join(', ')}`),
+      ]) as [[Category[]], [Dish[]], [Kitchen[]]];
+
+      const pending = (categories ?? []).filter((category) => {
+        if (recordIdToString(category.parent)) return false;
+        if (recordIdToString(category.outlet)) return false;
+        return !!suggestOutlet(category.id, categories ?? [], dishes ?? [], kitchens ?? []);
+      });
+
+      setApplySuggestionsCount(pending.length);
+      setApplySuggestionsOpen(true);
+    }, {
+      module: 'admin.categories.update',
+      description: getAccessRuleChildLabel('admin.categories.update'),
+    });
+  };
+
+  const confirmApplySuggestions = async () => {
+    setApplySuggestionsLoading(true);
+    try {
+      const [[categories], [dishes], [kitchens]] = await Promise.all([
+        db.query(`SELECT * FROM ${Tables.categories} WHERE deleted_at = none FETCH outlet`),
+        db.query(`SELECT id, categories FROM ${Tables.dishes} WHERE deleted_at = none FETCH categories`),
+        db.query(`SELECT items, outlet FROM ${Tables.kitchens} WHERE deleted_at = none FETCH ${KITCHEN_FETCHES.join(', ')}`),
+      ]) as [[Category[]], [Dish[]], [Kitchen[]]];
+
+      let applied = 0;
+      for (const category of categories ?? []) {
+        if (recordIdToString(category.parent)) continue;
+        if (recordIdToString(category.outlet)) continue;
+        const suggested = suggestOutlet(category.id, categories ?? [], dishes ?? [], kitchens ?? []);
+        if (!suggested) continue;
+        await db.merge(category.id, { outlet: toRecordId(suggested.id) });
+        applied += 1;
+      }
+
+      toast.success(t('toast:admin.outletSuggestionsApplied', { count: applied }));
+      setApplySuggestionsOpen(false);
+      loadHook.fetchData();
+    } catch (e) {
+      toast.error(e);
+      console.log(e);
+    } finally {
+      setApplySuggestionsLoading(false);
+    }
+  };
+
   return (
     <>
       <TableComponent
@@ -134,6 +198,19 @@ export const AdminCategories = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
+          ...((canEdit || canCreate) ? [
+            <Button key="manage-outlets" variant="primary" onClick={() => {
+              protectAction(() => setOutletsModal(true), {
+                module: canEdit ? 'admin.categories.update' : 'admin.categories.create',
+                description: getAccessRuleChildLabel(canEdit ? 'admin.categories.update' : 'admin.categories.create'),
+              });
+            }}>{t('buttons.manageOutlets')}</Button>,
+          ] : []),
+          ...(canEdit ? [
+            <Button key="apply-suggestions" variant="primary" onClick={() => {
+              void openApplySuggestions();
+            }}>{t('buttons.applyOutletSuggestions')}</Button>,
+          ] : []),
           ...(canImport ? [
             <Button key="import" variant="primary" onClick={() => {
               protectAction(() => setImportModal(true), {
@@ -210,6 +287,42 @@ export const AdminCategories = () => {
             loadHook.fetchData();
           }}
         />
+      )}
+
+      {outletsModal && (
+        <OutletsManage
+          open={outletsModal}
+          onClose={() => setOutletsModal(false)}
+        />
+      )}
+
+      {applySuggestionsOpen && (
+        <Modal
+          open={applySuggestionsOpen}
+          onClose={() => !applySuggestionsLoading && setApplySuggestionsOpen(false)}
+          title={t('forms.applyOutletSuggestionsTitle')}
+          size="sm"
+        >
+          <p className="text-neutral-600 mb-4">
+            {t('forms.applyOutletSuggestionsConfirm', { count: applySuggestionsCount })}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              onClick={() => setApplySuggestionsOpen(false)}
+              disabled={applySuggestionsLoading}
+            >
+              {t('common:actions.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => void confirmApplySuggestions()}
+              isLoading={applySuggestionsLoading}
+              disabled={applySuggestionsLoading || applySuggestionsCount === 0}
+            >
+              {t('common:actions.confirm')}
+            </Button>
+          </div>
+        </Modal>
       )}
 
       {bulkEdit.state && (

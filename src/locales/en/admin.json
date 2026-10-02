@@ -96,7 +96,9 @@
     "recordType": "Row type",
     "dishName": "Dish",
     "parentModifier": "Parent size",
-    "nextGroup": "Next group"
+    "nextGroup": "Next group",
+    "color": "Color",
+    "outlet": "Point of sale"
   },
   "entities": {
     "dish": "Dish",
@@ -116,7 +118,8 @@
     "tax": "Tax",
     "user": "User",
     "role": "Role",
-    "shift": "Shift"
+    "shift": "Shift",
+    "outlet": "Point of sale"
   },
   "buttons": {
     "dish": "Dish",
@@ -153,7 +156,10 @@
     "smartImport": "AI Import",
     "smartImportIngredients": "AI Import Ingredients",
     "smartImportModifierGroups": "AI Import Modifier Groups",
-    "smartImportMenuStructure": "AI Import Menu Structure"
+    "smartImportMenuStructure": "AI Import Menu Structure",
+    "manageOutlets": "Manage points of sale",
+    "applyOutletSuggestions": "Apply suggestions",
+    "outlet": "Point of sale"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -173,7 +179,8 @@
     "tax": "Delete tax {{name}}",
     "user": "Delete user {{name}}",
     "role": "Delete role {{name}}",
-    "shift": "Delete shift {{name}}"
+    "shift": "Delete shift {{name}}",
+    "outlet": "Delete point of sale {{name}}"
   },
   "forms": {
     "createDish": "Create new dish",
@@ -385,7 +392,18 @@
     "smartImportMenuStructureTitle": "AI Import menu structure (sizes, toppings, links)",
     "showsAllItems": "Show all tickets",
     "showsAllItemsHint": "This station displays every item from every station (expo / pass). It does not take dishes away from other stations.",
-    "showsAllBadge": "All tickets"
+    "showsAllBadge": "All tickets",
+    "createOutlet": "Create point of sale",
+    "updateOutlet": "Update {{name}}",
+    "outlet": "Point of sale",
+    "outletNone": "None — inherit from parent category",
+    "outletSuggested": "Suggested: {{name}}",
+    "applySuggestion": "Apply",
+    "manageOutlets": "Points of sale",
+    "applyOutletSuggestionsTitle": "Apply outlet suggestions",
+    "applyOutletSuggestionsConfirm": "{{count}} categories will be classified",
+    "outletColor": "Color",
+    "noOutlets": "No points of sale yet"
   },
   "dishView": {
     "detailsTitle": "Dish details",
