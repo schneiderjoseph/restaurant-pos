@@ -22,7 +22,8 @@
     "tipsDefinition": "Определение чаевых",
     "accessTab": "Доступ к {{title}}",
     "ariaLabel": "Вкладки администрирования",
-    "securityAlerts": "Оповещения безопасности"
+    "securityAlerts": "Оповещения безопасности",
+    "generalSettings": "Общие настройки"
   },
   "columns": {
     "photo": "Фото",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Обновить Определение чаевых",
       "admin.tips_definition.delete": "Удалить Определение чаевых",
       "admin.security_alerts": "Оповещения безопасности",
+      "admin.general_settings": "Общие настройки",
       "tips": "Чаевые",
       "tips.calculation": "Расчёт чаевых",
       "tips.payout": "Управление выплатами",

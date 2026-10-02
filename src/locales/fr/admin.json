@@ -22,7 +22,8 @@
     "tipsDefinition": "Définition des pourboires",
     "accessTab": "Accéder à {{title}}",
     "ariaLabel": "Onglets d'administration",
-    "securityAlerts": "Alertes de Sécurité"
+    "securityAlerts": "Alertes de Sécurité",
+    "generalSettings": "Paramètres généraux"
   },
   "columns": {
     "photo": "Photo",
@@ -658,6 +659,7 @@
       "admin.tips_definition.update": "Mettre à jour Définition des pourboires",
       "admin.tips_definition.delete": "Supprimer Définition des pourboires",
       "admin.security_alerts": "Alertes de sécurité",
+      "admin.general_settings": "Paramètres généraux",
       "tips": "Pourboires",
       "tips.calculation": "Calcul des pourboires",
       "tips.payout": "Gestion des versements",

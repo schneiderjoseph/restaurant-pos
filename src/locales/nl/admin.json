@@ -22,7 +22,8 @@
     "tipsDefinition": "Fooidefinitie",
     "accessTab": "Toegang tot {{title}}",
     "ariaLabel": "Beheertabs",
-    "securityAlerts": "Beveiligingsmeldingen"
+    "securityAlerts": "Beveiligingsmeldingen",
+    "generalSettings": "Algemene instellingen"
   },
   "columns": {
     "photo": "Foto",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Bijwerken Fooidefinitie",
       "admin.tips_definition.delete": "Verwijderen Fooidefinitie",
       "admin.security_alerts": "Beveiligingsmeldingen",
+      "admin.general_settings": "Algemene instellingen",
       "tips": "Fooien",
       "tips.calculation": "Fooiberekening",
       "tips.payout": "Uitbetalingsbeheer",

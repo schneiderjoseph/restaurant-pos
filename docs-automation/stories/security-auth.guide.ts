@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { clearHighlights, highlightAndReady } from '../helpers/highlight.ts';
-import { loginWithPin, openSettings, resetSession } from '../helpers/auth.ts';
+import { loginWithPin, openAdminPage, openAdminTab, resetSession } from '../helpers/auth.ts';
 import { captureLocator, capturePage } from '../helpers/screenshot.ts';
 
 test.describe.configure({ mode: 'serial' });
@@ -9,7 +9,8 @@ test('capture security re-authentication', async ({ page }) => {
   test.setTimeout(180_000);
   await resetSession(page);
   await loginWithPin(page);
-  await openSettings(page);
+  await openAdminPage(page);
+  await openAdminTab(page, 'general_settings');
 
   // Context for when re-auth appears (settings / protected actions)
   await highlightAndReady(page, page.getByTestId('settings-card-session-security'));

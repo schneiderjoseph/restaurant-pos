@@ -197,6 +197,7 @@ SET roles = [
   'admin.tips_definition.create',
   'admin.tips_definition.update',
   'admin.tips_definition.delete',
+  'admin.general_settings',
   'tips',
   'tips.calculation',
   'tips.payout',

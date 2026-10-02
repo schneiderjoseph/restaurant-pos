@@ -21,6 +21,7 @@ import {AdminMenus} from "@/components/settings/menu";
 import {AdminPrints} from "@/components/settings/prints";
 import { AdminExtras } from "@/components/settings/extras";
 import { AdminCoupons } from "@/components/settings/coupons";
+import { AdminGeneralSettings } from "@/components/settings/general";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from 'react-i18next';
 import {DocumentTitle} from "@/components/common/document-title.tsx";
@@ -42,6 +43,7 @@ const ADMIN_TAB_KEYS = [
   'payment_types',
   'extras',
   'taxes',
+  'general_settings',
   'users',
   'security_alerts',
 ] as const;
@@ -65,6 +67,7 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   payment_types: 'tabs.paymentTypes',
   extras: 'tabs.extras',
   taxes: 'tabs.taxes',
+  general_settings: 'tabs.generalSettings',
   users: 'tabs.users',
   security_alerts: 'tabs.securityAlerts',
 };
@@ -87,6 +90,7 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   payment_types: 'admin.payment_types',
   extras: 'admin.extras',
   taxes: 'admin.taxes',
+  general_settings: 'admin.general_settings',
   users: 'admin.users',
   security_alerts: 'admin.security_alerts',
 };
@@ -114,6 +118,7 @@ export const Admin = () => {
     payment_types: { component: <AdminPaymentTypes/>, title: t('tabs.paymentTypes') },
     extras: { component: <AdminExtras/>, title: t('tabs.extras') },
     taxes: { component: <AdminTaxes/>, title: t('tabs.taxes') },
+    general_settings: { component: <AdminGeneralSettings/>, title: t('tabs.generalSettings') },
     users: { component: <AdminUsers/>, title: t('tabs.users') },
     security_alerts: { component: <SecurityAlertsPanel/>, title: t('tabs.securityAlerts') },
   }), [t]);

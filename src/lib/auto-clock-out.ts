@@ -51,20 +51,17 @@ const recordIdString = (value: unknown): string => {
   return s.includes(':') ? s.split(':').pop() || s : s;
 };
 
+/** One establishment-wide row, managed by the admin; older per-user rows are ignored. */
 export const loadSessionSecuritySettings = async (
-  db: DbClient,
-  userId: string
+  db: DbClient
 ): Promise<SessionSecuritySettings> => {
   const [raw] = await db.query(
-    `SELECT * FROM ${Tables.settings} WHERE key = $key`,
+    `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1`,
     { key: SESSION_SECURITY_KEY }
   );
   const rows = unwrapRows<Setting>(raw);
-  const userRow = rows.find(
-    (r) => recordIdString(r?.user) === recordIdString(userId)
-  );
   return normalizeSessionSecurity(
-    (userRow?.values ?? {}) as Partial<SessionSecuritySettings>
+    (rows[0]?.values ?? {}) as Partial<SessionSecuritySettings>
   );
 };
 

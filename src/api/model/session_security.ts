@@ -18,7 +18,7 @@ export interface SessionSecuritySettings {
   action?: SessionSecurityAction;
 }
 
-/** On for every user without their own row: idle sign-out, resumable by the same user. */
+/** Applies until the admin saves the global row: idle sign-out, resumable by the same user. */
 export const DEFAULT_SESSION_SECURITY: SessionSecuritySettings = {
   enabled: true,
   idle_minutes: 15,

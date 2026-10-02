@@ -22,7 +22,8 @@
     "tipsDefinition": "Bahşiş tanımı",
     "accessTab": "{{title}} modülüne eriş",
     "ariaLabel": "Yönetim sekmeleri",
-    "securityAlerts": "Güvenlik Uyarıları"
+    "securityAlerts": "Güvenlik Uyarıları",
+    "generalSettings": "Genel ayarlar"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Güncelle Bahşiş tanımı",
       "admin.tips_definition.delete": "Sil Bahşiş tanımı",
       "admin.security_alerts": "Güvenlik uyarıları",
+      "admin.general_settings": "Genel ayarlar",
       "tips": "Bahşişler",
       "tips.calculation": "Bahşiş Hesaplama",
       "tips.payout": "Ödeme Yönetimi",

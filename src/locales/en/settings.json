@@ -230,7 +230,7 @@
   },
   "sessionSecurity": {
     "title": "Session security",
-    "description": "Automatically lock or log out this user after a period of inactivity. Choose one action.",
+    "description": "Automatically lock or log out every user after a period of inactivity. Applies to all users and terminals.",
     "idleMinutes": "Idle minutes (e.g. 0.1 ≈ 6 seconds)",
     "action": "Action",
     "actionLock": "Lock",

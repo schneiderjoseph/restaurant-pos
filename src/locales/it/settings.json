@@ -223,7 +223,7 @@
   },
   "sessionSecurity": {
     "title": "Sicurezza sessione",
-    "description": "Blocca o disconnetti automaticamente questo utente dopo un periodo di inattività. Scegli un'azione.",
+    "description": "Blocca o disconnetti automaticamente tutti gli utenti dopo un periodo di inattività. Si applica a tutti gli utenti e terminali.",
     "idleMinutes": "Minuti di inattività (es. 0,1 ≈ 6 secondi)",
     "action": "Azione",
     "actionLock": "Blocca",

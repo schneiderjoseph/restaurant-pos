@@ -22,7 +22,8 @@
     "tipsDefinition": "Tips definition",
     "accessTab": "Access {{title}}",
     "ariaLabel": "Administration tabs",
-    "securityAlerts": "Security Alerts"
+    "securityAlerts": "Security Alerts",
+    "generalSettings": "General settings"
   },
   "columns": {
     "photo": "Photo",
@@ -812,6 +813,7 @@
       "admin.tips_definition.update": "Update tips definition",
       "admin.tips_definition.delete": "Delete tips definition",
       "admin.security_alerts": "Security alerts",
+      "admin.general_settings": "General settings",
       "tips": "Tips",
       "tips.calculation": "Tip Calculation",
       "tips.payout": "Payout Management",

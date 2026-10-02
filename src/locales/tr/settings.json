@@ -223,7 +223,7 @@
   },
   "sessionSecurity": {
     "title": "Oturum güvenliği",
-    "description": "Bu kullanıcıyı bir süre işlem yapılmadığında otomatik kilitle veya çıkış yaptır. Bir eylem seçin.",
+    "description": "Belirli bir hareketsizlik süresinden sonra tüm kullanıcıları otomatik olarak kilitleyin veya oturumlarını kapatın. Tüm kullanıcılar ve terminaller için geçerlidir.",
     "idleMinutes": "Boşta kalma dakikası (örn. 0,1 ≈ 6 saniye)",
     "action": "Eylem",
     "actionLock": "Kilitle",

@@ -223,7 +223,7 @@
   },
   "sessionSecurity": {
     "title": "Sessiebeveiliging",
-    "description": "Vergrendel of log deze gebruiker automatisch uit na een periode van inactiviteit. Kies één actie.",
+    "description": "Alle gebruikers automatisch vergrendelen of afmelden na een periode van inactiviteit. Geldt voor alle gebruikers en terminals.",
     "idleMinutes": "Minuten inactiviteit (bijv. 0,1 ≈ 6 seconden)",
     "action": "Actie",
     "actionLock": "Vergrendelen",

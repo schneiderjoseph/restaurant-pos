@@ -223,7 +223,7 @@
   },
   "sessionSecurity": {
     "title": "Sitzungssicherheit",
-    "description": "Diesen Benutzer nach einer Inaktivitätsdauer automatisch sperren oder abmelden. Wählen Sie eine Aktion.",
+    "description": "Alle Benutzer nach einer Zeit der Inaktivität automatisch sperren oder abmelden. Gilt für alle Benutzer und Terminals.",
     "idleMinutes": "Minuten Inaktivität (z. B. 0,1 ≈ 6 Sekunden)",
     "action": "Aktion",
     "actionLock": "Sperren",

@@ -150,7 +150,7 @@ export const SessionIdleProvider: React.FC<SessionIdleProviderProps> = ({ childr
       }
 
       try {
-        const settings = await loadSessionSecuritySettings(dbRef.current, userId);
+        const settings = await loadSessionSecuritySettings(dbRef.current);
         if (cancelled) return;
         applySettings(settings, resetDeadline);
       } catch (error) {

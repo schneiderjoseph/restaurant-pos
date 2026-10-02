@@ -22,7 +22,8 @@
     "tipsDefinition": "Definição de gorjetas",
     "accessTab": "Acessar {{title}}",
     "ariaLabel": "Abas de administração",
-    "securityAlerts": "Alertas de Segurança"
+    "securityAlerts": "Alertas de Segurança",
+    "generalSettings": "Configurações gerais"
   },
   "columns": {
     "photo": "Foto",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Atualizar Definição de gorjetas",
       "admin.tips_definition.delete": "Excluir Definição de gorjetas",
       "admin.security_alerts": "Alertas de segurança",
+      "admin.general_settings": "Configurações gerais",
       "tips": "Gorjetas",
       "tips.calculation": "Cálculo de gorjetas",
       "tips.payout": "Gestão de pagamentos",

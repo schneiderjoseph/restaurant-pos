@@ -22,7 +22,8 @@
     "tipsDefinition": "Definizione mance",
     "accessTab": "Accedi a {{title}}",
     "ariaLabel": "Schede amministrazione",
-    "securityAlerts": "Avvisi di Sicurezza"
+    "securityAlerts": "Avvisi di Sicurezza",
+    "generalSettings": "Impostazioni generali"
   },
   "columns": {
     "photo": "Foto",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Aggiorna Definizione mance",
       "admin.tips_definition.delete": "Elimina Definizione mance",
       "admin.security_alerts": "Avvisi di sicurezza",
+      "admin.general_settings": "Impostazioni generali",
       "tips": "Mance",
       "tips.calculation": "Calcolo mance",
       "tips.payout": "Gestione pagamenti",

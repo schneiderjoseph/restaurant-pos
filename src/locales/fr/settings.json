@@ -230,7 +230,7 @@
   },
   "sessionSecurity": {
     "title": "Sécurité de session",
-    "description": "Verrouiller ou déconnecter automatiquement cet utilisateur après une période d'inactivité. Choisissez une action.",
+    "description": "Verrouiller ou déconnecter automatiquement tous les utilisateurs après une période d'inactivité. S'applique à tous les utilisateurs et à tous les terminaux.",
     "idleMinutes": "Minutes d'inactivité (ex. 0,1 ≈ 6 secondes)",
     "action": "Action",
     "actionLock": "Verrouiller",

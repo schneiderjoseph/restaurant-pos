@@ -22,7 +22,8 @@
     "tipsDefinition": "Definición de propinas",
     "accessTab": "Acceder a {{title}}",
     "ariaLabel": "Pestañas de administración",
-    "securityAlerts": "Alertas de Seguridad"
+    "securityAlerts": "Alertas de Seguridad",
+    "generalSettings": "Ajustes generales"
   },
   "columns": {
     "photo": "Foto",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Actualizar Definición de propinas",
       "admin.tips_definition.delete": "Eliminar Definición de propinas",
       "admin.security_alerts": "Alertas de seguridad",
+      "admin.general_settings": "Ajustes generales",
       "tips": "Propinas",
       "tips.calculation": "Cálculo de propinas",
       "tips.payout": "Gestión de pagos",

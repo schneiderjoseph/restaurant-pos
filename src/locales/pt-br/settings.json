@@ -223,7 +223,7 @@
   },
   "sessionSecurity": {
     "title": "Segurança da sessão",
-    "description": "Bloquear ou sair automaticamente após um período de inatividade. Escolha uma ação.",
+    "description": "Bloquear ou desconectar automaticamente todos os usuários após um período de inatividade. Aplica-se a todos os usuários e terminais.",
     "idleMinutes": "Minutos de inatividade (ex.: 0,1 ≈ 6 segundos)",
     "action": "Ação",
     "actionLock": "Bloquear",

@@ -22,7 +22,8 @@
     "tipsDefinition": "Trinkgeld-Definition",
     "accessTab": "Zugriff auf {{title}}",
     "ariaLabel": "Verwaltungsregisterkarten",
-    "securityAlerts": "Sicherheitswarnungen"
+    "securityAlerts": "Sicherheitswarnungen",
+    "generalSettings": "Allgemeine Einstellungen"
   },
   "columns": {
     "photo": "Foto",
@@ -638,6 +639,7 @@
       "admin.tips_definition.update": "Aktualisieren Trinkgeld-Definition",
       "admin.tips_definition.delete": "Löschen Trinkgeld-Definition",
       "admin.security_alerts": "Sicherheitswarnungen",
+      "admin.general_settings": "Allgemeine Einstellungen",
       "tips": "Trinkgeld",
       "tips.calculation": "Trinkgeldberechnung",
       "tips.payout": "Auszahlungsverwaltung",

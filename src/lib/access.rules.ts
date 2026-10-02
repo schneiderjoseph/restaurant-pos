@@ -236,6 +236,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "admin.tips_definition.update",
       "admin.tips_definition.delete",
       "admin.security_alerts",
+      "admin.general_settings",
     ],
   },
   riders: {
@@ -514,6 +515,7 @@ export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
   Shifts: "admin.shifts",
   "Tips definition": "admin.tips_definition",
   "Security Alerts": "admin.security_alerts",
+  "General settings": "admin.general_settings",
 
   // Tips distribution
   "Tip Calculation": "tips.calculation",

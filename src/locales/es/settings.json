@@ -223,7 +223,7 @@
   },
   "sessionSecurity": {
     "title": "Seguridad de sesión",
-    "description": "Bloquear o cerrar sesión automáticamente tras un período de inactividad. Elija una acción.",
+    "description": "Bloquear o cerrar sesión automáticamente a todos los usuarios tras un periodo de inactividad. Se aplica a todos los usuarios y terminales.",
     "idleMinutes": "Minutos de inactividad (p. ej. 0,1 ≈ 6 segundos)",
     "action": "Acción",
     "actionLock": "Bloquear",

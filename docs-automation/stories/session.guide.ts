@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 import { clearHighlights, highlightAndReady } from '../helpers/highlight.ts';
 import {
   loginWithPin,
-  openSettings,
+  openAdminPage,
+  openAdminTab,
   resetSession,
 } from '../helpers/auth.ts';
 import { captureLocator, capturePage } from '../helpers/screenshot.ts';
@@ -72,8 +73,9 @@ test('capture lock, locked login, and clock screen', async ({ page }) => {
   }
   await page.waitForURL(/\/(menu|settings|orders|admin|clock)/, { timeout: 60_000 });
 
-  // Session security settings (idle lock/logout) — reference already exists; re-link as session chapter image
-  await openSettings(page);
+  // Session security (idle lock/logout), set once for every user under Manage > General settings
+  await openAdminPage(page);
+  await openAdminTab(page, 'general_settings');
   const card = page.getByTestId('settings-card-session-security');
   await expect(card).toBeVisible();
   await highlightAndReady(page, card);
