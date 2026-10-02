@@ -17,7 +17,6 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from "sonner";
 import { getUserModules } from "@/lib/access.rules.ts";
 import { UserRole } from "@/api/model/user_role.ts";
-import { Input } from "@/components/common/input/input.tsx";
 import { clockIn as laborClockIn } from "@/lib/labor-engine/attendance/attendance.service.ts";
 import { ensureEmployeeForUser } from "@/lib/labor-engine/employee.resolver.ts";
 import { useTranslation } from "react-i18next";
@@ -58,9 +57,6 @@ export const Login = () => {
   const gatewayAuth = isGatewayAuthEnabled();
 
   const [code, setCode] = useState('');
-  const [loginMethod, setLoginMethod] = useState<'pin'|'form'>('pin');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [page, setPage] = useAtom(appPage);
   const setAppState = useSetAtom(appState);
   const setEditSession = useSetAtom(orderEditSessionAtom);
@@ -178,7 +174,7 @@ export const Login = () => {
     if (result?.attemptsRemaining != null && result.attemptsRemaining > 0) {
       toast.error(t('login.invalidCredentialsWithAttempts', {
         count: result.attemptsRemaining,
-        defaultValue: `Invalid username or password. ${result.attemptsRemaining} attempt(s) remaining before lockout.`,
+        defaultValue: `Invalid PIN. ${result.attemptsRemaining} attempt(s) remaining before lockout.`,
       }), { description: lockoutPolicy });
       return;
     }
@@ -191,8 +187,8 @@ export const Login = () => {
     denyLogin();
   };
 
-  const checkLoginGateway = async (login: string, pass: string, method: 'pin'|'form') => {
-    const result = await gatewayLogin({ method, login, password: pass });
+  const checkLoginGateway = async (pin: string) => {
+    const result = await gatewayLogin({ method: 'pin', login: pin, password: pin });
     if (!result.ok || !result.token || !result.surrealToken || !result.user) {
       handleLoginFailure(result);
       return false;
@@ -224,15 +220,11 @@ export const Login = () => {
     return ok;
   };
 
-  const checkLoginLegacy = async (login: string, pass: string, method: 'pin'|'form') => {
-    const query = method === 'pin'
-      ? `SELECT * from ${Tables.users} where login = $login and deleted_at = none and (login_method = 'pin' OR login_method = NONE) and crypto::bcrypt::compare(password, $password) = true fetch user_role, user_shift`
-      : `SELECT * from ${Tables.users} where login = $login and deleted_at = none and login_method = 'form' and crypto::bcrypt::compare(password, $password) = true fetch user_role, user_shift`;
-
-    const record: any = await db.query(query, {
-      login: login,
-      password: pass,
-    });
+  const checkLoginLegacy = async (pin: string) => {
+    const record: any = await db.query(
+      `SELECT * from ${Tables.users} where login = $pin and deleted_at = none and (login_method = 'pin' OR login_method = NONE) and crypto::bcrypt::compare(password, $pin) = true fetch user_role, user_shift`,
+      { pin },
+    );
 
     if (record[0].length > 0) {
       const loggedInUser = record[0][0];
@@ -262,14 +254,14 @@ export const Login = () => {
     return false;
   };
 
-  const checkLogin = async (login: string, pass: string, method: 'pin'|'form') => {
-    if ((method === 'pin' && login.trim().length === 4) || (method === 'form' && login.trim() && pass.trim())) {
+  const checkLogin = async (pin: string) => {
+    if (pin.trim().length === 4) {
       setIsAuthenticating(true);
       try {
         if (gatewayAuth) {
-          return await checkLoginGateway(login, pass, method);
+          return await checkLoginGateway(pin);
         }
-        return await checkLoginLegacy(login, pass, method);
+        return await checkLoginLegacy(pin);
       } catch (err) {
         console.error(err);
         denyLogin();
@@ -299,8 +291,6 @@ export const Login = () => {
     }));
 
     setCode('');
-    setUsername('');
-    setPassword('');
     setShowClockInModal(false);
     setPendingUser(null);
 
@@ -329,18 +319,15 @@ export const Login = () => {
 
   const denyLogin = () => {
     setCode('');
-    setPassword('');
     setError(true);
   }
 
   useEffect(() => {
-    if (loginMethod === 'pin') {
-      void checkLogin(code, code, 'pin').catch((err) => {
-        console.error(err);
-        setIsAuthenticating(false);
-        denyLogin();
-      });
-    }
+    void checkLogin(code).catch((err) => {
+      console.error(err);
+      setIsAuthenticating(false);
+      denyLogin();
+    });
   }, [code]);
 
   useEffect(() => {
@@ -376,115 +363,39 @@ export const Login = () => {
       <DocumentTitle parts={[t('login.title')]} />
       <div className="bg-neutral-900 flex justify-center items-center h-screen flex-col gap-8">
         <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            data-testid="login-method-pin"
-            className={cn(
-              "w-56 border-2 transition-all duration-150 btn btn-filled lg",
-              loginMethod === 'pin'
-                ? "!bg-warning-500 text-black border-warning-500"
-                : "!bg-black text-white"
-            )}
-            onClick={() => {
-              setLoginMethod('pin');
-              setError(false);
-              setUsername('');
-              setPassword('');
-              setCode('');
-            }}
-          >
-            {t('login.pin')}
-          </button>
-          <button
-            type="button"
-            data-testid="login-method-form"
-            className={cn(
-              "w-56 border-2 transition-all duration-150 btn btn-filled lg",
-              loginMethod === 'form'
-                ? "!bg-warning-500 text-black border-warning-500"
-                : "!bg-black text-white"
-            )}
-            onClick={() => {
-              setLoginMethod('form');
-              setError(false);
-              setUsername('');
-              setPassword('');
-              setCode('');
-            }}
-          >
-            {t('login.form')}
-          </button>
-        </div>
         {page.locked && (
           <div className="alert alert-warning" data-testid="login-locked-banner">{t('login.systemLocked', {
             name: `${page?.lockedBy?.first_name ?? ''} ${page?.lockedBy?.last_name ?? ''}`.trim()
           })}</div>
         )}
-        {loginMethod === 'pin' && (
-          <>
-            <div className={
-              cn(
-                "flex gap-3 text-neutral-100",
-                error && 'login-error'
-              )
-            }>
-              <FontAwesomeIcon size="lg" icon={code.trim().length >= 1 ? faCircle : circleRegular} />
-              <FontAwesomeIcon size="lg" icon={code.trim().length >= 2 ? faCircle : circleRegular} />
-              <FontAwesomeIcon size="lg" icon={code.trim().length >= 3 ? faCircle : circleRegular} />
-              <FontAwesomeIcon size="lg" icon={code.trim().length === 4 ? faCircle : circleRegular} />
-            </div>
-            <div className="wrapper w-[400px]" data-testid="login-pin-pad">
-              <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
-                <button type="button" onClick={() => onKey('1')} className="btn-login">1</button>
-                <button type="button" onClick={() => onKey('2')} className="btn-login">2</button>
-                <button type="button" onClick={() => onKey('3')} className="btn-login">3</button>
-                <button type="button" onClick={() => onKey('4')} className="btn-login">4</button>
-                <button type="button" onClick={() => onKey('5')} className="btn-login">5</button>
-                <button type="button" onClick={() => onKey('6')} className="btn-login">6</button>
-                <button type="button" onClick={() => onKey('7')} className="btn-login">7</button>
-                <button type="button" onClick={() => onKey('8')} className="btn-login">8</button>
-                <button type="button" onClick={() => onKey('9')} className="btn-login">9</button>
-                <button type="button" onClick={onBack} className="btn-login danger"><FontAwesomeIcon icon={faBackspace}/>
-                </button>
-                <button type="button" onClick={() => onKey('0')} className="btn-login">0</button>
-                <button type="button" onClick={onClear} className="btn-login danger">C</button>
-              </div>
-            </div>
-          </>
-        )}
-        {loginMethod === 'form' && (
-          <form
-            className="w-[400px] flex flex-col gap-3"
-            data-testid="login-form"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              await checkLogin(username, password, 'form');
-            }}
-          >
-            <div>
-              <label className="text-white" htmlFor="username">{t('login.username')}</label>
-              <Input
-                id="username"
-                data-testid="login-username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label className="text-white" htmlFor="password">{t('login.password')}</label>
-              <Input
-                id="password"
-                data-testid="login-password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-            </div>
-            <Button type="submit" variant="primary" data-testid="login-submit">{t('login.submit')}</Button>
-          </form>
-        )}
+        <div className={
+          cn(
+            "flex gap-3 text-neutral-100",
+            error && 'login-error'
+          )
+        }>
+          <FontAwesomeIcon size="lg" icon={code.trim().length >= 1 ? faCircle : circleRegular} />
+          <FontAwesomeIcon size="lg" icon={code.trim().length >= 2 ? faCircle : circleRegular} />
+          <FontAwesomeIcon size="lg" icon={code.trim().length >= 3 ? faCircle : circleRegular} />
+          <FontAwesomeIcon size="lg" icon={code.trim().length === 4 ? faCircle : circleRegular} />
+        </div>
+        <div className="wrapper w-[400px]" data-testid="login-pin-pad">
+          <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
+            <button type="button" onClick={() => onKey('1')} className="btn-login">1</button>
+            <button type="button" onClick={() => onKey('2')} className="btn-login">2</button>
+            <button type="button" onClick={() => onKey('3')} className="btn-login">3</button>
+            <button type="button" onClick={() => onKey('4')} className="btn-login">4</button>
+            <button type="button" onClick={() => onKey('5')} className="btn-login">5</button>
+            <button type="button" onClick={() => onKey('6')} className="btn-login">6</button>
+            <button type="button" onClick={() => onKey('7')} className="btn-login">7</button>
+            <button type="button" onClick={() => onKey('8')} className="btn-login">8</button>
+            <button type="button" onClick={() => onKey('9')} className="btn-login">9</button>
+            <button type="button" onClick={onBack} className="btn-login danger"><FontAwesomeIcon icon={faBackspace}/>
+            </button>
+            <button type="button" onClick={() => onKey('0')} className="btn-login">0</button>
+            <button type="button" onClick={onClear} className="btn-login danger">C</button>
+          </div>
+        </div>
       </div>
       <div className="size-[100px] bg-warning-500/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
       <div className="size-[200px] bg-primary-500/10 animate-bounce absolute top-20 left-[20%] rounded-full pointer-events-none transition-all blur-2xl"></div>

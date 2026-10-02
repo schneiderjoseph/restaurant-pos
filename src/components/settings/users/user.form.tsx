@@ -37,21 +37,13 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  login_method: yup.object({
-    label: yup.string().required(),
-    value: yup.string().required(),
-  }).required(i18n.t('validation:required')),
   first_name: yup.string().required(i18n.t('validation:required')),
   last_name: yup.string().required(i18n.t('validation:required')),
+  // PIN is the only login method: login is the 4-digit PIN.
   login: yup
     .string()
     .required(i18n.t('validation:required'))
-    .when("login_method.value", {
-      is: "pin",
-      then: (schema) =>
-        schema.matches(/^\d{4}$/, "PIN must be exactly 4 digits only."),
-    }),
-  password: yup.string().nullable(),
+    .matches(/^\d{4}$/, "PIN must be exactly 4 digits only."),
   user_role: yup.object({
     label: yup.string(),
     value: yup.string(),
@@ -76,10 +68,6 @@ export const UserForm = ({
   const { control, handleSubmit, formState: { errors }, reset, watch, setValue, getValues } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      login_method: {
-        label: "Pin",
-        value: "pin",
-      },
       create_employee: true,
       employee_number: '',
     },
@@ -93,14 +81,9 @@ export const UserForm = ({
   const closeModal = () => {
     onClose();
     reset({
-      login_method: {
-        label: "Pin",
-        value: "pin",
-      },
       first_name: null,
       last_name: null,
       login: null,
-      password: null,
       user_role: null,
       user_shift: null,
       create_employee: true,
@@ -113,10 +96,6 @@ export const UserForm = ({
     if( data ) {
       reset({
         ...data,
-        login_method: {
-          label: ((data.login_method || "pin") === "form" ? "Form" : "Pin"),
-          value: (data.login_method || "pin"),
-        },
         first_name: data.first_name,
         last_name: data.last_name,
         login: data.login,
@@ -128,7 +107,6 @@ export const UserForm = ({
           label: (data as any)?.user_shift?.name,
           value: (data as any)?.user_shift?.id,
         } : null,
-        password: null,
         create_employee: false,
         employee_number: '',
       });
@@ -163,9 +141,6 @@ export const UserForm = ({
   } = useApi<SettingsData<Shift>>(Tables.shifts, [], ["name asc"], 0, 99999, [], {
     enabled: false,
   });
-  const selectedLoginMethod = watch("login_method");
-  const isPinLogin = selectedLoginMethod?.value !== "form";
-
   const onSubmit = async (values: any) => {
     const vals = { ...values };
     const selectedRoleId = values.user_role?.value;
@@ -175,43 +150,23 @@ export const UserForm = ({
     vals.user_role = selectedRoleId ? new StringRecordId(selectedRoleId) : null;
     vals.roles = selectedRoleModules;
     vals.user_shift = values.user_shift?.value ? new StringRecordId(values.user_shift.value) : null;
-    vals.login_method = values.login_method.value;
-
-    if (vals.login_method === "pin") {
-      vals.password = vals.login;
-    }
-
-    if(vals.login_method === "form" && !vals.id && !vals.password){
-      toast.error(t('toast:admin.passwordRequired'));
-      return;
-    }
+    // Saving a user written before PIN-only login converts it to PIN.
+    vals.login_method = "pin";
+    vals.password = vals.login;
 
     const displayName = `${values.first_name} ${values.last_name}`;
 
     try {
       const owner = await findActiveLoginOwner(db, vals.login, data?.id);
       if (owner) {
-        toast.error(t(
-          vals.login_method === "pin" ? 'toast:admin.pinTaken' : 'toast:admin.loginTaken',
-          { login: vals.login, name: owner.name },
-        ));
+        toast.error(t('toast:admin.pinTaken', { login: vals.login, name: owner.name }));
         return;
       }
 
       if( data?.id ) {
-        if (vals.login_method === "pin") {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
-            ...vals
-          });
-        } else if (vals.password) {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
-            ...vals
-          });
-        } else {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
-            ...vals
-          });
-        }
+        await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
+          ...vals
+        });
 
         closeModal();
         toast.success(t('toast:admin.userSaved', { name: displayName }));
@@ -294,30 +249,8 @@ export const UserForm = ({
               <InputField name="last_name" control={control} label={t('columns.lastName')} error={errors?.last_name?.message}/>
             </div>
             <div className="flex-1">
-              <label htmlFor="login_method">Login method</label>
-              <Controller
-                name="login_method"
-                control={control}
-                render={({field}) => (
-                  <ReactSelect
-                    value={field.value}
-                    onChange={field.onChange}
-                    options={[
-                      { label: "Pin", value: "pin" },
-                      { label: "Form", value: "form" },
-                    ]}
-                  />
-                )}
-              />
+              <InputField name="login" control={control} label={t('auth:security.pin')} inputMode="numeric" maxLength={4} error={errors?.login?.message}/>
             </div>
-            <div className="flex-1">
-              <InputField name="login" control={control} label={isPinLogin ? "Pin" : "Username"} error={errors?.login?.message}/>
-            </div>
-            {!isPinLogin && (
-              <div className="flex-1">
-                <InputField type="password" name="password" control={control} label={t('forms.password')} error={errors?.password?.message}/>
-              </div>
-            )}
             <div className="flex gap-2 items-end">
               <div className="flex-1">
                 <label htmlFor="user_role">Role</label>

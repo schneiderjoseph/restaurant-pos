@@ -34,9 +34,7 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
   const fields: ImportField[] = [
     {name: "first_name", label: t("admin:columns.firstName"), type: "string", required: true},
     {name: "last_name", label: t("admin:columns.lastName"), type: "string", required: true},
-    {name: "login", label: t("admin:columns.login"), type: "string", required: true},
-    {name: "login_method", label: t("admin:columns.loginMethod"), type: "string", defaultValue: "pin"},
-    {name: "set_password", label: t("admin:forms.password"), type: "string", optional: true, description: "Password or PIN value — stored hashed on commit only"},
+    {name: "login", label: t("admin:columns.login"), type: "string", required: true, description: "4-digit PIN, the only way users sign in"},
     {name: "role_name", label: t("admin:columns.role"), type: "string", required: true},
     {name: "shift_name", label: t("admin:columns.shift"), type: "string", optional: true},
   ];
@@ -49,7 +47,7 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
     matchFields: ["login"],
     defaultMode: "create",
     db,
-    extractionInstructions: "Extract POS users with login, role name, optional shift, and login method pin or form.",
+    extractionInstructions: "Extract POS users with their 4-digit PIN as login, role name, and optional shift.",
     onImportRow: async (record: ImportRecord, ctx) => {
       const values = record.values;
       const login = String(values.login ?? "").trim();
@@ -57,22 +55,15 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
       const lastName = String(values.last_name ?? "").trim();
       const roleName = String(values.role_name ?? "").trim();
       if (!login || !firstName || !roleName) throw new Error(t("validation:required"));
+      // PIN is the only login method: login is the 4-digit PIN, password is bcrypt(PIN).
+      if (!/^\d{4}$/.test(login)) throw new Error("PIN must be exactly 4 digits only.");
 
-      const loginMethod = String(values.login_method ?? "pin").trim().toLowerCase();
       const role = await resolveRole(db, roleName);
       if (!role?.id) throw new Error(`Role not found: ${roleName}`);
 
       const shiftName = String(values.shift_name ?? "").trim();
       const shiftId = shiftName ? await resolveShift(db, shiftName) : null;
       if (shiftName && !shiftId) throw new Error(`Shift not found: ${shiftName}`);
-
-      let password = String(values.set_password ?? "").trim();
-      if (!password) {
-        password = loginMethod === "pin" ? login : "";
-      }
-      if (loginMethod === "form" && ctx.mode === "create" && !password) {
-        throw new Error(t("toast:admin.passwordRequired"));
-      }
 
       const rowData = {login};
       assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
@@ -81,32 +72,25 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
 
       const owner = await findActiveLoginOwner(db, login, existing.length === 1 ? existing[0].id : undefined);
       if (owner) {
-        throw new Error(t(loginMethod === "pin" ? "toast:admin.pinTaken" : "toast:admin.loginTaken", {login, name: owner.name}));
+        throw new Error(t("toast:admin.pinTaken", {login, name: owner.name}));
       }
 
       const params = {
         first_name: firstName,
         last_name: lastName,
         login,
-        login_method: loginMethod,
-        password,
+        login_method: "pin",
+        password: login,
         roles: role.roles ?? [],
         user_role: new StringRecordId(String(role.id)),
         user_shift: shiftId ? new StringRecordId(String(shiftId)) : null,
       };
 
       if (ctx.mode !== "create" && existing.length === 1) {
-        if (password) {
-          await db.query(
-            `UPDATE ${existing[0].id} SET first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`,
-            params,
-          );
-        } else {
-          await db.query(
-            `UPDATE ${existing[0].id} SET first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, roles = $roles, user_role = $user_role, user_shift = $user_shift`,
-            params,
-          );
-        }
+        await db.query(
+          `UPDATE ${existing[0].id} SET first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`,
+          params,
+        );
         return;
       }
 

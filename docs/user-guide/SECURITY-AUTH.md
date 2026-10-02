@@ -1,6 +1,6 @@
 # Security re-authentication
 
-Protected actions (voids, settings saves, restricted tabs, print overrides, and more) can require a manager to re-authenticate with PIN, password, or QR — even if you are already signed in.
+Protected actions (voids, settings saves, restricted tabs, print overrides, and more) can require a manager to re-authenticate with PIN or QR — even if you are already signed in.
 
 ### When re-auth appears
 
@@ -15,7 +15,7 @@ Protected actions (voids, settings saves, restricted tabs, print overrides, and 
 ### Approval modal
 
 1. Read the action description in the modal title.
-2. Choose PIN, password, or QR when multiple methods are available.
+2. Choose PIN or QR when both methods are available.
 3. Complete authentication to continue, or cancel to abort the action.
 
 ![Manager approval (security) modal.](images/en/security-modal.png)
@@ -27,12 +27,11 @@ Protected actions (voids, settings saves, restricted tabs, print overrides, and 
 Venues can allow more than one manager auth method.
 
 1. Tap PIN for the numeric pad.
-2. Tap Password for username/password style entry when enabled.
-3. Tap QR when a scanned manager badge is supported.
+2. Tap QR when a scanned manager badge is supported.
 
-![PIN / password / QR method selector.](images/en/security-auth-types.png)
+![PIN / QR method selector.](images/en/security-auth-types.png)
 
-*PIN / password / QR method selector.*
+*PIN / QR method selector.*
 
 ### PIN entry
 

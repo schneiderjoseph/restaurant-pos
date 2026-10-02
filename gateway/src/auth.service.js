@@ -36,32 +36,19 @@ function serializeUser(row) {
   };
 }
 
-async function authenticatePosUser({ method, login, password }) {
+// PIN is the only way to sign in: login is the 4-digit PIN and the password is
+// bcrypt(PIN). Username/password ("form") login was removed.
+async function authenticatePosUser({ login }) {
   const db = await getClient();
-  const cleanLogin = String(login || '').trim();
-  const cleanPass = String(password || '');
-
-  if (method === 'pin') {
-    if (cleanLogin.length !== 4) {
-      return null;
-    }
-  } else if (method === 'form') {
-    if (!cleanLogin || !cleanPass) {
-      return null;
-    }
-  } else {
+  const pin = String(login || '').trim();
+  if (!/^\d{4}$/.test(pin)) {
     return null;
   }
 
-  const query =
-    method === 'pin'
-      ? `SELECT * FROM user WHERE login = $login AND deleted_at = NONE AND (login_method = 'pin' OR login_method = NONE) AND crypto::bcrypt::compare(password, $password) = true FETCH user_role, user_shift`
-      : `SELECT * FROM user WHERE login = $login AND deleted_at = NONE AND login_method = 'form' AND crypto::bcrypt::compare(password, $password) = true FETCH user_role, user_shift`;
-
-  const result = await db.query(query, {
-    login: cleanLogin,
-    password: method === 'pin' ? cleanLogin : cleanPass,
-  });
+  const result = await db.query(
+    `SELECT * FROM user WHERE login = $pin AND deleted_at = NONE AND (login_method = 'pin' OR login_method = NONE) AND crypto::bcrypt::compare(password, $pin) = true FETCH user_role, user_shift`,
+    { pin }
+  );
 
   const rows = Array.isArray(result) ? result[0] : result;
   const user = Array.isArray(rows) ? rows[0] : null;

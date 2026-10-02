@@ -487,9 +487,7 @@ const printSettingsFields: WriteFieldSpec[] = [
 const userFields: WriteFieldSpec[] = [
   {name: "first_name", type: "string", requiredOnCreate: true},
   {name: "last_name", type: "string", requiredOnCreate: true},
-  {name: "login", type: "string", requiredOnCreate: true},
-  {name: "login_method", type: "string", description: "pin or form"},
-  {name: "set_password", type: "string", description: "Password/PIN — hashed on commit, never echoed back"},
+  {name: "login", type: "string", requiredOnCreate: true, description: "4-digit PIN, unique among active users; the only way users sign in"},
   {name: "role_name", type: "string", requiredOnCreate: true},
   {name: "shift_name", type: "string"},
 ];
@@ -1044,7 +1042,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       updateToolName: "propose_update_users",
       matchFields: ["login"],
       fields: userFields,
-      createDescription: "Propose creating/updating POS users. set_password is hashed on commit only.",
+      createDescription: "Propose creating/updating POS users. The PIN (login) is hashed on commit.",
     }),
   },
   {

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, Rea
 import {User} from "@/api/model/user.ts";
 import { nanoid } from 'nanoid';
 
-export type AuthType = 'pin' | 'password' | 'qrcode';
+export type AuthType = 'pin' | 'qrcode';
 export type SecurityManager = Partial<User> | null;
 
 export interface SecurityAction {
@@ -55,7 +55,7 @@ interface SecurityProviderProps {
 
 export const SecurityProvider: React.FC<SecurityProviderProps> = ({ 
   children,
-  availableAuthTypes = ['pin', 'password', 'qrcode']
+  availableAuthTypes = ['pin', 'qrcode']
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentAction, setCurrentAction] = useState<SecurityAction | null>(null);

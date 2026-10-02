@@ -11,11 +11,9 @@ const router = express.Router();
 
 router.post('/login', loginRateLimit(), async (req, res) => {
   try {
-    const method = req.body?.method === 'form' ? 'form' : 'pin';
     const login = req.body?.login;
-    const password = req.body?.password;
 
-    const user = await authenticatePosUser({ method, login, password });
+    const user = await authenticatePosUser({ login });
     if (!user) {
       // SECURITY: record the failure for both IP and login buckets. Without
       // rate limiting a 4-digit PIN can be brute-forced in ~10,000 requests,

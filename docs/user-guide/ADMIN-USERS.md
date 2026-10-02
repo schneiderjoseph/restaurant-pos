@@ -50,19 +50,17 @@ Tip definition sets pool weights and rules used when managers run tip distributi
 
 ### User form
 
-POS operators log in with PIN or password and inherit role permissions.
+POS operators log in with their PIN and inherit role permissions.
 
 1. Open Admin → Users and add or edit.
-2. Set login method, name, credentials, role, and shift.
+2. Set name, PIN, role, and shift.
 3. Optionally create a linked HR employee record.
 4. Save — user can sign in on terminals with assigned permissions.
 
 **Fields**
 
-- **Login method** — PIN (4 digits) or password authentication.
 - **First / last name** — Displayed name on checks and reports.
-- **Login / PIN** — Credential used at sign-in. A PIN identifies one person, so two active users can never share a PIN or login; deleting a user frees theirs.
-- **Password** — Required when login method is password.
+- **PIN** — The 4-digit code used at sign-in, the only way to log in. A PIN identifies one person, so two active users can never share one; deleting a user frees theirs.
 - **User role** — Permission bundle controlling modules and actions.
 - **User shift** — Default work shift for labor reporting.
 - **Create employee** — Auto-creates linked HR employee with employee number.
