@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "Seçili ürünler bu siparişten kaldırılsın mı?",
   "seats": {
     "seat": "Koltuk",
     "noSeat": "Koltuk Yok",

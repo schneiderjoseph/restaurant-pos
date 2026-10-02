@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "Geselecteerde artikelen uit deze bestelling verwijderen?",
   "seats": {
     "seat": "Stoel",
     "noSeat": "Geen stoel",

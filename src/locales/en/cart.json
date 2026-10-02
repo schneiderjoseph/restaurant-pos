@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "Remove the selected items from this order?",
   "seats": {
     "seat": "Seat",
     "noSeat": "No Seat",

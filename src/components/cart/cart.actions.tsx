@@ -16,6 +16,7 @@ import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const CartActions = () => {
   const db = useDB();
@@ -260,9 +261,11 @@ export const CartActions = () => {
           <IconTooltipButton label={t('common:actions.copy')} size="lg" variant="primary" onClick={copySelectedCartItems}>
             <FontAwesomeIcon icon={faCopy} size="lg"/>
           </IconTooltipButton>
-          <IconTooltipButton label={t('common:actions.remove')} size="lg" variant="danger" onClick={deleteSelectedCartItems}>
-            <FontAwesomeIcon icon={faTrash} size="lg"/>
-          </IconTooltipButton>
+          <DeleteConfirm onConfirm={deleteSelectedCartItems} message={t('cart:removeSelectedConfirm')}>
+            <IconTooltipButton label={t('common:actions.remove')} size="lg" variant="danger">
+              <FontAwesomeIcon icon={faTrash} size="lg"/>
+            </IconTooltipButton>
+          </DeleteConfirm>
         </>
       )}
 

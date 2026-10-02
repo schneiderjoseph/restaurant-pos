@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "Ausgewählte Artikel aus dieser Bestellung entfernen?",
   "seats": {
     "seat": "Platz",
     "noSeat": "Kein Platz",

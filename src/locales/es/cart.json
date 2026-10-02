@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "¿Quitar los artículos seleccionados de este pedido?",
   "seats": {
     "seat": "Asiento",
     "noSeat": "Sin asiento",

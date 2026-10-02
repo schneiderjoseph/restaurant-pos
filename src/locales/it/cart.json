@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "Rimuovere gli articoli selezionati da questo ordine?",
   "seats": {
     "seat": "Coperto",
     "noSeat": "Nessun coperto",

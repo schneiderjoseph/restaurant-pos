@@ -1,4 +1,5 @@
 {
+  "removeSelectedConfirm": "Retirer les articles sélectionnés de cette commande ?",
   "seats": {
     "seat": "Place",
     "noSeat": "Sans place",
