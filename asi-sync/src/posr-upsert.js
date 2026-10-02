@@ -560,16 +560,11 @@ async function ensureAsiMenu(db, dishEntries) {
     );
   }
 
-  // Drop previous ASI menu_menu_item rows owned by this menu
+  // Keep the previous menu_menu_item rows alive while building the new set, so the
+  // live menu's items[] always resolves to a complete, valid list. They're deleted
+  // only after the atomic swap below, once nothing references them anymore.
   const prev = await queryRows(db, `SELECT items FROM ${ASI_MENU_ID}`);
   const prevItems = Array.isArray(prev[0]?.items) ? prev[0].items : [];
-  for (const mid of prevItems) {
-    try {
-      await queryRows(db, `DELETE $id`, { id: asRecord(mid) });
-    } catch {
-      // ignore missing
-    }
-  }
 
   const itemRefs = [];
   for (const entry of dishEntries) {
@@ -596,7 +591,17 @@ async function ensureAsiMenu(db, dishEntries) {
     }
   }
 
+  // Atomic swap: the live menu now points at the fully-built new set in one write.
   await queryRows(db, `UPDATE ${ASI_MENU_ID} SET items = $items`, { items: itemRefs });
+
+  // Only now is it safe to drop the previous menu_menu_item rows — nothing references them.
+  for (const mid of prevItems) {
+    try {
+      await queryRows(db, `DELETE $id`, { id: asRecord(mid) });
+    } catch {
+      // ignore missing
+    }
+  }
 
   // POS tablet = ASI catalog only (not Delivery / demo menus → no "Starter", etc.)
   const settings = await queryRows(
