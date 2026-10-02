@@ -88,7 +88,11 @@
     "complete": "Abschließen",
     "cannotAddCard": "Keine weitere Kartenzahlung möglich",
     "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
-    "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt"
+    "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt",
+    "roomCheckedOut": "In ASI ausgecheckt: Dieser Gast zahlt direkt, wie ein Laufkunde",
+    "roomSyncStale": "Aufenthalt nicht prüfbar (ASI-Synchronisierung verspätet): Der Gast zahlt direkt",
+    "roomNotHotelGuest": "Zimmerbelastung nur für anwesende Hotelgäste",
+    "roomDepartsToday": "Abreise heute geplant"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

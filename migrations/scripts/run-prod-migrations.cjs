@@ -92,6 +92,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_02_user_unique_pin', file: '2026_10_02_user_unique_pin.surql' },
   { id: '2026_10_02_pin_only_login', file: '2026_10_02_pin_only_login.surql' },
   { id: '2026_10_02_customer_id_document', file: '2026_10_02_customer_id_document.surql' },
+  { id: '2026_10_02_customer_asi_date_out', file: '2026_10_02_customer_asi_date_out.surql' },
 ];
 
 const rows = (result) => {

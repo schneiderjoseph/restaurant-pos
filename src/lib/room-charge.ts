@@ -1,0 +1,87 @@
+import type { DateTime as LuxonDateTime } from 'luxon';
+import type { Customer } from '@/api/model/customer.ts';
+import type { PaymentType } from '@/api/model/payment_type.ts';
+import { toLuxonDateTime } from '@/lib/datetime.ts';
+import { toRecordId } from '@/lib/utils.ts';
+import { RecordId, StringRecordId } from 'surrealdb';
+
+/** `payment_type.type` of the tender that puts the bill on the guest's room. */
+export const ROOM_PAYMENT_TYPE = 'Room';
+
+/**
+ * asi-sync polls FrontDesk every 30 s. Past this age the stay can no longer be trusted:
+ * the guest may have checked out since, so the room cannot be charged.
+ */
+export const ROOM_SYNC_MAX_AGE_MS = 5 * 60 * 1000;
+
+export type RoomChargeRefusal =
+  /** Walk-in, local client or no client: there is no stay to charge. */
+  | 'not-hotel-guest'
+  /** The FrontDesk stay is closed: the guest pays directly, like a walk-in. */
+  | 'checked-out'
+  /** The last FrontDesk sync is too old to know whether the stay is still open. */
+  | 'sync-stale';
+
+/** One shape, not a union: the project compiles without strictNullChecks, which union narrowing needs. */
+export type RoomChargeCheck = {
+  ok: boolean;
+  /** Set when `ok` is false. */
+  reason?: RoomChargeRefusal;
+  /** Set when `ok` is true. */
+  departsToday?: boolean;
+};
+
+export function isRoomPaymentType(paymentType?: { type?: PaymentType['type'] } | null): boolean {
+  // Case-insensitive like isRemotePaymentType: imports may store the type in lower case.
+  return String(paymentType?.type ?? '').toLowerCase() === ROOM_PAYMENT_TYPE.toLowerCase();
+}
+
+/**
+ * Whether this order can be put on the guest's room. A room is never charged, a stay is:
+ * the customer is the FrontDesk stay (customer:asi_fd_{checkInID}), and that stay must
+ * still be open in ASI as of a recent sync.
+ */
+export function checkRoomCharge(
+  customer: Pick<Customer, 'source' | 'in_house' | 'asi_synced_at' | 'asi_date_out'> | null | undefined,
+  now: LuxonDateTime,
+): RoomChargeCheck {
+  if (!customer || customer.source !== 'asi-fd') {
+    return { ok: false, reason: 'not-hotel-guest' };
+  }
+  if (customer.in_house !== true) {
+    return { ok: false, reason: 'checked-out' };
+  }
+  // Checked before converting: toLuxonDateTime(undefined) is "now", which would look fresh.
+  if (!customer.asi_synced_at) {
+    return { ok: false, reason: 'sync-stale' };
+  }
+  const syncedAt = toLuxonDateTime(customer.asi_synced_at);
+  if (!syncedAt.isValid || now.toMillis() - syncedAt.toMillis() > ROOM_SYNC_MAX_AGE_MS) {
+    return { ok: false, reason: 'sync-stale' };
+  }
+  return { ok: true, departsToday: customer.asi_date_out === now.toISODate() };
+}
+
+type AnyDb = {
+  query: (sql: string, params?: Record<string, unknown>) => Promise<unknown>;
+};
+
+/** Order's customer as stored right now — never the copy held by the screen. */
+export async function loadCustomerForRoomCharge(
+  db: AnyDb,
+  customer: unknown,
+): Promise<Customer | undefined> {
+  // A fetched customer carries its RecordId in `.id`; a bare RecordId or StringRecordId is
+  // the reference itself — a RecordId's own `.id` is the key without its table.
+  const isReference =
+    typeof customer === 'string' ||
+    customer instanceof RecordId ||
+    customer instanceof StringRecordId;
+  const id = isReference ? customer : (customer as { id?: unknown } | null | undefined)?.id;
+  if (id == null || id === '') {
+    return undefined;
+  }
+  const result = await db.query('SELECT * FROM $id', { id: toRecordId(id) });
+  const rows = Array.isArray(result) ? result[0] : undefined;
+  return Array.isArray(rows) ? (rows[0] as Customer | undefined) : undefined;
+}

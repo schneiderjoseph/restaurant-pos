@@ -24,6 +24,8 @@ export interface Customer extends ID, Name{
   asi_folio_no?: string | null
   /** ASI FrontDesk unit / room id */
   asi_unit_id?: number | null
+  /** ASI FrontDesk planned departure day (YYYY-MM-DD), informational: ASI decides check-out */
+  asi_date_out?: string | null
   /** Provenance: local | asi-fd */
   source?: string | null
   asi_synced_at?: string | null

@@ -7,6 +7,16 @@ function customerRecordId(checkInId) {
 }
 
 /**
+ * FrontDesk dates as a calendar day "YYYY-MM-DD". SQL Server datetimes have no zone and
+ * mssql reads them as UTC, so the UTC fields carry the day ASI shows.
+ */
+function toIsoDay(value) {
+  if (value == null || value === '') return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
+}
+
+/**
  * Upsert in-house FrontDesk guests into POSR customers.
  * Soft-clears room / in-house for previous ASI stays no longer checked in.
  *
@@ -36,6 +46,7 @@ async function upsertGuests(db, guests) {
       asi_checkin_id: g.checkInId,
       asi_folio_no: g.folioNo,
       asi_unit_id: g.unitId,
+      asi_date_out: toIsoDay(g.dateOut),
       source: 'asi-fd',
       in_house: true,
       tags,
@@ -57,6 +68,7 @@ async function upsertGuests(db, guests) {
           asi_checkin_id = $asi_checkin_id,
           asi_folio_no = $asi_folio_no,
           asi_unit_id = $asi_unit_id,
+          asi_date_out = $asi_date_out,
           source = $source,
           in_house = true,
           asi_synced_at = time::now(),
@@ -94,6 +106,7 @@ async function upsertGuests(db, guests) {
             asi_checkin_id = $asi_checkin_id,
             asi_folio_no = $asi_folio_no,
             asi_unit_id = $asi_unit_id,
+            asi_date_out = $asi_date_out,
             source = $source,
             in_house = true,
             asi_synced_at = time::now(),
@@ -121,6 +134,7 @@ async function upsertGuests(db, guests) {
               asi_checkin_id = $asi_checkin_id,
               asi_folio_no = $asi_folio_no,
               asi_unit_id = $asi_unit_id,
+              asi_date_out = $asi_date_out,
               source = $source,
               in_house = true,
               asi_synced_at = time::now(),
@@ -170,4 +184,4 @@ async function upsertGuests(db, guests) {
   };
 }
 
-module.exports = { upsertGuests, customerRecordId };
+module.exports = { upsertGuests, customerRecordId, toIsoDay };
