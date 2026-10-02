@@ -1,10 +1,14 @@
 import { Tracking } from "@/api/model/tracking.ts";
 import { authHeaders } from "@/lib/session.ts";
 
-/** In DEV use same-origin (Vite proxy /tracking). Production uses explicit URL. */
-export const TRACKING_SERVER_URL = import.meta.env.DEV
-  ? ""
-  : ((import.meta.env.VITE_TRACKING_SERVER_URL as string) || "http://localhost:3138");
+/**
+ * Empty VITE_TRACKING_SERVER_URL → same-origin /tracking (proxied by Vite in
+ * dev, by nginx in prod). A browser on a plain-http page is increasingly
+ * blocked from fetching a LAN IP directly (Private Network Access), so an
+ * explicit absolute URL should only be set for a setup that truly needs a
+ * separate tracking host.
+ */
+export const TRACKING_SERVER_URL = String(import.meta.env.VITE_TRACKING_SERVER_URL ?? "").trim();
 
 /** Build-time toggle; on by default. Off for false / 0 / no. */
 export function isTrackingEnabled(): boolean {
