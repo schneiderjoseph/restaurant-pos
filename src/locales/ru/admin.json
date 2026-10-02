@@ -96,7 +96,9 @@
     "recordType": "Тип строки",
     "dishName": "Блюдо",
     "parentModifier": "Родительский размер",
-    "nextGroup": "Следующая группа"
+    "nextGroup": "Следующая группа",
+    "color": "Цвет",
+    "outlet": "Точка продаж"
   },
   "entities": {
     "dish": "Блюдо",
@@ -116,7 +118,8 @@
     "tax": "Налог",
     "user": "Пользователь",
     "role": "Роль",
-    "shift": "Смена"
+    "shift": "Смена",
+    "outlet": "Точка продаж"
   },
   "buttons": {
     "dish": "Блюдо",
@@ -153,7 +156,10 @@
     "smartImport": "ИИ-импорт",
     "smartImportIngredients": "ИИ-импорт ингредиентов",
     "smartImportModifierGroups": "ИИ-импорт групп модификаторов",
-    "smartImportMenuStructure": "ИИ-импорт структуры меню"
+    "smartImportMenuStructure": "ИИ-импорт структуры меню",
+    "manageOutlets": "Управление точками продаж",
+    "applyOutletSuggestions": "Применить предложения",
+    "outlet": "Точка продаж"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -173,7 +179,8 @@
     "tax": "Удалить налог {{name}}",
     "user": "Удалить пользователя {{name}}",
     "role": "Удалить роль {{name}}",
-    "shift": "Удалить смену {{name}}"
+    "shift": "Удалить смену {{name}}",
+    "outlet": "Удалить точку продаж {{name}}"
   },
   "forms": {
     "createDish": "Создать новое блюдо",
@@ -365,7 +372,18 @@
     "smartImportMenuStructureTitle": "ИИ-импорт структуры меню (размеры, топпинги, связи)",
     "showsAllItems": "Показывать все тикеты",
     "showsAllItemsHint": "Эта станция показывает все позиции всех станций (пасс / экспо). Блюда других станций не забираются.",
-    "showsAllBadge": "Все тикеты"
+    "showsAllBadge": "Все тикеты",
+    "createOutlet": "Создать точку продаж",
+    "updateOutlet": "Обновить {{name}}",
+    "outlet": "Точка продаж",
+    "outletNone": "Нет — наследовать от родительской категории",
+    "outletSuggested": "Предложено: {{name}}",
+    "applySuggestion": "Применить",
+    "manageOutlets": "Точки продаж",
+    "applyOutletSuggestionsTitle": "Применить предложения точек продаж",
+    "applyOutletSuggestionsConfirm": "{{count}} категорий будут классифицированы",
+    "outletColor": "Цвет",
+    "noOutlets": "Точек продаж пока нет"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

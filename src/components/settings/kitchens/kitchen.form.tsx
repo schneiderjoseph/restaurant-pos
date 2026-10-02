@@ -1,13 +1,14 @@
 import { Printer } from "@/api/model/printer.ts";
 import { Kitchen } from "@/api/model/kitchen.ts";
+import { Outlet } from "@/api/model/outlet.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Input } from "@/components/common/input/input.tsx";
 import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { transformValue } from "@/lib/utils.ts";
+import { toRecordId, transformValue } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDB } from "@/api/db/db.ts";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Tables } from "@/api/db/tables.ts";
@@ -45,6 +46,7 @@ const validationSchema = yup.object({
   items: yup.array().of(selectOptionSchema),
   priority: yup.number().min(1, i18n.t('validation:required')).required(i18n.t('validation:required')),
   shows_all: yup.boolean().optional(),
+  outlet: selectOptionSchema.nullable().optional(),
 });
 
 export const KitchenForm = ({
@@ -63,11 +65,13 @@ export const KitchenForm = ({
       priority: null,
       items: [],
       shows_all: false,
+      outlet: null,
     });
   }
 
   useEffect(() => {
     if(data){
+      const outletId = recordIdToString(data.outlet);
       reset({
         ...data,
         name: data.name,
@@ -85,6 +89,9 @@ export const KitchenForm = ({
             value: item.id.toString()
           })),
         shows_all: !!data?.shows_all,
+        outlet: outletId
+          ? { label: (data.outlet as Outlet)?.name ?? outletId, value: outletId }
+          : { label: t('forms.outletNone'), value: '' },
       });
     }
   }, [data]);
@@ -105,6 +112,13 @@ export const KitchenForm = ({
     enabled: false
   });
 
+  const {
+    data: outlets,
+    fetchData: fetchOutlets
+  } = useApi<SettingsData<Outlet>>(Tables.outlets, ['deleted_at = none'], ['priority asc'], 0, 99999, [], {
+    enabled: false
+  });
+
   const { control, handleSubmit, formState: {errors}, reset } = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
@@ -113,8 +127,17 @@ export const KitchenForm = ({
       items: [],
       priority: undefined,
       shows_all: false,
+      outlet: null,
     }
   });
+
+  const outletOptions = useMemo(() => [
+    { label: t('forms.outletNone'), value: '' },
+    ...(outlets?.data ?? []).map((item) => ({
+      label: item.name,
+      value: recordIdToString(item.id),
+    })),
+  ], [outlets?.data, t]);
 
   const showsAll = useWatch({ control, name: "shows_all" });
 
@@ -133,6 +156,15 @@ export const KitchenForm = ({
     }
 
     vals.priority = Number(values.priority);
+    // Named only when set or being cleared: keeps the save valid on a DB without
+    // migrations/2026_10_02_outlets.surql (SCHEMAFULL).
+    if (values.outlet?.value) {
+      vals.outlet = toRecordId(values.outlet.value);
+    } else if (recordIdToString(data?.outlet)) {
+      vals.outlet = null;
+    } else {
+      delete vals.outlet;
+    }
 
     try {
       await ensureKitchenShowsAllField(db);
@@ -184,6 +216,7 @@ export const KitchenForm = ({
     if(open){
       fetchPrinters();
       fetchDishes();
+      fetchOutlets();
     }
   }, [open]);
 
@@ -404,6 +437,21 @@ export const KitchenForm = ({
                 )}
                 name="priority"
                 control={control}
+              />
+            </div>
+            <div className="flex-1">
+              <label htmlFor="">{t('forms.outlet')}</label>
+              <Controller
+                name="outlet"
+                control={control}
+                render={({ field }) => (
+                  <ReactSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                    options={outletOptions}
+                    placeholder={t('forms.outletNone')}
+                  />
+                )}
               />
             </div>
           </div>

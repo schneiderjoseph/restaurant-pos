@@ -382,7 +382,8 @@
     "menu": "Menu",
     "issue": "Issue",
     "employee": "Employee",
-    "turnTime": "Turn Time (min)"
+    "turnTime": "Turn Time (min)",
+    "outlet": "Point of sale"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -563,7 +564,8 @@
     "saleByDayPart": "Sale by Day Part",
     "saleByEmployees": "Sale by Employees",
     "expandAll": "Expand all",
-    "collapseAll": "Collapse all"
+    "collapseAll": "Collapse all",
+    "unclassifiedOutlet": "Unclassified"
   },
   "metrics": {
     "gross": "Gross",
@@ -663,5 +665,8 @@
     "noDiscountRows": "No discount rows found for selected range.",
     "noEmployeeSales": "No employee sales data available",
     "noScheduleRoster": "No scheduled shifts for the selected range"
+  },
+  "sections": {
+    "salesByOutlet": "Sales by point of sale"
   }
 }

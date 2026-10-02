@@ -102,5 +102,8 @@
     "idDocumentSaveFailed": "Impossibile salvare il documento d’identità",
     "contactHint": "Telefono o documento d’identità: almeno uno dei due.",
     "contactRequired": "Inserisci un telefono o un documento d’identità"
+  },
+  "outlets": {
+    "all": "Tutti"
   }
 }

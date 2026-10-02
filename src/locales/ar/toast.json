@@ -132,7 +132,10 @@
     "invalidModifierGroup": "مجموعة المعدّلات غير صالحة",
     "duplicateDishModifierGroup": "مجموعة المعدّلات مرتبطة بالفعل بهذا الطبق",
     "invalidPriority": "الأولوية غير صالحة",
-    "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة"
+    "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة",
+    "outletSaved": "تم حفظ نقطة البيع {{name}}",
+    "outletDeleted": "تم حذف نقطة البيع {{name}}",
+    "outletSuggestionsApplied": "تم تصنيف {{count}} فئات"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} قيد الاستخدام وتم تعطيله.",

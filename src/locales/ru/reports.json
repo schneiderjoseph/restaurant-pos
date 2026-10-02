@@ -378,7 +378,8 @@
     "menu": "Меню",
     "issue": "Выдача",
     "employee": "Сотрудник",
-    "turnTime": "Время оборота (мин)"
+    "turnTime": "Время оборота (мин)",
+    "outlet": "Точка продаж"
   },
   "labels": {
     "modifiers": "Модификаторы",
@@ -559,7 +560,8 @@
     "saleByDayPart": "Продажи по периоду дня",
     "saleByEmployees": "Продажи по сотрудникам",
     "expandAll": "Развернуть все",
-    "collapseAll": "Свернуть все"
+    "collapseAll": "Свернуть все",
+    "unclassifiedOutlet": "Не классифицировано"
   },
   "metrics": {
     "gross": "Валовый",
@@ -659,5 +661,8 @@
     "noDiscountRows": "Строки скидок за выбранный период не найдены.",
     "noEmployeeSales": "Нет данных о продажах по сотрудникам",
     "noScheduleRoster": "Нет запланированных смен за выбранный период"
+  },
+  "sections": {
+    "salesByOutlet": "Продажи по точкам продаж"
   }
 }

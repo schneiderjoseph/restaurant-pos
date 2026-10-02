@@ -102,5 +102,8 @@
     "idDocumentSaveFailed": "Could not save the ID document",
     "contactHint": "Phone or ID document: at least one is required.",
     "contactRequired": "Enter a phone number or an ID document"
+  },
+  "outlets": {
+    "all": "All"
   }
 }

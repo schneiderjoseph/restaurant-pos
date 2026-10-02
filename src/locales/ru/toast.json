@@ -132,7 +132,10 @@
     "invalidModifierGroup": "Группа модификаторов недействительна",
     "duplicateDishModifierGroup": "Группа модификаторов уже привязана к этому блюду",
     "invalidPriority": "Приоритет недействителен",
-    "invalidRequiredModifiers": "Значение обязательных модификаторов недействительно"
+    "invalidRequiredModifiers": "Значение обязательных модификаторов недействительно",
+    "outletSaved": "Точка продаж {{name}} сохранена",
+    "outletDeleted": "Точка продаж {{name}} удалена",
+    "outletSuggestionsApplied": "{{count}} категорий классифицировано"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} используется и был деактивирован.",

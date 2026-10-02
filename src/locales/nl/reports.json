@@ -378,7 +378,8 @@
     "menu": "Menu",
     "issue": "Uitgifte",
     "employee": "Medewerker",
-    "turnTime": "Omlooptijd (min)"
+    "turnTime": "Omlooptijd (min)",
+    "outlet": "Verkooppunt"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -559,7 +560,8 @@
     "saleByDayPart": "Verkoop per dagdeel",
     "saleByEmployees": "Verkoop per medewerker",
     "expandAll": "Alles uitvouwen",
-    "collapseAll": "Alles invouwen"
+    "collapseAll": "Alles invouwen",
+    "unclassifiedOutlet": "Niet geclassificeerd"
   },
   "metrics": {
     "gross": "Bruto",
@@ -659,5 +661,8 @@
     "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik.",
     "noEmployeeSales": "Geen verkoopgegevens per medewerker beschikbaar",
     "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik"
+  },
+  "sections": {
+    "salesByOutlet": "Verkoop per verkooppunt"
   }
 }

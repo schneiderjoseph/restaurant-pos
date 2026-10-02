@@ -34,6 +34,12 @@ describe('outletOfCategory', () => {
     expect(outletOfCategory('category:x', [unfetched])).toBeUndefined();
   });
 
+  it('treats a deleted outlet as none and falls back to the parent', () => {
+    const closed = { ...bar, id: 'outlet:pool-bar', deleted_at: '2026-10-01T00:00:00Z' };
+    const poolDrinks = category('category:pool', { outlet: closed as never, parent: new RecordId('category', 'mains') as never });
+    expect(outletOfCategory('category:pool', [...categories, poolDrinks])?.name).toBe('Restaurant');
+  });
+
   it('stops on a parent cycle', () => {
     const a = category('category:a', { parent: new RecordId('category', 'b') as never });
     const b = category('category:b', { parent: new RecordId('category', 'a') as never });

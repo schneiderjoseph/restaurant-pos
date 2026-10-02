@@ -146,6 +146,8 @@ export interface MenuConfigInterface {
    * name = display name (shortened), code = guest code, both = name · #CODE
    */
   kitchenGuestLabel?: 'name' | 'code' | 'both'
+  /** Last selected point-of-sale filter tab on the menu (this device). */
+  outletTab?: string
 }
 
 export interface AppPageInterface {

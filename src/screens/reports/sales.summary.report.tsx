@@ -3,7 +3,14 @@ import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
-import {aggregateSalesSummary, fetchOrderVoids, fetchPaidOrders, SALES_SUMMARY_FETCHES} from "@/api/reports/sales";
+import {
+  aggregateSalesByOutlet,
+  aggregateSalesSummary,
+  fetchOrderVoids,
+  fetchPaidOrders,
+  SALES_SUMMARY_FETCHES,
+  UNCLASSIFIED_OUTLET_ID,
+} from "@/api/reports/sales";
 import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {DAY_PARTS, getDayPartTimeRangeLabel} from "@/utils/dayParts";
 
@@ -24,6 +31,7 @@ export const SalesSummaryReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
   const [summary, setSummary] = useState<ReturnType<typeof aggregateSalesSummary> | null>(null);
+  const [outletSales, setOutletSales] = useState<ReturnType<typeof aggregateSalesByOutlet>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +50,7 @@ export const SalesSummaryReport = () => {
         ]);
 
         setSummary(aggregateSalesSummary(orders, orderVoids));
+        setOutletSales(aggregateSalesByOutlet(orders));
       } catch (err) {
         console.error("Failed to load sales summary report", err);
         setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
@@ -241,6 +250,56 @@ export const SalesSummaryReport = () => {
             </tbody>
           </table>
         </div>
+
+        {outletSales.length > 0 && (
+          <div className="overflow-hidden rounded-lg border border-neutral-200">
+            <div className="bg-neutral-50 px-6 py-3 border-b border-neutral-200">
+              <h2 className="text-sm font-semibold text-neutral-700">{t('sections.salesByOutlet')}</h2>
+            </div>
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+              <tr>
+                <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
+                  {t('columns.outlet')}
+                </th>
+                <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
+                  {t('columns.quantity')}
+                </th>
+                <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
+                  {t('columns.netSales')}
+                </th>
+                <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
+                  {t('columns.discount')}
+                </th>
+                <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
+                  {t('columns.tax')}
+                </th>
+                <th scope="col" className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">
+                  {t('columns.total')}
+                </th>
+              </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100 bg-white">
+              {outletSales.map((row) => (
+                <tr key={row.outletId}>
+                  <th scope="row" className="py-4 pl-6 pr-3 text-left text-sm font-medium text-neutral-800">
+                    {row.outletId === UNCLASSIFIED_OUTLET_ID
+                      ? t('labels.unclassifiedOutlet')
+                      : (row.outletName ?? row.outletId)}
+                  </th>
+                  <td className="py-4 px-4 text-right text-sm text-neutral-700">{formatNumber(row.quantity)}</td>
+                  <td className="py-4 px-4 text-right text-sm text-neutral-700">{withDualCurrency(row.netSales)}</td>
+                  <td className="py-4 px-4 text-right text-sm text-neutral-700">{withDualCurrency(row.discount)}</td>
+                  <td className="py-4 px-4 text-right text-sm text-neutral-700">{withDualCurrency(row.tax)}</td>
+                  <td className="py-4 pr-6 text-right text-sm font-semibold text-neutral-900">
+                    {withDualCurrency(row.total)}
+                  </td>
+                </tr>
+              ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </ReportsLayout>
   );

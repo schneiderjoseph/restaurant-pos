@@ -4,10 +4,13 @@ import type { Kitchen } from '@/api/model/kitchen.ts';
 import type { Outlet } from '@/api/model/outlet.ts';
 import { recordIdToString } from '@/api/reports/shared/records.ts';
 
-/** An outlet is usable only once fetched: a bare record id has no name to copy onto a sale. */
+/**
+ * An outlet is usable only once fetched (a bare record id has no name to copy onto a sale)
+ * and not deleted (a deleted outlet counts as none: the parent's applies, else unclassified).
+ */
 const fetchedOutlet = (value: unknown): Outlet | undefined => {
   const outlet = value as Outlet | undefined;
-  return outlet && typeof outlet === 'object' && typeof outlet.name === 'string' && outlet.id
+  return outlet && typeof outlet === 'object' && typeof outlet.name === 'string' && outlet.id && !outlet.deleted_at
     ? outlet
     : undefined;
 };

@@ -22,7 +22,7 @@ import {createKitchenImportConfig} from "@/components/settings/kitchens/kitchen.
 
 export const AdminKitchens = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
-  const loadHook = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
+  const loadHook = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers', 'outlet']);
   const db = useDB();
   const { protectAction } = useSecurity();
   const isVisible = useActionVisible();

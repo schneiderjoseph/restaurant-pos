@@ -378,7 +378,8 @@
     "menu": "Menü",
     "issue": "Ausgabe",
     "employee": "Mitarbeiter",
-    "turnTime": "Turn-Time (Min.)"
+    "turnTime": "Turn-Time (Min.)",
+    "outlet": "Verkaufsstelle"
   },
   "labels": {
     "modifiers": "Modifikatoren",
@@ -559,7 +560,8 @@
     "saleByDayPart": "Verkauf nach Tageszeit",
     "saleByEmployees": "Verkauf nach Mitarbeitern",
     "expandAll": "Alle erweitern",
-    "collapseAll": "Alle einklappen"
+    "collapseAll": "Alle einklappen",
+    "unclassifiedOutlet": "Nicht klassifiziert"
   },
   "metrics": {
     "gross": "Brutto",
@@ -659,5 +661,8 @@
     "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden.",
     "noEmployeeSales": "Keine Mitarbeiterverkaufsdaten verfügbar",
     "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum"
+  },
+  "sections": {
+    "salesByOutlet": "Verkäufe nach Verkaufsstelle"
   }
 }
