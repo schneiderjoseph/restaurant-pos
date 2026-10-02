@@ -219,15 +219,6 @@
     "save": "Save",
     "saveDescription": "Save inventory settings"
   },
-  "whatsNew": {
-    "title": "What's New",
-    "description": "View release notes and recent updates for this app.",
-    "open": "Open What's New",
-    "dismiss": "Got it",
-    "dialogTitle": "What's New",
-    "previousReleases": "Previous updates",
-    "dateLabel": "Updated {{date}}"
-  },
   "sessionSecurity": {
     "title": "Session security",
     "description": "Automatically lock or log out every user after a period of inactivity. Applies to all users and terminals.",
@@ -236,8 +227,7 @@
     "actionLock": "Lock",
     "actionLogout": "Logout",
     "updated": "Session security settings updated",
-    "saveDescription": "Save session security settings",
-    "loginRequired": "You must be logged in to save session security settings"
+    "saveDescription": "Save session security settings"
   },
   "autoClockOut": {
     "title": "Auto clock-out",

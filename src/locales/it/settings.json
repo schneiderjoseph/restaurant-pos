@@ -212,15 +212,6 @@
       "recoverable": "Recoverable (ignore for inventory)"
     }
   },
-  "whatsNew": {
-    "title": "Novità",
-    "description": "Visualizza le note di rilascio e gli aggiornamenti recenti di questa app.",
-    "open": "Apri novità",
-    "dismiss": "Ho capito",
-    "dialogTitle": "Novità",
-    "previousReleases": "Aggiornamenti precedenti",
-    "dateLabel": "Aggiornato il {{date}}"
-  },
   "sessionSecurity": {
     "title": "Sicurezza sessione",
     "description": "Blocca o disconnetti automaticamente tutti gli utenti dopo un periodo di inattività. Si applica a tutti gli utenti e terminali.",
@@ -229,8 +220,7 @@
     "actionLock": "Blocca",
     "actionLogout": "Esci",
     "updated": "Impostazioni di sicurezza sessione aggiornate",
-    "saveDescription": "Salva impostazioni di sicurezza sessione",
-    "loginRequired": "Devi essere autenticato per salvare la sicurezza della sessione"
+    "saveDescription": "Salva impostazioni di sicurezza sessione"
   },
   "autoClockOut": {
     "title": "Uscita automatica",

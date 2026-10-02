@@ -212,15 +212,6 @@
       "recoverable": "Recoverable (ignore for inventory)"
     }
   },
-  "whatsNew": {
-    "title": "Novidades",
-    "description": "Veja as notas da versão e as atualizações recentes deste aplicativo.",
-    "open": "Abrir novidades",
-    "dismiss": "Entendi",
-    "dialogTitle": "Novidades",
-    "previousReleases": "Atualizações anteriores",
-    "dateLabel": "Atualizado em {{date}}"
-  },
   "sessionSecurity": {
     "title": "Segurança da sessão",
     "description": "Bloquear ou desconectar automaticamente todos os usuários após um período de inatividade. Aplica-se a todos os usuários e terminais.",
@@ -229,8 +220,7 @@
     "actionLock": "Bloquear",
     "actionLogout": "Sair",
     "updated": "Configurações de segurança da sessão atualizadas",
-    "saveDescription": "Salvar configurações de segurança da sessão",
-    "loginRequired": "Você precisa estar conectado para salvar a segurança da sessão"
+    "saveDescription": "Salvar configurações de segurança da sessão"
   },
   "autoClockOut": {
     "title": "Saída automática",

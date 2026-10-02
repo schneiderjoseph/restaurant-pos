@@ -212,15 +212,6 @@
       "recoverable": "Recoverable (ignore for inventory)"
     }
   },
-  "whatsNew": {
-    "title": "Wat is er nieuw",
-    "description": "Bekijk release notes en recente updates voor deze app.",
-    "open": "Wat is er nieuw openen",
-    "dismiss": "Begrepen",
-    "dialogTitle": "Wat is er nieuw",
-    "previousReleases": "Eerdere updates",
-    "dateLabel": "Bijgewerkt {{date}}"
-  },
   "sessionSecurity": {
     "title": "Sessiebeveiliging",
     "description": "Alle gebruikers automatisch vergrendelen of afmelden na een periode van inactiviteit. Geldt voor alle gebruikers en terminals.",
@@ -229,8 +220,7 @@
     "actionLock": "Vergrendelen",
     "actionLogout": "Uitloggen",
     "updated": "Sessiebeveiligingsinstellingen bijgewerkt",
-    "saveDescription": "Sessiebeveiligingsinstellingen opslaan",
-    "loginRequired": "U moet ingelogd zijn om sessiebeveiliging op te slaan"
+    "saveDescription": "Sessiebeveiligingsinstellingen opslaan"
   },
   "autoClockOut": {
     "title": "Automatisch uitklokken",

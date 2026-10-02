@@ -212,15 +212,6 @@
       "recoverable": "Recoverable (ignore for inventory)"
     }
   },
-  "whatsNew": {
-    "title": "Yenilikler",
-    "description": "Bu uygulama için sürüm notlarını ve son güncellemeleri görüntüleyin.",
-    "open": "Yenilikleri aç",
-    "dismiss": "Anladım",
-    "dialogTitle": "Yenilikler",
-    "previousReleases": "Önceki güncellemeler",
-    "dateLabel": "Güncellendi {{date}}"
-  },
   "sessionSecurity": {
     "title": "Oturum güvenliği",
     "description": "Belirli bir hareketsizlik süresinden sonra tüm kullanıcıları otomatik olarak kilitleyin veya oturumlarını kapatın. Tüm kullanıcılar ve terminaller için geçerlidir.",
@@ -229,8 +220,7 @@
     "actionLock": "Kilitle",
     "actionLogout": "Çıkış yap",
     "updated": "Oturum güvenliği ayarları güncellendi",
-    "saveDescription": "Oturum güvenliği ayarlarını kaydet",
-    "loginRequired": "Oturum güvenliğini kaydetmek için giriş yapmış olmalısınız"
+    "saveDescription": "Oturum güvenliği ayarlarını kaydet"
   },
   "autoClockOut": {
     "title": "Otomatik mesai çıkışı",

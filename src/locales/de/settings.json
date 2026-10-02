@@ -212,15 +212,6 @@
       "recoverable": "Erstattungsfähig (für Bestand ignorieren)"
     }
   },
-  "whatsNew": {
-    "title": "Neuigkeiten",
-    "description": "Versionshinweise und aktuelle Updates für diese App anzeigen.",
-    "open": "Neuigkeiten öffnen",
-    "dismiss": "Verstanden",
-    "dialogTitle": "Neuigkeiten",
-    "previousReleases": "Frühere Updates",
-    "dateLabel": "Aktualisiert {{date}}"
-  },
   "sessionSecurity": {
     "title": "Sitzungssicherheit",
     "description": "Alle Benutzer nach einer Zeit der Inaktivität automatisch sperren oder abmelden. Gilt für alle Benutzer und Terminals.",
@@ -229,8 +220,7 @@
     "actionLock": "Sperren",
     "actionLogout": "Abmelden",
     "updated": "Sitzungssicherheitseinstellungen aktualisiert",
-    "saveDescription": "Sitzungssicherheitseinstellungen speichern",
-    "loginRequired": "Sie müssen angemeldet sein, um die Sitzungssicherheit zu speichern"
+    "saveDescription": "Sitzungssicherheitseinstellungen speichern"
   },
   "autoClockOut": {
     "title": "Automatisches Ausstempeln",

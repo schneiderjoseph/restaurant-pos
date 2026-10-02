@@ -219,15 +219,6 @@
       "recoverable": "Récupérable (ignorer pour l'inventaire)"
     }
   },
-  "whatsNew": {
-    "title": "Nouveautés",
-    "description": "Consultez les notes de version et les mises à jour récentes de cette application.",
-    "open": "Ouvrir les nouveautés",
-    "dismiss": "Compris",
-    "dialogTitle": "Nouveautés",
-    "previousReleases": "Mises à jour précédentes",
-    "dateLabel": "Mis à jour le {{date}}"
-  },
   "sessionSecurity": {
     "title": "Sécurité de session",
     "description": "Verrouiller ou déconnecter automatiquement tous les utilisateurs après une période d'inactivité. S'applique à tous les utilisateurs et à tous les terminaux.",
@@ -236,8 +227,7 @@
     "actionLock": "Verrouiller",
     "actionLogout": "Déconnexion",
     "updated": "Paramètres de sécurité de session mis à jour",
-    "saveDescription": "Enregistrer les paramètres de sécurité de session",
-    "loginRequired": "Vous devez être connecté pour enregistrer la sécurité de session"
+    "saveDescription": "Enregistrer les paramètres de sécurité de session"
   },
   "autoClockOut": {
     "title": "Pointage de sortie automatique",

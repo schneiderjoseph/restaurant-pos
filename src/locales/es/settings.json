@@ -212,15 +212,6 @@
       "recoverable": "Recuperable (ignorar para inventario)"
     }
   },
-  "whatsNew": {
-    "title": "Novedades",
-    "description": "Consulta las notas de la versión y las actualizaciones recientes de esta aplicación.",
-    "open": "Abrir novedades",
-    "dismiss": "Entendido",
-    "dialogTitle": "Novedades",
-    "previousReleases": "Actualizaciones anteriores",
-    "dateLabel": "Actualizado {{date}}"
-  },
   "sessionSecurity": {
     "title": "Seguridad de sesión",
     "description": "Bloquear o cerrar sesión automáticamente a todos los usuarios tras un periodo de inactividad. Se aplica a todos los usuarios y terminales.",
@@ -229,8 +220,7 @@
     "actionLock": "Bloquear",
     "actionLogout": "Cerrar sesión",
     "updated": "Configuración de seguridad de sesión actualizada",
-    "saveDescription": "Guardar configuración de seguridad de sesión",
-    "loginRequired": "Debe iniciar sesión para guardar la seguridad de sesión"
+    "saveDescription": "Guardar configuración de seguridad de sesión"
   },
   "autoClockOut": {
     "title": "Salida automática",
