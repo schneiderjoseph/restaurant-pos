@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} öğe güncellendi",
     "invalidCategories": "Kategoriler geçersiz",
     "passwordRequired": "Yeni kullanıcı için şifre gerekli",
+    "pinTaken": "{{login}} PIN kodu zaten {{name}} kullanıcısına atanmış. Herkesin kendi PIN kodu olmalı.",
+    "loginTaken": "{{login}} kullanıcı adı zaten {{name}} tarafından kullanılıyor.",
     "invalidDishNumber": "Yemek numarası geçersiz",
     "invalidDishNameOrNumber": "Yemek adı veya numarası geçersiz",
     "ambiguousDishName": "Bu ada birden fazla yemek uyuyor; yemek numarasını kullanın",

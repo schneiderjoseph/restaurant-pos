@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} article(s) mis à jour",
     "invalidCategories": "Les catégories sont invalides",
     "passwordRequired": "Le mot de passe est requis pour un nouvel utilisateur",
+    "pinTaken": "Le PIN {{login}} est déjà attribué à {{name}}. Chaque personne doit avoir son propre PIN.",
+    "loginTaken": "L'identifiant {{login}} est déjà utilisé par {{name}}.",
     "invalidDishNumber": "Le numéro du plat est invalide",
     "invalidDishNameOrNumber": "Le nom ou le numéro du plat est invalide",
     "ambiguousDishName": "Plusieurs plats correspondent à ce nom ; utilisez le numéro du plat",

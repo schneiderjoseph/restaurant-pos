@@ -61,7 +61,7 @@ POS operators log in with PIN or password and inherit role permissions.
 
 - **Login method** — PIN (4 digits) or password authentication.
 - **First / last name** — Displayed name on checks and reports.
-- **Login / PIN** — Credential used at sign-in.
+- **Login / PIN** — Credential used at sign-in. A PIN identifies one person, so two active users can never share a PIN or login; deleting a user frees theirs.
 - **Password** — Required when login method is password.
 - **User role** — Permission bundle controlling modules and actions.
 - **User shift** — Default work shift for labor reporting.

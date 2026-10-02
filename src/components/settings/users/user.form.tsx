@@ -28,6 +28,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
 import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
+import { findActiveLoginOwner } from "@/components/settings/users/user.login.ts";
 
 interface Props {
   open: boolean
@@ -188,6 +189,15 @@ export const UserForm = ({
     const displayName = `${values.first_name} ${values.last_name}`;
 
     try {
+      const owner = await findActiveLoginOwner(db, vals.login, data?.id);
+      if (owner) {
+        toast.error(t(
+          vals.login_method === "pin" ? 'toast:admin.pinTaken' : 'toast:admin.loginTaken',
+          { login: vals.login, name: owner.name },
+        ));
+        return;
+      }
+
       if( data?.id ) {
         if (vals.login_method === "pin") {
           await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {

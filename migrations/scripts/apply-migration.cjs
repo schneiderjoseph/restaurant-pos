@@ -94,8 +94,22 @@ async function main() {
   await db.use({ namespace: DB_NS, database: DB_NAME });
 
   // Surreal accepts multi-statement queries in one call (DEFINE / LET / INSERT / UPDATE).
-  const result = await db.query(sql);
-  console.log('Query finished. Result batches:', Array.isArray(result) ? result.length : 1);
+  // responses() keeps every statement's error: awaiting the query directly only
+  // surfaces the first one, which in a failed transaction is the generic
+  // "not executed" instead of the statement (or THROW) that failed.
+  const responses = await db.query(sql).responses();
+  console.log('Query finished. Result batches:', responses.length);
+
+  const failed = responses.filter((r) => r && !r.success);
+  if (failed.length) {
+    const messages = failed.map((r) => r.error?.message || String(r.error));
+    const specific = messages.filter((m) => !/not executed/i.test(m));
+    for (const message of specific.length ? specific : messages) {
+      console.error(`ERROR: ${message}`);
+    }
+    await db.close();
+    process.exit(1);
+  }
 
   await db.close();
   console.log(`Done: ${path.basename(filePath)}`);

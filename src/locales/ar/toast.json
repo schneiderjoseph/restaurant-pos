@@ -121,6 +121,8 @@
     "menuItemsUpdated": "تم تحديث {{count}} عنصر",
     "invalidCategories": "الفئات غير صالحة",
     "passwordRequired": "كلمة المرور مطلوبة للمستخدم الجديد",
+    "pinTaken": "رمز PIN {{login}} مخصص بالفعل لـ {{name}}. يجب أن يكون لكل شخص رمز PIN خاص به.",
+    "loginTaken": "اسم الدخول {{login}} مستخدم بالفعل من قبل {{name}}.",
     "invalidDishNumber": "رقم الطبق غير صالح",
     "invalidDishNameOrNumber": "اسم أو رقم الطبق غير صالح",
     "ambiguousDishName": "توجد عدة أطباق بهذا الاسم؛ استخدم رقم الطبق",

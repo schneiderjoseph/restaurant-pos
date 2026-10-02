@@ -3,6 +3,7 @@ import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from 
 import {type TFunc} from "@/lib/data-import/helpers.ts";
 import {assertCsvMatchValues, buildMatchConditions, findCsvImportMatches} from "@/utils/csv-import.ts";
 import {StringRecordId} from "surrealdb";
+import {findActiveLoginOwner} from "@/components/settings/users/user.login.ts";
 
 const unwrapRows = <T>(result: unknown): T[] => {
   if (Array.isArray(result) && Array.isArray(result[0])) return result[0] as T[];
@@ -77,6 +78,11 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
       assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
       const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "login", value}));
       const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.users, conditions);
+
+      const owner = await findActiveLoginOwner(db, login, existing.length === 1 ? existing[0].id : undefined);
+      if (owner) {
+        throw new Error(t(loginMethod === "pin" ? "toast:admin.pinTaken" : "toast:admin.loginTaken", {login, name: owner.name}));
+      }
 
       const params = {
         first_name: firstName,

@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} item(s) bijgewerkt",
     "invalidCategories": "Categorieën zijn ongeldig",
     "passwordRequired": "Wachtwoord is verplicht voor nieuwe gebruiker",
+    "pinTaken": "Pincode {{login}} is al toegewezen aan {{name}}. Iedereen heeft een eigen pincode nodig.",
+    "loginTaken": "Login {{login}} wordt al gebruikt door {{name}}.",
     "invalidDishNumber": "Gerechtnummer is ongeldig",
     "invalidDishNameOrNumber": "Gerechtnaam of -nummer is ongeldig",
     "ambiguousDishName": "Meerdere gerechten komen overeen met deze naam; gebruik het gerechtnummer",
