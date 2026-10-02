@@ -1,17 +1,87 @@
 {
-  "title": "Configurações avançadas do dispositivo",
-  "intro": "Administradores usam Configurações para ciclo de fechamento, fechamento automático, segurança de sessão, saída automática, taxas, menus, estoque e impressoras.",
+  "title": "Configurações gerais",
+  "intro": "As configurações do estabelecimento ficam em Gerenciar → Configurações gerais. Abra Gerenciar na barra lateral e selecione a aba Configurações gerais. Só a função Master vê essa aba por padrão; conceda Configurações gerais a outras funções no editor de funções se precisar.",
   "sections": [
     {
       "id": "overview",
-      "title": "Configurações para administradores",
+      "title": "Abrir Configurações gerais",
       "steps": [
-        "Entre com permissão.",
-        "Abra Configurações pela chave.",
-        "Foque nos cartões do estabelecimento."
+        "Entre como Master ou com uma função que tenha Configurações gerais.",
+        "Abra Gerenciar na barra lateral.",
+        "Selecione a aba Configurações gerais.",
+        "Os cartões desta página valem para todos os usuários e terminais do estabelecimento."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Cartões avançados."
+      "caption": "Gerenciar → Configurações gerais — cartões do estabelecimento."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Perfil do restaurante",
+      "intro": "Nome, endereço, telefone e logo usados em recibos e relatórios. Modelos de impressão ainda podem substituir o logo ou o cabeçalho.",
+      "steps": [
+        "Abra o cartão Restaurante.",
+        "Informe nome, endereço, telefone e opcionalmente e-mail, site e ID fiscal.",
+        "Envie ou remova o logo se precisar.",
+        "Salve (pode pedir aprovação do gerente)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Símbolo da moeda",
+      "intro": "Controla se o símbolo da moeda aparece na UI e nos recibos.",
+      "steps": [
+        "Abra o cartão.",
+        "Alterne UI e/ou recibos.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Símbolo na UI e recibos."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traduzir recibos",
+      "intro": "Quando ativo, o texto impresso segue o idioma do terminal quando suportado.",
+      "steps": [
+        "Abra o cartão.",
+        "Ative ou desative.",
+        "Salve (pode pedir aprovação)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Traduzir recibos."
+    },
+    {
+      "id": "print-options",
+      "title": "Opções de impressão",
+      "steps": [
+        "Abra Opções de impressão.",
+        "Defina cópias por tipo.",
+        "Defina tentativas máximas temp/final por pedido (0 = ilimitado).",
+        "Salve."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Cópias e tentativas."
+    },
+    {
+      "id": "menus",
+      "title": "Menus ativos",
+      "steps": [
+        "Selecione menus deste terminal.",
+        "Salve.",
+        "Combine com Gerenciar → Menus."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Cartão menus."
+    },
+    {
+      "id": "service-charges",
+      "title": "Taxas de serviço",
+      "steps": [
+        "Defina tipo e valor padrão.",
+        "Aplicam-se no pagamento.",
+        "Salve."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Cartão taxas."
     },
     {
       "id": "closing-cycle",
@@ -38,14 +108,16 @@
     },
     {
       "id": "session-security",
-      "title": "Segurança de sessão",
+      "title": "Segurança da sessão",
+      "intro": "Uma única configuração para todos os usuários e terminais. Até um admin salvar, vale o padrão: sair após 15 minutos ociosos (o mesmo usuário que entrar de novo retoma).",
       "steps": [
-        "Ative bloqueio ou logout ocioso.",
-        "Defina minutos e ação.",
-        "Salve."
+        "Abra o cartão Segurança da sessão.",
+        "Ative a proteção de ociosidade para bloquear ou sair.",
+        "Defina minutos e a ação.",
+        "Salve. A regra vale em todo o estabelecimento."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Cartão segurança de sessão."
+      "caption": "Cartão segurança da sessão (estabelecimento inteiro)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Cartão saída automática."
     },
     {
-      "id": "service-charges",
-      "title": "Taxas de serviço",
+      "id": "show-inclusive-prices",
+      "title": "Mostrar preços com impostos",
+      "intro": "Quando ativo, a UI pode mostrar preços com impostos conforme a configuração fiscal.",
       "steps": [
-        "Defina tipo e valor padrão.",
-        "Aplicam-se no pagamento.",
-        "Salve."
+        "Abra o cartão.",
+        "Ative ou desative.",
+        "Salve (pode pedir aprovação)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Cartão taxas."
-    },
-    {
-      "id": "menus",
-      "title": "Menus ativos",
-      "steps": [
-        "Selecione menus deste terminal.",
-        "Salve.",
-        "Combine com Gerenciar → Menus."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Cartão menus."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Preços com impostos."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Cartão estoque."
     },
     {
-      "id": "printers",
-      "title": "Impressoras",
+      "id": "items-visibility",
+      "title": "Visibilidade de itens",
+      "intro": "Opções de exibição de busca no menu, totais do carrinho e cartões de pedido neste terminal.",
       "steps": [
-        "Atribua impressoras do dispositivo.",
-        "Salve.",
-        "Opções de impressão em cartões vizinhos."
+        "Abra o cartão.",
+        "Menu: busca e números de prato.",
+        "Carrinho: totais.",
+        "Pedidos: totais e campos."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Cartão impressoras."
+      "image": "settings-items-visibility.png",
+      "caption": "Visibilidade de menu, carrinho e pedidos."
     }
   ]
 }

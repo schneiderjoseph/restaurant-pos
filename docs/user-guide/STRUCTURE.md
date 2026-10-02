@@ -64,7 +64,7 @@ POSR Documentation
     ├── Users and roles
     ├── Reports hub (administrator packs)
     ├── Integrations
-    └── Advanced device settings
+    └── General settings
 ```
 
 ## Build output

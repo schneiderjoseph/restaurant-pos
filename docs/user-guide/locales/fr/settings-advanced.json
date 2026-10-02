@@ -1,17 +1,87 @@
 {
-  "title": "Paramètres appareil avancés",
-  "intro": "Les administrateurs gèrent cycle de clôture, clôture auto, sécurité session, pointage auto, service, menus, inventaire et imprimantes.",
+  "title": "Paramètres généraux",
+  "intro": "Les réglages de l’établissement se trouvent sous Gérer → Paramètres généraux. Ouvrez Gérer dans la barre latérale, puis l’onglet Paramètres généraux. Seul le rôle Master voit cet onglet par défaut ; accordez Paramètres généraux à d’autres rôles dans l’éditeur de rôles si besoin.",
   "sections": [
     {
       "id": "overview",
-      "title": "Paramètres administrateur",
+      "title": "Ouvrir Paramètres généraux",
       "steps": [
-        "Connexion avec droits.",
-        "Ouvrez Paramètres (clé).",
-        "Cartes du site, pas seulement langue."
+        "Connectez-vous en Master, ou avec un rôle qui a la permission Paramètres généraux.",
+        "Ouvrez Gérer dans la barre latérale.",
+        "Sélectionnez l’onglet Paramètres généraux.",
+        "Les cartes de cette page s’appliquent à tous les utilisateurs et terminaux de l’établissement."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Cartes avancées."
+      "caption": "Gérer → Paramètres généraux — cartes de configuration du site."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Profil du restaurant",
+      "intro": "Nom, adresse, téléphone et logo utilisés sur les tickets et rapports. Les modèles d’impression peuvent encore remplacer le logo ou l’en-tête.",
+      "steps": [
+        "Ouvrez la carte Restaurant.",
+        "Saisissez le nom, l’adresse, le téléphone et éventuellement e-mail, site web et n° de TVA.",
+        "Ajoutez ou retirez le logo si besoin.",
+        "Enregistrez (approbation manager éventuelle)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Symbole monétaire",
+      "intro": "Afficher le symbole monétaire à l’écran et/ou sur les tickets.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Basculez UI et/ou tickets.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Symbole monétaire."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traduire les tickets",
+      "intro": "Quand c’est activé, le texte imprimé suit la langue du terminal si possible.",
+      "steps": [
+        "Ouvrez la carte.",
+        "Activez ou non.",
+        "Enregistrez (approbation éventuelle)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Traduire les tickets."
+    },
+    {
+      "id": "print-options",
+      "title": "Options d’impression",
+      "steps": [
+        "Ouvrez Options d’impression.",
+        "Définissez le nombre de copies.",
+        "Définissez les tentatives max (0 = illimité).",
+        "Enregistrez."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Copies et tentatives."
+    },
+    {
+      "id": "menus",
+      "title": "Menus actifs",
+      "steps": [
+        "Sélectionnez les menus du terminal.",
+        "Enregistrez.",
+        "Avec Gérer → Menus."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Carte menus."
+    },
+    {
+      "id": "service-charges",
+      "title": "Frais de service",
+      "steps": [
+        "Type et valeur par défaut.",
+        "Appliqués au paiement.",
+        "Enregistrez."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Carte frais de service."
     },
     {
       "id": "closing-cycle",
@@ -39,13 +109,15 @@
     {
       "id": "session-security",
       "title": "Sécurité de session",
+      "intro": "Un seul réglage pour tous les utilisateurs et terminaux. Tant qu’un admin ne l’enregistre pas, la valeur par défaut s’applique : déconnexion après 15 minutes d’inactivité (le même utilisateur qui se reconnecte reprend).",
       "steps": [
-        "Verrou ou déconnexion idle.",
-        "Minutes et action.",
-        "Enregistrez."
+        "Ouvrez la carte Sécurité de session.",
+        "Activez la protection d’inactivité pour verrouiller ou déconnecter.",
+        "Définissez les minutes et l’action (verrouiller ou se déconnecter).",
+        "Enregistrez. La règle s’applique à tout l’établissement."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Carte sécurité session."
+      "caption": "Carte sécurité de session (tout le site)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Carte sortie auto."
     },
     {
-      "id": "service-charges",
-      "title": "Frais de service",
+      "id": "show-inclusive-prices",
+      "title": "Prix TTC",
+      "intro": "Affiche des prix TTC selon la config des taxes.",
       "steps": [
-        "Type et valeur par défaut.",
-        "Appliqués au paiement.",
-        "Enregistrez."
+        "Ouvrez la carte.",
+        "Activez ou non.",
+        "Enregistrez (approbation éventuelle)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Carte frais de service."
-    },
-    {
-      "id": "menus",
-      "title": "Menus actifs",
-      "steps": [
-        "Sélectionnez les menus du terminal.",
-        "Enregistrez.",
-        "Avec Gérer → Menus."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Carte menus."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Prix TTC."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Carte inventaire."
     },
     {
-      "id": "printers",
-      "title": "Imprimantes",
+      "id": "items-visibility",
+      "title": "Visibilité des éléments",
+      "intro": "Affichage recherche menu, totaux panier et cartes commande sur ce terminal.",
       "steps": [
-        "Assignez les imprimantes.",
-        "Enregistrez.",
-        "Options d'impression à côté."
+        "Ouvrez la carte.",
+        "Menu : recherche et numéros.",
+        "Panier : totaux.",
+        "Commandes : totaux et champs."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Carte imprimantes."
+      "image": "settings-items-visibility.png",
+      "caption": "Visibilité menu, panier, commandes."
     }
   ]
 }

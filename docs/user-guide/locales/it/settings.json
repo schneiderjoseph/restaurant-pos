@@ -1,6 +1,6 @@
 {
   "title": "Impostazioni",
-  "intro": "Le preferenze operative si trovano in Impostazioni. Aprile con l’icona chiave in fondo alla barra laterale sinistra dopo l’accesso. Alcune schede valgono solo per questo browser; altre sono globali e possono richiedere PIN manager al salvataggio.",
+  "intro": "Impostazioni contiene solo preferenze personali e per dispositivo: Lingua, Tastiera su schermo, Selezione tavolo e Cache. Aprile con la chiave inglese in fondo alla barra laterale sinistra dopo l’accesso. Le impostazioni della sede sono in Gestione → Impostazioni generali (ruolo Master di default).",
   "sections": [
     {
       "id": "open",
@@ -16,24 +16,14 @@
     {
       "id": "overview",
       "title": "Panoramica",
-      "intro": "Ogni scheda controlla un’area. La visibilità può dipendere dai permessi.",
+      "intro": "Ogni scheda in Impostazioni vale per questo browser, terminale o utente collegato — non per tutta la sede.",
       "steps": [
         "Scorri per trovare la scheda.",
-        "Modifica i valori e salva se presente Salva.",
-        "Alcune schede sono del dispositivo; altre globali o utente."
+        "Modifica e salva se la scheda offre Salva.",
+        "Per i controlli della sede (profilo, valuta, opzioni di stampa, ciclo di chiusura, sicurezza sessione, ecc.), apri Gestione → Impostazioni generali."
       ],
       "image": "settings-overview.png",
-      "caption": "Pagina Impostazioni con schede."
-    },
-    {
-      "id": "whats-new",
-      "title": "Novità",
-      "steps": [
-        "Apri Novità per vedere la data della release.",
-        "Tocca Apri per rivedere le note di versione."
-      ],
-      "image": "settings-whats-new.png",
-      "caption": "Scheda Novità."
+      "caption": "Pagina Impostazioni — preferenze personali e dispositivo."
     },
     {
       "id": "cache",
@@ -58,142 +48,6 @@
       "caption": "Lingua e direzione."
     },
     {
-      "id": "translate-receipts",
-      "title": "Traduci scontrini",
-      "intro": "Se attivo, il testo stampato segue la lingua del terminale quando supportato.",
-      "steps": [
-        "Apri la scheda.",
-        "Attiva o disattiva.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-translate-receipts.png",
-      "caption": "Traduci scontrini."
-    },
-    {
-      "id": "printers",
-      "title": "Stampanti predefinite",
-      "steps": [
-        "Apri Stampanti predefinite.",
-        "Attiva opzionalmente le stampanti di sistema.",
-        "Assegna stampanti per temp, finale, rimborso, delivery e riepilogo.",
-        "Salva."
-      ],
-      "image": "settings-printers.png",
-      "caption": "Stampanti predefinite."
-    },
-    {
-      "id": "print-options",
-      "title": "Opzioni di stampa",
-      "steps": [
-        "Apri Opzioni di stampa.",
-        "Imposta le copie per tipo.",
-        "Imposta tentativi max temp/finale per ordine (0 = illimitato).",
-        "Salva."
-      ],
-      "image": "settings-print-options.png",
-      "caption": "Copie e tentativi."
-    },
-    {
-      "id": "menus",
-      "title": "Menu attivi",
-      "intro": "Scegli i menu vendibili su questo dispositivo. Solo i selezionati compaiono negli ordini.",
-      "steps": [
-        "Apri Menu.",
-        "Seleziona uno o più menu.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-menus.png",
-      "caption": "Menu disponibili."
-    },
-    {
-      "id": "service-charges",
-      "title": "Costi di servizio",
-      "intro": "Costo di servizio predefinito al pagamento (percentuale o fisso).",
-      "steps": [
-        "Apri la scheda.",
-        "Scegli tipo e valore.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-service-charges.png",
-      "caption": "Costo di servizio."
-    },
-    {
-      "id": "closing-cycle",
-      "title": "Ciclo di chiusura",
-      "intro": "Finestra del giorno lavorativo per le chiusure (es. oltre mezzanotte).",
-      "steps": [
-        "Apri la scheda.",
-        "Attiva o disattiva il ciclo.",
-        "Imposta inizio e fine.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-closing-cycle.png",
-      "caption": "Finestra del ciclo di chiusura."
-    },
-    {
-      "id": "auto-check-close",
-      "title": "Chiusura automatica conti",
-      "intro": "Chiude automaticamente i conti aperti a fine ciclo con un tipo di pagamento predefinito.",
-      "steps": [
-        "Apri la scheda.",
-        "Attiva e scegli se stampare.",
-        "Seleziona il tipo di pagamento.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-auto-check-close.png",
-      "caption": "Chiusura automatica conti."
-    },
-    {
-      "id": "session-security",
-      "title": "Sicurezza sessione",
-      "steps": [
-        "Apri la scheda.",
-        "Attiva la protezione idle per blocco o logout.",
-        "Imposta minuti e azione.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-session-security.png",
-      "caption": "Blocco/logout per inattività."
-    },
-    {
-      "id": "auto-clock-out",
-      "title": "Uscita automatica",
-      "intro": "Registra l’uscita del personale a fine turno e/o a un orario definito.",
-      "steps": [
-        "Apri la scheda.",
-        "Attiva.",
-        "Scegli i trigger: fine turno, orario o entrambi.",
-        "Se usi orario definito, impostalo.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-auto-clock-out.png",
-      "caption": "Trigger uscita automatica."
-    },
-    {
-      "id": "show-inclusive-prices",
-      "title": "Prezzi tasse incluse",
-      "intro": "Mostra prezzi tasse incluse secondo la configurazione fiscale.",
-      "steps": [
-        "Apri la scheda.",
-        "Attiva o disattiva.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-show-inclusive-prices.png",
-      "caption": "Prezzi tasse incluse."
-    },
-    {
-      "id": "currency-symbol",
-      "title": "Simbolo valuta",
-      "intro": "Mostra il simbolo valuta in UI e/o sugli scontrini.",
-      "steps": [
-        "Apri la scheda.",
-        "Passa UI e/o scontrini.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-currency-symbol.png",
-      "caption": "Simbolo in UI e scontrini."
-    },
-    {
       "id": "touch",
       "title": "Tastiera su schermo",
       "steps": [
@@ -215,32 +69,6 @@
       "image": "settings-table-selection.png",
       "caption": "Mostra/nascondi selezione tavolo.",
       "note": "La cattura documentazione richiede la selezione tavolo attiva."
-    },
-    {
-      "id": "inventory",
-      "title": "Impostazioni magazzino",
-      "intro": "Comportamento magazzino globale: ledger, lotti/scadenza, costi, acquisti.",
-      "steps": [
-        "Apri la scheda.",
-        "Imposta le opzioni.",
-        "Scegli metodo di costo e allocazione/tasse.",
-        "Salva (può servire approvazione)."
-      ],
-      "image": "settings-inventory.png",
-      "caption": "Configurazione magazzino."
-    },
-    {
-      "id": "items-visibility",
-      "title": "Visibilità elementi",
-      "intro": "Opzioni di visualizzazione per ricerca menu, totali carrello e schede ordine su questo dispositivo.",
-      "steps": [
-        "Apri la scheda.",
-        "Menu: ricerca e numeri piatti.",
-        "Carrello: totali.",
-        "Ordini: totali e campi."
-      ],
-      "image": "settings-items-visibility.png",
-      "caption": "Visibilità menu, carrello, ordini."
     }
   ]
 }

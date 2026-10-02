@@ -1,17 +1,87 @@
 {
-  "title": "Ajustes avanzados del dispositivo",
-  "intro": "Los administradores usan Ajustes para controles del local: ciclo de cierre, cierre automático, seguridad de sesión, salida automática, cargos, menús, inventario e impresoras.",
+  "title": "Ajustes generales",
+  "intro": "Los ajustes del establecimiento están en Gestionar → Ajustes generales. Abra Gestionar en la barra lateral y seleccione la pestaña Ajustes generales. Solo el rol Master ve esta pestaña por defecto; conceda Ajustes generales a otros roles en el editor de roles si hace falta.",
   "sections": [
     {
       "id": "overview",
-      "title": "Ajustes para administradores",
+      "title": "Abrir Ajustes generales",
       "steps": [
-        "Inicie sesión con permiso de ajustes.",
-        "Abra Ajustes con la llave.",
-        "Céntrese en tarjetas del local, no solo idioma o táctil."
+        "Inicie sesión como Master o con un rol que tenga Ajustes generales.",
+        "Abra Gestionar en la barra lateral.",
+        "Seleccione la pestaña Ajustes generales.",
+        "Las tarjetas de esta página aplican a todos los usuarios y terminales del local."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Página de ajustes — tarjetas avanzadas."
+      "caption": "Gestionar → Ajustes generales — tarjetas del establecimiento."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Perfil del restaurante",
+      "intro": "Nombre, dirección, teléfono y logo usados en tickets e informes. Las plantillas de impresión pueden seguir sustituyendo el logo o el encabezado.",
+      "steps": [
+        "Abra la tarjeta Restaurante.",
+        "Introduzca nombre, dirección, teléfono y opcionalmente correo, web e ID fiscal.",
+        "Suba o quite el logo si hace falta.",
+        "Guarde (puede pedir aprobación del gerente)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Símbolo de moneda",
+      "intro": "Controla si se muestra el símbolo de moneda en pantalla y en tickets.",
+      "steps": [
+        "Abra Símbolo de moneda.",
+        "Active mostrar en UI y/o en tickets.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Símbolo en UI y tickets."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traducir tickets",
+      "intro": "Si está activo, el texto impreso sigue el idioma del terminal cuando es posible.",
+      "steps": [
+        "Abra Traducir tickets.",
+        "Active o desactive Habilitado.",
+        "Guarde (puede pedirse aprobación)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Tarjeta Traducir tickets."
+    },
+    {
+      "id": "print-options",
+      "title": "Opciones de impresión",
+      "steps": [
+        "Abra Opciones de impresión.",
+        "Indique cuántas copias físicas produce cada tipo de impresión.",
+        "Defina intentos máximos de impresión temp/final por pedido (0 = ilimitado).",
+        "Guarde al terminar."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Copias e intentos máximos."
+    },
+    {
+      "id": "menus",
+      "title": "Menús activos",
+      "steps": [
+        "Seleccione menús de este terminal.",
+        "Guarde para el personal.",
+        "Combine con Administración → Menús."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Tarjeta menús."
+    },
+    {
+      "id": "service-charges",
+      "title": "Cargos por servicio",
+      "steps": [
+        "Defina tipo y valor por defecto.",
+        "Se aplican en pago cuando hay servicio.",
+        "Guarde."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Tarjeta cargos."
     },
     {
       "id": "closing-cycle",
@@ -39,13 +109,15 @@
     {
       "id": "session-security",
       "title": "Seguridad de sesión",
+      "intro": "Un solo ajuste para todos los usuarios y terminales. Hasta que un admin lo guarde, aplica el valor por defecto: cerrar sesión tras 15 minutos de inactividad (el mismo usuario que vuelve a entrar reanuda).",
       "steps": [
-        "Active bloqueo o logout por inactividad.",
-        "Defina minutos y acción.",
-        "Guarde."
+        "Abra Seguridad de sesión.",
+        "Active la protección por inactividad para bloquear o cerrar sesión.",
+        "Defina minutos y la acción (bloquear o cerrar sesión).",
+        "Guarde. La regla aplica a todo el local."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Tarjeta seguridad de sesión."
+      "caption": "Tarjeta de seguridad de sesión (todo el local)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Tarjeta salida automática."
     },
     {
-      "id": "service-charges",
-      "title": "Cargos por servicio",
+      "id": "show-inclusive-prices",
+      "title": "Mostrar precios con impuestos",
+      "intro": "Cuando está activo, la UI puede mostrar precios con impuestos incluidos según la configuración fiscal.",
       "steps": [
-        "Defina tipo y valor por defecto.",
-        "Se aplican en pago cuando hay servicio.",
-        "Guarde."
+        "Abra Mostrar precios con impuestos.",
+        "Active o desactive.",
+        "Guarde (puede pedirse aprobación)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Tarjeta cargos."
-    },
-    {
-      "id": "menus",
-      "title": "Menús activos",
-      "steps": [
-        "Seleccione menús de este terminal.",
-        "Guarde para el personal.",
-        "Combine con Administración → Menús."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Tarjeta menús."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Mostrar precios inclusivos."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Tarjeta inventario."
     },
     {
-      "id": "printers",
-      "title": "Impresoras",
+      "id": "items-visibility",
+      "title": "Visibilidad de elementos",
+      "intro": "Opciones de visualización del menú, carrito y pedidos en este terminal. Los cambios son inmediatos.",
       "steps": [
-        "Asigne impresoras de este dispositivo.",
-        "Guarde.",
-        "Opciones de impresión en tarjetas vecinas."
+        "Abra Visibilidad de elementos.",
+        "En Menú: búsqueda de platos, tipo de búsqueda y números de plato.",
+        "En Carrito: totales del carrito.",
+        "En Pedidos: totales y campos de la tarjeta de pedido."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Tarjeta impresoras."
+      "image": "settings-items-visibility.png",
+      "caption": "Opciones de menú, carrito y pedidos."
     }
   ]
 }

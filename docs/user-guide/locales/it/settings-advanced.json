@@ -1,17 +1,87 @@
 {
-  "title": "Impostazioni dispositivo avanzate",
-  "intro": "Gli amministratori gestiscono ciclo di chiusura, auto-chiusura, sicurezza sessione, uscita automatica, servizio, menu, inventario e stampanti.",
+  "title": "Impostazioni generali",
+  "intro": "Le impostazioni della sede sono in Gestione → Impostazioni generali. Apri Gestione dalla barra laterale, poi la scheda Impostazioni generali. Solo il ruolo Master vede questa scheda di default; concedi Impostazioni generali ad altri ruoli nell’editor ruoli se serve.",
   "sections": [
     {
       "id": "overview",
-      "title": "Impostazioni per amministratori",
+      "title": "Apri Impostazioni generali",
       "steps": [
-        "Accedi con diritti.",
-        "Apri Impostazioni (chiave).",
-        "Concentrati sulle card della sede."
+        "Accedi come Master o con un ruolo che ha Impostazioni generali.",
+        "Apri Gestione dalla barra laterale.",
+        "Seleziona la scheda Impostazioni generali.",
+        "Le schede di questa pagina valgono per tutti gli utenti e terminali della sede."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Card avanzate."
+      "caption": "Gestione → Impostazioni generali — schede della sede."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Profilo ristorante",
+      "intro": "Nome, indirizzo, telefono e logo usati su scontrini e report. I modelli di stampa possono ancora sostituire logo o intestazione.",
+      "steps": [
+        "Apri la scheda Ristorante.",
+        "Inserisci nome, indirizzo, telefono e opzionalmente email, sito e partita IVA.",
+        "Carica o rimuovi il logo se serve.",
+        "Salva (può servire approvazione manager)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Simbolo valuta",
+      "intro": "Mostra il simbolo valuta in UI e/o sugli scontrini.",
+      "steps": [
+        "Apri la scheda.",
+        "Passa UI e/o scontrini.",
+        "Salva (può servire approvazione)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Simbolo in UI e scontrini."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Traduci scontrini",
+      "intro": "Se attivo, il testo stampato segue la lingua del terminale quando supportato.",
+      "steps": [
+        "Apri la scheda.",
+        "Attiva o disattiva.",
+        "Salva (può servire approvazione)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Traduci scontrini."
+    },
+    {
+      "id": "print-options",
+      "title": "Opzioni di stampa",
+      "steps": [
+        "Apri Opzioni di stampa.",
+        "Imposta le copie per tipo.",
+        "Imposta tentativi max temp/finale per ordine (0 = illimitato).",
+        "Salva."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Copie e tentativi."
+    },
+    {
+      "id": "menus",
+      "title": "Menu attivi",
+      "steps": [
+        "Seleziona i menu del terminale.",
+        "Salva.",
+        "Con Gestione → Menu."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Card menu."
+    },
+    {
+      "id": "service-charges",
+      "title": "Costi di servizio",
+      "steps": [
+        "Tipo e valore predefiniti.",
+        "In pagamento.",
+        "Salva."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Card servizio."
     },
     {
       "id": "closing-cycle",
@@ -39,13 +109,15 @@
     {
       "id": "session-security",
       "title": "Sicurezza sessione",
+      "intro": "Una sola impostazione per tutti gli utenti e terminali. Finché un admin non la salva, vale il default: logout dopo 15 minuti di inattività (lo stesso utente che rientra riprende).",
       "steps": [
-        "Blocco o logout idle.",
-        "Minuti e azione.",
-        "Salva."
+        "Apri la scheda Sicurezza sessione.",
+        "Attiva la protezione idle per blocco o logout.",
+        "Imposta minuti e azione.",
+        "Salva. La regola vale per tutta la sede."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Card sicurezza sessione."
+      "caption": "Scheda sicurezza sessione (sede intera)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Card uscita automatica."
     },
     {
-      "id": "service-charges",
-      "title": "Costi di servizio",
+      "id": "show-inclusive-prices",
+      "title": "Prezzi tasse incluse",
+      "intro": "Mostra prezzi tasse incluse secondo la configurazione fiscale.",
       "steps": [
-        "Tipo e valore predefiniti.",
-        "In pagamento.",
-        "Salva."
+        "Apri la scheda.",
+        "Attiva o disattiva.",
+        "Salva (può servire approvazione)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Card servizio."
-    },
-    {
-      "id": "menus",
-      "title": "Menu attivi",
-      "steps": [
-        "Seleziona i menu del terminale.",
-        "Salva.",
-        "Con Gestione → Menu."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Card menu."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Prezzi tasse incluse."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Card inventario."
     },
     {
-      "id": "printers",
-      "title": "Stampanti",
+      "id": "items-visibility",
+      "title": "Visibilità elementi",
+      "intro": "Opzioni di visualizzazione per ricerca menu, totali carrello e schede ordine su questo dispositivo.",
       "steps": [
-        "Assegna stampanti.",
-        "Salva.",
-        "Opzioni stampa accanto."
+        "Apri la scheda.",
+        "Menu: ricerca e numeri piatti.",
+        "Carrello: totali.",
+        "Ordini: totali e campi."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Card stampanti."
+      "image": "settings-items-visibility.png",
+      "caption": "Visibilità menu, carrello, ordini."
     }
   ]
 }

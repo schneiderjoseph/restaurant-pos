@@ -1,6 +1,6 @@
 {
   "title": "Bloqueo, cierre de sesión y reloj",
-  "intro": "Controles inferiores del menú: bloquear, cerrar sesión, reloj/sesión y Configuración. El bloqueo por inactividad está en seguridad de sesión.",
+  "intro": "Controles inferiores del menú: bloquear, cerrar sesión, reloj/sesión y Configuración. El bloqueo por inactividad sigue Seguridad de sesión en Gestionar → Ajustes generales.",
   "sections": [
     {
       "id": "controls",
@@ -62,14 +62,14 @@
     {
       "id": "idle",
       "title": "Bloqueo o cierre por inactividad",
+      "intro": "La seguridad de sesión la define el admin en Gestionar → Ajustes generales y aplica a todos. Hasta guardarla, el valor por defecto es cerrar sesión tras 15 minutos de inactividad.",
       "steps": [
-        "Configuración → Seguridad de sesión.",
-        "Active tiempo de inactividad y elija Bloquear o Cerrar sesión.",
-        "Guarde; al llegar al límite se aplica."
+        "Pida a un admin (Master o rol con Ajustes generales) que abra Gestionar → Ajustes generales → Seguridad de sesión.",
+        "Activa el temporizador, define minutos, elige Bloquear o Cerrar sesión y guarda.",
+        "Al llegar al límite, el POS bloquea o cierra sesión y muestra un aviso. Tras un cierre, el mismo usuario reanuda al volver a entrar."
       ],
       "image": "session-idle-settings.png",
-      "caption": "Session security card.",
-      "intro": "En Configuración → Seguridad de sesión."
+      "caption": "Seguridad de sesión en Gestionar → Ajustes generales."
     }
   ]
 }

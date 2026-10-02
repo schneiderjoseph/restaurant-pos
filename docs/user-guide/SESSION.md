@@ -1,6 +1,6 @@
 # Session lock, logout, and clock
 
-Use the sidebar bottom controls to lock the terminal, log out, open your clock/session screen, or open Settings. Idle lock/logout can also run from session security settings.
+Use the sidebar bottom controls to lock the terminal, log out, open your clock/session screen, or open Settings. Idle lock/logout follows Session security under Manage → General settings.
 
 ### Sidebar session controls
 
@@ -56,14 +56,14 @@ Clock shows your active time entry, shift, elapsed time, and sale metrics for th
 
 *Sale summary metrics.*
 
-### Idle lock or logout (settings)
+### Idle lock or logout
 
-On Settings, Session security can automatically lock or log out after idle minutes.
+Session security is set by the admin under Manage → General settings and applies to every user and terminal. Until saved, the default is log out after 15 minutes idle.
 
-1. Open Settings → Session security.
-2. Enable the idle timer, set minutes, and choose Lock or Logout.
-3. Save. When idle limit is hit, the POS locks or logs out and shows a toast.
+1. Ask an admin (Master, or a role with General settings) to open Manage → General settings → Session security.
+2. They enable the idle timer, set minutes, and choose Lock or Logout, then save.
+3. When the idle limit is hit, the POS locks or logs out and shows a toast. The same user who signs back in resumes after a logout.
 
-![Session security card.](images/en/session-idle-settings.png)
+![Session security card under Manage → General settings.](images/en/session-idle-settings.png)
 
-*Session security card.*
+*Session security card under Manage → General settings.*

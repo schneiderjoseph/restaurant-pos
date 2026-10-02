@@ -1,6 +1,6 @@
 {
   "title": "Vergrendelen, uitloggen en klok",
-  "intro": "Onderin de zijbalk: vergrendelen, uitloggen, klok en Instellingen. Idle via sessiebeveiliging.",
+  "intro": "Onderin de zijbalk: vergrendelen, uitloggen, klok en Instellingen. Idle volgt Sessiebeveiliging onder Beheer → Algemene instellingen.",
   "sections": [
     {
       "id": "controls",
@@ -62,14 +62,14 @@
     {
       "id": "idle",
       "title": "Idle-vergrendeling of uitloggen",
+      "intro": "Sessiebeveiliging wordt door de admin gezet onder Beheer → Algemene instellingen en geldt voor iedereen. Tot opslaan is de standaard uitloggen na 15 minuten idle.",
       "steps": [
-        "Instellingen → Sessiebeveiliging.",
-        "Idle-minuten en actie.",
-        "Opslaan."
+        "Vraag een admin (Master of rol met Algemene instellingen) Beheer → Algemene instellingen → Sessiebeveiliging te openen.",
+        "Idle-timer inschakelen, minuten en Vergrendelen/Uitloggen kiezen, opslaan.",
+        "Bij idle-limiet vergrendelt of logt de POS uit en toont een toast. Na uitloggen hervat dezelfde gebruiker bij opnieuw inloggen."
       ],
       "image": "session-idle-settings.png",
-      "caption": "Session security card.",
-      "intro": "Instellingen → Sessiebeveiliging."
+      "caption": "Sessiebeveiliging onder Beheer → Algemene instellingen."
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "title": "Verrouillage, déconnexion et pointeuse",
-  "intro": "Bas de barre latérale : verrouiller, déconnecter, pointeuse et Paramètres. Verrouillage d’inactivité dans sécurité de session.",
+  "intro": "Bas de barre latérale : verrouiller, déconnecter, pointeuse et Paramètres. Le verrouillage d’inactivité suit Sécurité de session sous Gérer → Paramètres généraux.",
   "sections": [
     {
       "id": "controls",
@@ -61,15 +61,15 @@
     },
     {
       "id": "idle",
-      "title": "Verrouillage ou déconnexion d’inactivité",
+      "title": "Verrouillage ou déconnexion par inactivité",
+      "intro": "La sécurité de session est définie par l’admin sous Gérer → Paramètres généraux et s’applique à tous. Tant qu’elle n’est pas enregistrée, la valeur par défaut est une déconnexion après 15 minutes d’inactivité.",
       "steps": [
-        "Paramètres → Sécurité de session.",
-        "Minutes d’inactivité et action.",
-        "Enregistrer."
+        "Demandez à un admin (Master, ou un rôle avec Paramètres généraux) d’ouvrir Gérer → Paramètres généraux → Sécurité de session.",
+        "Il active le délai, règle les minutes, choisit Verrouiller ou Se déconnecter, puis enregistre.",
+        "À l’échéance, le POS verrouille ou déconnecte et affiche un toast. Après une déconnexion, le même utilisateur reprend en se reconnectant."
       ],
       "image": "session-idle-settings.png",
-      "caption": "Session security card.",
-      "intro": "Paramètres → Sécurité de session."
+      "caption": "Carte sécurité de session sous Gérer → Paramètres généraux."
     }
   ]
 }

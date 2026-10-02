@@ -1,6 +1,6 @@
 {
   "title": "Kilitleme, çıkış ve saat",
-  "intro": "Yan menü altı: kilitle, çıkış, saat ve Ayarlar. Boşta kilidi oturum güvenliğinde.",
+  "intro": "Yan menü altı: kilitle, çıkış, saat ve Ayarlar. Boşta kilidi Yönet → Genel ayarlar altındaki Oturum güvenliğini izler.",
   "sections": [
     {
       "id": "controls",
@@ -61,15 +61,15 @@
     },
     {
       "id": "idle",
-      "title": "Boşta kilitle veya çık",
+      "title": "Boşta kalınca kilitleme veya çıkış",
+      "intro": "Oturum güvenliğini yönetici Yönet → Genel ayarlar altında ayarlar ve herkese uygulanır. Kaydedilene kadar varsayılan 15 dakika boşta kalınca oturumu kapatmaktır.",
       "steps": [
-        "Ayarlar → Oturum güvenliği.",
-        "Boşta dakika ve eylem.",
-        "Kaydet."
+        "Bir yöneticiden (Master veya Genel ayarlar yetkili rol) Yönet → Genel ayarlar → Oturum güvenliği’ni açmasını isteyin.",
+        "Boşta kalma zamanlayıcısını açar, dakikaları ayarlar, Kilitle veya Oturumu kapat seçer ve kaydeder.",
+        "Süre dolunca POS kilitler veya oturumu kapatır ve bir bildirim gösterir. Oturum kapandıktan sonra aynı kullanıcı yeniden girerek devam eder."
       ],
       "image": "session-idle-settings.png",
-      "caption": "Session security card.",
-      "intro": "Ayarlar → Oturum güvenliği."
+      "caption": "Yönet → Genel ayarlar altındaki oturum güvenliği kartı."
     }
   ]
 }

@@ -1,17 +1,87 @@
 {
-  "title": "Geavanceerde apparaatinstellingen",
-  "intro": "Beheerders gebruiken Instellingen voor sluitcyclus, auto-check, sessiebeveiliging, auto-uitklokken, servicekosten, menu's, voorraad en printers.",
+  "title": "Algemene instellingen",
+  "intro": "Vestigingsbrede instellingen staan onder Beheer → Algemene instellingen. Open Beheer in de zijbalk en kies het tabblad Algemene instellingen. Alleen de rol Master ziet dit tabblad standaard; geef Algemene instellingen aan andere rollen in de rol-editor indien nodig.",
   "sections": [
     {
       "id": "overview",
-      "title": "Instellingen voor beheerders",
+      "title": "Algemene instellingen openen",
       "steps": [
-        "Log in met rechten.",
-        "Open Instellingen (sleutel).",
-        "Focus op locatiekaarten."
+        "Meld u aan als Master of met een rol die Algemene instellingen mag.",
+        "Open Beheer in de zijbalk.",
+        "Selecteer het tabblad Algemene instellingen.",
+        "Kaarten op deze pagina gelden voor alle gebruikers en terminals van de vestiging."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Geavanceerde kaarten."
+      "caption": "Beheer → Algemene instellingen — vestigingskaarten."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Restaurantprofiel",
+      "intro": "Naam, adres, telefoon en logo voor bonnen en rapporten. Afdruksjablonen kunnen logo of koptekst nog overschrijven.",
+      "steps": [
+        "Open de kaart Restaurant.",
+        "Vul naam, adres, telefoon en optioneel e-mail, website en btw-nummer in.",
+        "Upload of verwijder het logo indien nodig.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Valutasymbool",
+      "intro": "Toon het valutasymbool in de UI en/of op bonnen.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel UI en/of bonnen om.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Valutasymbool UI en bonnen."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Bonnen vertalen",
+      "intro": "Indien ingeschakeld volgt bontekst waar mogelijk de terminaltaal.",
+      "steps": [
+        "Open de kaart.",
+        "Schakel Ingeschakeld om.",
+        "Opslaan (mogelijk managergoedkeuring)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Bonnen vertalen."
+    },
+    {
+      "id": "print-options",
+      "title": "Afdrukopties",
+      "steps": [
+        "Open Afdrukopties.",
+        "Stel kopieën per type in.",
+        "Max. temp/final-pogingen per order (0 = onbeperkt).",
+        "Opslaan."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Kopieën en pogingen."
+    },
+    {
+      "id": "menus",
+      "title": "Actieve menu's",
+      "steps": [
+        "Selecteer menu's van terminal.",
+        "Opslaan.",
+        "Met Beheer → Menu's."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menu's-kaart."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servicekosten",
+      "steps": [
+        "Standaard type en waarde.",
+        "Bij betaling.",
+        "Opslaan."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Servicekostenkaart."
     },
     {
       "id": "closing-cycle",
@@ -39,13 +109,15 @@
     {
       "id": "session-security",
       "title": "Sessiebeveiliging",
+      "intro": "Eén instelling voor alle gebruikers en terminals. Tot een admin opslaat geldt de standaard: uitloggen na 15 minuten idle (dezelfde gebruiker die weer inlogt hervat).",
       "steps": [
-        "Idle-vergrendeling of logout.",
-        "Minuten en actie.",
-        "Opslaan."
+        "Open de kaart Sessiebeveiliging.",
+        "Schakel idle-bescherming in voor vergrendelen of uitloggen.",
+        "Stel minuten en actie in.",
+        "Opslaan. De regel geldt vestigingsbreed."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Sessiebeveiligingskaart."
+      "caption": "Kaart sessiebeveiliging (vestigingsbreed)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Auto-uitklokkaart."
     },
     {
-      "id": "service-charges",
-      "title": "Servicekosten",
+      "id": "show-inclusive-prices",
+      "title": "Prijs incl. btw tonen",
+      "intro": "Toont waar mogelijk prijzen inclusief belasting.",
       "steps": [
-        "Standaard type en waarde.",
-        "Bij betaling.",
-        "Opslaan."
+        "Open de kaart.",
+        "Schakel in of uit.",
+        "Opslaan (mogelijk managergoedkeuring)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Servicekostenkaart."
-    },
-    {
-      "id": "menus",
-      "title": "Actieve menu's",
-      "steps": [
-        "Selecteer menu's van terminal.",
-        "Opslaan.",
-        "Met Beheer → Menu's."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Menu's-kaart."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Prijs incl. btw."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Voorraadkaart."
     },
     {
-      "id": "printers",
-      "title": "Printers",
+      "id": "items-visibility",
+      "title": "Itemzichtbaarheid",
+      "intro": "Weergaveopties voor menuzoeken, winkelwagentotalen en orderkaarten op dit apparaat.",
       "steps": [
-        "Wijs printers toe.",
-        "Opslaan.",
-        "Printopties ernaast."
+        "Open de kaart.",
+        "Menu: zoeken en artikelnrs.",
+        "Winkelwagen: totalen.",
+        "Orders: totalen en velden."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Printerskaart."
+      "image": "settings-items-visibility.png",
+      "caption": "Zichtbaarheid menu, winkelwagen, orders."
     }
   ]
 }

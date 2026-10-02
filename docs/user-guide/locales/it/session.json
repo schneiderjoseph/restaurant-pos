@@ -1,6 +1,6 @@
 {
   "title": "Blocco, logout e orologio",
-  "intro": "Controlli in basso: blocca, esci, orologio e Impostazioni. Blocco idle in sicurezza sessione.",
+  "intro": "Controlli in basso: blocca, esci, orologio e Impostazioni. Il blocco idle segue Sicurezza sessione in Gestione → Impostazioni generali.",
   "sections": [
     {
       "id": "controls",
@@ -62,14 +62,14 @@
     {
       "id": "idle",
       "title": "Blocco o logout per inattività",
+      "intro": "La sicurezza sessione è impostata dall’admin in Gestione → Impostazioni generali e vale per tutti. Finché non è salvata, il default è logout dopo 15 minuti di inattività.",
       "steps": [
-        "Impostazioni → Sicurezza sessione.",
-        "Minuti idle e azione.",
-        "Salva."
+        "Chiedi a un admin (Master o ruolo con Impostazioni generali) di aprire Gestione → Impostazioni generali → Sicurezza sessione.",
+        "Attiva il timer, imposta i minuti, scegli Blocca o Logout e salva.",
+        "Al limite idle il POS blocca o fa logout e mostra un toast. Dopo un logout, lo stesso utente riprende rientrando."
       ],
       "image": "session-idle-settings.png",
-      "caption": "Session security card.",
-      "intro": "Impostazioni → Sicurezza sessione."
+      "caption": "Sicurezza sessione in Gestione → Impostazioni generali."
     }
   ]
 }

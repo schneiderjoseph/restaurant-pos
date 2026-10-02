@@ -1,17 +1,87 @@
 {
-  "title": "Advanced device settings",
-  "intro": "Administrators use Settings for venue-wide operational controls: closing cycle, auto check close, session security, auto clock-out, service charges, active menus, inventory preferences, and printers. Open Settings with the wrench on the sidebar.",
+  "title": "General settings",
+  "intro": "Establishment-wide settings live under Manage → General settings. Open Manage from the sidebar, then select the General settings tab. Only the Master role sees this tab by default; grant General settings to other roles in the role editor when needed.",
   "sections": [
     {
       "id": "overview",
-      "title": "Settings for administrators",
+      "title": "Open General settings",
       "steps": [
-        "Sign in with a user that can change venue settings.",
-        "Open Settings from the wrench control.",
-        "Focus on cards that affect the whole venue, not only this browser's language or touch preference."
+        "Sign in with Master, or another role that has the General settings permission.",
+        "Open Manage from the sidebar.",
+        "Select the General settings tab.",
+        "Cards on this page apply to every user and terminal at the venue."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Settings page — advanced / venue cards."
+      "caption": "Manage → General settings — venue-wide configuration cards."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Restaurant profile",
+      "intro": "Name, address, phone, and logo used on tickets and reports. Print templates can still override the logo or header text.",
+      "steps": [
+        "Open the Restaurant card.",
+        "Enter restaurant name, address, phone, and optional email, website, and tax ID.",
+        "Upload or remove the logo when needed.",
+        "Save (manager approval may be required)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Currency symbol",
+      "intro": "Control whether the currency symbol is shown on screen and on printed receipts.",
+      "steps": [
+        "Open the Currency symbol card.",
+        "Toggle show in UI and/or show on receipts.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Currency symbol on UI and receipts."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Translate receipts",
+      "intro": "When enabled, printed receipt text follows the terminal language settings where supported.",
+      "steps": [
+        "Open the Translate receipts card.",
+        "Toggle Enabled on or off.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Translate receipts card."
+    },
+    {
+      "id": "print-options",
+      "title": "Print options",
+      "steps": [
+        "Open the Print options card.",
+        "Set how many physical copies each print type should produce.",
+        "Set max temp/final print attempts per order (0 means unlimited).",
+        "Save print options when finished."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Print copies and max attempts card."
+    },
+    {
+      "id": "menus",
+      "title": "Active menus",
+      "steps": [
+        "Select which menus this terminal can sell from.",
+        "Save so floor staff see the correct categories and dishes.",
+        "Combine with Manage → Menus for full menu maintenance."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menus card."
+    },
+    {
+      "id": "service-charges",
+      "title": "Service charges",
+      "steps": [
+        "Set default service charge type (percent or fixed) and value.",
+        "These defaults apply when service charge is used on payment.",
+        "Save (manager approval may be required)."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Service charges card."
     },
     {
       "id": "closing-cycle",
@@ -39,13 +109,15 @@
     {
       "id": "session-security",
       "title": "Session security",
+      "intro": "One setting for every user and terminal. Until an admin saves it, the default applies: log out after 15 minutes idle (the same user who signs back in resumes).",
       "steps": [
-        "Enable idle lock or logout for unattended terminals.",
-        "Set idle minutes and the action (lock vs logout).",
-        "Save (manager approval may be required)."
+        "Open the Session security card.",
+        "Enable idle protection if terminals should lock or log out after inactivity.",
+        "Set idle minutes and whether the action is lock or logout.",
+        "Save. The rule applies venue-wide to every user and terminal."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Session security card."
+      "caption": "Session security card (venue-wide)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Auto clock-out card."
     },
     {
-      "id": "service-charges",
-      "title": "Service charges",
+      "id": "show-inclusive-prices",
+      "title": "Show inclusive prices",
+      "intro": "When enabled, menu and order UI can display tax-inclusive prices according to venue tax configuration.",
       "steps": [
-        "Set default service charge type (percent or fixed) and value.",
-        "These defaults apply when service charge is used on payment.",
+        "Open the Show inclusive prices card.",
+        "Toggle Enabled on or off.",
         "Save (manager approval may be required)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Service charges card."
-    },
-    {
-      "id": "menus",
-      "title": "Active menus",
-      "steps": [
-        "Select which menus this terminal can sell from.",
-        "Save so floor staff see the correct categories and dishes.",
-        "Combine with Manage → Menus for full menu maintenance."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Menus card."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Inclusive price display toggle."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Inventory settings card."
     },
     {
-      "id": "printers",
-      "title": "Printers",
+      "id": "items-visibility",
+      "title": "Items visibility",
+      "intro": "Per-terminal display options for menu search, cart totals, and order cards. Changes apply immediately on this device.",
       "steps": [
-        "Assign receipt, kitchen, and other printers for this device.",
-        "Save so tickets and receipts print to the correct hardware.",
-        "Print options on neighboring cards control what is printed."
+        "Open the Items visibility card.",
+        "Under Menu: enable dish search, search type (number vs both), and show dish numbers.",
+        "Under Cart: show or hide totals in the cart.",
+        "Under Orders: show or hide totals and other order-card fields as listed."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Printers card."
+      "image": "settings-items-visibility.png",
+      "caption": "Menu, cart, and orders visibility toggles."
     }
   ]
 }

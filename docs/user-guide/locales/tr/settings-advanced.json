@@ -1,17 +1,87 @@
 {
-  "title": "Gelişmiş cihaz ayarları",
-  "intro": "Yöneticiler Ayarlar'da kapanış döngüsü, otomatik hesap kapatma, oturum güvenliği, otomatik çıkış, servis ücreti, menüler, stok ve yazıcıları yönetir.",
+  "title": "Genel ayarlar",
+  "intro": "İşletme geneli ayarlar Yönet → Genel ayarlar altındadır. Kenar çubuğundan Yönet’i açın, ardından Genel ayarlar sekmesini seçin. Bu sekmeyi varsayılan olarak yalnızca Master rolü görür; gerekirse rol düzenleyicide diğer rollere Genel ayarlar verin.",
   "sections": [
     {
       "id": "overview",
-      "title": "Yönetici ayarları",
+      "title": "Genel ayarları açın",
       "steps": [
-        "Ayar yetkisiyle giriş yapın.",
-        "Anahtar ile Ayarlar'ı açın.",
-        "Mekân kartlarına odaklanın."
+        "Master veya Genel ayarlar yetkisi olan bir rolle oturum açın.",
+        "Kenar çubuğundan Yönet’i açın.",
+        "Genel ayarlar sekmesini seçin.",
+        "Bu sayfadaki kartlar işletmedeki tüm kullanıcı ve terminallere uygulanır."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Gelişmiş ayar kartları."
+      "caption": "Yönet → Genel ayarlar — işletme kartları."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Restoran profili",
+      "intro": "Fiş ve raporlarda kullanılan ad, adres, telefon ve logo. Yazdırma şablonları logo veya üst bilgiyi hâlâ geçersiz kılabilir.",
+      "steps": [
+        "Restoran kartını açın.",
+        "Ad, adres, telefon ve isteğe bağlı e-posta, web sitesi ve vergi kimliğini girin.",
+        "Gerekirse logoyu yükleyin veya kaldırın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Para birimi simgesi",
+      "intro": "Para birimi simgesinin ekranda ve basılı fişlerde gösterilip gösterilmeyeceğini kontrol eder.",
+      "steps": [
+        "Para birimi simgesi kartını açın.",
+        "UI’da ve/veya fişlerde gösterimi değiştirin.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "UI ve fişlerde para birimi simgesi."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Fişleri çevir",
+      "intro": "Etkin olduğunda, desteklenen yerlerde basılı fiş metni terminal dilini izler.",
+      "steps": [
+        "Fişleri çevir kartını açın.",
+        "Etkin’i açın veya kapatın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Fişleri çevir kartı."
+    },
+    {
+      "id": "print-options",
+      "title": "Yazdırma seçenekleri",
+      "steps": [
+        "Yazdırma seçenekleri kartını açın.",
+        "Her yazdırma türü için kopya sayısını ayarlayın.",
+        "Sipariş başına en fazla geçici/final yazdırma denemesini ayarlayın (0 = sınırsız).",
+        "Bitince kaydedin."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Kopya ve deneme sayısı kartı."
+    },
+    {
+      "id": "menus",
+      "title": "Aktif menüler",
+      "steps": [
+        "Bu terminalin menülerini seçin.",
+        "Kaydedin.",
+        "Yönetim → Menüler ile birlikte kullanın."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menüler kartı."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servis ücretleri",
+      "steps": [
+        "Varsayılan tür ve değeri ayarlayın.",
+        "Ödemede servis kullanıldığında uygulanır.",
+        "Kaydedin."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Servis ücreti kartı."
     },
     {
       "id": "closing-cycle",
@@ -39,13 +109,15 @@
     {
       "id": "session-security",
       "title": "Oturum güvenliği",
+      "intro": "Tüm kullanıcı ve terminaller için tek ayar. Yönetici kaydedene kadar varsayılan geçerli: 15 dakika boşta kalınca oturumu kapat (yeniden giren aynı kullanıcı devam eder).",
       "steps": [
-        "Boşta kilit veya çıkış açın.",
-        "Dakika ve eylemi ayarlayın.",
-        "Kaydedin."
+        "Oturum güvenliği kartını açın.",
+        "Boşta kalınca kilitleme veya oturum kapatma korumasını etkinleştirin.",
+        "Dakikaları ve eylemi ayarlayın.",
+        "Kaydedin. Kural tüm işletmeye uygulanır."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Oturum güvenlik kartı."
+      "caption": "Oturum güvenliği kartı (işletme geneli)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Otomatik çıkış kartı."
     },
     {
-      "id": "service-charges",
-      "title": "Servis ücretleri",
+      "id": "show-inclusive-prices",
+      "title": "Vergi dahil fiyatlar",
+      "intro": "Etkinse menü ve sipariş arayüzü vergi konfigürasyonuna göre vergi dahil fiyat gösterebilir.",
       "steps": [
-        "Varsayılan tür ve değeri ayarlayın.",
-        "Ödemede servis kullanıldığında uygulanır.",
-        "Kaydedin."
+        "Vergi dahil fiyatlar kartını açın.",
+        "Etkin’i açın veya kapatın.",
+        "Kaydedin (yönetici onayı gerekebilir)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Servis ücreti kartı."
-    },
-    {
-      "id": "menus",
-      "title": "Aktif menüler",
-      "steps": [
-        "Bu terminalin menülerini seçin.",
-        "Kaydedin.",
-        "Yönetim → Menüler ile birlikte kullanın."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Menüler kartı."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Vergi dahil fiyat gösterimi."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Stok ayarları kartı."
     },
     {
-      "id": "printers",
-      "title": "Yazıcılar",
+      "id": "items-visibility",
+      "title": "Öğe görünürlüğü",
+      "intro": "Menü araması, sepet toplamları ve sipariş kartları için bu terminale özel görünüm seçenekleri. Değişiklikler hemen uygulanır.",
       "steps": [
-        "Bu cihazın yazıcılarını atayın.",
-        "Kaydedin.",
-        "Yazdırma seçenekleri komşu kartlarda."
+        "Öğe görünürlüğü kartını açın.",
+        "Menü altında: ürün araması, arama türü ve ürün numaralarını ayarlayın.",
+        "Sepet altında: sepet toplamlarını gösterin veya gizleyin.",
+        "Siparişler altında: sipariş kartı toplamlarını ve alanlarını ayarlayın."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Yazıcılar kartı."
+      "image": "settings-items-visibility.png",
+      "caption": "Menü, sepet ve sipariş görünürlük anahtarları."
     }
   ]
 }

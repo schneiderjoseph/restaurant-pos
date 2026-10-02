@@ -1,17 +1,87 @@
 {
-  "title": "Erweiterte Geräteeinstellungen",
-  "intro": "Administratoren steuern Abschlusszyklus, Auto-Check, Session-Sicherheit, Auto-Ausstempeln, Service, Menüs, Inventar und Drucker.",
+  "title": "Allgemeine Einstellungen",
+  "intro": "Standortweite Einstellungen liegen unter Verwalten → Allgemeine Einstellungen. Öffnen Sie Verwalten in der Seitenleiste und wählen Sie den Tab Allgemeine Einstellungen. Nur die Rolle Master sieht diesen Tab standardmäßig; gewähren Sie Allgemeine Einstellungen anderen Rollen im Rollen-Editor bei Bedarf.",
   "sections": [
     {
       "id": "overview",
-      "title": "Einstellungen für Admins",
+      "title": "Allgemeine Einstellungen öffnen",
       "steps": [
-        "Mit Rechten anmelden.",
-        "Einstellungen (Schlüssel) öffnen.",
-        "Standort-Karten fokussieren."
+        "Melden Sie sich als Master an oder mit einer Rolle, die Allgemeine Einstellungen darf.",
+        "Öffnen Sie Verwalten in der Seitenleiste.",
+        "Wählen Sie den Tab Allgemeine Einstellungen.",
+        "Karten auf dieser Seite gelten für alle Benutzer und Terminals am Standort."
       ],
       "image": "settings-adv-overview.png",
-      "caption": "Erweiterte Karten."
+      "caption": "Verwalten → Allgemeine Einstellungen — betriebliche Karten."
+    },
+    {
+      "id": "restaurant-profile",
+      "title": "Restaurantprofil",
+      "intro": "Name, Adresse, Telefon und Logo für Belege und Berichte. Druckvorlagen können Logo oder Kopfzeile weiterhin überschreiben.",
+      "steps": [
+        "Öffnen Sie die Karte Restaurant.",
+        "Name, Adresse, Telefon und optional E-Mail, Website und Steuer-ID eingeben.",
+        "Logo hochladen oder entfernen.",
+        "Speichern (ggf. Managerfreigabe)."
+      ]
+    },
+    {
+      "id": "currency-symbol",
+      "title": "Währungssymbol",
+      "intro": "Ob das Währungssymbol in der UI und auf Belegen erscheint.",
+      "steps": [
+        "Karte öffnen.",
+        "UI und/oder Belege umschalten.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-currency-symbol.png",
+      "caption": "Symbol in UI und Belegen."
+    },
+    {
+      "id": "translate-receipts",
+      "title": "Belege übersetzen",
+      "intro": "Wenn aktiv, folgt gedruckter Belegtext nach Möglichkeit der Terminalsprache.",
+      "steps": [
+        "Karte öffnen.",
+        "Aktiviert ein/aus.",
+        "Speichern (ggf. Genehmigung)."
+      ],
+      "image": "settings-translate-receipts.png",
+      "caption": "Belege übersetzen."
+    },
+    {
+      "id": "print-options",
+      "title": "Druckoptionen",
+      "steps": [
+        "Druckoptionen öffnen.",
+        "Kopien pro Drucktyp setzen.",
+        "Max. Temp-/Final-Versuche pro Bestellung (0 = unbegrenzt).",
+        "Speichern."
+      ],
+      "image": "settings-print-options.png",
+      "caption": "Kopien und Versuche."
+    },
+    {
+      "id": "menus",
+      "title": "Aktive Menüs",
+      "steps": [
+        "Menüs des Terminals wählen.",
+        "Speichern.",
+        "Mit Verwalten → Menüs."
+      ],
+      "image": "settings-adv-menus.png",
+      "caption": "Menü-Karte."
+    },
+    {
+      "id": "service-charges",
+      "title": "Servicegebühren",
+      "steps": [
+        "Standardtyp und Wert.",
+        "Bei Zahlung.",
+        "Speichern."
+      ],
+      "image": "settings-adv-service-charges.png",
+      "caption": "Servicegebühren-Karte."
     },
     {
       "id": "closing-cycle",
@@ -38,14 +108,16 @@
     },
     {
       "id": "session-security",
-      "title": "Session-Sicherheit",
+      "title": "Sitzungssicherheit",
+      "intro": "Eine Einstellung für alle Benutzer und Terminals. Bis ein Admin speichert, gilt der Standard: Abmelden nach 15 Minuten Idle (derselbe Benutzer setzt nach erneuter Anmeldung fort).",
       "steps": [
-        "Idle-Sperre oder Logout.",
-        "Minuten und Aktion.",
-        "Speichern."
+        "Karte Sitzungssicherheit öffnen.",
+        "Idle-Schutz für Sperre oder Abmelden aktivieren.",
+        "Minuten und Aktion setzen.",
+        "Speichern. Die Regel gilt standortweit."
       ],
       "image": "settings-adv-session-security.png",
-      "caption": "Session-Sicherheitskarte."
+      "caption": "Karte Sitzungssicherheit (standortweit)."
     },
     {
       "id": "auto-clock-out",
@@ -59,26 +131,16 @@
       "caption": "Auto-Ausstempel-Karte."
     },
     {
-      "id": "service-charges",
-      "title": "Servicegebühren",
+      "id": "show-inclusive-prices",
+      "title": "Inklusive Preise anzeigen",
+      "intro": "UI kann steuerinklusive Preise gemäß Steuerkonfiguration anzeigen.",
       "steps": [
-        "Standardtyp und Wert.",
-        "Bei Zahlung.",
-        "Speichern."
+        "Karte öffnen.",
+        "Aktivieren/deaktivieren.",
+        "Speichern (ggf. Genehmigung)."
       ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Servicegebühren-Karte."
-    },
-    {
-      "id": "menus",
-      "title": "Aktive Menüs",
-      "steps": [
-        "Menüs des Terminals wählen.",
-        "Speichern.",
-        "Mit Verwalten → Menüs."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Menü-Karte."
+      "image": "settings-show-inclusive-prices.png",
+      "caption": "Inklusive Preise."
     },
     {
       "id": "inventory",
@@ -92,15 +154,17 @@
       "caption": "Inventar-Karte."
     },
     {
-      "id": "printers",
-      "title": "Drucker",
+      "id": "items-visibility",
+      "title": "Elementsichtbarkeit",
+      "intro": "Darstellung von Menüsuche, Warenkorb­summen und Bestellkarten auf diesem Gerät.",
       "steps": [
-        "Drucker zuweisen.",
-        "Speichern.",
-        "Druckoptionen daneben."
+        "Karte öffnen.",
+        "Menü: Suche und Gerichtenummern.",
+        "Warenkorb: Summen.",
+        "Bestellungen: Summen und Kartenelemente."
       ],
-      "image": "settings-adv-printers.png",
-      "caption": "Drucker-Karte."
+      "image": "settings-items-visibility.png",
+      "caption": "Menü-, Warenkorb- und Bestellsichtbarkeit."
     }
   ]
 }

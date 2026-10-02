@@ -1,6 +1,6 @@
 {
   "title": "Sperre, Abmelden und Stempeluhr",
-  "intro": "Untere Seitenleiste: Sperren, Abmelden, Uhr und Einstellungen. Idle-Sperre unter Sitzungssicherheit.",
+  "intro": "Untere Seitenleiste: Sperren, Abmelden, Uhr und Einstellungen. Idle-Sperre folgt der Sitzungssicherheit unter Verwalten → Allgemeine Einstellungen.",
   "sections": [
     {
       "id": "controls",
@@ -62,14 +62,14 @@
     {
       "id": "idle",
       "title": "Idle-Sperre oder Abmelden",
+      "intro": "Sitzungssicherheit wird vom Admin unter Verwalten → Allgemeine Einstellungen gesetzt und gilt für alle. Bis zum Speichern gilt Abmelden nach 15 Minuten Idle.",
       "steps": [
-        "Einstellungen → Sitzungssicherheit.",
-        "Idle-Minuten und Sperre/Abmelden.",
-        "Speichern."
+        "Bitten Sie einen Admin (Master oder Rolle mit Allgemeine Einstellungen), Verwalten → Allgemeine Einstellungen → Sitzungssicherheit zu öffnen.",
+        "Idle-Timer aktivieren, Minuten und Sperre/Abmelden wählen, speichern.",
+        "Bei Idle-Limit sperrt oder meldet der POS ab und zeigt einen Toast. Nach Abmelden setzt derselbe Benutzer mit erneuter Anmeldung fort."
       ],
       "image": "session-idle-settings.png",
-      "caption": "Session security card.",
-      "intro": "Einstellungen → Sitzungssicherheit."
+      "caption": "Sitzungssicherheit unter Verwalten → Allgemeine Einstellungen."
     }
   ]
 }
