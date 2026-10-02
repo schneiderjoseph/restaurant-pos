@@ -18,7 +18,8 @@
 #>
 
 param(
-  [string]$RepoPath = "C:\CODE\restaurant-pos",
+  # Default: the repo this script lives in (docs\deploy\ -> repo root).
+  [string]$RepoPath = "",
   [string]$NginxRoot = "C:\nginx",
   [string]$Remote = "origin",
   [string]$Branch = "main",
@@ -29,6 +30,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+if (-not $RepoPath) {
+  $RepoPath = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+}
 
 # Migrations applied on every update. Each file MUST be idempotent
 # (DEFINE ... IF NOT EXISTS / OVERWRITE). Append new ones when a release
@@ -134,8 +139,16 @@ if (-not (Test-NetConnection 127.0.0.1 -Port 8000 -InformationLevel Quiet -Warni
 }
 
 # database/ is the live Surreal data dir (database/LOCK is tracked): ignore it.
-$dirty = git status --porcelain --untracked-files=no -- . ':!database'
-if ($dirty) {
+# package-lock.json files are rewritten by every `npm install`, including the
+# ones the payment/gateway/api containers run in their bind-mounted folders:
+# that drift is expected and gets reset before the pull (step 4).
+$status = @(git status --porcelain --untracked-files=no -- . ':!database')
+$lockDrift = @($status | Where-Object { $_ -match '^ M (.+/)?package-lock\.json$' } | ForEach-Object { $_.Substring(3) })
+$dirty = @($status | Where-Object { $_ -notmatch '^ M (.+/)?package-lock\.json$' })
+if ($lockDrift.Count) {
+  Write-Host "package-lock.json regeneres par npm (remis a l'etat du repo avant le pull) : $($lockDrift -join ', ')"
+}
+if ($dirty.Count) {
   Write-Host $($dirty -join "`n")
   Fail "Modifications locales dans le repo. Sauvegarde-les ou annule-les (git stash) avant de mettre a jour."
 }
@@ -198,6 +211,9 @@ if ($SkipBackup) {
 # ---------------------------------------------------------------------------
 Step "4. Code"
 
+if ($lockDrift.Count) {
+  Invoke-Native "reset package-lock.json" { git checkout -- @lockDrift }
+}
 if ($incoming) {
   Invoke-Native "git pull" { git pull --ff-only $Remote $Branch }
 }
