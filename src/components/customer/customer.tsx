@@ -17,6 +17,11 @@ import {
   previewGuestCode,
 } from "@/lib/guest.ts";
 import { findCustomerByPhone } from "@/lib/customer-phone.ts";
+import {
+  findCustomerByIdDocument,
+  hasWalkInContact,
+  normalizeIdDocument,
+} from "@/lib/customer-id-document.ts";
 import { toast } from "sonner";
 
 export interface Props {
@@ -37,6 +42,7 @@ export const Customers = ({
   const [codeOverride, setCodeOverride] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [newPhone, setNewPhone] = useState("");
+  const [newIdDocument, setNewIdDocument] = useState("");
 
   const canRegister = customers.length === 0 && canRegisterGuestFromSearch(search);
 
@@ -118,6 +124,26 @@ export const Customers = ({
       }
     }
 
+    if (normalizeIdDocument(newIdDocument)) {
+      // A failed duplicate check must not block the registration.
+      const existing = await findCustomerByIdDocument(db, newIdDocument).catch((error) => {
+        console.error("ID document lookup failed", error);
+        return undefined;
+      });
+      if (existing) {
+        toast.message(t("menu:guest.idDocumentExists", {
+          name: existing.name || existing.guest_code || "",
+        }));
+        await attachCustomer(existing);
+        return;
+      }
+    }
+
+    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
+      toast.error(t("menu:guest.contactRequired"));
+      return;
+    }
+
     setSaving(true);
     try {
       let guest_code = displayCode.trim().toUpperCase() || generateWalkInGuestCode(name);
@@ -140,6 +166,11 @@ export const Customers = ({
         source: 'walk-in',
         tags: ['walk-in'],
         phone: newPhone.trim() || null,
+        // Only named when set: keeps this insert valid on a DB without
+        // migrations/2026_10_02_customer_id_document.surql (customer is SCHEMAFULL).
+        ...(normalizeIdDocument(newIdDocument)
+          ? { id_document_number: normalizeIdDocument(newIdDocument) }
+          : {}),
       });
 
       if (!created) {
@@ -148,6 +179,7 @@ export const Customers = ({
       }
 
       setNewPhone("");
+      setNewIdDocument("");
       toast.success(t("menu:guest.created"));
       await attachCustomer(created as unknown as Customer);
     } catch (error) {
@@ -186,6 +218,7 @@ export const Customers = ({
             {t("menu:guest.registerFromSearchTitle", { name: search.trim() })}
           </div>
           <p className="text-sm text-neutral-600">{t("menu:guest.registerFromSearchHint")}</p>
+          <p className="text-sm text-neutral-600" data-testid="walkin-contact-hint">{t("menu:guest.contactHint")}</p>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[120px]">
               <Input
@@ -200,10 +233,19 @@ export const Customers = ({
                 type="tel"
                 inputMode="tel"
                 label={t("menu:guest.phone")}
-                placeholder={t("menu:guest.phonePlaceholder")}
                 value={newPhone}
                 onChange={(event) => setNewPhone(event.target.value)}
                 data-testid="walkin-phone"
+              />
+            </div>
+            <div className="flex-1 min-w-[120px]">
+              <Input
+                label={t("menu:guest.idDocument")}
+                placeholder={t("menu:guest.idDocumentPlaceholder")}
+                value={newIdDocument}
+                onChange={(event) => setNewIdDocument(event.target.value)}
+                autoComplete="off"
+                data-testid="walkin-id-document"
               />
             </div>
             <Button

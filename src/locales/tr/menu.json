@@ -86,12 +86,21 @@
     "lastOrder": "Son sipariş: {{date}}",
     "noOrders": "Henüz sipariş yok",
     "phone": "Telefon",
-    "phonePlaceholder": "İsteğe bağlı",
     "addPhone": "Telefon ekle",
     "editPhone": "Telefonu düzenle",
     "phoneExists": "Bu numara {{name}} adlı kişiye ait, müşteri seçildi",
     "phoneTaken": "Bu numara zaten {{name}} tarafından kullanılıyor",
     "phoneSaved": "Telefon kaydedildi",
-    "phoneSaveFailed": "Telefon kaydedilemedi"
+    "phoneSaveFailed": "Telefon kaydedilemedi",
+    "idDocument": "Kimlik belgesi",
+    "idDocumentPlaceholder": "Kimlik kartı, vergi no, pasaport…",
+    "addIdDocument": "Kimlik belgesi ekle",
+    "editIdDocument": "Kimlik belgesini değiştir",
+    "idDocumentExists": "Bu kimlik belgesi {{name}} adına kayıtlı, müşteri seçildi",
+    "idDocumentTaken": "Bu kimlik belgesi zaten {{name}} tarafından kullanılıyor",
+    "idDocumentSaved": "Kimlik belgesi kaydedildi",
+    "idDocumentSaveFailed": "Kimlik belgesi kaydedilemedi",
+    "contactHint": "Telefon veya kimlik belgesi: en az biri gerekli.",
+    "contactRequired": "Bir telefon numarası veya kimlik belgesi girin"
   }
 }

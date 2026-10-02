@@ -27,6 +27,8 @@ export interface Customer extends ID, Name{
   /** Provenance: local | asi-fd */
   source?: string | null
   asi_synced_at?: string | null
+  /** ID document number (CIN, NIF, passport…), stored normalized; only ever displayed masked. */
+  id_document_number?: string | null
   /** Free-text staff note, shown when the guest is selected. */
   notes?: string | null
   /** Read-only projection (guest lookup query): created_at of the latest order. Never written. */

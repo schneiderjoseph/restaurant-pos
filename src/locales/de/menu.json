@@ -86,12 +86,21 @@
     "lastOrder": "Letzte Bestellung: {{date}}",
     "noOrders": "Noch keine Bestellungen",
     "phone": "Telefon",
-    "phonePlaceholder": "Optional",
     "addPhone": "Telefon hinzufügen",
     "editPhone": "Telefon bearbeiten",
     "phoneExists": "Diese Nummer gehört {{name}}, Kunde ausgewählt",
     "phoneTaken": "Diese Nummer wird bereits von {{name}} verwendet",
     "phoneSaved": "Telefon gespeichert",
-    "phoneSaveFailed": "Telefon konnte nicht gespeichert werden"
+    "phoneSaveFailed": "Telefon konnte nicht gespeichert werden",
+    "idDocument": "Ausweisdokument",
+    "idDocumentPlaceholder": "Personalausweis, Steuer-ID, Reisepass…",
+    "addIdDocument": "Ausweisdokument hinzufügen",
+    "editIdDocument": "Ausweisdokument ersetzen",
+    "idDocumentExists": "Dieses Ausweisdokument gehört zu {{name}}, Kunde ausgewählt",
+    "idDocumentTaken": "Dieses Ausweisdokument wird bereits von {{name}} verwendet",
+    "idDocumentSaved": "Ausweisdokument gespeichert",
+    "idDocumentSaveFailed": "Ausweisdokument konnte nicht gespeichert werden",
+    "contactHint": "Telefon oder Ausweisdokument: mindestens eines ist erforderlich.",
+    "contactRequired": "Geben Sie eine Telefonnummer oder ein Ausweisdokument ein"
   }
 }

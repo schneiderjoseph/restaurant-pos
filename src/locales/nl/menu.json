@@ -86,12 +86,21 @@
     "lastOrder": "Laatste bestelling: {{date}}",
     "noOrders": "Nog geen bestellingen",
     "phone": "Telefoon",
-    "phonePlaceholder": "Optioneel",
     "addPhone": "Telefoon toevoegen",
     "editPhone": "Telefoon bewerken",
     "phoneExists": "Dit nummer hoort bij {{name}}, klant geselecteerd",
     "phoneTaken": "Dit nummer wordt al gebruikt door {{name}}",
     "phoneSaved": "Telefoon opgeslagen",
-    "phoneSaveFailed": "Kon de telefoon niet opslaan"
+    "phoneSaveFailed": "Kon de telefoon niet opslaan",
+    "idDocument": "Identiteitsbewijs",
+    "idDocumentPlaceholder": "ID-kaart, fiscaal nummer, paspoort…",
+    "addIdDocument": "Identiteitsbewijs toevoegen",
+    "editIdDocument": "Identiteitsbewijs vervangen",
+    "idDocumentExists": "Dit identiteitsbewijs hoort bij {{name}}, klant geselecteerd",
+    "idDocumentTaken": "Dit identiteitsbewijs wordt al gebruikt door {{name}}",
+    "idDocumentSaved": "Identiteitsbewijs opgeslagen",
+    "idDocumentSaveFailed": "Identiteitsbewijs kon niet worden opgeslagen",
+    "contactHint": "Telefoon of identiteitsbewijs: minstens één van beide.",
+    "contactRequired": "Voer een telefoonnummer of identiteitsbewijs in"
   }
 }

@@ -22,6 +22,12 @@ import {
   dropSupersededStays,
 } from '@/lib/guest.ts';
 import { findCustomerByPhone } from '@/lib/customer-phone.ts';
+import {
+  findCustomerByIdDocument,
+  hasWalkInContact,
+  maskIdDocument,
+  normalizeIdDocument,
+} from '@/lib/customer-id-document.ts';
 import { toLuxonDateTime, nowSurrealDateTime } from '@/lib/datetime.ts';
 import {
   ensureResortFloorTables,
@@ -77,6 +83,10 @@ export const GuestLookup = () => {
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
+  const [newIdDocument, setNewIdDocument] = useState('');
+  const [editingIdDocument, setEditingIdDocument] = useState(false);
+  const [idDocumentDraft, setIdDocumentDraft] = useState('');
+  const [savingIdDocument, setSavingIdDocument] = useState(false);
 
   const floors: Floor[] = settings.floors ?? [];
 
@@ -221,7 +231,9 @@ export const GuestLookup = () => {
         ? String(selected.phone)
         : '',
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset note/phone editors when guest selection changes
+    setEditingIdDocument(false);
+    setIdDocumentDraft('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset note/phone/ID editors when guest selection changes
   }, [selected?.id]);
 
   const saveGuestNote = async () => {
@@ -301,6 +313,56 @@ export const GuestLookup = () => {
     }
   };
 
+  const saveGuestIdDocument = async () => {
+    if (!selected?.id) {
+      return;
+    }
+
+    // The editor is never prefilled, so an empty draft means "no change", not "erase".
+    const value = normalizeIdDocument(idDocumentDraft);
+    if (!value) {
+      setEditingIdDocument(false);
+      return;
+    }
+    setSavingIdDocument(true);
+    try {
+      const byIdDocument = await findCustomerByIdDocument(db, value);
+      if (
+        byIdDocument &&
+        byIdDocument.id?.toString() !== selected.id?.toString()
+      ) {
+        toast.error(
+          t('menu:guest.idDocumentTaken', {
+            name: byIdDocument.name || byIdDocument.guest_code || '',
+          }),
+        );
+        return;
+      }
+
+      await db.merge(toRecordId(selected.id), { id_document_number: value });
+      const updated = { ...selected, id_document_number: value };
+      setSelected(updated);
+      setGuests((prev) =>
+        prev.map((guest) =>
+          guest.id?.toString() === updated.id?.toString() ? updated : guest,
+        ),
+      );
+      setState((prev) =>
+        prev.customer?.id?.toString() === updated.id?.toString()
+          ? { ...prev, customer: updated }
+          : prev,
+      );
+      toast.success(t('menu:guest.idDocumentSaved'));
+      setEditingIdDocument(false);
+      setIdDocumentDraft('');
+    } catch (error) {
+      console.error(error);
+      toast.error(t('menu:guest.idDocumentSaveFailed'));
+    } finally {
+      setSavingIdDocument(false);
+    }
+  };
+
   const selectGuest = (customer: Customer) => {
     setSelected(customer);
     if (customer.room) {
@@ -345,6 +407,32 @@ export const GuestLookup = () => {
       }
     }
 
+    if (normalizeIdDocument(newIdDocument)) {
+      // A failed duplicate check must not block the registration.
+      const byIdDocument = await findCustomerByIdDocument(db, newIdDocument).catch((error) => {
+        console.error('ID document lookup failed', error);
+        return undefined;
+      });
+      if (byIdDocument) {
+        selectGuest(byIdDocument);
+        setGuests((prev) => {
+          const id = byIdDocument.id?.toString();
+          const without = prev.filter((item) => item.id?.toString() !== id);
+          return [byIdDocument, ...without];
+        });
+        setSearch(byIdDocument.name?.trim() || name);
+        toast.message(
+          t('menu:guest.idDocumentExists', {
+            name: byIdDocument.name || byIdDocument.guest_code || '',
+          }),
+        );
+        if (andStartOrder) {
+          await startNewOrderFor(byIdDocument);
+        }
+        return;
+      }
+    }
+
     // Same words, any order → treat as existing client (John Michel ≈ Michel John)
     const samePerson = guests.find((guest) => namesAreSamePerson(guest.name, name));
     if (samePerson) {
@@ -354,6 +442,11 @@ export const GuestLookup = () => {
       if (andStartOrder) {
         await startNewOrderFor(samePerson);
       }
+      return;
+    }
+
+    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
+      toast.error(t('menu:guest.contactRequired'));
       return;
     }
 
@@ -379,6 +472,11 @@ export const GuestLookup = () => {
         source: 'walk-in',
         tags: ['walk-in'],
         phone: newPhone.trim() || null,
+        // Only named when set: keeps this insert valid on a DB without
+        // migrations/2026_10_02_customer_id_document.surql (customer is SCHEMAFULL).
+        ...(normalizeIdDocument(newIdDocument)
+          ? { id_document_number: normalizeIdDocument(newIdDocument) }
+          : {}),
       });
       if (!created) {
         toast.error(t('menu:guest.createFailed'));
@@ -394,6 +492,7 @@ export const GuestLookup = () => {
       });
       setSearch(name);
       setNewPhone('');
+      setNewIdDocument('');
       toast.success(t('menu:guest.created'));
 
       if (andStartOrder) {
@@ -654,6 +753,9 @@ export const GuestLookup = () => {
                 <p className="text-sm text-neutral-600 mt-1">
                   {t('menu:guest.registerFromSearchHint')}
                 </p>
+                <p className="text-sm text-neutral-600 mt-1" data-testid="guest-walkin-contact-hint">
+                  {t('menu:guest.contactHint')}
+                </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
                 <div className="flex-1 min-w-[140px]">
@@ -669,10 +771,19 @@ export const GuestLookup = () => {
                     type="tel"
                     inputMode="tel"
                     label={t('menu:guest.phone')}
-                    placeholder={t('menu:guest.phonePlaceholder')}
                     value={newPhone}
                     onChange={(event) => setNewPhone(event.target.value)}
                     data-testid="guest-walkin-phone"
+                  />
+                </div>
+                <div className="flex-1 min-w-[140px]">
+                  <Input
+                    label={t('menu:guest.idDocument')}
+                    placeholder={t('menu:guest.idDocumentPlaceholder')}
+                    value={newIdDocument}
+                    onChange={(event) => setNewIdDocument(event.target.value)}
+                    autoComplete="off"
+                    data-testid="guest-walkin-id-document"
                   />
                 </div>
                 <Button
@@ -791,6 +902,65 @@ export const GuestLookup = () => {
                     {selected.phone != null && String(selected.phone).trim()
                       ? t('menu:guest.editPhone')
                       : t('menu:guest.addPhone')}
+                  </Button>
+                </div>
+              )}
+
+              {editingIdDocument ? (
+                <div className="space-y-2">
+                  <Input
+                    label={t('menu:guest.idDocument')}
+                    placeholder={t('menu:guest.idDocumentPlaceholder')}
+                    value={idDocumentDraft}
+                    onChange={(event) => setIdDocumentDraft(event.target.value)}
+                    autoComplete="off"
+                    data-testid="guest-id-document-input"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="primary"
+                      flat
+                      data-testid="guest-id-document-save"
+                      isLoading={savingIdDocument}
+                      onClick={() => void saveGuestIdDocument()}
+                    >
+                      {t('common:actions.save')}
+                    </Button>
+                    <Button
+                      variant="neutral"
+                      flat
+                      data-testid="guest-id-document-cancel"
+                      disabled={savingIdDocument}
+                      onClick={() => {
+                        setEditingIdDocument(false);
+                        setIdDocumentDraft('');
+                      }}
+                    >
+                      {t('common:actions.cancel')}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-2">
+                  {selected.id_document_number ? (
+                    <div className="text-neutral-600" data-testid="guest-id-document-masked">
+                      {t('menu:guest.idDocument')}: {maskIdDocument(selected.id_document_number)}
+                    </div>
+                  ) : null}
+                  <Button
+                    variant="neutral"
+                    flat
+                    size="sm"
+                    data-testid="guest-id-document-edit"
+                    onClick={() => {
+                      // Never prefilled: the full number is not shown, only replaced.
+                      setIdDocumentDraft('');
+                      setEditingIdDocument(true);
+                    }}
+                  >
+                    {selected.id_document_number
+                      ? t('menu:guest.editIdDocument')
+                      : t('menu:guest.addIdDocument')}
                   </Button>
                 </div>
               )}

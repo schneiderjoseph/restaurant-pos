@@ -86,12 +86,21 @@
     "lastOrder": "Последний заказ: {{date}}",
     "noOrders": "Заказов пока нет",
     "phone": "Телефон",
-    "phonePlaceholder": "Необязательно",
     "addPhone": "Добавить телефон",
     "editPhone": "Изменить телефон",
     "phoneExists": "Этот номер принадлежит {{name}}, клиент выбран",
     "phoneTaken": "Этот номер уже используется {{name}}",
     "phoneSaved": "Телефон сохранён",
-    "phoneSaveFailed": "Не удалось сохранить телефон"
+    "phoneSaveFailed": "Не удалось сохранить телефон",
+    "idDocument": "Документ, удостоверяющий личность",
+    "idDocumentPlaceholder": "Удостоверение, ИНН, паспорт…",
+    "addIdDocument": "Добавить документ",
+    "editIdDocument": "Заменить документ",
+    "idDocumentExists": "Этот документ принадлежит {{name}}, клиент выбран",
+    "idDocumentTaken": "Этот документ уже используется: {{name}}",
+    "idDocumentSaved": "Документ сохранён",
+    "idDocumentSaveFailed": "Не удалось сохранить документ",
+    "contactHint": "Телефон или документ: нужно хотя бы одно.",
+    "contactRequired": "Введите телефон или документ"
   }
 }

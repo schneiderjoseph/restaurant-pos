@@ -86,12 +86,21 @@
     "lastOrder": "Last order: {{date}}",
     "noOrders": "No orders yet",
     "phone": "Phone",
-    "phonePlaceholder": "Optional",
     "addPhone": "Add a phone",
     "editPhone": "Edit phone",
     "phoneExists": "This number belongs to {{name}}, client selected",
     "phoneTaken": "This number is already used by {{name}}",
     "phoneSaved": "Phone saved",
-    "phoneSaveFailed": "Could not save the phone"
+    "phoneSaveFailed": "Could not save the phone",
+    "idDocument": "ID document",
+    "idDocumentPlaceholder": "National ID, tax ID, passport…",
+    "addIdDocument": "Add an ID document",
+    "editIdDocument": "Replace the ID document",
+    "idDocumentExists": "This ID document belongs to {{name}}, client selected",
+    "idDocumentTaken": "This ID document is already used by {{name}}",
+    "idDocumentSaved": "ID document saved",
+    "idDocumentSaveFailed": "Could not save the ID document",
+    "contactHint": "Phone or ID document: at least one is required.",
+    "contactRequired": "Enter a phone number or an ID document"
   }
 }
