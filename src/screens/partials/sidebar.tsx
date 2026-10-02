@@ -14,7 +14,8 @@ import {
   faPowerOff,
   faReceipt,
   faUser,
-  faPlug
+  faPlug,
+  faRefresh
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
@@ -39,6 +40,7 @@ import {
   TIP_DISTRIBUTION, ACCOUNTS
 } from "@/routes/posr.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useCacheReload } from "@/hooks/useCacheReload.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
 import { lockSession, logoutSession } from "@/lib/session.actions.ts";
@@ -76,6 +78,7 @@ export const Sidebar = () => {
 
   const navigation = useNavigate();
   const { protectAction } = useSecurity();
+  const { isReloading, reloadCache } = useCacheReload();
 
   const logout = () => {
     void logoutSession(setPage, navigation);
@@ -188,6 +191,18 @@ export const Sidebar = () => {
           )}
         </div>
         <div className="input-group">
+          <IconTooltipButton
+            label={t('common:actions.refresh')}
+            className="flex-1"
+            variant="primary"
+            onClick={reloadCache}
+            isLoading={isReloading}
+            disabled={isReloading}
+            size="lg"
+            data-testid="nav-refresh-cache"
+          >
+            {!isReloading && <FontAwesomeIcon icon={faRefresh} />}
+          </IconTooltipButton>
           <IconTooltipButton
             label={t('common:actions.lock')}
             className="flex-1"
