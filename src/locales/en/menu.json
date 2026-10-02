@@ -76,6 +76,22 @@
     "subtitlePms": "Type a name to find a guest, or register them if missing. Or open the floor plan.",
     "pickGuestPms": "Search for a guest, or register a new one to continue",
     "roomRequiresGuest": "Cannot order on a room without a guest. Pick an occupied room.",
-    "walkInBadge": "Walk-in"
+    "walkInBadge": "Walk-in",
+    "notes": "Note",
+    "addNote": "Add a note",
+    "editNote": "Edit",
+    "notePlaceholder": "Preferences, allergies, VIP…",
+    "noteSaved": "Note saved",
+    "noteSaveFailed": "Could not save the note",
+    "lastOrder": "Last order: {{date}}",
+    "noOrders": "No orders yet",
+    "phone": "Phone",
+    "phonePlaceholder": "Optional",
+    "addPhone": "Add a phone",
+    "editPhone": "Edit phone",
+    "phoneExists": "This number belongs to {{name}}, client selected",
+    "phoneTaken": "This number is already used by {{name}}",
+    "phoneSaved": "Phone saved",
+    "phoneSaveFailed": "Could not save the phone"
   }
 }

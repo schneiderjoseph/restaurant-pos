@@ -12,8 +12,11 @@ import {useTranslation} from "react-i18next";
 import {
   canRegisterGuestFromSearch,
   generateWalkInGuestCode,
+  phoneDigits,
+  PHONE_SEARCH_MIN_DIGITS,
   previewGuestCode,
 } from "@/lib/guest.ts";
+import { findCustomerByPhone } from "@/lib/customer-phone.ts";
 import { toast } from "sonner";
 
 export interface Props {
@@ -33,6 +36,7 @@ export const Customers = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [codeOverride, setCodeOverride] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [newPhone, setNewPhone] = useState("");
 
   const canRegister = customers.length === 0 && canRegisterGuestFromSearch(search);
 
@@ -52,17 +56,20 @@ export const Customers = ({
     }
 
     const q = term.trim().toLowerCase();
+    // Phone-like query (no letters): also match on digits, whatever the stored formatting.
+    const digits = /\p{L}/u.test(q) ? '' : phoneDigits(q);
     try {
       const [list] = await db.query<Customer[]>(
         `SELECT * FROM ${Tables.customers}
          WHERE string::contains(string::lowercase(name ?? ''), $q)
             OR string::contains(string::lowercase(guest_code ?? ''), $q)
             OR string::contains(string::lowercase(type::string(phone ?? '')), $q)
+            OR ($digits != '' AND string::contains(string::replace(type::string(phone ?? ''), /[^0-9]/, ''), $digits))
             OR string::contains(string::lowercase(email ?? ''), $q)
             OR string::contains(string::lowercase(type::string(room ?? '')), $q)
          ORDER BY name
          LIMIT 25`,
-        { q }
+        { q, digits: digits.length >= PHONE_SEARCH_MIN_DIGITS ? digits : '' }
       );
 
       setCustomers(Array.isArray(list) ? list : []);
@@ -77,6 +84,7 @@ export const Customers = ({
       void loadCustomers(search);
     }, 150);
     return () => window.clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- debounce search; loadCustomers closes over db
   }, [search]);
 
   const attachCustomer = async (customer: Customer) => {
@@ -93,6 +101,21 @@ export const Customers = ({
     if (!canRegisterGuestFromSearch(name)) {
       toast.error(t("menu:guest.nameRequired"));
       return;
+    }
+
+    if (newPhone.trim()) {
+      // A failed duplicate check must not block the registration.
+      const existing = await findCustomerByPhone(db, newPhone).catch((error) => {
+        console.error("Phone lookup failed", error);
+        return undefined;
+      });
+      if (existing) {
+        toast.message(t("menu:guest.phoneExists", {
+          name: existing.name || existing.guest_code || "",
+        }));
+        await attachCustomer(existing);
+        return;
+      }
     }
 
     setSaving(true);
@@ -116,6 +139,7 @@ export const Customers = ({
         in_house: false,
         source: 'walk-in',
         tags: ['walk-in'],
+        phone: newPhone.trim() || null,
       });
 
       if (!created) {
@@ -123,6 +147,7 @@ export const Customers = ({
         return;
       }
 
+      setNewPhone("");
       toast.success(t("menu:guest.created"));
       await attachCustomer(created as unknown as Customer);
     } catch (error) {
@@ -168,6 +193,17 @@ export const Customers = ({
                 value={displayCode}
                 readOnly
                 data-testid="walkin-code"
+              />
+            </div>
+            <div className="flex-1 min-w-[120px]">
+              <Input
+                type="tel"
+                inputMode="tel"
+                label={t("menu:guest.phone")}
+                placeholder={t("menu:guest.phonePlaceholder")}
+                value={newPhone}
+                onChange={(event) => setNewPhone(event.target.value)}
+                data-testid="walkin-phone"
               />
             </div>
             <Button

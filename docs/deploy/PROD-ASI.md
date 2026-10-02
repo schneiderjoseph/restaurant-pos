@@ -363,6 +363,8 @@ Premier compte : `$env:ADMIN_PIN="4271"; node migrations/scripts/bootstrap-admin
 
 Types de commande : `node migrations/scripts/bootstrap-order-types.cjs` crée « Sur place » et « À emporter » (frais de service désactivés). Sans au moins un type, chaque envoi de commande échoue (`order_type` est obligatoire sur `order`). No-op si des types existent déjà ; le reste se gère depuis Admin → Order types, puis recharger le cache POS.
 
+Notes client (DB déjà installée avant le 2026-10-01) : `node migrations/scripts/apply-migration.cjs migrations/2026_10_01_customer_notes.surql` ajoute le champ `notes` sur `customer` (idempotent). Une DB neuve l'a déjà via `bootstrap-posr-db.cjs`.
+
 ---
 
 ## 7. Checklist smoke test prod

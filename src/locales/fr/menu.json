@@ -76,6 +76,22 @@
     "pickGuestPms": "Recherchez un client, ou enregistrez-en un nouveau pour continuer",
     "required": "Sélectionnez d'abord un client",
     "roomRequiresGuest": "Impossible de commander sur une chambre sans client. Choisissez une chambre occupée.",
-    "walkInBadge": "Walk-in"
+    "walkInBadge": "Walk-in",
+    "notes": "Note",
+    "addNote": "Ajouter une note",
+    "editNote": "Modifier",
+    "notePlaceholder": "Préférences, allergies, VIP…",
+    "noteSaved": "Note enregistrée",
+    "noteSaveFailed": "Impossible d’enregistrer la note",
+    "lastOrder": "Dernière commande : {{date}}",
+    "noOrders": "Aucune commande",
+    "phone": "Téléphone",
+    "phonePlaceholder": "Optionnel",
+    "addPhone": "Ajouter un téléphone",
+    "editPhone": "Modifier le téléphone",
+    "phoneExists": "Ce numéro appartient à {{name}}, client sélectionné",
+    "phoneTaken": "Ce numéro est déjà utilisé par {{name}}",
+    "phoneSaved": "Téléphone enregistré",
+    "phoneSaveFailed": "Impossible d’enregistrer le téléphone"
   }
 }

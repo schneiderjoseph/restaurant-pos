@@ -75,8 +75,17 @@ export function namesAreSamePerson(a?: string | null, b?: string | null): boolea
   return Boolean(left) && left === right;
 }
 
+/** Digits only, so "+509 3456-1234" and "50934561234" compare equal. */
+export function phoneDigits(value?: string | number | null): string {
+  return value == null ? '' : String(value).replace(/\D/g, '');
+}
+
+/** Shortest digit run treated as a phone search (keeps "12" a room/table lookup). */
+export const PHONE_SEARCH_MIN_DIGITS = 3;
+
 /**
- * Search match: code/room/phone/email substring, OR name substring,
+ * Search match: code/room/phone/email substring, phone digits (any formatting),
+ * OR name substring,
  * OR every query word appears in the guest name (order-independent).
  * So typing "Michel John" finds "John Michel".
  */
@@ -101,6 +110,12 @@ export function guestMatchesSearchTerm(
     .toLowerCase();
 
   if (extras.includes(qLower)) {
+    return true;
+  }
+
+  // Phone-like query only (no letters): "Jean 509" must not match every 509 number.
+  const qDigits = /\p{L}/u.test(q) ? '' : phoneDigits(q);
+  if (qDigits.length >= PHONE_SEARCH_MIN_DIGITS && phoneDigits(guest.phone).includes(qDigits)) {
     return true;
   }
 
@@ -179,6 +194,37 @@ export function canRegisterGuestFromSearch(term: string): boolean {
     return false;
   }
   return lettersOnlyUpper(trimmed).length >= 2;
+}
+
+/**
+ * ASI FrontDesk creates one customer per stay (same asi_guest_id). A checked-out
+ * stay can stay listed because of its note; hide it once a newer stay of the same
+ * guest is listed (in-house first, else the latest check-in). Other rows untouched.
+ */
+export function dropSupersededStays<
+  T extends Pick<Customer, 'source' | 'asi_guest_id' | 'asi_checkin_id' | 'in_house'>,
+>(guests: T[]): T[] {
+  const keep = new Map<number, T>();
+  for (const guest of guests) {
+    if (guest.source !== 'asi-fd' || guest.asi_guest_id == null) {
+      continue;
+    }
+    const current = keep.get(guest.asi_guest_id);
+    if (
+      !current
+      || (guest.in_house && !current.in_house)
+      || (Boolean(guest.in_house) === Boolean(current.in_house)
+        && (guest.asi_checkin_id ?? 0) > (current.asi_checkin_id ?? 0))
+    ) {
+      keep.set(guest.asi_guest_id, guest);
+    }
+  }
+  return guests.filter((guest) =>
+    guest.source !== 'asi-fd'
+    || guest.asi_guest_id == null
+    || guest.in_house
+    || keep.get(guest.asi_guest_id) === guest,
+  );
 }
 
 export function orderZoneLabel(order?: Pick<Order, 'floor'> | null): string {

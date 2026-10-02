@@ -42,6 +42,8 @@ async function upsertGuests(db, guests) {
     };
 
     const existing = await queryRows(db, `SELECT id FROM $id`, { id: asRecord(id) });
+    // UPDATEs use `$phone ?? phone`: a number staff added in POSR survives polls
+    // while FrontDesk has none; FrontDesk wins once it has one.
     if (existing[0]?.id) {
       await queryRows(
         db,
@@ -49,7 +51,7 @@ async function upsertGuests(db, guests) {
           name = $name,
           guest_code = $guest_code,
           room = $room,
-          phone = $phone,
+          phone = $phone ?? phone,
           email = $email,
           asi_guest_id = $asi_guest_id,
           asi_checkin_id = $asi_checkin_id,
@@ -63,6 +65,22 @@ async function upsertGuests(db, guests) {
       );
       updated += 1;
     } else {
+      // New stay: carry the staff note over from this guest's previous stay.
+      // Only on CREATE, so a note edited or cleared in POSR survives later polls.
+      let notes = null;
+      if (g.guestId != null) {
+        const previous = await queryRows(
+          db,
+          `SELECT notes, asi_synced_at FROM customer
+           WHERE asi_guest_id = $gid AND notes != NONE AND notes != NULL AND notes != ''
+           ORDER BY asi_synced_at DESC LIMIT 1`,
+          { gid: g.guestId },
+        );
+        notes = previous[0]?.notes ?? null;
+      }
+      // Only name the field when there is a note: keeps this CREATE valid on a DB
+      // that has not received migrations/2026_10_01_customer_notes.surql yet.
+      const notesSet = notes ? 'notes = $notes,' : '';
       try {
         await queryRows(
           db,
@@ -80,8 +98,9 @@ async function upsertGuests(db, guests) {
             in_house = true,
             asi_synced_at = time::now(),
             tags = $tags,
+            ${notesSet}
             points = 0`,
-          { id: asRecord(id), ...payload },
+          { id: asRecord(id), ...payload, notes },
         );
         created += 1;
       } catch (err) {
@@ -96,7 +115,7 @@ async function upsertGuests(db, guests) {
             `UPDATE $id SET
               name = $name,
               room = $room,
-              phone = $phone,
+              phone = $phone ?? phone,
               email = $email,
               asi_guest_id = $asi_guest_id,
               asi_checkin_id = $asi_checkin_id,
