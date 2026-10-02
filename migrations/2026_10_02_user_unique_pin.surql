@@ -12,17 +12,27 @@
 -- PINs under Manage > Users, then re-run. Idempotent (update-asi-prod.ps1
 -- re-runs it on every update).
 
-LET $duplicates = (
-  SELECT login, count() AS users, array::group(string::concat(first_name, ' ', last_name)) AS names
-  FROM user
+-- Duplicates are found without GROUP BY: on SurrealDB 3.0.x a GROUP BY turns
+-- first_name / last_name into per-group arrays, and array::group() then fails
+-- on the concatenated string. The message names the people, never the shared
+-- login: for a PIN user the login is the PIN.
+LET $active = (
+  SELECT login, first_name, last_name FROM user
   WHERE deleted_at = NONE OR deleted_at = NULL
-  GROUP BY login
-)[WHERE users > 1];
+);
+LET $logins = $active.map(|$u| $u.login);
+LET $duplicates = array::distinct($logins.filter(|$l| array::len($logins.filter(|$m| $m = $l)) > 1));
 
 IF array::len($duplicates) > 0 {
   THROW string::concat(
     'Active users share a login/PIN, fix them before re-running: ',
-    <string>$duplicates.map(|$d| string::concat($d.login, ' (', array::join($d.names, ', '), ')'))
+    array::join(
+      $duplicates.map(|$l| array::join(
+        $active.filter(|$u| $u.login = $l).map(|$u| string::trim(string::concat($u.first_name ?? '', ' ', $u.last_name ?? ''))),
+        ' / '
+      )),
+      '; '
+    )
   );
 };
 
