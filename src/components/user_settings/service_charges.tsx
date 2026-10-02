@@ -8,12 +8,15 @@ import {Input} from "@/components/common/input/input.tsx";
 import {DiscountType} from "@/api/model/discount.ts";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {useTranslation} from 'react-i18next';
 
 export const ServiceChargesSettings = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const {protectFormSubmit} = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.service_charges');
   const { t } = useTranslation(['settings', 'common', 'toast']);
 
 
@@ -126,7 +129,9 @@ export const ServiceChargesSettings = () => {
           </div>
 
         </div>
-        <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>
+        )}
       </form>
     </div>
   );

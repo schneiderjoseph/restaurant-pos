@@ -14,6 +14,7 @@ import { InventoryDocumentStatusBadge } from "@/components/inventory/common/docu
 import { DeleteConfirm } from "@/components/common/table/delete.confirm.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { canDelete, canEdit, canPost, canVoid } from "@/lib/inventory/lifecycle.ts";
 import {
@@ -33,6 +34,9 @@ export const InventoryAdjustments = () => {
   const { t } = useTranslation(["inventory", 'common']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdateAdjustments = isVisible("inventory.adjustments.update");
+  const canDeleteAdjustments = isVisible("inventory.adjustments.delete");
   const { manager } = useIntegrationManager();
   const [state] = useAtom(appPage);
   const loadHook = useApi<SettingsData<InventoryAdjustment>>(
@@ -105,7 +109,7 @@ export const InventoryAdjustments = () => {
 
         return (
           <div className="flex gap-2 flex-wrap">
-            {postable && (
+            {postable && canUpdateAdjustments && (
               <IconTooltipButton label={t('common:actions.upload')}
                 variant="success"
                
@@ -148,7 +152,7 @@ export const InventoryAdjustments = () => {
                 <FontAwesomeIcon icon={faUpload} />
               </IconTooltipButton>
             )}
-            {editable && row.status === "draft" && (
+            {editable && row.status === "draft" && canUpdateAdjustments && (
               <IconTooltipButton label={t('common:actions.approve')}
                 variant="secondary"
                
@@ -184,7 +188,7 @@ export const InventoryAdjustments = () => {
                 <FontAwesomeIcon icon={faCheck} />
               </IconTooltipButton>
             )}
-            {voidable && (
+            {voidable && canUpdateAdjustments && (
               <IconTooltipButton label={t('common:actions.void')}
                 variant="danger"
                
@@ -227,7 +231,7 @@ export const InventoryAdjustments = () => {
                 <FontAwesomeIcon icon={faBan} />
               </IconTooltipButton>
             )}
-            {editable && (
+            {editable && canUpdateAdjustments && (
               <Button
                 variant="primary"
                 onClick={() => {
@@ -246,7 +250,7 @@ export const InventoryAdjustments = () => {
                 <FontAwesomeIcon icon={faPencil} />
               </Button>
             )}
-            {deletable && (
+            {deletable && canDeleteAdjustments && (
               <DeleteConfirm
                 message={t("adjustment.deleteConfirm", {
                   number: row.invoice_number,

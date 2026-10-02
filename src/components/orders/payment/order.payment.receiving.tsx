@@ -42,6 +42,7 @@ import {
   useRemotePayment,
 } from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
@@ -152,6 +153,7 @@ const OrderPaymentReceivingContent = ({
   const remote = useRemotePayment();
   const db = useDB();
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
   const { manager: integrationManager } = useIntegrationManager();
   const [page] = useAtom(appPage);
   const [tempPrinted, setTempPrinted] = useState(false);
@@ -629,6 +631,7 @@ const OrderPaymentReceivingContent = ({
               </Button>
             </div>
             <div className="flex gap-5" data-testid="payment-finish-actions">
+              {isVisible('orders.print_temp') && (
               <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
                 <Button
                   variant={tempPrinted ? "warning" : "primary"}
@@ -662,6 +665,8 @@ const OrderPaymentReceivingContent = ({
                   }}
                 >{t('receiving.tempBill')}</Button>
               </span>
+              )}
+              {isVisible('orders.complete') && (
               <Button
                 variant="success"
                 className="flex-1"
@@ -680,6 +685,7 @@ const OrderPaymentReceivingContent = ({
                 disabled={changeDue < 0 || closing || remote.isProcessing}
                 flat
               >{t('receiving.complete')}</Button>
+              )}
             </div>
           </div>
         </div>

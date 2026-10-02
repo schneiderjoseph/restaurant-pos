@@ -16,6 +16,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminMenus = () => {
@@ -23,6 +24,10 @@ export const AdminMenus = () => {
   const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.taxes']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.menus.update');
+  const canDelete = isVisible('admin.menus.delete');
+  const canCreate = isVisible('admin.menus.create');
 
   const [data, setData] = useState<Menu>();
   const [formModal, setFormModal] = useState(false);
@@ -74,7 +79,7 @@ export const AdminMenus = () => {
         )
       }
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -82,43 +87,49 @@ export const AdminMenus = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.menus.update',
-                  description: getAccessRuleChildLabel('admin.menus.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <IconTooltipButton label={t('forms.manageMenuItems')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setSelectedMenu(info.row.original);
-                  setItemsModal(true);
-                }, {
-                  module: 'admin.menus.update',
-                  description: getAccessRuleChildLabel('admin.menus.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faList}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.menu', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.menus.delete',
-                description: getAccessRuleChildLabel('admin.menus.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.menus.update',
+                    description: getAccessRuleChildLabel('admin.menus.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate ? <div className="separator"></div> : null}
+            {canUpdate ? (
+              <IconTooltipButton label={t('forms.manageMenuItems')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setSelectedMenu(info.row.original);
+                    setItemsModal(true);
+                  }, {
+                    module: 'admin.menus.update',
+                    description: getAccessRuleChildLabel('admin.menus.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faList}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.menu', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.menus.delete',
+                  description: getAccessRuleChildLabel('admin.menus.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -149,7 +160,7 @@ export const AdminMenus = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -157,8 +168,8 @@ export const AdminMenus = () => {
               module: 'admin.menus.create',
               description: getAccessRuleChildLabel('admin.menus.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-menus">{t('buttons.menu')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-menus">{t('buttons.menu')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {formModal && (

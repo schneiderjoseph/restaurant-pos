@@ -1,10 +1,10 @@
 # Security re-authentication
 
-Protected actions (voids, settings saves, restricted tabs, print overrides, and more) can require a manager to re-authenticate with PIN or QR — even if you are already signed in.
+You only see the modules, tabs and buttons your role allows; everything else is hidden. A few in-service actions stay visible to everyone and ask a manager to approve on the spot with PIN or QR: cancelling an order, discounts and coupons, refunds, opening the cash drawer, and reprints.
 
 ### When re-auth appears
 
-1. You attempt an action your role does not auto-allow, or the action always requires approval.
+1. You attempt one of those in-service actions without the permission, or an action that always requires approval.
 2. A modal opens with a short description of what is being approved.
 3. Session security settings (idle lock) are separate — that locks the terminal; this modal approves one action.
 

@@ -23,6 +23,7 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
@@ -75,6 +76,11 @@ export const Summary = () => {
   const db = useDB();
   const [page] = useAtom(appPage);
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canPrintSummary = isVisible("summary.print");
+  const canPrintProductMix = isVisible("summary.product_mix");
+  const canPrintServerSales = isVisible("summary.server_sales");
+  const showPrintActions = canPrintSummary || canPrintProductMix || canPrintServerSales;
 
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [orders, setOrders] = useState<OrderModel[]>([]);
@@ -340,44 +346,52 @@ export const Summary = () => {
               >
                 {t("summary:screen.nextDate")}</Button>
             </div>
-            <div className="flex gap-3 mt-3 flex-wrap" data-testid="summary-print-actions">
-              <Button
-                icon={faPrint}
-                variant="lg"
-                onClick={() => {
-                  protectAction(handlePrintSummary, {
-                    description: t("summary:security.printSummaryDescription"),
-                    module: 'summary.print',
-                  });
-                }}
-              >{t("summary:screen.printSummary")}</Button>
-              <Button
-                icon={faPrint}
-                variant="lg"
-                isLoading={isPrintingMix}
-                onClick={() => {
-                  protectAction(handlePrintProductMix, {
-                    description: t("summary:security.productMixDescription"),
-                    module: 'summary.product_mix',
-                  });
-                }}
-              >
-                {t("summary:screen.productMixReport")}
-              </Button>
-              <Button
-                icon={faPrint}
-                variant="lg"
-                isLoading={isPrintingServerSales}
-                onClick={() => {
-                  protectAction(handlePrintServerSales, {
-                    description: t("summary:security.serverSalesDescription"),
-                    module: 'summary.server_sales',
-                  });
-                }}
-              >
-                {t("summary:screen.serverSales")}
-              </Button>
-            </div>
+            {showPrintActions && (
+              <div className="flex gap-3 mt-3 flex-wrap" data-testid="summary-print-actions">
+                {canPrintSummary && (
+                  <Button
+                    icon={faPrint}
+                    variant="lg"
+                    onClick={() => {
+                      protectAction(handlePrintSummary, {
+                        description: t("summary:security.printSummaryDescription"),
+                        module: 'summary.print',
+                      });
+                    }}
+                  >{t("summary:screen.printSummary")}</Button>
+                )}
+                {canPrintProductMix && (
+                  <Button
+                    icon={faPrint}
+                    variant="lg"
+                    isLoading={isPrintingMix}
+                    onClick={() => {
+                      protectAction(handlePrintProductMix, {
+                        description: t("summary:security.productMixDescription"),
+                        module: 'summary.product_mix',
+                      });
+                    }}
+                  >
+                    {t("summary:screen.productMixReport")}
+                  </Button>
+                )}
+                {canPrintServerSales && (
+                  <Button
+                    icon={faPrint}
+                    variant="lg"
+                    isLoading={isPrintingServerSales}
+                    onClick={() => {
+                      protectAction(handlePrintServerSales, {
+                        description: t("summary:security.serverSalesDescription"),
+                        module: 'summary.server_sales',
+                      });
+                    }}
+                  >
+                    {t("summary:screen.serverSales")}
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
           <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
             {isLoading ? (

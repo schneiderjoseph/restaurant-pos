@@ -11,6 +11,7 @@ import {StockTransferViewModal} from "@/components/inventory/stock_transfers/vie
 import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useStockTransferList} from "@/hooks/useStockTransferList.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
@@ -19,6 +20,8 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 export const InventoryStockTransfers = () => {
   const {t} = useTranslation(["inventory", 'common']);
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdateStockTransfers = isVisible("inventory.stock_transfers.update");
   const loadHook = useStockTransferList(0, 10);
 
   const {options: locationOptions} = useInventoryLocations(true);
@@ -107,20 +110,22 @@ export const InventoryStockTransfers = () => {
           >
             <FontAwesomeIcon icon={faPrint} />
           </IconTooltipButton>
-          <IconTooltipButton label={t('common:actions.edit')}
-            variant="primary"
-            onClick={() => {
-              protectAction(() => {
-                setData(info.row.original);
-                setFormModal(true);
-              }, {
-                module: "inventory.stock_transfers.update",
-                description: t("security.editStockTransfers"),
-              });
-            }}
-          >
-            <FontAwesomeIcon icon={faPencil} />
-          </IconTooltipButton>
+          {canUpdateStockTransfers && (
+            <IconTooltipButton label={t('common:actions.edit')}
+              variant="primary"
+              onClick={() => {
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: "inventory.stock_transfers.update",
+                  description: t("security.editStockTransfers"),
+                });
+              }}
+            >
+              <FontAwesomeIcon icon={faPencil} />
+            </IconTooltipButton>
+          )}
         </div>
       ),
     }),

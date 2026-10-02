@@ -156,6 +156,11 @@
     "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\".",
     "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es {{max}}."
   },
+  "moduleAccess": {
+    "noAccessTitle": "Sin acceso",
+    "noAccessDescription": "No tiene permiso para abrir ninguna página. Contacte a un gerente si necesita acceso.",
+    "noTabs": "No hay secciones disponibles para su cuenta."
+  },
   "loading": "Cargando...",
   "dataImport": {
     "title": "Importar {{entity}}",

@@ -15,6 +15,7 @@ import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { useTranslation } from "react-i18next";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {
   formatKitchenGuestLabel,
   formatKitchenPlaceLabel,
@@ -53,6 +54,8 @@ export const KitchenOrder = ({
   const [page] = useAtom(appPage);
   const { t } = useTranslation(["kitchen", "payment"]);
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canReprintKot = isVisible("orders.print_kot");
   const [printing, setPrinting] = useState(false);
 
   const { order, batch, reprintItems, isAddon, isContinued, showKindLabel, groupColor } = ticket;
@@ -225,20 +228,22 @@ export const KitchenOrder = ({
       </div>
 
       <div className="p-1.5 flex gap-1.5">
-        <Button
-          variant="neutral"
-          className="flex-1"
-          size="lg"
-          isLoading={printing}
-          disabled={!kitchen?.printers?.length}
-          onClick={reprint}
-        >
-          {t("actions.reprint")}
-        </Button>
+        {canReprintKot && (
+          <Button
+            variant="neutral"
+            className="flex-1"
+            size="lg"
+            isLoading={printing}
+            disabled={!kitchen?.printers?.length}
+            onClick={reprint}
+          >
+            {t("actions.reprint")}
+          </Button>
+        )}
         <Button
           variant="success"
           filled
-          className="flex-1"
+          className={canReprintKot ? "flex-1" : "flex-1 w-full"}
           size="lg"
           onClick={ready}
         >

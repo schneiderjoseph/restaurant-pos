@@ -11,11 +11,14 @@ import {Setting} from "@/api/model/setting.ts";
 import {useTranslation} from 'react-i18next';
 import {PrintForm} from "@/components/settings/prints/print.form.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminPrints = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.print_settings.update');
   const loadHook = useApi<SettingsData<Setting>>(Tables.settings, [
     '(key = "Temp Print" or key = "Final Print" or key = "Kitchen Print" or key = "Summary Print" or key = "Delivery Print")'
   ], ['priority asc']);
@@ -29,7 +32,7 @@ export const AdminPrints = () => {
     columnHelper.accessor("key", {
       header: t('columns.name')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -53,7 +56,7 @@ export const AdminPrints = () => {
           </>
         );
       },
-    }),
+    })] : []),
   ];
 
   return (

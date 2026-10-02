@@ -19,6 +19,7 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminTables = () => {
@@ -26,6 +27,11 @@ export const AdminTables = () => {
   const loadHook = useApi<SettingsData<Table>>(Tables.tables, ['deleted_at = none'], [], 0, 10, ['floor', 'categories', 'payment_types', 'order_types']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.tables.update');
+  const canDelete = isVisible('admin.tables.delete');
+  const canCreate = isVisible('admin.tables.create');
+  const canImport = isVisible('admin.tables.import');
 
   const [data, setData] = useState<Table>();
   const [formModal, setFormModal] = useState(false);
@@ -43,7 +49,7 @@ export const AdminTables = () => {
 
   const columnHelper = createColumnHelper<Table>();
   const columns: any = [
-    {
+    ...(canUpdate ? [{
       id: 'select-col',
       header: ({ table }) => (
         <Checkbox
@@ -59,7 +65,7 @@ export const AdminTables = () => {
           onChange={row.getToggleSelectedHandler()}
         />
       ),
-    },
+    }] : []),
     columnHelper.accessor("name", {
       header: t('columns.name')
     }),
@@ -104,7 +110,7 @@ export const AdminTables = () => {
       enableColumnFilter: false,
       enableSorting: false
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -112,30 +118,34 @@ export const AdminTables = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.tables.update',
-                  description: getAccessRuleChildLabel('admin.tables.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.table', { name: `${info.row.original.name}${info.row.original.number}` })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.tables.delete',
-                description: getAccessRuleChildLabel('admin.tables.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.tables.update',
+                    description: getAccessRuleChildLabel('admin.tables.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.table', { name: `${info.row.original.name}${info.row.original.number}` })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.tables.delete',
+                  description: getAccessRuleChildLabel('admin.tables.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const releaseTable = async (id: string) => {
@@ -169,13 +179,13 @@ export const AdminTables = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canImport ? <Button variant="primary" onClick={() => {
             protectAction(() => setImportModal(true), {
               module: 'admin.tables.import',
               description: getAccessRuleChildLabel('admin.tables.import'),
             });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button> : null,
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -183,9 +193,9 @@ export const AdminTables = () => {
               module: 'admin.tables.create',
               description: getAccessRuleChildLabel('admin.tables.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-tables">{t('buttons.table')}</Button>
-        ]}
-        enableSelection
+          }} icon={faPlus} data-testid="admin-add-tables">{t('buttons.table')}</Button> : null,
+        ].filter(Boolean)}
+        enableSelection={canUpdate}
         rowSelection={rowSelection}
         onRowSelectionChange={(selectionState, selectedRows) => {
           setRowSelection(selectionState);
@@ -195,7 +205,7 @@ export const AdminTables = () => {
           }));
         }}
         selectionButtons={[
-          <Button variant="primary" onClick={() => {
+          canUpdate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setBulkEdit((prev) => ({
                 ...prev,
@@ -205,8 +215,8 @@ export const AdminTables = () => {
               module: 'admin.tables.update',
               description: getAccessRuleChildLabel('admin.tables.update'),
             });
-          }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
-        ]}
+          }} icon={faPencil}>{t('buttons.bulkEdit')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {importModal && (

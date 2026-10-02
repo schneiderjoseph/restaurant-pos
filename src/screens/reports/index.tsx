@@ -1,5 +1,5 @@
 import {Layout} from "@/screens/partials/layout.tsx";
-import {ReactNode, useMemo, useState} from "react";
+import {ReactNode, useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {SalesWeeklyFilter} from "@/components/reports/filters/sales.weekly.filter.tsx";
 import {ProductMixWeeklyReportFilter} from "@/components/reports/filters/product.mix.weekly.filter.tsx";
@@ -34,6 +34,7 @@ import {ProductionReportFilter} from "@/components/reports/filters/production.fi
 import {BuffetReportFilter} from "@/components/reports/filters/buffet.filter.tsx";
 import { TipsFilter } from "@/components/reports/filters/tips.filter.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {SalesDashboardFilter} from "@/components/reports/filters/sales.dashboard.filter.tsx";
 import {InventoryDashboardFilter} from "@/components/reports/filters/inventory.dashboard.filter.tsx";
 import {DeliveryDensityFilter} from "@/components/reports/filters/delivery.density.filter.tsx";
@@ -60,6 +61,8 @@ import {
   isDeliveryModuleEnabled,
   isHrModuleEnabled,
 } from "@/lib/feature-modules.ts";
+import { useModuleAccess } from "@/providers/module-access.provider.tsx";
+import { NoAccessibleTabs } from "@/components/common/no-accessible-tabs.tsx";
 
 type ReportEntry = {
   filter: ReactNode;
@@ -261,27 +264,68 @@ export const Reports = () => {
         };
       });
   }, [t]);
+
+  const { ready } = useModuleAccess();
+  const isVisible = useActionVisible();
+
+  const visibleCategories = useMemo(() => {
+    if (!ready) return [] as ReportCategory[];
+    return reportCategories
+      .map((category) => ({
+        ...category,
+        reports: category.reports.filter((entry) => isVisible(entry.module)),
+      }))
+      .filter((category) => category.reports.length > 0);
+  }, [reportCategories, ready, isVisible]);
+
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [subReports, setSubReports] = useState<ReportEntry[]>([]);
   const [selectedReportKey, setSelectedReportKey] = useState('');
   const [filter, setFilter] = useState<ReactNode>();
 
   const {protectAction} = useSecurity();
+
+  useEffect(() => {
+    if (!ready) return;
+    if (!selectedCategoryId) return;
+    const category = visibleCategories.find((c) => c.id === selectedCategoryId);
+    if (!category) {
+      setSelectedCategoryId('');
+      setSubReports([]);
+      setSelectedReportKey('');
+      setFilter(undefined);
+      return;
+    }
+    setSubReports(category.reports);
+    if (selectedReportKey && !category.reports.some((r) => r.reportKey === selectedReportKey)) {
+      setSelectedReportKey('');
+      setFilter(undefined);
+    }
+  }, [ready, visibleCategories, selectedCategoryId, selectedReportKey]);
+
   const selectedCategoryTitle =
-    reportCategories.find((c) => c.id === selectedCategoryId)?.title ?? '';
+    visibleCategories.find((c) => c.id === selectedCategoryId)?.title ?? '';
   const selectedReportLabel =
     subReports.find((r) => r.reportKey === selectedReportKey)?.label ?? '';
+
+  const visibleSubReports = useMemo(
+    () => subReports.filter((entry) => isVisible(entry.module)),
+    [subReports, isVisible],
+  );
 
   return (
     <Layout containerClassName="p-5">
       <DocumentTitle parts={[tNav('sidebar.reports')]} />
+      {!ready ? null : visibleCategories.length === 0 ? (
+        <NoAccessibleTabs />
+      ) : (
       <div className="grid grid-cols-9 gap-5" data-testid="reports-page">
         <div className="col-span-2">
           <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-categories">
             <h1 className="text-xl text-gray-600 px-5">{t('page.title')}</h1>
             <div className="py-5">
               <ul>
-                {reportCategories.map((category) => (
+                {visibleCategories.map((category) => (
                   <li
                     className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-gray-100 items-center"
                     data-testid={`reports-category-${category.id}`}
@@ -303,12 +347,13 @@ export const Reports = () => {
             </div>
           </div>
         </div>
+        {visibleSubReports.length > 0 && (
         <div className="col-span-2">
           <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-subreports">
             <h1 className="text-xl text-gray-600 px-5">{t('page.subReports')}</h1>
             <div className="py-5">
               <ul>
-                {subReports.map((entry) => (
+                {visibleSubReports.map((entry) => (
                   <li
                     className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-gray-100 items-center"
                     data-testid={`reports-report-${entry.reportKey}`}
@@ -333,6 +378,7 @@ export const Reports = () => {
             </div>
           </div>
         </div>
+        )}
         <div className="col-span-5">
           <div className="bg-white shadow p-5 rounded-lg" data-testid="reports-filters">
             <h1 className="text-xl">
@@ -346,6 +392,7 @@ export const Reports = () => {
           </div>
         </div>
       </div>
+      )}
 
     </Layout>
   );

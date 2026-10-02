@@ -14,6 +14,7 @@ import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {InventoryWasteViewModal} from "@/components/inventory/wastes/view.modal.tsx";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { wasteListTotal } from "@/lib/inventory/document.list.total.ts";
@@ -31,6 +32,9 @@ export const InventoryWastes = () => {
   );
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdateWastes = isVisible("inventory.wastes.update");
+  const canDeleteWastes = isVisible("inventory.wastes.delete");
 
   const [data, setData] = useState<InventoryWaste>();
   const [formModal, setFormModal] = useState(false);
@@ -103,36 +107,40 @@ export const InventoryWastes = () => {
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
+            {canUpdateWastes && (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'inventory.wastes.update',
+                    description: t('security.editWastes'),
+                  });
+                }}
+              >
+                <FontAwesomeIcon icon={faPencil}/>
+              </IconTooltipButton>
+            )}
+
+            {canDeleteWastes && (
+              <DeleteConfirm onConfirm={() =>
+                protectAction(async () => {
+                  await db.delete(info.getValue());
+                  await db.query(`DELETE
+                                  FROM ${Tables.inventory_waste_items}
+                                  where waste = $waste`, {
+                    waste: info.getValue()
+                  });
+
+                  loadHook.fetchData();
                 }, {
-                  module: 'inventory.wastes.update',
-                  description: t('security.editWastes'),
-                });
-              }}
-            >
-              <FontAwesomeIcon icon={faPencil}/>
-            </IconTooltipButton>
-
-            <DeleteConfirm onConfirm={() =>
-              protectAction(async () => {
-                await db.delete(info.getValue());
-                await db.query(`DELETE
-                                FROM ${Tables.inventory_waste_items}
-                                where waste = $waste`, {
-                  waste: info.getValue()
-                });
-
-                loadHook.fetchData();
-              }, {
-                module: 'inventory.wastes.delete',
-                description: t('security.deleteWastes'),
-              })
-            }/>
+                  module: 'inventory.wastes.delete',
+                  description: t('security.deleteWastes'),
+                })
+              }/>
+            )}
           </div>
         );
       },

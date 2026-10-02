@@ -8,6 +8,7 @@ import { Switch } from "@/components/common/input/switch.tsx";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {
   DEFAULT_INVENTORY_SETTINGS,
   INVENTORY_SETTINGS_KEY,
@@ -36,6 +37,8 @@ export const InventorySettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.inventory');
 
   const costingOptions = useMemo(
     () => [
@@ -304,9 +307,11 @@ export const InventorySettingsCard = () => {
             />
           )}
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t("inventory.save")}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t("inventory.save")}
+          </button>
+        )}
       </form>
     </div>
   );

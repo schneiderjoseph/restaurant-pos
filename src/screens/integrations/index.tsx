@@ -11,10 +11,17 @@ import { ConfigurationPanel } from '@/screens/integrations/configuration.panel.t
 import { HealthPanel } from '@/screens/integrations/health.panel.tsx';
 import { QueuePanel } from '@/screens/integrations/queue.panel.tsx';
 import { useSecurity } from '@/hooks/useSecurity.ts';
+import { useActionVisible } from '@/hooks/useActionVisible.ts';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AvailableProviderEntry } from '@/integrations/core/integration-manager.ts';
 import { DocumentTitle } from '@/components/common/document-title.tsx';
+import { useModuleAccess } from '@/providers/module-access.provider.tsx';
+import {
+  filterKeysByModuleAccess,
+  resolveVisibleSelection,
+} from '@/lib/module-access.ts';
+import { NoAccessibleTabs } from '@/components/common/no-accessible-tabs.tsx';
 
 const INTEGRATION_TAB_MODULES: Record<string, string> = {
   providers: 'integrations.providers',
@@ -23,13 +30,20 @@ const INTEGRATION_TAB_MODULES: Record<string, string> = {
   queue: 'integrations.queue',
 };
 
+const INTEGRATION_TAB_KEYS = ['providers', 'configuration', 'health', 'queue'] as const;
+type IntegrationTabKey = (typeof INTEGRATION_TAB_KEYS)[number];
+
 export const IntegrationsScreen = () => {
   const { t } = useTranslation('integrations');
   const { t: tNav } = useTranslation('navigation');
   const { manager, initialized, providers: availableProviders, setProviderEnabled } = useIntegrationManager();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const { ready, can } = useModuleAccess();
+  const showConfigureProvider = isVisible('integrations.open_configuration');
+  const showToggleProvider = isVisible('integrations.toggle_provider');
 
-  const [selected, setSelected] = useState('providers');
+  const [selected, setSelected] = useState<string | null>(null);
   const [providers, setProviders] = useState<ProviderManifest[]>([]);
   const [providerEntries, setProviderEntries] = useState<AvailableProviderEntry[]>([]);
   const [selectedProviderId, setSelectedProviderId] = useState('');
@@ -42,6 +56,19 @@ export const IntegrationsScreen = () => {
     health: { title: t('tabs.health') },
     queue: { title: t('tabs.queue') },
   }), [t]);
+
+  const visibleKeys = useMemo(() => {
+    if (!ready) return [] as IntegrationTabKey[];
+    return filterKeysByModuleAccess(INTEGRATION_TAB_KEYS, INTEGRATION_TAB_MODULES, can);
+  }, [ready, can]);
+
+  const effectiveSelected = resolveVisibleSelection(selected, visibleKeys);
+
+  useEffect(() => {
+    if (effectiveSelected != null && effectiveSelected !== selected) {
+      setSelected(effectiveSelected);
+    }
+  }, [effectiveSelected, selected]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -65,7 +92,7 @@ export const IntegrationsScreen = () => {
   }, [initialized, manager]);
 
   useEffect(() => {
-    if (!initialized || selected !== 'queue') return;
+    if (!initialized || effectiveSelected !== 'queue') return;
     let cancelled = false;
     const refreshQueue = async () => {
       const queue = await manager.getQueueSnapshot();
@@ -79,7 +106,7 @@ export const IntegrationsScreen = () => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [initialized, manager, selected]);
+  }, [initialized, manager, effectiveSelected]);
 
   const handleConfigure = (providerId: string) => {
     void protectAction(() => {
@@ -140,67 +167,85 @@ export const IntegrationsScreen = () => {
     });
   };
 
+  const titleParts = effectiveSelected
+    ? [pages[effectiveSelected as keyof typeof pages]?.title, tNav('sidebar.integrations')]
+    : [tNav('sidebar.integrations')];
+
   return (
     <Layout>
-      <DocumentTitle parts={[pages[selected as keyof typeof pages]?.title, tNav('sidebar.integrations')]} />
+      <DocumentTitle parts={titleParts} />
       <div data-testid="integrations-page">
-        <Tabs
-          className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
-          onSelectionChange={(key: string) => {
-            protectAction(() => setSelected(key), {
-              module: INTEGRATION_TAB_MODULES[key],
-              description: t('security.accessTab', { module: pages[key as keyof typeof pages].title }),
-            });
-          }}
-        >
-          <TabList
-            aria-label="Integrations tabs"
-            className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
-            data-testid="integrations-tabs"
+        {!ready ? null : visibleKeys.length === 0 ? (
+          <NoAccessibleTabs />
+        ) : (
+          <Tabs
+            className="w-full flex flex-col rounded-xl"
+            selectedKey={effectiveSelected ?? undefined}
+            onSelectionChange={(key: string) => {
+              protectAction(() => setSelected(key), {
+                module: INTEGRATION_TAB_MODULES[key],
+                description: t('security.accessTab', { module: pages[key as keyof typeof pages].title }),
+              });
+            }}
           >
-            {Object.keys(pages).map((key) => (
-              <Tab id={key} key={key} data-testid={`integrations-tab-${key}`}>
-                {pages[key as keyof typeof pages].title}
-              </Tab>
-            ))}
-          </TabList>
+            <TabList
+              aria-label="Integrations tabs"
+              className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+              data-testid="integrations-tabs"
+            >
+              {visibleKeys.map((key) => (
+                <Tab id={key} key={key} data-testid={`integrations-tab-${key}`}>
+                  {pages[key].title}
+                </Tab>
+              ))}
+            </TabList>
 
-          <TabPanel id="providers" className="bg-white shadow flex-grow flex-shrink-0">
-            <div data-testid="integrations-panel-providers">
-              <ProvidersPanel
-                providers={providerEntries}
-                onConfigure={handleConfigure}
-                onToggleProvider={handleToggleProvider}
-              />
-            </div>
-          </TabPanel>
+            {visibleKeys.includes('providers') && (
+              <TabPanel id="providers" className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid="integrations-panel-providers">
+                  <ProvidersPanel
+                    providers={providerEntries}
+                    onConfigure={handleConfigure}
+                    onToggleProvider={handleToggleProvider}
+                    showConfigure={showConfigureProvider}
+                    showToggle={showToggleProvider}
+                  />
+                </div>
+              </TabPanel>
+            )}
 
-          <TabPanel id="configuration" className="bg-white shadow flex-grow flex-shrink-0">
-            <div data-testid="integrations-panel-configuration">
-              <ConfigurationPanel
-                providers={providers}
-                selectedProviderId={selectedProviderId}
-                onProviderChange={setSelectedProviderId}
-                onConnect={handleConnect}
-                onDisconnect={handleDisconnect}
-                onInitialSync={handleInitialSync}
-              />
-            </div>
-          </TabPanel>
+            {visibleKeys.includes('configuration') && (
+              <TabPanel id="configuration" className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid="integrations-panel-configuration">
+                  <ConfigurationPanel
+                    providers={providers}
+                    selectedProviderId={selectedProviderId}
+                    onProviderChange={setSelectedProviderId}
+                    onConnect={handleConnect}
+                    onDisconnect={handleDisconnect}
+                    onInitialSync={handleInitialSync}
+                  />
+                </div>
+              </TabPanel>
+            )}
 
-          <TabPanel id="health" className="bg-white shadow flex-grow flex-shrink-0">
-            <div data-testid="integrations-panel-health">
-              <HealthPanel rows={healthRows} />
-            </div>
-          </TabPanel>
+            {visibleKeys.includes('health') && (
+              <TabPanel id="health" className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid="integrations-panel-health">
+                  <HealthPanel rows={healthRows} />
+                </div>
+              </TabPanel>
+            )}
 
-          <TabPanel id="queue" className="bg-white shadow flex-grow flex-shrink-0">
-            <div data-testid="integrations-panel-queue">
-              <QueuePanel rows={queueRows} />
-            </div>
-          </TabPanel>
-        </Tabs>
+            {visibleKeys.includes('queue') && (
+              <TabPanel id="queue" className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid="integrations-panel-queue">
+                  <QueuePanel rows={queueRows} />
+                </div>
+              </TabPanel>
+            )}
+          </Tabs>
+        )}
       </div>
     </Layout>
   );

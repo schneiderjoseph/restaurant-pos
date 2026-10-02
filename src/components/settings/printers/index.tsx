@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminPrinters = () => {
@@ -21,6 +22,10 @@ export const AdminPrinters = () => {
   const loadHook = useApi<SettingsData<Printer>>(Tables.printers, ['deleted_at = none'], ['priority asc']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.printers.update');
+  const canDelete = isVisible('admin.printers.delete');
+  const canCreate = isVisible('admin.printers.create');
 
   const [data, setData] = useState<Printer>();
   const [formModal, setFormModal] = useState(false);
@@ -43,7 +48,7 @@ export const AdminPrinters = () => {
     // columnHelper.accessor("priority", {
     //   header: t('columns.priority')
     // }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -51,30 +56,34 @@ export const AdminPrinters = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.printers.update',
-                  description: getAccessRuleChildLabel('admin.printers.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.printer', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.printers.delete',
-                description: getAccessRuleChildLabel('admin.printers.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.printers.update',
+                    description: getAccessRuleChildLabel('admin.printers.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.printer', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.printers.delete',
+                  description: getAccessRuleChildLabel('admin.printers.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -100,7 +109,7 @@ export const AdminPrinters = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -108,8 +117,8 @@ export const AdminPrinters = () => {
               module: 'admin.printers.create',
               description: getAccessRuleChildLabel('admin.printers.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-printers">{t('buttons.printer')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-printers">{t('buttons.printer')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {formModal && (

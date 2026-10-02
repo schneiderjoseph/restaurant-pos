@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
@@ -24,6 +25,11 @@ export const AdminKitchens = () => {
   const loadHook = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 10, ['items', 'printers']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.kitchens.update');
+  const canDelete = isVisible('admin.kitchens.delete');
+  const canCreate = isVisible('admin.kitchens.create');
+  const canImport = isVisible('admin.kitchens.import');
 
   const [data, setData] = useState<Kitchen>();
   const [formModal, setFormModal] = useState(false);
@@ -55,7 +61,7 @@ export const AdminKitchens = () => {
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -63,30 +69,34 @@ export const AdminKitchens = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.kitchens.update',
-                  description: getAccessRuleChildLabel('admin.kitchens.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.kitchen', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.kitchens.delete',
-                description: getAccessRuleChildLabel('admin.kitchens.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.kitchens.update',
+                    description: getAccessRuleChildLabel('admin.kitchens.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.kitchen', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.kitchens.delete',
+                  description: getAccessRuleChildLabel('admin.kitchens.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -115,13 +125,13 @@ export const AdminKitchens = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canImport ? <Button variant="primary" onClick={() => {
             protectAction(() => setImportModal(true), {
               module: 'admin.kitchens.import',
               description: getAccessRuleChildLabel('admin.kitchens.import'),
             });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button> : null,
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -129,8 +139,8 @@ export const AdminKitchens = () => {
               module: 'admin.kitchens.create',
               description: getAccessRuleChildLabel('admin.kitchens.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-kitchens">{t('buttons.kitchen')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-kitchens">{t('buttons.kitchen')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {importModal && (

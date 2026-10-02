@@ -14,6 +14,7 @@ import { useDB } from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import { executeSettingsDelete } from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminWorkflows = () => {
@@ -21,6 +22,10 @@ export const AdminWorkflows = () => {
   const loadHook = useApi<SettingsData<Workflow>>(Tables.workflows, ['deleted_at = none'], ['name asc'], 0, 10, []);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.workflows.update');
+  const canDelete = isVisible('admin.workflows.delete');
+  const canCreate = isVisible('admin.workflows.create');
 
   const [data, setData] = useState<Workflow>();
   const [formModal, setFormModal] = useState(false);
@@ -31,7 +36,7 @@ export const AdminWorkflows = () => {
     columnHelper.accessor("name", {
       header: t('columns.name')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -39,30 +44,34 @@ export const AdminWorkflows = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.workflows.update',
-                  description: getAccessRuleChildLabel('admin.workflows.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.workflow', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.workflows.delete',
-                description: getAccessRuleChildLabel('admin.workflows.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.workflows.update',
+                    description: getAccessRuleChildLabel('admin.workflows.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.workflow', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.workflows.delete',
+                  description: getAccessRuleChildLabel('admin.workflows.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -93,7 +102,7 @@ export const AdminWorkflows = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -101,8 +110,8 @@ export const AdminWorkflows = () => {
               module: 'admin.workflows.create',
               description: getAccessRuleChildLabel('admin.workflows.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-workflows">{t('buttons.workflow')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-workflows">{t('buttons.workflow')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {formModal && (

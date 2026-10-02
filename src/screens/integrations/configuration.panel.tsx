@@ -7,6 +7,7 @@ import { Button } from '@/components/common/input/button.tsx';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useSecurity } from '@/hooks/useSecurity.ts';
+import { useActionVisible } from '@/hooks/useActionVisible.ts';
 
 type SelectOption = { label: string; value: string };
 
@@ -30,6 +31,8 @@ export const ConfigurationPanel = ({
   const { t } = useTranslation('integrations');
   const { getConfiguration, saveConfiguration } = useIntegrationConfigurationManager();
   const { protectAction, protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSaveConfiguration = isVisible('integrations.save_configuration');
   const [formValues, setFormValues] = useState<Record<string, unknown>>({});
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
@@ -168,6 +171,7 @@ export const ConfigurationPanel = ({
               </p>
               {isConnected && <p className="text-xs text-neutral-500 mt-0.5">{t('connectionRequired')}</p>}
             </div>
+            {canSaveConfiguration && (
             <div className="flex items-center gap-2">
               {!isConnected ? (
                 <Button variant="primary" onClick={handleConnect} disabled={connecting}>
@@ -184,6 +188,7 @@ export const ConfigurationPanel = ({
                 </>
               )}
             </div>
+            )}
           </div>
         </div>
       )}
@@ -230,9 +235,11 @@ export const ConfigurationPanel = ({
           ))}
         </div>
 
-        <Button type="submit" variant="primary">
-          {t('saveConfiguration')}
-        </Button>
+        {canSaveConfiguration && (
+          <Button type="submit" variant="primary">
+            {t('saveConfiguration')}
+          </Button>
+        )}
       </form>
     </div>
   );

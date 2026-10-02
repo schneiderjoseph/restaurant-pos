@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
@@ -24,6 +25,11 @@ export const AdminOrderTypes = () => {
   const loadHook = useApi<SettingsData<OrderType>>(Tables.order_types, ['deleted_at = none']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.order_types.update');
+  const canDelete = isVisible('admin.order_types.delete');
+  const canCreate = isVisible('admin.order_types.create');
+  const canImport = isVisible('admin.order_types.import');
 
   const [data, setData] = useState<OrderType>();
   const [formModal, setFormModal] = useState(false);
@@ -47,7 +53,7 @@ export const AdminOrderTypes = () => {
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -55,30 +61,34 @@ export const AdminOrderTypes = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.order_types.update',
-                  description: getAccessRuleChildLabel('admin.order_types.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.orderType', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.order_types.delete',
-                description: getAccessRuleChildLabel('admin.order_types.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.order_types.update',
+                    description: getAccessRuleChildLabel('admin.order_types.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.orderType', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.order_types.delete',
+                  description: getAccessRuleChildLabel('admin.order_types.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -107,13 +117,13 @@ export const AdminOrderTypes = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canImport ? <Button variant="primary" onClick={() => {
             protectAction(() => setImportModal(true), {
               module: 'admin.order_types.import',
               description: getAccessRuleChildLabel('admin.order_types.import'),
             });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button> : null,
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -121,8 +131,8 @@ export const AdminOrderTypes = () => {
               module: 'admin.order_types.create',
               description: getAccessRuleChildLabel('admin.order_types.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-order_types">{t('buttons.orderType')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-order_types">{t('buttons.orderType')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {importModal && (

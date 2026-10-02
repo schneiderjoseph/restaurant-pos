@@ -156,6 +156,11 @@
     "unsupportedMatchField": "لا يمكن المطابقة على العمود \"{{field}}\".",
     "fileTooLarge": "الملف كبير جدًا. الحد الأقصى للحجم هو {{max}}."
   },
+  "moduleAccess": {
+    "noAccessTitle": "لا يوجد وصول",
+    "noAccessDescription": "ليس لديك إذن لفتح أي صفحة. تواصل مع المدير إذا كنت بحاجة إلى الوصول.",
+    "noTabs": "لا تتوفر أي أقسام لحسابك."
+  },
   "loading": "جارٍ التحميل...",
   "dataImport": {
     "title": "استيراد {{entity}}",

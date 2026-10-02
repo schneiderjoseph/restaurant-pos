@@ -7,9 +7,17 @@ interface ProvidersPanelProps {
   providers: AvailableProviderEntry[];
   onConfigure: (providerId: string) => void;
   onToggleProvider: (providerId: string, enabled: boolean) => void;
+  showConfigure?: boolean;
+  showToggle?: boolean;
 }
 
-export const ProvidersPanel = ({ providers, onConfigure, onToggleProvider }: ProvidersPanelProps) => {
+export const ProvidersPanel = ({
+  providers,
+  onConfigure,
+  onToggleProvider,
+  showConfigure = true,
+  showToggle = true,
+}: ProvidersPanelProps) => {
   const { t } = useTranslation('integrations');
 
   return (
@@ -26,17 +34,23 @@ export const ProvidersPanel = ({ providers, onConfigure, onToggleProvider }: Pro
                 {provider.enabled ? t('enabled') : t('disabled')}
               </p>
             </div>
+            {(showToggle || showConfigure) && (
             <div className="flex items-center gap-4">
-              <Switch
-                checked={provider.enabled}
-                onChange={(event) => onToggleProvider(provider.manifest.id, event.target.checked)}
-              >
-                {provider.enabled ? t('disableProvider') : t('enableProvider')}
-              </Switch>
-              <Button variant="primary" onClick={() => onConfigure(provider.manifest.id)}>
-                {t('configure')}
-              </Button>
+              {showToggle && (
+                <Switch
+                  checked={provider.enabled}
+                  onChange={(event) => onToggleProvider(provider.manifest.id, event.target.checked)}
+                >
+                  {provider.enabled ? t('disableProvider') : t('enableProvider')}
+                </Switch>
+              )}
+              {showConfigure && (
+                <Button variant="primary" onClick={() => onConfigure(provider.manifest.id)}>
+                  {t('configure')}
+                </Button>
+              )}
             </div>
+            )}
           </div>
         </div>
       ))}

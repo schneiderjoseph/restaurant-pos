@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
@@ -24,6 +25,11 @@ export const AdminPaymentTypes = () => {
   const loadHook = useApi<SettingsData<PaymentType>>(Tables.payment_types, ['deleted_at = none'], ['priority asc'], 0, 10, ['tax', 'gateway_config']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.payment_types.update');
+  const canDelete = isVisible('admin.payment_types.delete');
+  const canCreate = isVisible('admin.payment_types.create');
+  const canImport = isVisible('admin.payment_types.import');
 
   const [data, setData] = useState<PaymentType>();
   const [formModal, setFormModal] = useState(false);
@@ -58,7 +64,7 @@ export const AdminPaymentTypes = () => {
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -66,30 +72,34 @@ export const AdminPaymentTypes = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.payment_types.update',
-                  description: getAccessRuleChildLabel('admin.payment_types.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.paymentType', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.payment_types.delete',
-                description: getAccessRuleChildLabel('admin.payment_types.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.payment_types.update',
+                    description: getAccessRuleChildLabel('admin.payment_types.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.paymentType', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.payment_types.delete',
+                  description: getAccessRuleChildLabel('admin.payment_types.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -118,13 +128,13 @@ export const AdminPaymentTypes = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canImport ? <Button variant="primary" onClick={() => {
             protectAction(() => setImportModal(true), {
               module: 'admin.payment_types.import',
               description: getAccessRuleChildLabel('admin.payment_types.import'),
             });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button> : null,
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -132,8 +142,8 @@ export const AdminPaymentTypes = () => {
               module: 'admin.payment_types.create',
               description: getAccessRuleChildLabel('admin.payment_types.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-payment_types">{t('buttons.paymentType')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-payment_types">{t('buttons.paymentType')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {importModal && (

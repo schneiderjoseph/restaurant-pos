@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { appPage, systemPrinterSettings, type SystemPrinterSettings } from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {useTranslation} from 'react-i18next';
 
 const PRINTER_SETTING_KEYS = {
@@ -99,6 +100,8 @@ export const Printersettings = () => {
   const [loading, setLoading] = useState(true);
   const userId = page?.user?.id != null ? toIdString(page.user.id) : null;
   const {protectFormSubmit} = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.printers');
   const { t } = useTranslation(['settings', 'common']);
 
   const { data: printersData } = useApi<SettingsData<Printer>>(
@@ -384,11 +387,13 @@ export const Printersettings = () => {
             />
           </div>
 
+          {canSave && (
           <div>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
               {isSubmitting ? t('settings:printers.saving') : t('settings:printers.save')}
             </Button>
           </div>
+          )}
         </form>
       )}
     </div>

@@ -14,6 +14,7 @@ import { useDB } from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import { withCurrency } from "@/lib/utils.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
@@ -28,6 +29,11 @@ export const AdminExtras = () => {
   ]);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.extras.update');
+  const canDelete = isVisible('admin.extras.delete');
+  const canCreate = isVisible('admin.extras.create');
+  const canImport = isVisible('admin.extras.import');
 
   const [data, setData] = useState<Extra>();
   const [formModal, setFormModal] = useState(false);
@@ -68,7 +74,7 @@ export const AdminExtras = () => {
       header: t('columns.applyToAll'),
       cell: info => info.getValue() ? <FontAwesomeIcon icon={faCheck} className="text-success-500" /> : <FontAwesomeIcon icon={faTimes} className="text-danger-500" />,
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -76,33 +82,37 @@ export const AdminExtras = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.extras.update',
+                    description: getAccessRuleChildLabel('admin.extras.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.extra', { name: info.row.original.name })}
+                onConfirm={() => protectAction(async () => {
+                  await db.delete(info.row.original.id);
+                  loadHook.fetchData();
                 }, {
-                  module: 'admin.extras.update',
-                  description: getAccessRuleChildLabel('admin.extras.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.extra', { name: info.row.original.name })}
-              onConfirm={() => protectAction(async () => {
-                await db.delete(info.row.original.id);
-                loadHook.fetchData();
-              }, {
-                module: 'admin.extras.delete',
-                description: getAccessRuleChildLabel('admin.extras.delete'),
-              })}
-            />
+                  module: 'admin.extras.delete',
+                  description: getAccessRuleChildLabel('admin.extras.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   return (
@@ -112,35 +122,39 @@ export const AdminExtras = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button
-            variant="primary"
-            onClick={() => {
-              protectAction(() => setImportModal(true), {
-                module: 'admin.extras.import',
-                description: getAccessRuleChildLabel('admin.extras.import'),
-              });
-            }}
-          >
-            <span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}
-          </Button>,
-          <Button
-            variant="primary"
-            data-testid="admin-add-extras"
-            onClick={() => {
-              protectAction(() => {
-                setData(undefined);
-                setFormModal(true);
-              }, {
-                module: 'admin.extras.create',
-                description: getAccessRuleChildLabel('admin.extras.create'),
-              });
-            }}
-            icon={faPlus}
-          >
-            {" "}
-            Extra
-          </Button>,
-        ]}
+          canImport ? (
+            <Button
+              variant="primary"
+              onClick={() => {
+                protectAction(() => setImportModal(true), {
+                  module: 'admin.extras.import',
+                  description: getAccessRuleChildLabel('admin.extras.import'),
+                });
+              }}
+            >
+              <span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}
+            </Button>
+          ) : null,
+          canCreate ? (
+            <Button
+              variant="primary"
+              data-testid="admin-add-extras"
+              onClick={() => {
+                protectAction(() => {
+                  setData(undefined);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.extras.create',
+                  description: getAccessRuleChildLabel('admin.extras.create'),
+                });
+              }}
+              icon={faPlus}
+            >
+              {" "}
+              Extra
+            </Button>
+          ) : null,
+        ].filter(Boolean)}
       />
 
       {importModal && (

@@ -156,6 +156,11 @@
     "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz.",
     "fileTooLarge": "Dosya çok büyük. Maksimum boyut {{max}}."
   },
+  "moduleAccess": {
+    "noAccessTitle": "Erişim yok",
+    "noAccessDescription": "Herhangi bir sayfayı açma izniniz yok. Erişime ihtiyacınız varsa bir yöneticiye başvurun.",
+    "noTabs": "Hesabınız için kullanılabilir bölüm yok."
+  },
   "loading": "Yükleniyor...",
   "dataImport": {
     "title": "{{entity}} içe aktar",

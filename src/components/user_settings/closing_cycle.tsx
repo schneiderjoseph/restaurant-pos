@@ -7,6 +7,7 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {TimeField} from "@/components/common/form/rhf-fields.tsx";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {CLOSING_CYCLE_KEY} from "@/lib/closing-cycle.ts";
 import {useTranslation} from 'react-i18next';
 
@@ -26,6 +27,8 @@ export const ClosingCycleSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const {protectFormSubmit} = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.closing_cycle');
   const { t } = useTranslation(['settings', 'common']);
 
   const {control, handleSubmit, reset} = useForm<ClosingCycleValues>({
@@ -109,7 +112,9 @@ export const ClosingCycleSettingsCard = () => {
             label={t('settings:closingCycle.endTime')}
           />
         </div>
-        <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">{t('common:actions.save')}</button>
+        )}
       </form>
     </div>
   );

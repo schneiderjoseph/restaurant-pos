@@ -7,6 +7,7 @@ import { Switch } from '@/components/common/input/switch.tsx';
 import { TimeField } from '@/components/common/form/rhf-fields.tsx';
 import { toast } from 'sonner';
 import { useSecurity } from '@/hooks/useSecurity.ts';
+import { useActionVisible } from '@/hooks/useActionVisible.ts';
 import {
   AUTO_CLOCK_OUT_KEY,
   AutoClockOutSettings,
@@ -25,6 +26,8 @@ export const AutoClockOutSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.auto_clock_out');
   const { t } = useTranslation(['settings', 'common']);
 
   const { control, handleSubmit, reset, watch } = useForm<FormValues>({
@@ -146,9 +149,11 @@ export const AutoClockOutSettingsCard = () => {
             className={!enabled || !onDefinedTime ? 'opacity-50 pointer-events-none' : ''}
           />
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t('common:actions.save')}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t('common:actions.save')}
+          </button>
+        )}
       </form>
     </div>
   );

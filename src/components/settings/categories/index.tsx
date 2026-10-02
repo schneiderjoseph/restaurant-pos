@@ -19,6 +19,7 @@ import {Checkbox} from "@/components/common/input/checkbox";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminCategories = () => {
@@ -26,6 +27,11 @@ export const AdminCategories = () => {
   const loadHook = useApi<SettingsData<Category>>(Tables.categories, ['deleted_at = none']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canEdit = isVisible('admin.categories.update');
+  const canDelete = isVisible('admin.categories.delete');
+  const canImport = isVisible('admin.categories.import');
+  const canCreate = isVisible('admin.categories.create');
 
   const [data, setData] = useState<Category>();
   const [formModal, setFormModal] = useState(false);
@@ -72,7 +78,7 @@ export const AdminCategories = () => {
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),
-    columnHelper.accessor("id", {
+    ...(canEdit || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -80,41 +86,45 @@ export const AdminCategories = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.categories.update',
-                  description: getAccessRuleChildLabel('admin.categories.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm message={t('delete.category', { name: info.row.original.name })} onConfirm={() => protectAction(async () => {
-              await executeSettingsDelete({
-                db,
-                id: info.row.original.id,
-                entityLabel: t('entities.category'),
-                usageChecks: [
-                  {
-                    query: `SELECT count() AS count FROM ${Tables.dishes} WHERE categories ?= $idRecord AND deleted_at = none GROUP ALL`
+            {canEdit && (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.categories.update',
+                    description: getAccessRuleChildLabel('admin.categories.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            )}
+            {canEdit && canDelete && <div className="separator"></div>}
+            {canDelete && (
+              <DeleteConfirm message={t('delete.category', { name: info.row.original.name })} onConfirm={() => protectAction(async () => {
+                await executeSettingsDelete({
+                  db,
+                  id: info.row.original.id,
+                  entityLabel: t('entities.category'),
+                  usageChecks: [
+                    {
+                      query: `SELECT count() AS count FROM ${Tables.dishes} WHERE categories ?= $idRecord AND deleted_at = none GROUP ALL`
+                    }
+                  ],
+                  onAfter: async () => {
+                    loadHook.fetchData();
                   }
-                ],
-                onAfter: async () => {
-                  loadHook.fetchData();
-                }
-              });
-            }, {
-              module: 'admin.categories.delete',
-              description: getAccessRuleChildLabel('admin.categories.delete'),
-            })}/>
+                });
+              }, {
+                module: 'admin.categories.delete',
+                description: getAccessRuleChildLabel('admin.categories.delete'),
+              })}/>
+            )}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   return (
@@ -124,21 +134,25 @@ export const AdminCategories = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
-            protectAction(() => setImportModal(true), {
-              module: 'admin.categories.import',
-              description: getAccessRuleChildLabel('admin.categories.import'),
-            });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
-            protectAction(() => {
-              setData(undefined);
-              setFormModal(true);
-            }, {
-              module: 'admin.categories.create',
-              description: getAccessRuleChildLabel('admin.categories.create'),
-            });
-          }} icon={faPlus} data-testid="admin-add-categories">{t('buttons.category')}</Button>
+          ...(canImport ? [
+            <Button key="import" variant="primary" onClick={() => {
+              protectAction(() => setImportModal(true), {
+                module: 'admin.categories.import',
+                description: getAccessRuleChildLabel('admin.categories.import'),
+              });
+            }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
+          ] : []),
+          ...(canCreate ? [
+            <Button key="create" variant="primary" onClick={() => {
+              protectAction(() => {
+                setData(undefined);
+                setFormModal(true);
+              }, {
+                module: 'admin.categories.create',
+                description: getAccessRuleChildLabel('admin.categories.create'),
+              });
+            }} icon={faPlus} data-testid="admin-add-categories">{t('buttons.category')}</Button>,
+          ] : []),
         ]}
         enableSelection
         rowSelection={rowSelection}
@@ -149,8 +163,8 @@ export const AdminCategories = () => {
             data: selectedRows as Category[],
           }));
         }}
-        selectionButtons={[
-          <Button variant="primary" onClick={() => {
+        selectionButtons={canEdit ? [
+          <Button key="bulk-edit" variant="primary" onClick={() => {
             protectAction(() => {
               setBulkEdit((prev) => ({
                 ...prev,
@@ -161,7 +175,7 @@ export const AdminCategories = () => {
               description: getAccessRuleChildLabel('admin.categories.update'),
             });
           }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
-        ]}
+        ] : []}
       />
 
       {importModal && (

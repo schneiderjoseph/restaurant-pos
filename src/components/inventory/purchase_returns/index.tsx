@@ -14,6 +14,7 @@ import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { purchaseReturnListTotal } from "@/lib/inventory/document.list.total.ts";
@@ -23,6 +24,9 @@ export const InventoryPurchaseReturns = () => {
   const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdatePurchaseReturns = isVisible("inventory.purchase_returns.update");
+  const canDeletePurchaseReturns = isVisible("inventory.purchase_returns.delete");
   const loadHook = useApi<SettingsData<InventoryPurchaseReturn>>(
     Tables.inventory_purchase_returns,
     [],
@@ -95,36 +99,40 @@ export const InventoryPurchaseReturns = () => {
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(row);
-                  setFormModal(true);
-                }, {
-                  module: 'inventory.purchase_returns.update',
-                  description: t('security.editPurchaseReturns'),
-                });
-              }}
-            >
-              <FontAwesomeIcon icon={faPencil}/>
-            </IconTooltipButton>
-            <DeleteConfirm
-              message={`Do you want to delete purchase return #${row.invoice_number}?`}
-              onConfirm={() =>
-                protectAction(async () => {
-                  await db.delete(row.id);
-                  await db.query(
-                    `DELETE FROM ${Tables.inventory_purchase_return_items} WHERE purchase_return = $id`,
-                    {id: row.id},
-                  );
-                  loadHook.fetchData();
-                }, {
-                  module: 'inventory.purchase_returns.delete',
-                  description: t('security.deletePurchaseReturns'),
-                })
-              }
-            />
+            {canUpdatePurchaseReturns && (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(row);
+                    setFormModal(true);
+                  }, {
+                    module: 'inventory.purchase_returns.update',
+                    description: t('security.editPurchaseReturns'),
+                  });
+                }}
+              >
+                <FontAwesomeIcon icon={faPencil}/>
+              </IconTooltipButton>
+            )}
+            {canDeletePurchaseReturns && (
+              <DeleteConfirm
+                message={`Do you want to delete purchase return #${row.invoice_number}?`}
+                onConfirm={() =>
+                  protectAction(async () => {
+                    await db.delete(row.id);
+                    await db.query(
+                      `DELETE FROM ${Tables.inventory_purchase_return_items} WHERE purchase_return = $id`,
+                      {id: row.id},
+                    );
+                    loadHook.fetchData();
+                  }, {
+                    module: 'inventory.purchase_returns.delete',
+                    description: t('security.deletePurchaseReturns'),
+                  })
+                }
+              />
+            )}
           </div>
         );
       },

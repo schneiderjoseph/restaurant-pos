@@ -156,6 +156,11 @@
     "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\".",
     "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}."
   },
+  "moduleAccess": {
+    "noAccessTitle": "Geen toegang",
+    "noAccessDescription": "U hebt geen toestemming om een pagina te openen. Neem contact op met een manager als u toegang nodig hebt.",
+    "noTabs": "Er zijn geen secties beschikbaar voor uw account."
+  },
   "loading": "Laden...",
   "dataImport": {
     "title": "{{entity}} importeren",

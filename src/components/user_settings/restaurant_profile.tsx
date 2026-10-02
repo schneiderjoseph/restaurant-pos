@@ -5,6 +5,7 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { useDB } from "@/api/db/db.ts";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {
   DEFAULT_RESTAURANT_PROFILE,
   type RestaurantProfile,
@@ -29,6 +30,8 @@ interface FormValues {
 export const RestaurantProfileSettingsCard = () => {
   const db = useDB();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.restaurant_profile');
   const { t } = useTranslation(["settings", "common"]);
   const [settingId, setSettingId] = useState<string>();
   const [existingLogo, setExistingLogo] = useState<RestaurantProfile["logo"]>(null);
@@ -247,9 +250,11 @@ export const RestaurantProfileSettingsCard = () => {
             )}
           </div>
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t("common:actions.save")}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t("common:actions.save")}
+          </button>
+        )}
       </form>
     </div>
   );

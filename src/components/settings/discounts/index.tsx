@@ -18,6 +18,7 @@ import {Tab, TabPanel} from "@/components/common/react-aria/tabs";
 import {DiscountPermissionMatrix} from "@/components/settings/discounts/permission-matrix.tsx";
 import {DiscountReasonsAdmin} from "@/components/settings/discounts/reasons/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminDiscounts = () => {
@@ -25,6 +26,10 @@ export const AdminDiscounts = () => {
   const loadHook = useApi<SettingsData<Discount>>(Tables.discounts, ['deleted_at = none']);
   const db = useDB();
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canEdit = isVisible('admin.discounts.update');
+  const canDelete = isVisible('admin.discounts.delete');
+  const canCreate = isVisible('admin.discounts.create');
 
   const [data, setData] = useState<Discount>();
   const [formModal, setFormModal] = useState(false);
@@ -73,32 +78,36 @@ export const AdminDiscounts = () => {
       cell: info => translateType(info.getValue()),
     }),
     columnHelper.accessor("priority", {header: t('columns.priority')}),
-    columnHelper.accessor("id", {
+    ...(canEdit || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
         <div className="flex gap-3 items-center">
-          <IconTooltipButton label={t('common:actions.edit')} variant="primary" onClick={() => {
-            protectAction(() => {
-              setData(info.row.original);
-              setFormModal(true);
-            }, {
-              module: 'admin.discounts.update',
-              description: getAccessRuleChildLabel('admin.discounts.update'),
-            });
-          }}><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-          <DeleteConfirm
-            message={t('delete.discount', {name: info.row.original.name})}
-            onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-              module: 'admin.discounts.delete',
-              description: getAccessRuleChildLabel('admin.discounts.delete'),
-            })}
-          />
+          {canEdit && (
+            <IconTooltipButton label={t('common:actions.edit')} variant="primary" onClick={() => {
+              protectAction(() => {
+                setData(info.row.original);
+                setFormModal(true);
+              }, {
+                module: 'admin.discounts.update',
+                description: getAccessRuleChildLabel('admin.discounts.update'),
+              });
+            }}><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+          )}
+          {canDelete && (
+            <DeleteConfirm
+              message={t('delete.discount', {name: info.row.original.name})}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.discounts.delete',
+                description: getAccessRuleChildLabel('admin.discounts.delete'),
+              })}
+            />
+          )}
         </div>
       ),
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -134,7 +143,7 @@ export const AdminDiscounts = () => {
             columns={columns}
             loaderHook={loadHook}
             loaderLineItems={columns.length}
-            buttons={[
+            buttons={canCreate ? [
               <Button key="add" variant="primary" data-testid="admin-add-discounts" onClick={() => protectAction(() => {
                 setData(undefined);
                 setFormModal(true);
@@ -144,7 +153,7 @@ export const AdminDiscounts = () => {
               })} icon={faPlus}>
                 {t('buttons.discount')}
               </Button>
-            ]}
+            ] : []}
           />
 
           {formModal && (

@@ -43,6 +43,7 @@ import {OrderRefundModal} from "@/components/orders/order.refund.modal.tsx";
 import {getOrderDisplayItems, getOrderFilteredItems} from "@/lib/order.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
@@ -128,6 +129,28 @@ export const OrderBox = ({
   const taxes = taxesProp;
 
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+
+  const isInProgress = order.status === OrderStatus["In Progress"];
+  const isPaid = order.status === OrderStatus.Paid;
+  const showSplitBySeatsItem = isInProgress && hasSeats && isVisible('orders.split_by_seats');
+  const showSplitByItemsItem = isInProgress && isVisible('orders.split_by_items');
+  const showSplitByAmountItem = isInProgress && isVisible('orders.split_by_amount');
+  const showSplitByClientsItem = isInProgress && isVisible('orders.split_by_items');
+  const showAnySplitItem =
+    showSplitBySeatsItem || showSplitByItemsItem || showSplitByAmountItem || showSplitByClientsItem;
+  const showTransferCustomerItem = isInProgress && isVisible('orders');
+  const showMergeItem = isInProgress && isVisible('orders.merge');
+  const showCancelItem = isInProgress && isVisible('orders.cancel');
+  const showRefundPaidItem = isPaid && isVisible('orders.refund');
+  const showKotCopyItem =
+    (isInProgress || isPaid) && isVisible('orders.print_kot');
+  const showFinalBillItem = isPaid && isVisible('orders.print_final');
+  const showTempBillCard = isInProgress && isVisible('orders.print_temp');
+  // Edit is not module-guarded, so in-progress always has at least one menu entry.
+  const hasOrderMenuItems =
+    isInProgress ||
+    (isPaid && (showRefundPaidItem || showFinalBillItem || showKotCopyItem));
 
   const withFullOrder = async (run: (full: OrderModel) => void | Promise<void>) => {
     setIsLoadingFull(true);
@@ -365,6 +388,7 @@ export const OrderBox = ({
             </>
           ) : (
             <>
+              {hasOrderMenuItems && (
               <Dropdown
                 label={<><FontAwesomeIcon icon={faEllipsisV} className="mr-3"/> </>}
                 btnSize="lg"
@@ -491,66 +515,102 @@ export const OrderBox = ({
                   }
                 }}
               >
-                {order.status === OrderStatus["In Progress"] && (
+                {isInProgress && (
                   <>
                     <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="edit" key="edit"
                                   data-testid="order-menu-edit"
                                   className="min-w-[50px]">
                       <FontAwesomeIcon icon={faPenToSquare}/> {t('actions.editOrder')}
                     </DropdownItem>
-                    <DropdownSeparator/>
-                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="cancel" key="cancel"
-                                  data-testid="order-menu-cancel"
-                                  className="min-w-[50px] bg-danger-100 text-danger-500">
-                      <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.cancelOrder')}
-                    </DropdownItem>
-                    <DropdownSeparator/>
-                    <DropdownItem isDisabled={mutationsBlocked || hasSeats !== true || isLoadingFull} id="split_by_seats"
-                                  key="split_by_seats" data-testid="order-menu-split_by_seats" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faChair}/> {t('actions.splitBySeats')}
-                    </DropdownItem>
-                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_items" key="split_by_items"
-                                  data-testid="order-menu-split_by_items" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByItems')}
-                    </DropdownItem>
-                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_amount" key="split_by_amount"
-                                  data-testid="order-menu-split_by_amount" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByAmount')}
-                    </DropdownItem>
-                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_clients" key="split_by_clients"
-                                  data-testid="order-menu-split_by_clients" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faUsers}/> {t('actions.splitByClients')}
-                    </DropdownItem>
-                    <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="transfer_customer" key="transfer_customer"
-                                  data-testid="order-menu-transfer_customer" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faUser}/> {t('actions.transferToClient')}
-                    </DropdownItem>
-                    <DropdownSeparator/>
-                    <DropdownItem isDisabled={mutationsBlocked || !cardReady} id="merge" key="merge" data-testid="order-menu-merge" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faObjectGroup}/> {t('actions.mergeOrders')}
-                    </DropdownItem>
-                    <DropdownSeparator/>
-                    <DropdownItem isDisabled={isLoadingFull} id="kot_copy" key="kot_copy" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faPrint}/> {t('actions.printKotCopy')}
-                    </DropdownItem>
+                    {showCancelItem && (
+                      <>
+                        <DropdownSeparator/>
+                        <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="cancel" key="cancel"
+                                      data-testid="order-menu-cancel"
+                                      className="min-w-[50px] bg-danger-100 text-danger-500">
+                          <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.cancelOrder')}
+                        </DropdownItem>
+                      </>
+                    )}
+                    {showAnySplitItem && (
+                      <>
+                        <DropdownSeparator/>
+                        {showSplitBySeatsItem && (
+                          <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_seats"
+                                        key="split_by_seats" data-testid="order-menu-split_by_seats" className="min-w-[50px]">
+                            <FontAwesomeIcon icon={faChair}/> {t('actions.splitBySeats')}
+                          </DropdownItem>
+                        )}
+                        {showSplitByItemsItem && (
+                          <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_items" key="split_by_items"
+                                        data-testid="order-menu-split_by_items" className="min-w-[50px]">
+                            <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByItems')}
+                          </DropdownItem>
+                        )}
+                        {showSplitByAmountItem && (
+                          <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_amount" key="split_by_amount"
+                                        data-testid="order-menu-split_by_amount" className="min-w-[50px]">
+                            <FontAwesomeIcon icon={faCodeBranch}/> {t('actions.splitByAmount')}
+                          </DropdownItem>
+                        )}
+                        {showSplitByClientsItem && (
+                          <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="split_by_clients" key="split_by_clients"
+                                        data-testid="order-menu-split_by_clients" className="min-w-[50px]">
+                            <FontAwesomeIcon icon={faUsers}/> {t('actions.splitByClients')}
+                          </DropdownItem>
+                        )}
+                      </>
+                    )}
+                    {showTransferCustomerItem && (
+                      <>
+                        <DropdownSeparator/>
+                        <DropdownItem isDisabled={mutationsBlocked || isLoadingFull} id="transfer_customer" key="transfer_customer"
+                                      data-testid="order-menu-transfer_customer" className="min-w-[50px]">
+                          <FontAwesomeIcon icon={faUser}/> {t('actions.transferToClient')}
+                        </DropdownItem>
+                      </>
+                    )}
+                    {showMergeItem && (
+                      <>
+                        <DropdownSeparator/>
+                        <DropdownItem isDisabled={mutationsBlocked || !cardReady} id="merge" key="merge" data-testid="order-menu-merge" className="min-w-[50px]">
+                          <FontAwesomeIcon icon={faObjectGroup}/> {t('actions.mergeOrders')}
+                        </DropdownItem>
+                      </>
+                    )}
+                    {showKotCopyItem && (
+                      <>
+                        <DropdownSeparator/>
+                        <DropdownItem isDisabled={isLoadingFull} id="kot_copy" key="kot_copy" className="min-w-[50px]">
+                          <FontAwesomeIcon icon={faPrint}/> {t('actions.printKotCopy')}
+                        </DropdownItem>
+                      </>
+                    )}
                   </>
                 )}
 
-                {order.status === OrderStatus["Paid"] && (
+                {isPaid && (
                   <>
-                    <DropdownItem isDisabled={isLoadingFull} id="refund" key="refund" data-testid="order-menu-refund" className="min-w-[50px] bg-danger-100 text-danger-500">
-                      <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.refund')}
-                    </DropdownItem>
-                    <DropdownSeparator/>
-                    <DropdownItem isDisabled={isLoadingFull} id="final_bill" key="final_bill" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faPrint}/> {t('actions.printFinalBillCopy')}
-                    </DropdownItem>
-                    <DropdownItem isDisabled={isLoadingFull} id="kot_copy" key="kot_copy" className="min-w-[50px]">
-                      <FontAwesomeIcon icon={faPrint}/> {t('actions.printKotCopy')}
-                    </DropdownItem>
+                    {showRefundPaidItem && (
+                      <DropdownItem isDisabled={isLoadingFull} id="refund" key="refund" data-testid="order-menu-refund" className="min-w-[50px] bg-danger-100 text-danger-500">
+                        <FontAwesomeIcon icon={faMoneyBillTransfer}/> {t('actions.refund')}
+                      </DropdownItem>
+                    )}
+                    {(showFinalBillItem || showKotCopyItem) && showRefundPaidItem && <DropdownSeparator/>}
+                    {showFinalBillItem && (
+                      <DropdownItem isDisabled={isLoadingFull} id="final_bill" key="final_bill" className="min-w-[50px]">
+                        <FontAwesomeIcon icon={faPrint}/> {t('actions.printFinalBillCopy')}
+                      </DropdownItem>
+                    )}
+                    {showKotCopyItem && (
+                      <DropdownItem isDisabled={isLoadingFull} id="kot_copy" key="kot_copy" className="min-w-[50px]">
+                        <FontAwesomeIcon icon={faPrint}/> {t('actions.printKotCopy')}
+                      </DropdownItem>
+                    )}
                   </>
                 )}
               </Dropdown>
+              )}
               {order.status === OrderStatus["In Progress"] && (
                 <>
                   <span title={t('actions.editOrder')} className="flex-1 flex">
@@ -565,6 +625,7 @@ export const OrderBox = ({
                       data-testid="order-card-edit"
                     />
                   </span>
+                  {showTempBillCard && (
                   <span title={tempPrinted ? t('print.tempAlreadyPrinted') : undefined} className="flex-1 flex">
                     <Button
                       onClick={printTempBill}
@@ -577,6 +638,7 @@ export const OrderBox = ({
                       data-testid="order-card-temp-bill"
                     ></Button>
                   </span>
+                  )}
                   <Button
                     variant="warning"
                     filled

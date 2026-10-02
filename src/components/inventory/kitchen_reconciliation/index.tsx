@@ -18,6 +18,7 @@ import {businessDateFromJsDate} from "@/lib/kitchen/business-date.ts";
 import {ManualLineInput} from "@/lib/kitchen/reconciliation.service.ts";
 import {useKitchenReconciliation} from "@/hooks/useKitchenReconciliation.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
@@ -45,6 +46,8 @@ export const KitchenReconciliationScreen = () => {
   const db = useDB();
   const [state] = useAtom(appPage);
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canKitchenReconciliation = isVisible("inventory.kitchen_reconciliation");
 
   const [businessDate, setBusinessDate] = useState<DateValue | null>(getToday());
   const [selectedLocation, setSelectedLocation] = useState<LocationOption | null>(null);
@@ -196,6 +199,12 @@ export const KitchenReconciliationScreen = () => {
     }
   };
 
+  const showDiscard = canKitchenReconciliation && reconciliation && isDraft;
+  const showImport = reconciliation && !isMissed;
+  const showVerify = canKitchenReconciliation && reconciliation && isDraft;
+  const showReconciliationToolbar =
+    canKitchenReconciliation || showDiscard || showImport || showVerify;
+
   const statusBadgeClass = {
     draft: "bg-info-100 text-info-800",
     verified: "bg-success-100 text-success-800",
@@ -232,52 +241,56 @@ export const KitchenReconciliationScreen = () => {
           </div>
         )}
 
-        <div className="flex gap-2 ml-auto">
-          <Button
-            variant="primary"
-            icon={faPlus}
-            data-testid="inventory-add-reconciliation"
-            onClick={handleGenerate}
-            isLoading={loading}
-            disabled={!locationId || !businessDateStr || isVerified || isDraft}
-          >
-            {t("kitchenReconciliation.generate")}
-          </Button>
+        {showReconciliationToolbar && (
+          <div className="flex gap-2 ml-auto">
+            {canKitchenReconciliation && (
+              <Button
+                variant="primary"
+                icon={faPlus}
+                data-testid="inventory-add-reconciliation"
+                onClick={handleGenerate}
+                isLoading={loading}
+                disabled={!locationId || !businessDateStr || isVerified || isDraft}
+              >
+                {t("kitchenReconciliation.generate")}
+              </Button>
+            )}
 
-          {reconciliation && isDraft && (
-            <Button
-              variant="danger"
-              icon={faTrash}
-              onClick={handleDiscard}
-              isLoading={loading}
-            >
-              {t("kitchenReconciliation.discard")}
-            </Button>
-          )}
+            {canKitchenReconciliation && reconciliation && isDraft && (
+              <Button
+                variant="danger"
+                icon={faTrash}
+                onClick={handleDiscard}
+                isLoading={loading}
+              >
+                {t("kitchenReconciliation.discard")}
+              </Button>
+            )}
 
-          {reconciliation && !isMissed && (
-            <Button
-              variant="secondary"
-              onClick={() => setCsvOpen(true)}
-              disabled={isVerified || !hasItems}
-            >
-              <span className="mr-2"><AiSparklesIcon /></span>
-              {t("buttons.import")}
-            </Button>
-          )}
+            {reconciliation && !isMissed && (
+              <Button
+                variant="secondary"
+                onClick={() => setCsvOpen(true)}
+                disabled={isVerified || !hasItems}
+              >
+                <span className="mr-2"><AiSparklesIcon /></span>
+                {t("buttons.import")}
+              </Button>
+            )}
 
-          {reconciliation && isDraft && (
-            <Button
-              variant="success"
-              icon={faCheck}
-              onClick={handleVerify}
-              isLoading={loading}
-              disabled={!hasItems}
-            >
-              {t("kitchenReconciliation.verify")}
-            </Button>
-          )}
-        </div>
+            {canKitchenReconciliation && reconciliation && isDraft && (
+              <Button
+                variant="success"
+                icon={faCheck}
+                onClick={handleVerify}
+                isLoading={loading}
+                disabled={!hasItems}
+              >
+                {t("kitchenReconciliation.verify")}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       <p className="text-sm text-neutral-500 -mt-2">

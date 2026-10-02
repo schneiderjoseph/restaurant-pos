@@ -7,6 +7,7 @@ import { Setting } from "@/api/model/setting.ts";
 import { Switch } from "@/components/common/input/switch.tsx";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { PaymentType } from "@/api/model/payment_type.ts";
 import {
@@ -26,6 +27,8 @@ export const AutoCheckCloseSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.auto_check_close');
   const { t } = useTranslation(['settings', 'common']);
 
   const { data: paymentTypesData } = useApi<SettingsData<PaymentType>>(
@@ -167,9 +170,11 @@ export const AutoCheckCloseSettingsCard = () => {
             )}
           />
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t('common:actions.save')}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t('common:actions.save')}
+          </button>
+        )}
       </form>
     </div>
   );

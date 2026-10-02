@@ -1,14 +1,13 @@
 import {TabList, Tabs} from "react-aria-components";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import ScrollContainer from "react-indiana-drag-scroll";
 import {InventoryItems} from "@/components/inventory/items/index.tsx";
 import {InventorySuppliers} from "@/components/inventory/suppliers/index.tsx";
 import {InventoryCategories} from "@/components/inventory/categories/index.tsx";
 import {InventoryLocations} from "@/components/inventory/locations/index.tsx";
-import {InventoryItemGroups} from "@/components/inventory/item_groups/index.tsx";
 import {InventoryPurchaseOrders} from "@/components/inventory/purchase_orders/index.tsx";
 import {InventoryPurchases} from "@/components/inventory/purchases/index.tsx";
 import {InventoryPurchaseReturns} from "@/components/inventory/purchase_returns/index.tsx";
@@ -26,6 +25,12 @@ import {BuffetMenus} from "@/components/inventory/buffet/menus/index.tsx";
 import {BuffetSessions} from "@/components/inventory/buffet/sessions/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import { useModuleAccess } from "@/providers/module-access.provider.tsx";
+import {
+  filterKeysByModuleAccess,
+  resolveVisibleSelection,
+} from "@/lib/module-access.ts";
+import { NoAccessibleTabs } from "@/components/common/no-accessible-tabs.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const INVENTORY_TAB_MODULES: Record<string, string> = {
@@ -54,8 +59,9 @@ const INVENTORY_TAB_MODULES: Record<string, string> = {
 export const Inventory = () => {
   const { t } = useTranslation('inventory');
   const { t: tNav } = useTranslation('navigation');
-  const [selected, setSelected] = useState('inventory');
+  const [selected, setSelected] = useState<string | null>(null);
   const {protectAction} = useSecurity();
+  const { ready, can } = useModuleAccess();
 
   const pages = useMemo(() => ({
     'inventory': {component: <InventorySummary/>, title: t('tabs.inventory')},
@@ -80,43 +86,66 @@ export const Inventory = () => {
     'buffet-sessions': {component: <BuffetSessions/>, title: t('tabs.buffetSessions')},
   }), [t]);
 
+  const pageKeys = useMemo(() => Object.keys(pages), [pages]);
+
+  const visibleKeys = useMemo(() => {
+    if (!ready) return [] as string[];
+    return filterKeysByModuleAccess(pageKeys, INVENTORY_TAB_MODULES, can);
+  }, [ready, can, pageKeys]);
+
+  const effectiveSelected = resolveVisibleSelection(selected, visibleKeys);
+
+  useEffect(() => {
+    if (effectiveSelected != null && effectiveSelected !== selected) {
+      setSelected(effectiveSelected);
+    }
+  }, [effectiveSelected, selected]);
+
+  const titleParts = effectiveSelected
+    ? [pages[effectiveSelected]?.title, tNav('sidebar.inventory')]
+    : [tNav('sidebar.inventory')];
+
   return (
     <Layout
       containerClassName=""
     >
-      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.inventory')]} />
+      <DocumentTitle parts={titleParts} />
       <div data-testid="inventory-page">
-        <Tabs
-          className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
-          onSelectionChange={(key: string) => {
-            protectAction(() => {
-              setSelected(key);
-            }, {
-              module: INVENTORY_TAB_MODULES[key],
-              description: t('security.accessTab', { module: pages[key].title })
-            });
-          }}
-        >
-          <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
-            <TabList
-              aria-label="Tabs"
-              className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
-              data-testid="inventory-tabs"
-            >
-              {Object.keys(pages).map(key => (
-                <Tab id={key} key={key} data-testid={`inventory-tab-${key}`}>{pages[key].title}</Tab>
-              ))}
-            </TabList>
-          </ScrollContainer>
-          {Object.keys(pages).map((key) => (
-            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
-              <div data-testid={`inventory-panel-${key}`}>
-                {pages[key].component}
-              </div>
-            </TabPanel>
-          ))}
-        </Tabs>
+        {!ready ? null : visibleKeys.length === 0 ? (
+          <NoAccessibleTabs />
+        ) : (
+          <Tabs
+            className="w-full flex flex-col rounded-xl"
+            selectedKey={effectiveSelected ?? undefined}
+            onSelectionChange={(key: string) => {
+              protectAction(() => {
+                setSelected(key);
+              }, {
+                module: INVENTORY_TAB_MODULES[key],
+                description: t('security.accessTab', { module: pages[key].title })
+              });
+            }}
+          >
+            <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
+              <TabList
+                aria-label="Tabs"
+                className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+                data-testid="inventory-tabs"
+              >
+                {visibleKeys.map(key => (
+                  <Tab id={key} key={key} data-testid={`inventory-tab-${key}`}>{pages[key].title}</Tab>
+                ))}
+              </TabList>
+            </ScrollContainer>
+            {visibleKeys.map((key) => (
+              <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid={`inventory-panel-${key}`}>
+                  {pages[key].component}
+                </div>
+              </TabPanel>
+            ))}
+          </Tabs>
+        )}
       </div>
     </Layout>
   )

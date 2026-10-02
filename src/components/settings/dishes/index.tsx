@@ -24,12 +24,18 @@ import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminDishes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canEdit = isVisible('admin.dishes.update');
+  const canDelete = isVisible('admin.dishes.delete');
+  const canImport = isVisible('admin.dishes.import');
+  const canCreate = isVisible('admin.dishes.create');
 
   const loadHook = useApi<SettingsData<Dish & { modifiers: [] }>>(
     Tables.dishes, [`deleted_at = none`], [], 0, 10, ['categories', 'items', 'items.item'], {}, [
@@ -166,27 +172,35 @@ export const AdminDishes = () => {
                 setViewModal(true);
               }}
             ><FontAwesomeIcon icon={faEye}/></IconTooltipButton>
-            <div className="separator"></div>
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.dishes.update',
-                  description: getAccessRuleChildLabel('admin.dishes.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.dish', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.dishes.delete',
-                description: getAccessRuleChildLabel('admin.dishes.delete'),
-              })}
-            />
+            {canEdit && (
+              <>
+                <div className="separator"></div>
+                <IconTooltipButton label={t('common:actions.edit')}
+                  variant="primary"
+                  onClick={() => {
+                    protectAction(() => {
+                      setData(info.row.original);
+                      setFormModal(true);
+                    }, {
+                      module: 'admin.dishes.update',
+                      description: getAccessRuleChildLabel('admin.dishes.update'),
+                    });
+                  }}
+                ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+              </>
+            )}
+            {canDelete && (
+              <>
+                <div className="separator"></div>
+                <DeleteConfirm
+                  message={t('delete.dish', { name: info.row.original.name })}
+                  onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                    module: 'admin.dishes.delete',
+                    description: getAccessRuleChildLabel('admin.dishes.delete'),
+                  })}
+                />
+              </>
+            )}
           </div>
         );
       },
@@ -236,43 +250,47 @@ export const AdminDishes = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Dropdown
-            key="ai-import"
-            label={<><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</>}
-            onAction={(key) => {
+          ...(canImport ? [
+            <Dropdown
+              key="ai-import"
+              label={<><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</>}
+              onAction={(key) => {
+                protectAction(() => {
+                  if (key === 'dishes') setImportModal(true);
+                  else if (key === 'ingredients') setIngredientsImportModal(true);
+                  else if (key === 'modifier_groups') setModifierGroupsImportModal(true);
+                  else if (key === 'menu_structure') setMenuStructureImportModal(true);
+                }, {
+                  module: 'admin.dishes.import',
+                  description: getAccessRuleChildLabel('admin.dishes.import'),
+                });
+              }}
+            >
+              <DropdownItem id="dishes" textValue={t('buttons.smartImportDishes')} className="text-left min-w-[16rem]">
+                {t('buttons.smartImportDishes')}
+              </DropdownItem>
+              <DropdownItem id="ingredients" textValue={t('buttons.smartImportIngredients')} className="text-left min-w-[16rem]">
+                {t('buttons.smartImportIngredients')}
+              </DropdownItem>
+              <DropdownItem id="modifier_groups" textValue={t('buttons.smartImportModifierGroups')} className="text-left min-w-[16rem]">
+                {t('buttons.smartImportModifierGroups')}
+              </DropdownItem>
+              <DropdownItem id="menu_structure" textValue={t('buttons.smartImportMenuStructure')} className="text-left min-w-[16rem]">
+                {t('buttons.smartImportMenuStructure')}
+              </DropdownItem>
+            </Dropdown>,
+          ] : []),
+          ...(canCreate ? [
+            <Button key="create-dish" variant="primary" onClick={() => {
               protectAction(() => {
-                if (key === 'dishes') setImportModal(true);
-                else if (key === 'ingredients') setIngredientsImportModal(true);
-                else if (key === 'modifier_groups') setModifierGroupsImportModal(true);
-                else if (key === 'menu_structure') setMenuStructureImportModal(true);
+                setData(undefined);
+                setFormModal(true);
               }, {
-                module: 'admin.dishes.import',
-                description: getAccessRuleChildLabel('admin.dishes.import'),
+                module: 'admin.dishes.create',
+                description: getAccessRuleChildLabel('admin.dishes.create'),
               });
-            }}
-          >
-            <DropdownItem id="dishes" textValue={t('buttons.smartImportDishes')} className="text-left min-w-[16rem]">
-              {t('buttons.smartImportDishes')}
-            </DropdownItem>
-            <DropdownItem id="ingredients" textValue={t('buttons.smartImportIngredients')} className="text-left min-w-[16rem]">
-              {t('buttons.smartImportIngredients')}
-            </DropdownItem>
-            <DropdownItem id="modifier_groups" textValue={t('buttons.smartImportModifierGroups')} className="text-left min-w-[16rem]">
-              {t('buttons.smartImportModifierGroups')}
-            </DropdownItem>
-            <DropdownItem id="menu_structure" textValue={t('buttons.smartImportMenuStructure')} className="text-left min-w-[16rem]">
-              {t('buttons.smartImportMenuStructure')}
-            </DropdownItem>
-          </Dropdown>,
-          <Button variant="primary" onClick={() => {
-            protectAction(() => {
-              setData(undefined);
-              setFormModal(true);
-            }, {
-              module: 'admin.dishes.create',
-              description: getAccessRuleChildLabel('admin.dishes.create'),
-            });
-          }} icon={faPlus} data-testid="admin-add-dishes">{t('buttons.dish')}</Button>
+            }} icon={faPlus} data-testid="admin-add-dishes">{t('buttons.dish')}</Button>,
+          ] : []),
         ]}
         customSearch
         customSearchHandler={(value) => {
@@ -292,8 +310,8 @@ export const AdminDishes = () => {
             data: selectedRows as Dish[],
           }));
         }}
-        selectionButtons={[
-          <Button variant="primary" onClick={() => {
+        selectionButtons={canEdit ? [
+          <Button key="bulk-edit" variant="primary" onClick={() => {
             protectAction(() => {
               setBulkEdit((prev) => ({
                 ...prev,
@@ -304,7 +322,7 @@ export const AdminDishes = () => {
               description: getAccessRuleChildLabel('admin.dishes.update'),
             });
           }} icon={faPencil}>{t('buttons.bulkEdit')}</Button>
-        ]}
+        ] : []}
       />
 
       {bulkEdit.state && (

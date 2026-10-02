@@ -19,6 +19,7 @@ import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { toast } from 'sonner';
 import { useSecurity } from '@/hooks/useSecurity.ts';
+import { useActionVisible } from '@/hooks/useActionVisible.ts';
 import { cn, toRecordId } from '@/lib/utils.ts';
 
 interface FormValues {
@@ -31,6 +32,8 @@ export const SessionSecuritySettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.session_security');
   const { t } = useTranslation(['settings', 'common']);
 
   const { control, handleSubmit, reset, watch } = useForm<FormValues>({
@@ -168,9 +171,11 @@ export const SessionSecuritySettingsCard = () => {
             />
           </div>
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t('common:actions.save')}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t('common:actions.save')}
+          </button>
+        )}
       </form>
     </div>
   );

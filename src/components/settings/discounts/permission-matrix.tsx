@@ -10,12 +10,15 @@ import { DISCOUNT_CATEGORIES } from '@/lib/discount-engine/types.ts'
 import { toast } from 'sonner'
 import { translatedSelectOptions } from '@/lib/discount-engine/i18n-options.ts'
 import { useSecurity } from '@/hooks/useSecurity.ts'
+import { useActionVisible } from '@/hooks/useActionVisible.ts'
 import { getAccessRuleChildLabel } from '@/lib/access.rules.i18n.ts'
 
 export const DiscountPermissionMatrix = () => {
-  const { t } = useTranslation('admin')
+  const { t } = useTranslation(['admin', 'common'])
   const db = useDB()
   const { protectAction } = useSecurity()
+  const isVisible = useActionVisible()
+  const canUpdate = isVisible('admin.discounts.update')
   const { data: roles } = useApi<SettingsData<UserRole>>(Tables.user_roles, ['deleted_at = none'])
   const loadHook = useApi<SettingsData<RoleDiscountPolicy>>(Tables.role_discount_policies, [], ['user_role asc'])
   const policies = loadHook.data?.data || []
@@ -63,32 +66,55 @@ export const DiscountPermissionMatrix = () => {
         return (
           <div key={role.id} className="border rounded-lg p-4 grid grid-cols-4 gap-3 items-end">
             <div className="font-semibold col-span-4">{role.name}</div>
-            <Input
-              label={t('discountEngine.fields.maxPercentRole')}
-              type="number"
-              defaultValue={policy?.max_percent ?? ''}
-              onBlur={e => savePolicy(role, {
-                max_percent: e.target.value === '' ? null : Number(e.target.value),
-              })}
-            />
-            <Input
-              label={t('discountEngine.fields.maxFixedAmount')}
-              type="number"
-              defaultValue={policy?.max_fixed_amount ?? ''}
-              onBlur={e => savePolicy(role, {
-                max_fixed_amount: e.target.value === '' ? null : Number(e.target.value),
-              })}
-            />
-            <Checkbox
-              label={t('discountEngine.fields.canApplyManual')}
-              defaultChecked={policy?.can_apply_manual !== false}
-              onChange={e => savePolicy(role, { can_apply_manual: (e.target as HTMLInputElement).checked })}
-            />
-            <Checkbox
-              label={t('discountEngine.fields.canOverrideApproval')}
-              defaultChecked={policy?.can_override_approval === true}
-              onChange={e => savePolicy(role, { can_override_approval: (e.target as HTMLInputElement).checked })}
-            />
+            {canUpdate ? (
+              <>
+                <Input
+                  label={t('discountEngine.fields.maxPercentRole')}
+                  type="number"
+                  defaultValue={policy?.max_percent ?? ''}
+                  onBlur={e => savePolicy(role, {
+                    max_percent: e.target.value === '' ? null : Number(e.target.value),
+                  })}
+                />
+                <Input
+                  label={t('discountEngine.fields.maxFixedAmount')}
+                  type="number"
+                  defaultValue={policy?.max_fixed_amount ?? ''}
+                  onBlur={e => savePolicy(role, {
+                    max_fixed_amount: e.target.value === '' ? null : Number(e.target.value),
+                  })}
+                />
+                <Checkbox
+                  label={t('discountEngine.fields.canApplyManual')}
+                  defaultChecked={policy?.can_apply_manual !== false}
+                  onChange={e => savePolicy(role, { can_apply_manual: (e.target as HTMLInputElement).checked })}
+                />
+                <Checkbox
+                  label={t('discountEngine.fields.canOverrideApproval')}
+                  defaultChecked={policy?.can_override_approval === true}
+                  onChange={e => savePolicy(role, { can_override_approval: (e.target as HTMLInputElement).checked })}
+                />
+              </>
+            ) : (
+              <>
+                <div>
+                  <div className="text-sm font-medium">{t('discountEngine.fields.maxPercentRole')}</div>
+                  <div>{policy?.max_percent ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{t('discountEngine.fields.maxFixedAmount')}</div>
+                  <div>{policy?.max_fixed_amount ?? '—'}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{t('discountEngine.fields.canApplyManual')}</div>
+                  <div>{policy?.can_apply_manual !== false ? t('columns.yes') : t('columns.no')}</div>
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{t('discountEngine.fields.canOverrideApproval')}</div>
+                  <div>{policy?.can_override_approval === true ? t('columns.yes') : t('columns.no')}</div>
+                </div>
+              </>
+            )}
           </div>
         )
       })}

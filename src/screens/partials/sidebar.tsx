@@ -18,26 +18,26 @@ import {
   faRefresh
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
-import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import { CSSProperties, useMemo } from "react";
+import { CSSProperties, useMemo, type ReactNode } from "react";
 import {NavLink, useNavigate} from "react-router";
 import {
+  ACCOUNTS,
   ADMIN,
-  CLOSING,
   CLOCK,
+  CLOSING,
   DELIVERY,
-  INVENTORY,
   HR,
+  INTEGRATIONS,
+  INVENTORY,
   KITCHEN,
-  ORDER_DISPLAY,
   MENU,
+  ORDER_DISPLAY,
   ORDERS,
   REPORTS,
   SETTINGS,
-  INTEGRATIONS,
   SUMMARY,
-  TIP_DISTRIBUTION, ACCOUNTS
+  TIP_DISTRIBUTION,
 } from "@/routes/posr.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import { useCacheReload } from "@/hooks/useCacheReload.ts";
@@ -52,6 +52,12 @@ import {
   isIntegrationsModuleEnabled,
 } from "@/lib/feature-modules.ts";
 import { SecurityAlertsBadge } from "@/components/admin/security-alerts/alert-badge.tsx";
+import { useModuleAccess } from "@/providers/module-access.provider.tsx";
+import {
+  isSidebarEntryFeatureEnabled,
+  SIDEBAR_NAV_ENTRIES,
+  type ModuleAccessFeatureFlags,
+} from "@/lib/module-access.ts";
 
 const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [MENU]: 'nav-menu',
@@ -70,9 +76,44 @@ const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [INTEGRATIONS]: 'nav-integrations',
 };
 
+const SIDEBAR_ICONS: Record<string, ReactNode> = {
+  menu: <FontAwesomeIcon icon={faBars} size="lg"/>,
+  orders: <FontAwesomeIcon icon={faList} size="lg"/>,
+  summary: <FontAwesomeIcon icon={faClipboardList} size="lg"/>,
+  kitchen: <FontAwesomeIcon icon={faUtensils} size="lg"/>,
+  order_display: <FontAwesomeIcon icon={faDisplay} size="lg"/>,
+  delivery: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>,
+  closing: <FontAwesomeIcon icon={faStore} size="lg"/>,
+  inventory: <FontAwesomeIcon icon={faWarehouse} size="lg"/>,
+  admin: <FontAwesomeIcon icon={faGear} size="lg"/>,
+  reports: <FontAwesomeIcon icon={faLineChart} size="lg"/>,
+  tips: <FontAwesomeIcon icon={faBarChart} size="lg"/>,
+  accounts: <FontAwesomeIcon icon={faReceipt} size="lg"/>,
+  hr: <FontAwesomeIcon icon={faUsers} size="lg"/>,
+  integrations: <FontAwesomeIcon icon={faPlug} size="lg"/>,
+};
+
+const SIDEBAR_TITLE_KEYS: Record<string, string> = {
+  menu: 'sidebar.menu',
+  orders: 'sidebar.orders',
+  summary: 'sidebar.summary',
+  kitchen: 'sidebar.kitchen',
+  order_display: 'sidebar.orderDisplay',
+  delivery: 'sidebar.delivery',
+  closing: 'sidebar.closing',
+  inventory: 'sidebar.inventory',
+  admin: 'sidebar.manage',
+  reports: 'sidebar.reports',
+  tips: 'sidebar.tipDist',
+  accounts: 'sidebar.accounts',
+  hr: 'sidebar.hr',
+  integrations: 'sidebar.integrations',
+};
+
 export const Sidebar = () => {
   const [, setPage] = useAtom(appPage);
   const { t } = useTranslation(['navigation', 'common']);
+  const { ready, can } = useModuleAccess();
 
   const pathInfo = location.pathname;
 
@@ -95,38 +136,30 @@ export const Sidebar = () => {
     lockSession(setPage, navigation);
   }
 
-  const hrEnabled = isHrModuleEnabled();
-  const deliveryEnabled = isDeliveryModuleEnabled();
-  const integrationsEnabled = isIntegrationsModuleEnabled();
-  const accountingEnabled = isAccountingModuleEnabled();
-  const closingEnabled = isClosingModuleEnabled();
+  const featureFlags: ModuleAccessFeatureFlags = useMemo(() => ({
+    hr: isHrModuleEnabled(),
+    delivery: isDeliveryModuleEnabled(),
+    integrations: isIntegrationsModuleEnabled(),
+    accounting: isAccountingModuleEnabled(),
+    closing: isClosingModuleEnabled(),
+  }), []);
 
-  const allSidebarItems = useMemo(() => [
-    { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'menu' },
-    { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
-    { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
-    { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
-    { title: t('sidebar.orderDisplay'), icon: <FontAwesomeIcon icon={faDisplay} size="lg"/>, link: ORDER_DISPLAY, role: 'order_display' },
-    { title: t('sidebar.delivery'), icon: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>, link: DELIVERY, role: 'delivery', module: 'delivery' as const },
-    { title: t('sidebar.closing'), icon: <FontAwesomeIcon icon={faStore} size="lg"/>, link: CLOSING, role: 'closing', module: 'closing' as const },
-    { title: t('sidebar.inventory'), icon: <FontAwesomeIcon icon={faWarehouse} size="lg"/>, link: INVENTORY, role: 'inventory' },
-    { title: t('sidebar.manage'), icon: <FontAwesomeIcon icon={faGear} size="lg"/>, link: ADMIN, role: 'admin' },
-    { title: t('sidebar.reports'), icon: <FontAwesomeIcon icon={faLineChart} size="lg"/>, link: REPORTS, role: 'reports' },
-    { title: t('sidebar.tipDist'), icon: <FontAwesomeIcon icon={faBarChart} size="lg"/>, link: TIP_DISTRIBUTION, role: 'tips' },
-    { title: t('sidebar.accounts'), icon: <FontAwesomeIcon icon={faReceipt} size="lg"/>, link: ACCOUNTS, role: 'accounts', module: 'accounting' as const },
-    { title: t('sidebar.hr'), icon: <FontAwesomeIcon icon={faUsers} size="lg"/>, link: HR, role: 'hr', module: 'hr' as const },
-    { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'integrations', module: 'integrations' as const },
-  ], [t]);
+  const hrEnabled = featureFlags.hr;
 
-  // Filter sidebar items based on feature-module env flags
-  const sidebarItems = allSidebarItems.filter(item => {
-    if (item.module === 'hr' && !hrEnabled) return false;
-    if (item.module === 'delivery' && !deliveryEnabled) return false;
-    if (item.module === 'integrations' && !integrationsEnabled) return false;
-    if (item.module === 'accounting' && !accountingEnabled) return false;
-    if (item.module === 'closing' && !closingEnabled) return false;
-    return true;
-  });
+  const sidebarItems = useMemo(() => {
+    return SIDEBAR_NAV_ENTRIES
+      .filter((entry) => isSidebarEntryFeatureEnabled(entry, featureFlags))
+      // Hide until grants are known so unauthorized entries never flash.
+      .filter((entry) => ready && can(entry.role))
+      .map((entry) => ({
+        title: t(SIDEBAR_TITLE_KEYS[entry.role] ?? entry.role),
+        icon: SIDEBAR_ICONS[entry.role],
+        link: entry.link,
+        role: entry.role,
+      }));
+  }, [t, featureFlags, ready, can]);
+
+  const showSettings = ready && can('settings');
 
   return (
     <div className="flex flex-col justify-between h-screen items-center sidebar border border-y-0 border-white bg-white/50 backdrop-blur">
@@ -159,21 +192,23 @@ export const Sidebar = () => {
       </div>
       <div className="flex flex-col gap-2 w-full p-2">
         <div className="input-group">
-          <button
-            type="button"
-            data-testid="nav-settings"
-            onClick={() => protectedNavigate(SETTINGS, 'settings')}
-            className={cn(
-              'btn btn-primary lg flex-1',
-              pathInfo === SETTINGS ? 'active' : ''
-            )}
-            key={'settings'}
-            style={{
-              '--padding': '0.5rem'
-            } as CSSProperties}
-          >
-            <FontAwesomeIcon icon={faWrench} />
-          </button>
+          {showSettings && (
+            <button
+              type="button"
+              data-testid="nav-settings"
+              onClick={() => protectedNavigate(SETTINGS, 'settings')}
+              className={cn(
+                'btn btn-primary lg flex-1',
+                pathInfo === SETTINGS ? 'active' : ''
+              )}
+              key={'settings'}
+              style={{
+                '--padding': '0.5rem'
+              } as CSSProperties}
+            >
+              <FontAwesomeIcon icon={faWrench} />
+            </button>
+          )}
           {hrEnabled && (
             <NavLink
               to={CLOCK}

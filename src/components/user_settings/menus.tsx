@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import {appPage, appSettings} from "@/store/jotai.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {useTranslation} from 'react-i18next';
 
@@ -23,6 +24,8 @@ export const MenusSettings = () => {
   const [loading, setLoading] = useState(true);
   const userId = page?.user?.id?.toString();
   const {protectFormSubmit} = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.menus');
   const { t } = useTranslation(['settings', 'common']);
 
   const { data: menus } = useApi<SettingsData<Menu>>(
@@ -152,11 +155,13 @@ export const MenusSettings = () => {
             />
           </div>
 
+          {canSave && (
           <div>
             <Button type="submit" variant="primary" disabled={isSubmitting}>
               {isSubmitting ? t('settings:menus.saving') : t('settings:menus.save')}
             </Button>
           </div>
+          )}
         </form>
       )}
     </div>

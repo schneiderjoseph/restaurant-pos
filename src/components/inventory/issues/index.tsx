@@ -15,6 +15,7 @@ import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { canDelete, canEdit, canPost, canVoid } from "@/lib/inventory/lifecycle.ts";
 import { approveDocument, postDocument, voidDocument } from "@/lib/inventory/posting.service.ts";
@@ -36,6 +37,9 @@ export const InventoryIssues = () => {
   const { t } = useTranslation(['inventory', 'common']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdateIssues = isVisible("inventory.issues.update");
+  const canDeleteIssues = isVisible("inventory.issues.delete");
   const { manager } = useIntegrationManager();
   const [state] = useAtom(appPage);
   const loadHook = useApi<SettingsData<InventoryIssue>>(
@@ -178,7 +182,7 @@ export const InventoryIssues = () => {
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
-            {postable && (
+            {postable && canUpdateIssues && (
               <IconTooltipButton label={t('common:actions.upload')}
                 variant="success"
                
@@ -188,7 +192,7 @@ export const InventoryIssues = () => {
                 <FontAwesomeIcon icon={faUpload}/>
               </IconTooltipButton>
             )}
-            {editable && row.status === "draft" && (
+            {editable && row.status === "draft" && canUpdateIssues && (
               <IconTooltipButton label={t('common:actions.approve')}
                 variant="secondary"
                
@@ -198,7 +202,7 @@ export const InventoryIssues = () => {
                 <FontAwesomeIcon icon={faCheck}/>
               </IconTooltipButton>
             )}
-            {revisable && (
+            {revisable && canUpdateIssues && (
               <IconTooltipButton label={t('common:actions.revision')}
                 variant="secondary"
                
@@ -226,7 +230,7 @@ export const InventoryIssues = () => {
                 <FontAwesomeIcon icon={faCodeBranch}/>
               </IconTooltipButton>
             )}
-            {voidable && (
+            {voidable && canUpdateIssues && (
               <IconTooltipButton label={t('common:actions.void')}
                 variant="danger"
                
@@ -262,7 +266,7 @@ export const InventoryIssues = () => {
                 <FontAwesomeIcon icon={faBan}/>
               </IconTooltipButton>
             )}
-            {editable && (
+            {editable && canUpdateIssues && (
               <IconTooltipButton label={t('common:actions.edit')}
                 variant="primary"
                 onClick={() => {
@@ -278,7 +282,7 @@ export const InventoryIssues = () => {
                 <FontAwesomeIcon icon={faPencil}/>
               </IconTooltipButton>
             )}
-            {deletable && (
+            {deletable && canDeleteIssues && (
               <DeleteConfirm
                 message={`Do you want to delete issue #${row.invoice_number}?`}
                 onConfirm={() =>

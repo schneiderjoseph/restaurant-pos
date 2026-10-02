@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
@@ -24,6 +25,11 @@ export const AdminModifierGroups = () => {
   const loadHook = useApi<SettingsData<ModifierGroup>>(Tables.modifier_groups, ['deleted_at = none'], ['priority asc'], 0, 10, ['modifiers', 'modifiers.modifier', 'modifiers.allowed_next_groups', 'modifiers.next_group_overrides']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.modifier_groups.update');
+  const canDelete = isVisible('admin.modifier_groups.delete');
+  const canCreate = isVisible('admin.modifier_groups.create');
+  const canImport = isVisible('admin.modifier_groups.import');
 
   const [data, setData] = useState<ModifierGroup>();
   const [formModal, setFormModal] = useState(false);
@@ -57,7 +63,7 @@ export const AdminModifierGroups = () => {
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -65,30 +71,34 @@ export const AdminModifierGroups = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.modifier_groups.update',
-                  description: getAccessRuleChildLabel('admin.modifier_groups.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.dish', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.modifier_groups.delete',
-                description: getAccessRuleChildLabel('admin.modifier_groups.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.modifier_groups.update',
+                    description: getAccessRuleChildLabel('admin.modifier_groups.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.dish', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.modifier_groups.delete',
+                  description: getAccessRuleChildLabel('admin.modifier_groups.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -122,13 +132,13 @@ export const AdminModifierGroups = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canImport ? <Button variant="primary" onClick={() => {
             protectAction(() => setImportModal(true), {
               module: 'admin.modifier_groups.import',
               description: getAccessRuleChildLabel('admin.modifier_groups.import'),
             });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button> : null,
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -136,8 +146,8 @@ export const AdminModifierGroups = () => {
               module: 'admin.modifier_groups.create',
               description: getAccessRuleChildLabel('admin.modifier_groups.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-modifier_groups">{t('buttons.modifierGroup')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-modifier_groups">{t('buttons.modifierGroup')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {importModal && (

@@ -1,7 +1,7 @@
 import { TabList, Tabs } from "react-aria-components";
 import { Layout } from "@/screens/partials/layout.tsx";
 import { Tab, TabPanel } from "@/components/common/react-aria/tabs";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminFloors } from "@/components/settings/floors";
 import { AdminTables } from "@/components/settings/tables";
 import { AdminDishes } from "@/components/settings/dishes";
@@ -25,6 +25,12 @@ import { AdminGeneralSettings } from "@/components/settings/general";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from 'react-i18next';
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import { useModuleAccess } from "@/providers/module-access.provider.tsx";
+import {
+  filterKeysByModuleAccess,
+  resolveVisibleSelection,
+} from "@/lib/module-access.ts";
+import { NoAccessibleTabs } from "@/components/common/no-accessible-tabs.tsx";
 
 const ADMIN_TAB_KEYS = [
   'dishes',
@@ -96,10 +102,24 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
 };
 
 export const Admin = () => {
-  const [selected, setSelected] = useState<AdminTabKey>('dishes');
+  const [selected, setSelected] = useState<AdminTabKey | null>(null);
   const {protectAction} = useSecurity();
   const { t } = useTranslation('admin');
   const { t: tNav } = useTranslation('navigation');
+  const { ready, can } = useModuleAccess();
+
+  const visibleKeys = useMemo(() => {
+    if (!ready) return [] as AdminTabKey[];
+    return filterKeysByModuleAccess(ADMIN_TAB_KEYS, ADMIN_TAB_MODULES, can);
+  }, [ready, can]);
+
+  const effectiveSelected = resolveVisibleSelection(selected, visibleKeys);
+
+  useEffect(() => {
+    if (effectiveSelected != null && effectiveSelected !== selected) {
+      setSelected(effectiveSelected);
+    }
+  }, [effectiveSelected, selected]);
 
   const pages = useMemo(() => ({
     dishes: { component: <AdminDishes/>, title: t('tabs.dishes') },
@@ -123,41 +143,49 @@ export const Admin = () => {
     security_alerts: { component: <SecurityAlertsPanel/>, title: t('tabs.securityAlerts') },
   }), [t]);
 
+  const titleParts = effectiveSelected
+    ? [pages[effectiveSelected].title, tNav('sidebar.manage')]
+    : [tNav('sidebar.manage')];
+
   return (
     <Layout>
-      <DocumentTitle parts={[pages[selected].title, tNav('sidebar.manage')]} />
+      <DocumentTitle parts={titleParts} />
       <div data-testid="admin-page">
-        <Tabs
-          className="w-full flex flex-col"
-          selectedKey={selected}
-          onSelectionChange={(key: string) => protectAction(() => setSelected(key as AdminTabKey), {
-            module: ADMIN_TAB_MODULES[key as AdminTabKey],
-            description: t('tabs.accessTab', { title: pages[key as AdminTabKey].title }),
-          })}
-        >
-          <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
-            <TabList
-              aria-label={t('tabs.ariaLabel')}
-              className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
-              data-testid="admin-tabs"
-            >
-              {ADMIN_TAB_KEYS.map(key => (
-                <Tab
-                  id={key}
-                  key={key}
-                  data-testid={`admin-tab-${key}`}
-                >{t(TAB_I18N_KEYS[key])}</Tab>
-              ))}
-            </TabList>
-          </ScrollContainer>
-          {ADMIN_TAB_KEYS.map((key) => (
-            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
-              <div data-testid={`admin-panel-${key}`}>
-                {pages[key].component}
-              </div>
-            </TabPanel>
-          ))}
-        </Tabs>
+        {!ready ? null : visibleKeys.length === 0 ? (
+          <NoAccessibleTabs />
+        ) : (
+          <Tabs
+            className="w-full flex flex-col"
+            selectedKey={effectiveSelected ?? undefined}
+            onSelectionChange={(key: string) => protectAction(() => setSelected(key as AdminTabKey), {
+              module: ADMIN_TAB_MODULES[key as AdminTabKey],
+              description: t('tabs.accessTab', { title: pages[key as AdminTabKey].title }),
+            })}
+          >
+            <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
+              <TabList
+                aria-label={t('tabs.ariaLabel')}
+                className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+                data-testid="admin-tabs"
+              >
+                {visibleKeys.map(key => (
+                  <Tab
+                    id={key}
+                    key={key}
+                    data-testid={`admin-tab-${key}`}
+                  >{t(TAB_I18N_KEYS[key])}</Tab>
+                ))}
+              </TabList>
+            </ScrollContainer>
+            {visibleKeys.map((key) => (
+              <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid={`admin-panel-${key}`}>
+                  {pages[key].component}
+                </div>
+              </TabPanel>
+            ))}
+          </Tabs>
+        )}
       </div>
     </Layout>
   )

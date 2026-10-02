@@ -42,6 +42,7 @@ import {OrderPaymentCoupon} from "@/components/orders/payment/order.payment.coup
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
@@ -71,6 +72,13 @@ export const OrderPayment = ({
   const {t} = useTranslation('payment');
   const db = useDB();
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canEditTax = isVisible('orders.apply_tax');
+  const canEditDiscount = isVisible('orders.apply_discount');
+  const canEditCoupon = isVisible('orders.apply_coupon');
+  const canEditServiceCharges = isVisible('orders.apply_service_charges');
+  const canEditTip = isVisible('orders.apply_tips');
+  const canEditExtras = isVisible('orders.change_extras');
   useDiscountCache();
 
   const [page] = useAtom(appPage);
@@ -831,10 +839,12 @@ export const OrderPayment = ({
               data-testid="payment-row-tax"
               className={
               cn(
-                "flex justify-between p-3 cursor-pointer",
+                "flex justify-between p-3",
+                canEditTax && 'cursor-pointer',
                 mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => {
+              if (!canEditTax) return;
               protectAction(() => setMode(PaymentOptions.Tax), {
                 module: 'orders.apply_tax',
                 description: 'Apply tax',
@@ -847,7 +857,7 @@ export const OrderPayment = ({
                 {tax
                   ? t('tabs.taxWithRate', {label: formatTaxLabel(tax.name, tax.rate)})
                   : t('tabs.tax')}{' '}
-                <FontAwesomeIcon icon={faPencil}/>
+                {canEditTax && <FontAwesomeIcon icon={faPencil}/>}
               </div>
               <div className="text-right"><DualCurrency amount={taxAmount} /></div>
             </div>
@@ -856,10 +866,12 @@ export const OrderPayment = ({
               data-testid="payment-row-discount"
               className={
               cn(
-                "flex justify-between p-3 cursor-pointer",
+                "flex justify-between p-3",
+                canEditDiscount && 'cursor-pointer',
                 mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => {
+              if (!canEditDiscount) return;
               protectAction(() => setMode(PaymentOptions.Discount), {
                 module: 'orders.apply_discount',
                 description: 'Apply discount',
@@ -871,7 +883,7 @@ export const OrderPayment = ({
               <div>
                 {t('tabs.discount')}{' '}
                 {cartTotals.discountLines.length > 0 && `(${cartTotals.discountLines.length})`}{' '}
-                <FontAwesomeIcon icon={faPencil}/>
+                {canEditDiscount && <FontAwesomeIcon icon={faPencil}/>}
               </div>
               <div className="text-right"><DualCurrency amount={cartTotals.discountTotal} /></div>
             </div>
@@ -880,10 +892,12 @@ export const OrderPayment = ({
               data-testid="payment-row-coupon"
               className={
               cn(
-                "flex justify-between p-3 cursor-pointer",
+                "flex justify-between p-3",
+                canEditCoupon && 'cursor-pointer',
                 mode === PaymentOptions.Coupon && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => {
+              if (!canEditCoupon) return;
               protectAction(() => setMode(PaymentOptions.Coupon), {
                 module: 'orders.apply_coupon',
                 description: 'Apply coupon',
@@ -892,7 +906,7 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>{t('tabs.coupon')} <FontAwesomeIcon icon={faPencil}/></div>
+              <div>{t('tabs.coupon')} {canEditCoupon && <FontAwesomeIcon icon={faPencil}/>}</div>
               <div className="text-right"><DualCurrency amount={couponAmount} /></div>
             </div>
 
@@ -900,10 +914,12 @@ export const OrderPayment = ({
               data-testid="payment-row-service-charges"
               className={
               cn(
-                "flex justify-between p-3 cursor-pointer",
+                "flex justify-between p-3",
+                canEditServiceCharges && 'cursor-pointer',
                 mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => {
+              if (!canEditServiceCharges) return;
               protectAction(() => setMode(PaymentOptions['Service Charges']), {
                 module: 'orders.apply_service_charges',
                 description: 'Apply service charges',
@@ -916,7 +932,7 @@ export const OrderPayment = ({
                 value: serviceCharge,
                 unit: serviceChargeType === DiscountType.Percent ? '%' : ''
               })}{' '}
-                <FontAwesomeIcon icon={faPencil}/></div>
+                {canEditServiceCharges && <FontAwesomeIcon icon={faPencil}/>}</div>
               <div className="text-right"><DualCurrency amount={serviceChargeAmount} /></div>
             </div>
 
@@ -924,10 +940,12 @@ export const OrderPayment = ({
               data-testid="payment-row-tip"
               className={
               cn(
-                "flex justify-between p-3 cursor-pointer",
+                "flex justify-between p-3",
+                canEditTip && 'cursor-pointer',
                 mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => {
+              if (!canEditTip) return;
               protectAction(() => setMode(PaymentOptions.Tip), {
                 module: 'orders.apply_tips',
                 description: 'Apply tips',
@@ -936,8 +954,8 @@ export const OrderPayment = ({
                 }
               });
             }}>
-              <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon
-                icon={faPencil}/></div>
+              <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} {canEditTip && <FontAwesomeIcon
+                icon={faPencil}/>}</div>
               <div className="text-right"><DualCurrency amount={tipAmount} /></div>
             </div>
 
@@ -945,13 +963,15 @@ export const OrderPayment = ({
               <div
                 className={
                   cn(
-                    "flex justify-between p-3 cursor-pointer",
+                    "flex justify-between p-3",
+                    canEditExtras && 'cursor-pointer',
                     extras[extra] === 0 ? 'line-through decoration-2' : ''
                   )
                 }
                 key={extra}
                 data-testid="payment-row-extra"
                 onClick={() => {
+                  if (!canEditExtras) return;
                   protectAction(() => setExtraToggles(prev => ({
                     ...prev,
                     [extra]: !(prev[extra] ?? true)

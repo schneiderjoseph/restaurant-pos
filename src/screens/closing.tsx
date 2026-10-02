@@ -29,6 +29,7 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {ClosingCycleWindow, resolveClosingWindow} from "@/lib/closing-cycle.ts";
 import {getCurrentCycleClosing, hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
@@ -80,6 +81,8 @@ export const Closing = () => {
   const db = useDB();
   const [page] = useAtom(appPage);
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canReopenClosing = isVisible("closing.edit");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [existingClosing, setExistingClosing] = useState<ClosingModel | null>(null);
@@ -795,7 +798,7 @@ export const Closing = () => {
                 </Button>
               </>
             )}
-            {isClosingCompleted && (
+            {isClosingCompleted && canReopenClosing && (
               <Button
                 onClick={() => {
                   void protectAction(() => {

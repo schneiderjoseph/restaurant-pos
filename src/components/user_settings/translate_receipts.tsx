@@ -6,6 +6,7 @@ import { Setting } from "@/api/model/setting.ts";
 import { Switch } from "@/components/common/input/switch.tsx";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {
   DEFAULT_TRANSLATE_RECEIPTS,
   TRANSLATE_RECEIPTS_KEY,
@@ -21,6 +22,8 @@ export const TranslateReceiptsSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.translate_receipts');
   const { t } = useTranslation(["settings", "common"]);
 
   const { control, handleSubmit, reset } = useForm<FormValues>({
@@ -98,9 +101,11 @@ export const TranslateReceiptsSettingsCard = () => {
             )}
           />
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t("common:actions.save")}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t("common:actions.save")}
+          </button>
+        )}
       </form>
     </div>
   );

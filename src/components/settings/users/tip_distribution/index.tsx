@@ -14,6 +14,7 @@ import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {useTranslation} from 'react-i18next';
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 interface RoleDistributionRow {
@@ -35,6 +36,10 @@ export const AdminTipDistribution = () => {
   const db = useDB();
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canCreate = isVisible('admin.tips_definition.create');
+  const canDelete = isVisible('admin.tips_definition.delete');
+  const canUpdate = isVisible('admin.tips_definition.update');
   const [settings, setSettings] = useState<Setting>();
   const [roleRows, setRoleRows] = useState<RoleDistributionRow[]>([]);
   const [userRows, setUserRows] = useState<UserDistributionRow[]>([]);
@@ -129,23 +134,25 @@ export const AdminTipDistribution = () => {
       <div className="shadow p-4 rounded bg-white">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">{t('forms.byRoles')}</h3>
-          <Button
-            variant="primary"
-            icon={faPlus}
-            onClick={() => {
-              protectAction(() => {
-                setRoleRows((prev) => [
-                  ...prev,
-                  { role_id: "", weight: 0 },
-                ]);
-              }, {
-                module: 'admin.tips_definition.create',
-                description: getAccessRuleChildLabel('admin.tips_definition.create'),
-              });
-            }}
-          >
-            {t('forms.roleWeight')}
-          </Button>
+          {canCreate && (
+            <Button
+              variant="primary"
+              icon={faPlus}
+              onClick={() => {
+                protectAction(() => {
+                  setRoleRows((prev) => [
+                    ...prev,
+                    { role_id: "", weight: 0 },
+                  ]);
+                }, {
+                  module: 'admin.tips_definition.create',
+                  description: getAccessRuleChildLabel('admin.tips_definition.create'),
+                });
+              }}
+            >
+              {t('forms.roleWeight')}
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">
@@ -187,13 +194,15 @@ export const AdminTipDistribution = () => {
                   }}
                 />
               </div>
-              <IconTooltipButton label={t('common:actions.remove')}
-                variant="danger"
-                onClick={() => protectAction(() => setRoleRows(prev => prev.filter((_, i) => i !== index)), {
-                  module: 'admin.tips_definition.delete',
-                  description: getAccessRuleChildLabel('admin.tips_definition.delete'),
-                })}
-              ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
+              {canDelete && (
+                <IconTooltipButton label={t('common:actions.remove')}
+                  variant="danger"
+                  onClick={() => protectAction(() => setRoleRows(prev => prev.filter((_, i) => i !== index)), {
+                    module: 'admin.tips_definition.delete',
+                    description: getAccessRuleChildLabel('admin.tips_definition.delete'),
+                  })}
+                ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
+              )}
             </div>
           ))}
         </div>
@@ -202,23 +211,25 @@ export const AdminTipDistribution = () => {
       <div className="shadow p-4 rounded bg-white">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">{t('forms.specificUsers')}</h3>
-          <Button
-            variant="primary"
-            icon={faPlus}
-            onClick={() => {
-              protectAction(() => {
-                setUserRows((prev) => [
-                  ...prev,
-                  { user_id: "", weight: 0 },
-                ]);
-              }, {
-                module: 'admin.tips_definition.create',
-                description: getAccessRuleChildLabel('admin.tips_definition.create'),
-              });
-            }}
-          >
-            {t('forms.userWeight')}
-          </Button>
+          {canCreate && (
+            <Button
+              variant="primary"
+              icon={faPlus}
+              onClick={() => {
+                protectAction(() => {
+                  setUserRows((prev) => [
+                    ...prev,
+                    { user_id: "", weight: 0 },
+                  ]);
+                }, {
+                  module: 'admin.tips_definition.create',
+                  description: getAccessRuleChildLabel('admin.tips_definition.create'),
+                });
+              }}
+            >
+              {t('forms.userWeight')}
+            </Button>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">
@@ -266,26 +277,30 @@ export const AdminTipDistribution = () => {
                 />
               </div>
               
-              <IconTooltipButton label={t('common:actions.remove')}
-                variant="danger"
-                onClick={() => protectAction(() => setUserRows(prev => prev.filter((_, i) => i !== index)), {
-                  module: 'admin.tips_definition.delete',
-                  description: getAccessRuleChildLabel('admin.tips_definition.delete'),
-                })}
-              ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
+              {canDelete && (
+                <IconTooltipButton label={t('common:actions.remove')}
+                  variant="danger"
+                  onClick={() => protectAction(() => setUserRows(prev => prev.filter((_, i) => i !== index)), {
+                    module: 'admin.tips_definition.delete',
+                    description: getAccessRuleChildLabel('admin.tips_definition.delete'),
+                  })}
+                ><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      <div className="col-span-2">
-        <Button variant="primary" onClick={() => protectAction(saveSettings, {
-          module: 'admin.tips_definition.update',
-          description: getAccessRuleChildLabel('admin.tips_definition.update'),
-        })} isLoading={saving}>
-          {t('forms.saveDistribution')}
-        </Button>
-      </div>
+      {canUpdate && (
+        <div className="col-span-2">
+          <Button variant="primary" onClick={() => protectAction(saveSettings, {
+            module: 'admin.tips_definition.update',
+            description: getAccessRuleChildLabel('admin.tips_definition.update'),
+          })} isLoading={saving}>
+            {t('forms.saveDistribution')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

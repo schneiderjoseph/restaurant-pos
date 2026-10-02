@@ -32,6 +32,7 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {translateOrderStatus} from "@/lib/order.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
@@ -46,6 +47,8 @@ export const Orders = () => {
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canOpenCashDrawer = isVisible("orders.open_cash_drawer");
   const liveQueryRef = useRef<LiveSubscription | null>(null);
   const fetchOrdersRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -409,21 +412,23 @@ export const Orders = () => {
             <DatePicker value={date} onChange={setDate} maxValue={today(getLocalTimeZone())} isClearable/>
           </div>
           <div className="input-group flex-1 justify-end" data-testid="orders-toolbar">
-            <Button
-              icon={faMoneyBillWave}
-              variant="primary"
-              data-testid="orders-open-cash-drawer"
-              onClick={() => {
-                protectAction(() => {
-                  void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: app?.user?.id});
-                }, {
-                  module: 'orders.open_cash_drawer',
-                  description: 'Open cash drawer',
-                });
-              }}
-            >
-              {t('actions.openCashDrawer')}
-            </Button>
+            {canOpenCashDrawer && (
+              <Button
+                icon={faMoneyBillWave}
+                variant="primary"
+                data-testid="orders-open-cash-drawer"
+                onClick={() => {
+                  protectAction(() => {
+                    void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: app?.user?.id});
+                  }, {
+                    module: 'orders.open_cash_drawer',
+                    description: 'Open cash drawer',
+                  });
+                }}
+              >
+                {t('actions.openCashDrawer')}
+              </Button>
+            )}
             <Button
               icon={faTableColumns}
               variant="primary"

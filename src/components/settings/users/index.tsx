@@ -21,12 +21,17 @@ import {useDB} from "@/api/db/db.ts";
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useTranslation} from 'react-i18next';
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 
 const AdminUsersList = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<User>>(Tables.users, ['deleted_at = none'], [], 0, 10, ["user_role", "user_shift"]);
   const db = useDB();
   const {protectAction} = useSecurity();
+  const isVisible = useActionVisible();
+  const canEdit = isVisible('admin.users.update');
+  const canDelete = isVisible('admin.users.delete');
+  const canCreate = isVisible('admin.users.create');
 
   const [data, setData] = useState<User>();
   const [formModal, setFormModal] = useState(false);
@@ -59,7 +64,7 @@ const AdminUsersList = () => {
         return shift ? <div className="flex gap-2 flex-wrap"><span className="tag mr-2">{shift.name} ({shiftDisplayTime(shift)})</span></div> : '-';
       }
     }),
-    columnHelper.accessor("id", {
+    ...(canEdit || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -67,30 +72,34 @@ const AdminUsersList = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.users.update',
-                  description: getAccessRuleChildLabel('admin.users.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.user', { name: `${info.row.original.first_name} ${info.row.original.last_name}` })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.users.delete',
-                description: getAccessRuleChildLabel('admin.users.delete'),
-              })}
-            />
+            {canEdit && (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.users.update',
+                    description: getAccessRuleChildLabel('admin.users.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            )}
+            {canEdit && canDelete && <div className="separator"></div>}
+            {canDelete && (
+              <DeleteConfirm
+                message={t('delete.user', { name: `${info.row.original.first_name} ${info.row.original.last_name}` })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.users.delete',
+                  description: getAccessRuleChildLabel('admin.users.delete'),
+                })}
+              />
+            )}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -118,8 +127,8 @@ const AdminUsersList = () => {
         columns={columns}
         loaderHook={loadHook}
         loaderLineItems={columns.length}
-        buttons={[
-          <Button variant="primary" onClick={() => {
+        buttons={canCreate ? [
+          <Button key="create-user" variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -128,7 +137,7 @@ const AdminUsersList = () => {
               description: getAccessRuleChildLabel('admin.users.create'),
             });
           }} icon={faPlus} data-testid="admin-add-users">{t('buttons.user')}</Button>
-        ]}
+        ] : []}
       />
 
       <UserForm

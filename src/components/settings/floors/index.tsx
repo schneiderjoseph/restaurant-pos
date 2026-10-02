@@ -16,6 +16,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
@@ -26,6 +27,11 @@ export const AdminFloors = () => {
   const loadHook = useApi<SettingsData<Floor>>(Tables.floors, ['deleted_at = none'], [], 0, 10, ['tables']);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.floors.update');
+  const canDelete = isVisible('admin.floors.delete');
+  const canCreate = isVisible('admin.floors.create');
+  const canImport = isVisible('admin.floors.import');
 
   const [data, setData] = useState<Floor>();
   const [formModal, setFormModal] = useState(false);
@@ -45,7 +51,7 @@ export const AdminFloors = () => {
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
@@ -53,46 +59,52 @@ export const AdminFloors = () => {
       cell: (info) => {
         return (
           <div className="flex gap-3 items-center">
-            <IconTooltipButton label={t('common:actions.edit')}
-              variant="primary"
-              type="button"
-              onClick={() => {
-                protectAction(() => {
-                  setData(info.row.original);
-                  setFormModal(true);
-                }, {
-                  module: 'admin.floors.update',
-                  description: getAccessRuleChildLabel('admin.floors.update'),
-                });
-              }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-            <Button
-              variant="warning"
-              type="button"
-              onClick={() => {
-                protectAction(() => {
-                  setLayoutModal(true)
-                  setData(info.row.original);
-                }, {
-                  module: 'admin.floors.update',
-                  description: getAccessRuleChildLabel('admin.floors.update'),
-                });
-              }}
-            >
-              Layout
-            </Button>
-            <div className="separator"></div>
-            <DeleteConfirm
-              message={t('delete.floor', { name: info.row.original.name })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-                module: 'admin.floors.delete',
-                description: getAccessRuleChildLabel('admin.floors.delete'),
-              })}
-            />
+            {canUpdate ? (
+              <IconTooltipButton label={t('common:actions.edit')}
+                variant="primary"
+                type="button"
+                onClick={() => {
+                  protectAction(() => {
+                    setData(info.row.original);
+                    setFormModal(true);
+                  }, {
+                    module: 'admin.floors.update',
+                    description: getAccessRuleChildLabel('admin.floors.update'),
+                  });
+                }}
+              ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
+            ) : null}
+            {canUpdate ? (
+              <Button
+                variant="warning"
+                type="button"
+                onClick={() => {
+                  protectAction(() => {
+                    setLayoutModal(true)
+                    setData(info.row.original);
+                  }, {
+                    module: 'admin.floors.update',
+                    description: getAccessRuleChildLabel('admin.floors.update'),
+                  });
+                }}
+              >
+                Layout
+              </Button>
+            ) : null}
+            {canUpdate && canDelete ? <div className="separator"></div> : null}
+            {canDelete ? (
+              <DeleteConfirm
+                message={t('delete.floor', { name: info.row.original.name })}
+                onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                  module: 'admin.floors.delete',
+                  description: getAccessRuleChildLabel('admin.floors.delete'),
+                })}
+              />
+            ) : null}
           </div>
         );
       },
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -121,13 +133,13 @@ export const AdminFloors = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          canImport ? <Button variant="primary" onClick={() => {
             protectAction(() => setImportModal(true), {
               module: 'admin.floors.import',
               description: getAccessRuleChildLabel('admin.floors.import'),
             });
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button> : null,
+          canCreate ? <Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -135,8 +147,8 @@ export const AdminFloors = () => {
               module: 'admin.floors.create',
               description: getAccessRuleChildLabel('admin.floors.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-floors">{t('buttons.floor')}</Button>
-        ]}
+          }} icon={faPlus} data-testid="admin-add-floors">{t('buttons.floor')}</Button> : null,
+        ].filter(Boolean)}
       />
 
       {formModal && (

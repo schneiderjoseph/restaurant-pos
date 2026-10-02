@@ -15,6 +15,7 @@ import {useDB} from "@/api/db/db.ts";
 import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
 export const AdminShifts = () => {
@@ -22,6 +23,10 @@ export const AdminShifts = () => {
   const loadHook = useApi<SettingsData<Shift>>(Tables.shifts, ["deleted_at = none"], ["name asc"]);
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdate = isVisible('admin.shifts.update');
+  const canDelete = isVisible('admin.shifts.delete');
+  const canCreate = isVisible('admin.shifts.create');
   const [data, setData] = useState<Shift>();
   const [formModal, setFormModal] = useState(false);
 
@@ -36,36 +41,40 @@ export const AdminShifts = () => {
       enableColumnFilter: false,
       cell: (info) => shiftDisplayTime(info.row.original),
     }),
-    columnHelper.accessor("id", {
+    ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
       header: t('columns.actions'),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => (
         <div className="flex gap-3 items-center">
-          <IconTooltipButton label={t('common:actions.edit')}
-            variant="primary"
-            onClick={() => {
-              protectAction(() => {
-                setData(info.row.original);
-                setFormModal(true);
-              }, {
-                module: 'admin.shifts.update',
-                description: getAccessRuleChildLabel('admin.shifts.update'),
-              });
-            }}
-          ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
-          <div className="separator"></div>
-          <DeleteConfirm
-            message={t('delete.shift', { name: info.row.original.name })}
-            onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
-              module: 'admin.shifts.delete',
-              description: getAccessRuleChildLabel('admin.shifts.delete'),
-            })}
-          />
+          {canUpdate ? (
+            <IconTooltipButton label={t('common:actions.edit')}
+              variant="primary"
+              onClick={() => {
+                protectAction(() => {
+                  setData(info.row.original);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.shifts.update',
+                  description: getAccessRuleChildLabel('admin.shifts.update'),
+                });
+              }}
+            ><FontAwesomeIcon icon={faPencil} /></IconTooltipButton>
+          ) : null}
+          {canUpdate && canDelete ? <div className="separator"></div> : null}
+          {canDelete ? (
+            <DeleteConfirm
+              message={t('delete.shift', { name: info.row.original.name })}
+              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+                module: 'admin.shifts.delete',
+                description: getAccessRuleChildLabel('admin.shifts.delete'),
+              })}
+            />
+          ) : null}
         </div>
       ),
-    }),
+    })] : []),
   ];
 
   const deleteItem = async (id: string) => {
@@ -91,23 +100,25 @@ export const AdminShifts = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button
-            variant="primary"
-            onClick={() => {
-              protectAction(() => {
-                setData(undefined);
-                setFormModal(true);
-              }, {
-                module: 'admin.shifts.create',
-                description: getAccessRuleChildLabel('admin.shifts.create'),
-              });
-            }}
-            icon={faPlus}
-            data-testid="admin-add-shifts"
-          >
-            Shift
-          </Button>,
-        ]}
+          canCreate ? (
+            <Button
+              variant="primary"
+              onClick={() => {
+                protectAction(() => {
+                  setData(undefined);
+                  setFormModal(true);
+                }, {
+                  module: 'admin.shifts.create',
+                  description: getAccessRuleChildLabel('admin.shifts.create'),
+                });
+              }}
+              icon={faPlus}
+              data-testid="admin-add-shifts"
+            >
+              Shift
+            </Button>
+          ) : null,
+        ].filter(Boolean)}
       />
       <ShiftForm
         open={formModal}

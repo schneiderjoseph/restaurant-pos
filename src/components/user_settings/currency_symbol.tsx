@@ -7,6 +7,7 @@ import { Switch } from "@/components/common/input/switch.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {
   CURRENCY_SYMBOL_KEY,
   CurrencySymbolSettings,
@@ -27,6 +28,8 @@ export const CurrencySymbolSettingsCard = () => {
   const db = useDB();
   const [settings, setSettings] = useState<Setting>();
   const { protectFormSubmit } = useSecurity();
+  const isVisible = useActionVisible();
+  const canSave = isVisible('settings.currency_symbol');
   const { t } = useTranslation(["settings", "common"]);
 
   const { control, handleSubmit, reset, watch, setValue } = useForm<FormValues>({
@@ -176,9 +179,11 @@ export const CurrencySymbolSettingsCard = () => {
             )}
           />
         </div>
-        <button className="btn btn-primary" type="submit">
-          {t("common:actions.save")}
-        </button>
+        {canSave && (
+          <button className="btn btn-primary" type="submit">
+            {t("common:actions.save")}
+          </button>
+        )}
       </form>
     </div>
   );

@@ -1,7 +1,7 @@
 import {TabList, Tabs} from "react-aria-components";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
@@ -16,6 +16,12 @@ import {CashFlow} from "@/components/accounts/cash.flow.tsx";
 import {CustomerStatement} from "@/components/accounts/customer.statement.tsx";
 import {SupplierStatement} from "@/components/accounts/supplier.statement.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import { useModuleAccess } from "@/providers/module-access.provider.tsx";
+import {
+  filterKeysByModuleAccess,
+  resolveVisibleSelection,
+} from "@/lib/module-access.ts";
+import { NoAccessibleTabs } from "@/components/common/no-accessible-tabs.tsx";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const ACCOUNTS_TAB_MODULES: Record<string, string> = {
@@ -34,8 +40,9 @@ const ACCOUNTS_TAB_MODULES: Record<string, string> = {
 export const AccountsScreen = () => {
   const {t} = useTranslation('accounts');
   const {t: tNav} = useTranslation('navigation');
-  const [selected, setSelected] = useState('chart-of-accounts');
+  const [selected, setSelected] = useState<string | null>(null);
   const {protectAction} = useSecurity();
+  const { ready, can } = useModuleAccess();
 
   const pages = useMemo(() => ({
     'chart-of-accounts': {component: <ChartOfAccounts/>, title: t('tabs.chartOfAccounts')},
@@ -50,41 +57,64 @@ export const AccountsScreen = () => {
     'supplier-statement': {component: <SupplierStatement/>, title: t('tabs.supplierStatement')},
   }), [t]);
 
+  const pageKeys = useMemo(() => Object.keys(pages), [pages]);
+
+  const visibleKeys = useMemo(() => {
+    if (!ready) return [] as string[];
+    return filterKeysByModuleAccess(pageKeys, ACCOUNTS_TAB_MODULES, can);
+  }, [ready, can, pageKeys]);
+
+  const effectiveSelected = resolveVisibleSelection(selected, visibleKeys);
+
+  useEffect(() => {
+    if (effectiveSelected != null && effectiveSelected !== selected) {
+      setSelected(effectiveSelected);
+    }
+  }, [effectiveSelected, selected]);
+
+  const titleParts = effectiveSelected
+    ? [pages[effectiveSelected]?.title, tNav('sidebar.accounts')]
+    : [tNav('sidebar.accounts')];
+
   return (
     <Layout containerClassName="">
-      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.accounts')]} />
+      <DocumentTitle parts={titleParts} />
       <div data-testid="accounts-page">
-        <Tabs
-          className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
-          onSelectionChange={(key: string) => {
-            protectAction(() => {
-              setSelected(key);
-            }, {
-              module: ACCOUNTS_TAB_MODULES[key],
-              description: t('security.accessTab', {module: pages[key].title}),
-            });
-          }}
-        >
-          <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
-            <TabList
-              aria-label="Tabs"
-              className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
-              data-testid="accounts-tabs"
-            >
-              {Object.keys(pages).map(key => (
-                <Tab id={key} key={key} data-testid={`accounts-tab-${key}`}>{pages[key].title}</Tab>
-              ))}
-            </TabList>
-          </ScrollContainer>
-          {Object.keys(pages).map((key) => (
-            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
-              <div data-testid={`accounts-panel-${key}`}>
-                {pages[key].component}
-              </div>
-            </TabPanel>
-          ))}
-        </Tabs>
+        {!ready ? null : visibleKeys.length === 0 ? (
+          <NoAccessibleTabs />
+        ) : (
+          <Tabs
+            className="w-full flex flex-col rounded-xl"
+            selectedKey={effectiveSelected ?? undefined}
+            onSelectionChange={(key: string) => {
+              protectAction(() => {
+                setSelected(key);
+              }, {
+                module: ACCOUNTS_TAB_MODULES[key],
+                description: t('security.accessTab', {module: pages[key].title}),
+              });
+            }}
+          >
+            <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
+              <TabList
+                aria-label="Tabs"
+                className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+                data-testid="accounts-tabs"
+              >
+                {visibleKeys.map(key => (
+                  <Tab id={key} key={key} data-testid={`accounts-tab-${key}`}>{pages[key].title}</Tab>
+                ))}
+              </TabList>
+            </ScrollContainer>
+            {visibleKeys.map((key) => (
+              <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+                <div data-testid={`accounts-panel-${key}`}>
+                  {pages[key].component}
+                </div>
+              </TabPanel>
+            ))}
+          </Tabs>
+        )}
       </div>
     </Layout>
   );

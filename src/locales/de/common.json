@@ -156,6 +156,11 @@
     "unsupportedMatchField": "Abgleich über Spalte \"{{field}}\" ist nicht möglich.",
     "fileTooLarge": "Die Datei ist zu groß. Maximale Größe ist {{max}}."
   },
+  "moduleAccess": {
+    "noAccessTitle": "Kein Zugriff",
+    "noAccessDescription": "Sie haben keine Berechtigung, eine Seite zu öffnen. Wenden Sie sich an einen Manager, wenn Sie Zugriff benötigen.",
+    "noTabs": "Für Ihr Konto sind keine Bereiche verfügbar."
+  },
   "loading": "Wird geladen...",
   "dataImport": {
     "title": "{{entity}} importieren",

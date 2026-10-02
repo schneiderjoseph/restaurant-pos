@@ -14,6 +14,7 @@ import {useDB} from "@/api/db/db.ts";
 import {InventoryPurchaseOrderViewModal} from "@/components/inventory/purchase_orders/view.modal.tsx";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {
@@ -40,6 +41,10 @@ export const InventoryPurchaseOrders = () => {
   );
   const db = useDB();
   const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
+  const canUpdatePurchaseOrders = isVisible("inventory.purchase_orders.update");
+  const canDeletePurchaseOrders = isVisible("inventory.purchase_orders.delete");
+  const canApprovePurchaseOrders = isVisible("inventory.purchase_orders.approve");
   const [state] = useAtom(appPage);
   const userId = state?.user?.id ? recordIdToString(state.user.id) : undefined;
 
@@ -165,7 +170,7 @@ export const InventoryPurchaseOrders = () => {
             >
               <FontAwesomeIcon icon={faPrint}/>
             </IconTooltipButton>
-            {isDraft && (
+            {isDraft && canUpdatePurchaseOrders && (
               <>
                 <IconTooltipButton
                   label={t('purchaseOrder.submitForApproval')}
@@ -191,25 +196,27 @@ export const InventoryPurchaseOrders = () => {
                   <FontAwesomeIcon icon={faPencil}/>
                 </IconTooltipButton>
 
-                <DeleteConfirm
-                  message={`Do you want to delete purchase order# ${row.po_number}`}
-                  onConfirm={() =>
-                    protectAction(async () => {
-                      await db.delete(row.id);
-                      await db.query(
-                        `DELETE FROM ${Tables.inventory_purchase_order_items} WHERE purchase_order = $id`,
-                        {id: row.id},
-                      );
-                      loadHook.fetchData();
-                    }, {
-                      module: 'inventory.purchase_orders.delete',
-                      description: t('security.deletePurchaseOrders'),
-                    })
-                  }
-                />
+                {canDeletePurchaseOrders && (
+                  <DeleteConfirm
+                    message={`Do you want to delete purchase order# ${row.po_number}`}
+                    onConfirm={() =>
+                      protectAction(async () => {
+                        await db.delete(row.id);
+                        await db.query(
+                          `DELETE FROM ${Tables.inventory_purchase_order_items} WHERE purchase_order = $id`,
+                          {id: row.id},
+                        );
+                        loadHook.fetchData();
+                      }, {
+                        module: 'inventory.purchase_orders.delete',
+                        description: t('security.deletePurchaseOrders'),
+                      })
+                    }
+                  />
+                )}
               </>
             )}
-            {isPendingApproval && (
+            {isPendingApproval && canApprovePurchaseOrders && (
               <>
                 <IconTooltipButton
                   label={t('common:actions.approve')}

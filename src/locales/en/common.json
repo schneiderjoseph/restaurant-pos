@@ -248,5 +248,10 @@
     "unknownConfig": "Unknown import configuration for preview.",
     "passwordWillBeSet": "Password will be set on confirm"
   },
+  "moduleAccess": {
+    "noAccessTitle": "No access",
+    "noAccessDescription": "You do not have permission to open any page. Contact a manager if you need access.",
+    "noTabs": "No sections are available for your account."
+  },
   "loading": "Loading..."
 }
