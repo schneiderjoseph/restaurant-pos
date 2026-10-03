@@ -21,6 +21,11 @@
   `src/components/menu/guest.lookup.tsx` and `src/components/customer/customer.tsx`. Not enforced
   in the database.
 - An ID document number never appears in full on screen or on a ticket.
+- A customer that comes from ASI FrontDesk (`source = 'asi-fd'`, `isAsiGuest` in `src/lib/guest.ts`)
+  is read-only in the POS: no phone or ID document edit on the guest selection page (decided by
+  Joseph, 2026-10-03). The staff note (`notes`) stays editable: it is a POS field, carried from
+  one stay to the next by `asi-sync`. Enforced on the screen and in the save handlers, not in the
+  database.
 - A room is never charged, a stay is: a Room tender (`payment_type.type = 'Room'`) is accepted only
   for an `asi-fd` customer with `in_house = true` and `asi_synced_at` under 5 min old
   (`src/lib/room-charge.ts`). `asi_date_out` is informational ("departs today"), never a block.

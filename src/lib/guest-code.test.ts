@@ -8,6 +8,7 @@ import {
   guestMatchesSearchTerm,
   namesAreSamePerson,
   previewGuestCode,
+  isAsiGuest,
 } from '@/lib/guest.ts';
 
 describe('guestCodePrefixFromName', () => {
@@ -134,5 +135,15 @@ describe('guestMatchesSearchTerm by phone', () => {
 
   it('does not match a different number', () => {
     expect(guestMatchesSearchTerm(guest, '3456 9999')).toBe(false);
+  });
+});
+
+describe('isAsiGuest', () => {
+  it('is true only for a guest that comes from ASI FrontDesk', () => {
+    expect(isAsiGuest({ source: 'asi-fd' })).toBe(true);
+    expect(isAsiGuest({ source: 'walk-in' })).toBe(false);
+    expect(isAsiGuest({ source: 'local' })).toBe(false);
+    expect(isAsiGuest({ source: null })).toBe(false);
+    expect(isAsiGuest(undefined)).toBe(false);
   });
 });
