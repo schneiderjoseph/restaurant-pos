@@ -38,6 +38,7 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
 import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -71,6 +72,10 @@ export const Orders = () => {
 
   const [, setAlert] = useAtom(appAlert);
   const [app,] = useAtom(appPage);
+  // Without this grant a server sees only the orders they opened.
+  const {can} = useModuleAccess();
+  const seesAllOrders = can('order_visibility.all');
+  const currentUserId = app?.user?.id?.toString();
 
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
@@ -107,11 +112,16 @@ export const Orders = () => {
       f.push(`(${floorFilters.join(' or ')})`);
     }
 
-    selectedOrderFilters?.users?.forEach(user => {
-      userFilters.push(`user = ${user.value}`);
-    });
-    if (userFilters.length > 0) {
-      f.push(`(${userFilters.join(' or ')})`);
+    if (seesAllOrders) {
+      selectedOrderFilters?.users?.forEach(user => {
+        userFilters.push(`user = ${user.value}`);
+      });
+      if (userFilters.length > 0) {
+        f.push(`(${userFilters.join(' or ')})`);
+      }
+    } else {
+      f.push(`user = $currentUser`);
+      params.currentUser = currentUserId ? toRecordId(currentUserId) : null;
     }
 
     selectedOrderFilters?.statuses?.forEach(status => {
@@ -153,7 +163,7 @@ export const Orders = () => {
     }
 
     return {orderFilters: f, orderFilterParams: params};
-  }, [selectedOrderFilters, date]);
+  }, [selectedOrderFilters, date, seesAllOrders, currentUserId]);
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), ORDERS_LIST_LIMIT, 0, ['created_at desc'],
@@ -383,6 +393,7 @@ export const Orders = () => {
               onChange={(value: LabelValue[]) => updateOrderFilter('floors', value)}
             />
           </div>
+          {seesAllOrders && (
           <div className="min-w-[200px]">
             <ReactSelect
               options={users?.data?.map(item => ({
@@ -395,6 +406,7 @@ export const Orders = () => {
               onChange={(value: LabelValue[]) => updateOrderFilter('users', value)}
             />
           </div>
+          )}
           <div className="min-w-[220px]">
             <ReactSelect
               options={(customers?.data ?? []).map(item => ({

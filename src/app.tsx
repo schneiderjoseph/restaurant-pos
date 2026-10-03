@@ -31,6 +31,7 @@ import {
 } from "@/lib/feature-modules.ts";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
+import {MyOrderReadyAlert} from "@/components/orders/my-order-ready-alert.tsx";
 
 
 // react query client wrapper
@@ -106,6 +107,7 @@ function App() {
                             <SessionIdleProvider>
                               <ClockOutLayer>
                                 <AiAssistantWidget/>
+                                <MyOrderReadyAlert/>
                                 <AppRoutes/>
                               </ClockOutLayer>
                             </SessionIdleProvider>
