@@ -2,19 +2,14 @@ import {Order as OrderModel} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import React, {CSSProperties, useMemo} from "react";
 import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview, getOrderServiceChargeAmount} from "@/lib/cart.ts";
-import {
-  calculateCartItemsBaseTotal,
-  calculateCartTotalsWithTaxes,
-  getOrderTaxAmount,
-  getOrderTaxBreakdown,
-} from "@/lib/tax-calculator.ts";
+import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
+import {previewCartTotals} from "@/lib/cart-tax-preview.ts";
 import {cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getActiveOrderDiscounts, getOrderDisplayItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Tax} from "@/api/model/tax.ts";
 import {formatTaxLabel} from "@/lib/tax-label.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 
@@ -29,13 +24,8 @@ interface CartTotalsProps {
 
 export const CartTotals = ({cart, itemCount, className, allowServiceCharges}: CartTotalsProps) => {
   const {t} = useTranslation('orders');
-  const {data: taxesData} = useApi<SettingsData<Tax>>(
-    Tables.taxes,
-    ['deleted_at = none'],
-    ['priority asc'],
-    0,
-    99999,
-  );
+  const preview = useMemo(() => previewCartTotals(cart), [cart]);
+  const itemsBase = preview.itemsBase;
 
   const {data: serviceChargeSettings} = useApi<SettingsData<any>>(
     Tables.settings,
@@ -54,23 +44,12 @@ export const CartTotals = ({cart, itemCount, className, allowServiceCharges}: Ca
     const type = String(typeRaw || DiscountType.Percent);
     const value = Number(valueRaw || 0);
     if (value <= 0) return {amount: 0, label: ''};
-    const itemsBase = calculateCartItemsBaseTotal(cart);
     const amount = type === DiscountType.Fixed ? value : (itemsBase * value / 100);
     const label = type === DiscountType.Fixed ? '' : `${value}%`;
     return {amount, label};
-  }, [allowServiceCharges, serviceChargeSettings, cart]);
+  }, [allowServiceCharges, serviceChargeSettings, itemsBase]);
 
-  const itemsBase = useMemo(() => calculateCartItemsBaseTotal(cart), [cart]);
-  const taxPreviewTotals = useMemo(
-    () => calculateCartTotalsWithTaxes(cart, taxesData?.data ?? []),
-    [cart, taxesData?.data],
-  );
-
-  const taxTotal = useMemo(
-    () => taxPreviewTotals.reduce((sum, row) => sum + row.taxAmount, 0),
-    [taxPreviewTotals],
-  );
-  const grandTotal = itemsBase + taxTotal + serviceChargePreview.amount;
+  const grandTotal = itemsBase + preview.taxTotal + serviceChargePreview.amount;
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
@@ -78,7 +57,7 @@ export const CartTotals = ({cart, itemCount, className, allowServiceCharges}: Ca
         <div className="flex-1">{t('totals.items', {count: itemCount})}</div>
         <div className="text-right"><DualCurrency amount={itemsBase} /></div>
       </div>
-      {taxPreviewTotals.map(({tax, taxAmount}) => (
+      {preview.taxes.map(({tax, amount: taxAmount}) => (
         <div className="flex" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
           <div className="flex-1">
             {t('totals.tax')} ({formatTaxLabel(tax.name, tax.rate)})

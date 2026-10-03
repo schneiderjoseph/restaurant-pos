@@ -142,6 +142,32 @@ export const calculateSingleTax = (
 
 const roundTax = (value: number) => Math.round(value * 100) / 100;
 
+/**
+ * Taxes added to an exclusive line. A tax chosen at payment (payment type or manual pick)
+ * replaces everything; otherwise the line keeps its own menu taxes when it was sold under
+ * that rule (`ownTaxes`).
+ */
+const resolveExclusiveLineTaxes = (
+  itemTaxes: Tax[] | undefined | null,
+  orderTax: Tax | null | undefined,
+  ownTaxes: boolean,
+): Tax[] => {
+  if (orderTax) {
+    return [orderTax];
+  }
+  if (ownTaxes && itemTaxes && itemTaxes.length > 0) {
+    return itemTaxes;
+  }
+  return [];
+};
+
+/**
+ * Exclusive order lines stored since taxes apply at order creation carry their tax amount
+ * in `order_item.tax`. Older lines stored 0 there and are taxed only by the order tax, so
+ * orders paid before that change keep the tax they were actually charged.
+ */
+export const orderItemCarriesOwnTaxes = (item: OrderItem): boolean => safeNumber(item?.tax) > 0;
+
 const getLineItemTaxCalculation = (
   unitBase: number,
   quantity: number,
@@ -168,11 +194,12 @@ const getLineItemTaxCalculation = (
     };
   }
 
-  if (!orderTax) {
+  const exclusiveTaxes = resolveExclusiveLineTaxes(itemTaxes, orderTax, true);
+  if (exclusiveTaxes.length === 0) {
     return calculateItemTax(0, [], 'exclusive');
   }
 
-  const perUnit = calculateItemTax(unitBase, [orderTax], 'exclusive');
+  const perUnit = calculateItemTax(unitBase, exclusiveTaxes, 'exclusive');
   return {
     ...perUnit,
     tax_amounts: perUnit.tax_amounts.map((entry) => ({
@@ -191,7 +218,8 @@ const getOrderLineItemTaxCalculation = (
   quantity: number,
   taxMode: TaxMode,
   itemTaxes: Tax[] | undefined | null,
-  orderTax?: Tax | null,
+  orderTax: Tax | null | undefined,
+  ownTaxes: boolean,
 ): TaxCalculationResult => {
   const qty = safeNumber(quantity || 1);
 
@@ -212,11 +240,12 @@ const getOrderLineItemTaxCalculation = (
     };
   }
 
-  if (!orderTax) {
+  const exclusiveTaxes = resolveExclusiveLineTaxes(itemTaxes, orderTax, ownTaxes);
+  if (exclusiveTaxes.length === 0) {
     return calculateItemTax(0, [], 'exclusive');
   }
 
-  const perUnit = calculateItemTax(unitBase, [orderTax], 'exclusive');
+  const perUnit = calculateItemTax(unitBase, exclusiveTaxes, 'exclusive');
   return {
     ...perUnit,
     tax_amounts: perUnit.tax_amounts.map((entry) => ({
@@ -230,7 +259,8 @@ const getOrderLineItemTaxCalculation = (
 };
 
 /**
- * Per-line payment tax: inclusive embedded tax from menu taxes, or exclusive runtime tax from order tax.
+ * Per-line payment tax: inclusive embedded tax from menu taxes; exclusive lines take the order tax
+ * when one is chosen, else their own menu taxes (see `orderItemCarriesOwnTaxes`).
  */
 export const calculateOrderItemPaymentTax = (
   item: OrderItem,
@@ -245,6 +275,7 @@ export const calculateOrderItemPaymentTax = (
     taxMode,
     item.taxes,
     orderTax,
+    orderItemCarriesOwnTaxes(item),
   );
   return calculation.total_tax;
 };
@@ -299,33 +330,6 @@ export const calculateCartTotalWithOrderTax = (
   return roundTax(base + (base * rate) / 100);
 };
 
-export interface CartTaxPreviewTotal {
-  tax: Tax;
-  total: number;
-  taxAmount: number;
-}
-
-/**
- * Projected totals for each system tax applied as exclusive % on the cart items base.
- */
-export const calculateCartTotalsWithTaxes = (
-  cart: MenuItem[],
-  taxes: Tax[],
-): CartTaxPreviewTotal[] => {
-  const active = (taxes ?? []).filter((tax): tax is Tax => Boolean(tax));
-  const base = calculateCartItemsBaseTotal(cart);
-
-  return active.map(tax => {
-    const rate = safeNumber(tax.rate);
-    const taxAmount = roundTax((base * rate) / 100);
-    return {
-      tax,
-      taxAmount,
-      total: roundTax(base + taxAmount),
-    };
-  });
-};
-
 /**
  * Sum of payment taxes for an order and optional pending cart items.
  */
@@ -376,7 +380,14 @@ const getOrderItemPaymentTaxBreakdown = (
   const taxMode = item.tax_mode ?? 'exclusive';
   const unitBase = getOrderItemTaxableUnitBase(item);
   const quantity = safeNumber(item.quantity || 1);
-  return getOrderLineItemTaxCalculation(unitBase, quantity, taxMode, item.taxes, orderTax).tax_amounts;
+  return getOrderLineItemTaxCalculation(
+    unitBase,
+    quantity,
+    taxMode,
+    item.taxes,
+    orderTax,
+    orderItemCarriesOwnTaxes(item),
+  ).tax_amounts;
 };
 
 const reconcileTaxBreakdownTotal = (

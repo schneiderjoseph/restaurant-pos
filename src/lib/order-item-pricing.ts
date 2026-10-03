@@ -89,13 +89,17 @@ const sumNormalizedModifierTree = (groups: CartModifierGroup[] | undefined): num
   }, 0);
 };
 
+/**
+ * Line tax from the menu taxes, stored on `order_item.tax` for both modes. On an exclusive
+ * line a non-zero amount is what makes those taxes apply from order creation
+ * (`orderItemCarriesOwnTaxes`).
+ */
 const calculateStoredLineTax = (
   netUnitBase: number,
   quantity: number,
-  taxMode: TaxMode,
   taxes: Tax[] | undefined,
 ): number => {
-  if (taxMode !== 'inclusive' || !taxes || taxes.length === 0) {
+  if (!taxes || taxes.length === 0) {
     return 0;
   }
 
@@ -113,7 +117,7 @@ export const buildOrderItemPayload = (item: MenuItem): OrderItemPricingPayload =
   const taxContext: TaxContext = {tax_mode: taxMode, taxes};
   const modifiers = normalizeModifierTree(item.selectedGroups, taxContext);
   const netUnitBase = netPrice + sumNormalizedModifierTree(modifiers);
-  const lineTax = calculateStoredLineTax(netUnitBase, item.quantity, taxMode, taxes);
+  const lineTax = calculateStoredLineTax(netUnitBase, item.quantity, taxes);
 
   return {
     price: netPrice,
