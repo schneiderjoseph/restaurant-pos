@@ -1,5 +1,5 @@
 import {Button} from "@/components/common/input/button.tsx";
-import {faCancel, faCheck, faClock, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faCancel, faCheck, faClock, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
@@ -17,7 +17,6 @@ import {
   OrderStatus,
   parseOrderQueryResult,
 } from "@/api/model/order.ts";
-import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
 import {toRecordId} from "@/lib/utils.ts";
 import {StringRecordId} from "surrealdb";
@@ -46,6 +45,9 @@ import {
 } from "@/lib/kitchen-ticket-label.ts";
 import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {orderIdToString} from "@/store/order-edit-session.ts";
+import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
+import {createOrderEditRequest, diffSentLines, EDIT_SENT_ITEMS_MODULE} from "@/lib/order-edit-request.ts";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast", "kitchen"]);
@@ -56,13 +58,12 @@ export const Payment = () => {
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
+  const {can} = useModuleAccess();
 
   const [isLoading, setLoading] = useState(false);
   /** Sync re-entry guard: React isLoading alone cannot stop double-click before re-render. */
   const createInFlightRef = useRef(false);
-  const [paymentOpen, setPaymentOpen] = useState(false);
   const [order, setOrder] = useState<Order>();
-  const [paymentOrder, setPaymentOrder] = useState<Order>();
   const [dueOpen, setDueOpen] = useState(false);
 
   // When the order is wanted: the server's choice, else what an existing order already holds.
@@ -130,10 +131,6 @@ export const Payment = () => {
   };
 
   useEffect(() => {
-    if (paymentOpen) {
-      return;
-    }
-
     let cancelled = false;
 
     (async () => {
@@ -150,7 +147,7 @@ export const Payment = () => {
     return () => {
       cancelled = true;
     };
-  }, [state?.order?.id, paymentOpen]);
+  }, [state?.order?.id]);
 
   const hasNewCartItems = () =>
     state.cart.some((item) => item.newOrOld === MenuItemType.new && !item.deleted_at);
@@ -161,37 +158,15 @@ export const Payment = () => {
   const originalOrderItems = () =>
     editSession?.order?.items ?? state.order?.order?.items ?? [];
 
-  const hasPersistedCartEdits = () => {
-    if (state?.order?.id === 'new') {
-      return false;
-    }
-    if (state.cart.some((item) => isPersistedCartItem(item) && item.deleted_at)) {
-      return true;
-    }
-    const originals = originalOrderItems();
-    const byId = new Map(
-      state.cart
-        .filter((item) => isPersistedCartItem(item))
-        .map((item) => [orderIdToString(item.id), item]),
-    );
-    for (const orig of originals) {
-      if (orig?.deleted_at) {
-        continue;
-      }
-      const id = orderIdToString(orig.id);
-      const cur = byId.get(id);
-      if (!cur || cur.deleted_at) {
-        return true;
-      }
-      if (Number(cur.quantity) !== Number(orig.quantity)) {
-        return true;
-      }
-      if ((cur.comments || '') !== (orig.comments || '')) {
-        return true;
-      }
-    }
-    return false;
-  };
+  /** What the cart changed on lines the order already holds (quantity, removal, comment, options). */
+  const sentLineChanges = () =>
+    state?.order?.id === 'new' ? [] : diffSentLines(originalOrderItems(), state.cart);
+
+  const hasPersistedCartEdits = () => sentLineChanges().length > 0;
+
+  /** The role is read again from the database, as `protectAction` does. */
+  const canEditSentItems = async () =>
+    userModulesGrant(await fetchUserModules(db, page?.user), EDIT_SENT_ITEMS_MODULE);
 
   const hasCartChangesToPersist = () => hasNewCartItems() || hasPersistedCartEdits();
 
@@ -249,12 +224,29 @@ export const Payment = () => {
 
       const date = DateTime.now().toJSDate();
 
+      // Changing a line already sent takes the right to; without it the lines stay as sent
+      // and the changes wait for an approver. New lines are saved and sent either way.
+      const changes = sentLineChanges();
+      const awaitsApproval = changes.length > 0 && !(await canEditSentItems());
+
       const kitchenItems: Record<string, any[]> = {};
       const items: any[] = [];
       const newItemIds: any[] = [];
 
       for (const item of state.cart) {
         if (isPersistedCartItem(item)) {
+          if (awaitsApproval) {
+            if (!item.deleted_at) {
+              await db.merge(toRecordId(item.id), {
+                seat: item.seat,
+                is_suspended: item.isHold,
+                updated_at: date,
+              });
+            }
+            items.push(toRecordId(item.id));
+            continue;
+          }
+
           if (item.deleted_at) {
             await softVoidPersistedItem(
               orderIdToString(item.id) || String(item.id),
@@ -350,6 +342,10 @@ export const Payment = () => {
           );
           if (stillInCart) {
             // Already handled via deleted_at branch above.
+            continue;
+          }
+          if (awaitsApproval) {
+            items.push(toRecordId(id));
             continue;
           }
           await softVoidPersistedItem(id, Number(orig.quantity) || 1);
@@ -480,6 +476,15 @@ export const Payment = () => {
         user: page?.user,
       });
 
+      if (awaitsApproval) {
+        await createOrderEditRequest(db, {
+          orderId: normalizedOrder?.id,
+          requestedBy: page?.user?.id,
+          changes,
+        });
+        toast.info(t("payment:editRequest.sent"));
+      }
+
       if (isNewOrder && normalizedOrder?.id) {
         await publishOrderCreated(undefined, {
           orderId: String(normalizedOrder.id),
@@ -601,41 +606,6 @@ export const Payment = () => {
     }));
   }
 
-  const openPayment = async () => {
-    try {
-      const isExistingOrderOnly =
-        state?.order?.id !== 'new' && !hasCartChangesToPersist();
-
-      let orderId: unknown = state?.order?.id;
-      if (isExistingOrderOnly) {
-        await saveDueAtOnly();
-      }
-      if (!isExistingOrderOnly) {
-        const result = await createOrder();
-        if (!result || result === 'busy') {
-          return;
-        }
-        orderId = result?.id;
-        if (result[0]?.id) {
-          orderId = result[0].id;
-        }
-      }
-
-      const freshOrder = await fetchOrderForPayment(orderId);
-      if (!freshOrder?.items?.length) {
-        throw new Error(t("payment:errors.openPayment"));
-      }
-
-      setPaymentOrder(freshOrder);
-      setOrder(freshOrder);
-      setPaymentOpen(true);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : t("payment:errors.openPayment");
-      console.error(error);
-      toast.error(message);
-    }
-  }
-
   const cancel = async () => {
     setState(prev => ({
       ...prev,
@@ -666,6 +636,11 @@ export const Payment = () => {
 
 
         <div className="p-3" data-testid="cart-payment-actions">
+          {hasPersistedCartEdits() && !can(EDIT_SENT_ITEMS_MODULE) && (
+            <p className="mb-3 text-sm font-normal text-warning-700" data-testid="cart-edit-needs-approval">
+              {t("payment:editRequest.notice")}
+            </p>
+          )}
           <Button
             variant={dueAt ? "warning" : "primary"}
             flat
@@ -686,9 +661,6 @@ export const Payment = () => {
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
                     disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
-            <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || cartItemCount === 0 || orderTakingBlocked} isLoading={isLoading}
-                    data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
             <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
           </div>
@@ -699,16 +671,6 @@ export const Payment = () => {
           value={dueAt}
           onChange={(value) => setState(prev => ({...prev, dueAt: value}))}
           onClose={() => setDueOpen(false)}
-        />
-      )}
-      {paymentOpen && paymentOrder && (
-        <OrderPayment
-          order={paymentOrder}
-          onClose={async () => {
-            setPaymentOpen(false);
-            setPaymentOrder(undefined);
-            await reset();
-          }}
         />
       )}
     </>

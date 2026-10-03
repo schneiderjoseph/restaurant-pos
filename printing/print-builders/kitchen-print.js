@@ -69,7 +69,7 @@ function getGuestLabel(order) {
 
 /**
  * Kitchen print builder (KOT).
- * Expects data: { order, items, kitchenName?, table?, guestLabel?, placeLabel?, placeKind?, isAddOn?, duplicate? }
+ * Expects data: { order, items, kitchenName?, table?, guestLabel?, placeLabel?, placeKind?, isAddOn?, duplicate?, modified? }
  */
 function build(printer, data = {}, config = {}) {
   const order = data.order;
@@ -77,6 +77,7 @@ function build(printer, data = {}, config = {}) {
   const kitchenName = data.kitchenName || '';
   const isAddOn = !!data.isAddOn;
   const isDuplicate = !!data.duplicate;
+  const isModified = !!data.modified;
   const cfg = normalizeConfig(config);
 
   const dateOpts = { timezone: cfg.timezone, locale: cfg.locale };
@@ -96,9 +97,12 @@ function build(printer, data = {}, config = {}) {
   const guestLabel = data.guestLabel || getGuestLabel(order);
   const printItems = mapPrintItems(items);
 
-  const bannerLabel = isDuplicate
-    ? (L.duplicateKot || 'COPY')
-    : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'NEW'));
+  // A change to lines the kitchen already holds wins over the copy banner sent with it.
+  const bannerLabel = isModified
+    ? (L.modifiedKot || 'MODIFIED')
+    : isDuplicate
+      ? (L.duplicateKot || 'COPY')
+      : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'NEW'));
 
   return printReceiptHeader(printer, cfg).then(() => {
     printKotHeader(printer, {

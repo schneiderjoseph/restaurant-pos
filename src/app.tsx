@@ -32,6 +32,7 @@ import {
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
 import {MyOrderReadyAlert} from "@/components/orders/my-order-ready-alert.tsx";
+import {OrderEditRequestWatcher} from "@/components/orders/order-edit-request-watcher.tsx";
 import {SessionReplacedWatcher} from "@/components/security/session-replaced-watcher.tsx";
 
 
@@ -109,6 +110,7 @@ function App() {
                               <ClockOutLayer>
                                 <AiAssistantWidget/>
                                 <MyOrderReadyAlert/>
+                                <OrderEditRequestWatcher/>
                                 <SessionReplacedWatcher/>
                                 <AppRoutes/>
                               </ClockOutLayer>

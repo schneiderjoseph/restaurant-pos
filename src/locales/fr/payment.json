@@ -152,5 +152,9 @@
     "minute": "Minutes",
     "confirm": "Valider : {{time}}",
     "past": "Cette heure est déjà passée."
+  },
+  "editRequest": {
+    "notice": "Les modifications des lignes déjà envoyées seront soumises à un approbateur.",
+    "sent": "Les modifications des lignes déjà envoyées ont été envoyées pour approbation."
   }
 }

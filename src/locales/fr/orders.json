@@ -228,5 +228,27 @@
   "due": {
     "forTime": "Pour {{time}}",
     "tomorrowShort": "dem."
+  },
+  "editRequest": {
+    "title": "Modification de commande à approuver",
+    "more": "{{count}} autre(s) en attente",
+    "pendingCount": "Modifications de commande à approuver : {{count}}",
+    "requestedBy": "Demandée par {{name}}",
+    "changeVoid": "Supprimer {{quantity}} × {{name}}",
+    "changeQuantity": "{{name}} : quantité {{from}} → {{to}}",
+    "changeComment": "{{name}} : commentaire « {{comment}} »",
+    "changeCommentRemoved": "{{name}} : commentaire supprimé",
+    "changeModifiers": "{{name}} : options modifiées",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "later": "Plus tard",
+    "approved": "Modification appliquée à la commande",
+    "rejected": "Modification refusée",
+    "expired": "La commande n'est plus ouverte : rien n'a été modifié",
+    "taken": "Quelqu'un d'autre a déjà répondu à cette demande",
+    "failed": "La modification n'a pas pu être appliquée. Réessayez.",
+    "answerApproved": "Votre modification de commande a été approuvée",
+    "answerRejected": "Votre modification de commande a été refusée",
+    "answerExpired": "Votre modification de commande est abandonnée : la commande n'est plus ouverte"
   }
 }

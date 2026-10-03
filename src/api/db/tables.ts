@@ -123,6 +123,7 @@ export enum Tables {
   integration_sync_failures = 'integration_sync_failure',
 
   auth_permission = 'auth_permission',
+  order_edit_requests = 'order_edit_request',
   tracking = 'tracking',
 
   accounts = 'account',

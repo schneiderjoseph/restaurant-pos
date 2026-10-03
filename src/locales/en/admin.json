@@ -603,6 +603,9 @@
       "payments": {
         "label": "Payments"
       },
+      "order_edit": {
+        "label": "Editing sent orders"
+      },
       "summary": {
         "label": "Summary"
       },
@@ -675,6 +678,7 @@
       "orders.remote_payment_verify": "Verify remote payment",
       "order_visibility.all": "See every server's orders",
       "payments.receive": "Receive payment",
+      "order_edit.sent_items": "Change lines already sent, and approve the changes others ask for",
       "summary": "Summary",
       "summary.print": "Print summary",
       "summary.product_mix": "Product mix report",

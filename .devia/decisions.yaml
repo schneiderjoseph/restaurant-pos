@@ -62,6 +62,12 @@ decisions:
     question: Where it runs
     status: pending
     owner: human
+  orders.edit_sent_lines:
+    question: Who may change an order that was already sent, and how is a change by someone else approved
+    status: decided
+    value: "Changing a line already sent (quantity, removal, comment, options) takes the role permission order_edit.sent_items; adding dishes stays free for everyone. Without it, the change is sent as a request to the terminals of the users who hold the permission, who accept or refuse it there; the order is written only on approval, and the kitchens then get a ticket for the change. No role receives the permission on deploy: it is ticked per role. The Pay now button is removed from the cart: payment is taken from the Orders screen"
+    because: Joseph, 2026-10-03
+    decided_at: 2026-10-03
   orders.ready_alert:
     question: Where a server is told their order is ready
     status: decided
