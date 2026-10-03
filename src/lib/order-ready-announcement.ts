@@ -183,3 +183,54 @@ export const cancelOrderReadySpeech = () => {
   isSpeaking = false;
   window.speechSynthesis.cancel();
 };
+
+let chimeContext: AudioContext | null = null;
+
+const getChimeContext = (): AudioContext | null => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const Ctor = window.AudioContext
+    ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) {
+    return null;
+  }
+  if (!chimeContext) {
+    chimeContext = new Ctor();
+  }
+  return chimeContext;
+};
+
+/** Call after a user gesture so the browser lets the chime play later. */
+export const unlockReadyChime = () => {
+  const context = getChimeContext();
+  if (context?.state === 'suspended') {
+    void context.resume().catch(() => undefined);
+  }
+};
+
+/** Two loud rising tones, synthesised: no sound file to ship. */
+export const playReadyChime = () => {
+  const context = getChimeContext();
+  if (!context) {
+    return;
+  }
+  if (context.state === 'suspended') {
+    void context.resume().catch(() => undefined);
+  }
+
+  const start = context.currentTime;
+  [880, 1320].forEach((frequency, index) => {
+    const at = start + index * 0.28;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = 'triangle';
+    oscillator.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(0.9, at + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.4);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start(at);
+    oscillator.stop(at + 0.42);
+  });
+};

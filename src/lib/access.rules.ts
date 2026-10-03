@@ -41,6 +41,12 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "orders.remote_payment_verify",
     ],
   },
+  // Its own section, not `orders.*`: every role that opens the Orders page holds `orders`,
+  // and a parent id grants all of its children (`userModulesGrant`).
+  order_visibility: {
+    label: "Order visibility",
+    children: ["order_visibility.all"],
+  },
   summary: {
     label: "Summary",
     children: [

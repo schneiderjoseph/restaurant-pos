@@ -203,5 +203,14 @@
   },
   "loadingItems": "Loading items…",
   "retryLoad": "Retry loading items",
-  "loadFailed": "Failed to load order"
+  "loadFailed": "Failed to load order",
+  "readyAlert": {
+    "title": "Order ready",
+    "table": "Table {{table}}",
+    "ok": "OK",
+    "okWithMore": "OK ({{count}} more)",
+    "speech": "Order {{number}} is ready",
+    "speechGuest": "Order {{number}}, {{guest}}, is ready",
+    "speechTable": "Order {{number}}, table {{table}}, is ready"
+  }
 }

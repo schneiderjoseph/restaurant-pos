@@ -203,5 +203,14 @@
   },
   "loadingItems": "Chargement des articles…",
   "retryLoad": "Réessayer le chargement des articles",
-  "loadFailed": "Échec du chargement de la commande"
+  "loadFailed": "Échec du chargement de la commande",
+  "readyAlert": {
+    "title": "Commande prête",
+    "table": "Table {{table}}",
+    "ok": "OK",
+    "okWithMore": "OK (encore {{count}})",
+    "speech": "Commande {{number}} est prête",
+    "speechGuest": "Commande {{number}}, {{guest}}, est prête",
+    "speechTable": "Commande {{number}}, table {{table}}, est prête"
+  }
 }

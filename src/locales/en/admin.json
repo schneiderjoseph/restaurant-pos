@@ -592,6 +592,9 @@
       "orders": {
         "label": "Orders"
       },
+      "order_visibility": {
+        "label": "Order visibility"
+      },
       "summary": {
         "label": "Summary"
       },
@@ -662,6 +665,7 @@
       "orders.move_table": "Move order table",
       "orders.remote_payment_create": "Create remote payment intent",
       "orders.remote_payment_verify": "Verify remote payment",
+      "order_visibility.all": "See every server's orders",
       "summary": "Summary",
       "summary.print": "Print summary",
       "summary.product_mix": "Product mix report",
