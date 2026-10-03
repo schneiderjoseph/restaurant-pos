@@ -1,6 +1,6 @@
 import { Order } from '@/api/model/order.ts';
 import { classifyOrder, KitchenRowsByOrderItemId, OrderDisplayColumn } from '@/lib/order-display.ts';
-import { getInvoiceNumber } from '@/lib/order.ts';
+import { formatOrderNumber, getInvoiceNumber } from '@/lib/order.ts';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
 
 /** Last column seen for each order id ('running' = kitchen still working). */
@@ -32,7 +32,10 @@ export const findNewlyReadyOrders = (
 
 export interface ReadyAlert {
   id: string;
+  /** Plain number, for speech. */
   orderNumber: string;
+  /** #012, for the popup. */
+  displayNumber: string;
   /** Guest name, or #code when the guest has no name. */
   guest: string;
   /** Guest name only — a #code is not read aloud. */
@@ -43,6 +46,7 @@ export interface ReadyAlert {
 export const toReadyAlert = (order: Order): ReadyAlert => ({
   id: order.id.toString(),
   orderNumber: getInvoiceNumber(order),
+  displayNumber: formatOrderNumber(order),
   guest: formatGuestLabel(order.customer),
   spokenGuest: (order.customer?.name ?? '').trim(),
   table: order.table ? `${order.table.name ?? ''}${order.table.number ?? ''}`.trim() : '',

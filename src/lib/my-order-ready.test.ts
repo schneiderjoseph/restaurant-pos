@@ -63,6 +63,7 @@ describe('readyAnnouncement', () => {
   it('falls back to the table, and never reads a #code aloud', () => {
     const alert = toReadyAlert(order({ customer: { guest_code: 'R204' }, table: { name: 'T', number: 4 } }));
     expect(alert.guest).toBe('#R204');
+    expect(alert.displayNumber).toBe('#012');
     expect(readyAnnouncement(alert)).toEqual({
       key: 'readyAlert.speechTable',
       values: { number: '12', table: 'T4' },

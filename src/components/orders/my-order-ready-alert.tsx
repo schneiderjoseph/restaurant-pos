@@ -173,7 +173,7 @@ export const MyOrderReadyAlert = () => {
         <p id="order-ready-alert-title" className="text-2xl font-bold uppercase text-success-700">
           {t('readyAlert.title')}
         </p>
-        <p className="text-6xl font-black tabular-nums text-success-900">{current.orderNumber}</p>
+        <p className="text-6xl font-black tabular-nums text-success-900">{current.displayNumber}</p>
         {current.table && (
           <p className="text-2xl font-semibold">{t('readyAlert.table', {table: current.table})}</p>
         )}
