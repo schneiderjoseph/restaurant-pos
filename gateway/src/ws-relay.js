@@ -43,6 +43,38 @@ function selectSurrealProtocol(requested) {
   return undefined;
 }
 
+/** Open relay sockets per session jti, so a replaced session can be cut off at once. */
+const socketsByJti = new Map();
+
+/** Close code sent when the same user signs in on another device. */
+const SESSION_REPLACED_CLOSE_CODE = 4001;
+
+function trackSocket(jti, ws) {
+  if (!jti) return;
+  let set = socketsByJti.get(jti);
+  if (!set) {
+    set = new Set();
+    socketsByJti.set(jti, set);
+  }
+  set.add(ws);
+  ws.on('close', () => {
+    set.delete(ws);
+    if (set.size === 0) socketsByJti.delete(jti);
+  });
+}
+
+/** Drop every database socket opened with this session. */
+function closeSessionSockets(jti) {
+  const set = socketsByJti.get(jti);
+  if (!set) return 0;
+  // Copy first: a close handler removes the socket from the set.
+  const sockets = [...set];
+  for (const ws of sockets) {
+    safeClose(ws, SESSION_REPLACED_CLOSE_CODE, 'session_replaced');
+  }
+  return sockets.length;
+}
+
 function safeClose(ws, code, reason) {
   try {
     if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
@@ -87,8 +119,9 @@ function attachRpcRelay(server) {
     }
 
     const token = getTokenFromUpgrade(req);
+    let session;
     try {
-      await verifySession(token);
+      session = await verifySession(token);
     } catch {
       socket.write('HTTP/1.1 401 Unauthorized\r\nConnection: close\r\n\r\n');
       socket.destroy();
@@ -98,6 +131,7 @@ function attachRpcRelay(server) {
     const selected = selectSurrealProtocol(parseRequestedProtocols(req));
 
     wss.handleUpgrade(req, socket, head, (clientWs) => {
+      trackSocket(session?.jti, clientWs);
       const upstreamOpts = { perMessageDeflate: false };
       const upstream = selected
         ? new WebSocket(SURREAL_WS_URL, selected, upstreamOpts)
@@ -163,4 +197,7 @@ function attachRpcRelay(server) {
 
 module.exports = {
   attachRpcRelay,
+  closeSessionSockets,
+  SESSION_REPLACED_CLOSE_CODE,
+  _trackSocketForTests: trackSocket,
 };

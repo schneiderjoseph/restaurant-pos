@@ -61,7 +61,7 @@ async function triggerBootstrap() {
       // Load all revocations whose tokens haven't naturally expired yet.
       const now = new Date().toISOString();
       const rows = await surrealClient.query(
-        `SELECT jti FROM ${TABLE} WHERE expires_at > $now`,
+        `SELECT jti FROM ${TABLE} WHERE expires_at > <datetime>$now`,
         { now }
       );
       const loaded = queryRows(rows);
@@ -88,7 +88,7 @@ async function gc() {
   if (!surrealClient) return;
   try {
     const now = new Date().toISOString();
-    await surrealClient.query(`DELETE FROM ${TABLE} WHERE expires_at <= $now`, { now });
+    await surrealClient.query(`DELETE FROM ${TABLE} WHERE expires_at <= <datetime>$now`, { now });
   } catch (err) {
     logger.warn('revocation', `GC of expired revocations failed: ${err.message || err}`);
   }
@@ -110,15 +110,13 @@ async function revoke(jti, expiresAtSeconds) {
   try {
     const revokedAt = new Date().toISOString();
     const expiresAt = new Date((expiresAtSeconds || 0) * 1000).toISOString();
+    // ISO strings must be cast: the fields are `datetime` and SurrealDB 3 does not coerce,
+    // so an uncast write failed and the revocation was lost on the next restart.
     await surrealClient.query(
-      `CREATE ${TABLE} CONTENT $data`,
-      {
-        data: {
-          jti: jtiStr,
-          revoked_at: revokedAt,
-          expires_at: expiresAt,
-        },
-      }
+      `CREATE ${TABLE} CONTENT {
+         jti: $jti, revoked_at: <datetime>$revokedAt, expires_at: <datetime>$expiresAt
+       }`,
+      { jti: jtiStr, revokedAt, expiresAt }
     );
   } catch (err) {
     // Even if Surreal write fails, we've already cached in memory — the

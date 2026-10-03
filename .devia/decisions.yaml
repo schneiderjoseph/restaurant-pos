@@ -16,6 +16,12 @@
 version: 1
 
 decisions:
+  auth.single_device:
+    question: Can a user be signed in on two devices at once
+    status: decided
+    value: "No. The newest login wins: a login on another device signs the previous one out at once, with a message; same-device logins (unlock, second tab) are not affected"
+    because: "Joseph, 2026-10-03: very important"
+    decided_at: 2026-10-03
   brand.colors:
     question: The palette, as tokens
     status: pending

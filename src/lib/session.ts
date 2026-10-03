@@ -1,3 +1,5 @@
+import { getDeviceId } from '@/lib/device-id.ts';
+
 const SESSION_TOKEN_KEY = 'posr_session_token';
 const SURREAL_TOKEN_KEY = 'posr_surreal_token';
 
@@ -126,7 +128,7 @@ export async function gatewayLogin(payload: {
   const res = await fetch(`${getGatewayBaseUrl()}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, deviceId: getDeviceId() }),
   });
   const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse & Record<string, unknown>;
   if (!res.ok) {
@@ -144,9 +146,17 @@ export async function gatewayLogin(payload: {
   return { ...data, ok: true, status: res.status };
 }
 
+let localLogoutAt = 0;
+
+/** True for a few seconds after this device signed out on purpose (its own revocation). */
+export function isLocalLogoutInProgress(now = Date.now()): boolean {
+  return now - localLogoutAt < 10_000;
+}
+
 export async function gatewayLogout(): Promise<void> {
   const token = getSessionToken();
   if (!token) return;
+  localLogoutAt = Date.now();
   try {
     await fetch(`${getGatewayBaseUrl()}/auth/logout`, {
       method: 'POST',
@@ -154,6 +164,27 @@ export async function gatewayLogout(): Promise<void> {
     });
   } catch {
     // ignore network errors on logout
+  }
+}
+
+export type GatewaySessionState = 'valid' | 'replaced' | 'invalid' | 'unknown';
+
+/**
+ * Ask the gateway whether a session token is still the user's active one. `replaced`
+ * means it was revoked, which happens when the same user signs in on another device.
+ * Network errors give `unknown`: an offline tablet is never signed out by this check.
+ */
+export async function checkGatewaySession(token: string): Promise<GatewaySessionState> {
+  try {
+    const res = await fetch(`${getGatewayBaseUrl()}/auth/session`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) return 'valid';
+    if (res.status !== 401) return 'unknown';
+    const data = (await res.json().catch(() => ({}))) as { code?: string };
+    return data.code === 'session_revoked' ? 'replaced' : 'invalid';
+  } catch {
+    return 'unknown';
   }
 }
 

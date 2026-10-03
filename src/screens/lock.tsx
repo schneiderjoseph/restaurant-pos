@@ -29,6 +29,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDeleteLeft } from "@fortawesome/free-solid-svg-icons";
+import { getDeviceId } from "@/lib/device-id.ts";
 
 const PIN_LENGTH = 4;
 
@@ -52,7 +53,7 @@ export const Lock = () => {
       const res = await fetch(`${getGatewayBaseUrl()}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ method: "pin", login: lockedUserLogin, password: pinValue }),
+        body: JSON.stringify({ method: "pin", login: lockedUserLogin, password: pinValue, deviceId: getDeviceId() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {

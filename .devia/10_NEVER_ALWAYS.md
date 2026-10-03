@@ -13,6 +13,10 @@
   idempotent, and run it on SurrealDB **3.0.5** (the prod image) first — a `GROUP BY` query that
   passes on 3.2 broke the ASI production update on 2026-10-02.
 
+- Never pass an ISO string to a SurrealDB `datetime` field or comparison without
+  `<datetime>$value`: SurrealDB 3 does not coerce. The gateway's revocation writes failed
+  this way, so every logout was lost on restart (found 2026-10-03).
+
 ## Always
 
 - Always read the memory file for a surface before changing it (`AGT-001`).
