@@ -12,7 +12,11 @@ import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { UserRole } from "@/api/model/user_role.ts";
-import { ACCESS_RULE_MODULES, normalizeModules } from "@/lib/access.rules.ts";
+import { ACCESS_RULE_MODULES, normalizeModules, userModulesGrant } from "@/lib/access.rules.ts";
+import { RECEIVE_PAYMENT_MODULE, rolePaymentTypeIds } from "@/lib/payment-access.ts";
+import useApi, { SettingsData } from "@/api/db/use.api.ts";
+import { PaymentType } from "@/api/model/payment_type.ts";
+import { StringRecordId } from "surrealdb";
 import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.rules.i18n.ts";
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { useTranslation } from "react-i18next";
@@ -195,6 +199,11 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedSet, setSelectedSet] = useState<Set<string>>(() => new Set());
   const [expandedModules, setExpandedModules] = useState<Set<string>>(() => new Set());
+  // Payment types this role may take; empty = every type.
+  const [paymentTypeIds, setPaymentTypeIds] = useState<Set<string>>(() => new Set());
+  const { data: paymentTypes } = useApi<SettingsData<PaymentType>>(
+    Tables.payment_types, ["deleted_at = none"], ["priority asc"], 0, 99999
+  );
   const { t, i18n } = useTranslation(["admin", "common", "validation", "toast"]);
 
   const validationSchema = useMemo(
@@ -245,6 +254,35 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     [setValue, clearErrors]
   );
 
+  const canReceivePayment = useMemo(
+    () => userModulesGrant([...selectedSet], RECEIVE_PAYMENT_MODULE),
+    [selectedSet]
+  );
+
+  const setCanReceivePayment = (checked: boolean) => {
+    const next = new Set(selectedSet);
+    if (checked) {
+      next.add("payments");
+      next.add(RECEIVE_PAYMENT_MODULE);
+    } else {
+      next.delete("payments");
+      next.delete(RECEIVE_PAYMENT_MODULE);
+    }
+    setRoles([...next]);
+  };
+
+  const togglePaymentType = (id: string, checked: boolean) => {
+    setPaymentTypeIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
   const onToggleExpand = useCallback((moduleKey: string) => {
     setExpandedModules((prev) => {
       const next = new Set(prev);
@@ -264,6 +302,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
       roles: [],
     });
     setSelectedSet(new Set());
+    setPaymentTypeIds(new Set());
     setSearchTerm("");
     setDebouncedSearch("");
     setExpandedModules(new Set());
@@ -281,12 +320,14 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
         roles,
       });
       setSelectedSet(new Set(roles));
+      setPaymentTypeIds(new Set(rolePaymentTypeIds(data.payment_types)));
     } else {
       reset({
         name: "",
         roles: [],
       });
       setSelectedSet(new Set());
+      setPaymentTypeIds(new Set());
     }
     setSearchTerm("");
     setDebouncedSearch("");
@@ -314,6 +355,13 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     const payload = {
       name: values.name,
       roles: values.roles,
+      // Only kept for a role that cashes; a type deleted since is dropped here.
+      payment_types: canReceivePayment
+        ? (paymentTypes?.data ?? [])
+            .map((type) => type.id.toString())
+            .filter((id) => paymentTypeIds.has(id))
+            .map((id) => new StringRecordId(id))
+        : [],
       ...(data?.id != null ? { id: data.id } : {}),
     };
 
@@ -358,6 +406,45 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
               error={errors?.name?.message}
             />
           </div>
+        </div>
+
+        <div
+          className="mb-4 rounded-lg border border-gray-200 p-4"
+          data-testid="role-payment-access"
+        >
+          <div className="font-semibold mb-2">{t("forms.rolePaymentTitle")}</div>
+          <Checkbox
+            type="checkbox"
+            id="role-can-receive-payment"
+            data-testid="role-can-receive-payment"
+            checked={canReceivePayment}
+            onChange={(e) => setCanReceivePayment(e.currentTarget.checked)}
+            label={t("forms.roleCanReceivePayment")}
+          />
+          {canReceivePayment ? (
+            <div className="mt-3">
+              <div className="text-sm font-medium">{t("forms.rolePaymentTypes")}</div>
+              <p className="text-sm text-neutral-500 mb-2">{t("forms.rolePaymentTypesHint")}</p>
+              <div className="flex flex-wrap gap-x-6 gap-y-2">
+                {(paymentTypes?.data ?? []).map((type) => {
+                  const id = type.id.toString();
+                  return (
+                    <Checkbox
+                      key={id}
+                      type="checkbox"
+                      id={`role-payment-type-${id}`}
+                      data-testid="role-payment-type"
+                      checked={paymentTypeIds.has(id)}
+                      onChange={(e) => togglePaymentType(id, e.currentTarget.checked)}
+                      label={type.name}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-neutral-500">{t("forms.roleCannotReceivePayment")}</p>
+          )}
         </div>
 
         <div className="flex-1">

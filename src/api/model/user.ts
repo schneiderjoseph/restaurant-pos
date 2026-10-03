@@ -21,6 +21,8 @@ export interface UserRole {
   id: string
   name: string
   roles: string[]
+  /** Payment types this role may take; none or empty = every type. */
+  payment_types?: unknown[] | null
 }
 
 export interface UserShift {

@@ -101,7 +101,9 @@
     "idDocumentSaved": "Kimlik belgesi kaydedildi",
     "idDocumentSaveFailed": "Kimlik belgesi kaydedilemedi",
     "contactHint": "Telefon veya kimlik belgesi: en az biri gerekli.",
-    "contactRequired": "Bir telefon numarası veya kimlik belgesi girin"
+    "contactRequired": "Bir telefon numarası veya kimlik belgesi girin",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "Tümü"

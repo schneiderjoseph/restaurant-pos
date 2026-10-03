@@ -41,5 +41,6 @@
   "orderTaker": "آخذ الطلب",
   "time": "وقت",
   "reason": "سبب",
-  "note": "ملاحظة"
+  "note": "ملاحظة",
+  "dueAt": "FOR"
 }

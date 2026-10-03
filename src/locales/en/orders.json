@@ -32,6 +32,18 @@
     "blocks": "Blocks",
     "table": "Table"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Please choose a new table",
     "success": "Successfully merged into {{invoiceNumber}}",
@@ -212,5 +224,9 @@
     "speech": "Order {{number}} is ready",
     "speechGuest": "Order {{number}}, {{guest}}, is ready",
     "speechTable": "Order {{number}}, table {{table}}, is ready"
+  },
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
   }
 }

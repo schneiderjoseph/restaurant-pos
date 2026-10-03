@@ -403,7 +403,12 @@
     "applyOutletSuggestionsTitle": "Appliquer les suggestions",
     "applyOutletSuggestionsConfirm": "{{count}} catégories seront classées",
     "outletColor": "Couleur",
-    "noOutlets": "Aucun point de vente"
+    "noOutlets": "Aucun point de vente",
+    "rolePaymentTitle": "Encaissement",
+    "roleCanReceivePayment": "Peut recevoir le paiement",
+    "rolePaymentTypes": "Types de paiement acceptés",
+    "rolePaymentTypesHint": "Aucun type coché = tous les types.",
+    "roleCannotReceivePayment": "Ce rôle ne peut pas encaisser : les boutons de paiement sont masqués pour lui."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -440,6 +445,9 @@
       },
       "order_visibility": {
         "label": "Visibilité des commandes"
+      },
+      "payments": {
+        "label": "Encaissement"
       },
       "summary": {
         "label": "Résumé"
@@ -512,6 +520,7 @@
       "orders.remote_payment_create": "Create remote payment intent",
       "orders.remote_payment_verify": "Verify remote payment",
       "order_visibility.all": "Voir les commandes de tous les serveurs",
+      "payments.receive": "Recevoir le paiement",
       "summary": "Résumé",
       "summary.print": "Imprimer le résumé",
       "summary.product_mix": "Rapport mix produits",

@@ -534,6 +534,27 @@ function getOrderCreatedAt(order, opts) {
 }
 
 /**
+ * When the guest wants the order (order.due_at): "19:30" today, "04/10 08:00" another day.
+ * Empty when the order is for as soon as possible.
+ * @param {Object} order
+ * @param {{ timezone?: string, locale?: string, now?: Date }} [opts]
+ * @returns {string}
+ */
+function getOrderDueAt(order, opts) {
+  if (!order || !order.due_at) return '';
+  const d = order.due_at instanceof Date ? order.due_at : new Date(order.due_at);
+  if (isNaN(d.getTime())) return '';
+  const { timezone, locale } = getDateFormatOpts(opts);
+  const tz = timezone ? { timeZone: timezone } : {};
+  const time = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', ...tz });
+  const dayKey = (value) => value.toLocaleDateString('en-CA', tz);
+  const now = (opts && opts.now) || new Date();
+  if (dayKey(d) === dayKey(now)) return time;
+  const day = d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', ...tz });
+  return `${day} ${time}`;
+}
+
+/**
  * @param {Object} order - table.priority or tags[0]
  * @returns {string}
  */
@@ -826,6 +847,7 @@ module.exports = {
   getOrderDeliveryNotes,
   getOrderDate,
   getOrderCreatedAt,
+  getOrderDueAt,
   getOrderPriority,
   getOrderItemModifierLines,
   calculateOrderItemPricePrint,

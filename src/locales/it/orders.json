@@ -27,6 +27,18 @@
     "blocks": "Blocchi",
     "table": "Tabella"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Scegli un nuovo tavolo",
     "success": "Unito con successo in {{invoiceNumber}}",
@@ -186,5 +198,9 @@
   },
   "loadingItems": "Caricamento articoli…",
   "retryLoad": "Riprova a caricare gli articoli",
-  "loadFailed": "Caricamento ordine non riuscito"
+  "loadFailed": "Caricamento ordine non riuscito",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

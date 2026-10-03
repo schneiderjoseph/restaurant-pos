@@ -55,6 +55,8 @@ export function commitOrderEditSession(
       id: session.orderId,
       order: session.order,
     },
+    // Untouched: the cart shows the edited order's own due time.
+    dueAt: undefined,
     cart: session.cart,
     seats: session.seats,
     seat: session.seat,

@@ -41,5 +41,6 @@
   "orderTaker": "Presa ordine",
   "time": "Ora",
   "reason": "Motivo",
-  "note": "Nota"
+  "note": "Nota",
+  "dueAt": "FOR"
 }

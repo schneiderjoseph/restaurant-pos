@@ -1,5 +1,5 @@
 import {Button} from "@/components/common/input/button.tsx";
-import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faCancel, faCheck, faClock, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAtom} from "jotai";
 import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
@@ -29,7 +29,9 @@ import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {cancelItemStages, createStageRows} from "@/lib/kitchen/workflow.service.ts";
-import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {nowInAppTimezone, nowSurrealDateTime, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {formatDueLabel, isDueAhead} from "@/lib/order-due.ts";
+import {OrderDueModal} from "@/components/menu/order-due.modal.tsx";
 import {useTranslation} from "react-i18next";
 import {DateTime} from "luxon";
 import {
@@ -61,6 +63,28 @@ export const Payment = () => {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [order, setOrder] = useState<Order>();
   const [paymentOrder, setPaymentOrder] = useState<Order>();
+  const [dueOpen, setDueOpen] = useState(false);
+
+  // When the order is wanted: the server's choice, else what an existing order already holds.
+  const storedDueAt = order?.due_at ?? state?.order?.order?.due_at;
+  const dueAt: string | null = state.dueAt !== undefined
+    ? state.dueAt
+    : (storedDueAt ? toLuxonDateTime(storedDueAt).toUTC().toISO() : null);
+  const dueChanged = state.dueAt !== undefined;
+
+  /** Value written to `order.due_at`: a time already past is stored as "as soon as possible". */
+  const dueAtForSave = () => {
+    const due = dueAt ? toLuxonDateTime(dueAt) : null;
+    return isDueAhead(due, nowInAppTimezone()) ? toSurrealDateTime(due) : null;
+  };
+
+  /** An existing order whose cart did not change still gets its new due time. */
+  const saveDueAtOnly = async () => {
+    if (!dueChanged || !state?.order?.id || state.order.id === 'new') {
+      return;
+    }
+    await db.merge(toRecordId(state.order.id), {due_at: dueAtForSave()});
+  };
 
   const total = useMemo(() => {
     return state.cart.reduce((prev, item) => {
@@ -382,6 +406,11 @@ export const Payment = () => {
         data.order_type = toRecordId(state.orderType.id);
       }
 
+      // An order being edited keeps its stored time unless the server changed it.
+      if (isNewOrder || dueChanged) {
+        data.due_at = dueAtForSave();
+      }
+
       if (isNewOrder) {
         data.tax = null;
         data.tax_amount = 0;
@@ -533,6 +562,8 @@ export const Payment = () => {
         if (result === 'busy') {
           return;
         }
+      } else {
+        await saveDueAtOnly();
       }
       await reset();
     } catch (error) {
@@ -558,6 +589,7 @@ export const Payment = () => {
       ...prev,
       cart: [],
       customer: undefined,
+      dueAt: undefined,
       showFloor: true,
       table: undefined,
       persons: '1',
@@ -575,6 +607,9 @@ export const Payment = () => {
         state?.order?.id !== 'new' && !hasCartChangesToPersist();
 
       let orderId: unknown = state?.order?.id;
+      if (isExistingOrderOnly) {
+        await saveDueAtOnly();
+      }
       if (!isExistingOrderOnly) {
         const result = await createOrder();
         if (!result || result === 'busy') {
@@ -631,6 +666,22 @@ export const Payment = () => {
 
 
         <div className="p-3" data-testid="cart-payment-actions">
+          <Button
+            variant={dueAt ? "warning" : "primary"}
+            flat
+            size="lg"
+            className="w-full"
+            icon={faClock}
+            disabled={isLoading}
+            data-testid="cart-due-at"
+            onClick={() => setDueOpen(true)}
+          >
+            {dueAt
+              ? t("payment:due.forTime", {
+                  time: formatDueLabel(toLuxonDateTime(dueAt), nowInAppTimezone(), t("payment:due.tomorrowShort")),
+                })
+              : t("payment:due.asapButton")}
+          </Button>
           <div className="flex gap-3 mt-3">
             <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
                     disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
@@ -643,6 +694,13 @@ export const Payment = () => {
           </div>
         </div>
       </div>
+      {dueOpen && (
+        <OrderDueModal
+          value={dueAt}
+          onChange={(value) => setState(prev => ({...prev, dueAt: value}))}
+          onClose={() => setDueOpen(false)}
+        />
+      )}
       {paymentOpen && paymentOrder && (
         <OrderPayment
           order={paymentOrder}

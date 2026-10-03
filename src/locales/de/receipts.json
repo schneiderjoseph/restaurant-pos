@@ -41,5 +41,6 @@
   "orderTaker": "Aufnehmer",
   "time": "Zeit",
   "reason": "Grund",
-  "note": "Notiz"
+  "note": "Notiz",
+  "dueAt": "FOR"
 }

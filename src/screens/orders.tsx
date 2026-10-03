@@ -17,7 +17,7 @@ import {getLocalTimeZone, today} from '@internationalized/date';
 import {DateValue} from "react-aria-components";
 import {Button} from "@/components/common/input/button.tsx";
 import {faBars, faChair, faMoneyBillWave, faTableColumns} from "@fortawesome/free-solid-svg-icons";
-import {OrderRow} from "@/components/orders/order.row.tsx";
+import {OrderRow, ORDERS_LIST_GRID_CLASS} from "@/components/orders/order.row.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
 import {LiveSubscription, RecordId, StringRecordId} from "surrealdb";
@@ -44,6 +44,8 @@ import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/m
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
+// Hidden on request 2026-10-03; code kept.
+const SHOW_OPEN_CASH_DRAWER = false;
 
 export const Orders = () => {
   const {t} = useTranslation('orders');
@@ -359,9 +361,12 @@ export const Orders = () => {
   return (
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.orders')]} />
-      <div className="flex gap-5 p-3 flex-col" data-testid="orders-page">
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-filters">
-          <div className="min-w-[200px]">
+      <div className="flex gap-3 p-3 flex-col h-[100vh]" data-testid="orders-page">
+        <div
+          className="min-h-[60px] flex-0 rounded-xl bg-white flex flex-wrap items-center px-3 py-2 gap-3"
+          data-testid="orders-filters"
+        >
+          <div className="min-w-[160px] flex-1 basis-[160px]">
             <ReactSelect
               options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
                 label: translateOrderStatus(t, item),
@@ -373,7 +378,7 @@ export const Orders = () => {
               onChange={(value: LabelValue[]) => updateOrderFilter('statuses', value)}
             />
           </div>
-          <div className="min-w-[200px]">
+          <div className="min-w-[160px] flex-1 basis-[160px]">
             <ReactSelect
               options={settings.order_types.map(item => ({
                 label: item.name,
@@ -385,7 +390,7 @@ export const Orders = () => {
               onChange={(value: LabelValue[]) => updateOrderFilter('orderTypes', value)}
             />
           </div>
-          <div className="min-w-[200px]">
+          <div className="min-w-[160px] flex-1 basis-[160px]">
             <ReactSelect
               options={settings.floors.map(item => ({
                 label: item.name,
@@ -398,7 +403,7 @@ export const Orders = () => {
             />
           </div>
           {seesAllOrders && (
-          <div className="min-w-[200px]">
+          <div className="min-w-[160px] flex-1 basis-[160px]">
             <ReactSelect
               options={users?.data?.map(item => ({
                 label: item.first_name + ' ' + item.last_name,
@@ -411,7 +416,7 @@ export const Orders = () => {
             />
           </div>
           )}
-          <div className="min-w-[220px]">
+          <div className="min-w-[180px] flex-1 basis-[180px]">
             <ReactSelect
               options={(customers?.data ?? []).map(item => ({
                 label: formatGuestLabel(item) || item.guest_code || String(item.id),
@@ -424,11 +429,11 @@ export const Orders = () => {
               data-testid="orders-filter-customers"
             />
           </div>
-          <div>
+          <div className="shrink-0">
             <DatePicker value={date} onChange={setDate} maxValue={today(getLocalTimeZone())} isClearable/>
           </div>
-          <div className="input-group flex-1 justify-end" data-testid="orders-toolbar">
-            {canOpenCashDrawer && (
+          <div className="input-group flex shrink-0 ml-auto" data-testid="orders-toolbar">
+            {SHOW_OPEN_CASH_DRAWER && canOpenCashDrawer && (
               <Button
                 icon={faMoneyBillWave}
                 variant="primary"
@@ -466,53 +471,76 @@ export const Orders = () => {
           </div>
         </div>
         {view === 'column' && (
-          <div data-testid="orders-list-blocks">
-            <ScrollContainer className="h-[calc(100vh_-_190px)]">
-              <div className="flex-1 rounded-xl flex gap-3 flex-row">
-                {orders.map(item => (
-                  <div className="w-[400px] flex-shrink-0" key={item.id}>
-                    <OrderBox
-                      order={item}
-                      merging={merging}
-                      mergingOrders={mergingOrders}
-                      taxes={settings.taxes}
-                      tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
-                      onMergeSelect={(order, status) => {
-                        if (status) {
-                          setMerging(true);
+          <div className="flex-1 min-h-0" data-testid="orders-list-blocks">
+            <ScrollContainer className="h-full">
+              {orders.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-neutral-500 text-lg">
+                  {t('list.empty')}
+                </div>
+              ) : (
+                <div className="flex-1 rounded-xl flex gap-3 flex-row">
+                  {orders.map(item => (
+                    <div className="w-[400px] flex-shrink-0" key={item.id}>
+                      <OrderBox
+                        order={item}
+                        merging={merging}
+                        mergingOrders={mergingOrders}
+                        taxes={settings.taxes}
+                        tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
+                        onMergeSelect={(order, status) => {
+                          if (status) {
+                            setMerging(true);
 
-                          setMergingOrders(prev => [
-                            ...prev,
-                            order
-                          ]);
-                        } else {
-                          setMergingOrders(prev => prev.filter(order => order.id.toString() !== item.id.toString()));
-                        }
-                      }}
-                      onAction={fetchOrders}
-                    />
-                  </div>
-                ))}
-              </div>
+                            setMergingOrders(prev => [
+                              ...prev,
+                              order
+                            ]);
+                          } else {
+                            setMergingOrders(prev => prev.filter(order => order.id.toString() !== item.id.toString()));
+                          }
+                        }}
+                        onAction={fetchOrders}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </ScrollContainer>
           </div>
         )}
 
         {view === 'row' && (
-          <div data-testid="orders-list-table">
-            <ScrollContainer className="max-h-[calc(100vh_-_190px)]">
-              <div className="flex-1 rounded-xl flex flex-col">
-                {orders.map(item => (
-                  <OrderRow order={item} key={item.id}/>
-                ))}
-              </div>
+          <div className="flex-1 min-h-0" data-testid="orders-list-table">
+            <ScrollContainer className="h-full">
+              {orders.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-neutral-500 text-lg">
+                  {t('list.empty')}
+                </div>
+              ) : (
+                <div className="flex-1 rounded-xl flex flex-col bg-white">
+                  <div
+                    className={`${ORDERS_LIST_GRID_CLASS} sticky top-0 z-10 min-h-[44px] bg-neutral-200 text-sm font-semibold text-neutral-700 border-b border-neutral-300`}
+                  >
+                    <div>{t('list.columns.number')}</div>
+                    <div>{t('list.columns.tableGuest')}</div>
+                    <div>{t('list.columns.server')}</div>
+                    <div>{t('list.columns.status')}</div>
+                    <div>{t('list.columns.time')}</div>
+                    <div>{t('list.columns.items')}</div>
+                    <div className="text-right">{t('list.columns.total')}</div>
+                  </div>
+                  {orders.map(item => (
+                    <OrderRow order={item} key={item.id}/>
+                  ))}
+                </div>
+              )}
             </ScrollContainer>
           </div>
         )}
 
-        <div className="h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
-          {merging && (
-            <div className="flex gap-5">
+        {merging && (
+          <div className="min-h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
+            <div className="flex flex-wrap gap-5">
               <Dropdown
                 label={<><FontAwesomeIcon icon={faChair} className="mr-3"/> {t('merge.chooseTable')}{selectedTable ? ` (${selectedTable.name}${selectedTable.number})` : ''}</>}
                 btnSize="lg"
@@ -546,8 +574,8 @@ export const Orders = () => {
                 {t('merge.cancelMerging')}
               </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

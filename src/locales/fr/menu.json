@@ -101,7 +101,9 @@
     "idDocumentSaved": "Pièce d’identité enregistrée",
     "idDocumentSaveFailed": "Impossible d’enregistrer la pièce d’identité",
     "contactHint": "Téléphone ou pièce d’identité : au moins un des deux.",
-    "contactRequired": "Saisissez un téléphone ou une pièce d’identité"
+    "contactRequired": "Saisissez un téléphone ou une pièce d’identité",
+    "departure": "Départ {{date}}",
+    "departureToday": "Départ aujourd'hui"
   },
   "outlets": {
     "all": "Tous"

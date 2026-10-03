@@ -101,7 +101,9 @@
     "idDocumentSaved": "تم حفظ وثيقة الهوية",
     "idDocumentSaveFailed": "تعذر حفظ وثيقة الهوية",
     "contactHint": "الهاتف أو وثيقة الهوية: واحد منهما على الأقل.",
-    "contactRequired": "أدخل رقم هاتف أو وثيقة هوية"
+    "contactRequired": "أدخل رقم هاتف أو وثيقة هوية",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "الكل"

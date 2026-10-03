@@ -32,6 +32,18 @@
     "blocks": "Blocs",
     "table": "Tableau"
   },
+  "list": {
+    "empty": "Aucune commande",
+    "columns": {
+      "number": "N°",
+      "tableGuest": "Table / Client",
+      "server": "Serveur",
+      "status": "Statut",
+      "time": "Heure",
+      "items": "Articles",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Veuillez choisir une nouvelle table",
     "success": "Fusion réussie dans {{invoiceNumber}}",
@@ -212,5 +224,9 @@
     "speech": "Commande {{number}} est prête",
     "speechGuest": "Commande {{number}}, {{guest}}, est prête",
     "speechTable": "Commande {{number}}, table {{table}}, est prête"
+  },
+  "due": {
+    "forTime": "Pour {{time}}",
+    "tomorrowShort": "dem."
   }
 }

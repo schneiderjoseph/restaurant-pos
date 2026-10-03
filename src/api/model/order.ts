@@ -18,6 +18,8 @@ export interface Order extends ID{
   covers?: number
   created_at: DateTime
   completed_at?: DateTime
+  /** When the guest wants the order; none = as soon as possible. */
+  due_at?: DateTime | null
   customer?: Customer
   floor: Floor
   table: Table

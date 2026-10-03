@@ -17,6 +17,10 @@
   `<datetime>$value`: SurrealDB 3 does not coerce. The gateway's revocation writes failed
   this way, so every logout was lost on restart (found 2026-10-03).
 
+- Never put a permission that only some order-taking roles must hold under `orders.*`: a parent
+  id grants all its children (`userModulesGrant`), so every role holding `orders` gets it. Give it
+  its own section, as `order_visibility.all` and `payments.receive` do.
+
 ## Always
 
 - Always read the memory file for a surface before changing it (`AGT-001`).

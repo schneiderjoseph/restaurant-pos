@@ -27,6 +27,18 @@
     "blocks": "Блоки",
     "table": "Таблица"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Выберите новый стол",
     "success": "Успешно объединено в {{invoiceNumber}}",
@@ -186,5 +198,9 @@
   },
   "loadingItems": "Загрузка позиций…",
   "retryLoad": "Повторить загрузку позиций",
-  "loadFailed": "Не удалось загрузить заказ"
+  "loadFailed": "Не удалось загрузить заказ",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

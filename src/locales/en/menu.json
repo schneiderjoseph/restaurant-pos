@@ -101,7 +101,9 @@
     "idDocumentSaved": "ID document saved",
     "idDocumentSaveFailed": "Could not save the ID document",
     "contactHint": "Phone or ID document: at least one is required.",
-    "contactRequired": "Enter a phone number or an ID document"
+    "contactRequired": "Enter a phone number or an ID document",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "All"

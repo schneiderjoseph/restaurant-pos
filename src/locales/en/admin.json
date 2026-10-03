@@ -403,7 +403,12 @@
     "applyOutletSuggestionsTitle": "Apply outlet suggestions",
     "applyOutletSuggestionsConfirm": "{{count}} categories will be classified",
     "outletColor": "Color",
-    "noOutlets": "No points of sale yet"
+    "noOutlets": "No points of sale yet",
+    "rolePaymentTitle": "Taking payment",
+    "roleCanReceivePayment": "Can receive payment",
+    "rolePaymentTypes": "Accepted payment types",
+    "rolePaymentTypesHint": "No type ticked = every type.",
+    "roleCannotReceivePayment": "This role cannot take payment: the payment buttons are hidden for it."
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -595,6 +600,9 @@
       "order_visibility": {
         "label": "Order visibility"
       },
+      "payments": {
+        "label": "Payments"
+      },
       "summary": {
         "label": "Summary"
       },
@@ -666,6 +674,7 @@
       "orders.remote_payment_create": "Create remote payment intent",
       "orders.remote_payment_verify": "Verify remote payment",
       "order_visibility.all": "See every server's orders",
+      "payments.receive": "Receive payment",
       "summary": "Summary",
       "summary.print": "Print summary",
       "summary.product_mix": "Product mix report",

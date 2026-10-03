@@ -14,6 +14,7 @@ const { printKotHeader } = require('../lib/kot-layout');
 const {
   getOrderId,
   getOrderCreatedAt,
+  getOrderDueAt,
   getOrderItemModifierLines,
   getOrderUserName,
   getOrderType,
@@ -83,6 +84,7 @@ function build(printer, data = {}, config = {}) {
   const createdAt = order
     ? getOrderCreatedAt(order, dateOpts)
     : getOrderCreatedAt(null, dateOpts);
+  const dueAt = order ? getOrderDueAt(order, dateOpts) : '';
   const orderTaker = order ? getOrderUserName(order) : '';
   const orderType = order ? getOrderType(order) : '';
   const L = cfg.labels || {};
@@ -109,6 +111,7 @@ function build(printer, data = {}, config = {}) {
       orderType,
       orderTaker,
       createdAt,
+      dueAt,
       labels: L,
     });
 

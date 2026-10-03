@@ -47,6 +47,11 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
     label: "Order visibility",
     children: ["order_visibility.all"],
   },
+  // Its own section for the same reason: `orders` would grant it to every server.
+  payments: {
+    label: "Payments",
+    children: ["payments.receive"],
+  },
   summary: {
     label: "Summary",
     children: [
