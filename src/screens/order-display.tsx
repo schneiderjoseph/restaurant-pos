@@ -167,6 +167,7 @@ export const OrderDisplayScreen = () => {
       {activeCelebration && (
         <OrderReadyCelebration
           orderNumber={activeCelebration.orderNumber}
+          displayNumber={activeCelebration.displayNumber}
           onComplete={completeCelebration}
         />
       )}

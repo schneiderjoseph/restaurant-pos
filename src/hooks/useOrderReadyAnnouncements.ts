@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Order } from '@/api/model/order.ts';
-import { getInvoiceNumber } from '@/lib/order.ts';
+import { formatOrderNumber, getInvoiceNumber } from '@/lib/order.ts';
 import {
   cancelOrderReadySpeech,
   speakOrderReady,
@@ -9,7 +9,10 @@ import {
 
 interface CelebrationItem {
   id: string;
+  /** Plain number, for speech and the sentence under the big number. */
   orderNumber: string;
+  /** Formatted display number for the popup (#012). */
+  displayNumber: string;
 }
 
 export const useOrderReadyAnnouncements = (readyOrders: Order[]) => {
@@ -39,15 +42,17 @@ export const useOrderReadyAnnouncements = (readyOrders: Order[]) => {
     }
 
     const celebrations = newlyReady.map((order) => {
-      const orderNumber = getInvoiceNumber(order);
+      const spokenNumber = getInvoiceNumber(order);
+      const displayNumber = formatOrderNumber(order);
       speakOrderReady(
-        t('orderReadyAnnouncement', { number: orderNumber }),
+        t('orderReadyAnnouncement', { number: spokenNumber }),
         i18n.language
       );
 
       return {
         id: order.id.toString(),
-        orderNumber,
+        orderNumber: spokenNumber,
+        displayNumber,
       };
     });
 

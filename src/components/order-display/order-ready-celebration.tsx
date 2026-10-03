@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 interface Props {
   orderNumber: string;
+  /** Formatted #012 for the big number; falls back to orderNumber when omitted. */
+  displayNumber?: string;
   onComplete: () => void;
 }
 
@@ -18,8 +20,9 @@ const CONFETTI_COLORS = [
   'bg-yellow-400',
 ];
 
-export const OrderReadyCelebration = ({ orderNumber, onComplete }: Props) => {
+export const OrderReadyCelebration = ({ orderNumber, displayNumber, onComplete }: Props) => {
   const { t } = useTranslation('order-display');
+  const shownNumber = displayNumber ?? orderNumber;
 
   const confetti = useMemo(
     () =>
@@ -69,7 +72,7 @@ export const OrderReadyCelebration = ({ orderNumber, onComplete }: Props) => {
           {t('celebrationTitle')}
         </p>
         <p className="text-7xl font-black text-success-900 tabular-nums">
-          {orderNumber}
+          {shownNumber}
         </p>
         <p className="text-xl font-semibold text-neutral-600">
           {t('orderReadyAnnouncement', { number: orderNumber })}

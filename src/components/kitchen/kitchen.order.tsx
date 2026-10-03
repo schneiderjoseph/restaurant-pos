@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
-import { getInvoiceNumber } from "@/lib/order.ts";
+import { formatOrderNumber } from "@/lib/order.ts";
 import { nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
@@ -179,7 +179,7 @@ export const KitchenOrder = ({
               </span>
             )}
             <span className="font-bold text-lg truncate max-w-full">
-              {[order?.order_type?.name, getInvoiceNumber(order)].filter(Boolean).join(' / ')}
+              {[order?.order_type?.name, formatOrderNumber(order)].filter(Boolean).join(' / ')}
             </span>
             {stageStart && (
               <span className="text-lg font-bold">

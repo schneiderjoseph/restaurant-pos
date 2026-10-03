@@ -9,7 +9,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {OrderHeader} from "@/components/orders/order.header.tsx";
-import {OrderTimes} from "@/components/orders/order.times.tsx";
+import {OrderElapsed} from "@/components/orders/order.elapsed.tsx";
 import {
   faAnglesDown,
   faChair,
@@ -287,11 +287,8 @@ export const OrderBox = ({
 
   const [pageState] = useAtom(appPage);
   const {
-    showTotalInOrderCard = false,
     showModifierPriceInOrderCard = false,
     showModifiersInOrderCard = false,
-    showQuantityInOrderCard = false,
-    showPriceInOrderCard = false,
     showGroupsInOrderCard = false,
   } = pageState.menuConfig ?? {};
 
@@ -323,9 +320,9 @@ export const OrderBox = ({
     <>
       <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none h-[540px]" data-testid="order-card">
         <OrderHeader order={order} tempPrinted={tempPrinted}/>
-        <OrderTimes order={order}/>
+        <OrderElapsed order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
-        <div className="relative h-[190px] overflow-hidden">
+        <div className="relative flex-1 min-h-0 overflow-hidden">
           <ScrollContainer className="h-full">
             <div ref={itemsContainerRef} className="overflow-y-auto overflow-x-hidden h-full min-h-[80px] pr-1">
             {!cardReady && (
@@ -342,11 +339,11 @@ export const OrderBox = ({
             {cardReady && getOrderDisplayItems(order).map((item, index) => (
               <OrderItemName
                 item={item}
-                showQuantity={showQuantityInOrderCard}
-                showPrice={showPriceInOrderCard}
+                showQuantity={true}
+                showPrice={false}
                 showModifierPrice={showModifierPriceInOrderCard}
                 key={index}
-                showTotal={showTotalInOrderCard}
+                showTotal={true}
                 showGroups={showGroupsInOrderCard}
                 showModifiers={showModifiersInOrderCard}
                 cancelled={order.status === OrderStatus.Cancelled || item.deleted_at != null}
@@ -365,7 +362,7 @@ export const OrderBox = ({
         </div>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         {cardReady ? (
-          <OrderTotals order={order} />
+          <OrderTotals order={order} compact/>
         ) : (
           <div className="h-8 rounded bg-neutral-100 animate-pulse" />
         )}
