@@ -95,6 +95,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_02_customer_asi_date_out', file: '2026_10_02_customer_asi_date_out.surql' },
   { id: '2026_10_02_outlets', file: '2026_10_02_outlets.surql' },
   { id: '2026_10_02_order_visibility', file: '2026_10_02_order_visibility.surql' },
+  { id: '2026_10_03_user_session', file: '2026_10_03_user_session.surql' },
 ];
 
 const rows = (result) => {

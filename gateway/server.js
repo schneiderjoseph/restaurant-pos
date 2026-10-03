@@ -17,6 +17,7 @@ const { attachRpcRelay } = require('./src/ws-relay');
 const { getClient, initSurrealClient } = require('./src/surreal-client');
 const { verifySession, extractBearer, _revocationStore } = require('./src/jwt');
 const auditLog = require('./src/audit-log');
+const activeSessions = require('./src/active-session-store');
 
 const app = express();
 const PORT = Number(process.env.GATEWAY_PORT || 3142);
@@ -230,6 +231,7 @@ void initSurrealClient()
     try {
       const client = await getClient();
       _revocationStore.setSurrealClient(client);
+      activeSessions.setSurrealClient(client);
       await _revocationStore.triggerBootstrap();
       // Wire the same Surreal client into the audit logger so it can persist
       // audit entries (login success/failure, permission denials, session

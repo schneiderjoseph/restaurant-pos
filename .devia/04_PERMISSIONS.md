@@ -52,6 +52,18 @@ screen, it is not a data boundary: the database session can still read every ord
 Data scope is restaurant / tenant via Surreal session; permission modules are per POS user
 role. Cross-user elevation goes through manager override UI (`protectAction`).
 
+## One device per user
+
+A user is signed in on one device at a time; the newest login wins (decided 2026-10-03).
+Each login sends the browser's `deviceId` (`src/lib/device-id.ts`). The gateway records every
+live session in `user_session` (`gateway/src/active-session-store.js`); a login from another
+device revokes all the user's sessions from other devices and closes their `/rpc` sockets with
+code 4001 (`gateway/src/ws-relay.js`). Same-device logins (unlock, reload, second tab) keep
+each other. The replaced tablet notices within 10 s or when it comes back to the foreground
+(`SessionReplacedWatcher`, `GET /auth/session` → `code: session_revoked`), shows why, and returns
+to the login screen. This relies on clients reaching the database through the gateway relay
+(nginx `/rpc`): the Surreal token handed out at login is not per user.
+
 ## Audited actions
 
 Manager overrides and auto-allowed `protectAction` successes write tracking via
@@ -60,3 +72,4 @@ Manager overrides and auto-allowed `protectAction` successes write tracking via
 | Action | Written where |
 |---|---|
 | protectAction success (auto or manager) | tracking service (`src/hooks/useSecurity.ts`) |
+| Session replaced by a login on another device | `audit_log` `session_revoked` (`gateway/src/auth.routes.js`) |

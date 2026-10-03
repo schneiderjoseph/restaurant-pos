@@ -76,6 +76,7 @@ async function verifySession(token) {
   if (payload.jti && (await revocation.isRevoked(payload.jti))) {
     const err = new Error('Session revoked');
     err.status = 401;
+    err.code = 'session_revoked';
     throw err;
   }
 

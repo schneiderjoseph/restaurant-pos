@@ -6,6 +6,33 @@ const { signSession, verifySession, revokeSession, extractBearer } = require('./
 const { issueSurrealAccessToken } = require('./surreal-client');
 const { loginRateLimit, recordAuthResult } = require('./rate-limiter');
 const auditLog = require('./audit-log');
+const activeSessions = require('./active-session-store');
+const { closeSessionSockets } = require('./ws-relay');
+
+/** Browser-generated id of the device, sent at login (`deviceId`). */
+function readDeviceId(body) {
+  const raw = body?.deviceId;
+  if (typeof raw !== 'string') return null;
+  const trimmed = raw.trim();
+  return /^[A-Za-z0-9_-]{8,64}$/.test(trimmed) ? trimmed : null;
+}
+
+/**
+ * One device per user: the new session replaces every live one opened on another device.
+ * Each is revoked and its database socket closed, so that tablet stops at once.
+ */
+async function replaceOtherDeviceSession(user, session, deviceId) {
+  const displaced = await activeSessions.claim(user.id, {
+    jti: session.jti,
+    deviceId,
+    expiresAt: Date.now() + session.expiresIn * 1000,
+  });
+  for (const old of displaced) {
+    await revokeSession(old.jti, Math.ceil(old.expiresAt / 1000));
+    closeSessionSockets(old.jti);
+    auditLog.logSessionRevoked(old.jti, user.id, user.login).catch(() => {});
+  }
+}
 
 const router = express.Router();
 
@@ -61,6 +88,13 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       login: user.login,
     });
 
+    try {
+      await replaceOtherDeviceSession(user, session, readDeviceId(req.body));
+    } catch (err) {
+      // Never block a login on this: the new session stays valid either way.
+      console.error('Replacing the previous session failed', err);
+    }
+
     // Audit log the successful login (for the login audit trail).
     auditLog.logLoginSuccess(
       user.id,
@@ -105,7 +139,11 @@ router.get('/session', loginRateLimit(), async (req, res) => {
     const payload = await verifySession(extractBearer(req));
     return res.json({ ok: true, session: payload });
   } catch (err) {
-    return res.status(err.status || 401).json({ ok: false, error: err.message });
+    return res.status(err.status || 401).json({
+      ok: false,
+      error: err.message,
+      ...(err.code ? { code: err.code } : {}),
+    });
   }
 });
 

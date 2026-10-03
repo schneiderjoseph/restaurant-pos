@@ -8,6 +8,7 @@
 | Entity | Meaning | Defined in | Notes |
 |---|---|---|---|
 | `outlet` | Point of sale (Bar, Restaurant, …) — **not** the HR `department` table | `migrations/2026_10_02_outlets.surql`; `src/api/model/outlet.ts` | Managed from Settings → Categories (`OutletsManage`). Set on top-level `category.outlet` (sub-categories inherit through `parent`), optional `kitchen.outlet` (suggestion only). Menu tabs: `src/lib/outlet-tabs.ts`. Copied on each `order_item` when sold: `outlet_id` + `outlet` name |
+| `user_session` | One row per live POS session (id = jti): `user`, `device_id`, `expires_at` | `migrations/2026_10_03_user_session.surql`; `gateway/src/active-session-store.js` | Written by the gateway only. Rows of other devices are deleted when the user signs in elsewhere |
 | `customer` | A client: walk-in (`source = 'walk-in'`), ASI FrontDesk stay (`source = 'asi-fd'`, id `customer:asi_fd_{checkInID}`), or local | `migrations/latest.surql` + `2026_08_24_asi_guest_fields.surql`, `2026_10_01_customer_notes.surql`, `2026_10_02_customer_id_document.surql`; `src/api/model/customer.ts` | SCHEMAFULL. `id_document_number` is stored normalized (A–Z0–9, `normalizeIdDocument`) and only ever displayed masked (`maskIdDocument`) |
 
 ## Invariants
