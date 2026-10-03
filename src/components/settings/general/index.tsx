@@ -14,6 +14,7 @@ import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_ou
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
+import {OrderVisibilitySettingsCard} from "@/components/user_settings/order_visibility.tsx";
 
 function MasonryItem({ children }: PropsWithChildren) {
   return <div className="break-inside-avoid mb-5">{children}</div>;
@@ -36,6 +37,7 @@ export const AdminGeneralSettings = () => (
     <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>
     <MasonryItem><AutoCheckCloseSettingsCard /></MasonryItem>
     <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
+    <MasonryItem><OrderVisibilitySettingsCard /></MasonryItem>
     <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>
     <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
     <MasonryItem><InventorySettingsCard /></MasonryItem>

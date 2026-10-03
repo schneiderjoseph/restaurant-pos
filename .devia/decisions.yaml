@@ -65,8 +65,8 @@ decisions:
   orders.visibility:
     question: Which orders a server sees on the Orders screen
     status: decided
-    value: Their own orders only, unless the role holds order_visibility.all (Manager, Master, Caissier, Barman); Tables screen unchanged
-    because: Joseph, 2026-10-02 field feedback
+    value: "One switch in Manage → General settings (off by default); when on, each user sees only their own orders, except the roles ticked in the same card (order_visibility.all: Master, Manager, Caissier, Barman). Tables screen unchanged"
+    because: "Joseph, 2026-10-03: one screen in Manage, enable or disable"
     decided_at: 2026-10-03
   pricing.tax_rule:
     question: Which taxes an order carries before payment
