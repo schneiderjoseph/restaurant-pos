@@ -1,0 +1,42 @@
+{
+  "deviaVersion": "0.9.0",
+  "standardVersion": "0.3.0",
+  "project": {
+    "name": "posr-react",
+    "profile": "web-app"
+  },
+  "maturity": {
+    "target": "gold",
+    "current": "bronze"
+  },
+  "code": {
+    "paths": [
+      "src",
+      "api",
+      "asi-sync",
+      "gateway",
+      "loyverse-sync",
+      "payments",
+      "printing",
+      "sync-service",
+      "tracking-api"
+    ]
+  },
+  "modules": {
+    "engineering": true,
+    "design": true,
+    "memory": true
+  },
+  "context": {
+    "budget": 1200,
+    "mode": "advisory"
+  },
+  "contribution": {
+    "enabled": true
+  },
+  "update": {
+    "check": true
+  },
+  "waivers": [],
+  "initializedAt": "2026-10-02"
+}

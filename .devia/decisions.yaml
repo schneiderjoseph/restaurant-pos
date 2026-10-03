@@ -1,0 +1,104 @@
+# The decision register — what this project owes an explicit answer to.
+#
+#   decided       a human ruled; the value is binding
+#   pending       nobody has ruled — do not encode an answer (DEC-001)
+#   delegated     the agent may choose, within bounded_by (DEC-002)
+#   not_required  deliberately not needed here
+#
+# A missing answer is a recorded state, never an empty space for the next agent to fill in.
+# Read it with `devia decide`; write it with `devia decide set | delegate | drop | open`.
+#
+# Optional fields that give a slot teeth:
+#   path:     the file this decision delivers — checked to exist once decided (DEC-005)
+#   package:  the dependency it pins — compared with the manifest (DEC-003)
+#   blocks:   paths that must not exist while this is pending — a P0 gate (DEC-001)
+
+version: 1
+
+decisions:
+  brand.colors:
+    question: The palette, as tokens
+    status: pending
+    owner: human
+  brand.logo:
+    question: The mark, as a file this repository can use
+    status: pending
+    owner: human
+  brand.typography:
+    question: The typefaces, and their licence
+    status: pending
+    owner: human
+  content.imagery:
+    question: Photography, illustration, or neither
+    status: pending
+    owner: human
+  content.source:
+    question: Who writes the words
+    status: pending
+    owner: human
+  design.direction:
+    question: The visual direction this product commits to
+    status: pending
+    owner: human
+  design.system:
+    question: An existing system, a custom one, or none
+    status: pending
+    owner: human
+  discovery.ai_crawlers:
+    question: Whether AI crawlers may fetch and train on this content
+    status: pending
+    owner: human
+  discovery.indexing:
+    question: Whether search engines may index this, and which host is canonical
+    status: pending
+    owner: human
+  ops.hosting:
+    question: Where it runs
+    status: pending
+    owner: human
+  orders.ready_alert:
+    question: Where a server is told their order is ready
+    status: decided
+    value: "On the terminal where that server is currently signed in, any page: chime, spoken announcement with the guest name (else the table), popup until acknowledged"
+    because: Joseph, 2026-10-02 field feedback
+    decided_at: 2026-10-03
+  orders.visibility:
+    question: Which orders a server sees on the Orders screen
+    status: decided
+    value: Their own orders only, unless the role holds order_visibility.all (Manager, Master, Caissier, Barman); Tables screen unchanged
+    because: Joseph, 2026-10-02 field feedback
+    decided_at: 2026-10-03
+  pricing.tax_rule:
+    question: Which taxes an order carries before payment
+    status: decided
+    value: Each line carries its own menu taxes (from ASI) from order creation; a tax chosen at payment (payment type or manual pick) replaces them for exclusive lines
+    because: "Joseph, 2026-10-02: the cart showed taxes that vanished once the order was saved; option A, item taxes"
+    decided_at: 2026-10-03
+  product.audience:
+    question: Who it is for
+    status: pending
+    owner: human
+  product.primary_action:
+    question: The one thing a visitor should do
+    status: pending
+    owner: human
+  product.purpose:
+    question: What this product is for, in one sentence
+    status: pending
+    owner: human
+  stack.data_store:
+    question: Where state lives
+    status: pending
+    owner: human
+  stack.framework:
+    question: The framework, and the version selected at initialisation
+    status: pending
+    owner: human
+  stack.language:
+    question: Language and runtime version
+    status: pending
+    owner: human
+  testing.framework:
+    question: What runs the tests
+    status: pending
+    owner: human
