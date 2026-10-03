@@ -250,3 +250,10 @@ export function orderContextLabel(order?: Order | null): string {
 
   return order.order_type?.name ?? '';
 }
+
+/**
+ * A guest that comes from ASI FrontDesk: ASI owns the record, so the POS never edits its
+ * identity or contact details. The staff note stays editable: it is a POS field.
+ */
+export const isAsiGuest = (customer?: Pick<Customer, 'source'> | null): boolean =>
+  customer?.source === 'asi-fd';

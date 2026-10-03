@@ -20,6 +20,7 @@ import {
   guestMatchesSearchTerm,
   namesAreSamePerson,
   dropSupersededStays,
+  isAsiGuest,
 } from '@/lib/guest.ts';
 import { findCustomerByPhone } from '@/lib/customer-phone.ts';
 import {
@@ -270,7 +271,7 @@ export const GuestLookup = () => {
   };
 
   const saveGuestPhone = async () => {
-    if (!selected?.id) {
+    if (!selected?.id || isAsiGuest(selected)) {
       return;
     }
 
@@ -316,7 +317,7 @@ export const GuestLookup = () => {
   };
 
   const saveGuestIdDocument = async () => {
-    if (!selected?.id) {
+    if (!selected?.id || isAsiGuest(selected)) {
       return;
     }
 
@@ -653,6 +654,7 @@ export const GuestLookup = () => {
     }
   };
 
+  const selectedFromAsi = isAsiGuest(selected);
   const selectedDeparture = selected?.room
     ? getGuestDeparture(selected.asi_date_out)
     : null;
@@ -711,32 +713,12 @@ export const GuestLookup = () => {
             )}
             {results.map((guest) => {
               const note = guest.notes?.trim();
-              const departure = guest.room ? getGuestDeparture(guest.asi_date_out) : null;
-              const departureUrgent = departure?.relative === 'today' || departure?.relative === 'past';
               const metaParts: string[] = [];
               if (guest.guest_code && guest.name?.trim()) {
                 metaParts.push(`#${guestCodeLabel(guest)}`);
               }
-              if (departure) {
-                metaParts.push(
-                  departure.relative === 'today'
-                    ? t('menu:guest.departureToday')
-                    : t('menu:guest.departure', {
-                        date: departure.date.setLocale(i18n.language).toFormat('dd LLL'),
-                      }),
-                );
-              }
               if (guest.phone != null && String(guest.phone).trim()) {
                 metaParts.push(String(guest.phone).trim());
-              }
-              if (guest.last_order_at) {
-                metaParts.push(
-                  t('menu:guest.lastOrder', {
-                    date: toLuxonDateTime(guest.last_order_at).toFormat('dd LLL yyyy'),
-                  }),
-                );
-              } else {
-                metaParts.push(t('menu:guest.noOrders'));
               }
 
               return (
@@ -760,14 +742,11 @@ export const GuestLookup = () => {
                         />
                       ) : null}
                     </div>
-                    <div
-                      className={cn(
-                        'text-base text-neutral-600 mt-0.5',
-                        departureUrgent && 'text-warning-700',
-                      )}
-                    >
-                      {metaParts.join(' · ')}
-                    </div>
+                    {metaParts.length > 0 && (
+                      <div className="text-base text-neutral-600 mt-0.5">
+                        {metaParts.join(' · ')}
+                      </div>
+                    )}
                   </div>
                   {guest.room ? (
                     <span className="shrink-0 rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
@@ -873,9 +852,6 @@ export const GuestLookup = () => {
                 <div>
                   <div className="text-sm uppercase text-neutral-500">{t('menu:guest.selected')}</div>
                   <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
-                  <div className="text-neutral-600 text-lg">
-                    {selected.guest_code && selected.name?.trim() ? `#${guestCodeLabel(selected)}` : ''}
-                  </div>
                   {selected.room ? (
                     <div className="flex flex-wrap items-center gap-3 mt-2">
                       <span className="rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
@@ -895,7 +871,7 @@ export const GuestLookup = () => {
                       ) : null}
                     </div>
                   ) : null}
-                  <div className="text-neutral-600 mt-2">
+                  <div className="text-neutral-600 text-lg mt-2" data-testid="guest-last-order">
                     {selectedLastOrderLabel}
                   </div>
                 </div>
@@ -946,7 +922,11 @@ export const GuestLookup = () => {
                 </div>
 
                 <div className="border-t border-neutral-200 pt-4 space-y-4">
-                  {editingPhone ? (
+                  {selectedFromAsi ? (
+                    <p className="text-sm text-neutral-500" data-testid="guest-asi-readonly">
+                      {t('menu:guest.asiReadOnly')}
+                    </p>
+                  ) : editingPhone ? (
                     <div className="space-y-2">
                       <Input
                         type="tel"
@@ -988,11 +968,6 @@ export const GuestLookup = () => {
                     </div>
                   ) : (
                     <div className="flex flex-wrap items-center gap-2">
-                      {selected.phone != null && String(selected.phone).trim() ? (
-                        <div className="text-neutral-600">
-                          {t('menu:guest.phone')}: {String(selected.phone).trim()}
-                        </div>
-                      ) : null}
                       <Button
                         variant="neutral"
                         flat
@@ -1014,7 +989,13 @@ export const GuestLookup = () => {
                     </div>
                   )}
 
-                  {editingIdDocument ? (
+                  {selectedFromAsi ? (
+                    selected.id_document_number ? (
+                      <div className="text-neutral-600" data-testid="guest-id-document-masked">
+                        {t('menu:guest.idDocument')}: {maskIdDocument(selected.id_document_number)}
+                      </div>
+                    ) : null
+                  ) : editingIdDocument ? (
                     <div className="space-y-2">
                       <Input
                         label={t('menu:guest.idDocument')}

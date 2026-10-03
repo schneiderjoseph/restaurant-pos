@@ -103,7 +103,8 @@
     "contactHint": "Téléphone ou pièce d’identité : au moins un des deux.",
     "contactRequired": "Saisissez un téléphone ou une pièce d’identité",
     "departure": "Départ {{date}}",
-    "departureToday": "Départ aujourd'hui"
+    "departureToday": "Départ aujourd'hui",
+    "asiReadOnly": "Client ASI : ses informations se modifient dans ASI, pas ici."
   },
   "outlets": {
     "all": "Tous"
