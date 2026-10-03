@@ -105,9 +105,10 @@ interface Props {
   order: OrderModel
   cart?: MenuItem[]
   className?: string
+  compact?: boolean
 }
 
-export const OrderTotals = ({order, cart, className}: Props) => {
+export const OrderTotals = ({order, cart, className, compact}: Props) => {
   const {t} = useTranslation('orders');
 
   const preview = useMemo(() => {
@@ -183,6 +184,17 @@ export const OrderTotals = ({order, cart, className}: Props) => {
 
   const activeDiscountLines = getActiveOrderDiscounts(order);
   const showLegacyDiscount = activeDiscountLines.length === 0 && (!!order?.discount || preview.discountAmount > 0);
+
+  if (compact) {
+    return (
+      <div className={cn("flex flex-col gap-1", className)}>
+        <div className="flex font-bold text-2xl text-success-900">
+          <div className="flex-1">{t('totals.total')}</div>
+          <div className="text-right"><DualCurrency amount={preview.total} /></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>

@@ -17,6 +17,27 @@ export const getInvoiceNumber = (order?: OrderModel | null) => {
   return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
 }
 
+/** Displayed order number: # + invoice number padded to 3 digits (#007, #1534), split suffix kept (#012/2). */
+export const formatOrderNumber = (order?: OrderModel | null) => {
+  if (!order || order.invoice_number == null) {
+    return '-';
+  }
+
+  const padded = String(order.invoice_number).padStart(3, '0');
+  return `#${padded}${order.split ? `/${order.split}` : ''}`;
+};
+
+/** Elapsed minutes: under 1h as `18 min`, else `1 h 05`. */
+export const formatElapsed = (minutes: number): string => {
+  const total = Math.max(0, Math.floor(minutes));
+  if (total < 60) {
+    return `${total} min`;
+  }
+  const hours = Math.floor(total / 60);
+  const mins = total % 60;
+  return `${hours} h ${String(mins).padStart(2, '0')}`;
+};
+
 /** SurrealDB FETCH can return a single record instead of `[record]` for one-item arrays. */
 export const asRecordArray = <T>(value: unknown): T[] => {
   if (Array.isArray(value)) {

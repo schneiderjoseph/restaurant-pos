@@ -4,7 +4,7 @@ import React, {useMemo, useState} from "react";
 import {cn} from "@/lib/utils.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {getInvoiceNumber, getOrderDisplayItems, translateOrderStatus} from "@/lib/order.ts";
+import {formatOrderNumber, getOrderDisplayItems, translateOrderStatus} from "@/lib/order.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
@@ -83,7 +83,7 @@ export const OrderRow = ({
           void openPayment();
         }}
         className="flex flex-1 odd:bg-white even:bg-neutral-300 gap-1 select-none">
-        <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{getInvoiceNumber(order)} - {order?.order_type?.name}</div>
+        <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{[formatOrderNumber(order), order?.order_type?.name].filter(Boolean).join(' · ')}</div>
         <div className="basis-[100px] flex flex-col justify-center items-center" style={{
           color: order?.table?.color,
           background: order?.table?.background

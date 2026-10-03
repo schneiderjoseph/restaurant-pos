@@ -1,5 +1,5 @@
 import { Order } from '@/api/model/order.ts';
-import { getInvoiceNumber } from '@/lib/order.ts';
+import { formatOrderNumber } from '@/lib/order.ts';
 import { cn } from '@/lib/utils.ts';
 import { Countdown } from '@/components/floor/countdown.tsx';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
@@ -28,7 +28,7 @@ export const OrderTile = ({ order, variant, celebrate = false, stations = [] }: 
       )}
     >
       <span className="text-5xl font-black tracking-tight leading-none">
-        {getInvoiceNumber(order)}
+        {formatOrderNumber(order)}
       </span>
       {order.order_type?.name && (
         <span className="mt-2 text-lg font-semibold uppercase opacity-80">
