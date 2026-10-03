@@ -1,0 +1,59 @@
+# AGENTS.md — work contract for posr-react
+
+You are working on **posr-react** under devia 0.9.0.
+This file is your contract. Violating it is a failed task.
+
+## Before you touch anything
+
+1. Read [`10_NEVER_ALWAYS.md`](10_NEVER_ALWAYS.md) — what this project has already banned
+2. Read [`00_OVERVIEW.md`](00_OVERVIEW.md) — what this project is
+3. Read the memory file for the surface you are about to change ([`14_INDEX.md`](14_INDEX.md))
+4. Read the rules for what you are touching: `npx devia rules --domain <name>`, or
+   `npx devia rules --id <ID>` for one
+
+Then work. Then update this memory in the same change.
+
+## Non-negotiable here
+
+- Never invent an endpoint, field, config key or business rule. Unknown means **ask**, or record
+  it in [`11_GAPS.md`](11_GAPS.md) — not a quiet default (`AGT-004`, `MEM-001`)
+- A `pending` line in [`decisions.yaml`](decisions.yaml) is **not permission to choose**. No
+  brand, no palette, no framework version, no robots policy decided as a side effect of
+  implementation. Build around it, or say what it blocks (`DEC-001`)
+- You decide only where the register says `delegated`, and only inside `bounded_by` (`DEC-002`)
+- A missing asset stays missing. Never generate a stand-in for one (`DEC-005`)
+- Decided but not built goes in [`12_DEBT.md`](12_DEBT.md), even when you are not fixing it
+  (`MEM-002`)
+- Smallest change that satisfies the request; no opportunistic refactors (`AGT-003`)
+- Never disable a test, skip a hook, or weaken a rule to go green (`TST-003`, `OPS-003`,
+  `AGT-011`)
+- Never claim done or production ready without naming the checks that ran (`AGT-005`)
+- Always report what you did **not** verify (`AGT-006`)
+- Update `.devia/` in the same change, per [`impact-map.yaml`](impact-map.yaml) (`MEM-009`)
+
+## Checks
+
+```bash
+npx devia context "<task>"   # the rules that apply here, not all of them
+npx devia decide pending     # what nobody has ruled on — read before you assume
+npx devia validate           # memory integrity
+npx devia check              # readiness gates (P0 blocks)
+```
+
+TODO(devia): add this project's own commands — install, dev, test, lint, migrate.
+
+## Output contract
+
+```text
+## Devia compliance
+- Memory read: ...
+- Rules applied (IDs): ...
+- P0 status: ...
+- Decisions relied on: ... (and any `pending` slot this change touched)
+- Checks run / NOT run: ...
+- .devia updated: ...
+- Registries: gaps / debt touched
+- Not verified: ...
+```
+
+Full contract, routing table and hard stops: the `AGENTS.md` at this repository's root.

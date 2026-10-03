@@ -1,0 +1,33 @@
+# 10 — Never / Always
+
+> Rules this project earned. Each line comes from a real incident or a decision that was actually
+> contested, and names the trap **and** the correct move (`MEM-010`).
+
+## Never
+
+- Never keep state in an `atomWithStorage` field that its storage strips before writing: jotai
+  re-reads storage every time the atom is mounted again, so the field is wiped (the lock → unlock
+  cart loss). Keep it in memory through the storage wrapper (`keepOrderGraphInMemory`) or a plain `atom`.
+- Never ship a migration listed only in `run-prod-migrations.cjs`: the ASI prod updater
+  (`docs/deploy/update-asi-prod.ps1`) runs its own `$UpgradeMigrations` list. Add it there too,
+  idempotent, and run it on SurrealDB **3.0.5** (the prod image) first — a `GROUP BY` query that
+  passes on 3.2 broke the ASI production update on 2026-10-02.
+
+## Always
+
+- Always read the memory file for a surface before changing it (`AGT-001`).
+- Always update `.devia/` in the same change as the code (`MEM-009`).
+- Always use `userModulesGrant` (via `useModuleAccess().can`) for nav/tab visibility — same
+  predicate as `protectAction` auto-allow. Do not invent a second access check.
+
+## How a line gets added
+
+```text
+Something broke, or a decision was argued twice
+        ↓
+Fix it
+        ↓
+Add ONE line: what not to do, and what to do instead
+```
+
+A line nobody has ever violated is noise, and noise teaches agents to skim. Delete it.
