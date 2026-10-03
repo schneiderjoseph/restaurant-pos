@@ -101,7 +101,9 @@
     "idDocumentSaved": "Документ сохранён",
     "idDocumentSaveFailed": "Не удалось сохранить документ",
     "contactHint": "Телефон или документ: нужно хотя бы одно.",
-    "contactRequired": "Введите телефон или документ"
+    "contactRequired": "Введите телефон или документ",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "Все"

@@ -41,5 +41,6 @@
   "orderTaker": "Sipariş Alan",
   "time": "Saat",
   "reason": "Neden",
-  "note": "Not"
+  "note": "Not",
+  "dueAt": "FOR"
 }

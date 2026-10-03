@@ -128,6 +128,7 @@ export const MenuHeader = () => {
           id: 'new',
           order: undefined
         },
+        dueAt: undefined,
         cart: []
       }))
       return;

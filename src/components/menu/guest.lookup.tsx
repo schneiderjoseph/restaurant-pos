@@ -9,7 +9,7 @@ import { Table } from '@/api/model/table.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Textarea } from '@/components/common/input/textarea.tsx';
 import { Button } from '@/components/common/input/button.tsx';
-import { getInvoiceNumber } from '@/lib/order.ts';
+import { getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
 import {
   formatGuestLabel,
   guestCodeLabel,
@@ -29,6 +29,7 @@ import {
   normalizeIdDocument,
 } from '@/lib/customer-id-document.ts';
 import { toLuxonDateTime, nowSurrealDateTime } from '@/lib/datetime.ts';
+import { getGuestDeparture } from '@/lib/guest-departure.ts';
 import {
   ensureResortFloorTables,
   findRoomByNumber,
@@ -58,7 +59,8 @@ type FolioOrder = Order & { item_count?: number };
 export const GuestLookup = () => {
   const db = useDB();
   const navigate = useNavigate();
-  const { t } = useTranslation(['menu', 'orders', 'common']);
+  const { t, i18n } = useTranslation(['menu', 'orders', 'common']);
+  const { t: tOrders } = useTranslation('orders');
   const [state, setState] = useAtom(appState);
   const [, setEditSession] = useAtom(orderEditSessionAtom);
   const [settings, setSettings] = useAtom(appSettings);
@@ -529,6 +531,7 @@ export const GuestLookup = () => {
       showFloor: false,
       showPersons: false,
       order: { id: 'new', order: undefined },
+      dueAt: undefined,
       cart: [],
       seats: [],
       seat: undefined,
@@ -636,6 +639,7 @@ export const GuestLookup = () => {
         customer: undefined,
         table: undefined,
         order: undefined,
+        dueAt: undefined,
         orders: [],
         cart: [],
         seats: [],
@@ -649,9 +653,22 @@ export const GuestLookup = () => {
     }
   };
 
+  const selectedDeparture = selected?.room
+    ? getGuestDeparture(selected.asi_date_out)
+    : null;
+  const selectedDepartureLabel = selectedDeparture
+    ? selectedDeparture.relative === 'today'
+      ? t('menu:guest.departureToday')
+      : t('menu:guest.departure', {
+          date: selectedDeparture.date.setLocale(i18n.language).toFormat('dd LLL'),
+        })
+    : null;
+  const selectedDepartureUrgent =
+    selectedDeparture?.relative === 'today' || selectedDeparture?.relative === 'past';
+
   return (
-    <div className="p-5 max-w-5xl mx-auto" data-testid="guest-lookup">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
+    <div className="p-3 md:p-5 h-[calc(100vh-1rem)] max-h-[100vh] flex flex-col max-w-6xl mx-auto" data-testid="guest-lookup">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-3 shrink-0">
         <div>
           <h1 className="text-3xl font-bold mb-1">{t('menu:guest.title')}</h1>
           <p className="text-neutral-500">
@@ -662,6 +679,7 @@ export const GuestLookup = () => {
           variant="primary"
           filled
           size="lg"
+          className="min-h-[48px]"
           data-testid="guest-open-floor"
           onClick={() => void openFloorWalkIn()}
         >
@@ -669,18 +687,20 @@ export const GuestLookup = () => {
         </Button>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-        <div className="bg-white rounded-xl p-5 shadow space-y-4">
-          <Input
-            label={t('menu:guest.search')}
-            placeholder={t('menu:guest.searchPlaceholder')}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            autoFocus
-            data-testid="guest-search"
-          />
+      <div className="grid gap-4 grid-rows-[minmax(12rem,1fr)_minmax(16rem,1.2fr)] lg:grid-rows-1 lg:grid-cols-2 flex-1 min-h-0">
+        <div className="bg-white rounded-xl p-4 shadow flex flex-col min-h-0 overflow-hidden">
+          <div className="shrink-0 mb-3">
+            <Input
+              label={t('menu:guest.search')}
+              placeholder={t('menu:guest.searchPlaceholder')}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              autoFocus
+              data-testid="guest-search"
+            />
+          </div>
           <div
-            className="divide-y rounded-lg border border-neutral-200 max-h-[320px] overflow-auto"
+            className="divide-y rounded-lg border border-neutral-200 flex-1 min-h-0 overflow-auto"
             data-testid="guest-search-results"
           >
             {loadingGuests && results.length === 0 && (
@@ -691,14 +711,20 @@ export const GuestLookup = () => {
             )}
             {results.map((guest) => {
               const note = guest.notes?.trim();
+              const departure = guest.room ? getGuestDeparture(guest.asi_date_out) : null;
+              const departureUrgent = departure?.relative === 'today' || departure?.relative === 'past';
               const metaParts: string[] = [];
               if (guest.guest_code && guest.name?.trim()) {
                 metaParts.push(`#${guestCodeLabel(guest)}`);
               }
-              if (guest.room) {
-                metaParts.push(`${t('menu:guest.room')} ${guest.room}`);
-              } else if (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) {
-                metaParts.push(t('menu:guest.walkInBadge'));
+              if (departure) {
+                metaParts.push(
+                  departure.relative === 'today'
+                    ? t('menu:guest.departureToday')
+                    : t('menu:guest.departure', {
+                        date: departure.date.setLocale(i18n.language).toFormat('dd LLL'),
+                      }),
+                );
               }
               if (guest.phone != null && String(guest.phone).trim()) {
                 metaParts.push(String(guest.phone).trim());
@@ -718,24 +744,40 @@ export const GuestLookup = () => {
                   type="button"
                   key={guest.id?.toString()}
                   className={cn(
-                    'w-full text-left p-3 hover:bg-primary-50',
+                    'w-full text-left px-3 py-2 min-h-[64px] flex items-center gap-3 hover:bg-primary-50 active:bg-primary-100',
                     selected?.id?.toString() === guest.id?.toString() && 'bg-primary-100'
                   )}
                   onClick={() => selectGuest(guest)}
                 >
-                  <div className="font-bold text-lg">
-                    {formatGuestLabel(guest)}
-                    {note ? (
-                      <FontAwesomeIcon
-                        icon={faNoteSticky}
-                        className="ml-2 text-amber-500"
-                        title={note}
-                      />
-                    ) : null}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-xl leading-tight">
+                      {formatGuestLabel(guest)}
+                      {note ? (
+                        <FontAwesomeIcon
+                          icon={faNoteSticky}
+                          className="ml-2 text-amber-500"
+                          title={note}
+                        />
+                      ) : null}
+                    </div>
+                    <div
+                      className={cn(
+                        'text-base text-neutral-600 mt-0.5',
+                        departureUrgent && 'text-warning-700',
+                      )}
+                    >
+                      {metaParts.join(' · ')}
+                    </div>
                   </div>
-                  <div className="text-sm text-neutral-600">
-                    {metaParts.join(' · ')}
-                  </div>
+                  {guest.room ? (
+                    <span className="shrink-0 rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
+                      {t('menu:guest.room')} {guest.room}
+                    </span>
+                  ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
+                    <span className="shrink-0 rounded-lg bg-neutral-200 text-neutral-700 px-3 py-2 text-sm font-medium">
+                      {t('menu:guest.walkInBadge')}
+                    </span>
+                  ) : null}
                 </button>
               );
             })}
@@ -743,7 +785,7 @@ export const GuestLookup = () => {
 
           {canRegisterFromSearch && (
             <div
-              className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3"
+              className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3 mt-3 shrink-0 max-h-[40%] overflow-auto"
               data-testid="guest-register-from-search"
             >
               <div>
@@ -789,6 +831,7 @@ export const GuestLookup = () => {
                 <Button
                   variant="neutral"
                   flat
+                  className="min-h-[48px]"
                   onClick={() => setCodeOverride(generateWalkInGuestCode(search.trim()))}
                   data-testid="guest-walkin-regen"
                 >
@@ -800,7 +843,7 @@ export const GuestLookup = () => {
                   variant="primary"
                   flat
                   size="lg"
-                  className="w-full"
+                  className="w-full min-h-[48px]"
                   isLoading={saving}
                   onClick={() => void createGuestFromSearch(false)}
                   data-testid="guest-register"
@@ -811,7 +854,7 @@ export const GuestLookup = () => {
                   variant="primary"
                   filled
                   size="lg"
-                  className="w-full"
+                  className="w-full min-h-[48px]"
                   isLoading={saving}
                   onClick={() => void createGuestFromSearch(true)}
                   data-testid="guest-create-and-order"
@@ -823,313 +866,334 @@ export const GuestLookup = () => {
           )}
         </div>
 
-        <div className="bg-white rounded-xl p-5 shadow space-y-4">
+        <div className="bg-white rounded-xl shadow flex flex-col min-h-0 overflow-hidden">
           {selected ? (
             <>
-              <div>
-                <div className="text-sm uppercase text-neutral-500">{t('menu:guest.selected')}</div>
-                <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
-                <div className="text-neutral-600">
-                  {selected.guest_code && selected.name?.trim() ? `#${guestCodeLabel(selected)}` : ''}
-                  {selected.guest_code && selected.name?.trim() && selected.room ? ' · ' : ''}
-                  {selected.room ? `${t('menu:guest.room')} ${selected.room}` : ''}
-                </div>
-              </div>
-
-              <div className="text-neutral-600">
-                {selectedLastOrderLabel}
-              </div>
-
-              {editingPhone ? (
-                <div className="space-y-2">
-                  <Input
-                    type="tel"
-                    inputMode="tel"
-                    label={t('menu:guest.phone')}
-                    value={phoneDraft}
-                    onChange={(event) => setPhoneDraft(event.target.value)}
-                    data-testid="guest-phone-input"
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="primary"
-                      flat
-                      data-testid="guest-phone-save"
-                      isLoading={savingPhone}
-                      onClick={() => void saveGuestPhone()}
-                    >
-                      {t('common:actions.save')}
-                    </Button>
-                    <Button
-                      variant="neutral"
-                      flat
-                      data-testid="guest-phone-cancel"
-                      disabled={savingPhone}
-                      onClick={() => {
-                        setEditingPhone(false);
-                        setPhoneDraft(
-                          selected.phone != null && selected.phone !== ''
-                            ? String(selected.phone)
-                            : '',
-                        );
-                      }}
-                    >
-                      {t('common:actions.cancel')}
-                    </Button>
+              <div className="flex-1 min-h-0 overflow-auto p-4 space-y-4">
+                <div>
+                  <div className="text-sm uppercase text-neutral-500">{t('menu:guest.selected')}</div>
+                  <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
+                  <div className="text-neutral-600 text-lg">
+                    {selected.guest_code && selected.name?.trim() ? `#${guestCodeLabel(selected)}` : ''}
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-wrap items-center gap-2">
-                  {selected.phone != null && String(selected.phone).trim() ? (
-                    <div className="text-neutral-600">
-                      {t('menu:guest.phone')}: {String(selected.phone).trim()}
+                  {selected.room ? (
+                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                      <span className="rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
+                        {t('menu:guest.room')} {selected.room}
+                      </span>
+                      {selectedDepartureLabel ? (
+                        <span
+                          className={cn(
+                            'text-base font-medium px-3 py-2 rounded-lg',
+                            selectedDepartureUrgent
+                              ? 'bg-warning-100 text-warning-700'
+                              : 'bg-neutral-100 text-neutral-700',
+                          )}
+                        >
+                          {selectedDepartureLabel}
+                        </span>
+                      ) : null}
                     </div>
                   ) : null}
-                  <Button
-                    variant="neutral"
-                    flat
-                    size="sm"
-                    data-testid="guest-phone-edit"
-                    onClick={() => {
-                      setPhoneDraft(
-                        selected.phone != null && selected.phone !== ''
-                          ? String(selected.phone)
-                          : '',
-                      );
-                      setEditingPhone(true);
-                    }}
-                  >
-                    {selected.phone != null && String(selected.phone).trim()
-                      ? t('menu:guest.editPhone')
-                      : t('menu:guest.addPhone')}
-                  </Button>
+                  <div className="text-neutral-600 mt-2">
+                    {selectedLastOrderLabel}
+                  </div>
                 </div>
-              )}
 
-              {editingIdDocument ? (
-                <div className="space-y-2">
-                  <Input
-                    label={t('menu:guest.idDocument')}
-                    placeholder={t('menu:guest.idDocumentPlaceholder')}
-                    value={idDocumentDraft}
-                    onChange={(event) => setIdDocumentDraft(event.target.value)}
-                    autoComplete="off"
-                    data-testid="guest-id-document-input"
-                  />
+                {selected.notes?.trim() && !editingNote ? (
+                  <div
+                    className="rounded-lg border border-amber-300 bg-amber-50 p-3"
+                    data-testid="guest-note-banner"
+                  >
+                    <div className="font-bold text-sm mb-1">{t('menu:guest.notes')}</div>
+                    <div className="whitespace-pre-wrap text-lg">{selected.notes}</div>
+                  </div>
+                ) : null}
+
+                <Input
+                  label={t('menu:guest.table')}
+                  placeholder={t('menu:guest.tablePlaceholder')}
+                  value={tableNumber}
+                  onChange={(event) => setTableNumber(event.target.value)}
+                  enableKeyboard
+                />
+
+                <div>
+                  <div className="font-semibold mb-2">{t('menu:guest.zone')}</div>
                   <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="primary"
-                      flat
-                      data-testid="guest-id-document-save"
-                      isLoading={savingIdDocument}
-                      onClick={() => void saveGuestIdDocument()}
-                    >
-                      {t('common:actions.save')}
-                    </Button>
                     <Button
                       variant="neutral"
                       flat
-                      data-testid="guest-id-document-cancel"
-                      disabled={savingIdDocument}
-                      onClick={() => {
-                        setEditingIdDocument(false);
-                        setIdDocumentDraft('');
-                      }}
+                      className="min-h-[48px]"
+                      active={!state.floor}
+                      onClick={() => setState((prev) => ({ ...prev, floor: undefined }))}
                     >
-                      {t('common:actions.cancel')}
+                      {t('menu:guest.noZone')}
                     </Button>
+                    {floors.map((floor) => (
+                      <Button
+                        key={floor.id?.toString()}
+                        variant="primary"
+                        flat
+                        className="min-h-[48px]"
+                        active={state.floor?.id?.toString() === floor.id?.toString()}
+                        onClick={() => setState((prev) => ({ ...prev, floor }))}
+                      >
+                        {floor.name}
+                      </Button>
+                    ))}
                   </div>
                 </div>
-              ) : (
-                <div className="flex flex-wrap items-center gap-2">
-                  {selected.id_document_number ? (
-                    <div className="text-neutral-600" data-testid="guest-id-document-masked">
-                      {t('menu:guest.idDocument')}: {maskIdDocument(selected.id_document_number)}
-                    </div>
-                  ) : null}
-                  <Button
-                    variant="neutral"
-                    flat
-                    size="sm"
-                    data-testid="guest-id-document-edit"
-                    onClick={() => {
-                      // Never prefilled: the full number is not shown, only replaced.
-                      setIdDocumentDraft('');
-                      setEditingIdDocument(true);
-                    }}
-                  >
-                    {selected.id_document_number
-                      ? t('menu:guest.editIdDocument')
-                      : t('menu:guest.addIdDocument')}
-                  </Button>
-                </div>
-              )}
 
-              {editingNote ? (
-                <div className="space-y-2">
-                  <Textarea
-                    data-testid="guest-note-input"
-                    rows={3}
-                    placeholder={t('menu:guest.notePlaceholder')}
-                    value={noteDraft}
-                    onChange={(event) => setNoteDraft((event.target as HTMLTextAreaElement).value)}
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant="primary"
-                      flat
-                      data-testid="guest-note-save"
-                      isLoading={savingNote}
-                      onClick={() => void saveGuestNote()}
-                    >
-                      {t('common:actions.save')}
-                    </Button>
-                    <Button
-                      variant="neutral"
-                      flat
-                      data-testid="guest-note-cancel"
-                      disabled={savingNote}
-                      onClick={() => {
-                        setEditingNote(false);
-                        setNoteDraft(selected.notes ?? '');
-                      }}
-                    >
-                      {t('common:actions.cancel')}
-                    </Button>
-                  </div>
-                </div>
-              ) : selected.notes?.trim() ? (
-                <div
-                  className="rounded-lg border border-amber-300 bg-amber-50 p-3"
-                  data-testid="guest-note-banner"
-                >
-                  <div className="font-bold text-sm mb-1">{t('menu:guest.notes')}</div>
-                  <div className="whitespace-pre-wrap text-lg">{selected.notes}</div>
-                  <Button
-                    variant="neutral"
-                    flat
-                    size="sm"
-                    className="mt-2"
-                    data-testid="guest-note-edit"
-                    onClick={() => {
-                      setNoteDraft(selected.notes ?? '');
-                      setEditingNote(true);
-                    }}
-                  >
-                    {t('menu:guest.editNote')}
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="neutral"
-                  flat
-                  data-testid="guest-note-add"
-                  onClick={() => {
-                    setNoteDraft('');
-                    setEditingNote(true);
-                  }}
-                >
-                  {t('menu:guest.addNote')}
-                </Button>
-              )}
-
-              <Input
-                label={t('menu:guest.table')}
-                placeholder={t('menu:guest.tablePlaceholder')}
-                value={tableNumber}
-                onChange={(event) => setTableNumber(event.target.value)}
-                enableKeyboard
-              />
-
-              <div>
-                <div className="font-semibold mb-2">{t('menu:guest.zone')}</div>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="neutral"
-                    flat
-                    active={!state.floor}
-                    onClick={() => setState((prev) => ({ ...prev, floor: undefined }))}
-                  >
-                    {t('menu:guest.noZone')}
-                  </Button>
-                  {floors.map((floor) => (
-                    <Button
-                      key={floor.id?.toString()}
-                      variant="primary"
-                      flat
-                      active={state.floor?.id?.toString() === floor.id?.toString()}
-                      onClick={() => setState((prev) => ({ ...prev, floor }))}
-                    >
-                      {floor.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <Button
-                variant="success"
-                filled
-                size="lg"
-                className="w-full"
-                onClick={() => void startNewOrder()}
-              >
-                {t('menu:guest.startOrder')}
-              </Button>
-
-              <div>
-                <h2 className="font-semibold mb-2">{t('menu:guest.folio')}</h2>
-                {folio.length === 0 && (
-                  <div className="text-neutral-500">{t('menu:guest.folioEmpty')}</div>
-                )}
-                <div className="space-y-2 max-h-[280px] overflow-auto">
-                  {folio.map((order) => (
-                    <div
-                      key={order.id?.toString()}
-                      className="border rounded-lg p-3 flex justify-between gap-3 items-start"
-                    >
-                      <div>
-                        <div className="font-bold">
-                          {t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}
-                        </div>
-                        <div className="text-sm text-neutral-600">
-                          {order.status}
-                          {order.table?.number ? ` · T${order.table.number}` : ''}
-                          {!order.table?.number && orderZoneLabel(order) ? ` · ${orderZoneLabel(order)}` : ''}
-                        </div>
-                        <div className="text-sm text-neutral-500 mt-1">
-                          {toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}
-                        </div>
+                <div className="border-t border-neutral-200 pt-4 space-y-4">
+                  {editingPhone ? (
+                    <div className="space-y-2">
+                      <Input
+                        type="tel"
+                        inputMode="tel"
+                        label={t('menu:guest.phone')}
+                        value={phoneDraft}
+                        onChange={(event) => setPhoneDraft(event.target.value)}
+                        data-testid="guest-phone-input"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="primary"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-phone-save"
+                          isLoading={savingPhone}
+                          onClick={() => void saveGuestPhone()}
+                        >
+                          {t('common:actions.save')}
+                        </Button>
+                        <Button
+                          variant="neutral"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-phone-cancel"
+                          disabled={savingPhone}
+                          onClick={() => {
+                            setEditingPhone(false);
+                            setPhoneDraft(
+                              selected.phone != null && selected.phone !== ''
+                                ? String(selected.phone)
+                                : '',
+                            );
+                          }}
+                        >
+                          {t('common:actions.cancel')}
+                        </Button>
                       </div>
-                      {order.status === OrderStatus['In Progress'] && (
-                        <div className="flex flex-col gap-2 shrink-0">
-                          <Button
-                            variant="primary"
-                            filled
-                            size="sm"
-                            data-testid="guest-folio-edit"
-                            isLoading={editingOrderId === order.id?.toString()}
-                            onClick={() => void openFolioOrderForEdit(order)}
-                          >
-                            {t('orders:actions.editOrder')}
-                          </Button>
-                          <Button
-                            variant="primary"
-                            flat
-                            size="sm"
-                            data-testid="guest-folio-transfer"
-                            onClick={() => setTransferOrder(order)}
-                          >
-                            {t('orders:actions.transferToClient')}
-                          </Button>
-                        </div>
-                      )}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {selected.phone != null && String(selected.phone).trim() ? (
+                        <div className="text-neutral-600">
+                          {t('menu:guest.phone')}: {String(selected.phone).trim()}
+                        </div>
+                      ) : null}
+                      <Button
+                        variant="neutral"
+                        flat
+                        className="min-h-[48px]"
+                        data-testid="guest-phone-edit"
+                        onClick={() => {
+                          setPhoneDraft(
+                            selected.phone != null && selected.phone !== ''
+                              ? String(selected.phone)
+                              : '',
+                          );
+                          setEditingPhone(true);
+                        }}
+                      >
+                        {selected.phone != null && String(selected.phone).trim()
+                          ? t('menu:guest.editPhone')
+                          : t('menu:guest.addPhone')}
+                      </Button>
+                    </div>
+                  )}
+
+                  {editingIdDocument ? (
+                    <div className="space-y-2">
+                      <Input
+                        label={t('menu:guest.idDocument')}
+                        placeholder={t('menu:guest.idDocumentPlaceholder')}
+                        value={idDocumentDraft}
+                        onChange={(event) => setIdDocumentDraft(event.target.value)}
+                        autoComplete="off"
+                        data-testid="guest-id-document-input"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="primary"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-id-document-save"
+                          isLoading={savingIdDocument}
+                          onClick={() => void saveGuestIdDocument()}
+                        >
+                          {t('common:actions.save')}
+                        </Button>
+                        <Button
+                          variant="neutral"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-id-document-cancel"
+                          disabled={savingIdDocument}
+                          onClick={() => {
+                            setEditingIdDocument(false);
+                            setIdDocumentDraft('');
+                          }}
+                        >
+                          {t('common:actions.cancel')}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {selected.id_document_number ? (
+                        <div className="text-neutral-600" data-testid="guest-id-document-masked">
+                          {t('menu:guest.idDocument')}: {maskIdDocument(selected.id_document_number)}
+                        </div>
+                      ) : null}
+                      <Button
+                        variant="neutral"
+                        flat
+                        className="min-h-[48px]"
+                        data-testid="guest-id-document-edit"
+                        onClick={() => {
+                          setIdDocumentDraft('');
+                          setEditingIdDocument(true);
+                        }}
+                      >
+                        {selected.id_document_number
+                          ? t('menu:guest.editIdDocument')
+                          : t('menu:guest.addIdDocument')}
+                      </Button>
+                    </div>
+                  )}
+
+                  {editingNote ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        data-testid="guest-note-input"
+                        rows={3}
+                        placeholder={t('menu:guest.notePlaceholder')}
+                        value={noteDraft}
+                        onChange={(event) => setNoteDraft((event.target as HTMLTextAreaElement).value)}
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="primary"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-note-save"
+                          isLoading={savingNote}
+                          onClick={() => void saveGuestNote()}
+                        >
+                          {t('common:actions.save')}
+                        </Button>
+                        <Button
+                          variant="neutral"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-note-cancel"
+                          disabled={savingNote}
+                          onClick={() => {
+                            setEditingNote(false);
+                            setNoteDraft(selected.notes ?? '');
+                          }}
+                        >
+                          {t('common:actions.cancel')}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="neutral"
+                      flat
+                      className="min-h-[48px]"
+                      data-testid={selected.notes?.trim() ? 'guest-note-edit' : 'guest-note-add'}
+                      onClick={() => {
+                        setNoteDraft(selected.notes ?? '');
+                        setEditingNote(true);
+                      }}
+                    >
+                      {selected.notes?.trim()
+                        ? t('menu:guest.editNote')
+                        : t('menu:guest.addNote')}
+                    </Button>
+                  )}
+
+                  <div>
+                    <h2 className="font-semibold mb-2">{t('menu:guest.folio')}</h2>
+                    {folio.length === 0 && (
+                      <div className="text-neutral-500">{t('menu:guest.folioEmpty')}</div>
+                    )}
+                    <div className="space-y-2">
+                      {folio.map((order) => (
+                        <div
+                          key={order.id?.toString()}
+                          className="border rounded-lg p-3 flex justify-between gap-3 items-start"
+                        >
+                          <div>
+                            <div className="font-bold">
+                              {t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}
+                            </div>
+                            <div className="text-sm text-neutral-600">
+                              {translateOrderStatus(tOrders, order.status)}
+                              {order.table?.number ? ` · T${order.table.number}` : ''}
+                              {!order.table?.number && orderZoneLabel(order) ? ` · ${orderZoneLabel(order)}` : ''}
+                            </div>
+                            <div className="text-sm text-neutral-500 mt-1">
+                              {toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}
+                            </div>
+                          </div>
+                          {order.status === OrderStatus['In Progress'] && (
+                            <div className="flex flex-col gap-2 shrink-0">
+                              <Button
+                                variant="primary"
+                                filled
+                                className="min-h-[44px]"
+                                data-testid="guest-folio-edit"
+                                isLoading={editingOrderId === order.id?.toString()}
+                                onClick={() => void openFolioOrderForEdit(order)}
+                              >
+                                {t('orders:actions.editOrder')}
+                              </Button>
+                              <Button
+                                variant="primary"
+                                flat
+                                className="min-h-[44px]"
+                                data-testid="guest-folio-transfer"
+                                onClick={() => setTransferOrder(order)}
+                              >
+                                {t('orders:actions.transferToClient')}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+              </div>
+
+              <div className="shrink-0 border-t border-neutral-200 bg-white p-4 sticky bottom-0">
+                <Button
+                  variant="success"
+                  filled
+                  size="lg"
+                  className="w-full min-h-[52px] text-lg"
+                  onClick={() => void startNewOrder()}
+                >
+                  {t('menu:guest.startOrder')}
+                </Button>
               </div>
             </>
           ) : (
-            <div className="text-neutral-500 py-10 text-center">
+            <div className="text-neutral-500 py-10 text-center px-4">
               {t(preferInHouse ? 'menu:guest.pickGuestPms' : 'menu:guest.pickGuest')}
             </div>
           )}

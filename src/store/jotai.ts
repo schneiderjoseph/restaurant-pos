@@ -28,6 +28,11 @@ export interface AppStateInterface {
   customer?: Customer
   orderType?: OrderType
   persons?: string
+  /**
+   * When the order being placed is wanted (ISO instant). `null` = as soon as possible, chosen
+   * explicitly; `undefined` = not touched, an order being edited keeps its stored time.
+   */
+  dueAt?: string | null
   category?: Category
   dish?: Dish
   order?: {

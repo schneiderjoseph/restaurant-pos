@@ -41,5 +41,6 @@
   "orderTaker": "Opnemer",
   "time": "Tijd",
   "reason": "Reden",
-  "note": "Notitie"
+  "note": "Notitie",
+  "dueAt": "FOR"
 }

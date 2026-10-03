@@ -25,6 +25,7 @@ export const clearedOrderSelection: Partial<AppStateInterface> = {
   showFloor: true,
   showPersons: false,
   persons: '1',
+  dueAt: undefined,
   cart: [],
   order: undefined,
   orders: [],

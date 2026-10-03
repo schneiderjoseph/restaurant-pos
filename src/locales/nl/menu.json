@@ -101,7 +101,9 @@
     "idDocumentSaved": "Identiteitsbewijs opgeslagen",
     "idDocumentSaveFailed": "Identiteitsbewijs kon niet worden opgeslagen",
     "contactHint": "Telefoon of identiteitsbewijs: minstens één van beide.",
-    "contactRequired": "Voer een telefoonnummer of identiteitsbewijs in"
+    "contactRequired": "Voer een telefoonnummer of identiteitsbewijs in",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "Alles"

@@ -53,6 +53,7 @@ export function buildReceiptLabels(t: TFunction): ReceiptLabels {
     orderNumber: t("receipts:orderNumber"),
     orderTaker: t("receipts:orderTaker"),
     time: t("receipts:time"),
+    dueAt: t("receipts:dueAt"),
     reason: t("receipts:reason"),
     note: t("receipts:note"),
 

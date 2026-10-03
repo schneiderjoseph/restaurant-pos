@@ -81,6 +81,7 @@ export const Menu = () => {
       showPersons: false,
       table: undefined,
       order: {id: 'new', order: undefined},
+      dueAt: undefined,
       cart: [],
       floor: prev.floor ?? settings.floors[0],
       orderType: prev.orderType ?? settings.order_types[0],

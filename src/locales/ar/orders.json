@@ -27,6 +27,18 @@
     "blocks": "كتل",
     "table": "جدول"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "يُرجى اختيار طاولة جديدة",
     "success": "تم الدمج بنجاح في {{invoiceNumber}}",
@@ -186,5 +198,9 @@
   },
   "loadingItems": "جاري تحميل العناصر…",
   "retryLoad": "إعادة محاولة تحميل العناصر",
-  "loadFailed": "فشل تحميل الطلب"
+  "loadFailed": "فشل تحميل الطلب",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

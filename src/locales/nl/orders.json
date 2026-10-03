@@ -27,6 +27,18 @@
     "blocks": "Blokken",
     "table": "Tabel"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Kies een nieuwe tafel",
     "success": "Succesvol samengevoegd in {{invoiceNumber}}",
@@ -186,5 +198,9 @@
   },
   "loadingItems": "Artikelen laden…",
   "retryLoad": "Artikelen opnieuw laden",
-  "loadFailed": "Order laden mislukt"
+  "loadFailed": "Order laden mislukt",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

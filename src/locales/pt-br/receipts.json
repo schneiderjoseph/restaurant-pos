@@ -41,5 +41,6 @@
   "orderTaker": "Atendente",
   "time": "Hora",
   "reason": "Motivo",
-  "note": "Nota"
+  "note": "Nota",
+  "dueAt": "FOR"
 }

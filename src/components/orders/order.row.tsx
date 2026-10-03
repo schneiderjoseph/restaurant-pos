@@ -5,14 +5,17 @@ import {cn} from "@/lib/utils.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {formatOrderNumber, getOrderDisplayItems, translateOrderStatus} from "@/lib/order.ts";
-import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {useTranslation} from "react-i18next";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
 import {useDB} from "@/api/db/db.ts";
 import {fetchOrderFull} from "@/lib/order-fetch.ts";
 import {toast} from "sonner";
-import {formatTaxLabel} from "@/lib/tax-label.ts";
 import {formatGuestLabel} from "@/lib/guest-label.ts";
+import {OrderElapsed} from "@/components/orders/order.elapsed.tsx";
+
+/** Shared by the sticky header and every row so columns line up. */
+export const ORDERS_LIST_GRID_CLASS =
+  "grid grid-cols-[minmax(4.5rem,5.5rem)_minmax(7rem,1.5fr)_minmax(5rem,0.85fr)_minmax(6.5rem,1fr)_minmax(5.5rem,0.95fr)_minmax(4rem,0.55fr)_minmax(5.5rem,1fr)] gap-x-2 items-center px-3";
 
 interface Props {
   order: OrderModel
@@ -25,9 +28,6 @@ export const OrderRow = ({
   const db = useDB();
   const {rootRef, displayOrder: order, cardReady, isHydrating, retryHydrate} = useOrderCardHydrate(snapshot);
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
-  const serviceChargeAmount = cardReady
-    ? getOrderServiceChargeAmount(order, itemsTotal)
-    : Number(order?.service_charge_amount ?? 0);
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
 
@@ -51,9 +51,7 @@ export const OrderRow = ({
     return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + serviceChargeAmount;
   }, [cardReady, itemsTotal, order]);
 
-  const tableOrGuestLabel = order?.table
-    ? `${order.table.name ?? ''}${order.table.number ?? ''}`
-    : formatGuestLabel(order?.customer);
+  const isActionable = order.status === OrderStatus["In Progress"] && !isLoadingFull;
 
   const openPayment = async () => {
     if (order.status !== OrderStatus["In Progress"] || isLoadingFull) {
@@ -82,65 +80,57 @@ export const OrderRow = ({
         onClick={() => {
           void openPayment();
         }}
-        className="flex flex-1 odd:bg-white even:bg-neutral-300 gap-1 select-none">
-        <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{[formatOrderNumber(order), order?.order_type?.name].filter(Boolean).join(' · ')}</div>
-        <div className="basis-[100px] flex flex-col justify-center items-center" style={{
-          color: order?.table?.color,
-          background: order?.table?.background
-        }}>
-          {tableOrGuestLabel}
+        className={cn(
+          ORDERS_LIST_GRID_CLASS,
+          "min-h-[56px] select-none border-b border-neutral-200 odd:bg-white even:bg-neutral-100",
+          isActionable && "cursor-pointer active:bg-neutral-300",
+          !isActionable && "cursor-default",
+        )}
+      >
+        <div className="font-semibold py-2">{formatOrderNumber(order)}</div>
+
+        <div className="flex flex-col justify-center gap-1 py-2 min-w-0">
+          {order?.table && (
+            <span
+              className="inline-flex self-start px-2 py-1 rounded-lg text-sm font-medium"
+              style={{
+                color: order.table.color,
+                background: order.table.background,
+              }}
+            >
+              {`${order.table.name ?? ''}${order.table.number ?? ''}`}
+            </span>
+          )}
+          {order?.customer && (
+            <span className="text-sm text-neutral-700 truncate">
+              {formatGuestLabel(order.customer)}
+            </span>
+          )}
         </div>
-        <div className="flex justify-center items-center px-3 basis-[120px]">{order?.user?.first_name}</div>
-        <div className="basis-[150px] p-4">
-        <span className={
-          cn(
-            "uppercase p-1 px-3 rounded-lg text-sm font-bold flex-grow-0 flex-shrink",
-            colors[order?.status]
-          )
-        }>{translateOrderStatus(t, order?.status)}</span>
+
+        <div className="py-2 truncate">{order?.user?.first_name}</div>
+
+        <div className="py-2">
+          <span className={
+            cn(
+              "uppercase p-1 px-3 rounded-lg text-sm font-bold inline-block",
+              colors[order?.status]
+            )
+          }>{translateOrderStatus(t, order?.status)}</span>
         </div>
-        <div className="flex basis-[200px] items-center px-3">
-          {toLuxonDateTime(order.created_at).toFormat('yyyy-MM-dd hh:mm a')}
+
+        <div className="py-2 min-h-[2.5rem] flex flex-col justify-center">
+          <OrderElapsed order={order} />
         </div>
-        <div className="flex items-center px-3 gap-1">
-          <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-gray-900 text-white justify-center items-center">
+
+        <div className="py-2 flex items-center">
+          <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-neutral-900 text-white justify-center items-center text-sm">
             {cardReady ? getOrderDisplayItems(order).length : (isHydrating ? '…' : '—')}
-          </span> {t('totals.itemsShort')}
-        </div>
-        <div className="flex px-3 gap-1 items-center basis-[150px]">
-          {cardReady ? <DualCurrency amount={itemsTotal} primaryClassName="text-sm" secondaryClassName="text-[10px]" /> : '…'}
-        </div>
-        <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
-          {order?.tax && Number(order?.tax_amount || 0) > 0 && (
-            <>
-              <div className="flex-1">
-                {formatTaxLabel(order?.tax?.name, order?.tax?.rate)}
-              </div>
-              <div className="text-right"><DualCurrency amount={order?.tax_amount} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
-            </>
-          )}
-        </div>
-        <div className="flex items-center px-3 basis-[180px]">
-          {serviceChargeAmount > 0 && (
-            <>
-              <div className="flex-1">{t('totals.sc', {value: order?.service_charge})}</div>
-              <div className="text-right"><DualCurrency amount={serviceChargeAmount} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
-            </>
-          )}
+          </span>
         </div>
 
-        <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
-          {order?.extras && (
-            <>
-              <div className="flex-1">{t('totals.extras')}</div>
-              <div
-                className="text-right"><DualCurrency amount={order?.extras?.reduce((prev, item) => prev + Number(item?.value || 0), 0)} primaryClassName="text-sm" secondaryClassName="text-[10px]" /></div>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center justify-end px-3 flex-1">
-          <div className="text-right font-bold text-lg text-danger-700">{cardReady ? <DualCurrency amount={total} primaryClassName="text-lg font-bold" /> : '…'}</div>
+        <div className="py-2 text-right font-bold text-lg text-danger-700">
+          {cardReady ? <DualCurrency amount={total} primaryClassName="text-lg font-bold" /> : '…'}
         </div>
       </div>
 

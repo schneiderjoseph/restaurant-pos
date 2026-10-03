@@ -27,6 +27,18 @@
     "blocks": "Bloklar",
     "table": "Tablo"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Lütfen yeni bir masa seçin",
     "success": "{{invoiceNumber}} numaralı siparişe başarıyla birleştirildi",
@@ -186,5 +198,9 @@
   },
   "loadingItems": "Ürünler yükleniyor…",
   "retryLoad": "Ürünleri yeniden yükle",
-  "loadFailed": "Sipariş yüklenemedi"
+  "loadFailed": "Sipariş yüklenemedi",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

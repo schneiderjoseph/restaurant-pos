@@ -27,6 +27,18 @@
     "blocks": "Bloques",
     "table": "Tabla"
   },
+  "list": {
+    "empty": "No orders",
+    "columns": {
+      "number": "No.",
+      "tableGuest": "Table / Guest",
+      "server": "Server",
+      "status": "Status",
+      "time": "Time",
+      "items": "Items",
+      "total": "Total"
+    }
+  },
   "merge": {
     "chooseTableAlert": "Elija una nueva mesa",
     "success": "Combinado correctamente en {{invoiceNumber}}",
@@ -186,5 +198,9 @@
   },
   "loadingItems": "Cargando artículos…",
   "retryLoad": "Reintentar carga de artículos",
-  "loadFailed": "No se pudo cargar el pedido"
+  "loadFailed": "No se pudo cargar el pedido",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

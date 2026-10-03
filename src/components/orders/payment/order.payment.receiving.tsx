@@ -43,6 +43,8 @@ import {
 } from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
+import {filterPaymentTypesForRole, RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
 import {nowInAppTimezone, nowSurrealDateTime} from "@/lib/datetime.ts";
 import {
   checkRoomCharge,
@@ -243,13 +245,42 @@ const OrderPaymentReceivingContent = ({
     data: table
   } = useApi<SettingsData<Table>>(tableId, ['deleted_at = none'], [], 0, 1, ['payment_types', 'payment_types.tax'], {enabled: !!tableId});
 
-  const paymentTypes: PaymentType[] = useMemo(() => {
-    if (table?.data?.[0]?.payment_types && table?.data?.[0]?.payment_types?.length > 0) {
-      return table?.data?.[0]?.payment_types;
+  // Who may cash, and with which payment types, is set on the role (Manage → Roles).
+  const {can} = useModuleAccess();
+  const canReceivePayment = can(RECEIVE_PAYMENT_MODULE);
+  const userId = page?.user?.id?.toString();
+  const [rolePaymentTypes, setRolePaymentTypes] = useState<unknown[] | null | undefined>(
+    page?.user?.user_role?.payment_types
+  );
+  useEffect(() => {
+    if (!userId) {
+      return;
     }
+    let cancelled = false;
+    // Read again from the database: the role may have changed since this user signed in.
+    db.query(`SELECT * FROM ONLY ${toRecordId(userId)} WHERE deleted_at = none FETCH user_role`)
+      .then(([row]: any) => {
+        if (!cancelled && row?.user_role) {
+          setRolePaymentTypes(row.user_role.payment_types);
+        }
+      })
+      .catch((error: unknown) => {
+        // Keeps the list read at sign-in.
+        console.error('Role payment types read failed', error);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per user; db identity changes every render
+  }, [userId]);
 
-    return allPaymentTypes?.data;
-  }, [table, allPaymentTypes]);
+  const paymentTypes: PaymentType[] = useMemo(() => {
+    const forTable = table?.data?.[0]?.payment_types && table?.data?.[0]?.payment_types?.length > 0
+      ? table?.data?.[0]?.payment_types
+      : allPaymentTypes?.data;
+
+    return filterPaymentTypesForRole(forTable, rolePaymentTypes);
+  }, [table, allPaymentTypes, rolePaymentTypes]);
 
   // const [paymentType, setPaymentType] = useState<string>();
   const [mode, setMode] = useState<'quick' | 'button'>('quick');
@@ -615,6 +646,13 @@ const OrderPaymentReceivingContent = ({
         }>
           {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span>{formatPay(changeDue)}</span>
         </div>
+        {!canReceivePayment && (
+          <div className="alert alert-warning mb-3" role="status" data-testid="payment-not-allowed">
+            {t('receiving.notAllowed')}
+          </div>
+        )}
+        {canReceivePayment && (
+        <>
         <div className="relative">
           <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">
           <span
@@ -685,6 +723,8 @@ const OrderPaymentReceivingContent = ({
             </Button>
           ))}
         </ScrollContainer>
+        </>
+        )}
 
         <div className="flex justify-center items-center mb-3 text-xl h-[28px]" data-testid="payment-amount-entry">
           {selectedAmount.trim().length > 0 && (
@@ -752,7 +792,7 @@ const OrderPaymentReceivingContent = ({
                 >{t('receiving.tempBill')}</Button>
               </span>
               )}
-              {isVisible('orders.complete') && (
+              {canReceivePayment && isVisible('orders.complete') && (
               <Button
                 variant="success"
                 className="flex-1"

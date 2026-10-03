@@ -101,7 +101,9 @@
     "idDocumentSaved": "Documento de identidade salvo",
     "idDocumentSaveFailed": "Não foi possível salvar o documento de identidade",
     "contactHint": "Telefone ou documento de identidade: pelo menos um dos dois.",
-    "contactRequired": "Informe um telefone ou um documento de identidade"
+    "contactRequired": "Informe um telefone ou um documento de identidade",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "Todos"

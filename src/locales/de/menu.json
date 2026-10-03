@@ -101,7 +101,9 @@
     "idDocumentSaved": "Ausweisdokument gespeichert",
     "idDocumentSaveFailed": "Ausweisdokument konnte nicht gespeichert werden",
     "contactHint": "Telefon oder Ausweisdokument: mindestens eines ist erforderlich.",
-    "contactRequired": "Geben Sie eine Telefonnummer oder ein Ausweisdokument ein"
+    "contactRequired": "Geben Sie eine Telefonnummer oder ein Ausweisdokument ein",
+    "departure": "Check-out {{date}}",
+    "departureToday": "Checks out today"
   },
   "outlets": {
     "all": "Alle"

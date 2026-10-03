@@ -92,7 +92,8 @@
     "roomCheckedOut": "Check-out fait dans ASI : ce client paie directement, comme un walk-in",
     "roomSyncStale": "Séjour non vérifiable (synchro ASI en retard) : le client paie directement",
     "roomNotHotelGuest": "La charge chambre exige un client hôtel présent",
-    "roomDepartsToday": "Départ prévu aujourd’hui"
+    "roomDepartsToday": "Départ prévu aujourd’hui",
+    "notAllowed": "Votre rôle n’encaisse pas : appelez un caissier, ou changez d’utilisateur."
   },
   "remote": {
     "remoteLabel": "{{name}} (À distance)",
@@ -134,5 +135,22 @@
     "paymentReceived": "Paiement {{gateway}} reçu.",
     "payWithCard": "Payer par carte",
     "payWithRazorpay": "Payer avec Razorpay"
+  },
+  "due": {
+    "title": "Pour quand ?",
+    "asap": "Dès que possible",
+    "asapButton": "Pour quand : dès que possible",
+    "forTime": "Pour {{time}}",
+    "inTitle": "Dans",
+    "inMinutes": "{{count}} min",
+    "inHours": "{{hours}} h {{minutes}}",
+    "atTitle": "À une heure précise",
+    "today": "Aujourd’hui",
+    "tomorrow": "Demain",
+    "tomorrowShort": "dem.",
+    "hour": "Heure",
+    "minute": "Minutes",
+    "confirm": "Valider : {{time}}",
+    "past": "Cette heure est déjà passée."
   }
 }

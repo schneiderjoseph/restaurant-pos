@@ -33,6 +33,7 @@ manager modal.
 | Module grant predicate | `userModulesGrant` / `protectAction` | `src/lib/access.rules.test.ts` |
 | Route / first-allowed helpers | `getRoutePermission`, `getFirstAllowedPath`, `canAccessPath` | `src/lib/module-access.test.ts` |
 | In-screen actions (create/update/delete, refunds, …) | Still `protectAction` + manager override — not hidden by this change | — |
+| Taking payment, payment types per role | `can('payments.receive')` + `filterPaymentTypesForRole` in `src/components/orders/payment/order.payment.receiving.tsx` (screen only) | `src/lib/payment-access.test.ts` |
 
 Hiding a control in the interface is never enforcement.
 
@@ -48,6 +49,25 @@ The permission sits in its own section, not under `orders`: every role that open
 page holds `orders`, and a parent id grants all its children.
 `migrations/2026_10_02_order_visibility.surql` gave it once to every role that existed. This
 scopes the screen, it is not a data boundary: the database session can still read every order.
+
+## Taking payment
+
+Set per role in the role form (Manage → Roles, block "Encaissement"): a "can receive payment"
+switch, which is the `payments.receive` permission, and the payment types the role may take
+(`user_role.payment_types`; none ticked = every type).
+
+Without `payments.receive`, the payment screen (`OrderPaymentReceiving`) shows a notice instead of
+the quick amounts, the payment-type buttons and Complete; the temp bill, discounts and the rest
+stay available. With it, only the role's payment types are offered (after the table's own
+`payment_types` restriction, if any). The role is read again from the database when the payment
+screen opens; if that read fails, the list read at sign-in is used.
+
+`payments.receive` sits in its own section for the same reason as `order_visibility.all`: `orders`
+would grant it to every server. `orders.complete_payment` is only a tracking label, it gates
+nothing. `migrations/2026_10_03_role_payment_access.surql` gave `payments.receive` once to every
+role that existed, so nothing changes on deploy until a role is edited. This hides controls on the
+screen; it is not a data boundary. No manager override is offered here: a cashier signs in with
+their own PIN (see `11_GAPS.md`).
 
 ## Isolation
 

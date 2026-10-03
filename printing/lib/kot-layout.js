@@ -21,6 +21,7 @@ const {
  * @param {string} [opts.orderType]
  * @param {string} [opts.orderTaker]
  * @param {string} opts.createdAt
+ * @param {string} [opts.dueAt] - when the guest wants the order; empty = as soon as possible
  * @param {Array<{ label: string, value: string }>} [opts.extraLines]
  * @param {Object} [opts.labels] - translated labels map
  */
@@ -35,6 +36,7 @@ function printKotHeader(printer, opts) {
     orderType,
     orderTaker,
     createdAt,
+    dueAt,
     extraLines = [],
     labels = {},
   } = opts || {};
@@ -63,6 +65,11 @@ function printKotHeader(printer, opts) {
   if (orderBannerLine) {
     // Normal size so Order# + New/ADDON/COPY/DELETION fit cleanly on thermal paper
     printCenteredText(printer, orderBannerLine, { style: 'bold', size: 'normal' });
+  }
+
+  // Wanted time, large: the kitchen must not miss it
+  if (dueAt) {
+    printCenteredText(printer, `${L.dueAt || 'FOR'} ${dueAt}`, { style: 'bold', size: 'medium' });
   }
 
   // Place | Order Type, then Guest, then Order Taker | Time

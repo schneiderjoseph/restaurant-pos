@@ -11,6 +11,8 @@ Add one with `npx devia gap add "question"`.
 | ID | Question | Impact if wrong | Interim behaviour | Status |
 |---|---|---|---|---|
 | G1 | Orders paid since go-live with exclusive ASI items: were they charged without TCA (no tax on the payment types)? If so, what is done about the shortfall and the tax return? | Tax under-collected and under-declared since go-live | Nothing recomputed: paid orders keep their stored `tax_amount` / `order_taxes`; only orders created after the fix carry line taxes | open |
+| G2 | Role without payments.receive: the tender buttons are hidden with a notice and no manager-PIN override is offered (a cashier signs in). Is an override wanted, as for discounts? | | | open |
+| G3 | Order due time (order.due_at) is printed on the kitchen ticket and shown on the Orders screen, but not on the kitchen display screen nor on the temp / final bill. Wanted there too? | | | open |
 
 ## Closed
 
