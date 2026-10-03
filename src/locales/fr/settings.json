@@ -238,5 +238,13 @@
     "triggerRequired": "Activez la fin de poste et/ou une heure définie lorsque la sortie automatique est activée",
     "updated": "Paramètres de sortie automatique mis à jour",
     "saveDescription": "Enregistrer les paramètres de sortie automatique"
+  },
+  "orderVisibility": {
+    "title": "Visibilité des commandes",
+    "description": "Activé : chaque utilisateur ne voit que les commandes qu'il a ouvertes sur la page Commandes. Les rôles cochés ci-dessous voient toujours toutes les commandes (par exemple managers, caissiers, bar).",
+    "ownOrdersOnly": "Chaque utilisateur ne voit que ses commandes",
+    "rolesTitle": "Rôles qui voient toutes les commandes",
+    "updated": "Visibilité des commandes mise à jour",
+    "saveDescription": "Enregistrer la visibilité des commandes"
   }
 }

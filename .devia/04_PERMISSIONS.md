@@ -38,14 +38,16 @@ Hiding a control in the interface is never enforcement.
 
 ## Order visibility
 
-A role without `order_visibility.all` sees only the orders its user opened on the Orders screen
-(`user = $currentUser` added to the list query in `src/screens/orders.tsx`; the Users filter is
-hidden). The Tables screen is unchanged (decided 2026-10-02). The permission sits in its own
-section, not under `orders`: every role that opens the Orders page holds `orders`, and a parent
-id grants all its children. `migrations/2026_10_02_order_visibility.surql` gave it once to every
-role that existed (marker `order_visibility_grant_existing_roles`), so the restriction starts
-when it is removed from the server roles; roles created later start without it. This scopes the
-screen, it is not a data boundary: the database session can still read every order.
+One switch in Manage → General settings (`OrderVisibilitySettingsCard`, setting
+`order_visibility.own_orders_only`, off by default): when on, a user sees only the orders they
+opened on the Orders screen (`user = $currentUser` in `src/screens/orders.tsx`; the Users filter is
+hidden), unless their role holds `order_visibility.all`. The same card lists the roles with a
+"sees every order" switch that adds or removes that permission (saving needs `admin.users`).
+Rule: `seesAllOrders` in `src/api/model/order_visibility.ts`. The Tables screen is unchanged.
+The permission sits in its own section, not under `orders`: every role that opens the Orders
+page holds `orders`, and a parent id grants all its children.
+`migrations/2026_10_02_order_visibility.surql` gave it once to every role that existed. This
+scopes the screen, it is not a data boundary: the database session can still read every order.
 
 ## Isolation
 

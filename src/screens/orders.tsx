@@ -39,6 +39,8 @@ import {DocumentTitle} from "@/components/common/document-title.tsx";
 import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
 import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
+import {useOrderVisibility} from "@/hooks/useOrderVisibility.ts";
+import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/model/order_visibility.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -72,9 +74,11 @@ export const Orders = () => {
 
   const [, setAlert] = useAtom(appAlert);
   const [app,] = useAtom(appPage);
-  // Without this grant a server sees only the orders they opened.
+  // With "own orders only" on (Manage → General settings), a role without this grant sees
+  // only the orders its user opened.
   const {can} = useModuleAccess();
-  const seesAllOrders = can('order_visibility.all');
+  const {ownOrdersOnly} = useOrderVisibility();
+  const seesAllOrders = seesAllOrdersFor(ownOrdersOnly, can(SEES_ALL_ORDERS_MODULE));
   const currentUserId = app?.user?.id?.toString();
 
   const [orders, setOrders] = useState<OrderModel[]>([]);
