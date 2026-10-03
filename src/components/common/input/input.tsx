@@ -16,6 +16,7 @@ import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
 import {useFormContext} from "react-hook-form";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
+import {usesPosKeyboard} from "@/components/common/input/keyboard-mode.ts";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   inputSize?: "lg"
@@ -61,19 +62,30 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
   } catch (e) {
     formContext = null;
   }
+  const hasValueProp = Object.prototype.hasOwnProperty.call(props, 'value');
+  const isControlled = hasValueProp;
+  // Number + NumericFormat without a value prop: do not default the POS keyboard on.
+  const enableKeyboardOpt =
+    type === 'number' && !hasValueProp
+      ? (enableKeyboard ?? false)
+      : enableKeyboard;
+
+  const [page] = useAtom(appPage);
+  const keyboardMode = usesPosKeyboard(page.touch, type, enableKeyboardOpt);
+
   const registeredValue = formContext && name ? formContext.watch(name) : undefined;
-  const resolvedValue = value !== undefined ? value : (!enableKeyboard ? registeredValue : undefined);
+  const resolvedValue = value !== undefined ? value : (!keyboardMode ? registeredValue : undefined);
   const onClick = useCallback((event: any) => {
     if (selectable !== false) {
       event.currentTarget.select();
     }
   }, [selectable]);
 
-  const [page] = useAtom(appPage);
-
   // Keyboard functionality
   const [showKeyboard, setShowKeyboard] = useState(false);
-  const [keyboardValue, setKeyboardValue] = useState(resolvedValue?.toString() || '');
+  const [keyboardValue, setKeyboardValue] = useState(
+    (isControlled ? resolvedValue?.toString() : '') || ''
+  );
 
   const inputElRef = useRef<HTMLInputElement | null>(null);
   const suppressFocusRef = useRef<boolean>(false);
@@ -87,16 +99,24 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
     }
   }, [ref]);
 
+  const seedKeyboardValue = useCallback(() => {
+    if (isControlled) {
+      setKeyboardValue(resolvedValue?.toString() || '');
+    } else {
+      setKeyboardValue(inputElRef.current?.value ?? '');
+    }
+  }, [isControlled, resolvedValue]);
+
   const handleInputFocus = useCallback(() => {
-    if (!enableKeyboard) return;
+    if (!keyboardMode) return;
     if (suppressFocusRef.current) {
       // Single-cycle suppression: consume once, then allow subsequent focuses immediately
       suppressFocusRef.current = false;
       return;
     }
-    setKeyboardValue(resolvedValue?.toString() || '');
+    seedKeyboardValue();
     setShowKeyboard(true);
-  }, [enableKeyboard, resolvedValue]);
+  }, [keyboardMode, seedKeyboardValue]);
 
   const handleKeyboardClose = useCallback(() => {
     suppressFocusRef.current = true;
@@ -110,24 +130,40 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
   }, []);
 
   const handleMouseDownOpen = useCallback((e: any) => {
-    if (!enableKeyboard) return;
+    if (!keyboardMode) return;
     // prevent the input from gaining focus; we'll manage keyboard explicitly
     e.preventDefault();
     e.stopPropagation();
-    setKeyboardValue(resolvedValue?.toString() || '');
+    seedKeyboardValue();
     setShowKeyboard(true);
-  }, [enableKeyboard, resolvedValue]);
+  }, [keyboardMode, seedKeyboardValue]);
+
+  const emitKeyboardChange = useCallback((v: string) => {
+    setKeyboardValue(v);
+    if (!onChange) return;
+    if (isControlled) {
+      onChange({ target: { value: v } } as any);
+      return;
+    }
+    if (inputElRef.current) {
+      inputElRef.current.value = v;
+      onChange({
+        target: inputElRef.current,
+        currentTarget: inputElRef.current,
+      } as any);
+    }
+  }, [onChange, isControlled]);
 
   // Keep internal keyboardValue in sync with external value when keyboard is not open
   useEffect(() => {
-    if (!enableKeyboard) return;
+    if (!keyboardMode || !isControlled) return;
     if (!showKeyboard) {
       const next = resolvedValue?.toString() || '';
       if (next !== keyboardValue) {
         setKeyboardValue(next);
       }
     }
-  }, [resolvedValue, enableKeyboard, showKeyboard, keyboardValue]);
+  }, [resolvedValue, keyboardMode, isControlled, showKeyboard, keyboardValue]);
 
   const id = useMemo(() => providedId ?? nanoid(), [providedId]);
 
@@ -143,12 +179,12 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
           {...inputProps}
           name={name}
           defaultValue={defaultValue as any}
-          {...(enableKeyboard && page.touch
+          {...(keyboardMode
             ? { value: keyboardValue }
             : resolvedValue !== undefined
               ? { value: resolvedValue as any }
               : {})}
-          onChange={enableKeyboard && page.touch ? undefined : onChange}
+          onChange={keyboardMode ? undefined : onChange}
           autoComplete="off"
           className={
             cn(
@@ -160,31 +196,26 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
           }
           getInputRef={assignInputRef}
           onClick={onClick}
-          readOnly={enableKeyboard && page.touch ? true : readOnly}
+          readOnly={keyboardMode ? true : readOnly}
           disabled={disabled}
           placeholder={placeholder}
           autoFocus={autoFocus}
           onFocus={onFocus}
-          onMouseDown={enableKeyboard && page.touch ? handleMouseDownOpen : undefined}
+          onMouseDown={keyboardMode ? handleMouseDownOpen : undefined}
           onBlur={onBlur}
           id={id}
           decimalScale={decimalScale}
           allowNegative={allowNegative}
         />
         {formattedHelp}
-        {enableKeyboard && showKeyboard && page.touch && (
+        {keyboardMode && showKeyboard && (
           <VirtualKeyboard
             open={showKeyboard}
             onClose={handleKeyboardClose}
             type={type}
             placeholder={placeholder}
             value={keyboardValue}
-            onChange={(v) => {
-              setKeyboardValue(v);
-              if (onChange) {
-                onChange({ target: { value: v } } as any);
-              }
-            }}
+            onChange={emitKeyboardChange}
           />
         )}
       </>
@@ -200,11 +231,13 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
           name={name}
           defaultValue={defaultValue}
           {...inputProps}
-          value={enableKeyboard && page.touch ? keyboardValue : resolvedValue}
-          onChange={enableKeyboard && page.touch ? undefined : onChange}
+          {...(keyboardMode && !isControlled
+            ? {}
+            : { value: keyboardMode ? keyboardValue : resolvedValue })}
+          onChange={keyboardMode ? undefined : onChange}
           onFocus={onFocus}
-          onMouseDown={enableKeyboard && page.touch ? handleMouseDownOpen : undefined}
-          readOnly={enableKeyboard && page.touch ? true : readOnly}
+          onMouseDown={keyboardMode ? handleMouseDownOpen : undefined}
+          readOnly={keyboardMode ? true : readOnly}
           className={
             cn(
               'input',
@@ -221,19 +254,14 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
           id={id}
         />
         {formattedHelp}
-        {enableKeyboard && showKeyboard && page.touch && (
+        {keyboardMode && showKeyboard && (
           <VirtualKeyboard
             open={showKeyboard}
             onClose={handleKeyboardClose}
             type={type}
             placeholder={placeholder}
             value={keyboardValue}
-            onChange={(v) => {
-              setKeyboardValue(v);
-              if (onChange) {
-                onChange({ target: { value: v } } as any);
-              }
-            }}
+            onChange={emitKeyboardChange}
           />
         )}
       </>

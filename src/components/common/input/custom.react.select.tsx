@@ -5,6 +5,8 @@ import Select, {
   Props,
   ThemeConfig,
 } from "react-select";
+import {useAtom} from "jotai";
+import {appPage} from "@/store/jotai.ts";
 import Spinner from "@/assets/images/spinner.svg";
 
 // react-select doesn't re-export `Theme` itself (only `ThemeConfig`), and its
@@ -109,8 +111,13 @@ export function ReactSelect<
     components: componentsProp,
     menuPortalTarget: menuPortalTargetProp,
     isMulti,
+    isSearchable,
     ...restProps
   } = props;
+
+  const [page] = useAtom(appPage);
+  const resolvedIsSearchable =
+    isSearchable !== undefined ? isSearchable : (page.touch ? false : undefined);
 
   const menuPortalTarget =
     menuPortalTargetProp !== undefined
@@ -124,6 +131,7 @@ export function ReactSelect<
       closeMenuOnSelect={!isMulti}
       {...restProps}
       isMulti={isMulti}
+      {...(resolvedIsSearchable !== undefined ? {isSearchable: resolvedIsSearchable} : {})}
       theme={themeConfig}
       styles={{
         ...styleConfig,

@@ -1,4 +1,4 @@
-import {ReactNode, useCallback, useMemo, useState} from "react";
+import {ReactNode, useCallback, useEffect, useMemo, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn} from "@/lib/utils.ts";
@@ -88,6 +88,41 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
   }, [isCaps, letters, onChange, type, value]);
 
   const isNumeric = type === 'number';
+
+  // A physical keyboard types into the POS keyboard too: a PC left in touch mode stays usable.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (event.key === 'Enter' || event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key === 'Backspace') {
+        event.preventDefault();
+        onChange(value.slice(0, -1));
+        return;
+      }
+      if (event.key.length !== 1) {
+        return;
+      }
+      if (isNumeric && !/[0-9.]/.test(event.key)) {
+        return;
+      }
+      if (event.key === '.' && isNumeric && value.includes('.')) {
+        return;
+      }
+      event.preventDefault();
+      onChange(value + event.key);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open, isNumeric, value, onChange, onClose]);
 
   return (
     <Modal
