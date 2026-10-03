@@ -23,7 +23,7 @@ test('capture cart with a real line item', async ({ page }) => {
 
   const cart = page.getByTestId('cart-panel');
   await expect(cart).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByTestId('cart-pay-now')).toBeEnabled({ timeout: 15_000 });
+  await expect(page.getByTestId('cart-to-kitchen')).toBeEnabled({ timeout: 15_000 });
 
   await highlightAndReady(page, page.getByTestId('cart-payment-actions'));
   await captureLocator(page.getByTestId('menu-cart'), 'cart-panel');
@@ -31,7 +31,6 @@ test('capture cart with a real line item', async ({ page }) => {
 
   await highlightAndReady(page, [
     page.getByTestId('cart-to-kitchen'),
-    page.getByTestId('cart-pay-now'),
     page.getByTestId('cart-cancel'),
   ]);
   await captureLocator(page.getByTestId('cart-payment-actions'), 'cart-payment-actions');

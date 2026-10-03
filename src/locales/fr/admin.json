@@ -449,6 +449,9 @@
       "payments": {
         "label": "Encaissement"
       },
+      "order_edit": {
+        "label": "Modification des commandes envoyées"
+      },
       "summary": {
         "label": "Résumé"
       },
@@ -521,6 +524,7 @@
       "orders.remote_payment_verify": "Verify remote payment",
       "order_visibility.all": "Voir les commandes de tous les serveurs",
       "payments.receive": "Recevoir le paiement",
+      "order_edit.sent_items": "Modifier les lignes déjà envoyées, et approuver les modifications demandées par les autres",
       "summary": "Résumé",
       "summary.print": "Imprimer le résumé",
       "summary.product_mix": "Rapport mix produits",

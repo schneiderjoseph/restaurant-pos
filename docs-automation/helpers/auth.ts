@@ -502,15 +502,15 @@ export async function openIntegrationsTab(page: Page, tabKey: string): Promise<v
 }
 
 /**
- * Floor → table → dish → Pay now. Leaves payment screen open.
+ * Floor → table → dish → To kitchen → Orders → pay button on the card. Leaves payment screen open.
  * Does not complete the order (capture only).
  */
 export async function openPaymentScreen(page: Page): Promise<void> {
-  await openMenuOrdering(page);
-  await waitForDishes(page);
-  await addFirstPlainDish(page);
-  await expect(page.getByTestId('cart-pay-now')).toBeEnabled({ timeout: 15_000 });
-  await page.getByTestId('cart-pay-now').click();
+  await sendOrderToKitchen(page);
+  await openOrdersPage(page);
+  const pay = page.getByTestId('order-card-pay').first();
+  await expect(pay).toBeEnabled({ timeout: 45_000 });
+  await pay.click();
   await expect(page.getByTestId('payment-screen'), {
     message:
       'Payment screen did not open. Ensure floor/table path created a valid order (not table undefined).',

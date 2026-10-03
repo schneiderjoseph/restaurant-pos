@@ -152,5 +152,9 @@
     "minute": "Minutes",
     "confirm": "Confirm: {{time}}",
     "past": "That time has already passed."
+  },
+  "editRequest": {
+    "notice": "Changes to lines already sent will be submitted to an approver.",
+    "sent": "Changes to lines already sent were submitted for approval."
   }
 }

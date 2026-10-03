@@ -228,5 +228,27 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "editRequest": {
+    "title": "Order change to approve",
+    "more": "{{count}} more waiting",
+    "pendingCount": "Order changes to approve: {{count}}",
+    "requestedBy": "Requested by {{name}}",
+    "changeVoid": "Remove {{quantity}} × {{name}}",
+    "changeQuantity": "{{name}}: quantity {{from}} → {{to}}",
+    "changeComment": "{{name}}: comment “{{comment}}”",
+    "changeCommentRemoved": "{{name}}: comment removed",
+    "changeModifiers": "{{name}}: options changed",
+    "approve": "Approve",
+    "reject": "Refuse",
+    "later": "Later",
+    "approved": "Change applied to the order",
+    "rejected": "Change refused",
+    "expired": "The order is no longer open: nothing was changed",
+    "taken": "Someone else already answered this request",
+    "failed": "The change could not be applied. Try again.",
+    "answerApproved": "Your order change was approved",
+    "answerRejected": "Your order change was refused",
+    "answerExpired": "Your order change was dropped: the order is no longer open"
   }
 }

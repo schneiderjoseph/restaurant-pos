@@ -38,6 +38,7 @@
   "newOrder": "New Order",
   "addon": "ADDON",
   "duplicateKot": "DUPLICATE",
+  "modifiedKot": "MODIFIED",
   "deletion": "DELETION",
   "orderNumber": "Order#",
   "orderTaker": "Order Taker",

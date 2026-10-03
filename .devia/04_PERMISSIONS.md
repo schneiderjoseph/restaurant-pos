@@ -69,6 +69,25 @@ role that existed, so nothing changes on deploy until a role is edited. This hid
 screen; it is not a data boundary. No manager override is offered here: a cashier signs in with
 their own PIN (see `11_GAPS.md`).
 
+## Changing an order already sent
+
+`order_edit.sent_items` (role editor, section "Editing sent orders"; rule `EDIT_SENT_ITEMS_MODULE`,
+`src/lib/order-edit-request.ts`) is the right to change a line that was already sent: quantity,
+removal, comment, options (`diffSentLines`). Adding dishes to a sent order needs no permission.
+
+A user who holds it saves the change directly, as before. A user who does not still edits the
+cart, but on Envoyer (`src/components/payment/payment.tsx`) the sent lines are left as they are,
+the new dishes are saved and sent, and the changes go into an `order_edit_request` (pending). The
+role is read again from the database at that moment. Every signed-in user holding the permission
+gets the request on their own terminal (`OrderEditRequestWatcher`, mounted in `src/app.tsx`, any
+page, never on a locked screen): accept, refuse, or later. Only on accept are the lines written
+(`approveOrderEditRequest`) and the kitchens told (`printApprovedOrderEdit`). The requester is told
+the answer on the terminal where they are signed in.
+
+It sits in its own section for the same reason as `order_visibility.all`. No migration grants it:
+after deploy nobody holds it until it is ticked on a role, so until then every change to a sent
+line waits with no one to answer it. This is enforced in the POS screens, not in the database.
+
 ## Isolation
 
 Data scope is restaurant / tenant via Surreal session; permission modules are per POS user
@@ -94,4 +113,5 @@ Manager overrides and auto-allowed `protectAction` successes write tracking via
 | Action | Written where |
 |---|---|
 | protectAction success (auto or manager) | tracking service (`src/hooks/useSecurity.ts`) |
+| Change to sent lines asked for, and its answer | `order_edit_request` row: `requested_by`, `changes`, `status`, `decided_by`, `decided_at`; accept / refuse also go to the tracking service (`OrderEditRequestWatcher`) |
 | Session replaced by a login on another device | `audit_log` `session_revoked` (`gateway/src/auth.routes.js`) |

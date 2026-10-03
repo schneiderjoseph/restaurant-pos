@@ -15,6 +15,9 @@ Add one with `npx devia debt add "what is missing"`.
 | D2 |  |  | ASI production: the existing 'Chambre' payment type must be switched to type 'Room' (payment types settings) or the room-charge guard does not apply to it; read the record and confirm with Joseph before writing | P2 | 2026-10-02 |
 | D3 |  |  | Auto check close settings filter pt.type !== 'remote' but payment types are stored as 'Remote' (src/components/user_settings/auto_check_close.tsx), so remote tenders are still offered as the auto-close tender | P2 | 2026-10-02 |
 | D4 |  |  | The two 2026-10-03 migrations (order_due_at, role_payment_access) were run on SurrealDB 3.2.0 only; run them on 3.0.5 (the prod image) before the ASI production update, per 10_NEVER_ALWAYS | P2 | 2026-10-03 |
+| D5 |  |  | migrations/2026_10_03_order_edit_request.surql and the order_edit_request queries (src/lib/order-edit-request.ts) were run on SurrealDB 3.2.0 only; run them on 3.0.5 (the prod image) before the ASI production update, per 10_NEVER_ALWAYS | P2 | 2026-10-03 |
+| D6 |  |  | Order change approval strings (orders.editRequest, payment.editRequest, receipts.modifiedKot, the order_edit permission labels) exist in en and fr only; the other nine locales fall back | P2 | 2026-10-03 |
+| D7 |  |  | docs/user-guide images cart-panel.png and cart-payment-actions.png still show the Pay now button removed on 2026-10-03; re-run the docs capture (docs-automation/stories/cart.guide.ts) | P2 | 2026-10-03 |
 
 ## Discharged
 
