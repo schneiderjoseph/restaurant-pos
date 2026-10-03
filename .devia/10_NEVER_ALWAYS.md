@@ -20,6 +20,11 @@
 - Never put a permission that only some order-taking roles must hold under `orders.*`: a parent
   id grants all its children (`userModulesGrant`), so every role holding `orders` gets it. Give it
   its own section, as `order_visibility.all` and `payments.receive` do.
+- Never put the value of `useDB()` in a hook dependency array when the effect sets state: the
+  hook returns a new object on every render, so the effect runs on every render and never settles
+  (`OrderEditRequestWatcher` looped this way in production on 2026-10-03, one query and one live
+  subscription per turn, and sign-in hung). Read it through a ref (`dbRef.current`), as
+  `ModuleAccessProvider` does, and key the effect on the user id.
 
 ## Always
 

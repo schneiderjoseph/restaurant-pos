@@ -44,6 +44,12 @@ export const OrderEditRequestWatcher = () => {
   const knownIdsRef = useRef<Set<string>>(new Set());
   const userRef = useRef(user);
   userRef.current = user;
+  // `useDB()` and `t` are new on every render: the effects read them through refs so they run
+  // once per user, not once per render (a state change in an effect keyed on `db` never settles).
+  const dbRef = useRef(db);
+  dbRef.current = db;
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     setCanApprove(false);
@@ -55,7 +61,7 @@ export const OrderEditRequestWatcher = () => {
     }
 
     let cancelled = false;
-    fetchUserModules(db, userRef.current)
+    fetchUserModules(dbRef.current, userRef.current)
       .then((modules) => {
         if (!cancelled) {
           setCanApprove(userModulesGrant(modules, EDIT_SENT_ITEMS_MODULE));
@@ -66,10 +72,10 @@ export const OrderEditRequestWatcher = () => {
     return () => {
       cancelled = true;
     };
-  }, [db, userId]);
+  }, [userId]);
 
   const refresh = useCallback(async () => {
-    const pending = await fetchPendingOrderEditRequests(db);
+    const pending = await fetchPendingOrderEditRequests(dbRef.current);
     const hasNew = pending.some((request) => !knownIdsRef.current.has(refKey(request)));
     knownIdsRef.current = new Set(pending.map(refKey));
     setRequests(pending);
@@ -77,7 +83,7 @@ export const OrderEditRequestWatcher = () => {
       setOpen(true);
       playReadyChime();
     }
-  }, [db]);
+  }, []);
 
   useEffect(() => {
     if (!userId) {
@@ -101,7 +107,7 @@ export const OrderEditRequestWatcher = () => {
       if (canApprove) {
         await refresh().catch(error => console.error('Order edit requests check failed', error));
       }
-      const live = await db.live<OrderEditRequest>(Tables.order_edit_requests, (action, request) => {
+      const live = await dbRef.current.live<OrderEditRequest>(Tables.order_edit_requests, (action, request) => {
         if (canApprove) {
           scheduleRefresh();
         }
@@ -109,11 +115,11 @@ export const OrderEditRequestWatcher = () => {
           return;
         }
         if (request.status === OrderEditRequestStatus.approved) {
-          toast.success(t('editRequest.answerApproved'));
+          toast.success(tRef.current('editRequest.answerApproved'));
         } else if (request.status === OrderEditRequestStatus.rejected) {
-          toast.error(t('editRequest.answerRejected'));
+          toast.error(tRef.current('editRequest.answerRejected'));
         } else if (request.status === OrderEditRequestStatus.expired) {
-          toast.warning(t('editRequest.answerExpired'));
+          toast.warning(tRef.current('editRequest.answerExpired'));
         }
       });
       if (cancelled) {
@@ -132,7 +138,7 @@ export const OrderEditRequestWatcher = () => {
       }
       subscription?.kill().catch(() => undefined);
     };
-  }, [db, userId, canApprove, refresh, t]);
+  }, [userId, canApprove, refresh]);
 
   const decide = async (request: OrderEditRequest, approve: boolean) => {
     setBusy(true);
