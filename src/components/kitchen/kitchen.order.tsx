@@ -9,6 +9,7 @@ import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import { formatOrderNumber } from "@/lib/order.ts";
 import { nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
+import { formatDueLabel } from "@/lib/order-due.ts";
 import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { useAtom } from "jotai";
@@ -181,6 +182,13 @@ export const KitchenOrder = ({
             <span className="font-bold text-lg truncate max-w-full">
               {[order?.order_type?.name, formatOrderNumber(order)].filter(Boolean).join(' / ')}
             </span>
+            {order?.due_at && (
+              <span className="font-black text-lg" data-testid="kitchen-due-at">
+                {t('due.forTime', {
+                  time: formatDueLabel(toLuxonDateTime(order.due_at), nowInAppTimezone(), t('due.tomorrowShort')),
+                })}
+              </span>
+            )}
             {stageStart && (
               <span className="text-lg font-bold">
                 <Countdown time={stageStart} />

@@ -8,5 +8,9 @@
     "status": "Status",
     "orderTypes": "Order types"
   },
-  "toggleSidebar": "Show sidebar"
+  "toggleSidebar": "Show sidebar",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

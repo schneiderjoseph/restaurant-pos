@@ -33,5 +33,9 @@
   "confirm": {
     "title": "Confirm",
     "completeAll": "Complete all open orders in this kitchen?"
+  },
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
   }
 }

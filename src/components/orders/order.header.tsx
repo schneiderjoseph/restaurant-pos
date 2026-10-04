@@ -9,14 +9,17 @@ import {formatGuestContact, formatGuestLabel} from "@/lib/guest-label.ts";
 interface Props {
   order: Order
   tempPrinted?: boolean
+  kitchenReady?: boolean
 }
 
 export const OrderHeader = ({
   order,
   tempPrinted = false,
+  kitchenReady = false,
 }: Props) => {
   const {t} = useTranslation('orders');
   const guestContact = order?.customer ? formatGuestContact(order.customer) : '';
+  const showKitchenReady = kitchenReady && order.status === OrderStatus["In Progress"];
 
   const colors = {
     [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
@@ -39,12 +42,13 @@ export const OrderHeader = ({
 
         <div className="flex flex-col items-start gap-1">
           <span className="font-bold">{formatOrderNumber(order)}</span>
-          <span className={
-            cn(
+          <span
+            data-testid="order-status-badge"
+            className={cn(
               "uppercase p-1 px-3 rounded-lg text-sm font-bold flex-grow-0 flex-shrink",
-              colors[order?.status]
-            )
-          }>{translateOrderStatus(t, order?.status)}</span>
+              showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
+            )}
+          >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
 
         </div>
       </div>

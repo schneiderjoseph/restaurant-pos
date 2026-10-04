@@ -10,11 +10,66 @@ export type KitchenRowsByOrderItemId = Record<string, OrderItemKitchen[]>;
 
 export const ORDER_DISPLAY_MAX_VISIBLE = 12;
 
-const INCOMPLETE_KITCHEN_STATUSES = new Set<string>([
+export const INCOMPLETE_KITCHEN_STATUSES = new Set<string>([
   OrderItemKitchenStatus.Waiting,
   OrderItemKitchenStatus.Pending,
   OrderItemKitchenStatus.InProgress,
 ]);
+
+/** Order items flattened for the Orders-screen ready check (one query, no FETCH). */
+export type KitchenReadyItem = {
+  order: unknown;
+  deleted_at?: unknown;
+  is_refunded?: boolean | null;
+  is_suspended?: boolean | null;
+};
+
+/** Kitchen rows flattened for the Orders-screen ready check (one query, no FETCH). */
+export type KitchenReadyRow = {
+  order: unknown;
+  status?: string | null;
+  deleted_at?: unknown;
+  is_suspended?: boolean | null;
+};
+
+/** Full "order:id" string, as the Orders screen keys its list (`order.id.toString()`). */
+const orderIdKey = (order: unknown): string => {
+  const asString = order == null ? '' : String(order);
+  return asString === '[object Object]' ? kitchenOrderItemKey(order) : asString;
+};
+
+/**
+ * Order ids the order display would put under "ready" (same rule as `classifyOrder`): at
+ * least one live item, and no kitchen row still to do. An order with nothing sent to a
+ * kitchen is ready. Soft-deleted, refunded and suspended items are ignored.
+ */
+export function kitchenReadyOrderIds(
+  items: KitchenReadyItem[] = [],
+  rows: KitchenReadyRow[] = []
+): Set<string> {
+  const ready = new Set<string>();
+
+  for (const item of items) {
+    if (item.deleted_at || item.is_refunded === true || item.is_suspended === true) {
+      continue;
+    }
+    const orderId = orderIdKey(item.order);
+    if (orderId) {
+      ready.add(orderId);
+    }
+  }
+
+  for (const row of rows) {
+    if (row.deleted_at || row.is_suspended === true) {
+      continue;
+    }
+    if (row.status && INCOMPLETE_KITCHEN_STATUSES.has(row.status)) {
+      ready.delete(orderIdKey(row.order));
+    }
+  }
+
+  return ready;
+}
 
 /** Stable key for order_item whether FETCH expanded it or left a RecordId. */
 export function kitchenOrderItemKey(value: unknown): string {

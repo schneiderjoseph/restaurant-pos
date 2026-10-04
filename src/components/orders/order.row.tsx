@@ -19,10 +19,12 @@ export const ORDERS_LIST_GRID_CLASS =
 
 interface Props {
   order: OrderModel
+  kitchenReady?: boolean
 }
 
 export const OrderRow = ({
-  order: snapshot
+  order: snapshot,
+  kitchenReady = false,
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
@@ -30,6 +32,7 @@ export const OrderRow = ({
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
+  const showKitchenReady = kitchenReady && order.status === OrderStatus["In Progress"];
 
   const colors = {
     [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
@@ -111,12 +114,13 @@ export const OrderRow = ({
         <div className="py-2 truncate">{order?.user?.first_name}</div>
 
         <div className="py-2">
-          <span className={
-            cn(
+          <span
+            data-testid="order-status-badge"
+            className={cn(
               "uppercase p-1 px-3 rounded-lg text-sm font-bold inline-block",
-              colors[order?.status]
-            )
-          }>{translateOrderStatus(t, order?.status)}</span>
+              showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
+            )}
+          >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
         </div>
 
         <div className="py-2 min-h-[2.5rem] flex flex-col justify-center">

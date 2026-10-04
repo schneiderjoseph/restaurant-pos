@@ -41,6 +41,7 @@ import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {useOrderVisibility} from "@/hooks/useOrderVisibility.ts";
 import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/model/order_visibility.ts";
+import {kitchenReadyOrderIds} from "@/lib/order-display.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -55,6 +56,7 @@ export const Orders = () => {
   const isVisible = useActionVisible();
   const canOpenCashDrawer = isVisible("orders.open_cash_drawer");
   const liveQueryRef = useRef<LiveSubscription | null>(null);
+  const liveKitchenQueryRef = useRef<LiveSubscription | null>(null);
   const fetchOrdersRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -85,6 +87,7 @@ export const Orders = () => {
 
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
+  const [kitchenReadyIds, setKitchenReadyIds] = useState<Set<string>>(new Set());
 
   const updateOrderFilter = useCallback((key: keyof AppStateInterface['ordersFilters'], value: LabelValue[]) => {
     setState(prev => ({
@@ -188,6 +191,38 @@ export const Orders = () => {
     const ids = list.map((o) => o.id.toString());
     const printed = await batchOrdersWithTempPrint(db, ids);
     setTempPrintedOrderIds(printed);
+
+    // Looked up by order item (indexed), so the query does not scan every kitchen row ever made.
+    const inProgressItems = list
+      .filter((order) => order.status === OrderStatus["In Progress"])
+      .flatMap((order) => (order.items ?? []) as unknown[])
+      .map((item) => item instanceof RecordId ? item : toRecordId((item as {id?: unknown})?.id))
+      .filter(Boolean);
+
+    if (inProgressItems.length === 0) {
+      setKitchenReadyIds(new Set());
+      return;
+    }
+
+    try {
+      const [itemRows, kitchenRows] = await db.query(
+        `SELECT order, deleted_at, is_refunded, is_suspended FROM ${Tables.order_items}
+         WHERE id IN $items;
+         SELECT status, order_item.order AS order, order_item.deleted_at AS deleted_at,
+         order_item.is_suspended AS is_suspended FROM ${Tables.order_items_kitchen}
+         WHERE order_item IN $items`,
+        { items: inProgressItems }
+      );
+      setKitchenReadyIds(
+        kitchenReadyOrderIds(
+          Array.isArray(itemRows) ? itemRows : [],
+          Array.isArray(kitchenRows) ? kitchenRows : []
+        )
+      );
+    } catch (error) {
+      console.error('Orders kitchen ready query failed', error);
+      setKitchenReadyIds(new Set());
+    }
   }, [ordersQb.queryString, ordersQb.parameters]);
 
   fetchOrdersRef.current = fetchOrders;
@@ -218,18 +253,25 @@ export const Orders = () => {
     let cancelled = false;
 
     const setup = async () => {
-      const result = await db.live(Tables.orders, (action) => {
+      const ordersSubscription = await db.live(Tables.orders, (action) => {
+        if (action === 'CREATE' || action === 'UPDATE' || action === 'DELETE') {
+          scheduleFetchOrders();
+        }
+      });
+      const kitchenSubscription = await db.live(Tables.order_items_kitchen, (action) => {
         if (action === 'CREATE' || action === 'UPDATE' || action === 'DELETE') {
           scheduleFetchOrders();
         }
       });
 
       if (cancelled) {
-        await result.kill().catch(() => undefined);
+        await ordersSubscription.kill().catch(() => undefined);
+        await kitchenSubscription.kill().catch(() => undefined);
         return;
       }
 
-      liveQueryRef.current = result;
+      liveQueryRef.current = ordersSubscription;
+      liveKitchenQueryRef.current = kitchenSubscription;
     };
 
     void setup();
@@ -240,7 +282,9 @@ export const Orders = () => {
         clearTimeout(fetchOrdersTimerRef.current);
       }
       liveQueryRef.current?.kill().catch(() => undefined);
+      liveKitchenQueryRef.current?.kill().catch(() => undefined);
       liveQueryRef.current = null;
+      liveKitchenQueryRef.current = null;
     };
   }, [scheduleFetchOrders]);
 
@@ -487,6 +531,7 @@ export const Orders = () => {
                         mergingOrders={mergingOrders}
                         taxes={settings.taxes}
                         tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
+                        kitchenReady={kitchenReadyIds.has(item.id.toString())}
                         onMergeSelect={(order, status) => {
                           if (status) {
                             setMerging(true);
@@ -530,7 +575,11 @@ export const Orders = () => {
                     <div className="text-right">{t('list.columns.total')}</div>
                   </div>
                   {orders.map(item => (
-                    <OrderRow order={item} key={item.id}/>
+                    <OrderRow
+                      order={item}
+                      key={item.id}
+                      kitchenReady={kitchenReadyIds.has(item.id.toString())}
+                    />
                   ))}
                 </div>
               )}

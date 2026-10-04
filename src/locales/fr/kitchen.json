@@ -33,5 +33,9 @@
   "confirm": {
     "title": "Confirmer",
     "completeAll": "Terminer toutes les commandes en cours dans cette cuisine ?"
+  },
+  "due": {
+    "forTime": "Pour {{time}}",
+    "tomorrowShort": "dem."
   }
 }
