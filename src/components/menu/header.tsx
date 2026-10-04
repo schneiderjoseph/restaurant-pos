@@ -1,9 +1,8 @@
 import {useAtom} from "jotai";
-import {appSettings, appState, closingEnforcementAtom, menuSearchAtom} from "@/store/jotai.ts";
+import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {orderEditSessionAtom, orderIdToString} from "@/store/order-edit-session.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import React, {useEffect, useRef, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -21,7 +20,6 @@ import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {toast} from "sonner";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
-import {Input} from "@/components/common/input/input.tsx";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -36,7 +34,6 @@ export const MenuHeader = () => {
   const [, setEditSession] = useAtom(orderEditSessionAtom);
   const [setting] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
-  const [menuSearch, setMenuSearch] = useAtom(menuSearchAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const hideTableSelection = state.hideTableSelection === true;
   const {enabled: resortFb} = useResortFb();
@@ -211,7 +208,7 @@ export const MenuHeader = () => {
 
   return (
     <>
-      <div className="flex items-center gap-2 w-full min-w-0 overflow-hidden" data-testid="menu-header">
+      <div className="flex items-center justify-between gap-2 w-full min-w-0 overflow-hidden" data-testid="menu-header">
         <div className="flex items-center gap-2 shrink-0">
           {!skipTableUi && !resortFb && (
             <Button
@@ -321,29 +318,6 @@ export const MenuHeader = () => {
               title={t('header.clear')}
               data-testid="menu-clear-cart"
             />
-          )}
-        </div>
-
-        <div className="relative flex-1 min-w-[140px]">
-          <Input
-            inputSize="lg"
-            className="search-field pr-10 h-12 min-h-[48px]"
-            placeholder={t('search.placeholderBoth')}
-            value={menuSearch}
-            onChange={(event) => setMenuSearch(event.target.value)}
-            data-testid="menu-search"
-          />
-          {menuSearch.trim().length > 0 && (
-            <button
-              type="button"
-              className="absolute right-1 top-1/2 -translate-y-1/2 btn btn-primary btn-flat lg btn-square"
-              onClick={() => setMenuSearch('')}
-              aria-label={t('header.clear')}
-              title={t('header.clear')}
-              data-testid="menu-search-clear"
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
           )}
         </div>
 
