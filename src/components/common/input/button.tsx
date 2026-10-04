@@ -21,6 +21,8 @@ interface ButtonProps extends BaseProps {
   tabIndex?: number;
   onClick?: (event: any) => void;
   filled?: boolean;
+  /** Native tooltip; kept when the visible label is icon-only. */
+  title?: string;
 }
 
 export const Button = (props: ButtonProps) => {

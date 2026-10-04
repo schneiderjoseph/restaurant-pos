@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils.ts";
 import { useAtom } from "jotai";
-import { appPage, appSettings, appState } from "@/store/jotai.ts";
+import { appPage, appSettings, appState, menuSearchAtom } from "@/store/jotai.ts";
 import ScrollContainer from 'react-indiana-drag-scroll'
 import {CSSProperties, useEffect, useMemo} from "react";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
@@ -15,6 +15,7 @@ export const MenuCategories = () => {
   const [settings] = useAtom(appSettings);
   const [state, setState] = useAtom(appState);
   const [page, setPage] = useAtom(appPage);
+  const [, setMenuSearch] = useAtom(menuSearchAtom);
 
   const {categories: allCategories} = useMemo(() => (
     resolveMenuAwareData({
@@ -66,6 +67,7 @@ export const MenuCategories = () => {
   }, [categories, state.category]);
 
   const setOutletTab = (outletId?: string) => {
+    setMenuSearch('');
     setPage((prev) => ({
       ...prev,
       menuConfig: {
@@ -129,10 +131,13 @@ export const MenuCategories = () => {
               categoryClasses,
               state?.category?.id?.toString() === item?.id?.toString() ? 'bg-gradient' : 'bg-white border-3 border-transparent select-none'
             )}
-            onClick={() => setState(prev => ({
-              ...prev,
-              category: item
-            }))}
+            onClick={() => {
+              setMenuSearch('');
+              setState(prev => ({
+                ...prev,
+                category: item
+              }));
+            }}
             style={categoryStyles}
           >
             {item.name}

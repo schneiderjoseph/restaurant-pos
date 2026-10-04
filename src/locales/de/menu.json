@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Gerichtsnummer eingeben",
     "placeholderBoth": "Nach Nummer oder Name suchen",
-    "backspace": "Zurück"
+    "backspace": "Zurück",
+    "noResults": "Kein Gericht gefunden"
   },
   "header": {
     "newOrder": "Neue Bestellung",

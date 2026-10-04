@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "أدخل رقم الطبق",
     "placeholderBoth": "البحث بالرقم أو الاسم",
-    "backspace": "رجوع"
+    "backspace": "رجوع",
+    "noResults": "لم يتم العثور على طبق"
   },
   "header": {
     "newOrder": "طلب جديد",

@@ -1,8 +1,9 @@
 import {useAtom} from "jotai";
-import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {appSettings, appState, closingEnforcementAtom, menuSearchAtom} from "@/store/jotai.ts";
 import {orderEditSessionAtom, orderIdToString} from "@/store/order-edit-session.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import React, {useEffect, useRef, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -12,14 +13,15 @@ import {MenuItemType} from "@/api/model/cart_item.ts";
 import {orderToCartItems, seatsFromOrder} from "@/lib/order-edit.ts";
 import {Payment} from "@/components/payment/payment.tsx";
 import {Customers} from "@/components/customer/customer.tsx";
-import {getInvoiceNumber} from "@/lib/order.ts";
-import {formatGuestLabel} from "@/lib/guest.ts";
+import {formatOrderNumber, getInvoiceNumber} from "@/lib/order.ts";
+import {formatGuestLabel, guestCodeLabel} from "@/lib/guest.ts";
 import {useResortFb} from "@/hooks/useResortFb.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {toast} from "sonner";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
+import {Input} from "@/components/common/input/input.tsx";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -34,6 +36,7 @@ export const MenuHeader = () => {
   const [, setEditSession] = useAtom(orderEditSessionAtom);
   const [setting] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const [menuSearch, setMenuSearch] = useAtom(menuSearchAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const hideTableSelection = state.hideTableSelection === true;
   const {enabled: resortFb} = useResortFb();
@@ -196,36 +199,65 @@ export const MenuHeader = () => {
     }));
   }
 
+  const backFloorLabel = state?.floor?.name ?? '';
+  const backGuestLabel = state.resortEntry === 'floor'
+    ? (state?.floor?.name ?? t('guest.openFloor'))
+    : t('guest.title');
+  const customerLabel = state?.customer
+    ? formatGuestLabel(state.customer)
+    : t('header.customer');
+  const personsCount = Number(state?.persons) || 0;
+  const personsLabel = t('header.pax', { count: personsCount });
+
   return (
     <>
-      <div className="flex justify-between items-center w-full" data-testid="menu-header">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full min-w-0 overflow-hidden" data-testid="menu-header">
+        <div className="flex items-center gap-2 shrink-0">
           {!skipTableUi && !resortFb && (
-            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-floor">{state?.floor?.name}</Button>
+            <Button
+              variant="primary"
+              icon={faArrowLeft}
+              onClick={reset}
+              size="lg"
+              iconButton
+              aria-label={backFloorLabel}
+              title={backFloorLabel}
+              data-testid="menu-back-floor"
+            />
           )}
           {resortFb && (
-            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-guest">
-              {state.resortEntry === 'floor'
-                ? (state?.floor?.name ?? t('guest.openFloor'))
-                : t('guest.title')}
-            </Button>
+            <Button
+              variant="primary"
+              icon={faArrowLeft}
+              onClick={reset}
+              size="lg"
+              iconButton
+              aria-label={backGuestLabel}
+              title={backGuestLabel}
+              data-testid="menu-back-guest"
+            />
           )}
           {state?.orders?.length > 0 ? (
             <>
               <ScrollContainer className="max-w-[300px] flex flex-nowrap gap-3">
                 <div className="input-group" data-testid="menu-order-tabs">
-                  {state?.orders?.map((order, index) => (
-                    <Button
-                      key={index}
-                      variant="primary"
-                      onClick={() => onOrderClick(order.id)}
-                      flat
-                      size="lg"
-                      active={state?.order?.id?.toString() === order?.id.toString()}
-                    >
-                      {t('header.orderNumber', { number: getInvoiceNumber(order) })}
-                    </Button>
-                  ))}
+                  {state?.orders?.map((order, index) => {
+                    const orderAria = t('header.orderNumber', { number: getInvoiceNumber(order) });
+                    return (
+                      <Button
+                        key={index}
+                        variant="primary"
+                        onClick={() => onOrderClick(order.id)}
+                        flat
+                        size="lg"
+                        active={state?.order?.id?.toString() === order?.id.toString()}
+                        aria-label={orderAria}
+                        title={orderAria}
+                      >
+                        {formatOrderNumber(order)}
+                      </Button>
+                    );
+                  })}
                 </div>
               </ScrollContainer>
               <Button
@@ -233,11 +265,14 @@ export const MenuHeader = () => {
                 variant="primary"
                 flat
                 size="lg"
+                iconButton
                 disabled={orderTakingBlocked}
                 onClick={() => onOrderClick('new')}
                 icon={faPlus}
+                aria-label={t('header.newOrder')}
+                title={t('header.newOrder')}
                 data-testid="menu-new-order"
-              >{t('header.newOrder')}</Button>
+              />
             </>
           ) : null}
 
@@ -254,26 +289,65 @@ export const MenuHeader = () => {
                   className="btn btn-primary lg btn-flat"
                   onClick={openPersons}
                   icon={faUsers}
+                  aria-label={personsLabel}
+                  title={personsLabel}
                   data-testid="menu-persons"
           >
-            {t('header.pax', { count: Number(state?.persons) || 0 })}
+            {personsCount}
           </Button>
 
           <div className="input-group">
-            <Button flat variant="primary" size="lg" icon={faUser} onClick={() => setCustomerModal(true)} data-testid="menu-customer">
-              {state?.customer
-                ? formatGuestLabel(state.customer)
-                : t('header.customer')}
-            </Button>
+            <Button
+              flat
+              variant="primary"
+              size="lg"
+              iconButton
+              icon={faUser}
+              active={!!state?.customer}
+              onClick={() => setCustomerModal(true)}
+              aria-label={customerLabel}
+              title={customerLabel}
+              data-testid="menu-customer"
+            />
           </div>
           {state.cart.filter(item => item.newOrOld === MenuItemType.new).length > 0 && (
-            <Button variant="danger" className="flex-1" size="lg" icon={faTimes} onClick={clear}
-                    data-testid="menu-clear-cart"
-            >{t('header.clear')}</Button>
+            <Button
+              variant="danger"
+              size="lg"
+              iconButton
+              icon={faTimes}
+              onClick={clear}
+              aria-label={t('header.clear')}
+              title={t('header.clear')}
+              data-testid="menu-clear-cart"
+            />
           )}
         </div>
 
-        <div className="flex input-group rounded-full" data-testid="menu-order-types">
+        <div className="relative flex-1 min-w-[140px]">
+          <Input
+            inputSize="lg"
+            className="search-field pr-10 h-12 min-h-[48px]"
+            placeholder={t('search.placeholderBoth')}
+            value={menuSearch}
+            onChange={(event) => setMenuSearch(event.target.value)}
+            data-testid="menu-search"
+          />
+          {menuSearch.trim().length > 0 && (
+            <button
+              type="button"
+              className="absolute right-1 top-1/2 -translate-y-1/2 btn btn-primary btn-flat lg btn-square"
+              onClick={() => setMenuSearch('')}
+              aria-label={t('header.clear')}
+              title={t('header.clear')}
+              data-testid="menu-search-clear"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          )}
+        </div>
+
+        <div className="flex input-group rounded-full shrink-0" data-testid="menu-order-types">
           {setting?.order_types?.map((item, index) => (
             <Button
               variant="primary"
@@ -307,6 +381,30 @@ export const MenuHeader = () => {
         title={state?.customer?.name || t('header.selectCustomer')}
         size="md"
       >
+        {state?.customer && (
+          <div
+            className="mb-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 space-y-1"
+            data-testid="menu-customer-info"
+          >
+            <div className="font-semibold text-lg">{formatGuestLabel(state.customer)}</div>
+            {state.customer.guest_code && state.customer.name?.trim() ? (
+              <div className="text-sm text-neutral-600">#{guestCodeLabel(state.customer)}</div>
+            ) : null}
+            {state.customer.room ? (
+              <div className="text-sm text-neutral-600">
+                {t('guest.room')} {state.customer.room}
+              </div>
+            ) : null}
+            {state.customer.phone != null && String(state.customer.phone).trim() ? (
+              <div className="text-sm text-neutral-600">
+                {t('guest.phone')} {String(state.customer.phone).trim()}
+              </div>
+            ) : null}
+            {state.customer.email?.trim() ? (
+              <div className="text-sm text-neutral-600">{state.customer.email.trim()}</div>
+            ) : null}
+          </div>
+        )}
         <Customers onAttach={() => {
           setCustomerModal(false)
         }}/>

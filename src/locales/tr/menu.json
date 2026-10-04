@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Yemek numarasını girin",
     "placeholderBoth": "Numara veya ada göre ara",
-    "backspace": "Geri sil"
+    "backspace": "Geri sil",
+    "noResults": "Yemek bulunamadı"
   },
   "header": {
     "newOrder": "Yeni Sipariş",
