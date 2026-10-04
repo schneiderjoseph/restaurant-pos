@@ -106,4 +106,34 @@ describe('searchDishes', () => {
     expect(searchDishes([noNumber], 'start')).toEqual([noNumber]);
     expect(searchDishes([noCategories], 'espresso')).toEqual([noCategories]);
   });
+  it('still finds a dish when a word is mistyped', () => {
+    const poulet = dish('p', { name: 'Poulet grillé' });
+    const coca = dish('c', { name: 'Coca-Cola' });
+    const menu = [poulet, coca, steak, soup];
+
+    expect(searchDishes(menu, 'poulte')).toEqual([poulet]); // swapped letters
+    expect(searchDishes(menu, 'poulat gril')).toEqual([poulet]); // wrong letter + exact word
+    expect(searchDishes(menu, 'cocq')).toEqual([coca]); // typo on a word start
+    expect(searchDishes(menu, 'stek')).toEqual([steak]); // missing letter
+    expect(searchDishes(menu, 'tomatoe')).toEqual([soup]); // extra letter
+  });
+
+  it('does not guess on short words or on too many typos', () => {
+    expect(searchDishes(list, 'sop')).toEqual([]);
+    expect(searchDishes(list, 'stuck')).toEqual([]);
+    expect(searchDishes(list, 'steak soop')).toEqual([]);
+  });
+
+  it('ranks exact matches before mistyped ones, fewest typos first', () => {
+    const salade = dish('s1', { name: 'Salade verte' });
+    const salami = dish('s2', { name: 'Salami pizza' });
+    const sale = dish('s3', { name: 'Pizza salade' });
+
+    expect(
+      searchDishes([salami, sale, salade], 'salade').map((item) => item.id.toString()),
+    ).toEqual(['s1', 's3']);
+    expect(
+      searchDishes([salami, sale, salade], 'salame').map((item) => item.id.toString()),
+    ).toEqual(['s2', 's3', 's1']);
+  });
 });

@@ -10,10 +10,14 @@ interface VirtualKeyboardProps {
   placeholder?: string;
   value: string;
   onChange: (value: string) => void;
+  /** Rendered in the keyboard's header row, next to the close button. */
+  header?: ReactNode;
+  /** When true, do not pass a title to the Modal (caller still provides placeholder on the input). */
+  hideTitle?: boolean;
 }
 
 export function VirtualKeyboard(props: VirtualKeyboardProps) {
-  const {open, onClose, type, placeholder, value, onChange} = props;
+  const {open, onClose, type, placeholder, value, onChange, header, hideTitle} = props;
 
   const [isCaps, setIsCaps] = useState(false);
 
@@ -131,7 +135,8 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
       size={isNumeric ? 'sm' : 'lg'}
       shouldCloseOnEsc
       shouldCloseOnOverlayClick
-      title={placeholder}
+      {...(hideTitle ? {} : {title: placeholder})}
+      header={header}
       shouldCenter
       bottomSheet
     >

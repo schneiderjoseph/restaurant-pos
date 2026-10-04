@@ -28,6 +28,10 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   disableDirectInput?: boolean;
   decimalScale?: number;
   allowNegative?: boolean;
+  /** Passed to VirtualKeyboard only; not forwarded to the DOM input. */
+  keyboardHeader?: ReactNode;
+  /** Passed to VirtualKeyboard only; not forwarded to the DOM input. */
+  hideKeyboardTitle?: boolean;
 }
 
 export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
@@ -54,6 +58,8 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
     decimalScale,
     allowNegative = false,
     id: providedId,
+    keyboardHeader,
+    hideKeyboardTitle,
     ...inputProps
   } = props;
   let formContext: ReturnType<typeof useFormContext> | null = null;
@@ -154,16 +160,15 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
     }
   }, [onChange, isControlled]);
 
-  // Keep internal keyboardValue in sync with external value when keyboard is not open
+  // Keep internal keyboardValue in sync with external value when keyboard is not open.
+  // While it is open only an outside clear is taken: the typed text is the source of truth
+  // (a parent that stores a number would otherwise eat "1." as it is typed).
   useEffect(() => {
     if (!keyboardMode || !isControlled) return;
-    if (!showKeyboard) {
-      const next = resolvedValue?.toString() || '';
-      if (next !== keyboardValue) {
-        setKeyboardValue(next);
-      }
-    }
-  }, [resolvedValue, keyboardMode, isControlled, showKeyboard, keyboardValue]);
+    const next = resolvedValue?.toString() || '';
+    if (showKeyboard && (next !== '' || type === 'number')) return;
+    setKeyboardValue(prev => (prev === next ? prev : next));
+  }, [resolvedValue, keyboardMode, isControlled, showKeyboard, type]);
 
   const id = useMemo(() => providedId ?? nanoid(), [providedId]);
 
@@ -216,6 +221,8 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
             placeholder={placeholder}
             value={keyboardValue}
             onChange={emitKeyboardChange}
+            header={keyboardHeader}
+            hideTitle={hideKeyboardTitle}
           />
         )}
       </>
@@ -262,6 +269,8 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
             placeholder={placeholder}
             value={keyboardValue}
             onChange={emitKeyboardChange}
+            header={keyboardHeader}
+            hideTitle={hideKeyboardTitle}
           />
         )}
       </>

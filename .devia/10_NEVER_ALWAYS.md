@@ -29,6 +29,10 @@
   groups rows into a ticket by `created_at` to the second, so a send that ran across a second
   boundary showed as two tickets (field report 2026-10-04). Take `kitchenFireTime(db)` once per
   send and pass it as `firedAt` to every `createStageRows` call.
+- Never let a cart line take the selected category when the dish was not picked from it:
+  `MenuDish` stamps `state.category` on the line, and `resolveOutlet` reads `category_id` first, so a
+  dish found by search was sold under the wrong category and point of sale (found in review
+  2026-10-04, before deployment). `MenuDishes.onClick` falls back to the dish's own category.
 
 ## Always
 

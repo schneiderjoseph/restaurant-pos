@@ -50,7 +50,7 @@ import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {createOrderEditRequest, diffSentLines, EDIT_SENT_ITEMS_MODULE} from "@/lib/order-edit-request.ts";
 
 export const Payment = () => {
-  const {t} = useTranslation(["payment", "toast", "kitchen"]);
+  const {t} = useTranslation(["payment", "toast", "kitchen", "menu"]);
   const db = useDB();
   const [state, setState] = useAtom(appState);
   const [editSession, setEditSession] = useAtom(orderEditSessionAtom);
@@ -620,6 +620,17 @@ export const Payment = () => {
     await reset();
   }
 
+  const clear = () => {
+    setState(prev => ({
+      ...prev,
+      seats: [],
+      cart: prev.cart.filter(item => item.newOrOld === MenuItemType.old),
+      seat: undefined
+    }));
+  }
+
+  const hasNewLines = state.cart.some(item => item.newOrOld === MenuItemType.new);
+
   return (
     <>
       <div className="font-bold">
@@ -660,12 +671,14 @@ export const Payment = () => {
                 })
               : t("payment:due.asapButton")}
           </Button>
-          <div className="flex gap-3 mt-3">
-            <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
+          <div className="flex gap-2 mt-3">
+            <Button variant="success" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
                     disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
-            <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
+            <Button variant="danger" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
+            <Button variant="warning" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faTimes} onClick={clear}
+                    disabled={isLoading || !hasNewLines} data-testid="menu-clear-cart">{t("menu:header.clear")}</Button>
           </div>
         </div>
       </div>
