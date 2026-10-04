@@ -18,8 +18,8 @@
     "lastName": "Last name"
   },
   "filters": {
-    "status": "حالة الطلب",
-    "orderTypes": "أنواع الطلب",
+    "status": "الحالة",
+    "orderTypes": "الأنواع",
     "floors": "القاعات",
     "users": "المستخدمون"
   },

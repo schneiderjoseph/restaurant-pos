@@ -18,8 +18,8 @@
     "lastName": "Last name"
   },
   "filters": {
-    "status": "Status do pedido",
-    "orderTypes": "Tipos de pedido",
+    "status": "Status",
+    "orderTypes": "Tipos",
     "floors": "Salões",
     "users": "Usuários"
   },

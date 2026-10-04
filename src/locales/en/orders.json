@@ -22,8 +22,8 @@
     "transferSame": "Pick a different client than the one already linked"
   },
   "filters": {
-    "status": "Order status",
-    "orderTypes": "Order types",
+    "status": "Status",
+    "orderTypes": "Types",
     "floors": "Floors",
     "users": "Users",
     "customers": "Customers"
