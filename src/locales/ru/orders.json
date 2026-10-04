@@ -18,8 +18,8 @@
     "lastName": "Last name"
   },
   "filters": {
-    "status": "Статус заказа",
-    "orderTypes": "Типы заказа",
+    "status": "Статус",
+    "orderTypes": "Типы",
     "floors": "Залы",
     "users": "Пользователи"
   },

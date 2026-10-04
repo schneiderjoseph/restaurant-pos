@@ -1,7 +1,7 @@
 import AntTimePicker from "antd/es/time-picker";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";
+import { antPickerPopupProps, usePickerTouchProps } from "@/components/common/antd/picker.shared.ts";
 
 dayjs.extend(customParseFormat);
 
@@ -28,6 +28,7 @@ export const TimePicker = ({
   isClearable = false,
   disabled = false,
 }: Props) => {
+  const touchProps = usePickerTouchProps();
   const selectedTime = timeStringToDayjs(value);
 
   return (
@@ -43,6 +44,7 @@ export const TimePicker = ({
           onChange?.(nextValue?.format("HH:mm") ?? "");
         }}
         {...antPickerPopupProps}
+        {...touchProps}
       />
       {name && (
         <input

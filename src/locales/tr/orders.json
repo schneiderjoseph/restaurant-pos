@@ -18,8 +18,8 @@
     "lastName": "Last name"
   },
   "filters": {
-    "status": "Sipariş durumu",
-    "orderTypes": "Sipariş türleri",
+    "status": "Durum",
+    "orderTypes": "Türler",
     "floors": "Salonlar",
     "users": "Kullanıcılar"
   },

@@ -22,8 +22,8 @@
     }
   },
   "filters": {
-    "status": "Statut commande",
-    "orderTypes": "Types commande",
+    "status": "Statut",
+    "orderTypes": "Types",
     "floors": "Salles",
     "users": "Utilisateurs",
     "customers": "Clients"

@@ -1,6 +1,6 @@
 import AntDatePicker from "antd/es/date-picker";
 import dayjs, { Dayjs } from "dayjs";
-import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";
+import { antPickerPopupProps, usePickerTouchProps } from "@/components/common/antd/picker.shared.ts";
 
 interface Props {
   label?: string;
@@ -19,6 +19,7 @@ export const DateTimePicker = ({
   isClearable = false,
   disabled = false,
 }: Props) => {
+  const touchProps = usePickerTouchProps();
   return (
     <div className="flex flex-col" data-react-aria-top-layer="true">
       {label && <label>{label}</label>}
@@ -33,6 +34,7 @@ export const DateTimePicker = ({
           onChange?.(nextValue);
         }}
         {...antPickerPopupProps}
+        {...touchProps}
       />
       {name && (
         <input

@@ -366,7 +366,7 @@ export const Orders = () => {
           className="min-h-[60px] flex-0 rounded-xl bg-white flex flex-wrap items-center px-3 py-2 gap-3"
           data-testid="orders-filters"
         >
-          <div className="min-w-[160px] flex-1 basis-[160px]">
+          <div className="min-w-[120px] flex-1 basis-[120px]">
             <ReactSelect
               options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
                 label: translateOrderStatus(t, item),
@@ -378,7 +378,7 @@ export const Orders = () => {
               onChange={(value: LabelValue[]) => updateOrderFilter('statuses', value)}
             />
           </div>
-          <div className="min-w-[160px] flex-1 basis-[160px]">
+          <div className="min-w-[120px] flex-1 basis-[120px]">
             <ReactSelect
               options={settings.order_types.map(item => ({
                 label: item.name,

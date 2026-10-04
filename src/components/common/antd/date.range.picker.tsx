@@ -1,6 +1,6 @@
 import DatePicker from "antd/es/date-picker";
 import { Dayjs } from "dayjs";
-import { antPickerPopupProps } from "@/components/common/antd/picker.shared.ts";
+import { antPickerPopupProps, usePickerTouchProps } from "@/components/common/antd/picker.shared.ts";
 
 const { RangePicker } = DatePicker;
 
@@ -27,6 +27,7 @@ export const DateRangePicker = ({
   disabled = false,
   required = false,
 }: Props) => {
+  const touchProps = usePickerTouchProps();
   const selectedValue: [Dayjs, Dayjs] | null =
     value && value[0] && value[1]
       ? [value[0], value[1]]
@@ -57,6 +58,7 @@ export const DateRangePicker = ({
           ], dateStrings as [string, string]);
         }}
         {...antPickerPopupProps}
+        {...touchProps}
       />
       <input type="hidden" name={startName} value={startValue} required={required}/>
       <input type="hidden" name={endName} value={endValue} required={required}/>
