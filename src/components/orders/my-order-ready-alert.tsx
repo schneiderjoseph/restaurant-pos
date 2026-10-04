@@ -87,7 +87,8 @@ export const MyOrderReadyAlert = () => {
       const startDate = getAppStartOfDaySurreal();
       const [orderRows] = await db.query(
         `SELECT * FROM ${Tables.orders}
-         WHERE user = $user AND created_at >= $startDate AND status NOT IN $closed
+         WHERE user = $user AND (created_at >= $startDate OR due_at >= $startDate)
+           AND status NOT IN $closed
          FETCH items, table, customer`,
         {
           user: toRecordId(userId),
@@ -102,9 +103,9 @@ export const MyOrderReadyAlert = () => {
       if (itemIds.length > 0) {
         const [rows] = await db.query(
           `SELECT * FROM ${Tables.order_items_kitchen}
-           WHERE created_at >= $startDate AND order_item INSIDE $itemIds
+           WHERE order_item INSIDE $itemIds
            FETCH order_item`,
-          {startDate, itemIds},
+          {itemIds},
         );
         kitchenRows = Array.isArray(rows) ? (rows as OrderItemKitchen[]) : [];
       }

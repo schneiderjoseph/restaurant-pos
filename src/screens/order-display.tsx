@@ -12,6 +12,7 @@ import { appState, AppStateInterface } from '@/store/jotai.ts';
 import { LabelValue } from '@/api/model/common.ts';
 import { Button } from '@/components/common/input/button.tsx';
 import { toSurrealDateTime, getAppStartOfDaySurreal } from '@/lib/datetime.ts';
+import { fetchDueOrderItemIds } from '@/lib/order-due-items.ts';
 import { useTranslation } from 'react-i18next';
 import { translateOrderStatus } from '@/lib/order.ts';
 import {
@@ -100,15 +101,17 @@ export const OrderDisplayScreen = () => {
   const fetchOrders = useCallback(async () => {
     const startDate = getAppStartOfDaySurreal();
     const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
+    // Orders taken an earlier day and wanted today or later stay on the board.
+    const dueItems = await fetchDueOrderItemIds(db, startDate);
     const [rows, kitchenRows] = await db.query(
       `SELECT * FROM ${Tables.orders}
-       WHERE created_at >= $startDate ${filterSql}
+       WHERE (created_at >= $startDate OR due_at >= $startDate) ${filterSql}
        ORDER BY created_at DESC
        FETCH items, table, user, order_type, customer;
        SELECT * FROM ${Tables.order_items_kitchen}
-       WHERE created_at >= $startDate
+       WHERE created_at >= $startDate OR order_item IN $dueItems
        FETCH order_item, kitchen`,
-      { startDate }
+      { startDate, dueItems }
     );
 
     setOrders(Array.isArray(rows) ? (rows as OrderModel[]) : []);
