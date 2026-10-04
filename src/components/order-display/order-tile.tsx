@@ -2,7 +2,8 @@ import { Order } from '@/api/model/order.ts';
 import { formatOrderNumber } from '@/lib/order.ts';
 import { cn } from '@/lib/utils.ts';
 import { Countdown } from '@/components/floor/countdown.tsx';
-import { toLuxonDateTime } from '@/lib/datetime.ts';
+import { nowInAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts';
+import { formatDueLabel } from '@/lib/order-due.ts';
 import { useTranslation } from 'react-i18next';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
 import { KitchenStationStatus } from '@/lib/order-display.ts';
@@ -16,6 +17,9 @@ interface Props {
 
 export const OrderTile = ({ order, variant, celebrate = false, stations = [] }: Props) => {
   const { t } = useTranslation('order-display');
+  const dueLabel = order.due_at
+    ? formatDueLabel(toLuxonDateTime(order.due_at), nowInAppTimezone(), t('due.tomorrowShort'))
+    : null;
 
   return (
     <div
@@ -30,6 +34,11 @@ export const OrderTile = ({ order, variant, celebrate = false, stations = [] }: 
       <span className="text-5xl font-black tracking-tight leading-none">
         {formatOrderNumber(order)}
       </span>
+      {dueLabel && (
+        <span className="mt-1 text-2xl font-black" data-testid="order-tile-due-at">
+          {t('due.forTime', { time: dueLabel })}
+        </span>
+      )}
       {order.order_type?.name && (
         <span className="mt-2 text-lg font-semibold uppercase opacity-80">
           {order.order_type.name}

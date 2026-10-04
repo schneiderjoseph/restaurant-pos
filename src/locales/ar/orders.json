@@ -53,6 +53,7 @@
   },
   "status": {
     "inProgress": "قيد التنفيذ",
+    "ready": "جاهز",
     "paid": "مدفوع",
     "cancelled": "ملغى",
     "spilt": "مقسّم",

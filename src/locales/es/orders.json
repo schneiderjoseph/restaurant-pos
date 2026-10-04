@@ -53,6 +53,7 @@
   },
   "status": {
     "inProgress": "En curso",
+    "ready": "Listo",
     "paid": "Pagado",
     "cancelled": "Cancelado",
     "spilt": "Dividido",

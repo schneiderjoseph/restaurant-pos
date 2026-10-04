@@ -8,5 +8,9 @@
     "status": "Status",
     "orderTypes": "Bestellarten"
   },
-  "toggleSidebar": "Seitenleiste anzeigen"
+  "toggleSidebar": "Seitenleiste anzeigen",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

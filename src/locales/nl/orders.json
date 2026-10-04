@@ -53,6 +53,7 @@
   },
   "status": {
     "inProgress": "In behandeling",
+    "ready": "Klaar",
     "paid": "Betaald",
     "cancelled": "Geannuleerd",
     "spilt": "Gesplitst",

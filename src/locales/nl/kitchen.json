@@ -30,5 +30,9 @@
   "confirm": {
     "title": "Bevestigen",
     "completeAll": "Alle open bestellingen in deze keuken voltooien?"
+  },
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
   }
 }

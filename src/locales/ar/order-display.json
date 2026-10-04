@@ -8,5 +8,9 @@
     "status": "الحالة",
     "orderTypes": "أنواع الطلب"
   },
-  "toggleSidebar": "إظهار الشريط الجانبي"
+  "toggleSidebar": "إظهار الشريط الجانبي",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

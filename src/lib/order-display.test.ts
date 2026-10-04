@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { RecordId } from 'surrealdb';
 import { OrderItemKitchenStatus } from '@/api/model/order_item_kitchen.ts';
 import type { Order } from '@/api/model/order.ts';
 import type { OrderItemKitchen } from '@/api/model/order_item_kitchen.ts';
@@ -6,6 +7,7 @@ import {
   buildKitchenRowsMap,
   classifyOrder,
   kitchenOrderItemKey,
+  kitchenReadyOrderIds,
   partitionDisplayOrders,
 } from '@/lib/order-display.ts';
 
@@ -82,5 +84,91 @@ describe('classifyOrder', () => {
 
     expect(preparing.map((order) => order.invoice_number)).toEqual([4]);
     expect(ready.map((order) => order.invoice_number)).toEqual([5]);
+  });
+});
+
+describe('kitchenReadyOrderIds', () => {
+  const orderRef = (orderId: string) => ({ tb: 'order', id: orderId, toString: () => `order:${orderId}` });
+  const item = (
+    orderId: string,
+    extras: { deleted_at?: unknown; is_refunded?: boolean; is_suspended?: boolean } = {}
+  ) => ({ order: orderRef(orderId), ...extras });
+  const row = (
+    orderId: string,
+    status: OrderItemKitchenStatus,
+    extras: { deleted_at?: unknown; is_suspended?: boolean } = {}
+  ) => ({ order: orderRef(orderId), status, ...extras });
+
+  it('keys a real record id as the Orders screen does ("order:a")', () => {
+    const order = new RecordId('order', 'a');
+    const ready = kitchenReadyOrderIds(
+      [{ order }],
+      [{ order, status: OrderItemKitchenStatus.Completed }]
+    );
+    expect(ready.has(order.toString())).toBe(true);
+  });
+
+  it('marks an order ready when every kitchen row is completed', () => {
+    const ready = kitchenReadyOrderIds(
+      [item('a'), item('a')],
+      [row('a', OrderItemKitchenStatus.Completed), row('a', OrderItemKitchenStatus.Completed)]
+    );
+    expect([...ready]).toEqual(['order:a']);
+  });
+
+  it('is not ready when any row is pending, in progress, or waiting', () => {
+    for (const status of [
+      OrderItemKitchenStatus.Pending,
+      OrderItemKitchenStatus.InProgress,
+      OrderItemKitchenStatus.Waiting,
+    ]) {
+      const ready = kitchenReadyOrderIds(
+        [item('a'), item('a')],
+        [row('a', OrderItemKitchenStatus.Completed), row('a', status)]
+      );
+      expect(ready.has('order:a')).toBe(false);
+    }
+  });
+
+  it('is ready when nothing was sent to a kitchen, as on the order display', () => {
+    expect([...kitchenReadyOrderIds([item('a')], [])]).toEqual(['order:a']);
+  });
+
+  it('is not ready without a live item', () => {
+    expect(kitchenReadyOrderIds([], []).size).toBe(0);
+    const ready = kitchenReadyOrderIds(
+      [
+        item('a', { deleted_at: '2026-10-01T00:00:00Z' }),
+        item('a', { is_refunded: true }),
+        item('a', { is_suspended: true }),
+      ],
+      []
+    );
+    expect(ready.size).toBe(0);
+  });
+
+  it('ignores the kitchen rows of soft-deleted and suspended items', () => {
+    const ready = kitchenReadyOrderIds(
+      [item('a')],
+      [
+        row('a', OrderItemKitchenStatus.Completed),
+        row('a', OrderItemKitchenStatus.Pending, { deleted_at: '2026-10-01T00:00:00Z' }),
+        row('a', OrderItemKitchenStatus.InProgress, { is_suspended: true }),
+      ]
+    );
+    expect([...ready]).toEqual(['order:a']);
+  });
+
+  it('handles two orders mixed in one result set', () => {
+    const ready = kitchenReadyOrderIds(
+      [item('a'), item('b'), item('b')],
+      [
+        row('a', OrderItemKitchenStatus.Completed),
+        row('b', OrderItemKitchenStatus.Pending),
+        row('b', OrderItemKitchenStatus.Completed),
+      ]
+    );
+    expect(ready.has('order:a')).toBe(true);
+    expect(ready.has('order:b')).toBe(false);
   });
 });

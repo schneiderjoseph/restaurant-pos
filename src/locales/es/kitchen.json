@@ -30,5 +30,9 @@
   "confirm": {
     "title": "Confirmar",
     "completeAll": "¿Completar todos los pedidos abiertos en esta cocina?"
+  },
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
   }
 }

@@ -8,5 +8,9 @@
     "status": "Status",
     "orderTypes": "Bestellingstypes"
   },
-  "toggleSidebar": "Zijbalk tonen"
+  "toggleSidebar": "Zijbalk tonen",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

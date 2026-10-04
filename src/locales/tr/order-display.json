@@ -8,5 +8,9 @@
     "status": "Durum",
     "orderTypes": "Sipariş türleri"
   },
-  "toggleSidebar": "Kenar çubuğunu göster"
+  "toggleSidebar": "Kenar çubuğunu göster",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

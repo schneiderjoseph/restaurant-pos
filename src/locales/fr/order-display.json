@@ -8,5 +8,9 @@
     "status": "Statut",
     "orderTypes": "Types de commande"
   },
-  "toggleSidebar": "Afficher la barre latérale"
+  "toggleSidebar": "Afficher la barre latérale",
+  "due": {
+    "forTime": "Pour {{time}}",
+    "tomorrowShort": "dem."
+  }
 }

@@ -66,6 +66,7 @@ interface Props {
   onAction?: () => void;
   tempPrinted?: boolean;
   taxes?: Tax[];
+  kitchenReady?: boolean;
 }
 
 export const OrderBox = ({
@@ -76,6 +77,7 @@ export const OrderBox = ({
   onAction,
   tempPrinted: tempPrintedProp,
   taxes: taxesProp,
+  kitchenReady = false,
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
@@ -319,7 +321,7 @@ export const OrderBox = ({
   return (
     <>
       <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none h-[540px]" data-testid="order-card">
-        <OrderHeader order={order} tempPrinted={tempPrinted}/>
+        <OrderHeader order={order} tempPrinted={tempPrinted} kitchenReady={kitchenReady}/>
         <OrderElapsed order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <div className="relative flex-1 min-h-0 overflow-hidden">

@@ -8,5 +8,9 @@
     "status": "Статус",
     "orderTypes": "Типы заказов"
   },
-  "toggleSidebar": "Показать боковую панель"
+  "toggleSidebar": "Показать боковую панель",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }

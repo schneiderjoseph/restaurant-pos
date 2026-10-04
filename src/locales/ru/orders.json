@@ -53,6 +53,7 @@
   },
   "status": {
     "inProgress": "В работе",
+    "ready": "Готов",
     "paid": "Оплачен",
     "cancelled": "Отменён",
     "spilt": "Разделён",

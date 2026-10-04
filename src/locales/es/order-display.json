@@ -8,5 +8,9 @@
     "status": "Estado",
     "orderTypes": "Tipos de pedido"
   },
-  "toggleSidebar": "Mostrar barra lateral"
+  "toggleSidebar": "Mostrar barra lateral",
+  "due": {
+    "forTime": "For {{time}}",
+    "tomorrowShort": "tom."
+  }
 }
