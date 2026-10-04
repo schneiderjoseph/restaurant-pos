@@ -9,7 +9,7 @@ import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import { formatOrderNumber } from "@/lib/order.ts";
 import { nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
-import { formatDueLabel } from "@/lib/order-due.ts";
+import { formatDueLabel, timerStartWithDue } from "@/lib/order-due.ts";
 import { completeStage, completeStages } from "@/lib/kitchen/workflow.service.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { useAtom } from "jotai";
@@ -61,8 +61,13 @@ export const KitchenOrder = ({
 
   const { order, batch, reprintItems, isAddon, isContinued, showKindLabel, groupColor } = ticket;
   const stageStart = batchStart(batch);
-  const diff = stageStart
-    ? nowInAppTimezone().diff(toLuxonDateTime(stageStart)).as('minutes')
+  // An order wanted later is timed from its due time, not from when it was sent.
+  const timerStart = timerStartWithDue(
+    stageStart ? toLuxonDateTime(stageStart) : null,
+    order?.due_at ? toLuxonDateTime(order.due_at) : null,
+  );
+  const diff = timerStart
+    ? nowInAppTimezone().diff(timerStart).as('minutes')
     : 0;
 
   const guestLabelMode = (page?.menuConfig?.kitchenGuestLabel ?? 'name') as KitchenGuestLabelMode;
@@ -189,9 +194,9 @@ export const KitchenOrder = ({
                 })}
               </span>
             )}
-            {stageStart && (
+            {timerStart && (
               <span className="text-lg font-bold">
-                <Countdown time={stageStart} />
+                <Countdown time={timerStart} hideUntilStarted />
               </span>
             )}
           </div>

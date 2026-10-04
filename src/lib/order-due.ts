@@ -22,6 +22,21 @@ export const isDueAhead = (due: DateTime | null | undefined, now: DateTime): due
   !!due && due.isValid && due.toMillis() > now.toMillis();
 
 /**
+ * Where a ticket's timer starts: when it was sent, or the due time when that is later, so an
+ * order taken ahead does not read as late before the guest wants it.
+ */
+export const timerStartWithDue = (
+  sentAt: DateTime | null | undefined,
+  due: DateTime | null | undefined,
+): DateTime | null => {
+  const sent = sentAt && sentAt.isValid ? sentAt : null;
+  if (due && due.isValid && (!sent || due.toMillis() > sent.toMillis())) {
+    return due;
+  }
+  return sent;
+};
+
+/**
  * Short label for screens: "14:30" today, "<tomorrowLabel> 08:00" tomorrow when the caller
  * gives a label, "05/10 08:00" for any other day.
  */

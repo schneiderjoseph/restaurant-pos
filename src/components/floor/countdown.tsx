@@ -5,9 +5,11 @@ import { DateInput, nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts"
 interface Props{
   time: DateInput
   showAll?: boolean
+  /** Show nothing while `time` is still ahead, instead of a negative duration. */
+  hideUntilStarted?: boolean
 }
 
-export const Countdown = ({time, showAll}: Props) => {
+export const Countdown = ({time, showAll, hideUntilStarted}: Props) => {
   const [diff, setDiff] = useState('-, -, -');
 
 
@@ -18,6 +20,11 @@ export const Countdown = ({time, showAll}: Props) => {
     };
     const startedAt = toLuxonDateTime(time);
     const now = nowInAppTimezone();
+
+    if(hideUntilStarted && startedAt.toMillis() > now.toMillis()){
+      setDiff('');
+      return;
+    }
 
     if(showAll){
       setDiff(now.diff(startedAt).shiftTo('hours', 'minutes', 'seconds').toHuman(humanFormatSettings));
@@ -38,7 +45,7 @@ export const Countdown = ({time, showAll}: Props) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [time, showAll]);
+  }, [time, showAll, hideUntilStarted]);
 
   return (
     <span className="tabular-nums">{diff}</span>
