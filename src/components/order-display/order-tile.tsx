@@ -3,7 +3,7 @@ import { formatOrderNumber } from '@/lib/order.ts';
 import { cn } from '@/lib/utils.ts';
 import { Countdown } from '@/components/floor/countdown.tsx';
 import { nowInAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts';
-import { formatDueLabel } from '@/lib/order-due.ts';
+import { formatDueLabel, timerStartWithDue } from '@/lib/order-due.ts';
 import { useTranslation } from 'react-i18next';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
 import { KitchenStationStatus } from '@/lib/order-display.ts';
@@ -70,7 +70,13 @@ export const OrderTile = ({ order, variant, celebrate = false, stations = [] }: 
         </span>
         {variant === 'preparing' && (
           <span className="text-xl font-bold">
-            <Countdown time={order.created_at} />
+            <Countdown
+              time={timerStartWithDue(
+                toLuxonDateTime(order.created_at),
+                order.due_at ? toLuxonDateTime(order.due_at) : null,
+              )}
+              hideUntilStarted
+            />
           </span>
         )}
       </div>
