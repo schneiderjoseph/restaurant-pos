@@ -21,7 +21,9 @@ import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {useTranslation} from "react-i18next";
 import {Button} from "@/components/common/input/button.tsx";
-import {faSearch} from "@fortawesome/free-solid-svg-icons";
+import {faSearch, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {Input} from "@/components/common/input/input.tsx";
 import {MenuCategories} from "@/components/menu/categories.tsx";
 import {DishSearchKeyboard} from "@/components/menu/dish.search.keyboard.tsx";
 
@@ -228,6 +230,28 @@ export const MenuDishes = () => {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-testid="menu-dishes-panel">
+      <div className="relative mb-3 shrink-0">
+        <Input
+          inputSize="lg"
+          className="search-field w-full pr-12 h-12 min-h-[48px]"
+          placeholder={t('search.placeholderBoth')}
+          value={menuSearch}
+          onChange={(event) => setMenuSearch(event.target.value)}
+          data-testid="menu-search"
+        />
+        {hasHeaderSearch && (
+          <button
+            type="button"
+            className="absolute right-1 top-1/2 -translate-y-1/2 btn btn-primary btn-flat lg btn-square"
+            onClick={() => setMenuSearch('')}
+            aria-label={t('header.clear')}
+            title={t('header.clear')}
+            data-testid="menu-search-clear"
+          >
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        )}
+      </div>
       <div className="mb-3 flex shrink-0 items-center gap-2">
         <div className="min-w-0 flex-1 rounded-xl">
           <MenuCategories/>
