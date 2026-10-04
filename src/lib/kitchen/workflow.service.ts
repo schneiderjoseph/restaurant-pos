@@ -4,6 +4,7 @@ import { dispatchPrint } from "@/lib/print.service.ts";
 import { OrderItemKitchenStatus } from "@/api/model/order_item_kitchen.ts";
 import { Dish } from "@/api/model/dish.ts";
 import { ensureKitchenShowsAllField, recordKey } from "@/lib/kitchen/routing.ts";
+import { toSurrealDateTime } from "@/lib/datetime.ts";
 
 /**
  * Multi-stage kitchen workflow engine.
@@ -117,16 +118,34 @@ export const resolveStages = async (
   });
 };
 
+/**
+ * Server time for one send. The KDS groups rows into a ticket by `created_at`
+ * to the second, so every row of a send must carry the same value: stamping
+ * each row with its own `time::now()` split a ticket whenever the send ran
+ * across a second boundary. Undefined (lookup failed) falls back to per-row time.
+ */
+export const kitchenFireTime = async (db: AnyDb): Promise<unknown> => {
+  try {
+    const now = firstRow(await db.query(`RETURN time::now()`));
+    return now == null ? undefined : toSurrealDateTime(now);
+  } catch {
+    return undefined;
+  }
+};
+
+const createdAtSql = (firedAt: unknown) => (firedAt ? '$firedAt' : 'time::now()');
+
 const createActivatedTerminalRow = async (
   db: AnyDb,
   params: {
     kitchenId: string;
     orderItemRef: ReturnType<typeof toRecordId>;
+    firedAt?: unknown;
   }
 ) => {
   await db.query(
     `CREATE ${Tables.order_items_kitchen} SET
-      created_at = time::now(),
+      created_at = ${createdAtSql(params.firedAt)},
       activated_at = time::now(),
       kitchen = $kitchen,
       order_item = $orderItem,
@@ -137,6 +156,7 @@ const createActivatedTerminalRow = async (
       kitchen: toRecordId(params.kitchenId),
       orderItem: params.orderItemRef,
       status: OrderItemKitchenStatus.Pending,
+      firedAt: params.firedAt,
     }
   );
 };
@@ -152,9 +172,11 @@ export const createStageRows = async (
     orderItem: any;
     dish: Dish;
     kitchenItems?: Record<string, any[]>;
+    /** From `kitchenFireTime`, shared by every item of the same send. */
+    firedAt?: unknown;
   }
 ): Promise<void> => {
-  const { orderItem, dish, kitchenItems } = params;
+  const { orderItem, dish, kitchenItems, firedAt } = params;
   const orderItemRef = toRecordId(orderItem.id.toString());
   const dishId = dish.id.toString();
 
@@ -195,7 +217,7 @@ export const createStageRows = async (
       const kitchenId = k.id.toString();
       if (seen.has(kitchenId)) continue;
       seen.add(kitchenId);
-      await createActivatedTerminalRow(db, { kitchenId, orderItemRef });
+      await createActivatedTerminalRow(db, { kitchenId, orderItemRef, firedAt });
       pushKitchenItem(kitchenItems, kitchenId, { ...orderItem, item: dish });
     }
     return;
@@ -217,7 +239,7 @@ export const createStageRows = async (
     if (isFirst) {
       await db.query(
         `CREATE ${Tables.order_items_kitchen} SET
-          created_at = time::now(),
+          created_at = ${createdAtSql(firedAt)},
           activated_at = time::now(),
           kitchen = $kitchen,
           order_item = $orderItem,
@@ -236,6 +258,7 @@ export const createStageRows = async (
           sequence: stage.sequence,
           status: OrderItemKitchenStatus.Pending,
           isTerminal: stage.is_terminal || isLast,
+          firedAt,
         }
       );
       pushKitchenItem(kitchenItems, stage.kitchenId, { ...orderItem, item: dish });
@@ -244,7 +267,7 @@ export const createStageRows = async (
 
     await db.query(
       `CREATE ${Tables.order_items_kitchen} SET
-        created_at = time::now(),
+        created_at = ${createdAtSql(firedAt)},
         kitchen = $kitchen,
         order_item = $orderItem,
         stage = $stage,
@@ -262,6 +285,7 @@ export const createStageRows = async (
         sequence: stage.sequence,
         status: OrderItemKitchenStatus.Waiting,
         isTerminal: stage.is_terminal || isLast,
+        firedAt,
       }
     );
   }
@@ -281,7 +305,7 @@ export const createStageRows = async (
   for (const display of displays) {
     const kitchenId = display.id.toString();
     if (stageKitchenIds.has(recordKey(display.id))) continue;
-    await createActivatedTerminalRow(db, { kitchenId, orderItemRef });
+    await createActivatedTerminalRow(db, { kitchenId, orderItemRef, firedAt });
     pushKitchenItem(kitchenItems, kitchenId, { ...orderItem, item: dish });
   }
 };

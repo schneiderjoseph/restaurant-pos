@@ -12,7 +12,7 @@ import {useTranslation} from "react-i18next";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toRecordId} from "@/lib/utils.ts";
-import {createStageRows} from "@/lib/kitchen/workflow.service.ts";
+import {createStageRows, kitchenFireTime} from "@/lib/kitchen/workflow.service.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
@@ -158,6 +158,7 @@ export const CartActions = () => {
 
     const kitchenItems: Record<string, any[]> = {};
     const firedIds = new Set(heldSelected.map((item) => item.id?.toString()));
+    const firedAt = await kitchenFireTime(db);
 
     for (const item of heldSelected) {
       const itemId = item.id?.toString();
@@ -186,6 +187,7 @@ export const CartActions = () => {
           },
           dish: item.dish,
           kitchenItems,
+          firedAt,
         });
       }
     }

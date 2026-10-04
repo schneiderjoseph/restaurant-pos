@@ -25,6 +25,10 @@
   (`OrderEditRequestWatcher` looped this way in production on 2026-10-03, one query and one live
   subscription per turn, and sign-in hung). Read it through a ref (`dbRef.current`), as
   `ModuleAccessProvider` does, and key the effect on the user id.
+- Never stamp the kitchen rows of one send with a per-row `time::now()`: the kitchen display
+  groups rows into a ticket by `created_at` to the second, so a send that ran across a second
+  boundary showed as two tickets (field report 2026-10-04). Take `kitchenFireTime(db)` once per
+  send and pass it as `firedAt` to every `createStageRows` call.
 
 ## Always
 

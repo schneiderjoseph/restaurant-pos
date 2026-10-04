@@ -27,7 +27,7 @@ import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
-import {cancelItemStages, createStageRows} from "@/lib/kitchen/workflow.service.ts";
+import {cancelItemStages, createStageRows, kitchenFireTime} from "@/lib/kitchen/workflow.service.ts";
 import {nowInAppTimezone, nowSurrealDateTime, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {formatDueLabel, isDueAhead} from "@/lib/order-due.ts";
 import {OrderDueModal} from "@/components/menu/order-due.modal.tsx";
@@ -232,6 +232,8 @@ export const Payment = () => {
       const kitchenItems: Record<string, any[]> = {};
       const items: any[] = [];
       const newItemIds: any[] = [];
+      // One kitchen time for the whole send, so the KDS shows it as one ticket.
+      const firedAt = await kitchenFireTime(db);
 
       for (const item of state.cart) {
         if (isPersistedCartItem(item)) {
@@ -320,6 +322,7 @@ export const Payment = () => {
             orderItem: record[0],
             dish: item.dish,
             kitchenItems,
+            firedAt,
           });
         }
       }
