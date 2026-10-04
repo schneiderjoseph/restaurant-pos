@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Introduzca el número del plato",
     "placeholderBoth": "Buscar por número o nombre",
-    "backspace": "Borrar"
+    "backspace": "Borrar",
+    "noResults": "No se encontró ningún plato"
   },
   "header": {
     "newOrder": "Nuevo pedido",

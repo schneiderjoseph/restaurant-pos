@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Введите номер блюда",
     "placeholderBoth": "Поиск по номеру или названию",
-    "backspace": "Удалить"
+    "backspace": "Удалить",
+    "noResults": "Блюдо не найдено"
   },
   "header": {
     "newOrder": "Новый заказ",

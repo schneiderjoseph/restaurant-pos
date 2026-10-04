@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Digite o número do prato",
     "placeholderBoth": "Buscar por número ou nome",
-    "backspace": "Apagar"
+    "backspace": "Apagar",
+    "noResults": "Nenhum prato encontrado"
   },
   "header": {
     "newOrder": "Novo Pedido",

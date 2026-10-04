@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Enter dish number",
     "placeholderBoth": "Search by number or name",
-    "backspace": "Backspace"
+    "backspace": "Backspace",
+    "noResults": "No dish found"
   },
   "header": {
     "newOrder": "New Order",

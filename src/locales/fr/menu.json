@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Saisir le numéro du plat",
     "placeholderBoth": "Rechercher par numéro ou nom",
-    "backspace": "Retour"
+    "backspace": "Retour",
+    "noResults": "Aucun plat trouvé"
   },
   "header": {
     "newOrder": "Nouvelle commande",

@@ -327,3 +327,6 @@ export const defaultClosingEnforcementState = {
 export type ClosingEnforcementAtomState = typeof defaultClosingEnforcementState;
 
 export const closingEnforcementAtom = atom<ClosingEnforcementAtomState>(defaultClosingEnforcementState);
+
+/** In-memory global dish search on the order-taking top bar (not persisted). */
+export const menuSearchAtom = atom('');

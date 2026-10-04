@@ -10,7 +10,8 @@
   "search": {
     "placeholderNumber": "Voer gerechtnummer in",
     "placeholderBoth": "Zoek op nummer of naam",
-    "backspace": "Backspace"
+    "backspace": "Backspace",
+    "noResults": "Geen gerecht gevonden"
   },
   "header": {
     "newOrder": "Nieuwe bestelling",

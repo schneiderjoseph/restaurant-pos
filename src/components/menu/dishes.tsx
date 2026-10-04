@@ -8,6 +8,7 @@ import {
   appState,
   closingEnforcementAtom,
   type DishSearchType,
+  menuSearchAtom,
 } from "@/store/jotai.ts";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {useMediaQuery} from "react-responsive";
@@ -15,6 +16,7 @@ import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 import {mergeCartItem} from "@/lib/cart.ts";
+import {searchDishes} from "@/lib/menu-search.ts";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {useTranslation} from "react-i18next";
@@ -35,16 +37,19 @@ export const MenuDishes = () => {
   const [settings] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const [menuSearch, setMenuSearch] = useAtom(menuSearchAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const enableDishSearch = !!page.menuConfig?.enableDishSearch;
   const dishSearchType: DishSearchType = page.menuConfig?.dishSearchType ?? 'number';
+  const headerQuery = menuSearch.trim();
+  const hasHeaderSearch = headerQuery.length > 0;
 
   const ITEMS_PER_SLIDE = useMemo(() => {
-    if (searchOpen && enableDishSearch) {
+    if (!hasHeaderSearch && searchOpen && enableDishSearch) {
       return isTablet ? 9 : 12;
     }
     return isTablet ? 15 : 20;
-  }, [isTablet, searchOpen, enableDishSearch]);
+  }, [isTablet, searchOpen, enableDishSearch, hasHeaderSearch]);
 
   const {dishes: allDishes} = useMemo(() => (
     resolveMenuAwareData({
@@ -65,6 +70,9 @@ export const MenuDishes = () => {
   }, [allDishes, state.category]);
 
   const dishes = useMemo(() => {
+    if (hasHeaderSearch) {
+      return searchDishes(allDishes || [], menuSearch);
+    }
     if (!searchOpen || !enableDishSearch) {
       return categoryDishes;
     }
@@ -82,16 +90,17 @@ export const MenuDishes = () => {
       const nameMatch = (item.name ?? '').toLowerCase().includes(q);
       return numberMatch || nameMatch;
     });
-  }, [searchOpen, enableDishSearch, searchBuffer, allDishes, categoryDishes, dishSearchType]);
+  }, [hasHeaderSearch, menuSearch, searchOpen, enableDishSearch, searchBuffer, allDishes, categoryDishes, dishSearchType]);
 
   const slides = Math.ceil((dishes?.length || 0) / ITEMS_PER_SLIDE) || 1;
-  const isSearchMode = enableDishSearch && searchOpen;
+  const isSearchMode = !hasHeaderSearch && enableDishSearch && searchOpen;
   const categoryId = state.category?.id?.toString();
+  const headerSearchEmpty = hasHeaderSearch && (dishes?.length || 0) === 0;
 
   useEffect(() => {
     setActiveSlide(0);
     swiperRef.current?.slideTo(0, 0);
-  }, [categoryId, searchOpen, searchBuffer, slides]);
+  }, [categoryId, searchOpen, searchBuffer, menuSearch, slides]);
 
   const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
     if (orderTakingBlocked) {
@@ -133,6 +142,7 @@ export const MenuDishes = () => {
 
   useEffect(() => {
     return () => {
+      setMenuSearch('');
       setState(prev => ({
         ...prev,
         category: undefined
@@ -205,6 +215,17 @@ export const MenuDishes = () => {
     </div>
   );
 
+  const dishesArea = headerSearchEmpty ? (
+    <div
+      className="flex h-full min-h-0 flex-1 items-center justify-center text-neutral-500"
+      data-testid="menu-search-empty"
+    >
+      {t('search.noResults')}
+    </div>
+  ) : (
+    dishGrid
+  );
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-testid="menu-dishes-panel">
       <div className="mb-3 flex shrink-0 items-center gap-2">
@@ -229,7 +250,7 @@ export const MenuDishes = () => {
       {isSearchMode ? (
         <div className="dishes-search-stack">
           <div className="dishes-search-dishes min-w-0 rounded-xl">
-            {dishGrid}
+            {dishesArea}
           </div>
           <DishSearchKeyboard
             value={searchBuffer}
@@ -239,7 +260,7 @@ export const MenuDishes = () => {
         </div>
       ) : (
         <div className="min-h-0 flex-1 rounded-xl">
-          {dishGrid}
+          {dishesArea}
         </div>
       )}
     </div>
