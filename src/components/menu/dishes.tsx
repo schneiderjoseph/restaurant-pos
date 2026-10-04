@@ -10,7 +10,7 @@ import {
   type DishSearchType,
   menuSearchAtom,
 } from "@/store/jotai.ts";
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState, type ReactNode} from "react";
 import {useMediaQuery} from "react-responsive";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
@@ -26,6 +26,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Input} from "@/components/common/input/input.tsx";
 import {MenuCategories} from "@/components/menu/categories.tsx";
 import {DishSearchKeyboard} from "@/components/menu/dish.search.keyboard.tsx";
+import ScrollContainer from "react-indiana-drag-scroll";
 
 export const MenuDishes = () => {
   const {t} = useTranslation('menu');
@@ -113,6 +114,20 @@ export const MenuDishes = () => {
     const mergeWithOld =
       state.order?.id != null && String(state.order.id) !== 'new';
 
+    // A dish found by search may not belong to the selected category: the line must carry
+    // the dish's own category, which also decides the point of sale it is sold under.
+    const ownCategories = item.dish?.categories ?? [];
+    const inSelectedCategory = ownCategories.some(
+      category => category.id?.toString() === state.category?.id?.toString()
+    );
+    if (!inSelectedCategory && ownCategories.length > 0) {
+      item = {
+        ...item,
+        category: ownCategories[0].name,
+        category_id: ownCategories[0].id?.toString(),
+      };
+    }
+
     setState(prev => ({
       ...prev,
       cart: mergeCartItem(
@@ -125,6 +140,47 @@ export const MenuDishes = () => {
       ),
     }));
   };
+
+  const onKeyboardResultClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
+    onClick(item, selectedGroups);
+    setMenuSearch('');
+  };
+
+  const keyboardResults = useMemo(() => {
+    if (!hasHeaderSearch) {
+      return [];
+    }
+    return searchDishes(allDishes || [], menuSearch).slice(0, 12);
+  }, [hasHeaderSearch, allDishes, menuSearch]);
+
+  const keyboardHeader: ReactNode = (
+    <div
+      className="h-[76px] pr-12"
+      data-testid="menu-search-keyboard-results"
+    >
+      {!hasHeaderSearch ? null : keyboardResults.length === 0 ? (
+        <div className="flex h-full items-center text-neutral-500">
+          {t('search.noResults')}
+        </div>
+      ) : (
+        <ScrollContainer className="flex h-full flex-nowrap gap-2" mouseScroll>
+          {keyboardResults.map((item) => (
+            <div
+              key={item.id?.toString() ?? item.number}
+              className="flex w-[180px] shrink-0"
+            >
+              <MenuDish
+                onClick={onKeyboardResultClick}
+                item={item}
+                level={0}
+                price={item.price}
+              />
+            </div>
+          ))}
+        </ScrollContainer>
+      )}
+    </div>
+  );
 
   const toggleSearch = () => {
     setSearchOpen(prev => {
@@ -238,6 +294,8 @@ export const MenuDishes = () => {
           value={menuSearch}
           onChange={(event) => setMenuSearch(event.target.value)}
           data-testid="menu-search"
+          hideKeyboardTitle
+          keyboardHeader={keyboardHeader}
         />
         {hasHeaderSearch && (
           <button

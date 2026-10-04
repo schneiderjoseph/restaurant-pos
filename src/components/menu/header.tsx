@@ -2,7 +2,7 @@ import {useAtom} from "jotai";
 import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {orderEditSessionAtom, orderIdToString} from "@/store/order-edit-session.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faPlus, faTable, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import React, {useEffect, useRef, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -187,15 +187,6 @@ export const MenuHeader = () => {
 
   const newCartItems = state?.cart?.filter(item => item.newOrOld === MenuItemType.new).length;
 
-  const clear = async () => {
-    setState(prev => ({
-      ...prev,
-      seats: [],
-      cart: prev.cart.filter(item => item.newOrOld === MenuItemType.old),
-      seat: undefined
-    }));
-  }
-
   const backFloorLabel = state?.floor?.name ?? '';
   const backGuestLabel = state.resortEntry === 'floor'
     ? (state?.floor?.name ?? t('guest.openFloor'))
@@ -307,18 +298,6 @@ export const MenuHeader = () => {
               data-testid="menu-customer"
             />
           </div>
-          {state.cart.filter(item => item.newOrOld === MenuItemType.new).length > 0 && (
-            <Button
-              variant="danger"
-              size="lg"
-              iconButton
-              icon={faTimes}
-              onClick={clear}
-              aria-label={t('header.clear')}
-              title={t('header.clear')}
-              data-testid="menu-clear-cart"
-            />
-          )}
         </div>
 
         <div className="flex input-group rounded-full shrink-0" data-testid="menu-order-types">
