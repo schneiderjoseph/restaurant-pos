@@ -100,6 +100,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_03_role_payment_access', file: '2026_10_03_role_payment_access.surql' },
   { id: '2026_10_03_order_edit_request', file: '2026_10_03_order_edit_request.surql' },
   { id: '2026_10_05_order_served_at', file: '2026_10_05_order_served_at.surql' },
+  { id: '2026_10_05_order_excluded_taxes', file: '2026_10_05_order_excluded_taxes.surql' },
 ];
 
 const rows = (result) => {
