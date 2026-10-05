@@ -8,7 +8,6 @@ import type {
   LocalEventInput,
 } from "@/api/reports/demand/types.ts";
 import {toIsoDate, weekdayName} from "@/api/reports/demand/horizon.ts";
-import {fetchPublicHolidays} from "@/api/reports/labor/fetch.ts";
 import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {getAppTimezone} from "@/lib/datetime.ts";
@@ -209,16 +208,8 @@ export const getDemandContext = async (
     );
   }
 
-  const holidaysRaw = await fetchPublicHolidays(db, {});
-  const holidays = holidaysRaw
-    .filter(row => row.is_active !== false)
-    .map(row => ({
-      name: row.name || "Holiday",
-      date: toIsoDate(row.date) || "",
-      isRecurring: Boolean(row.is_recurring),
-      liftPct: HOLIDAY_LIFT_PCT,
-    }))
-    .filter(row => row.date);
+  const holidays: Array<{name: string; date: string; isRecurring: boolean; liftPct: number}> = [];
+  // Public-holiday lift omitted: HR/labor holiday tables are not part of this build.
 
   let weather: DemandWeatherDay[] = [];
   const center = dates.length ? await fetchMapCenter(db) : undefined;

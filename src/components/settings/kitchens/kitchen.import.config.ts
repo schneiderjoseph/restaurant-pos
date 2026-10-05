@@ -9,7 +9,6 @@ import type {
 import {type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {claimDishesForKitchen} from "@/lib/kitchen/routing.ts";
-import {ensureLocationForKitchen} from "@/lib/inventory/location.service.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {
   assertCsvMatchValues,
@@ -133,20 +132,14 @@ export function createKitchenImportConfig({
         kitchenId = recordIdToString(row?.id) || String(row?.id ?? "");
       }
 
-      if (kitchenId) {
-        await ensureLocationForKitchen(db as any, kitchenId, {
-          name,
-          type: "Kitchen",
-        });
-        if (!payload.shows_all) {
-          await claimDishesForKitchen(
-            db as any,
-            kitchenId,
-            (payload.items ?? []).map((item: { toString?: () => string }) =>
-              item?.toString?.() ?? String(item)
-            ),
-          );
-        }
+      if (kitchenId && !payload.shows_all) {
+        await claimDishesForKitchen(
+          db as any,
+          kitchenId,
+          (payload.items ?? []).map((item: { toString?: () => string }) =>
+            item?.toString?.() ?? String(item)
+          ),
+        );
       }
     },
   };

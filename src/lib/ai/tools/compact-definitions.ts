@@ -1,6 +1,5 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
-import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
 
 const dateParams = {
   phrase: {type: "string"},
@@ -14,7 +13,8 @@ const dateOnly = {
   properties: dateParams,
 };
 
-export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
+export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[
+] = [
   {
     type: "function",
     function: {
@@ -152,151 +152,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "get_current_inventory",
-      description: "Ledger stock levels and items below reorder.",
-      parameters: {type: "object", properties: {limit: {type: "number"}}},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_inventory_movements",
-      description: "Posted ledger movements by type. For purchase receipts use get_inventory_documents instead.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateParams,
-          type: {
-            type: "string",
-            enum: [
-              "purchase",
-              "purchase_return",
-              "issue",
-              "issue_return",
-              "waste",
-              "adjustment",
-              "transfer_in",
-              "transfer_out",
-              "production_input",
-              "production_output",
-              "buffet_consumption",
-            ],
-          },
-        },
-        required: ["type"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_inventory_documents",
-      description: "Posted inventory docs: purchases, returns, issues, waste, adjustments, transfers (not POs). Use documentStatus=voided for voided purchases — not get_voids.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateParams,
-          documentType: {
-            type: "string",
-            enum: [
-              "purchase",
-              "purchase_return",
-              "issue",
-              "issue_return",
-              "waste",
-              "adjustment",
-              "transfer",
-            ],
-          },
-          documentStatus: {
-            type: "string",
-            enum: ["draft", "approved", "posted", "cancelled", "voided"],
-          },
-          limit: {type: "number", default: 50},
-        },
-        required: ["documentType"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_consumption",
-      description: "Recipe×sold consumption (not issuance).",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_issuance",
-      description: "Ledger issuance (issues + buffet).",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_waste_summary",
-      description: "Waste summary from ledger by item.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_sale_vs_consumption",
-      description: "Sales vs recipe consumption vs issuance vs purchases.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_kitchen_reconciliation",
-      description: "Kitchen reconciliation records.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_purchase_orders",
-      description: "Purchase ORDER approval docs (Draft/Pending/Approved) — never for posted purchases/receipts.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateParams,
-          status: {
-            type: "string",
-            enum: ["Draft", "Pending Approval", "Approved", "Fulfilled"],
-          },
-          limit: {type: "number", default: 50},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "list_suppliers",
-      description: "Inventory suppliers.",
-      parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number", default: 50}}},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "list_inventory_locations",
-      description: "Inventory stock locations.",
-      parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number", default: 50}}},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_expenses",
-      description: "Expenses from day closings.",
+      name: "get_expenses",      description: "Expenses from day closings.",
       parameters: dateOnly,
     },
   },
@@ -400,88 +256,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "forecast_inventory",
-      description: "Per-item stock depletion (needs currentStock + daily points). Overall consumption: get_time_series + forecast_sales.",
-      parameters: {
-        type: "object",
-        properties: {
-          itemId: {type: "string"},
-          itemName: {type: "string"},
-          currentStock: {type: "number"},
-          consumptionPoints: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {period: {type: "string"}, value: {type: "number"}},
-            },
-          },
-          forecastDays: {type: "number"},
-          reorderLevel: {type: "number"},
-        },
-        required: ["currentStock", "consumptionPoints"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "forecast_inventory_need",
-      description: "Qty needed vs on-hand and suggested purchase for a day or next N days. Pass localEvents from the prompt only.",
-      parameters: {
-        type: "object",
-        properties: {
-          days: {type: "number"},
-          phrase: {type: "string"},
-          targetDate: {type: "string"},
-          store: {type: "string"},
-          localEvents: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: {type: "string"},
-                startDate: {type: "string"},
-                endDate: {type: "string"},
-                liftPct: {type: "number"},
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "forecast_staff_need",
-      description: "Recommended hours/headcount for a day or next N days vs last same weekday and schedule.",
-      parameters: {
-        type: "object",
-        properties: {
-          days: {type: "number"},
-          phrase: {type: "string"},
-          targetDate: {type: "string"},
-          localEvents: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: {type: "string"},
-                startDate: {type: "string"},
-                endDate: {type: "string"},
-                liftPct: {type: "number"},
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "compare_periods",
-      description: "Compare a metric between two date ranges.",
+      name: "compare_periods",      description: "Compare a metric between two date ranges.",
       parameters: {
         type: "object",
         properties: {
@@ -564,91 +339,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "list_inventory_items",
-      description: "List inventory items for lookup.",
-      parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number"}}},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_labor_dashboard_snapshot",
-      description: "Real-time labor KPIs.",
-      parameters: {type: "object", properties: {}},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_daily_labor_cost",
-      description: "Day-by-day labor cost.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_labor_percent",
-      description: "Labor cost as % of net sales.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_overtime_report",
-      description: "Overtime hours and pay by employee.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_attendance_report",
-      description: "Attendance: scheduled vs worked, late, absent.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_payroll_summary",
-      description: "Payroll summary from snapshots.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_scheduled_vs_actual",
-      description: "Scheduled vs actual labor hours/cost.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_labor_trend",
-      description: "Labor cost trend over time.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_ai_labor_datasets",
-      description: "Bundled labor metrics for analysis.",
-      parameters: {
-        type: "object",
-        properties: {...dateParams, topLimit: {type: "number"}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_server_ticket_times",
-      description: "Server ticket time rankings (created to completed).",
+      name: "get_server_ticket_times",      description: "Server ticket time rankings (created to completed).",
       parameters: {
         type: "object",
         properties: {...dateParams, limit: {type: "number"}, dineInOnly: {type: "boolean"}},
@@ -666,54 +357,14 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "get_menu_engineering_matrix",
-      description: "Menu engineering quadrants: Stars, Plowhorses, Puzzles, Dogs.",
+      name: "get_void_and_cancel_summary",      description: "Void, cancel, and comp reasons summary.",
       parameters: dateOnly,
     },
   },
   {
     type: "function",
     function: {
-      name: "get_menu_sales_trends",
-      description: "MoM dish volume trends for high-profit items.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "estimate_price_change_impact",
-      description: "Profit impact of price change on top-volume items.",
-      parameters: {
-        type: "object",
-        properties: {...dateParams, priceChangePercent: {type: "number"}, topN: {type: "number"}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_void_and_cancel_summary",
-      description: "Void, cancel, and comp reasons summary.",
-      parameters: dateOnly,
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_hourly_labor_vs_sales",
-      description: "Hourly labor % vs sales; over-staffing windows.",
-      parameters: {
-        type: "object",
-        properties: {...dateParams, hourPhrase: {type: "string"}, laborPercentThreshold: {type: "number"}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_prep_times_by_order_type",
-      description: "Ticket time by order type (delivery vs dine-in).",
+      name: "get_prep_times_by_order_type",      description: "Ticket time by order type (delivery vs dine-in).",
       parameters: dateOnly,
     },
   },
@@ -834,7 +485,6 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     },
   },
   ...AI_MANAGE_READ_TOOLS,
-  ...AI_HR_READ_TOOLS,
 ];
 
 const COMPACT_TOOL_BY_NAME = new Map(

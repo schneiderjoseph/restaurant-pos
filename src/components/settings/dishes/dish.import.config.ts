@@ -77,14 +77,6 @@ export function createDishImportConfig({
       description: "Sale price as a number",
     },
     {
-      name: "cost",
-      label: t("admin:columns.costPrice"),
-      type: "number",
-      defaultValue: 0,
-      aliases: ["Cost", "Cost Price", "COGS"],
-      description: "Cost price; default 0 if missing",
-    },
-    {
       name: "categories",
       label: t("admin:columns.categories"),
       type: "reference[]",
@@ -150,7 +142,6 @@ export function createDishImportConfig({
       const number = await ensureNumber(values.number);
       const priority = Number(values.priority ?? 0);
       const price = Number(values.price);
-      const cost = Number(values.cost ?? 0);
 
       if (!Number.isFinite(price)) {
         throw new Error(t("validation:mustBeNumber"));
@@ -175,7 +166,6 @@ export function createDishImportConfig({
         number,
         priority: String(priority),
         price: String(price),
-        cost: String(cost),
       };
 
       assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
@@ -187,7 +177,7 @@ export function createDishImportConfig({
         number,
         priority: Number.isFinite(priority) ? priority : 0,
         price,
-        cost: Number.isFinite(cost) ? cost : 0,
+        cost: 0,
         categories: categoryIds,
       };
 
@@ -230,9 +220,6 @@ export function createDishImportConfig({
       const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
         if (field === "price") {
           return {column: "price", value: Number(value)};
-        }
-        if (field === "cost") {
-          return {column: "cost", value: Number(value)};
         }
         if (field === "priority") {
           return {column: "priority", value: Number(value)};

@@ -1,12 +1,9 @@
 import {
   ACCOUNTS,
   ADMIN,
-  CLOCK,
   CLOSING,
   DELIVERY,
-  HR,
   INTEGRATIONS,
-  INVENTORY,
   KITCHEN,
   MENU,
   ORDER_DISPLAY,
@@ -21,7 +18,6 @@ import { userModulesGrant } from '@/lib/access.rules.ts';
 
 /** Feature-flag gates used by the sidebar (build-time VITE_MODULE_*). */
 export type ModuleAccessFeatureFlags = {
-  hr: boolean;
   delivery: boolean;
   integrations: boolean;
   accounting: boolean;
@@ -48,17 +44,14 @@ export const SIDEBAR_NAV_ENTRIES: readonly SidebarNavEntry[] = [
   { link: ORDER_DISPLAY, role: 'order_display' },
   { link: DELIVERY, role: 'delivery', featureModule: 'delivery' },
   { link: CLOSING, role: 'closing', featureModule: 'closing' },
-  { link: INVENTORY, role: 'inventory' },
   { link: ADMIN, role: 'admin' },
   { link: REPORTS, role: 'reports' },
   { link: TIP_DISTRIBUTION, role: 'tips' },
   { link: ACCOUNTS, role: 'accounts', featureModule: 'accounting' },
-  { link: HR, role: 'hr', featureModule: 'hr' },
   { link: INTEGRATIONS, role: 'integrations', featureModule: 'integrations' },
 ];
 
 const FEATURE_FLAG_KEY: Record<FeatureModuleId, keyof ModuleAccessFeatureFlags> = {
-  hr: 'hr',
   delivery: 'delivery',
   integrations: 'integrations',
   accounting: 'accounting',
@@ -76,14 +69,10 @@ export const isSidebarEntryFeatureEnabled = (
 
 /**
  * Permission id for a pathname, or `null` when the route is not module-guarded
- * (e.g. CLOCK) or is unknown.
+ * or is unknown.
  */
 export const getRoutePermission = (pathname: string): string | null => {
   const path = pathname.split('?')[0] || pathname;
-
-  if (path === CLOCK || path.startsWith(`${CLOCK}/`)) {
-    return null;
-  }
 
   if (path === MENU || path.startsWith(`${MENU}/`)) return 'menu';
   if (path === ORDERS || path.startsWith(`${ORDERS}/`)) return 'orders';
@@ -92,12 +81,10 @@ export const getRoutePermission = (pathname: string): string | null => {
   if (path === ORDER_DISPLAY || path.startsWith(`${ORDER_DISPLAY}/`)) return 'order_display';
   if (path === DELIVERY || path.startsWith(`${DELIVERY}/`)) return 'delivery';
   if (path === CLOSING || path.startsWith(`${CLOSING}/`)) return 'closing';
-  if (path === INVENTORY || path.startsWith(`${INVENTORY}/`)) return 'inventory';
   if (path === ADMIN || path.startsWith(`${ADMIN}/`)) return 'admin';
   if (path === REPORTS || path.startsWith(`${REPORTS}/`)) return 'reports';
   if (path === TIP_DISTRIBUTION || path.startsWith(`${TIP_DISTRIBUTION}/`)) return 'tips';
   if (path === ACCOUNTS || path.startsWith(`${ACCOUNTS}/`)) return 'accounts';
-  if (path === HR || path.startsWith(`${HR}/`)) return 'hr';
   if (path === INTEGRATIONS || path.startsWith(`${INTEGRATIONS}/`)) return 'integrations';
   if (path === SETTINGS || path.startsWith(`${SETTINGS}/`)) return 'settings';
 
@@ -119,7 +106,7 @@ export const getFirstAllowedPath = (
 
 /**
  * Whether the current route may stay open for this user.
- * Unguarded routes (CLOCK, unknown) always pass.
+ * Unguarded routes (unknown) always pass.
  * When `ready` is false the caller must not redirect — this helper assumes ready.
  */
 export const canAccessPath = (

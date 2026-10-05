@@ -98,7 +98,8 @@
     "parentModifier": "Taille parente",
     "nextGroup": "Groupe suivant",
     "color": "Couleur",
-    "outlet": "Point de vente"
+    "outlet": "Point de vente",
+    "stationAccount": "PIN du compte station"
   },
   "entities": {
     "dish": "Plat",

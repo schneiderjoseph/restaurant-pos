@@ -24,29 +24,25 @@ describe("detectWriteToolsForPrompt", () => {
     expect(names).toContain("propose_update_tables");
   });
 
-  it("requires action verb for inventory items", () => {
-    const reportOnly = toolNames("show inventory items report", ["inventory.items"]);
-    expect(reportOnly).not.toContain("propose_create_inventory_items");
-
-    const write = toolNames("add inventory item Flour code FLR-01", ["inventory.items"]);
-    expect(write).toContain("propose_create_inventory_items");
+  it("does not expose removed inventory write tools", () => {
+    const names = toolNames("add inventory item Flour code FLR-01", ["inventory.items"]);
+    expect(names).not.toContain("propose_create_inventory_items");
   });
 
-  it("routes dish ingredients separately from dishes", () => {
+  it("does not expose removed dish ingredient write tools", () => {
     const names = toolNames(
       "add ingredient Tomato to dish #12",
       ["admin.dishes.create"],
     );
-    expect(names).toContain("propose_create_dish_ingredients");
-    expect(names).not.toContain("propose_create_dishes");
+    expect(names).not.toContain("propose_create_dish_ingredients");
   });
 
-  it("routes scheduled shifts for HR scheduling permission", () => {
+  it("does not expose removed HR scheduling write tools", () => {
     const names = toolNames(
       "add a scheduled shift for employee 101 tomorrow 9am-5pm",
       ["hr.scheduling"],
     );
-    expect(names).toContain("propose_create_scheduled_shifts");
+    expect(names).not.toContain("propose_create_scheduled_shifts");
   });
 
   it("routes floors, taxes, discounts in manage phase", () => {
@@ -58,11 +54,11 @@ describe("detectWriteToolsForPrompt", () => {
       .toContain("propose_create_discounts");
   });
 
-  it("routes HR employees and departments", () => {
+  it("does not expose removed HR employee/department write tools", () => {
     expect(toolNames("hire new employee John number E-99", ["hr.employees"]))
-      .toContain("propose_create_employees");
+      .not.toContain("propose_create_employees");
     expect(toolNames("add department Kitchen", ["hr.departments"]))
-      .toContain("propose_create_departments");
+      .not.toContain("propose_create_departments");
   });
 
   it("routes dish update via write intent and sales domain", () => {
@@ -98,15 +94,6 @@ describe("detectWriteToolsForPrompt", () => {
     const prompt = "remove Margherita from Grill kitchen";
     const names = toolNames(prompt, ["admin.kitchens.update"], ["manage"]);
     expect(names).toContain("propose_update_kitchens");
-  });
-
-  it("routes inventory purchase create", () => {
-    const names = toolNames(
-      "record a purchase of 10 kg flour from ABC Supplier to Main Store",
-      ["inventory.purchases"],
-      ["inventory"],
-    );
-    expect(names).toContain("propose_create_purchases");
   });
 
   it("routes journal entry create for accounts domain", () => {

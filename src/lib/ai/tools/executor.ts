@@ -33,34 +33,10 @@ import {
   listUsers,
   listWorkflows,
 } from "@/api/reports/manage/lists.ts";
-import {listInventoryLocations, listSuppliers} from "@/api/reports/inventory/lists.ts";
-import {
-  estimatePriceChangeImpact,
-  getMenuEngineeringMatrix,
-  getMenuSalesTrends,
-} from "@/api/reports/sales/menu-engineering.ts";
 import {
   getServerTicketTimes,
   getStaffAccountabilityMetrics,
 } from "@/api/reports/sales/server-analytics.ts";
-import {getHourlyLaborVsSales} from "@/api/reports/labor/hourly.ts";
-import {
-  getConsumptionSummary,
-  getCurrentInventory,
-  getInventoryMovements,
-  getIssuanceSummary,
-  getKitchenReconciliationSummary,
-  getPurchaseOrders,
-  getSaleVsConsumption,
-  getWasteSummary,
-  listInventoryItems,
-  type InventoryMovementType,
-} from "@/api/reports/inventory/index.ts";
-import {getEmployeeDetail, listEmployees} from "@/api/reports/hr/employees.ts";
-import {listCostCenters, listDepartments, listHrLeaveRequests, listPositions} from "@/api/reports/hr/org.ts";
-import {getInventoryDocuments} from "@/api/reports/inventory/documents.ts";
-import type {InventoryDocumentStatus} from "@/api/model/inventory_document.ts";
-import type {InventoryDocumentType} from "@/lib/ai/inventory-operation-query.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
 import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
 import {extractOrderStatusesFromArgs, inferOrderStatusesFromPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
@@ -88,22 +64,8 @@ import {
   listAccounts,
 } from "@/api/reports/accounts/index.ts";
 import {comparePeriods, getTimeSeries, type TimeSeriesMetric} from "@/api/reports/time-series.ts";
-import {forecastFromPoints, forecastInventoryConsumption} from "@/lib/ai/forecast.ts";
-import {parseLocalEventsArg} from "@/lib/ai/demand-query.ts";
-import {forecastInventoryNeed} from "@/api/reports/inventory/need-forecast.ts";
-import {forecastStaffNeed} from "@/api/reports/labor/staff-need.ts";
+import {forecastFromPoints} from "@/lib/ai/forecast.ts";
 import {type AiChartSpec, validateChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
-import {
-  getAttendanceReport,
-  getDailyLaborCost,
-  getLaborPercent,
-  getLaborTrend,
-  getOvertimeReport,
-  getPayrollSummary,
-  getScheduledVsActual,
-} from "@/api/reports/labor/facade.ts";
-import {getLaborDashboardSnapshot} from "@/api/reports/labor/dashboard.ts";
-import {getAiLaborDatasets} from "@/api/reports/labor/ai-datasets.ts";
 
 const hasDateValue = (value: unknown) => {
   if (value === undefined || value === null) {
@@ -260,59 +222,6 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 20,
       });
 
-    case "get_current_inventory":
-      return getCurrentInventory(db, {limit: args.limit ? Number(args.limit) : 100});
-
-    case "get_inventory_movements":
-      return getInventoryMovements(db, {
-        ...parseOptionalDateRangeArgs(args),
-        type: String(args.type) as InventoryMovementType,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_inventory_documents":
-      return getInventoryDocuments(db, {
-        ...parseOptionalDateRangeArgs(args),
-        documentType: String(args.documentType) as InventoryDocumentType,
-        documentStatus: args.documentStatus ? String(args.documentStatus) as InventoryDocumentStatus : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_consumption":
-      return getConsumptionSummary(db, {
-        ...parseOptionalDateRangeArgs(args),
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_issuance":
-      return getIssuanceSummary(db, {
-        ...parseOptionalDateRangeArgs(args),
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_waste_summary":
-      return getWasteSummary(db, {
-        ...parseOptionalDateRangeArgs(args),
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_sale_vs_consumption":
-      return getSaleVsConsumption(db, parseOptionalDateRangeArgs(args));
-
-    case "get_kitchen_reconciliation":
-      return getKitchenReconciliationSummary(db, {
-        ...parseOptionalDateRangeArgs(args),
-        limit: args.limit ? Number(args.limit) : 20,
-      });
-
-    case "get_purchase_orders":
-      return getPurchaseOrders(db, {
-        ...parseDateRangeWithPhrase(args),
-        status: args.status ? String(args.status) : undefined,
-        statuses: Array.isArray(args.statuses) ? args.statuses.map(String) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
     case "get_expenses":
       return getExpenses(db, parseOptionalDateRangeArgs(args));
 
@@ -364,35 +273,6 @@ export const executeAiReportTool = async (
       );
     }
 
-    case "forecast_inventory": {
-      const consumptionPoints = (args.consumptionPoints as Array<{period: string; value: number}>) ?? [];
-      return forecastInventoryConsumption(
-        Number(args.currentStock ?? 0),
-        consumptionPoints.map(p => ({period: p.period, value: p.value})),
-        args.forecastDays ? Number(args.forecastDays) : 14,
-        args.reorderLevel ? Number(args.reorderLevel) : undefined,
-      );
-    }
-
-    case "forecast_inventory_need":
-      return forecastInventoryNeed(db, {
-        days: args.days !== undefined ? Number(args.days) : undefined,
-        phrase: args.phrase ? String(args.phrase) : undefined,
-        targetDate: args.targetDate ? String(args.targetDate) : undefined,
-        prompt: args.prompt ? String(args.prompt) : undefined,
-        store: args.store ? String(args.store) : undefined,
-        localEvents: parseLocalEventsArg(args.localEvents),
-      });
-
-    case "forecast_staff_need":
-      return forecastStaffNeed(db, {
-        days: args.days !== undefined ? Number(args.days) : undefined,
-        phrase: args.phrase ? String(args.phrase) : undefined,
-        targetDate: args.targetDate ? String(args.targetDate) : undefined,
-        prompt: args.prompt ? String(args.prompt) : undefined,
-        localEvents: parseLocalEventsArg(args.localEvents),
-      });
-
     case "compare_periods":
       return comparePeriods(db, {
         metric: String(args.metric) as Parameters<typeof comparePeriods>[1]["metric"],
@@ -432,12 +312,6 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 500,
       });
 
-    case "list_inventory_items":
-      return listInventoryItems(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
     case "list_floors":
       return listFloors(db, {
         search: args.search ? String(args.search) : undefined,
@@ -467,18 +341,6 @@ export const executeAiReportTool = async (
       return getKitchenDetail(db, {
         name: args.name ? String(args.name) : undefined,
         search: args.search ? String(args.search) : undefined,
-      });
-
-    case "list_suppliers":
-      return listSuppliers(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "list_inventory_locations":
-      return listInventoryLocations(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
       });
 
     case "list_taxes":
@@ -561,78 +423,6 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 50,
       });
 
-    case "list_employees":
-      return listEmployees(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_employee_detail":
-      return getEmployeeDetail(db, {
-        employeeNumber: args.employee_number ? String(args.employee_number) : undefined,
-        employeeId: args.employee_id ? String(args.employee_id) : undefined,
-      });
-
-    case "list_departments":
-      return listDepartments(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "list_positions":
-      return listPositions(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "list_cost_centers":
-      return listCostCenters(db, {
-        search: args.search ? String(args.search) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "list_hr_leave_requests":
-      return listHrLeaveRequests(db, {
-        ...parseOptionalDateRangeArgs(args),
-        employeeNumber: args.employee_number ? String(args.employee_number) : undefined,
-        employeeId: args.employee_id ? String(args.employee_id) : undefined,
-        status: args.status ? String(args.status) : undefined,
-        limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_labor_dashboard_snapshot":
-      return getLaborDashboardSnapshot(db);
-
-    case "get_daily_labor_cost":
-      return getDailyLaborCost(db, parseDateRangeWithPhrase(args));
-
-    case "get_labor_percent":
-      return getLaborPercent(db, parseDateRangeWithPhrase(args));
-
-    case "get_overtime_report": {
-      const rows = await getOvertimeReport(db, parseDateRangeWithPhrase(args));
-      const limit = args.limit ? Number(args.limit) : 20;
-      return rows.slice(0, limit);
-    }
-
-    case "get_attendance_report":
-      return getAttendanceReport(db, parseDateRangeWithPhrase(args));
-
-    case "get_payroll_summary":
-      return getPayrollSummary(db, parseDateRangeWithPhrase(args));
-
-    case "get_scheduled_vs_actual":
-      return getScheduledVsActual(db, parseDateRangeWithPhrase(args));
-
-    case "get_labor_trend":
-      return getLaborTrend(db, parseDateRangeWithPhrase(args));
-
-    case "get_ai_labor_datasets":
-      return getAiLaborDatasets(db, {
-        ...parseDateRangeWithPhrase(args),
-        topLimit: args.topLimit ? Number(args.topLimit) : 10,
-      });
-
     case "get_server_ticket_times":
       return getServerTicketTimes(db, {
         ...parseDateRangeWithPhrase(args),
@@ -648,37 +438,10 @@ export const executeAiReportTool = async (
           : undefined,
       });
 
-    case "get_menu_engineering_matrix":
-      return getMenuEngineeringMatrix(db, parseDateRangeWithPhrase(args));
-
-    case "get_menu_sales_trends":
-      return getMenuSalesTrends(db, {
-        volumeDropPercent: args.volumeDropPercent ? Number(args.volumeDropPercent) : undefined,
-        highProfitOnly: args.highProfitOnly !== false && args.highProfitOnly !== "false",
-      });
-
-    case "estimate_price_change_impact":
-      return estimatePriceChangeImpact(db, {
-        ...parseDateRangeWithPhrase(args),
-        priceChangePercent: args.priceChangePercent ? Number(args.priceChangePercent) : undefined,
-        topN: args.topN ? Number(args.topN) : undefined,
-      });
-
     case "get_void_and_cancel_summary":
       return getVoidAndCancelSummary(db, {
         ...parseDateRangeWithPhrase(args),
         limit: args.limit ? Number(args.limit) : 50,
-      });
-
-    case "get_hourly_labor_vs_sales":
-      return getHourlyLaborVsSales(db, {
-        ...parseDateRangeWithPhrase(args),
-        startHour: args.startHour !== undefined ? Number(args.startHour) : undefined,
-        endHour: args.endHour !== undefined ? Number(args.endHour) : undefined,
-        hourPhrase: args.hourPhrase ? String(args.hourPhrase) : undefined,
-        laborPercentThreshold: args.laborPercentThreshold
-          ? Number(args.laborPercentThreshold)
-          : undefined,
       });
 
     case "get_prep_times_by_order_type":

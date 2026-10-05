@@ -10,26 +10,22 @@ import {
   faList, faLock,
   faMotorcycle,
   faStore,
-  faBellConcierge, faUsers, faWarehouse, faWrench,
+  faBellConcierge, faWrench,
   faPowerOff,
   faReceipt,
-  faUser,
   faPlug,
   faRefresh
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { CSSProperties, useMemo, type ReactNode } from "react";
-import {NavLink, useNavigate} from "react-router";
+import {useNavigate} from "react-router";
 import {
   ACCOUNTS,
   ADMIN,
-  CLOCK,
   CLOSING,
   DELIVERY,
-  HR,
   INTEGRATIONS,
-  INVENTORY,
   KITCHEN,
   MENU,
   ORDER_DISPLAY,
@@ -48,7 +44,6 @@ import {
   isAccountingModuleEnabled,
   isClosingModuleEnabled,
   isDeliveryModuleEnabled,
-  isHrModuleEnabled,
   isIntegrationsModuleEnabled,
 } from "@/lib/feature-modules.ts";
 import { SecurityAlertsBadge } from "@/components/admin/security-alerts/alert-badge.tsx";
@@ -67,12 +62,10 @@ const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [ORDER_DISPLAY]: 'nav-order-display',
   [DELIVERY]: 'nav-delivery',
   [CLOSING]: 'nav-closing',
-  [INVENTORY]: 'nav-inventory',
   [ADMIN]: 'nav-admin',
   [REPORTS]: 'nav-reports',
   [TIP_DISTRIBUTION]: 'nav-tip-distribution',
   [ACCOUNTS]: 'nav-accounts',
-  [HR]: 'nav-hr',
   [INTEGRATIONS]: 'nav-integrations',
 };
 
@@ -84,12 +77,10 @@ const SIDEBAR_ICONS: Record<string, ReactNode> = {
   order_display: <FontAwesomeIcon icon={faDisplay} size="lg"/>,
   delivery: <FontAwesomeIcon icon={faMotorcycle} size="lg"/>,
   closing: <FontAwesomeIcon icon={faStore} size="lg"/>,
-  inventory: <FontAwesomeIcon icon={faWarehouse} size="lg"/>,
   admin: <FontAwesomeIcon icon={faGear} size="lg"/>,
   reports: <FontAwesomeIcon icon={faLineChart} size="lg"/>,
   tips: <FontAwesomeIcon icon={faBarChart} size="lg"/>,
   accounts: <FontAwesomeIcon icon={faReceipt} size="lg"/>,
-  hr: <FontAwesomeIcon icon={faUsers} size="lg"/>,
   integrations: <FontAwesomeIcon icon={faPlug} size="lg"/>,
 };
 
@@ -101,17 +92,15 @@ const SIDEBAR_TITLE_KEYS: Record<string, string> = {
   order_display: 'sidebar.orderDisplay',
   delivery: 'sidebar.delivery',
   closing: 'sidebar.closing',
-  inventory: 'sidebar.inventory',
   admin: 'sidebar.manage',
   reports: 'sidebar.reports',
   tips: 'sidebar.tipDist',
   accounts: 'sidebar.accounts',
-  hr: 'sidebar.hr',
   integrations: 'sidebar.integrations',
 };
 
 export const Sidebar = () => {
-  const [, setPage] = useAtom(appPage);
+  const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation(['navigation', 'common']);
   const { ready, can } = useModuleAccess();
 
@@ -137,14 +126,11 @@ export const Sidebar = () => {
   }
 
   const featureFlags: ModuleAccessFeatureFlags = useMemo(() => ({
-    hr: isHrModuleEnabled(),
     delivery: isDeliveryModuleEnabled(),
     integrations: isIntegrationsModuleEnabled(),
     accounting: isAccountingModuleEnabled(),
     closing: isClosingModuleEnabled(),
   }), []);
-
-  const hrEnabled = featureFlags.hr;
 
   const sidebarItems = useMemo(() => {
     return SIDEBAR_NAV_ENTRIES
@@ -208,21 +194,6 @@ export const Sidebar = () => {
             >
               <FontAwesomeIcon icon={faWrench} />
             </button>
-          )}
-          {hrEnabled && (
-            <NavLink
-              to={CLOCK}
-              data-testid="nav-clock"
-              className={cn(
-                'btn btn-primary lg flex-1',
-                pathInfo === CLOCK ? 'active' : ''
-              )}
-              style={{
-                '--padding': '0.5rem'
-              } as CSSProperties}
-            >
-              <FontAwesomeIcon icon={faUser} />
-            </NavLink>
           )}
         </div>
         <div className="input-group">

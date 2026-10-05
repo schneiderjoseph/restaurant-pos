@@ -11,9 +11,7 @@ import {ServiceChargesSettings} from "@/components/user_settings/service_charges
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
-import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
-import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {OrderVisibilitySettingsCard} from "@/components/user_settings/order_visibility.tsx";
 import {OrderDisplayAccessSettingsCard} from "@/components/user_settings/order_display_access.tsx";
@@ -43,9 +41,7 @@ export const AdminGeneralSettings = () => (
     <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
     <MasonryItem><OrderVisibilitySettingsCard /></MasonryItem>
     <MasonryItem><OrderDisplayAccessSettingsCard /></MasonryItem>
-    <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>
     <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
-    <MasonryItem><InventorySettingsCard /></MasonryItem>
     <MasonryItem><ItemsVisibilityConfig /></MasonryItem>
   </div>
 );

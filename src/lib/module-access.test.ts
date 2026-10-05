@@ -13,11 +13,8 @@ import {
 } from '@/lib/module-access.ts';
 import {
   ADMIN,
-  CLOCK,
   CLOSING,
   DELIVERY,
-  HR,
-  INVENTORY,
   MENU,
   ORDERS,
   REPORTS,
@@ -26,7 +23,6 @@ import {
 } from '@/routes/posr.ts';
 
 const allFlagsOn: ModuleAccessFeatureFlags = {
-  hr: true,
   delivery: true,
   integrations: true,
   accounting: true,
@@ -34,7 +30,6 @@ const allFlagsOn: ModuleAccessFeatureFlags = {
 };
 
 const allFlagsOff: ModuleAccessFeatureFlags = {
-  hr: false,
   delivery: false,
   integrations: false,
   accounting: false,
@@ -48,14 +43,12 @@ describe('getRoutePermission', () => {
     expect(getRoutePermission(SUMMARY)).toBe('summary');
     expect(getRoutePermission(ADMIN)).toBe('admin');
     expect(getRoutePermission(SETTINGS)).toBe('settings');
-    expect(getRoutePermission(INVENTORY)).toBe('inventory');
-    expect(getRoutePermission('/inventory/print/purchase/abc')).toBe('inventory');
     expect(getRoutePermission(REPORTS)).toBe('reports');
     expect(getRoutePermission(`${REPORTS}/sales-dashboard`)).toBe('reports');
   });
 
-  it('does not guard CLOCK', () => {
-    expect(getRoutePermission(CLOCK)).toBeNull();
+  it('does not guard unknown paths', () => {
+    expect(getRoutePermission('/unknown-path')).toBeNull();
   });
 });
 
@@ -66,8 +59,8 @@ describe('getFirstAllowedPath', () => {
   });
 
   it('skips feature-flagged entries that are disabled', () => {
-    expect(getFirstAllowedPath(['delivery', 'hr', 'menu'], allFlagsOff)).toBe(MENU);
-    expect(getFirstAllowedPath(['delivery', 'hr'], allFlagsOff)).toBeNull();
+    expect(getFirstAllowedPath(['delivery', 'menu'], allFlagsOff)).toBe(MENU);
+    expect(getFirstAllowedPath(['delivery'], allFlagsOff)).toBeNull();
     expect(getFirstAllowedPath(['delivery'], { ...allFlagsOff, delivery: true })).toBe(DELIVERY);
   });
 
@@ -75,15 +68,11 @@ describe('getFirstAllowedPath', () => {
     expect(getFirstAllowedPath([], allFlagsOn)).toBeNull();
     expect(getFirstAllowedPath(['settings'], allFlagsOn)).toBeNull();
   });
-
-  it('respects parent-group grants via userModulesGrant', () => {
-    expect(getFirstAllowedPath(['inventory'], allFlagsOn)).toBe(INVENTORY);
-  });
 });
 
 describe('canAccessPath', () => {
   it('allows unguarded and granted routes', () => {
-    expect(canAccessPath(CLOCK, [], allFlagsOn)).toBe(true);
+    expect(canAccessPath('/unknown-path', [], allFlagsOn)).toBe(true);
     expect(canAccessPath(MENU, ['menu'], allFlagsOn)).toBe(true);
     expect(canAccessPath(`${REPORTS}/tax`, ['reports'], allFlagsOn)).toBe(true);
   });
@@ -95,7 +84,6 @@ describe('canAccessPath', () => {
 
   it('denies feature-flagged routes when the flag is off', () => {
     expect(canAccessPath(CLOSING, ['closing'], allFlagsOff)).toBe(false);
-    expect(canAccessPath(HR, ['hr'], allFlagsOff)).toBe(false);
   });
 });
 

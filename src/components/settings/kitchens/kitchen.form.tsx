@@ -24,7 +24,6 @@ import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { PrinterForm } from "@/components/settings/printers/printer.form.tsx";
-import { ensureLocationForKitchen } from "@/lib/inventory/location.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { claimDishesForKitchen, ensureKitchenShowsAllField } from "@/lib/kitchen/routing.ts";
 
@@ -186,13 +185,6 @@ export const KitchenForm = ({
           kitchenId,
           (vals.items ?? []).map((item: { toString: () => string }) => item.toString()),
         );
-      }
-
-      if (kitchenId) {
-        await ensureLocationForKitchen(db, kitchenId, {
-          name: values.name,
-          type: "Kitchen",
-        });
       }
 
       

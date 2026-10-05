@@ -4,14 +4,10 @@ import {isAssistantWidgetPath} from "@/lib/ai/assistant-widget-visibility.ts";
 describe("isAssistantWidgetPath", () => {
   it("allows back-office routes", () => {
     expect(isAssistantWidgetPath("/admin")).toBe(true);
-    expect(isAssistantWidgetPath("/inventory")).toBe(true);
-    expect(isAssistantWidgetPath("/inventory/print/purchase/doc:1")).toBe(true);
     expect(isAssistantWidgetPath("/reports/sales-summary")).toBe(true);
     expect(isAssistantWidgetPath("/tip-distribution")).toBe(true);
     expect(isAssistantWidgetPath("/accounts")).toBe(true);
-    expect(isAssistantWidgetPath("/hr")).toBe(true);
     expect(isAssistantWidgetPath("/integrations")).toBe(true);
-    expect(isAssistantWidgetPath("/clock")).toBe(true);
   });
 
   it("hides cashier-facing routes", () => {

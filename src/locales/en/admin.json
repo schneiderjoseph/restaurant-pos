@@ -98,7 +98,8 @@
     "parentModifier": "Parent size",
     "nextGroup": "Next group",
     "color": "Color",
-    "outlet": "Point of sale"
+    "outlet": "Point of sale",
+    "stationAccount": "Station account PIN"
   },
   "entities": {
     "dish": "Dish",

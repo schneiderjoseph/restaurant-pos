@@ -18,9 +18,13 @@ import type {Dayjs} from "dayjs";
 import {nowSurrealDateTime, toJsDate, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {TimePicker} from "@/components/common/antd/time.picker.tsx";
 import {DateTimePicker, jsDateToDayjs} from "@/components/common/antd/datetime.picker.tsx";
-import {dayjsToSurreal} from "@/components/hr/shared/form.utils.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+
+const dayjsToSurreal = (value: Dayjs | null | undefined) => {
+  if (!value) return undefined;
+  return toSurrealDateTime(value.toDate());
+};
 interface Props {
   open: boolean;
   onClose: () => void;

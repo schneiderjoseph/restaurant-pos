@@ -2,14 +2,13 @@ import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { InputField } from "@/components/common/form/rhf-fields.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "@/api/model/user.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -18,12 +17,6 @@ import { Shift } from "@/api/model/shift.ts";
 import { StringRecordId } from "surrealdb";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
-import {
-  createLinkedEmployee,
-  extractFirstRecord,
-  generateEmployeeNumber,
-} from "@/lib/labor-engine/employee.resolver.ts";
-import {recordIdToString} from "@/api/reports/shared/records.ts";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
@@ -52,12 +45,6 @@ const validationSchema = yup.object({
     label: yup.string(),
     value: yup.string(),
   }).nullable().default(null),
-  create_employee: yup.boolean().default(true),
-  employee_number: yup.string().when('create_employee', {
-    is: true,
-    then: (schema) => schema.required(i18n.t('validation:required')),
-    otherwise: (schema) => schema.nullable(),
-  }),
 });
 
 export const UserForm = ({
@@ -65,18 +52,9 @@ export const UserForm = ({
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
-  const { control, handleSubmit, formState: { errors }, reset, watch, setValue, getValues } = useForm({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
     resolver: yupResolver(validationSchema),
-    defaultValues: {
-      create_employee: true,
-      employee_number: '',
-    },
   });
-
-  const lastAutoEmployeeNumber = useRef('');
-  const login = watch('login');
-  const createEmployee = watch('create_employee');
-  const isCreateMode = !data;
 
   const closeModal = () => {
     onClose();
@@ -86,10 +64,7 @@ export const UserForm = ({
       login: null,
       user_role: null,
       user_shift: null,
-      create_employee: true,
-      employee_number: '',
     });
-    lastAutoEmployeeNumber.current = '';
   }
 
   useEffect(() => {
@@ -107,26 +82,9 @@ export const UserForm = ({
           label: (data as any)?.user_shift?.name,
           value: (data as any)?.user_shift?.id,
         } : null,
-        create_employee: false,
-        employee_number: '',
       });
     }
   }, [data, reset]);
-
-  useEffect(() => {
-    if (!isCreateMode || !createEmployee || !login) {
-      return;
-    }
-
-    const current = getValues('employee_number');
-    if (current && current !== lastAutoEmployeeNumber.current) {
-      return;
-    }
-
-    const next = generateEmployeeNumber(login);
-    setValue('employee_number', next);
-    lastAutoEmployeeNumber.current = next;
-  }, [login, createEmployee, isCreateMode, setValue, getValues]);
 
   const db = useDB();
   const {
@@ -182,39 +140,12 @@ export const UserForm = ({
           user_shift: vals.user_shift,
         };
 
-        const result = await db.query(
-          `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift) RETURN AFTER`,
+        await db.query(
+          `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift)`,
           userParams,
         );
-        const createdUser = extractFirstRecord<User>(result);
-        const userId = recordIdToString(createdUser?.id ?? createdUser);
-
-        if (values.create_employee) {
-          if (!userId) {
-            closeModal();
-            toast.error(t('toast:admin.employeeLinkFailed'));
-            toast.success(t('toast:admin.userSaved', { name: displayName }));
-            return;
-          }
-
-          try {
-            await createLinkedEmployee(db, {
-              userId,
-              employeeNumber: values.employee_number,
-              first_name: values.first_name,
-              last_name: values.last_name,
-            });
-            closeModal();
-            toast.success(t('toast:admin.userAndEmployeeSaved', { name: displayName }));
-          } catch (employeeError) {
-            closeModal();
-            toast.error(employeeError instanceof Error ? employeeError.message : String(employeeError));
-            toast.success(t('toast:admin.userSaved', { name: displayName }));
-          }
-        } else {
-          closeModal();
-          toast.success(t('toast:admin.userSaved', { name: displayName }));
-        }
+        closeModal();
+        toast.success(t('toast:admin.userSaved', { name: displayName }));
       }
     } catch ( e ) {
       toast.error(e instanceof Error ? e.message : String(e));
@@ -293,33 +224,6 @@ export const UserForm = ({
               </div>
               <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setShiftModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
-
-            {isCreateMode && (
-              <div className="flex flex-col gap-3 pt-2 border-t border-neutral-200">
-                <Controller
-                  name="create_employee"
-                  control={control}
-                  render={({field}) => (
-                    <Checkbox
-                      label={t('forms.createEmployeeToo')}
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.currentTarget.checked)}
-                    />
-                  )}
-                />
-                {createEmployee && (
-                  <>
-                    <p className="text-sm text-neutral-500">{t('forms.createEmployeeHint')}</p>
-                    <InputField
-                      name="employee_number"
-                      control={control}
-                      label={t('forms.employeeNumber')}
-                      error={errors?.employee_number?.message}
-                    />
-                  </>
-                )}
-              </div>
-            )}
           </div>
 
           <div>

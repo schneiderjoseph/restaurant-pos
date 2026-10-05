@@ -13,8 +13,9 @@ import {
   normalizeSessionAction,
   normalizeSessionSecurity,
 } from '@/api/model/session_security.ts';
-import { loadSessionSecuritySettings } from '@/lib/auto-clock-out.ts';
+import { loadSessionSecuritySettings } from '@/lib/session-security.ts';
 import { lockSession, logoutSession } from '@/lib/session.actions.ts';
+import { stationKitchenId } from '@/lib/kitchen/station-account.ts';
 
 /**
  * Discrete interactions — always reset idle immediately.
@@ -84,7 +85,8 @@ export const SessionIdleProvider: React.FC<SessionIdleProviderProps> = ({ childr
     firedRef.current = false;
     const current = pageRef.current;
     const settings = settingsRef.current;
-    if (!current?.user || current.locked || !settings.enabled) {
+    // A station screen is watched, rarely touched: its account never idles out.
+    if (!current?.user || current.locked || !settings.enabled || stationKitchenId(current.user)) {
       clearDeadline();
       return;
     }

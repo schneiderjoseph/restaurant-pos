@@ -14,26 +14,6 @@ export const isStaffAccountabilityPrompt = (prompt: string): boolean => {
     && /\b(order\s*takers?|servers?|staff|team\s+average|unusually\s+high)\b/i.test(prompt);
 };
 
-export const isMenuEngineeringPrompt = (prompt: string): boolean => {
-  return /\b(menu\s+engineering|plowhorses?|puzzles?|stars?|dogs?)\b/i.test(prompt)
-    || (/\b(high|low)\s+(popularity|margin)\b/i.test(prompt) && /\bmenu\b/i.test(prompt));
-};
-
-export const isMenuTrendPrompt = (prompt: string): boolean => {
-  return /\b(drop|declin|month[\s-]?over[\s-]?month|mom)\b/i.test(prompt)
-    && /\b(sales\s+volume|volume|dishes?|products?)\b/i.test(prompt);
-};
-
-export const isPriceImpactPrompt = (prompt: string): boolean => {
-  return /\b(price\s+adjust(?:ment)?|price\s+increase|price\s+change)\b/i.test(prompt)
-    && /\b(profit|volume|impact)\b/i.test(prompt);
-};
-
-export const isHourlyLaborPrompt = (prompt: string): boolean => {
-  return /\b(labor\s+cost|labour\s+cost|labor\s*%|labour\s*%|over[\s-]?staff)\b/i.test(prompt)
-    && /\b(hour|hourly)\b/i.test(prompt);
-};
-
 export const isPrepTimePrompt = (prompt: string): boolean => {
   return /\b(prep|preparation|delay|ticket\s*time)\b/i.test(prompt)
     && /\b(delivery|dine[\s-]?in|order\s+type)\b/i.test(prompt);
@@ -61,12 +41,8 @@ export const isPromotionalDiscountPrompt = (prompt: string): boolean => {
 export const resolveAnalyticsToolName = (prompt: string): string | null => {
   if (isServerTicketTimePrompt(prompt)) return "get_server_ticket_times";
   if (isStaffAccountabilityPrompt(prompt)) return "get_staff_accountability_metrics";
-  if (isMenuEngineeringPrompt(prompt)) return "get_menu_engineering_matrix";
-  if (isMenuTrendPrompt(prompt)) return "get_menu_sales_trends";
-  if (isPriceImpactPrompt(prompt)) return "estimate_price_change_impact";
   if (isVoidCancelSummaryPrompt(prompt)) return "get_void_and_cancel_summary";
   if (isPromotionalDiscountPrompt(prompt)) return "get_discount_summary";
-  if (isHourlyLaborPrompt(prompt)) return "get_hourly_labor_vs_sales";
   if (isPrepTimePrompt(prompt)) return "get_prep_times_by_order_type";
   if (isKitchenDelayPrompt(prompt)) return "get_kitchen_station_delays";
   if (isCashAuditPrompt(prompt)) return "get_cash_settlement_audit";

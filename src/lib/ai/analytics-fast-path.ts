@@ -1,5 +1,4 @@
 import type {DbClient} from "@/api/reports/shared/types.ts";
-import {getHourlyLaborVsSales} from "@/api/reports/labor/hourly.ts";
 import {getCashSettlementAudit} from "@/api/reports/operations/cash-audit.ts";
 import {
   getKitchenStationDelays,
@@ -8,27 +7,17 @@ import {
 import {getVoidAndCancelSummary} from "@/api/reports/operations/void-cancel.ts";
 import {getDiscountSummary} from "@/api/reports/sales/discounts.ts";
 import {
-  estimatePriceChangeImpact,
-  getMenuEngineeringMatrix,
-  getMenuSalesTrends,
-} from "@/api/reports/sales/menu-engineering.ts";
-import {
   getServerTicketTimes,
   getStaffAccountabilityMetrics,
 } from "@/api/reports/sales/server-analytics.ts";
 import {
   isCashAuditPrompt,
-  isHourlyLaborPrompt,
   isKitchenDelayPrompt,
-  isMenuEngineeringPrompt,
-  isMenuTrendPrompt,
   isPrepTimePrompt,
-  isPriceImpactPrompt,
   isServerTicketTimePrompt,
   isStaffAccountabilityPrompt,
   isVoidCancelSummaryPrompt,
   isPromotionalDiscountPrompt,
-  resolveAnalyticsToolName,
   resolvePromptDateRange,
 } from "@/lib/ai/analytics-query.ts";
 
@@ -65,38 +54,6 @@ export const tryAnalyticsFastPath = async (
     };
   }
 
-  if (isMenuEngineeringPrompt(prompt)) {
-    const data = await getMenuEngineeringMatrix(db, dateRange);
-    return {
-      toolName: "get_menu_engineering_matrix",
-      args: {...dateRange} as Record<string, unknown>,
-      data,
-      hint: "Focus on plowhorses and puzzles quadrants if asked. Explain thresholds used.",
-    };
-  }
-
-  if (isMenuTrendPrompt(prompt)) {
-    const data = await getMenuSalesTrends(db, {volumeDropPercent: 10, highProfitOnly: true});
-    return {
-      toolName: "get_menu_sales_trends",
-      args: {volumeDropPercent: 10},
-      data,
-      hint: "List decliningHighProfitItems with volumeChangePercent.",
-    };
-  }
-
-  if (isPriceImpactPrompt(prompt)) {
-    const match = prompt.match(/(\d+)\s*%/);
-    const priceChangePercent = match ? Number(match[1]) : 5;
-    const data = await estimatePriceChangeImpact(db, {...dateRange, priceChangePercent, topN: 3});
-    return {
-      toolName: "estimate_price_change_impact",
-      args: {...dateRange, priceChangePercent, topN: 3},
-      data,
-      hint: "State assumption: volume held constant. Report totalWeeklyProfitDelta.",
-    };
-  }
-
   if (isVoidCancelSummaryPrompt(prompt)) {
     const data = await getVoidAndCancelSummary(db, dateRange);
     return {
@@ -117,17 +74,6 @@ export const tryAnalyticsFastPath = async (
       args: {...dateRange, billPercentThreshold: 20},
       data,
       hint: "Highlight exceededBillPercentThreshold entries.",
-    };
-  }
-
-  if (isHourlyLaborPrompt(prompt)) {
-    const hourPhrase = /\bpeak\s+hours?\b/i.test(prompt) ? "peak hours" : undefined;
-    const data = await getHourlyLaborVsSales(db, {...dateRange, hourPhrase});
-    return {
-      toolName: "get_hourly_labor_vs_sales",
-      args: {...dateRange, hourPhrase},
-      data,
-      hint: "Highlight overStaffingWindows where laborPercent is high vs sales.",
     };
   }
 

@@ -1,7 +1,10 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClose} from "@fortawesome/free-solid-svg-icons";
+import {faClose, faPowerOff} from "@fortawesome/free-solid-svg-icons";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
+import {useNavigate} from "react-router";
+import {logoutSession} from "@/lib/session.actions.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {
@@ -31,6 +34,8 @@ import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useKitchenOrderAnnouncements} from "@/hooks/useKitchenOrderAnnouncements.ts";
 import {unlockSpeech} from "@/lib/order-ready-announcement.ts";
+import {stationKitchenId} from "@/lib/kitchen/station-account.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 /** Approximate vertical budget (px) for chrome around item rows on a ticket. */
 const CARD_CHROME_PX = 168;
@@ -167,13 +172,21 @@ export const KitchenScreen = () => {
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [enforcement] = useAtom(closingEnforcementAtom);
-  const [page] = useAtom(appPage);
+  const {t: tCommon} = useTranslation('common');
+  const [page, setPage] = useAtom(appPage);
+  const navigate = useNavigate();
   const mutationsBlocked = enforcement.orderMutationsBlocked;
 
   const [kitchen, setKitchen] = useState<Kitchen>();
   const {
-    data: kitchens
+    data: allKitchens
   } = useApi<SettingsData<Kitchen>>(Tables.kitchens, ['deleted_at = none'], ['priority asc'], 0, 99999, ['items', 'printers']);
+  // A station account sees its own station only.
+  const ownStationId = stationKitchenId(page?.user);
+  const kitchens = useMemo(() => {
+    const list = allKitchens?.data ?? [];
+    return ownStationId ? list.filter((item) => recordIdToString(item.id) === ownStationId) : list;
+  }, [allKitchens, ownStationId]);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
   const [ordersHydrated, setOrdersHydrated] = useState(false);
   const orders = useMemo(() => {
@@ -430,8 +443,8 @@ export const KitchenScreen = () => {
   }
 
   useEffect(() => {
-    if (!kitchen && kitchens?.total > 0) {
-      setKitchen(kitchens?.data?.[0]);
+    if (!kitchen && kitchens.length > 0) {
+      setKitchen(kitchens[0]);
     }
   }, [kitchens, kitchen]);
 
@@ -563,7 +576,7 @@ export const KitchenScreen = () => {
   }, []);
 
   return (
-    <Layout containerClassName="overflow-hidden">
+    <Layout containerClassName="overflow-hidden" showSidebar={!ownStationId}>
       <DocumentTitle parts={[tNav('sidebar.kitchen')]} />
       <div
         className="flex gap-5 p-3 flex-col"
@@ -573,7 +586,7 @@ export const KitchenScreen = () => {
       >
         <div className="h-[60px] flex-0 flex items-center gap-3 justify-between" data-testid="kitchen-toolbar">
           <div className="input-group flex-1">
-            {kitchens?.data?.map(item => (
+            {kitchens.map(item => (
               <Button
                 size="lg"
                 variant="primary"
@@ -598,6 +611,18 @@ export const KitchenScreen = () => {
           <div className="input-group flex-1 justify-end flex gap-3 items-center h-full">
             <span
               className="rounded-xl bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
+            {/* No sidebar for a station account: its only way out. */}
+            {ownStationId && (
+              <IconTooltipButton
+                label={tCommon('actions.logout')}
+                variant="danger"
+                size="lg"
+                onClick={() => void logoutSession(setPage, navigate)}
+                data-testid="kitchen-logout"
+              >
+                <FontAwesomeIcon icon={faPowerOff}/>
+              </IconTooltipButton>
+            )}
           </div>
         </div>
         <div className="grid grid-cols-5 gap-5">

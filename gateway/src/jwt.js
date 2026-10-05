@@ -12,6 +12,9 @@ if (SECRET.length < 32) {
 
 const { SignJWT, jwtVerify } = require('jose');
 const TTL = process.env.GATEWAY_JWT_TTL || '12h';
+// A station account (user.kitchen) stays signed in on its screens: nobody is there to
+// type the PIN again every 12 hours.
+const STATION_TTL = process.env.GATEWAY_STATION_JWT_TTL || '30d';
 const key = crypto.createSecretKey(Buffer.from(SECRET, 'utf8'));
 
 // Durable revocation store. Was previously an in-memory `Set` that was lost on
@@ -31,7 +34,8 @@ function parseTtlSeconds(ttl) {
   return n;
 }
 
-async function signSession({ userId, login }) {
+async function signSession({ userId, login, station = false }) {
+  const ttl = station ? STATION_TTL : TTL;
   const jti = crypto.randomUUID();
   const token = await new SignJWT({
     sub: String(userId),
@@ -40,12 +44,12 @@ async function signSession({ userId, login }) {
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(TTL)
+    .setExpirationTime(ttl)
     .setJti(jti)
     .setIssuer('posr-gateway')
     .sign(key);
 
-  return { token, jti, expiresIn: parseTtlSeconds(TTL) };
+  return { token, jti, expiresIn: parseTtlSeconds(ttl) };
 }
 
 async function verifySession(token) {

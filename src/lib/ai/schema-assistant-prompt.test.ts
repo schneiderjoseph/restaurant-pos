@@ -34,7 +34,7 @@ describe("getAiAssistantSystemPrompt", () => {
   });
 
   it("uses full report prompt plus write rules when compact is off", () => {
-    const assistant = getAiAssistantSystemPrompt(["inventory"], false);
+    const assistant = getAiAssistantSystemPrompt(["sales"], false);
     const report = getAiReportSystemPrompt("table", [], false);
 
     expect(assistant).toContain(report);
@@ -50,10 +50,10 @@ describe("getAiAssistantSystemPrompt", () => {
 
   it("includes domain hints only for matched domains in compact mode", () => {
     const salesOnly = getAiAssistantSystemPrompt(["sales"], true);
-    const inventoryOnly = getAiAssistantSystemPrompt(["inventory"], true);
+    const opsOnly = getAiAssistantSystemPrompt(["operations"], true);
 
     expect(salesOnly).toContain("get_sales_summary");
-    expect(salesOnly).not.toContain("forecast_inventory_need");
-    expect(inventoryOnly).toContain("forecast_inventory_need");
+    expect(salesOnly).not.toContain("get_orders");
+    expect(opsOnly).toContain("get_orders");
   });
 });

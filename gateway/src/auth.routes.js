@@ -83,16 +83,23 @@ router.post('/login', loginRateLimit(), async (req, res) => {
 
     recordAuthResult(req, true);
 
+    // A station account (user.kitchen) is a shared screen login: as many devices as
+    // needed, each with a long session.
+    const isStationAccount = Boolean(user.kitchen);
+
     const session = await signSession({
       userId: user.id,
       login: user.login,
+      station: isStationAccount,
     });
 
-    try {
-      await replaceOtherDeviceSession(user, session, readDeviceId(req.body));
-    } catch (err) {
-      // Never block a login on this: the new session stays valid either way.
-      console.error('Replacing the previous session failed', err);
+    if (!isStationAccount) {
+      try {
+        await replaceOtherDeviceSession(user, session, readDeviceId(req.body));
+      } catch (err) {
+        // Never block a login on this: the new session stays valid either way.
+        console.error('Replacing the previous session failed', err);
+      }
     }
 
     // Audit log the successful login (for the login audit trail).

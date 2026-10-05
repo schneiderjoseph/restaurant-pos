@@ -23,21 +23,9 @@ import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {CategoryForm} from "@/components/settings/categories/category.form.tsx";
 import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_group.form.tsx";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
-import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
 import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
-import {withCurrency} from "@/lib/utils.ts";
-
-const inventoryItemOptionLabel = (item: InventoryItem) =>
-  item.uom ? `${item.name} (${item.uom})` : item.name;
-
-const inventoryItemUnitCost = (item: InventoryItem) =>
-  Number(item.price ?? item.average_price ?? 0) || 0;
-
-const findInventoryItem = (items: InventoryItem[] | undefined, id?: string | null) =>
-  items?.find((i) => String(i.id) === String(id));
 
 interface Props {
   open: boolean
@@ -52,7 +40,6 @@ const numberField = yup
 
 const validationSchema = yup.object({
   price: numberField.min(0, i18n.t('forms.greaterThanOrEqualZero')).optional(),
-  cost: numberField.min(0, i18n.t('forms.greaterThanOrEqualZero')).optional(),
   replace_workflow: yup.boolean().default(false),
   workflow: yup.object({
     label: yup.string(),
@@ -81,35 +68,18 @@ const validationSchema = yup.object({
     should_auto_select: yup.boolean(),
     priority: yup.number().required(i18n.t('validation:required')),
   })).default([]),
-  replace_recipes: yup.boolean().default(false),
-  recipes: yup.array(yup.object({
-    item: yup.object({
-      label: yup.string(),
-      value: yup.string()
-    }).required(i18n.t('validation:required')),
-    quantity: yup.number().required(i18n.t('validation:required')).min(0.01, i18n.t('validation:quantityMin')),
-    cost: yup.number().required(i18n.t('validation:required')).min(0, i18n.t('validation:costMin')),
-    is_price_locked: yup.boolean().optional(),
-  })).default([]).test('unique-items', i18n.t('validation:uniqueItems'), function (recipes) {
-    if (!recipes || recipes.length === 0) return true;
-    const itemValues = recipes.map((recipe) => recipe?.item?.value).filter(Boolean);
-    return itemValues.length === new Set(itemValues).size;
-  })
 });
 
 export const DishBulkForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const defaultValues = {
     price: undefined,
-    cost: undefined,
     replace_workflow: false,
     workflow: null,
     replace_categories: false,
     categories: [],
     replace_modifier_groups: false,
     modifier_groups: [],
-    replace_recipes: false,
-    recipes: [],
   };
   const [categoriesModal, setCategoriesModal] = useState(false);
   const [modifierGroupsModal, setModifierGroupsModal] = useState(false);
@@ -128,9 +98,8 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     onClose();
   };
 
-  const {control, handleSubmit, formState: {errors}, reset, watch, setValue} = useForm({
+  const {control, handleSubmit, formState: {errors}, reset, watch} = useForm({
     resolver: yupResolver(validationSchema),
-    // defaultValues
   });
 
   const {
@@ -150,14 +119,6 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
   });
 
   const {
-    data: inventoryItems,
-    fetchData: fetchInventoryItems,
-    isFetching: loadingInventoryItems
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 99999, ["category"], {
-    enabled: false
-  });
-
-  const {
     data: workflows,
     fetchData: fetchWorkflows,
     isFetching: loadingWorkflows
@@ -169,7 +130,6 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     if (open) {
       fetchCategories();
       fetchModifierGroups();
-      fetchInventoryItems();
       fetchWorkflows();
       reset(defaultValues);
     }
@@ -184,19 +144,9 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     control
   });
 
-  const {
-    fields: recipeFields,
-    append: appendRecipe,
-    remove: removeRecipe
-  } = useFieldArray({
-    name: "recipes",
-    control
-  });
-
   const replaceWorkflow = useWatch({control, name: "replace_workflow", defaultValue: false});
   const replaceCategories = useWatch({control, name: "replace_categories", defaultValue: false});
   const replaceModifierGroups = useWatch({control, name: "replace_modifier_groups", defaultValue: false});
-  const replaceRecipes = useWatch({control, name: "replace_recipes", defaultValue: false});
 
   const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -243,9 +193,6 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     const payload: any = {};
     if (values.price !== undefined) {
       payload.price = parseFloat(String(values.price));
-    }
-    if (values.cost !== undefined) {
-      payload.cost = parseFloat(String(values.cost));
     }
     if (values.replace_categories) {
       payload.categories = values.categories.map((category) => new StringRecordId(category.value.toString()));
@@ -298,26 +245,6 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
             );
           }
         }
-
-        if (values.replace_recipes) {
-          await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: dish.id});
-
-          const recipeIds: RecordId[] = [];
-          for (const recipe of values.recipes) {
-            const [recipeRecord] = await db.create(Tables.dishes_recipes, {
-              menu_item: dish.id,
-              item: new StringRecordId(recipe.item.value.toString()),
-              quantity: parseFloat(String(recipe.quantity)),
-              cost: parseFloat(String(recipe.cost)),
-              is_price_locked: recipe.is_price_locked || false
-            });
-            recipeIds.push(recipeRecord.id);
-          }
-
-          await db.merge(dish.id, {
-            items: recipeIds
-          });
-        }
       }
 
       toast.success(t('toast:admin.dishesBulkUpdated', { count: data.length }));
@@ -350,21 +277,6 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                     type="number"
                     label={t('columns.salePrice')}
                     error={errors?.price?.message}
-                  />
-                )}
-              />
-            </div>
-            <div className="flex-1">
-              <Controller
-                name="cost"
-                control={control}
-                render={({field}) => (
-                  <Input
-                    value={field.value}
-                    onChange={field.onChange}
-                    type="number"
-                    label={t('forms.cost')}
-                    error={errors?.cost?.message}
                   />
                 )}
               />
@@ -618,151 +530,6 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                   </div>
                 </div>
               ))}
-            </fieldset>
-          </div>
-
-          <div className="flex mb-3">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend className="px-2">Recipe</legend>
-              <div className="mb-3">
-                <Controller
-                  name="replace_recipes"
-                  control={control}
-                  render={({field}) => (
-                    <Switch checked={field.value} onChange={field.onChange}>
-                      Replace recipe for selected dishes
-                    </Switch>
-                  )}
-                />
-              </div>
-
-              <div className="mb-3">
-                <Button
-                  type="button"
-                  icon={faPlus}
-                  variant="primary"
-                  onClick={() => appendRecipe({
-                    item: null,
-                    quantity: 1,
-                    cost: 0,
-                    is_price_locked: false
-                  })}
-                  disabled={!replaceRecipes}
-                >
-                  Add recipe item
-                </Button>
-              </div>
-
-              {recipeFields.map((item, index) => {
-                const selectedItemId = watch(`recipes.${index}.item`)?.value;
-                const selectedInvItem = findInventoryItem(inventoryItems?.data, selectedItemId);
-                const rowQuantity = parseFloat(String(watch(`recipes.${index}.quantity`) ?? 0)) || 0;
-                const rowCost = parseFloat(String(watch(`recipes.${index}.cost`) ?? 0)) || 0;
-                const rowTotal = rowQuantity * rowCost;
-                const availableOptions = inventoryItems?.data
-                  ?.filter((inventoryItem) => canUseInDishRecipe(inventoryItem))
-                  ?.map((inventoryItem) => ({
-                  label: inventoryItemOptionLabel(inventoryItem),
-                  value: inventoryItem.id.toString()
-                })) || [];
-
-                return (
-                  <div className="flex gap-3 mb-3" key={item.id}>
-                    <div className="flex-[2]">
-                      <label>{t('forms.inventoryItem')}</label>
-                      <Controller
-                        name={`recipes.${index}.item`}
-                        control={control}
-                        render={({field}) => (
-                          <ReactSelect
-                            value={field.value}
-                            onChange={(selected) => {
-                              field.onChange(selected);
-                              if (selected) {
-                                const invItem = findInventoryItem(inventoryItems?.data, selected.value);
-                                if (invItem) {
-                                  setValue(`recipes.${index}.cost`, inventoryItemUnitCost(invItem));
-                                }
-                              }
-                            }}
-                            isLoading={loadingInventoryItems}
-                            options={availableOptions}
-                            isDisabled={!replaceRecipes}
-                          />
-                        )}
-                      />
-                      <InputError error={get(errors, ["recipes", index, "item", "message"])}/>
-                    </div>
-                    <div className="w-20">
-                      <Input
-                        type="text"
-                        value={selectedInvItem?.uom ?? ''}
-                        label={t('forms.uom')}
-                        readOnly
-                        disabled
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`recipes.${index}.quantity`}
-                        control={control}
-                        render={({field}) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            label={t('forms.quantity')}
-                            disabled={!replaceRecipes}
-                            error={get(errors, ["recipes", index, "quantity", "message"])}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`recipes.${index}.cost`}
-                        control={control}
-                        render={({field}) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            label={t('forms.unitCost')}
-                            disabled={!replaceRecipes}
-                            error={get(errors, ["recipes", index, "cost", "message"])}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        value={withCurrency(rowTotal)}
-                        label={t('forms.lineTotal')}
-                        readOnly
-                        disabled
-                      />
-                    </div>
-                    <div className="flex-1 self-end">
-                      <Controller
-                        name={`recipes.${index}.is_price_locked`}
-                        control={control}
-                        render={({field}) => (
-                          <Switch checked={field.value} onChange={field.onChange} disabled={!replaceRecipes}>
-                            {t('forms.priceLocked')}
-                          </Switch>
-                        )}
-                      />
-                    </div>
-                    <div className="flex-0 self-end">
-                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)} disabled={!replaceRecipes}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
-                    </div>
-                  </div>
-                );
-              })}
-              {errors?.recipes && typeof errors.recipes === "object" && "message" in errors.recipes && (
-                <InputError error={errors.recipes.message as string}/>
-              )}
             </fieldset>
           </div>
 

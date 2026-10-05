@@ -49,7 +49,7 @@ export const AdminModifierGroups = () => {
     columnHelper.accessor("modifiers", {
       header: t('columns.modifiers'),
       cell: info => <div className="flex gap-2 flex-wrap">
-        {info.getValue()?.map((item, index) => (
+        {info.getValue()?.filter(item => item?.modifier).map((item, index) => (
           <span className="tag" key={`${item.id}-${index}`}>
             {item.modifier.name} — {item.price}
             {item.allowed_next_groups != null && item.allowed_next_groups.length > 0 && (

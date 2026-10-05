@@ -434,8 +434,7 @@ export const aggregateProductMixByCategory = (
       const amount = filters.showInclusivePrices
         ? safeNumber(getOrderItemDisplayLineTotal(item, true))
         : netAmount;
-      const cost = safeNumber(item.item.cost || 0);
-      const totalCost = cost * quantity;
+      const totalCost = 0;
 
       const discount = safeNumber(item.discount || 0);
       const tax = getOrderItemTaxAmount(item, order);
@@ -542,10 +541,8 @@ export const aggregateProductMixByCategory = (
 
     const category = categoryMap.get(dishData.categoryId)!;
     const priceSold = dishData.numSold > 0 ? dishData.totalAmount / dishData.numSold : 0;
-    const profit = dishData.totalAmount - dishData.totalCost;
-    const foodCostPercent = dishData.totalAmount > 0
-      ? (dishData.totalCost / dishData.totalAmount) * 100
-      : 0;
+    const profit = dishData.totalAmount;
+    const foodCostPercent = 0;
 
     const modifiers = Array.from(dishData.modifiers.values()).map(modifier => {
       const unitPrice = modifier.quantity > 0 ? safeNumber(modifier.total / modifier.quantity) : 0;
@@ -632,9 +629,7 @@ export const aggregateProductMixByCategory = (
     category.totals.priceSold = category.totals.numSold > 0
       ? category.totals.amount / category.totals.numSold
       : 0;
-    category.totals.foodCostPercent = category.totals.amount > 0
-      ? (category.totals.cost / category.totals.amount) * 100
-      : 0;
+    category.totals.foodCostPercent = 0;
   });
 
   return Array.from(categoryMap.values()).sort((a, b) => b.totals.amount - a.totals.amount);

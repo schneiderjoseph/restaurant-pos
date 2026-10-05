@@ -18,12 +18,6 @@ export const Settings = lazy(() =>
 export const IntegrationsScreen = lazy(() =>
   import('@/screens/integrations/index.tsx').then(m => ({default: m.IntegrationsScreen}))
 );
-export const Inventory = lazy(() =>
-  import('@/screens/inventory/').then(m => ({default: m.Inventory}))
-);
-export const HrScreen = lazy(() =>
-  import('@/screens/hr/').then(m => ({default: m.HrScreen}))
-);
 export const TipDistributionScreen = lazy(() =>
   import('@/screens/tip.distribution.tsx').then(m => ({default: m.TipDistributionScreen}))
 );
@@ -58,12 +52,6 @@ export const ProductMixSummaryReport = lazy(() =>
 export const SalesAdvancedReport = lazy(() =>
   import('@/screens/reports/sales.advanced.report.tsx').then(m => ({default: m.SalesAdvancedReport}))
 );
-export const SalesHourlyLabourReport = lazy(() =>
-  import('@/screens/reports/sales.hourly.labour.report.tsx').then(m => ({default: m.SalesHourlyLabourReport}))
-);
-export const SalesHourlyLabourWeeklyReport = lazy(() =>
-  import('@/screens/reports/sales.hourly.labour.weekly.report.tsx').then(m => ({default: m.SalesHourlyLabourWeeklyReport}))
-);
 export const SalesServerReport = lazy(() =>
   import('@/screens/reports/sales.server.report.tsx').then(m => ({default: m.SalesServerReport}))
 );
@@ -82,53 +70,11 @@ export const TablesSummaryReport = lazy(() =>
 export const VoidsReport = lazy(() =>
   import('@/screens/reports/voids.report.tsx').then(m => ({default: m.VoidsReport}))
 );
-export const CurrentInventoryReport = lazy(() =>
-  import('@/screens/reports/current.inventory.report.tsx').then(m => ({default: m.CurrentInventoryReport}))
-);
-export const DetailedInventoryReport = lazy(() =>
-  import('@/screens/reports/detailed.inventory.report.tsx').then(m => ({default: m.DetailedInventoryReport}))
-);
-export const PurchaseReport = lazy(() =>
-  import('@/screens/reports/purchase.report.tsx').then(m => ({default: m.PurchaseReport}))
-);
-export const PurchaseOrderReport = lazy(() =>
-  import('@/screens/reports/purchase.order.report.tsx').then(m => ({default: m.PurchaseOrderReport}))
-);
-export const PurchaseReturnReport = lazy(() =>
-  import('@/screens/reports/purchase.return.report.tsx').then(m => ({default: m.PurchaseReturnReport}))
-);
-export const IssueReport = lazy(() =>
-  import('@/screens/reports/issue.report.tsx').then(m => ({default: m.IssueReport}))
-);
-export const IssueReturnReport = lazy(() =>
-  import('@/screens/reports/issue.return.report.tsx').then(m => ({default: m.IssueReturnReport}))
-);
-export const WasteReport = lazy(() =>
-  import('@/screens/reports/waste.report.tsx').then(m => ({default: m.WasteReport}))
-);
-export const ConsumptionReport = lazy(() =>
-  import('@/screens/reports/consumption.report.tsx').then(m => ({default: m.ConsumptionReport}))
-);
-export const SaleVsConsumptionReport = lazy(() =>
-  import('@/screens/reports/sale.vs.consumption.report.tsx').then(m => ({default: m.SaleVsConsumptionReport}))
-);
-export const KitchenReconciliationReport = lazy(() =>
-  import('@/screens/reports/kitchen.reconciliation.report.tsx').then(m => ({default: m.KitchenReconciliationReport}))
-);
-export const ProductionReport = lazy(() =>
-  import('@/screens/reports/production.report.tsx').then(m => ({default: m.ProductionReport}))
-);
-export const BuffetReport = lazy(() =>
-  import('@/screens/reports/buffet.report.tsx').then(m => ({default: m.BuffetReport}))
-);
 export const TipsReport = lazy(() =>
   import('@/screens/reports/tips.report.tsx').then(m => ({default: m.TipsReport}))
 );
 export const SalesDashboardReport = lazy(() =>
   import('@/screens/reports/sales.dashboard.report.tsx').then(m => ({default: m.SalesDashboardReport}))
-);
-export const InventoryDashboardReport = lazy(() =>
-  import('@/screens/reports/inventory.dashboard.report.tsx').then(m => ({default: m.InventoryDashboardReport}))
 );
 export const DeliveryDensityReport = lazy(() =>
   import('@/screens/reports/delivery.density.report.tsx').then(m => ({default: m.DeliveryDensityReport}))
@@ -162,28 +108,4 @@ export const ActivityReport = lazy(() =>
 );
 export const AiReport = lazy(() =>
   import('@/screens/reports/ai.report.tsx').then(m => ({default: m.AiReport}))
-);
-export const LaborDashboardReport = lazy(() =>
-  import('@/screens/reports/labor.dashboard.report.tsx').then(m => ({default: m.LaborDashboardReport}))
-);
-export const LaborDailyCostReport = lazy(() =>
-  import('@/screens/reports/labor.daily.cost.report.tsx').then(m => ({default: m.LaborDailyCostReport}))
-);
-export const LaborOvertimeReport = lazy(() =>
-  import('@/screens/reports/labor.overtime.report.tsx').then(m => ({default: m.LaborOvertimeReport}))
-);
-export const LaborAttendanceReport = lazy(() =>
-  import('@/screens/reports/labor.attendance.report.tsx').then(m => ({default: m.LaborAttendanceReport}))
-);
-export const LaborPayrollSummaryReport = lazy(() =>
-  import('@/screens/reports/labor.payroll.summary.report.tsx').then(m => ({default: m.LaborPayrollSummaryReport}))
-);
-export const LaborScheduledVsActualReport = lazy(() =>
-  import('@/screens/reports/labor.scheduled.vs.actual.report.tsx').then(m => ({default: m.LaborScheduledVsActualReport}))
-);
-export const LaborScheduleRosterReport = lazy(() =>
-  import('@/screens/reports/labor.schedule.roster.report.tsx').then(m => ({default: m.LaborScheduleRosterReport}))
-);
-export const InventoryDocumentPrintPage = lazy(() =>
-  import('@/screens/inventory/document.print.tsx').then(m => ({default: m.InventoryDocumentPrintPage}))
 );

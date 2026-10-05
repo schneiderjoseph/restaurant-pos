@@ -101,10 +101,5 @@ export {
   getServerTicketTimes,
   getStaffAccountabilityMetrics,
 } from "@/api/reports/sales/server-analytics.ts";
-export {
-  estimatePriceChangeImpact,
-  getMenuEngineeringMatrix,
-  getMenuSalesTrends,
-} from "@/api/reports/sales/menu-engineering.ts";
 export {getUnsoldProducts, listMenuItems} from "@/api/reports/sales/products.ts";
 export type {GetUnsoldProductsOptions, ListMenuItemsOptions, MenuItemSummary} from "@/api/reports/sales/products.ts";

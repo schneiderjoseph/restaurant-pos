@@ -19,7 +19,6 @@ import {TableLockProvider} from "@/providers/table.lock.provider.tsx";
 import {AutoCheckCloseProvider} from "@/providers/auto-check-close.provider.tsx";
 import {ClosingCycleEnforcementProvider} from "@/providers/closing-cycle-enforcement.provider.tsx";
 import {SessionIdleProvider} from "@/providers/session-idle.provider.tsx";
-import {AutoClockOutProvider} from "@/providers/auto-clock-out.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
@@ -27,7 +26,6 @@ import {ForceFullscreenProvider} from "@/providers/force-fullscreen.provider.tsx
 import {
   isClosingModuleEnabled,
   isDeliveryModuleEnabled,
-  isHrModuleEnabled,
 } from "@/lib/feature-modules.ts";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
@@ -69,13 +67,6 @@ function DeliveryLayer({children}: {children: React.ReactNode}) {
   );
 }
 
-function ClockOutLayer({children}: {children: React.ReactNode}) {
-  if (!isHrModuleEnabled()) {
-    return <>{children}</>;
-  }
-  return <AutoClockOutProvider>{children}</AutoClockOutProvider>;
-}
-
 function ClosingLayer({children}: {children: React.ReactNode}) {
   if (!isClosingModuleEnabled()) {
     return <>{children}</>;
@@ -107,13 +98,11 @@ function App() {
                         <BrowserRouter>
                           <I18nProvider>
                             <SessionIdleProvider>
-                              <ClockOutLayer>
-                                <AiAssistantWidget/>
-                                <MyOrderReadyAlert/>
-                                <OrderEditRequestWatcher/>
-                                <SessionReplacedWatcher/>
-                                <AppRoutes/>
-                              </ClockOutLayer>
+                              <AiAssistantWidget/>
+                              <MyOrderReadyAlert/>
+                              <OrderEditRequestWatcher/>
+                              <SessionReplacedWatcher/>
+                              <AppRoutes/>
                             </SessionIdleProvider>
                           </I18nProvider>
                         </BrowserRouter>
