@@ -146,11 +146,6 @@
     "autoLock": "Bloqueado por inatividade",
     "autoLogout": "Sessão encerrada por inatividade"
   },
-  "autoClockOut": {
-    "warning": "Saída automática em {{countdown}}",
-    "clockedOut": "Saída registrada automaticamente",
-    "failed": "Falha na saída automática"
-  },
   "print": {
     "tempLimitReached": "Limite de impressão da conta provisória atingido ({{count}}/{{limit}}). Aprovação do gerente necessária.",
     "finalLimitReached": "Limite de impressão da conta final atingido ({{count}}/{{limit}}). Aprovação do gerente necessária.",

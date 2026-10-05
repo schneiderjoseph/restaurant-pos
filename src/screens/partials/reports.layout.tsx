@@ -20,6 +20,10 @@ import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { useCurrencyDisplay } from "@/hooks/useCurrencyDisplay.ts";
 import { getExchangeRateLabel } from "@/lib/currency.ts";
 import { useRestaurantProfile } from "@/hooks/useRestaurantProfile.ts";
+import {
+  buildReportExcelHeaderRows,
+  sanitizeReportFilename,
+} from "@/lib/report.branding.ts";
 
 export interface ReportsLayoutProps {
   /** Report title */
@@ -92,42 +96,52 @@ export const ReportsLayout = ({
   const handleExportExcel = async () => {
     if (onExportExcel) {
       onExportExcel();
-    } else {
-      const tables = Array.from(
-        reportRef.current?.querySelectorAll("table") ?? [],
-      );
-      if (tables.length === 0) return;
-
-      const wb = XLSX.utils.book_new();
-      let ws: XLSX.WorkSheet | undefined;
-      let nextRow = 0;
-
-      tables.forEach((table) => {
-        const tableWs = XLSX.utils.table_to_sheet(table);
-
-        if (!ws) {
-          ws = tableWs;
-          const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
-          nextRow = range.e.r + 2;
-          return;
-        }
-
-        ws = appendWorksheetAtRow(ws, tableWs, nextRow);
-        const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
-        nextRow = range.e.r + 2;
-      });
-
-      XLSX.utils.book_append_sheet(wb, ws!, "Report");
-      XLSX.writeFile(wb, "report.xlsx");
+      return;
     }
+
+    const tables = Array.from(
+      reportRef.current?.querySelectorAll("table") ?? [],
+    );
+    if (tables.length === 0) return;
+
+    const headerRows = buildReportExcelHeaderRows({
+      title,
+      subtitle,
+      generatedAt: `${t('layout.generatedAt')} ${generatedAt}`,
+      profile: {
+        name: displayName,
+        address: displayAddress,
+        phone: displayPhone,
+        email: displayEmail,
+        website: profile.website,
+        taxId: profile.taxId,
+      },
+    });
+
+    const wb = XLSX.utils.book_new();
+    let ws = XLSX.utils.aoa_to_sheet(headerRows);
+    let nextRow = XLSX.utils.decode_range(ws["!ref"] ?? "A1").e.r + 1;
+
+    tables.forEach((table) => {
+      const tableWs = XLSX.utils.table_to_sheet(table);
+      ws = appendWorksheetAtRow(ws, tableWs, nextRow);
+      const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
+      nextRow = range.e.r + 2;
+    });
+
+    XLSX.utils.book_append_sheet(wb, ws, "Report");
+    XLSX.writeFile(wb, sanitizeReportFilename(title || "report", "xlsx"));
   };
 
   const handleExportPdf = async () => {
     if (onExportPdf) {
       onExportPdf();
     } else {
-      const file = `${title || 'report'}.pdf`;
-      await exportElementAsPdf(reportRef.current, file);
+      const file = sanitizeReportFilename(title || "report", "pdf");
+      await exportElementAsPdf(reportRef.current, file, {
+        watermarkDataUrl: logoDataUrl,
+        watermarkText: displayName || title,
+      });
     }
   };
 
@@ -135,7 +149,10 @@ export const ReportsLayout = ({
     if (onExportImage) {
       onExportImage();
     } else {
-      await exportElementAsImage(reportRef.current, "report.png");
+      await exportElementAsImage(
+        reportRef.current,
+        sanitizeReportFilename(title || "report", "png"),
+      );
     }
   };
 
@@ -143,7 +160,6 @@ export const ReportsLayout = ({
     if (onRefresh) {
       onRefresh();
     } else {
-      // Default: Reload the page
       window.location.reload();
     }
   };
@@ -151,58 +167,43 @@ export const ReportsLayout = ({
   return (
     <div className={cn("flex flex-col h-full", className)}>
       <DocumentTitle parts={[title, tNav('sidebar.reports')]} />
-      {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 p-4 bg-white shadow-sm border-b print:hidden">
         <div className="flex items-center gap-2">
-          <Button
-            variant="primary"
-            onClick={handlePrint}
-            icon={faPrint}
-            size="sm"
-          >
+          <Button variant="primary" onClick={handlePrint} icon={faPrint} size="sm">
             Print
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleExportExcel}
-            icon={faFile}
-            size="sm"
-          >
+          <Button variant="primary" onClick={handleExportExcel} icon={faFile} size="sm">
             Download as XLSX
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleExportPdf}
-            icon={faFile}
-            size="sm"
-          >
+          <Button variant="primary" onClick={handleExportPdf} icon={faFile} size="sm">
             Download as PDF
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleExportImage}
-            icon={faImage}
-            size="sm"
-          >
+          <Button variant="primary" onClick={handleExportImage} icon={faImage} size="sm">
             Download as Image
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleRefresh}
-            icon={faRefresh}
-            size="sm"
-          >
+          <Button variant="primary" onClick={handleRefresh} icon={faRefresh} size="sm">
             Refresh
           </Button>
           {customActions}
         </div>
       </div>
 
-      {/* Report Container */}
-      <div className="flex-1 overflow-auto bg-gray-50" ref={reportRef}>
-        <div className="max-w-full">
-          {/* Header Section */}
-          <div className="bg-white shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center">
+      <div className="flex-1 overflow-auto bg-gray-50 relative" ref={reportRef}>
+        {logoDataUrl && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
+            style={{ zIndex: 0 }}
+          >
+            <img
+              src={logoDataUrl}
+              alt=""
+              className="max-h-[55%] max-w-[55%] object-contain opacity-[0.06] select-none"
+            />
+          </div>
+        )}
+        <div className="max-w-full relative" style={{ zIndex: 1 }}>
+          <div className="bg-white/95 shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center">
             {logoDataUrl && (
               <img
                 src={logoDataUrl}
@@ -237,12 +238,10 @@ export const ReportsLayout = ({
             </div>
           </div>
 
-          {/* Report Content */}
-          <div className="bg-white shadow-sm rounded-lg p-6 print:shadow-none">
+          <div className="bg-white/95 shadow-sm rounded-lg p-6 print:shadow-none">
             {children}
           </div>
 
-          {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
             <div
               data-pdf-ignore
@@ -309,43 +308,4 @@ function appendWorksheetAtRow(
   });
 
   return target;
-}
-
-// Helper function to convert table to CSV
-function tableToCSV(table: HTMLTableElement): string {
-  const rows: string[] = [];
-  const trs = table.querySelectorAll("tr");
-
-  trs.forEach((tr) => {
-    const cells: string[] = [];
-    const tds = tr.querySelectorAll("td, th");
-
-    tds.forEach((td) => {
-      let text = td.textContent || "";
-      // Escape quotes and wrap in quotes if contains comma or quote
-      if (text.includes(",") || text.includes('"') || text.includes("\n")) {
-        text = `"${text.replace(/"/g, '""')}"`;
-      }
-      cells.push(text);
-    });
-
-    rows.push(cells.join(","));
-  });
-
-  return rows.join("\n");
-}
-
-// Helper function to download CSV
-function downloadCSV(csv: string, filename: string): void {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-
-  link.setAttribute("href", url);
-  link.setAttribute("download", filename);
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }

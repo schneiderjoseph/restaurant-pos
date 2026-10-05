@@ -249,7 +249,7 @@
       "bogoDiscount": "Automatische BOGO-korting voor voorgerechten maken",
       "addDish": "Nieuw gerecht Margherita toevoegen voor €x",
       "listUsers": "Alle POS-gebruikers weergeven",
-      "inventoryStock": "Voorraadartikelen onder bestelniveau tonen"
+      "voidsToday": "Show voids for today"
     },
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
     "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"

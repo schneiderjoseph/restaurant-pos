@@ -177,41 +177,6 @@
     "showTotalInPaymentCard": "Mostrar totales de artículos en el cuadro de pago",
     "showDishPhotos": "Mostrar fotos de platos en el menú"
   },
-  "inventory": {
-    "title": "Inventario",
-    "description": "Cambio al libro mayor y seguimiento avanzado opcional. Mantenga lote/caducidad desactivados salvo que los necesite.",
-    "ledgerEnabled": "Usar libro de inventario (única fuente de verdad)",
-    "ledgerHint": "Active solo después del backfill y la conciliación.",
-    "costingMethod": "Método de costeo",
-    "costing": {
-      "average": "Promedio ponderado",
-      "fifo": "FIFO",
-      "fefo": "FEFO"
-    },
-    "enableBatchTracking": "Activar seguimiento de lotes",
-    "enableExpiryTracking": "Activar seguimiento de caducidad",
-    "enableManufacturingDate": "Activar fechas de fabricación",
-    "requireBatchSelection": "Requerir selección de lote en salidas",
-    "updated": "Ajustes de inventario actualizados",
-    "save": "Guardar",
-    "saveDescription": "Guardar ajustes de inventario",
-    "landedCostsSection": "Asignación de costos de compra",
-    "enableLandedCosts": "Activar costos adicionales (envío, flete, etc.)",
-    "enablePurchaseDiscounts": "Incluir descuentos de compra en el costo de inventario",
-    "enablePurchaseTaxes": "Incluir impuestos de compra en el costo de inventario",
-    "defaultAllocationMethod": "Método de asignación predeterminado",
-    "allocation": {
-      "by_value": "Por valor",
-      "by_quantity": "Por cantidad",
-      "equal": "Igual"
-    },
-    "defaultPurchaseTaxBehavior": "Comportamiento fiscal de compra predeterminado",
-    "defaultPurchaseTaxBehaviorHint": "El impuesto no recuperable se capitaliza. El impuesto recuperable se ignora para la valoración.",
-    "taxBehavior": {
-      "non_recoverable": "No recuperable (capitalizar)",
-      "recoverable": "Recuperable (ignorar para inventario)"
-    }
-  },
   "sessionSecurity": {
     "title": "Seguridad de sesión",
     "description": "Bloquear o cerrar sesión automáticamente a todos los usuarios tras un periodo de inactividad. Se aplica a todos los usuarios y terminales.",
@@ -221,15 +186,5 @@
     "actionLogout": "Cerrar sesión",
     "updated": "Configuración de seguridad de sesión actualizada",
     "saveDescription": "Guardar configuración de seguridad de sesión"
-  },
-  "autoClockOut": {
-    "title": "Salida automática",
-    "description": "Fichar salida automáticamente al finalizar el turno y/o a una hora fija diaria. Usa el turno programado si existe; si no, el turno asignado. Aplica a todos los usuarios.",
-    "onShiftEnd": "Fichar salida al finalizar el turno",
-    "onDefinedTime": "Fichar salida a una hora definida",
-    "definedTime": "Hora de salida",
-    "triggerRequired": "Active el fin de turno y/o una hora definida cuando la salida automática esté activada",
-    "updated": "Configuración de salida automática actualizada",
-    "saveDescription": "Guardar configuración de salida automática"
   }
 }

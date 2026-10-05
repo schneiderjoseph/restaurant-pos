@@ -10,7 +10,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 
-const COLUMN_COUNT = 13;
+const COLUMN_COUNT = 12;
 
 interface ModifierSummaryTotals {
   quantity: number;
@@ -184,7 +184,6 @@ export const ProductMixSummaryReport = () => {
       (acc, category) => ({
         numSold: acc.numSold + category.totals.numSold,
         amount: acc.amount + category.totals.amount,
-        profit: acc.profit + category.totals.profit,
         salePercent: acc.salePercent + category.totals.salePercent,
         discount: acc.discount + category.totals.discount,
         tax: acc.tax + category.totals.tax,
@@ -194,7 +193,6 @@ export const ProductMixSummaryReport = () => {
       {
         numSold: 0,
         amount: 0,
-        profit: 0,
         salePercent: 0,
         discount: 0,
         tax: 0,
@@ -259,7 +257,6 @@ export const ProductMixSummaryReport = () => {
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Num Sold</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price Sold</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.profit')}</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Sale %</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.discount')}</th>
               <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.tax')}</th>
@@ -285,9 +282,6 @@ export const ProductMixSummaryReport = () => {
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
                   {withDualCurrency(category.totals.amount)}
-                </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withDualCurrency(category.totals.profit)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
                   {formatNumber(category.totals.salePercent)}%
@@ -339,9 +333,6 @@ export const ProductMixSummaryReport = () => {
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-700">
                       {withDualCurrency(item.amount)}
-                    </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-700">
-                      {withDualCurrency(item.profit)}
                     </td>
                     <td className="py-2 px-3 text-right text-sm text-neutral-600">
                       {formatNumber(item.salePercent)}%
@@ -436,9 +427,6 @@ export const ProductMixSummaryReport = () => {
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
                   {withDualCurrency(grandTotals.amount)}
-                </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
-                  {withDualCurrency(grandTotals.profit)}
                 </td>
                 <td className="py-3 px-3 text-right text-sm text-neutral-900">
                   {formatNumber(grandTotals.salePercent)}%

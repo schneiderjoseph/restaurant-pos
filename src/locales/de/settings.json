@@ -177,41 +177,6 @@
     "showTotalInPaymentCard": "Summen für Artikel im Zahlungsfeld anzeigen",
     "showDishPhotos": "Gerichtfotos auf Menükacheln anzeigen"
   },
-  "inventory": {
-    "title": "Inventar",
-    "description": "Ledger-Umschaltung und optionales Advanced Tracking. Batch/Ablauf nur bei Bedarf aktivieren.",
-    "ledgerEnabled": "Inventar-Ledger verwenden (Single Source of Truth)",
-    "ledgerHint": "Erst nach Ledger-Backfill und Abgleich aktivieren.",
-    "costingMethod": "Bewertungsmethode",
-    "costing": {
-      "average": "Gewichteter Durchschnitt",
-      "fifo": "FIFO",
-      "fefo": "FEFO"
-    },
-    "enableBatchTracking": "Chargenverfolgung aktivieren",
-    "enableExpiryTracking": "Ablaufverfolgung aktivieren",
-    "enableManufacturingDate": "Herstellungsdaten aktivieren",
-    "requireBatchSelection": "Chargenauswahl bei Ausgaben erforderlich",
-    "updated": "Inventareinstellungen aktualisiert",
-    "save": "Speichern",
-    "saveDescription": "Inventareinstellungen speichern",
-    "landedCostsSection": "Einkaufskostenverteilung",
-    "enableLandedCosts": "Landed Costs aktivieren (Versand, Fracht usw.)",
-    "enablePurchaseDiscounts": "Einkaufsrabatte in Bestandskosten einbeziehen",
-    "enablePurchaseTaxes": "Einkaufssteuern in Bestandskosten einbeziehen",
-    "defaultAllocationMethod": "Standard-Verteilungsmethode",
-    "allocation": {
-      "by_value": "Nach Wert",
-      "by_quantity": "Nach Menge",
-      "equal": "Gleichmäßig"
-    },
-    "defaultPurchaseTaxBehavior": "Standard-Steuerverhalten Einkauf",
-    "defaultPurchaseTaxBehaviorHint": "Nicht erstattungsfähige Steuer wird aktiviert. Erstattungsfähige Steuer wird für die Bewertung ignoriert.",
-    "taxBehavior": {
-      "non_recoverable": "Nicht erstattungsfähig (aktivieren)",
-      "recoverable": "Erstattungsfähig (für Bestand ignorieren)"
-    }
-  },
   "sessionSecurity": {
     "title": "Sitzungssicherheit",
     "description": "Alle Benutzer nach einer Zeit der Inaktivität automatisch sperren oder abmelden. Gilt für alle Benutzer und Terminals.",
@@ -221,15 +186,5 @@
     "actionLogout": "Abmelden",
     "updated": "Sitzungssicherheitseinstellungen aktualisiert",
     "saveDescription": "Sitzungssicherheitseinstellungen speichern"
-  },
-  "autoClockOut": {
-    "title": "Automatisches Ausstempeln",
-    "description": "Stempelt den angemeldeten Benutzer automatisch aus, wenn die Schicht endet und/oder zu einer festen Tageszeit. Bevorzugt die geplante Schicht, sonst die zugewiesene Schicht. Gilt für alle Benutzer.",
-    "onShiftEnd": "Bei Schichtende ausstempeln",
-    "onDefinedTime": "Zu einer festgelegten Zeit ausstempeln",
-    "definedTime": "Ausstempelzeit",
-    "triggerRequired": "Aktivieren Sie Schichtende und/oder eine festgelegte Zeit, wenn Auto-Ausstempeln eingeschaltet ist",
-    "updated": "Einstellungen für automatisches Ausstempeln aktualisiert",
-    "saveDescription": "Einstellungen für automatisches Ausstempeln speichern"
   }
 }

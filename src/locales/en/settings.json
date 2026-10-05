@@ -201,41 +201,6 @@
     "kitchenGuestLabelCode": "Guest code",
     "kitchenGuestLabelBoth": "Name + code"
   },
-  "inventory": {
-    "title": "Inventory",
-    "description": "Ledger cutover and optional advanced tracking. Keep batch/expiry off unless you need them.",
-    "ledgerEnabled": "Use inventory ledger (single source of truth)",
-    "ledgerHint": "Enable only after running the ledger backfill and confirming reconciliation.",
-    "costingMethod": "Costing method",
-    "costing": {
-      "average": "Weighted Average",
-      "fifo": "FIFO",
-      "fefo": "FEFO"
-    },
-    "landedCostsSection": "Purchase cost allocation",
-    "enableLandedCosts": "Enable landed costs (shipping, freight, etc.)",
-    "enablePurchaseDiscounts": "Enable purchase discounts in inventory cost",
-    "enablePurchaseTaxes": "Enable purchase taxes in inventory cost",
-    "defaultAllocationMethod": "Default allocation method",
-    "allocation": {
-      "by_value": "By value",
-      "by_quantity": "By quantity",
-      "equal": "Equal"
-    },
-    "defaultPurchaseTaxBehavior": "Default purchase tax behavior",
-    "defaultPurchaseTaxBehaviorHint": "Non-recoverable tax is capitalized into inventory. Recoverable tax is ignored for valuation.",
-    "taxBehavior": {
-      "non_recoverable": "Non-recoverable (capitalize)",
-      "recoverable": "Recoverable (ignore for inventory)"
-    },
-    "enableBatchTracking": "Enable batch tracking",
-    "enableExpiryTracking": "Enable expiry tracking",
-    "enableManufacturingDate": "Enable manufacturing dates",
-    "requireBatchSelection": "Require batch selection on issues",
-    "updated": "Inventory settings updated",
-    "save": "Save",
-    "saveDescription": "Save inventory settings"
-  },
   "sessionSecurity": {
     "title": "Session security",
     "description": "Automatically lock or log out every user after a period of inactivity. Applies to all users and terminals.",
@@ -245,16 +210,6 @@
     "actionLogout": "Logout",
     "updated": "Session security settings updated",
     "saveDescription": "Save session security settings"
-  },
-  "autoClockOut": {
-    "title": "Auto clock-out",
-    "description": "Automatically clock out the logged-in user when their shift ends and/or at a fixed daily time. Uses the scheduled shift when available, otherwise the user's assigned shift. Applies to all users.",
-    "onShiftEnd": "Clock out when shift ends",
-    "onDefinedTime": "Clock out at a defined time",
-    "definedTime": "Clock-out time",
-    "triggerRequired": "Enable shift end and/or a defined time when auto clock-out is on",
-    "updated": "Auto clock-out settings updated",
-    "saveDescription": "Save auto clock-out settings"
   },
   "orderVisibility": {
     "title": "Order visibility",

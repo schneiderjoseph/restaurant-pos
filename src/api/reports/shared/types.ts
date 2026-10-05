@@ -82,9 +82,6 @@ export interface MenuItemMetrics {
   numSold: number;
   priceSold: number;
   amount: number;
-  cost: number;
-  profit: number;
-  foodCostPercent: number;
   salePercent: number;
   discount: number;
   tax: number;
@@ -102,9 +99,6 @@ export interface CategoryGroup {
     numSold: number;
     priceSold: number;
     amount: number;
-    cost: number;
-    profit: number;
-    foodCostPercent: number;
     salePercent: number;
     discount: number;
     tax: number;

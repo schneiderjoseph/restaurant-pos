@@ -86,7 +86,7 @@ export const parseLocalEventsArg = (value: unknown): LocalEventInput[] => {
     .filter(row => row.name);
 };
 
-export const resolveInventoryNeedArgsFromPrompt = (prompt: string) => {
+export const resolveStaffNeedArgsFromPrompt = (prompt: string) => {
   const horizon = resolveDemandHorizon({prompt});
   return {
     days: horizon.horizonDays,
@@ -96,5 +96,3 @@ export const resolveInventoryNeedArgsFromPrompt = (prompt: string) => {
     localEvents: extractLocalEventsFromPrompt(prompt),
   };
 };
-
-export const resolveStaffNeedArgsFromPrompt = (prompt: string) => resolveInventoryNeedArgsFromPrompt(prompt);

@@ -161,7 +161,6 @@ export const executeAiReportTool = async (
             name: item.name,
             numSold: item.numSold,
             amount: item.amount,
-            profit: item.profit,
           })),
         })),
         topItems: mix.topItems,

@@ -146,11 +146,6 @@
     "autoLock": "Bloqueado por inactividad",
     "autoLogout": "Sesión cerrada por inactividad"
   },
-  "autoClockOut": {
-    "warning": "Salida automática en {{countdown}}",
-    "clockedOut": "Salida registrada automáticamente",
-    "failed": "Error en la salida automática"
-  },
   "print": {
     "tempLimitReached": "Límite de impresión de factura temporal alcanzado ({{count}}/{{limit}}). Se requiere aprobación del gerente.",
     "finalLimitReached": "Límite de impresión de factura final alcanzado ({{count}}/{{limit}}). Se requiere aprobación del gerente.",

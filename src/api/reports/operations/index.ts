@@ -83,7 +83,10 @@ export const getActivityLog = async (
     created_at?: unknown;
     module?: string;
     page?: string;
+    user?: string;
     user_name?: string;
+    user_agent?: string;
+    resolution?: string;
     auth_method?: string;
     payload?: Record<string, unknown>;
   }>(await db.query(query, params));
@@ -95,8 +98,10 @@ export const getActivityLog = async (
       createdAt: row.created_at,
       module: row.module,
       page: row.page,
-      userName: row.user_name,
+      userName: row.user_name || row.user,
       authMethod: row.auth_method,
+      userAgent: row.user_agent,
+      resolution: row.resolution,
       payload: row.payload,
     })),
   };

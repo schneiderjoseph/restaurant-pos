@@ -249,7 +249,7 @@
       "bogoDiscount": "أنشئ خصم BOGO تلقائي للمقبلات",
       "addDish": "أضف طبقًا جديدًا مارغريتا بـ x",
       "listUsers": "اعرض جميع مستخدمي نقطة البيع",
-      "inventoryStock": "اعرض أصناف المخزون تحت حد إعادة الطلب"
+      "voidsToday": "Show voids for today"
     },
     "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
     "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد"

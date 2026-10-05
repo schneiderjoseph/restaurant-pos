@@ -146,11 +146,6 @@
     "autoLock": "Verrouillé pour inactivité",
     "autoLogout": "Déconnecté pour inactivité"
   },
-  "autoClockOut": {
-    "warning": "Sortie automatique dans {{countdown}}",
-    "clockedOut": "Sortie pointée automatiquement",
-    "failed": "Échec de la sortie automatique"
-  },
   "print": {
     "tempLimitReached": "Limite d'impression de la note provisoire atteinte ({{count}}/{{limit}}). Approbation du responsable requise.",
     "finalLimitReached": "Limite d'impression de la note finale atteinte ({{count}}/{{limit}}). Approbation du responsable requise.",

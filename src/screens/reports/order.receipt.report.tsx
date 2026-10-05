@@ -16,6 +16,8 @@ import {
   exportElementAsPdf,
   printDocument,
 } from "@/lib/export.document.ts";
+import { useRestaurantProfile } from "@/hooks/useRestaurantProfile.ts";
+import { sanitizeReportFilename } from "@/lib/report.branding.ts";
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
@@ -68,6 +70,7 @@ export const OrderReceiptReport = () => {
   const {t} = useTranslation("reports");
   const {t: tNav} = useTranslation("navigation");
   const db = useDB();
+  const { profile, logoDataUrl } = useRestaurantProfile();
   const queryRef = useRef(db.query);
   const documentRef = useRef<HTMLDivElement>(null);
 
@@ -148,7 +151,14 @@ export const OrderReceiptReport = () => {
   const handleExportPdf = async () => {
     setExporting(true);
     try {
-      await exportElementAsPdf(documentRef.current, `${baseName}.pdf`);
+      await exportElementAsPdf(
+        documentRef.current,
+        sanitizeReportFilename(baseName, "pdf"),
+        {
+          watermarkDataUrl: logoDataUrl,
+          watermarkText: profile.name || undefined,
+        },
+      );
     } finally {
       setExporting(false);
     }
@@ -157,7 +167,10 @@ export const OrderReceiptReport = () => {
   const handleExportImage = async () => {
     setExporting(true);
     try {
-      await exportElementAsImage(documentRef.current, `${baseName}.png`);
+      await exportElementAsImage(
+        documentRef.current,
+        sanitizeReportFilename(baseName, "png"),
+      );
     } finally {
       setExporting(false);
     }
