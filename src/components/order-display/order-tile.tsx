@@ -13,9 +13,11 @@ interface Props {
   variant: 'preparing' | 'ready';
   celebrate?: boolean;
   stations?: KitchenStationStatus[];
+  /** Ready tiles only: tap to mark the order as handed to the guest. */
+  onServe?: () => void;
 }
 
-export const OrderTile = ({ order, variant, celebrate = false, stations = [] }: Props) => {
+export const OrderTile = ({ order, variant, celebrate = false, stations = [], onServe }: Props) => {
   const { t } = useTranslation('order-display');
   const dueLabel = order.due_at
     ? formatDueLabel(toLuxonDateTime(order.due_at), nowInAppTimezone(), t('due.tomorrowShort'))
@@ -23,8 +25,20 @@ export const OrderTile = ({ order, variant, celebrate = false, stations = [] }: 
 
   return (
     <div
+      role={onServe ? 'button' : undefined}
+      tabIndex={onServe ? 0 : undefined}
+      title={onServe ? t('markServed') : undefined}
+      onClick={onServe}
+      onKeyDown={onServe ? (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onServe();
+        }
+      } : undefined}
+      data-testid={`order-tile-${variant}`}
       className={cn(
         'flex flex-col items-center justify-center rounded-2xl p-6 shadow-lg animate-in fade-in zoom-in-95 duration-300',
+        onServe && 'cursor-pointer active:scale-95 transition-transform',
         variant === 'ready'
           ? 'bg-success-100 text-success-900 border-2 border-success-300'
           : 'bg-warning-100 text-warning-900 border-2 border-warning-300',

@@ -1,6 +1,7 @@
 import { Customer } from '@/api/model/customer.ts';
 import { Order } from '@/api/model/order.ts';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 export { formatGuestLabel } from '@/lib/guest-label.ts';
 
@@ -238,9 +239,7 @@ export function orderContextLabel(order?: Order | null): string {
 
   const guest = formatGuestLabel(order.customer);
   const zone = orderZoneLabel(order);
-  const table = order.table
-    ? `${order.table.name ?? ''}${order.table.number ?? ''}`.trim()
-    : '';
+  const table = formatTableLabel(order.table);
 
   const parts = [guest, zone, table].filter(Boolean);
 

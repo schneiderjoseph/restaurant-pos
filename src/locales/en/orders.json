@@ -224,7 +224,9 @@
     "okWithMore": "OK ({{count}} more)",
     "speech": "Order {{number}} is ready",
     "speechGuest": "Order {{number}}, {{guest}}, is ready",
-    "speechTable": "Order {{number}}, table {{table}}, is ready"
+    "speechTable": "Order {{number}}, table {{table}}, is ready",
+    "room": "Room {{room}}",
+    "speechRoom": "Order {{number}}, room {{room}}, is ready"
   },
   "due": {
     "forTime": "For {{time}}",

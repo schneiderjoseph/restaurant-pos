@@ -66,7 +66,7 @@ describe('readyAnnouncement', () => {
     expect(alert.displayNumber).toBe('#012');
     expect(readyAnnouncement(alert)).toEqual({
       key: 'readyAlert.speechTable',
-      values: { number: '12', table: 'T4' },
+      values: { number: '12', table: '4' },
     });
   });
 
@@ -79,5 +79,17 @@ describe('order_visibility.all', () => {
   it('is not granted by access to the Orders page', () => {
     expect(userModulesGrant(['orders', 'menu'], 'order_visibility.all')).toBe(false);
     expect(userModulesGrant(['orders', 'order_visibility.all'], 'order_visibility.all')).toBe(true);
+  });
+});
+
+describe('ready alert on a hotel room', () => {
+  it('reads the room number aloud instead of its code', () => {
+    const alert = toReadyAlert(order({ table: { name: 'R', number: '20', source: 'asi-room' } }));
+
+    expect(alert.room).toBe('20');
+    expect(readyAnnouncement(alert)).toEqual({
+      key: 'readyAlert.speechRoom',
+      values: { number: alert.orderNumber, room: '20' },
+    });
   });
 });

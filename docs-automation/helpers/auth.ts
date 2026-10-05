@@ -563,7 +563,7 @@ export async function dismissSecurityModal(page: Page): Promise<void> {
 /** Pay a check (creates a Paid order for refund docs). */
 export async function completeOrderWithCash(page: Page): Promise<void> {
   await openPaymentScreen(page);
-  await page.getByTestId('payment-quick-exact').click();
+  await page.getByTestId('payment-type').first().click();
   await page.waitForTimeout(400);
   await page.getByTestId('payment-complete').click();
   await page.waitForTimeout(800);

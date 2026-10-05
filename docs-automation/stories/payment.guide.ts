@@ -141,7 +141,7 @@ test('capture payment screen layout and tendering', async ({ page }) => {
   await clearHighlights(page);
 
   // Tender remaining — do NOT complete order
-  await page.getByTestId('payment-quick-exact').click();
+  await page.getByTestId('payment-type').first().click();
   await page.waitForTimeout(500);
   await expect(page.getByTestId('payment-line').first()).toBeVisible({ timeout: 10_000 });
 

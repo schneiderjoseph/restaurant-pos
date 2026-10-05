@@ -20,6 +20,8 @@ export interface Order extends ID{
   completed_at?: DateTime
   /** When the guest wants the order; none = as soon as possible. */
   due_at?: DateTime | null
+  /** When the ready order was handed to the guest (order display). */
+  served_at?: DateTime | null
   customer?: Customer
   floor: Floor
   table: Table
@@ -38,6 +40,8 @@ export interface Order extends ID{
   tax?: Tax
   tax_amount?: number
   order_taxes?: OrderTax[]
+  /** Taxes removed from this order at payment: Tax records or their ids. */
+  excluded_taxes?: unknown[]
 
   service_charge_type?: string
   service_charge?: number

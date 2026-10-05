@@ -12,6 +12,9 @@ import {fetchOrderFull} from "@/lib/order-fetch.ts";
 import {toast} from "sonner";
 import {formatGuestLabel} from "@/lib/guest-label.ts";
 import {OrderElapsed} from "@/components/orders/order.elapsed.tsx";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
+import {RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 /** Shared by the sticky header and every row so columns line up. */
 export const ORDERS_LIST_GRID_CLASS =
@@ -54,10 +57,13 @@ export const OrderRow = ({
     return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + serviceChargeAmount;
   }, [cardReady, itemsTotal, order]);
 
-  const isActionable = order.status === OrderStatus["In Progress"] && !isLoadingFull;
+  // A role that cannot take a payment gets a read-only row.
+  const {can} = useModuleAccess();
+  const canReceivePayment = can(RECEIVE_PAYMENT_MODULE);
+  const isActionable = canReceivePayment && order.status === OrderStatus["In Progress"] && !isLoadingFull;
 
   const openPayment = async () => {
-    if (order.status !== OrderStatus["In Progress"] || isLoadingFull) {
+    if (!canReceivePayment || order.status !== OrderStatus["In Progress"] || isLoadingFull) {
       return;
     }
     setIsLoadingFull(true);
@@ -94,14 +100,8 @@ export const OrderRow = ({
 
         <div className="flex flex-col justify-center gap-1 py-2 min-w-0">
           {order?.table && (
-            <span
-              className="inline-flex self-start px-2 py-1 rounded-lg text-sm font-medium"
-              style={{
-                color: order.table.color,
-                background: order.table.background,
-              }}
-            >
-              {`${order.table.name ?? ''}${order.table.number ?? ''}`}
+            <span className="text-sm font-medium text-neutral-900">
+              {formatTableLabel(order.table)}
             </span>
           )}
           {order?.customer && (

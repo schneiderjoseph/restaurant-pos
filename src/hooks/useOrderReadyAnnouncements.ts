@@ -15,7 +15,18 @@ interface CelebrationItem {
   displayNumber: string;
 }
 
-export const useOrderReadyAnnouncements = (readyOrders: Order[]) => {
+/**
+ * @param readyOrders every ready order, not only the ones on screen.
+ * @param preparingOrders orders back in preparation are forgotten, so they are announced
+ *   again when ready.
+ * @param hydrated false until the list for the current filters has loaded; what is
+ *   already ready at that point is the baseline, not an announcement.
+ */
+export const useOrderReadyAnnouncements = (
+  readyOrders: Order[],
+  preparingOrders: Order[] = [],
+  hydrated = true
+) => {
   const { t, i18n } = useTranslation('order-display');
   const knownReadyIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
@@ -24,18 +35,21 @@ export const useOrderReadyAnnouncements = (readyOrders: Order[]) => {
   const [highlightedOrderIds, setHighlightedOrderIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const currentIds = new Set(readyOrders.map((order) => order.id.toString()));
-
-    if (!initializedRef.current) {
-      initializedRef.current = true;
-      knownReadyIdsRef.current = currentIds;
+    if (!hydrated) {
+      initializedRef.current = false;
       return;
     }
 
-    const newlyReady = readyOrders.filter(
-      (order) => !knownReadyIdsRef.current.has(order.id.toString())
-    );
-    knownReadyIdsRef.current = currentIds;
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      knownReadyIdsRef.current = new Set(readyOrders.map((order) => order.id.toString()));
+      return;
+    }
+
+    const known = knownReadyIdsRef.current;
+    preparingOrders.forEach((order) => known.delete(order.id.toString()));
+    const newlyReady = readyOrders.filter((order) => !known.has(order.id.toString()));
+    newlyReady.forEach((order) => known.add(order.id.toString()));
 
     if (newlyReady.length === 0) {
       return;
@@ -62,7 +76,7 @@ export const useOrderReadyAnnouncements = (readyOrders: Order[]) => {
       celebrations.forEach((item) => next.add(item.id));
       return next;
     });
-  }, [readyOrders, t, i18n.language]);
+  }, [readyOrders, preparingOrders, hydrated, t, i18n.language]);
 
   useEffect(() => {
     if (activeCelebration || celebrationQueue.length === 0) {

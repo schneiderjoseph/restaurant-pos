@@ -14,6 +14,14 @@
     "title": "On screen keyboard",
     "description": "Enable or disable on screen keyboard. Only applies to this device."
   },
+  "readyAlertTest": {
+    "title": "Order ready alert",
+    "description": "Test on this device the chime and vibration played when one of your orders is ready.",
+    "test": "Test the alert",
+    "sent": "Vibration sent. If the device did not vibrate, it has no vibration motor or vibration is turned off in its settings.",
+    "blocked": "The browser refused the vibration. Check the device's sound and vibration settings.",
+    "unsupported": "This browser cannot vibrate (iPad, iPhone and computers). Only the chime will play."
+  },
   "cache": {
     "title": "Cache",
     "description": "Stores data into browser for faster operations.",
@@ -117,6 +125,15 @@
     "endTime": "End time",
     "updated": "Closing cycle settings updated",
     "saveDescription": "Save closing cycle settings"
+  },
+  "asiOutlets": {
+    "title": "ASI outlets",
+    "description": "Choose the ASI outlets whose items and prices feed the menu. When an item exists in several chosen outlets, the price of the first one in the list is used. With nothing selected, every outlet is synced. The menu updates on the next sync (about 30 seconds).",
+    "outlets": "Outlets",
+    "allOutlets": "All outlets",
+    "inactiveOutlet": "{{name}} (inactive)",
+    "updated": "ASI outlets updated",
+    "saveDescription": "Save ASI outlets"
   },
   "showInclusivePrices": {
     "title": "Show inclusive prices",
@@ -241,10 +258,17 @@
   },
   "orderVisibility": {
     "title": "Order visibility",
-    "description": "When on, each user sees only the orders they opened on the Orders screen. The roles ticked below still see every order (e.g. managers, cashiers, the bar).",
+    "description": "When on, each user sees only the orders they opened on the Orders and Order Display screens. The roles ticked below still see every order (e.g. managers, cashiers, the bar).",
     "ownOrdersOnly": "Each user sees only their own orders",
     "rolesTitle": "Roles that see every order",
     "updated": "Order visibility updated",
     "saveDescription": "Save order visibility"
+  },
+  "orderDisplayAccess": {
+    "title": "Order display access",
+    "description": "The checked roles can open the order display screen (orders in preparation and ready). What a role sees there follows order visibility: its own orders only, or all of them.",
+    "rolesTitle": "Roles that can open the order display",
+    "updated": "Order display access updated",
+    "saveDescription": "Save order display access"
   }
 }

@@ -159,19 +159,14 @@ export const KitchenOrder = ({
     >
       <div className={
         cn(
-          "flex justify-between p-2 rounded-t-xl",
+          "flex justify-between p-2 rounded-t-lg border-b-2 border-neutral-300",
+          !(diff >= 30) && !isNew && 'bg-neutral-100',
           diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700 kitchen-late-order',
           diff >= 60 && 'bg-danger-200 text-danger-700 kitchen-delayed-order',
           !(diff >= 30) && isNew && 'bg-primary-100 text-primary-800',
         )
       }>
         <div className="flex gap-2 min-w-0">
-          {placeLabel && (
-            <span className="p-2 text-base rounded-lg min-w-[48px] flex justify-center items-center shrink-0" style={{
-              color: order?.table?.color,
-              background: order?.table?.background || undefined,
-            }}>{placeLabel}</span>
-          )}
           {!placeLabel && guestLabel && (
             <span className="p-2 text-base rounded-lg min-w-[48px] flex justify-center items-center shrink-0 bg-neutral-100">
               {guestLabel}
@@ -203,6 +198,11 @@ export const KitchenOrder = ({
         </div>
         <div className="flex flex-col shrink-0 items-end">
           <span className="text-base font-bold px-1 rounded text-right">{order?.user?.first_name}</span>
+          {placeLabel && (
+            <span className="text-xs font-medium px-1 text-right opacity-70" data-testid="kitchen-place-label">
+              {placeLabel}
+            </span>
+          )}
           {(showKindLabel || isContinued) && (
             <span className={cn(
               "text-sm font-bold uppercase text-right",

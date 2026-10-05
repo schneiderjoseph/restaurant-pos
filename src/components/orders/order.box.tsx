@@ -57,6 +57,8 @@ import {MENU} from "@/routes/posr.ts";
 import {canEditOrder} from "@/lib/order-edit.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {flushSync} from "react-dom";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
+import {RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
 
 interface Props {
   order: OrderModel
@@ -132,6 +134,7 @@ export const OrderBox = ({
 
   const {protectAction} = useSecurity();
   const isVisible = useActionVisible();
+  const {can: canAccess} = useModuleAccess();
 
   const isInProgress = order.status === OrderStatus["In Progress"];
   const isPaid = order.status === OrderStatus.Paid;
@@ -149,6 +152,8 @@ export const OrderBox = ({
     (isInProgress || isPaid) && isVisible('orders.print_kot');
   const showFinalBillItem = isPaid && isVisible('orders.print_final');
   const showTempBillCard = isInProgress && isVisible('orders.print_temp');
+  // A role that cannot take a payment gets no pay button on the card.
+  const showPayCard = isInProgress && canAccess(RECEIVE_PAYMENT_MODULE);
   // Edit is not module-guarded, so in-progress always has at least one menu entry.
   const hasOrderMenuItems =
     isInProgress ||
@@ -638,6 +643,7 @@ export const OrderBox = ({
                     ></Button>
                   </span>
                   )}
+                  {showPayCard && (
                   <Button
                     variant="warning"
                     filled
@@ -651,6 +657,7 @@ export const OrderBox = ({
                     data-testid="order-card-pay"
                   >
                   </Button>
+                  )}
                 </>
               )}
             </>

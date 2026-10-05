@@ -172,3 +172,25 @@ describe('kitchenReadyOrderIds', () => {
     expect(ready.has('order:b')).toBe(false);
   });
 });
+
+describe('partitionDisplayOrders served orders', () => {
+  const item = { id: { toString: () => 'order_item:9' } };
+  const completedRow = (completedAt: string) => ({
+    ...kitchenRow(item, OrderItemKitchenStatus.Completed),
+    completed_at: completedAt,
+  }) as unknown as OrderItemKitchen;
+
+  it('drops a ready order served after the kitchen finished', () => {
+    const order = { ...orderWithItems([item]), served_at: '2026-10-05T12:10:00Z' } as unknown as Order;
+    const map = buildKitchenRowsMap([completedRow('2026-10-05T12:00:00Z')]);
+
+    expect(partitionDisplayOrders([order], map).ready).toHaveLength(0);
+  });
+
+  it('shows it again once the kitchen finishes something after it was served', () => {
+    const order = { ...orderWithItems([item]), served_at: '2026-10-05T12:10:00Z' } as unknown as Order;
+    const map = buildKitchenRowsMap([completedRow('2026-10-05T12:30:00Z')]);
+
+    expect(partitionDisplayOrders([order], map).ready).toHaveLength(1);
+  });
+});

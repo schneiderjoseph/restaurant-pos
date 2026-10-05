@@ -105,7 +105,7 @@
     "contactRequired": "Enter a phone number or an ID document",
     "departure": "Check-out {{date}}",
     "departureToday": "Checks out today",
-    "asiReadOnly": "ASI guest: their details are edited in ASI, not here."
+    "addPlace": "Table or zone"
   },
   "outlets": {
     "all": "All"

@@ -22,6 +22,7 @@ import {
   refKey,
   rejectOrderEditRequest,
 } from "@/lib/order-edit-request.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const REFRESH_DEBOUNCE_MS = 500;
 
@@ -241,7 +242,7 @@ export const OrderEditRequestWatcher = () => {
   }
 
   const order = current.order;
-  const table = order?.table ? `${order.table.name ?? ''}${order.table.number ?? ''}`.trim() : '';
+  const table = formatTableLabel(order?.table);
   const requester = `${current.requested_by?.first_name ?? ''} ${current.requested_by?.last_name ?? ''}`.trim();
 
   return (

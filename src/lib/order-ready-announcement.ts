@@ -209,6 +209,24 @@ export const unlockReadyChime = () => {
   }
 };
 
+const READY_VIBRATION_MS = [400, 150, 400, 150, 600];
+
+/**
+ * Three buzzes for a tablet in a pocket or a noisy room. Android only: iOS
+ * Safari and desktops have no Vibration API, and it needs an earlier tap.
+ */
+export const vibrateOrderReady = (): 'unsupported' | 'blocked' | 'sent' => {
+  if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') {
+    return 'unsupported';
+  }
+  try {
+    // 'sent' only means the browser accepted it: a device without a motor stays still.
+    return navigator.vibrate(READY_VIBRATION_MS) ? 'sent' : 'blocked';
+  } catch {
+    return 'blocked';
+  }
+};
+
 /** Two loud rising tones, synthesised: no sound file to ship. */
 export const playReadyChime = () => {
   const context = getChimeContext();

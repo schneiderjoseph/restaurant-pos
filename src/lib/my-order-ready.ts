@@ -2,6 +2,8 @@ import { Order } from '@/api/model/order.ts';
 import { classifyOrder, KitchenRowsByOrderItemId, OrderDisplayColumn } from '@/lib/order-display.ts';
 import { formatOrderNumber, getInvoiceNumber } from '@/lib/order.ts';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
+import {formatTableLabel} from "@/lib/table-label.ts";
+import {isHotelRoomTable} from "@/lib/kitchen-ticket-label.ts";
 
 /** Last column seen for each order id ('running' = kitchen still working). */
 export type OrderColumns = Map<string, OrderDisplayColumn | null>;
@@ -41,6 +43,8 @@ export interface ReadyAlert {
   /** Guest name only — a #code is not read aloud. */
   spokenGuest: string;
   table: string;
+  /** Room number when the order is on a hotel room, else ''. Read aloud as "room 20". */
+  room: string;
 }
 
 export const toReadyAlert = (order: Order): ReadyAlert => ({
@@ -49,7 +53,8 @@ export const toReadyAlert = (order: Order): ReadyAlert => ({
   displayNumber: formatOrderNumber(order),
   guest: formatGuestLabel(order.customer),
   spokenGuest: (order.customer?.name ?? '').trim(),
-  table: order.table ? `${order.table.name ?? ''}${order.table.number ?? ''}`.trim() : '',
+  table: formatTableLabel(order.table),
+  room: isHotelRoomTable(order.table) ? String(order.table?.number ?? '').trim() : '',
 });
 
 /** i18n key and values for the spoken announcement: guest name first, else the table. */
@@ -59,8 +64,13 @@ export const readyAnnouncement = (
   if (alert.spokenGuest) {
     return { key: 'readyAlert.speechGuest', values: { number: alert.orderNumber, guest: alert.spokenGuest } };
   }
+  if (alert.room) {
+    return { key: 'readyAlert.speechRoom', values: { number: alert.orderNumber, room: alert.room } };
+  }
   if (alert.table) {
-    return { key: 'readyAlert.speechTable', values: { number: alert.orderNumber, table: alert.table } };
+    // "T4" is read "table 4"; another code (B3) is read as it is.
+    const table = alert.table.replace(/^(?:t|table)\s*(?=\d)/i, '');
+    return { key: 'readyAlert.speechTable', values: { number: alert.orderNumber, table } };
   }
   return { key: 'readyAlert.speech', values: { number: alert.orderNumber } };
 };

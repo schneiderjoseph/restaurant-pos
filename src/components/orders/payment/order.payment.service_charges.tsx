@@ -25,12 +25,28 @@ export const OrderPaymentServiceCharges = ({
   const [draftServiceCharge, setDraftServiceCharge] = useState<number>(serviceCharge);
   const [draftServiceChargeType, setDraftServiceChargeType] = useState<DiscountType>(serviceChargeType);
   const defaultAppliedRef = useRef(false);
+  // Digits typed on the keypad, kept as text so a decimal point survives.
+  const [entry, setEntry] = useState('');
+
+  const pickCharge = (value: number) => {
+    setEntry('');
+    setDraftServiceCharge(value);
+  };
+
+  const typeKey = (key: string | number) => {
+    const next = entry + key;
+    if (Number.isNaN(Number(next))) {
+      return;
+    }
+    setEntry(next);
+    setDraftServiceCharge(Number(next));
+  };
 
   const [quickPercentOptions, setQuickPercentOptions] = useState([
     3, 5, 12
   ]);
 
-  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0];
+  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const {
     data: serviceChargeSettings,
@@ -53,6 +69,7 @@ export const OrderPaymentServiceCharges = ({
   useEffect(() => {
     setDraftServiceCharge(serviceCharge);
     setDraftServiceChargeType(serviceChargeType);
+    setEntry('');
     defaultAppliedRef.current = false;
   }, [serviceCharge, serviceChargeType]);
 
@@ -84,7 +101,7 @@ export const OrderPaymentServiceCharges = ({
   }, [defaultFromSettings, order.order_type.allow_service_charges, serviceCharge]);
 
   return (
-    <div className="flex flex-col justify-between h-full" data-testid="payment-panel-service-charges">
+    <div className="flex flex-col justify-between min-h-full" data-testid="payment-panel-service-charges">
       <div className="mb-5 flex justify-between flex-col gap-5">
         <div className="text-xl bg-warning-500 px-3 py-5 text-white">
           {t('serviceCharges.defaultFromSettings')} <span className="font-semibold ">{defaultFromSettings.label}</span>
@@ -93,7 +110,7 @@ export const OrderPaymentServiceCharges = ({
           className="min-w-[150px]"
           variant="danger"
           active={draftServiceCharge === 0}
-          onClick={() => setDraftServiceCharge(0)}
+          onClick={() => pickCharge(0)}
           size="lg"
         >
           {t('serviceCharges.noServiceCharge')}
@@ -121,9 +138,7 @@ export const OrderPaymentServiceCharges = ({
         {quickPercentOptions.map(quickOption => (
           <Button
             size="lg" variant="primary" flat active={draftServiceCharge === quickOption}
-            onClick={() => {
-              setDraftServiceCharge(quickOption);
-            }}
+            onClick={() => pickCharge(quickOption)}
             className="min-w-[100px]"
             key={quickOption}
           >
@@ -132,19 +147,20 @@ export const OrderPaymentServiceCharges = ({
         ))}
       </div>
 
+      <div
+        className="flex justify-center items-center text-2xl font-bold h-[48px] mb-3 rounded-lg border border-neutral-200 tabular-nums"
+        data-testid="payment-service-charge-entry"
+      >
+        {entry || draftServiceCharge}{draftServiceChargeType === DiscountType.Percent && '%'}
+      </div>
+
       <div className="grid grid-cols-3 gap-3 mb-3">
         {keyboardKeys.map(item => (
-          <Button key={item} size="xl" flat variant="primary" onClick={() => {
-            setDraftServiceCharge(prev => {
-              return Number(prev.toString() + item)
-            });
-          }}>
+          <Button key={item} size="xl" flat variant="primary" onClick={() => typeKey(item)}>
             {item}
           </Button>
         ))}
-        <Button size="xl" flat variant="primary" onClick={() => {
-          setDraftServiceCharge(0)
-        }}>
+        <Button size="xl" flat variant="primary" onClick={() => pickCharge(0)}>
           C
         </Button>
       </div>

@@ -6,6 +6,7 @@ import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translat
 // import {Printersettings} from "@/components/user_settings/printers.tsx";
 import {PrintOptionsSettingsCard} from "@/components/user_settings/print_options.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
+import {AsiOutletsSettingsCard} from "@/components/user_settings/asi_outlets.tsx";
 import {ServiceChargesSettings} from "@/components/user_settings/service_charges.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
@@ -15,6 +16,7 @@ import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_i
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {OrderVisibilitySettingsCard} from "@/components/user_settings/order_visibility.tsx";
+import {OrderDisplayAccessSettingsCard} from "@/components/user_settings/order_display_access.tsx";
 
 function MasonryItem({ children }: PropsWithChildren) {
   return <div className="break-inside-avoid mb-5">{children}</div>;
@@ -33,11 +35,14 @@ export const AdminGeneralSettings = () => (
     {/* <MasonryItem><Printersettings /></MasonryItem> */}
     <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>
     <MasonryItem><MenusSettings /></MasonryItem>
+    {/* Carries its own masonry wrapper: it renders nothing where ASI is not synced. */}
+    <AsiOutletsSettingsCard />
     <MasonryItem><ServiceChargesSettings /></MasonryItem>
     <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>
     <MasonryItem><AutoCheckCloseSettingsCard /></MasonryItem>
     <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
     <MasonryItem><OrderVisibilitySettingsCard /></MasonryItem>
+    <MasonryItem><OrderDisplayAccessSettingsCard /></MasonryItem>
     <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>
     <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
     <MasonryItem><InventorySettingsCard /></MasonryItem>

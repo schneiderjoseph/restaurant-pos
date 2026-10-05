@@ -26,6 +26,7 @@ import { DateTime } from "luxon";
 import { Input } from "@/components/common/input/input.tsx";
 import {useTranslation} from 'react-i18next';
 import { toLuxonDateTime } from "@/lib/datetime.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 interface Props {
   table: Table
@@ -265,7 +266,7 @@ export const FloorTable = ({
           )}
         </>
       )}
-      <span className="text-2xl font-black leading-none tracking-tight">{table.name}{table.number}</span>
+      <span className="text-2xl font-black leading-none tracking-tight">{formatTableLabel(table)}</span>
       {!order && occupiedBy?.trim() && (
         <span className="text-[11px] font-semibold leading-tight line-clamp-2 px-0.5">
           {occupiedBy.trim()}

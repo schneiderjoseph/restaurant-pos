@@ -41,7 +41,8 @@ export const syncOrderTaxes = async (
     return;
   }
 
-  const resolvedOrderTax = orderTaxOverride ?? order.tax ?? null;
+  // `null` = no order-level tax; left out = the order's stored one.
+  const resolvedOrderTax = orderTaxOverride === undefined ? order.tax ?? null : orderTaxOverride;
   const rows = collectOrderTaxRows(order, resolvedOrderTax);
 
   const existingResult = await db.query<[Array<{ id: unknown }>]>(

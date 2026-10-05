@@ -51,7 +51,7 @@ test('capture order refund modal', async ({ page }) => {
     await expect(payBtn).toBeVisible({ timeout: 30_000 });
     await payBtn.click();
     await expect(page.getByTestId('payment-screen')).toBeVisible({ timeout: 60_000 });
-    await page.getByTestId('payment-quick-exact').click();
+    await page.getByTestId('payment-type').first().click();
     await page.waitForTimeout(400);
     await page.getByTestId('payment-complete').click();
     await page.waitForTimeout(800);

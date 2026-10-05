@@ -17,6 +17,22 @@ export const OrderPaymentTip = ({
   const {t} = useTranslation('payment');
   const [draftTip, setDraftTip] = useState<number>(tip);
   const [draftTipType, setDraftTipType] = useState<DiscountType>(tipType);
+  // Digits typed on the keypad, kept as text so a decimal point survives.
+  const [entry, setEntry] = useState('');
+
+  const pickTip = (value: number) => {
+    setEntry('');
+    setDraftTip(value);
+  };
+
+  const typeKey = (key: string | number) => {
+    const next = entry + key;
+    if (Number.isNaN(Number(next))) {
+      return;
+    }
+    setEntry(next);
+    setDraftTip(Number(next));
+  };
 
   const [quickPercentOptions] = useState([
     5, 10, 15, 20, 30, 50, 100
@@ -29,12 +45,13 @@ export const OrderPaymentTip = ({
   useEffect(() => {
     setDraftTip(tip);
     setDraftTipType(tipType);
+    setEntry('');
   }, [tip, tipType]);
 
   return (
-    <div className="flex flex-col justify-between h-full" data-testid="payment-panel-tip">
+    <div className="flex flex-col justify-between min-h-full" data-testid="payment-panel-tip">
       <div className="mb-5 flex justify-between flex-col gap-5">
-        <Button variant="danger" active={draftTip === 0} onClick={() => setDraftTip(0)} size="lg">{t('tip.noTip')}</Button>
+        <Button variant="danger" active={draftTip === 0} onClick={() => pickTip(0)} size="lg">{t('tip.noTip')}</Button>
         <div className="input-group">
           <Button
             size="lg" variant="primary" active={draftTipType === DiscountType.Percent}
@@ -59,7 +76,7 @@ export const OrderPaymentTip = ({
               size="lg" variant="primary" flat active={draftTipType === DiscountType.Percent && draftTip === quickOption}
               onClick={() => {
                 setDraftTipType(DiscountType.Percent);
-                setDraftTip(quickOption);
+                pickTip(quickOption);
               }}
               className="min-w-[100px]"
               key={quickOption}
@@ -77,7 +94,7 @@ export const OrderPaymentTip = ({
               size="lg" variant="primary" flat active={draftTipType === DiscountType.Fixed && draftTip === quickOption}
               onClick={() => {
                 setDraftTipType(DiscountType.Fixed);
-                setDraftTip(quickOption);
+                pickTip(quickOption);
               }}
               className="min-w-[100px]"
               key={quickOption}
@@ -88,19 +105,20 @@ export const OrderPaymentTip = ({
         </div>
       )}
 
+      <div
+        className="flex justify-center items-center text-2xl font-bold h-[48px] mb-3 rounded-lg border border-neutral-200 tabular-nums"
+        data-testid="payment-tip-entry"
+      >
+        {entry || draftTip}{draftTipType === DiscountType.Percent && '%'}
+      </div>
+
       <div className="grid grid-cols-3 gap-3 mb-3">
         {keyboardKeys.map(item => (
-          <Button key={item} size="xl" flat variant="primary" onClick={() => {
-            setDraftTip(prev => {
-              return Number(prev.toString() + item)
-            });
-          }}>
+          <Button key={item} size="xl" flat variant="primary" onClick={() => typeKey(item)}>
             {item}
           </Button>
         ))}
-        <Button size="xl" flat variant="primary" onClick={() => {
-          setDraftTip(0)
-        }}>
+        <Button size="xl" flat variant="primary" onClick={() => pickTip(0)}>
           C
         </Button>
       </div>

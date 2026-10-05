@@ -2,6 +2,7 @@ import { Layout } from "@/screens/partials/layout.tsx";
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
 import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
+import {ReadyAlertTestSettings} from "@/components/user_settings/ready_alert_test.tsx";
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
@@ -23,6 +24,7 @@ export const Settings = () => {
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
         <MasonryItem><TableSelectionSettings /></MasonryItem>
+        <MasonryItem><ReadyAlertTestSettings /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
       </div>
     </Layout>

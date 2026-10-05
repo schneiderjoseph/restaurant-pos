@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KitchenOrder } from '@/api/model/kitchen.ts';
 import { getInvoiceNumber } from '@/lib/order.ts';
+import { formatKitchenPlaceLabel, type KitchenPlaceLabels } from '@/lib/kitchen-ticket-label.ts';
 import {
   cancelOrderReadySpeech,
   speakOrderReady,
@@ -26,22 +27,21 @@ type BatchSnapshot = {
   context: string
 };
 
-const orderContext = (group: KitchenOrder) => {
+/** Spoken place words, so R20 is read "Chambre 20" and T7 "Table 7". */
+const orderContext = (group: KitchenOrder, labels: KitchenPlaceLabels) => {
   const orderNumber = group.order ? getInvoiceNumber(group.order) : '-';
   const table = group.order?.table;
-  const tableLabel = table
-    ? `${table.name ?? ''}${table.number ?? ''}`.trim()
-    : '';
+  const tableLabel = formatKitchenPlaceLabel(table, labels);
   const context = tableLabel || group.order?.order_type?.name || orderNumber;
   return { orderNumber, context };
 };
 
-const snapshotFromOrders = (orders: KitchenOrder[]) => {
+const snapshotFromOrders = (orders: KitchenOrder[], labels: KitchenPlaceLabels) => {
   const batches = new Map<string, BatchSnapshot>();
   const items = new Map<string, ItemSnapshot>();
 
   for (const group of orders) {
-    const { orderNumber, context } = orderContext(group);
+    const { orderNumber, context } = orderContext(group, labels);
 
     for (const batch of group.batches) {
       const isAddon = batch.items.some((item) => item.order_item?.is_addition);
@@ -85,6 +85,7 @@ export const useKitchenOrderAnnouncements = (
   const knownItemsRef = useRef<Map<string, ItemSnapshot>>(new Map());
   const initializedRef = useRef(false);
   const kitchenIdRef = useRef<string | undefined>(undefined);
+  const staleHydrationRef = useRef(false);
   const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [highlightedBatchKeys, setHighlightedBatchKeys] = useState<Set<string>>(new Set());
 
@@ -128,13 +129,24 @@ export const useKitchenOrderAnnouncements = (
       }
       highlightTimersRef.current.clear();
       setHighlightedBatchKeys(new Set());
+      // `hydrated` still describes the station just left: wait for it to drop, or that
+      // station's orders become the baseline and every order here is announced as new.
+      staleHydrationRef.current = hydrated;
     }
 
-    if (!currentKitchenId || !hydrated) {
+    if (!hydrated) {
+      staleHydrationRef.current = false;
       return;
     }
 
-    const { batches, items } = snapshotFromOrders(orders);
+    if (!currentKitchenId || staleHydrationRef.current) {
+      return;
+    }
+
+    const { batches, items } = snapshotFromOrders(orders, {
+      room: t('labels.room'),
+      table: t('labels.table'),
+    });
 
     if (!initializedRef.current) {
       initializedRef.current = true;

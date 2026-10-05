@@ -116,3 +116,36 @@ describe('taxes from order creation', () => {
     expect(getOrderTaxAmount(savedOrder(cart))).toBe(15);
   });
 });
+
+describe('taxes removed at payment', () => {
+  const order = (overrides: Partial<Order> = {}) => savedOrder([cartLine({ quantity: 2 })], overrides);
+
+  it('leaves a removed tax out and keeps the others', () => {
+    const withoutService = order({ excluded_taxes: ['tax:asi_5'] });
+
+    expect(calculateOrderPaymentTaxAmount(withoutService, null)).toBe(20);
+    expect(collectOrderTaxRows(withoutService, null).map((row) => [row.tax.name, row.amount])).toEqual([
+      ['TCA', 20],
+    ]);
+  });
+
+  it('charges no tax once every tax is removed', () => {
+    const exempt = order({ excluded_taxes: [TCA, SERVICE] });
+
+    expect(calculateOrderPaymentTaxAmount(exempt, null)).toBe(0);
+    expect(collectOrderTaxRows(exempt, null)).toEqual([]);
+    expect(getOrderTaxAmount(exempt)).toBe(0);
+  });
+
+  it('keeps a removed payment-type tax off', () => {
+    expect(calculateOrderPaymentTaxAmount(order({ excluded_taxes: ['tax:card'] }), CARD)).toBe(0);
+    expect(calculateOrderPaymentTaxAmount(order(), CARD)).toBe(24);
+  });
+
+  it('reads no order-level tax when null is passed, the stored one when left out', () => {
+    const stored = order({ tax: CARD });
+
+    expect(collectOrderTaxRows(stored).map((row) => row.tax.name)).toEqual(['Card']);
+    expect(collectOrderTaxRows(stored, null).map((row) => row.tax.name)).toEqual(['TCA', 'Services Charges']);
+  });
+});

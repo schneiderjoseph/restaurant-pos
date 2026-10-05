@@ -50,6 +50,8 @@ import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/s
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 import {formatTaxLabel} from "@/lib/tax-label.ts";
+import {collectOrderTaxRows, getExcludedTaxIds} from "@/lib/tax-calculator.ts";
+import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 
 interface Props {
   order: Order
@@ -88,6 +90,14 @@ export const OrderPayment = ({
 
   const [tax, setTax] = useState<Tax>();
   const [taxAmount, setTaxAmount] = useState<number>(0);
+  // Taxes taken off this order (Tax panel); persisted in `order.excluded_taxes`.
+  const [excludedTaxIds, setExcludedTaxIds] = useState<string[]>(() => [...getExcludedTaxIds(order)]);
+  const taxedOrder = useMemo<Order>(
+    () => ({...order, excluded_taxes: excludedTaxIds}),
+    [order, excludedTaxIds],
+  );
+  const taxKey = `${tax?.id?.toString() ?? ''}|${[...excludedTaxIds].sort().join(',')}`;
+  const syncedTaxKeyRef = useRef<string | null>(null);
 
   const [discountLines, setDiscountLines] = useState<AppliedDiscountLine[]>([]);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
@@ -212,7 +222,8 @@ export const OrderPayment = ({
   }, [defaultExtras, extraToggles]);
 
   const paymentTotalsParams = useMemo(() => ({
-    tax: tax ?? order.tax ?? null,
+    // The `tax` state is the truth once seeded from the order: cleared means no order-level tax.
+    tax: isInitialized ? tax ?? null : tax ?? order.tax ?? null,
     discountLines,
     extras,
     serviceCharge,
@@ -222,12 +233,23 @@ export const OrderPayment = ({
     tipType,
     itemsTotal,
     paymentTypeId: selectedPaymentTypeId,
-  }), [tax, order.tax, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal, selectedPaymentTypeId]);
+  }), [tax, order.tax, isInitialized, discountLines, extras, serviceCharge, serviceChargeType, couponAmount, tip, tipType, itemsTotal, selectedPaymentTypeId]);
 
   const paymentTotals = useMemo(
-    () => computeOrderPaymentTotals(order, paymentTotalsParams),
-    [order, paymentTotalsParams],
+    () => computeOrderPaymentTotals(taxedOrder, paymentTotalsParams),
+    [taxedOrder, paymentTotalsParams],
   );
+
+  // Every tax the order carries, removed ones included, for the Tax panel.
+  const taxRows = useMemo(
+    () => collectOrderTaxRows({...order, excluded_taxes: []}, paymentTotalsParams.tax),
+    [order, paymentTotalsParams.tax],
+  );
+  const itemsCarryTaxes = useMemo(
+    () => collectOrderTaxRows({...order, excluded_taxes: []}, null).length > 0,
+    [order],
+  );
+  const appliedTaxRows = taxRows.filter(row => !excludedTaxIds.includes(String(row.tax.id ?? '')));
 
   const cartTotals = useMemo(() => ({
     ...paymentTotals,
@@ -276,6 +298,7 @@ export const OrderPayment = ({
     setPaymentTypes((order?.payments ?? []).filter((payment) => payment != null));
     setTax(order?.tax);
     setTaxAmount(order?.tax_amount ?? 0);
+    syncedTaxKeyRef.current = `${order?.tax?.id?.toString() ?? ''}|${[...getExcludedTaxIds(order)].sort().join(',')}`;
 
     const existingPayments = (order?.payments ?? []).filter((payment) => payment != null);
     const lastPt = existingPayments[existingPayments.length - 1]?.payment_type?.id;
@@ -351,12 +374,12 @@ export const OrderPayment = ({
   const total = paymentTotals.total;
 
   const resolvePayable = useCallback((taxOverride?: Tax | null, paymentTypeId?: string) => {
-    return computeOrderPaymentTotals(order, {
+    return computeOrderPaymentTotals(taxedOrder, {
       ...paymentTotalsParams,
       tax: taxOverride !== undefined ? taxOverride : paymentTotalsParams.tax,
       paymentTypeId: paymentTypeId ?? paymentTotalsParams.paymentTypeId,
     }).total;
-  }, [order, paymentTotalsParams]);
+  }, [taxedOrder, paymentTotalsParams]);
 
   const [mode, setMode] = useState(PaymentOptions.Tax);
 
@@ -660,6 +683,7 @@ export const OrderPayment = ({
       extras: extraOptions,
       tax: tax ? toRecordId(tax?.id) : null,
       tax_amount: cartTotals.taxAmount,
+      excluded_taxes: excludedTaxIds.map(id => toRecordId(id)),
       discount_amount: resolvedDiscountAmount,
       discount_rate: allLines[0]?.appliedRate ?? 0,
       tip: tip,
@@ -685,6 +709,12 @@ export const OrderPayment = ({
 
     await db.merge(order.id, progressMerge);
 
+    // Tax rows follow the taxes chosen here, so the Orders screen and the bills match.
+    if (syncedTaxKeyRef.current !== taxKey) {
+      await syncOrderTaxes(db, taxedOrder, tax ?? null);
+      syncedTaxKeyRef.current = taxKey;
+    }
+
     postOrderTracking({
       module: "orders.update_payment",
       page: page?.page,
@@ -706,6 +736,8 @@ export const OrderPayment = ({
     extras,
     tax,
     taxAmount,
+    taxedOrder,
+    taxKey,
     cartTotals,
     discountLines,
     tip,
@@ -798,14 +830,17 @@ export const OrderPayment = ({
       onClose={closeModal}
       size="full"
     >
-      <div className="grid grid-cols-4 gap-5 mb-0 select-none" data-testid="payment-screen">
+      <div
+        className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)] gap-4 mb-0 select-none"
+        data-testid="payment-screen"
+      >
         <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]" data-testid="payment-order-summary">
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
             <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
             <ScrollContainer className="gap-1 flex flex-col">
-              <div className="overflow-ellipsis max-h-[170px]" data-testid="payment-line-items">
+              <div className="overflow-ellipsis max-h-[150px]" data-testid="payment-line-items">
                 {getOrderFilteredItems(order).map(item => (
                   <OrderItemName
                     key={item.id}
@@ -830,8 +865,8 @@ export const OrderPayment = ({
             </ScrollContainer>
             <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
           </div>
-          <div className="flex flex-col font-bold text-lg" data-testid="payment-totals">
-            <div className="flex justify-between p-3">
+          <div className="flex flex-col font-bold text-lg flex-1" data-testid="payment-totals">
+            <div className="flex justify-between px-3 py-2">
               <div>{t('totals.items', {count: getOrderFilteredItems(order).length})}</div>
               <div className="text-right"><DualCurrency amount={itemsTotal} /></div>
             </div>
@@ -839,7 +874,7 @@ export const OrderPayment = ({
               data-testid="payment-row-tax"
               className={
               cn(
-                "flex justify-between p-3",
+                "flex justify-between px-3 py-2",
                 canEditTax && 'cursor-pointer',
                 mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning-500'
               )
@@ -854,10 +889,13 @@ export const OrderPayment = ({
               });
             }}>
               <div>
-                {tax
-                  ? t('tabs.taxWithRate', {label: formatTaxLabel(tax.name, tax.rate)})
-                  : t('tabs.tax')}{' '}
+                {t('tabs.tax')}{' '}
                 {canEditTax && <FontAwesomeIcon icon={faPencil}/>}
+                <div className="text-sm font-normal">
+                  {appliedTaxRows.length > 0
+                    ? appliedTaxRows.map(row => formatTaxLabel(row.tax.name, row.tax.rate)).join(' + ')
+                    : t('tax.noTax')}
+                </div>
               </div>
               <div className="text-right"><DualCurrency amount={taxAmount} /></div>
             </div>
@@ -866,7 +904,7 @@ export const OrderPayment = ({
               data-testid="payment-row-discount"
               className={
               cn(
-                "flex justify-between p-3",
+                "flex justify-between px-3 py-2",
                 canEditDiscount && 'cursor-pointer',
                 mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning-500'
               )
@@ -892,7 +930,7 @@ export const OrderPayment = ({
               data-testid="payment-row-coupon"
               className={
               cn(
-                "flex justify-between p-3",
+                "flex justify-between px-3 py-2",
                 canEditCoupon && 'cursor-pointer',
                 mode === PaymentOptions.Coupon && 'bg-neutral-900 text-warning-500'
               )
@@ -914,7 +952,7 @@ export const OrderPayment = ({
               data-testid="payment-row-service-charges"
               className={
               cn(
-                "flex justify-between p-3",
+                "flex justify-between px-3 py-2",
                 canEditServiceCharges && 'cursor-pointer',
                 mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning-500'
               )
@@ -940,7 +978,7 @@ export const OrderPayment = ({
               data-testid="payment-row-tip"
               className={
               cn(
-                "flex justify-between p-3",
+                "flex justify-between px-3 py-2",
                 canEditTip && 'cursor-pointer',
                 mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning-500'
               )
@@ -963,7 +1001,7 @@ export const OrderPayment = ({
               <div
                 className={
                   cn(
-                    "flex justify-between p-3",
+                    "flex justify-between px-3 py-2",
                     canEditExtras && 'cursor-pointer',
                     extras[extra] === 0 ? 'line-through decoration-2' : ''
                   )
@@ -992,7 +1030,7 @@ export const OrderPayment = ({
               data-testid="payment-row-notes"
               className={
               cn(
-                "flex justify-between p-3 cursor-pointer",
+                "flex justify-between px-3 py-2 cursor-pointer",
                 mode === PaymentOptions.Notes && 'bg-neutral-900 text-warning-500'
               )
             } onClick={() => setMode(PaymentOptions.Notes)}>
@@ -1000,15 +1038,26 @@ export const OrderPayment = ({
               <div className="text-right">{notes}</div>
             </div>
 
-            <div className="flex justify-between p-3" data-testid="payment-total-row">
+            <div
+              className="flex justify-between items-center px-3 py-3 mt-auto sticky bottom-0 bg-success-100 text-success-900 border-t-2 border-success-500 rounded-b-xl"
+              data-testid="payment-total-row"
+            >
               <div className="text-2xl">{t('tabs.total')}</div>
               <div className="text-right text-2xl"><DualCurrency amount={total} primaryClassName="text-2xl" /></div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)]" data-testid="payment-adjust-panel">
+        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)] overflow-auto" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
-            <OrderPaymentTax tax={tax} setTax={setTax}/>
+            <OrderPaymentTax
+              tax={tax}
+              setTax={setTax}
+              rows={taxRows}
+              excludedTaxIds={excludedTaxIds}
+              setExcludedTaxIds={setExcludedTaxIds}
+              pickOne={!itemsCarryTaxes}
+              disabled={!canEditTax}
+            />
           )}
           {mode === PaymentOptions.Discount && (
             <OrderPaymentDiscountEngine
@@ -1046,9 +1095,9 @@ export const OrderPayment = ({
             <OrderPaymentNotes setNotes={setNotes} notes={notes}/>
           )}
         </div>
-        <div className="flex flex-col bg-neutral-100 rounded-xl col-span-2" data-testid="payment-receiving-column">
+        <div className="flex flex-col min-w-0" data-testid="payment-receiving-column">
           <OrderPaymentReceiving
-            order={order}
+            order={taxedOrder}
             total={total}
             resolvePayable={resolvePayable}
             onComplete={onPayment}

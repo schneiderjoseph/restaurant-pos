@@ -1,4 +1,3 @@
-import ScrollContainer from "react-indiana-drag-scroll";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn, toRecordId} from "@/lib/utils.ts";
 import {
@@ -6,7 +5,6 @@ import {
   convertPrimaryToPay,
   formatInCurrency,
   getAppCurrency,
-  getQuickDenominations,
   type PayCurrencyCode,
 } from "@/lib/currency.ts";
 import {PaymentCurrencyToggle} from "@/components/common/currency/payment-currency-toggle.tsx";
@@ -34,6 +32,7 @@ import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {StringRecordId} from "surrealdb";
 import {calculateChangeDue} from "@/lib/cart.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
+import {getExcludedTaxIds} from "@/lib/tax-calculator.ts";
 import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 import {
   isRemotePaymentType,
@@ -283,10 +282,8 @@ const OrderPaymentReceivingContent = ({
   }, [table, allPaymentTypes, rolePaymentTypes]);
 
   // const [paymentType, setPaymentType] = useState<string>();
-  const [mode, setMode] = useState<'quick' | 'button'>('quick');
   const [payCurrency, setPayCurrency] = useState<PayCurrencyCode>(() => getAppCurrency() as PayCurrencyCode);
 
-  const quickAmounts = getQuickDenominations(payCurrency);
   const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const [closing, setClosing] = useState(false);
@@ -403,6 +400,7 @@ const OrderPaymentReceivingContent = ({
         extras: extraOptions,
         tax: tax?.id ? toRecordId(tax.id) : null,
         tax_amount: taxAmount,
+        excluded_taxes: [...getExcludedTaxIds(order)].map((id) => toRecordId(id)),
         discount_amount: resolvedDiscountAmount,
         tip: tip,
         tip_amount: tipAmount,
@@ -424,7 +422,7 @@ const OrderPaymentReceivingContent = ({
       }
 
       await db.merge(order.id, mergePayload);
-      await syncOrderTaxes(db, order, tax ?? order.tax ?? null);
+      await syncOrderTaxes(db, order, tax ?? null);
 
       if (hasCoupon) {
         await db.create(Tables.coupon_redemptions, {
@@ -622,87 +620,90 @@ const OrderPaymentReceivingContent = ({
   } = useApi<SettingsData<Tax>>(Tables.taxes, ['deleted_at = none'])
 
   return (
-    <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px)]" data-testid="payment-receiving">
-      <div className="bg-white rounded-xl h-full p-3" data-testid="payment-tender-panel">
+    <div
+      className="flex flex-col gap-3 bg-white rounded-xl p-3 h-[calc(100vh_-_120px)] overflow-y-auto"
+      data-testid="payment-receiving"
+    >
+      <div className="flex flex-col gap-3" data-testid="payment-tender-panel">
         <PaymentCurrencyToggle
           value={payCurrency}
           onChange={(code) => {
             setPayCurrency(code);
             setSelectedAmount('');
           }}
-          className="mb-3"
         />
-        <div className="mb-3 text-5xl p-5 text-center" data-testid="payment-tendered">
-          {formatPay(tendered)}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl bg-neutral-100 px-3 py-2 text-center">
+            <div className="text-sm text-neutral-500">{t('receiving.toPay')}</div>
+            <div className="text-2xl font-bold tabular-nums" data-testid="payment-total">
+              {formatPay(total)}
+            </div>
+          </div>
+          <div className="rounded-xl bg-neutral-100 px-3 py-2 text-center">
+            <div className="text-sm text-neutral-500">{t('receiving.tendered')}</div>
+            <div className="text-2xl font-bold tabular-nums" data-testid="payment-tendered">
+              {formatPay(tendered)}
+            </div>
+          </div>
+          <div
+            data-testid="payment-change-due"
+            className={cn(
+              "rounded-xl px-3 py-2 text-center",
+              changeDue < 0 && 'bg-danger-100 text-danger-700',
+              changeDue > 0 && 'bg-success-100 text-success-700',
+              changeDue === 0 && 'bg-neutral-100'
+            )}
+          >
+            <div className="text-sm">{changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}</div>
+            <div className="text-2xl font-bold tabular-nums">{formatPay(Math.abs(changeDue))}</div>
+          </div>
         </div>
-        <div
-          data-testid="payment-change-due"
-          className={
-          cn(
-            "mb-3 text-3xl p-5 text-center",
-            changeDue < 0 && 'text-danger-700',
-            changeDue > 0 && 'text-success-700'
-          )
-        }>
-          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span>{formatPay(changeDue)}</span>
+
+        <div className="flex flex-col gap-2 empty:hidden" data-testid="payment-lines">
+          <RemotePaymentPendingSlot/>
+          {payments.map(payment => (
+            <div
+              className="flex justify-between items-center text-lg cursor-pointer rounded-lg border border-neutral-200 px-2 py-1"
+              key={payment.id}
+              data-testid="payment-line"
+              onClick={() => {
+                setPayments(prev => prev.filter(item => item.id !== payment.id))
+              }}
+            >
+              <strong className="flex gap-3 justify-center items-center">
+                <FontAwesomeIcon icon={faClose}
+                                 className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
+                {payment.payment_type.name}
+              </strong>
+              <span><DualCurrency amount={payment.amount} layout="inline" /></span>
+            </div>
+          ))}
         </div>
+
         {!canReceivePayment && (
-          <div className="alert alert-warning mb-3" role="status" data-testid="payment-not-allowed">
+          <div className="alert alert-warning" role="status" data-testid="payment-not-allowed">
             {t('receiving.notAllowed')}
           </div>
         )}
         {canReceivePayment && (
         <>
-        <div className="relative">
-          <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">
-          <span
-            className="btn btn-primary w-[100px] lg"
-            data-testid="payment-quick-exact"
-            onClick={() => {
-              if (!paymentTypes || paymentTypes.length === 0) {
-                return;
-              }
-              const pt = paymentTypes[0];
-              const payable = applyPaymentTypeTaxAndDiscount(pt);
-              void addPayment(payable, pt, payable);
-              setMode('quick');
-            }}
-          >{formatPay(total)}</span>
-            {[...quickAmounts].reverse().map(item => (
-              <span
-                key={item}
-                className="btn btn-primary w-[100px] lg"
-                onClick={() => {
-                  if (!paymentTypes || paymentTypes.length === 0) {
-                    return;
-                  }
-                  const pt = paymentTypes[0];
-                  const payable = applyPaymentTypeTaxAndDiscount(pt);
-                  void addPayment(toPrimary(item), pt, payable);
-                  setMode('quick');
-                }}
-              >{formatInCurrency(item, payCurrency)}</span>
-            ))}
-          </ScrollContainer>
-        </div>
-
         {paymentTypes?.some(item => isRoomPaymentType(item)) && roomCheck && (
           !roomCheck.ok ? (
             roomCheck.reason !== 'not-hotel-guest' && (
-              <div className="alert alert-warning mb-3" role="status" data-testid="payment-room-refused">
+              <div className="alert alert-warning" role="status" data-testid="payment-room-refused">
                 {roomRefusalMessage[roomCheck.reason]}
               </div>
             )
           ) : roomCheck.departsToday && (
-            <div className="alert alert-info mb-3" role="status" data-testid="payment-room-departs-today">
+            <div className="alert alert-info" role="status" data-testid="payment-room-departs-today">
               {t('receiving.roomDepartsToday')}
             </div>
           )
         )}
-        <ScrollContainer className="gap-5 flex overflow-x-auto mb-5" data-testid="payment-types">
+        <div className="flex gap-2 overflow-x-auto" data-testid="payment-types">
           {paymentTypes?.map(item => (
             <Button
-              className="min-w-[150px]"
+              className="flex-1 whitespace-nowrap"
               variant="primary"
               key={item.id}
               data-testid="payment-type"
@@ -722,119 +723,90 @@ const OrderPaymentReceivingContent = ({
               {item.name}
             </Button>
           ))}
-        </ScrollContainer>
+        </div>
         </>
         )}
 
-        <div className="flex justify-center items-center mb-3 text-xl h-[28px]" data-testid="payment-amount-entry">
+        <div
+          className="flex justify-center items-center text-2xl font-bold h-[40px] rounded-lg border border-neutral-200 tabular-nums"
+          data-testid="payment-amount-entry"
+        >
           {selectedAmount.trim().length > 0 && (
             <>{selectedAmount} {payCurrency}</>
           )}
         </div>
-
-        <div className="flex">
-          <div className="flex-1">
-            <div className="grid grid-cols-3 gap-3 mb-3" data-testid="payment-keypad">
-              {keyboardKeys.map(item => (
-                <Button key={item} size="xl" flat variant="primary" onClick={() => {
-                  if (mode === 'button') {
-                    setSelectedAmount((prev: string) => {
-                      return prev + item.toString()
-                    });
-                  } else {
-                    setSelectedAmount(item.toString());
-                  }
-
-                  setMode('button');
-                }}>
-                  {item}
-                </Button>
-              ))}
-              <Button size="xl" flat variant="primary" onClick={() => {
-                setSelectedAmount('')
-              }}>
-                C
-              </Button>
-            </div>
-            <div className="flex gap-5" data-testid="payment-finish-actions">
-              {isVisible('orders.print_temp') && (
-              <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
-                <Button
-                  variant={tempPrinted ? "warning" : "primary"}
-                  className="flex-1"
-                  flat
-                  icon={faPrint}
-                  size="lg"
-                  data-testid="payment-temp-bill"
-                  onClick={() => {
-                    void requestBillPrint({
-                      db,
-                      protectAction,
-                      orderId: order.id.toString(),
-                      printType: 'temp',
-                      printModule: 'orders.print_temp',
-                      description: 'Print temp bill',
-                      payload: { order: order.id.toString() },
-                      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
-                      doPrint: async () => {
-                        const full = await fetchOrderFull(db, order.id);
-                        if (!full) {
-                          throw new Error('Failed to load order for temp bill print');
-                        }
-                        return dispatchPrint(db, PRINT_TYPE.presale_bill, {
-                          order: full,
-                          taxes: allTaxes?.data
-                        }, {userId: page?.user?.id});
-                      },
-                      onPrinted: () => setTempPrinted(true),
-                    });
-                  }}
-                >{t('receiving.tempBill')}</Button>
-              </span>
-              )}
-              {canReceivePayment && isVisible('orders.complete') && (
-              <Button
-                variant="success"
-                className="flex-1"
-                filled
-                size="lg"
-                data-testid="payment-complete"
-                onClick={async () => {
-                  await protectAction(async () => await closeOrder(), {
-                    module: 'orders.complete',
-                    description: 'Complete order',
-                    payload: {
-                      order: order.id.toString()
-                    }
-                  });
-                }}
-                disabled={changeDue < 0 || closing || remote.isProcessing}
-                flat
-              >{t('receiving.complete')}</Button>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
-      <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full" data-testid="payment-lines">
-        <RemotePaymentPendingSlot/>
-        {payments.map(payment => (
-          <div
-            className="flex justify-between text-lg cursor-pointer"
-            key={payment.id}
-            data-testid="payment-line"
-            onClick={() => {
-              setPayments(prev => prev.filter(item => item.id !== payment.id))
-            }}
-          >
-            <strong className="flex gap-3 justify-center items-center">
-              <FontAwesomeIcon icon={faClose}
-                               className="text-danger-500 p-2 px-3 rounded border border-danger-500"/>
-              {payment.payment_type.name}
-            </strong>
-            <span><DualCurrency amount={payment.amount} layout="inline" /></span>
-          </div>
+
+      <div className="grid grid-cols-3 grid-rows-4 gap-2 flex-1 min-h-[232px]" data-testid="payment-keypad">
+        {keyboardKeys.map(item => (
+          <Button key={item} size="xl" flat variant="primary" className="!h-full" onClick={() => {
+            setSelectedAmount((prev: string) => prev + item.toString());
+          }}>
+            {item}
+          </Button>
         ))}
+        <Button size="xl" flat variant="primary" className="!h-full" onClick={() => {
+          setSelectedAmount('')
+        }}>
+          C
+        </Button>
+      </div>
+      <div className="flex gap-3" data-testid="payment-finish-actions">
+        {isVisible('orders.print_temp') && (
+        <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
+          <Button
+            variant={tempPrinted ? "warning" : "primary"}
+            className="flex-1"
+            flat
+            icon={faPrint}
+            size="xl"
+            data-testid="payment-temp-bill"
+            onClick={() => {
+              void requestBillPrint({
+                db,
+                protectAction,
+                orderId: order.id.toString(),
+                printType: 'temp',
+                printModule: 'orders.print_temp',
+                description: 'Print temp bill',
+                payload: { order: order.id.toString() },
+                userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+                doPrint: async () => {
+                  const full = await fetchOrderFull(db, order.id);
+                  if (!full) {
+                    throw new Error('Failed to load order for temp bill print');
+                  }
+                  return dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                    order: full,
+                    taxes: allTaxes?.data
+                  }, {userId: page?.user?.id});
+                },
+                onPrinted: () => setTempPrinted(true),
+              });
+            }}
+          >{t('receiving.tempBill')}</Button>
+        </span>
+        )}
+        {canReceivePayment && isVisible('orders.complete') && (
+        <Button
+          variant="success"
+          className="flex-[2]"
+          filled
+          size="xl"
+          data-testid="payment-complete"
+          onClick={async () => {
+            await protectAction(async () => await closeOrder(), {
+              module: 'orders.complete',
+              description: 'Complete order',
+              payload: {
+                order: order.id.toString()
+              }
+            });
+          }}
+          disabled={changeDue < 0 || closing || remote.isProcessing}
+          flat
+        >{t('receiving.complete')}</Button>
+        )}
       </div>
     </div>
   )

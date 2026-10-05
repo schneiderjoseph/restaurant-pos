@@ -9,6 +9,9 @@
     "orderTypes": "Types de commande"
   },
   "toggleSidebar": "Afficher la barre latérale",
+  "markServed": "Toucher pour marquer comme livrée",
+  "served": "Commande {{number}} livrée",
+  "undo": "Annuler",
   "due": {
     "forTime": "Pour {{time}}",
     "tomorrowShort": "dem."

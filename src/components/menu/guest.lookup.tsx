@@ -53,7 +53,7 @@ import { appPage, appSettings, appState } from '@/store/jotai.ts';
 import { orderEditSessionAtom } from '@/store/order-edit-session.ts';
 import { flushSync } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import { faNoteSticky, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 type FolioOrder = Order & { item_count?: number };
 
@@ -77,6 +77,10 @@ export const GuestLookup = () => {
   /** Only set when user clicks "Nouveau code" — otherwise preview is stable from the name. */
   const [codeOverride, setCodeOverride] = useState<string | null>(null);
   const [tableNumber, setTableNumber] = useState(state.table?.number ?? '');
+  // Table number and zone are optional: folded away until the server asks for them.
+  const [showPlace, setShowPlace] = useState(Boolean(state.table?.number));
+  // Phone, ID document and note are read-only until the pencil is tapped.
+  const [editInfo, setEditInfo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [transferOrder, setTransferOrder] = useState<FolioOrder | undefined>();
   const [editingNote, setEditingNote] = useState(false);
@@ -368,6 +372,10 @@ export const GuestLookup = () => {
 
   const selectGuest = (customer: Customer) => {
     setSelected(customer);
+    setEditInfo(false);
+    setEditingPhone(false);
+    setEditingIdDocument(false);
+    setEditingNote(false);
     if (customer.room) {
       setTableNumber(String(customer.room));
     }
@@ -850,8 +858,44 @@ export const GuestLookup = () => {
             <>
               <div className="flex-1 min-h-0 overflow-auto p-4 space-y-4">
                 <div>
-                  <div className="text-sm uppercase text-neutral-500">{t('menu:guest.selected')}</div>
-                  <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm uppercase text-neutral-500">{t('menu:guest.selected')}</div>
+                      <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
+                    </div>
+                    <Button
+                      variant="neutral"
+                      flat
+                      iconButton
+                      className={editInfo
+                        ? '!bg-neutral-700 !text-white !border-transparent'
+                        : '!bg-neutral-200 !text-neutral-700 !border-transparent'}
+                      size="lg"
+                      icon={faPencil}
+                      active={editInfo}
+                      aria-label={t('common:actions.edit')}
+                      title={t('common:actions.edit')}
+                      data-testid="guest-edit-toggle"
+                      onClick={() => {
+                        setEditInfo((prev) => !prev);
+                        setEditingPhone(false);
+                        setEditingIdDocument(false);
+                        setEditingNote(false);
+                      }}
+                    />
+                  </div>
+                  {(selected.phone != null && String(selected.phone).trim()) || selected.id_document_number ? (
+                    <div className="text-neutral-600 mt-1" data-testid="guest-contact">
+                      {[
+                        selected.phone != null && String(selected.phone).trim()
+                          ? String(selected.phone).trim()
+                          : '',
+                        selected.id_document_number
+                          ? `${t('menu:guest.idDocument')}: ${maskIdDocument(selected.id_document_number)}`
+                          : '',
+                      ].filter(Boolean).join(' · ')}
+                    </div>
+                  ) : null}
                   {selected.room ? (
                     <div className="flex flex-wrap items-center gap-3 mt-2">
                       <span className="rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
@@ -886,6 +930,8 @@ export const GuestLookup = () => {
                   </div>
                 ) : null}
 
+                {showPlace && (
+                <div className="rounded-lg border border-neutral-200 p-3 space-y-3" data-testid="guest-place">
                 <Input
                   label={t('menu:guest.table')}
                   placeholder={t('menu:guest.tablePlaceholder')}
@@ -920,14 +966,25 @@ export const GuestLookup = () => {
                     ))}
                   </div>
                 </div>
+                </div>
+                )}
 
                 <div className="border-t border-neutral-200 pt-4 space-y-4">
-                  {selectedFromAsi ? (
-                    <p className="text-sm text-neutral-500" data-testid="guest-asi-readonly">
-                      {t('menu:guest.asiReadOnly')}
-                    </p>
-                  ) : editingPhone ? (
-                    <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2" data-testid="guest-actions">
+                  {!showPlace && (
+                    <Button
+                      variant="neutral"
+                      flat
+                      className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
+                      icon={faPlus}
+                      data-testid="guest-place-toggle"
+                      onClick={() => setShowPlace(true)}
+                    >
+                      {t('menu:guest.addPlace')}
+                    </Button>
+                  )}
+                  {!editInfo || selectedFromAsi ? null : editingPhone ? (
+                    <div className="w-full space-y-2">
                       <Input
                         type="tel"
                         inputMode="tel"
@@ -971,7 +1028,7 @@ export const GuestLookup = () => {
                       <Button
                         variant="neutral"
                         flat
-                        className="min-h-[48px]"
+                        className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
                         data-testid="guest-phone-edit"
                         onClick={() => {
                           setPhoneDraft(
@@ -989,14 +1046,8 @@ export const GuestLookup = () => {
                     </div>
                   )}
 
-                  {selectedFromAsi ? (
-                    selected.id_document_number ? (
-                      <div className="text-neutral-600" data-testid="guest-id-document-masked">
-                        {t('menu:guest.idDocument')}: {maskIdDocument(selected.id_document_number)}
-                      </div>
-                    ) : null
-                  ) : editingIdDocument ? (
-                    <div className="space-y-2">
+                  {!editInfo || selectedFromAsi ? null : editingIdDocument ? (
+                    <div className="w-full space-y-2">
                       <Input
                         label={t('menu:guest.idDocument')}
                         placeholder={t('menu:guest.idDocumentPlaceholder')}
@@ -1033,15 +1084,10 @@ export const GuestLookup = () => {
                     </div>
                   ) : (
                     <div className="flex flex-wrap items-center gap-2">
-                      {selected.id_document_number ? (
-                        <div className="text-neutral-600" data-testid="guest-id-document-masked">
-                          {t('menu:guest.idDocument')}: {maskIdDocument(selected.id_document_number)}
-                        </div>
-                      ) : null}
                       <Button
                         variant="neutral"
                         flat
-                        className="min-h-[48px]"
+                        className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
                         data-testid="guest-id-document-edit"
                         onClick={() => {
                           setIdDocumentDraft('');
@@ -1055,8 +1101,8 @@ export const GuestLookup = () => {
                     </div>
                   )}
 
-                  {editingNote ? (
-                    <div className="space-y-2">
+                  {!editInfo ? null : editingNote ? (
+                    <div className="w-full space-y-2">
                       <Textarea
                         data-testid="guest-note-input"
                         rows={3}
@@ -1094,7 +1140,7 @@ export const GuestLookup = () => {
                     <Button
                       variant="neutral"
                       flat
-                      className="min-h-[48px]"
+                      className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
                       data-testid={selected.notes?.trim() ? 'guest-note-edit' : 'guest-note-add'}
                       onClick={() => {
                         setNoteDraft(selected.notes ?? '');
@@ -1106,6 +1152,7 @@ export const GuestLookup = () => {
                         : t('menu:guest.addNote')}
                     </Button>
                   )}
+                  </div>
 
                   <div>
                     <h2 className="font-semibold mb-2">{t('menu:guest.folio')}</h2>

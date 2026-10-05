@@ -105,7 +105,7 @@
     "contactRequired": "Saisissez un téléphone ou une pièce d’identité",
     "departure": "Départ {{date}}",
     "departureToday": "Départ aujourd'hui",
-    "asiReadOnly": "Client ASI : ses informations se modifient dans ASI, pas ici."
+    "addPlace": "Table ou zone"
   },
   "outlets": {
     "all": "Tous"

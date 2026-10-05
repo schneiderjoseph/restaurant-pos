@@ -9,6 +9,9 @@
     "orderTypes": "Order types"
   },
   "toggleSidebar": "Show sidebar",
+  "markServed": "Tap to mark as served",
+  "served": "Order {{number}} served",
+  "undo": "Undo",
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."

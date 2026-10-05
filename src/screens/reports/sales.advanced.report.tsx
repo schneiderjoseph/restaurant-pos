@@ -18,6 +18,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const recordToString = (value: any): string => recordIdToString(value);
 
@@ -643,7 +644,7 @@ export const SalesAdvancedReport = () => {
                   ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || 'Unknown'
                   : 'N/A';
                 const tableName = order.table?.name
-                  ? `${order.table.name}${order.table.number ?? ''}`
+                  ? formatTableLabel(order.table)
                   : `Table ${order.table?.number ?? ''}`;
                 const floorName = order.floor?.name || 'Unknown';
                 const orderTypeName = order.order_type?.name || 'Unknown';

@@ -5,6 +5,7 @@ import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPrint} from "@fortawesome/free-solid-svg-icons";
 import {formatGuestContact, formatGuestLabel} from "@/lib/guest-label.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 interface Props {
   order: Order
@@ -33,15 +34,15 @@ export const OrderHeader = ({
   return (
     <div className="flex justify-between">
       <div className="flex gap-3">
-        {order?.table && (
-          <span className="p-3 text-lg rounded-xl min-w-[56px] flex justify-center items-center" style={{
-            color: order?.table?.color,
-            background: order?.table?.background
-          }}>{order?.table?.name}{order?.table?.number}</span>
-        )}
-
         <div className="flex flex-col items-start gap-1">
-          <span className="font-bold">{formatOrderNumber(order)}</span>
+          <div className="flex items-baseline gap-3">
+            <span className="text-2xl font-black leading-none text-neutral-900" data-testid="order-number">
+              {formatOrderNumber(order)}
+            </span>
+            {order?.table && (
+              <span className="text-lg font-bold text-neutral-900">{formatTableLabel(order.table)}</span>
+            )}
+          </div>
           <span
             data-testid="order-status-badge"
             className={cn(

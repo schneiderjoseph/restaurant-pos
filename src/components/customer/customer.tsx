@@ -11,7 +11,9 @@ import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {useTranslation} from "react-i18next";
 import {
   canRegisterGuestFromSearch,
+  dropSupersededStays,
   generateWalkInGuestCode,
+  guestMatchesSearchTerm,
   phoneDigits,
   PHONE_SEARCH_MIN_DIGITS,
   previewGuestCode,
@@ -23,6 +25,7 @@ import {
   normalizeIdDocument,
 } from "@/lib/customer-id-document.ts";
 import { toast } from "sonner";
+import { usesAsiPmsRooms } from "@/lib/pos-mode.ts";
 
 export interface Props {
   onAttach?: () => void;
@@ -56,8 +59,40 @@ export const Customers = ({
   }, [search]);
 
   const loadCustomers = async (term: string) => {
+    // Hotel (ASI) mode: the same guests as the Client page — in-house, walk-in, local, or
+    // carrying a staff note — listed without typing and filtered the same way, so a
+    // checked-out guest never shows up here either.
+    if (usesAsiPmsRooms()) {
+      try {
+        const [list] = await db.query<Customer[]>(
+          `SELECT * FROM ${Tables.customers}
+           WHERE in_house = true OR tags CONTAINS 'in-house'
+              OR source = 'walk-in' OR tags CONTAINS 'walk-in'
+              OR source = 'local'
+              OR (notes != NONE AND notes != NULL AND notes != '')
+           ORDER BY in_house DESC, name
+           LIMIT 500`
+        );
+        const guests = dropSupersededStays(Array.isArray(list) ? list : []);
+        const trimmed = term.trim();
+        setCustomers(trimmed ? guests.filter((guest) => guestMatchesSearchTerm(guest, trimmed)) : guests);
+      } catch (error) {
+        console.error('Customer list failed', error);
+        setCustomers([]);
+      }
+      return;
+    }
+
     if(term.trim().length === 0){
-      setCustomers([]);
+      try {
+        const [list] = await db.query<Customer[]>(
+          `SELECT * FROM ${Tables.customers} ORDER BY name LIMIT 500`
+        );
+        setCustomers(Array.isArray(list) ? list : []);
+      } catch (error) {
+        console.error('Customer list failed', error);
+        setCustomers([]);
+      }
       return;
     }
 
@@ -273,7 +308,7 @@ export const Customers = ({
 
       {selectedLabel}
 
-      <div className="mb-3">
+      <div className="mb-3 max-h-[50vh] overflow-auto" data-testid="customer-list">
         <table className="table">
           <thead>
             <tr>
@@ -299,7 +334,14 @@ export const Customers = ({
                   variant="secondary"
                 />
               </td>
-              <td>{item.name}</td>
+              <td>
+                {item.name}
+                {item.room ? (
+                  <span className="ml-2 rounded bg-primary-100 text-primary-800 px-2 py-0.5 text-sm font-semibold">
+                    {t("menu:guest.room")} {item.room}
+                  </span>
+                ) : null}
+              </td>
               <td>{item.email}</td>
               <td>{item.phone}</td>
               <td>{item.address}</td>

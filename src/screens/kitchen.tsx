@@ -26,9 +26,8 @@ import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {useAtom} from "jotai";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
-import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
+import {recallStage} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
-import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useKitchenOrderAnnouncements} from "@/hooks/useKitchenOrderAnnouncements.ts";
 import {unlockSpeech} from "@/lib/order-ready-announcement.ts";
@@ -224,6 +223,8 @@ export const KitchenScreen = () => {
   const [loadingCompletedOrders, setLoadingCompletedOrders] = useState(false);
   const [recallingOrderKey, setRecallingOrderKey] = useState<string | null>(null);
   const loadOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loadRequestRef = useRef(0);
+  const activeKitchenIdRef = useRef<string | undefined>(undefined);
 
   const resolveFetchedOrder = (value: unknown): Order | undefined => {
     if (!value || typeof value !== 'object') {
@@ -316,6 +317,7 @@ export const KitchenScreen = () => {
   }, [groupIntoBatches, nestBatchesByOrder]);
 
   const loadOrders = useCallback(async (kitchenId: string) => {
+    const request = ++loadRequestRef.current;
     const currentUser = page?.user?.id;
     const userClause = currentUser ? `and completed_by CONTAINSNOT $currentUser` : '';
 
@@ -340,6 +342,11 @@ export const KitchenScreen = () => {
       startDate,
       dueItems
     });
+
+    // A slower, older load (or one for the station just left) must not replace the board.
+    if (request !== loadRequestRef.current || activeKitchenIdRef.current !== kitchenId) {
+      return;
+    }
 
     setOrders(groupKitchenOrderItems(kitchenOrderItemsRecord ?? []));
     setOrdersHydrated(true);
@@ -438,57 +445,47 @@ export const KitchenScreen = () => {
     }, 200);
   }, [loadOrders]);
 
-  const [ordersLiveQuery, setOrdersLiveQuery] = useState<LiveSubscription | null>(null);
-  const [kitchenItemsLiveQuery, setKitchenItemsLiveQuery] = useState<LiveSubscription | null>(null);
-  const [orderItemsLiveQuery, setOrderItemsLiveQuery] = useState<LiveSubscription | null>(null);
+  const kitchenId = kitchen?.id?.toString();
 
-  const runLiveQuery = async () => {
-    if (!kitchen?.id) {
+  // The subscriptions live in this effect so leaving a station always kills its own:
+  // a leftover one kept reloading the previous station's orders onto the board.
+  useEffect(() => {
+    if (!kitchenId) {
       return;
     }
 
-    const kitchenId = kitchen.id.toString();
-    const refresh = () => scheduleLoadOrders(kitchenId);
+    activeKitchenIdRef.current = kitchenId;
+    let cancelled = false;
+    const subscriptions: LiveSubscription[] = [];
 
-    const result = await db.live(Tables.orders, (action) => {
-      if (action === 'CREATE' || action === 'UPDATE') {
-        refresh();
+    setOrdersHydrated(false);
+    void loadOrders(kitchenId);
+
+    const setup = async () => {
+      for (const table of [Tables.orders, Tables.order_items_kitchen, Tables.order_items]) {
+        const subscription = await db.live(table, (action) => {
+          if (action === 'CREATE' || action === 'UPDATE') {
+            scheduleLoadOrders(kitchenId);
+          }
+        });
+        if (cancelled) {
+          await subscription.kill().catch(() => undefined);
+          return;
+        }
+        subscriptions.push(subscription);
       }
-    });
+    };
 
-    const kitchenItems = await db.live(Tables.order_items_kitchen, (action) => {
-      if (action === 'CREATE' || action === 'UPDATE') {
-        refresh();
-      }
-    });
-
-    const orderItems = await db.live(Tables.order_items, (action) => {
-      if (action === 'CREATE' || action === 'UPDATE') {
-        refresh();
-      }
-    });
-
-    setOrdersLiveQuery(result);
-    setKitchenItemsLiveQuery(kitchenItems);
-    setOrderItemsLiveQuery(orderItems);
-  }
-
-  useEffect(() => {
-    if (kitchen) {
-      setOrdersHydrated(false);
-      loadOrders(kitchen.id);
-      runLiveQuery();
-    }
+    setup().catch((error) => console.error('Kitchen live query failed', error));
 
     return () => {
+      cancelled = true;
       if (loadOrdersTimerRef.current) {
         clearTimeout(loadOrdersTimerRef.current);
       }
-      ordersLiveQuery?.kill().catch(() => undefined);
-      kitchenItemsLiveQuery?.kill().catch(() => undefined);
-      orderItemsLiveQuery?.kill().catch(() => undefined);
-    }
-  }, [kitchen]);
+      subscriptions.forEach((subscription) => subscription.kill().catch(() => undefined));
+    };
+  }, [kitchenId, loadOrders, scheduleLoadOrders]);
 
   const calculateAverageTime = useCallback(async (kitchenId: string) => {
     const startDate = getAppStartOfDaySurreal();
@@ -539,22 +536,6 @@ export const KitchenScreen = () => {
     );
     setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
   }, [t]);
-
-  const completeAllOrders = async () => {
-    const userId = page?.user?.id;
-    const ids = orders.flatMap((group) =>
-      group.batches.flatMap((batch) =>
-        batch.items
-          .filter((item) => !item.order_item?.deleted_at)
-          .map((item) => item.id.toString())
-      )
-    );
-    await completeStages(db, ids, userId);
-
-    if (kitchen?.id) {
-      await loadOrders(kitchen.id);
-    }
-  }
 
   const allDishes = useMemo(() => {
     const itemsMap = new Map();
@@ -609,15 +590,6 @@ export const KitchenScreen = () => {
             ))}
           </div>
           <div className="flex gap-3">
-            <DeleteConfirm
-              title={t("kitchen:confirm.title")}
-              message={t("kitchen:confirm.completeAll")}
-              onConfirm={completeAllOrders}
-            >
-              <Button variant="success" size="lg">
-                {t("kitchen:actions.completeAllOpen")}
-              </Button>
-            </DeleteConfirm>
             <Button variant="secondary" size="lg"
                     onClick={openCompletedOrdersModal}>{t("kitchen:actions.completedOrders")}</Button>
             <Button variant="secondary" size="lg"

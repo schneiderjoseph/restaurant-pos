@@ -8,13 +8,18 @@ import { useDB } from '@/api/db/db.ts';
 import { OrderType } from '@/api/model/order_type.ts';
 import { ReactSelect } from '@/components/common/input/custom.react.select.tsx';
 import { useAtom } from 'jotai';
-import { appState, AppStateInterface } from '@/store/jotai.ts';
+import { appPage, appState, AppStateInterface } from '@/store/jotai.ts';
+import { toRecordId } from '@/lib/utils.ts';
+import { useModuleAccess } from '@/providers/module-access.provider.tsx';
+import { useOrderVisibility } from '@/hooks/useOrderVisibility.ts';
+import { SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor } from '@/api/model/order_visibility.ts';
 import { LabelValue } from '@/api/model/common.ts';
 import { Button } from '@/components/common/input/button.tsx';
 import { toSurrealDateTime, getAppStartOfDaySurreal } from '@/lib/datetime.ts';
 import { fetchDueOrderItemIds } from '@/lib/order-due-items.ts';
 import { useTranslation } from 'react-i18next';
-import { translateOrderStatus } from '@/lib/order.ts';
+import { formatOrderNumber, translateOrderStatus } from '@/lib/order.ts';
+import { toast } from 'sonner';
 import {
   buildKitchenRowsMap,
   getKitchenStationStatuses,
@@ -37,8 +42,17 @@ export const OrderDisplayScreen = () => {
     buildKitchenRowsMap()
   );
   const [showSidebar, setShowSidebar] = useState(false);
+  // Same rule as the Orders page: with "own orders only" on, a role without the grant sees
+  // only the orders its user opened.
+  const [app] = useAtom(appPage);
+  const { can } = useModuleAccess();
+  const { ownOrdersOnly } = useOrderVisibility();
+  const seesAllOrders = seesAllOrdersFor(ownOrdersOnly, can(SEES_ALL_ORDERS_MODULE));
+  const currentUserId = app?.user?.id?.toString();
   const liveOrdersRef = useRef<{ kill: () => Promise<void> } | null>(null);
   const liveKitchenRef = useRef<{ kill: () => Promise<void> } | null>(null);
+  const fetchRequestRef = useRef(0);
+  const [hydrated, setHydrated] = useState(false);
 
   const defaultStatusFilter = useMemo(
     () => [{ label: OrderStatus['In Progress'], value: OrderStatus['In Progress'] }],
@@ -95,11 +109,17 @@ export const OrderDisplayScreen = () => {
       clauses.push(`(${orderTypeFilters.join(' or ')})`);
     }
 
+    if (!seesAllOrders) {
+      clauses.push('user = $currentUser');
+    }
+
     return clauses;
-  }, [selectedFilters]);
+  }, [selectedFilters, seesAllOrders]);
 
   const fetchOrders = useCallback(async () => {
+    const request = ++fetchRequestRef.current;
     const startDate = getAppStartOfDaySurreal();
+    const currentUser = currentUserId ? toRecordId(currentUserId) : null;
     const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
     // Orders taken an earlier day and wanted today or later stay on the board.
     const dueItems = await fetchDueOrderItemIds(db, startDate);
@@ -111,16 +131,24 @@ export const OrderDisplayScreen = () => {
        SELECT * FROM ${Tables.order_items_kitchen}
        WHERE created_at >= $startDate OR order_item IN $dueItems
        FETCH order_item, kitchen`,
-      { startDate, dueItems }
+      { startDate, dueItems, currentUser }
     );
+
+    // Every live event starts a fetch: an older one answering late must not win.
+    if (request !== fetchRequestRef.current) {
+      return;
+    }
 
     setOrders(Array.isArray(rows) ? (rows as OrderModel[]) : []);
     setKitchenRowsByOrderItemId(
       buildKitchenRowsMap(Array.isArray(kitchenRows) ? (kitchenRows as OrderItemKitchen[]) : [])
     );
-  }, [whereClauses]);
+    setHydrated(true);
+  }, [whereClauses, currentUserId]);
 
   useEffect(() => {
+    // New filters bring orders already ready into view: not announcements.
+    setHydrated(false);
     void fetchOrders();
   }, [fetchOrders]);
 
@@ -156,13 +184,40 @@ export const OrderDisplayScreen = () => {
     };
   }, [fetchOrders]);
 
-  const { preparing, ready } = useMemo(
-    () => partitionDisplayOrders(orders, kitchenRowsByOrderItemId, ORDER_DISPLAY_MAX_VISIBLE),
+  // Announcements look at every order: the columns only show the first few, and an
+  // older ready order sliding back into view must not be announced again.
+  const all = useMemo(
+    () => partitionDisplayOrders(orders, kitchenRowsByOrderItemId, Number.MAX_SAFE_INTEGER),
     [orders, kitchenRowsByOrderItemId]
   );
+  const preparing = useMemo(() => all.preparing.slice(0, ORDER_DISPLAY_MAX_VISIBLE), [all]);
+  const ready = useMemo(() => all.ready.slice(0, ORDER_DISPLAY_MAX_VISIBLE), [all]);
+
+  // Server clock, like the kitchen's completed_at it is compared with.
+  const setServed = useCallback(async (order: OrderModel, served: boolean) => {
+    await db.query(
+      `UPDATE $order SET served_at = ${served ? 'time::now()' : 'NONE'}`,
+      { order: toRecordId(order.id.toString()) }
+    );
+    await fetchOrders();
+  }, [fetchOrders]);
+
+  const markServed = useCallback(async (order: OrderModel) => {
+    try {
+      await setServed(order, true);
+      toast.success(t('order-display:served', { number: formatOrderNumber(order) }), {
+        action: {
+          label: t('order-display:undo'),
+          onClick: () => void setServed(order, false).catch(() => undefined),
+        },
+      });
+    } catch (error) {
+      console.error('Mark order served failed', error);
+    }
+  }, [setServed, t]);
 
   const { activeCelebration, completeCelebration, highlightedOrderIds } =
-    useOrderReadyAnnouncements(ready);
+    useOrderReadyAnnouncements(all.ready, all.preparing, hydrated);
 
   return (
     <Layout showSidebar={showSidebar} overflowHidden containerClassName="overflow-hidden">
@@ -254,6 +309,7 @@ export const OrderDisplayScreen = () => {
                     order={order}
                     variant="ready"
                     celebrate={highlightedOrderIds.has(order.id.toString())}
+                    onServe={() => void markServed(order)}
                     stations={getKitchenStationStatuses(order, kitchenRowsByOrderItemId)}
                   />
                 ))}

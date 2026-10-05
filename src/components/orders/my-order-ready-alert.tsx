@@ -26,6 +26,7 @@ import {
   speakOrderReady,
   unlockReadyChime,
   unlockSpeech,
+  vibrateOrderReady,
 } from "@/lib/order-ready-announcement.ts";
 
 const REFRESH_DEBOUNCE_MS = 1000;
@@ -33,7 +34,7 @@ const SPEECH_AFTER_CHIME_MS = 700;
 
 /**
  * Tells the signed-in server, on whatever page this terminal shows (lock screen included),
- * that the kitchen finished one of their orders: chime, spoken announcement and a popup that
+ * that the kitchen finished one of their orders: chime, vibration, spoken announcement and a popup that
  * stays until it is acknowledged. The order display screen announces every order itself.
  */
 export const MyOrderReadyAlert = () => {
@@ -50,6 +51,7 @@ export const MyOrderReadyAlert = () => {
   const announce = useCallback((ready: ReadyAlert[]) => {
     setAlerts(prev => [...prev, ...ready.filter(alert => !prev.some(item => item.id === alert.id))]);
     playReadyChime();
+    vibrateOrderReady();
     window.setTimeout(() => {
       ready.forEach(alert => {
         const {key, values} = readyAnnouncement(alert);
@@ -176,7 +178,11 @@ export const MyOrderReadyAlert = () => {
         </p>
         <p className="text-6xl font-black tabular-nums text-success-900">{current.displayNumber}</p>
         {current.table && (
-          <p className="text-2xl font-semibold">{t('readyAlert.table', {table: current.table})}</p>
+          <p className="text-2xl font-semibold">
+            {current.room
+              ? t('readyAlert.room', {room: current.room})
+              : t('readyAlert.table', {table: current.table})}
+          </p>
         )}
         {current.guest && <p className="text-xl text-neutral-700">{current.guest}</p>}
         <Button

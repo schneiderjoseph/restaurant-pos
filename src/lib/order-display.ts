@@ -203,6 +203,17 @@ export function getReadyAt(
   return toLuxonDateTime(order.created_at);
 }
 
+/**
+ * A ready order already handed to the guest. It counts again as ready once the kitchen
+ * finishes something after that (items added later).
+ */
+export function isServedSince(order: Order, readyAt: DateTime): boolean {
+  if (!order.served_at) {
+    return false;
+  }
+  return toLuxonDateTime(order.served_at).toMillis() >= readyAt.toMillis();
+}
+
 export function partitionDisplayOrders(
   orders: Order[],
   kitchenRowsByOrderItemId: KitchenRowsByOrderItemId,
@@ -217,7 +228,10 @@ export function partitionDisplayOrders(
       if (column === 'running') {
         preparing.push(order);
       } else if (column === 'ready') {
-        ready.push({ order, readyAt: getReadyAt(order, kitchenRowsByOrderItemId) });
+        const readyAt = getReadyAt(order, kitchenRowsByOrderItemId);
+        if (!isServedSince(order, readyAt)) {
+          ready.push({ order, readyAt });
+        }
       }
     } catch (error) {
       console.error('Order display classify failed', order?.id, error);

@@ -34,6 +34,7 @@ import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const faIcon = (icon: IconDefinition) =>
   ({className}: {className?: string}) => <FontAwesomeIcon icon={icon} className={className} />;
@@ -1196,7 +1197,7 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
                     </span>
                 </td>
                 <td className="py-3 px-3 text-sm text-neutral-600">
-                  {order?.table?.name || '-'}{order?.table?.number}
+                  {formatTableLabel(order?.table) || '-'}
                 </td>
                 <td className="py-3 px-3 text-sm text-neutral-600">
                   {order.items?.length || 0}
@@ -1506,7 +1507,7 @@ export const SalesDashboardReport = () => {
 
     paidOrders.forEach(order => {
       const figures = getOrderFigures(order);
-      const table = order?.table ? `${order.table?.name}${order.table?.number}` : 'Delivery';
+      const table = order?.table ? formatTableLabel(order.table) : 'Delivery';
       const current = map.get(table) || {orders: 0, revenue: 0};
       current.orders += 1;
       current.revenue += figures.totalRevenue;

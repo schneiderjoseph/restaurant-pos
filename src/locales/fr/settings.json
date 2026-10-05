@@ -14,6 +14,14 @@
     "title": "Clavier à l'écran",
     "description": "Activer ou désactiver le clavier à l'écran. S'applique uniquement à cet appareil."
   },
+  "readyAlertTest": {
+    "title": "Alerte commande prête",
+    "description": "Tester sur cet appareil le carillon et la vibration joués quand une de vos commandes est prête.",
+    "test": "Tester l'alerte",
+    "sent": "Vibration envoyée. Si l'appareil n'a pas vibré, il n'a pas de moteur de vibration ou la vibration est coupée dans ses réglages.",
+    "blocked": "Le navigateur a refusé la vibration. Vérifiez les réglages de son et de vibration de l'appareil.",
+    "unsupported": "Ce navigateur ne permet pas la vibration (iPad, iPhone et ordinateurs). Seul le carillon sera joué."
+  },
   "cache": {
     "title": "Cache",
     "description": "Stocke les données dans le navigateur pour des opérations plus rapides.",
@@ -117,6 +125,15 @@
     "endTime": "Heure de fin",
     "updated": "Paramètres du cycle de clôture mis à jour",
     "saveDescription": "Enregistrer les paramètres du cycle de clôture"
+  },
+  "asiOutlets": {
+    "title": "Points de vente ASI",
+    "description": "Choisir les points de vente ASI dont les articles et les prix alimentent le menu. Si un article existe dans plusieurs points de vente choisis, le prix du premier de la liste est utilisé. Sans sélection, tous les points de vente sont synchronisés. Le menu est mis à jour à la prochaine synchronisation (environ 30 secondes).",
+    "outlets": "Points de vente",
+    "allOutlets": "Tous les points de vente",
+    "inactiveOutlet": "{{name}} (inactif)",
+    "updated": "Points de vente ASI mis à jour",
+    "saveDescription": "Enregistrer les points de vente ASI"
   },
   "showInclusivePrices": {
     "title": "Afficher les prix TTC",
@@ -241,10 +258,17 @@
   },
   "orderVisibility": {
     "title": "Visibilité des commandes",
-    "description": "Activé : chaque utilisateur ne voit que les commandes qu'il a ouvertes sur la page Commandes. Les rôles cochés ci-dessous voient toujours toutes les commandes (par exemple managers, caissiers, bar).",
+    "description": "Activé : chaque utilisateur ne voit que les commandes qu'il a ouvertes sur les pages Commandes et Affichage. Les rôles cochés ci-dessous voient toujours toutes les commandes (par exemple managers, caissiers, bar).",
     "ownOrdersOnly": "Chaque utilisateur ne voit que ses commandes",
     "rolesTitle": "Rôles qui voient toutes les commandes",
     "updated": "Visibilité des commandes mise à jour",
     "saveDescription": "Enregistrer la visibilité des commandes"
+  },
+  "orderDisplayAccess": {
+    "title": "Accès à l'écran Affichage",
+    "description": "Les rôles cochés peuvent ouvrir l'écran Affichage (commandes en préparation et prêtes). Ce qu'un rôle y voit suit la visibilité des commandes : seulement ses commandes, ou toutes.",
+    "rolesTitle": "Rôles qui ont accès à l'Affichage",
+    "updated": "Accès à l'Affichage mis à jour",
+    "saveDescription": "Enregistrer l'accès à l'Affichage"
   }
 }

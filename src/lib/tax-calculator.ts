@@ -142,6 +142,21 @@ export const calculateSingleTax = (
 
 const roundTax = (value: number) => Math.round(value * 100) / 100;
 
+const taxIdOf = (value: unknown): string => {
+  if (value == null) return '';
+  if (typeof value === 'object' && 'id' in value && 'rate' in value) {
+    return taxIdOf((value as { id?: unknown }).id);
+  }
+  return String(value);
+};
+
+/** Ids of the taxes removed from this order at payment (`order.excluded_taxes`). */
+export const getExcludedTaxIds = (order?: Pick<Order, 'excluded_taxes'> | null): Set<string> =>
+  new Set((order?.excluded_taxes ?? []).map(taxIdOf).filter(Boolean));
+
+const withoutExcluded = (taxes: Tax[], excluded?: ReadonlySet<string>): Tax[] =>
+  excluded && excluded.size > 0 ? taxes.filter((tax) => !excluded.has(taxIdOf(tax))) : taxes;
+
 /**
  * Taxes added to an exclusive line. A tax chosen at payment (payment type or manual pick)
  * replaces everything; otherwise the line keeps its own menu taxes when it was sold under
@@ -220,14 +235,16 @@ const getOrderLineItemTaxCalculation = (
   itemTaxes: Tax[] | undefined | null,
   orderTax: Tax | null | undefined,
   ownTaxes: boolean,
+  excluded?: ReadonlySet<string>,
 ): TaxCalculationResult => {
   const qty = safeNumber(quantity || 1);
 
   if (taxMode === 'inclusive') {
-    if (!itemTaxes || itemTaxes.length === 0) {
+    const inclusiveTaxes = withoutExcluded(itemTaxes ?? [], excluded);
+    if (inclusiveTaxes.length === 0) {
       return calculateItemTax(0, [], 'exclusive');
     }
-    const perUnit = calculateItemTax(unitBase, itemTaxes, 'exclusive');
+    const perUnit = calculateItemTax(unitBase, inclusiveTaxes, 'exclusive');
     return {
       ...perUnit,
       tax_amounts: perUnit.tax_amounts.map((entry) => ({
@@ -240,7 +257,10 @@ const getOrderLineItemTaxCalculation = (
     };
   }
 
-  const exclusiveTaxes = resolveExclusiveLineTaxes(itemTaxes, orderTax, ownTaxes);
+  const exclusiveTaxes = withoutExcluded(
+    resolveExclusiveLineTaxes(itemTaxes, orderTax, ownTaxes),
+    excluded,
+  );
   if (exclusiveTaxes.length === 0) {
     return calculateItemTax(0, [], 'exclusive');
   }
@@ -265,6 +285,7 @@ const getOrderLineItemTaxCalculation = (
 export const calculateOrderItemPaymentTax = (
   item: OrderItem,
   orderTax?: Tax | null,
+  excluded?: ReadonlySet<string>,
 ): number => {
   const taxMode = item.tax_mode ?? 'exclusive';
   const unitBase = getOrderItemTaxableUnitBase(item);
@@ -276,6 +297,7 @@ export const calculateOrderItemPaymentTax = (
     item.taxes,
     orderTax,
     orderItemCarriesOwnTaxes(item),
+    excluded,
   );
   return calculation.total_tax;
 };
@@ -339,8 +361,9 @@ export const calculateOrderPaymentTaxAmount = (
   pendingCart?: MenuItem[],
 ): number => {
   const orderItems = getOrderFilteredItems(order) ?? [];
+  const excluded = getExcludedTaxIds(order);
   let total = orderItems.reduce(
-    (sum, item) => sum + calculateOrderItemPaymentTax(item, orderTax),
+    (sum, item) => sum + calculateOrderItemPaymentTax(item, orderTax, excluded),
     0,
   );
 
@@ -370,12 +393,13 @@ export const getOrderTaxAmount = (order: Order): number => {
  * Per-line tax amount using the same rules as payment.
  */
 export const getOrderItemTaxAmount = (item: OrderItem, order: Order): number => {
-  return calculateOrderItemPaymentTax(item, order.tax ?? null);
+  return calculateOrderItemPaymentTax(item, order.tax ?? null, getExcludedTaxIds(order));
 };
 
 const getOrderItemPaymentTaxBreakdown = (
   item: OrderItem,
   orderTax?: Tax | null,
+  excluded?: ReadonlySet<string>,
 ): TaxAmount[] => {
   const taxMode = item.tax_mode ?? 'exclusive';
   const unitBase = getOrderItemTaxableUnitBase(item);
@@ -387,6 +411,7 @@ const getOrderItemPaymentTaxBreakdown = (
     item.taxes,
     orderTax,
     orderItemCarriesOwnTaxes(item),
+    excluded,
   ).tax_amounts;
 };
 
@@ -443,9 +468,10 @@ export const getOrderTaxBreakdown = (order: Order): OrderTaxBreakdownEntry[] => 
 
   const breakdownMap = new Map<string, OrderTaxBreakdownEntry>();
   const orderTax = order.tax ?? null;
+  const excluded = getExcludedTaxIds(order);
 
   (getOrderFilteredItems(order) ?? []).forEach((item) => {
-    getOrderItemPaymentTaxBreakdown(item, orderTax).forEach(({tax, amount}) => {
+    getOrderItemPaymentTaxBreakdown(item, orderTax, excluded).forEach(({tax, amount}) => {
       const key = `${tax.name} ${tax.rate}%`;
       const existing = breakdownMap.get(key) ?? {name: tax.name, rate: tax.rate || 0, amount: 0};
       existing.amount += amount;
@@ -461,15 +487,20 @@ export const getOrderTaxBreakdown = (order: Order): OrderTaxBreakdownEntry[] => 
   return reconcileTaxBreakdownTotal(entries, getOrderTaxAmount(order), order);
 };
 
+/**
+ * Tax rows of an order. `orderTax` left out = the order's stored tax; `null` = no order-level
+ * tax (each line keeps its own). Taxes in `order.excluded_taxes` are left out.
+ */
 export const collectOrderTaxRows = (
   order: Order,
   orderTax?: Tax | null,
 ): Array<{ tax: Tax; amount: number }> => {
   const breakdownMap = new Map<string, { tax: Tax; amount: number }>();
-  const resolvedOrderTax = orderTax ?? order.tax ?? null;
+  const resolvedOrderTax = orderTax === undefined ? order.tax ?? null : orderTax;
+  const excluded = getExcludedTaxIds(order);
 
   (getOrderFilteredItems(order) ?? []).forEach((item) => {
-    getOrderItemPaymentTaxBreakdown(item, resolvedOrderTax).forEach(({ tax, amount }) => {
+    getOrderItemPaymentTaxBreakdown(item, resolvedOrderTax, excluded).forEach(({ tax, amount }) => {
       const key = tax.id?.toString() ?? `${tax.name}-${tax.rate}`;
       const existing = breakdownMap.get(key) ?? { tax, amount: 0 };
       existing.amount += amount;

@@ -42,6 +42,7 @@ import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {useOrderVisibility} from "@/hooks/useOrderVisibility.ts";
 import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/model/order_visibility.ts";
 import {kitchenReadyOrderIds} from "@/lib/order-display.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -591,7 +592,7 @@ export const Orders = () => {
           <div className="min-h-[60px] flex-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
             <div className="flex flex-wrap gap-5">
               <Dropdown
-                label={<><FontAwesomeIcon icon={faChair} className="mr-3"/> {t('merge.chooseTable')}{selectedTable ? ` (${selectedTable.name}${selectedTable.number})` : ''}</>}
+                label={<><FontAwesomeIcon icon={faChair} className="mr-3"/> {t('merge.chooseTable')}{selectedTable ? ` (${formatTableLabel(selectedTable)})` : ''}</>}
                 btnSize="lg"
                 className="flex-1 h-[300px] overflow-auto"
                 onAction={(key) => {

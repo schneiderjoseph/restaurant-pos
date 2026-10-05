@@ -53,7 +53,8 @@ export const computeOrderPaymentTotals = (
     ? (serviceChargeType === DiscountType.Percent ? itemsTotal * serviceCharge / 100 : serviceCharge)
     : 0;
   const tipAmount = tipType === DiscountType.Fixed ? tip : itemsTotal * tip / 100;
-  const resolvedTax = tax ?? order.tax ?? null;
+  // `null` = no order-level tax; left out = the order's stored one.
+  const resolvedTax = tax === undefined ? order.tax ?? null : tax;
 
   const base = recalculateCart(order, {
     existingApplications: discountLines.filter(l => l.applicationType === 'manual'),

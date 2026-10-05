@@ -35,7 +35,13 @@
     "items": "Items ({{count}})"
   },
   "tax": {
-    "noTax": "No Tax"
+    "noTax": "No Tax",
+    "title": "Order taxes",
+    "toggleHint": "Tap a tax to remove it or put it back.",
+    "pickOne": "Pick the tax to apply to the whole order.",
+    "applied": "Applied",
+    "removed": "Removed",
+    "allTaxes": "All taxes"
   },
   "discount": {
     "noDiscount": "No discount",
@@ -93,7 +99,9 @@
     "roomSyncStale": "Stay cannot be verified (ASI sync is late): the guest pays directly",
     "roomNotHotelGuest": "Room charge needs an in-house hotel guest",
     "roomDepartsToday": "Departure planned today",
-    "notAllowed": "Your role does not take payment: call a cashier, or switch user."
+    "notAllowed": "Your role does not take payment: call a cashier, or switch user.",
+    "toPay": "To pay",
+    "tendered": "Received"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

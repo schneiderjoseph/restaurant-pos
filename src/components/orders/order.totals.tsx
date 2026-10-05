@@ -164,9 +164,29 @@ export const OrderTotals = ({order, cart, className, compact}: Props) => {
   const activeDiscountLines = getActiveOrderDiscounts(order);
   const showLegacyDiscount = activeDiscountLines.length === 0 && (!!order?.discount || preview.discountAmount > 0);
 
+  const taxLines = preview.taxAmount > 0 && (
+    taxBreakdown.length > 0 ? taxBreakdown.map((entry, index) => (
+      <div className="flex" key={`${entry.name}-${entry.rate}-${index}`}>
+        <div className="flex-1">
+          {t('totals.tax')} ({formatTaxLabel(entry.name, entry.rate)})
+        </div>
+        <div className="text-right"><DualCurrency amount={entry.amount} /></div>
+      </div>
+    )) : (
+      <div className="flex">
+        <div className="flex-1">
+          {t('totals.tax')}
+          {order?.tax && <> ({formatTaxLabel(order.tax.name, order.tax.rate)})</>}
+        </div>
+        <div className="text-right"><DualCurrency amount={preview.taxAmount} /></div>
+      </div>
+    )
+  );
+
   if (compact) {
     return (
       <div className={cn("flex flex-col gap-1", className)}>
+        {taxLines}
         <div className="flex font-bold text-2xl text-success-900">
           <div className="flex-1">{t('totals.total')}</div>
           <div className="text-right"><DualCurrency amount={preview.total} /></div>
@@ -181,24 +201,7 @@ export const OrderTotals = ({order, cart, className, compact}: Props) => {
         <div className="flex-1">{t('totals.items', {count: preview.itemCount})}</div>
         <div className="text-right"><DualCurrency amount={preview.itemsTotal} /></div>
       </div>
-      {preview.taxAmount > 0 && (
-        taxBreakdown.length > 0 ? taxBreakdown.map((entry, index) => (
-          <div className="flex" key={`${entry.name}-${entry.rate}-${index}`}>
-            <div className="flex-1">
-              {t('totals.tax')} ({formatTaxLabel(entry.name, entry.rate)})
-            </div>
-            <div className="text-right"><DualCurrency amount={entry.amount} /></div>
-          </div>
-        )) : (
-          <div className="flex">
-            <div className="flex-1">
-              {t('totals.tax')}
-              {order?.tax && <> ({formatTaxLabel(order.tax.name, order.tax.rate)})</>}
-            </div>
-            <div className="text-right"><DualCurrency amount={preview.taxAmount} /></div>
-          </div>
-        )
-      )}
+      {taxLines}
       {activeDiscountLines.length === 1 ? (
         <div className="flex">
           <div className="flex-1">

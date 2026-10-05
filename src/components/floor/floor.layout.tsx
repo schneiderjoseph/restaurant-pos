@@ -23,6 +23,7 @@ import {useResortFb} from "@/hooks/useResortFb.ts";
 import {ensureResortFloorTables, loadResortChambresFloor} from "@/lib/resort-floor-tables.ts";
 import {Customer} from "@/api/model/customer.ts";
 import {formatGuestLabel} from "@/lib/guest.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 
 const normalizeRoomKey = (raw?: string | number | null): string => {
@@ -525,7 +526,7 @@ export const FloorLayout = () => {
               <FontAwesomeIcon icon={faChair} className="text-xl"/>
               <div className="leading-tight">
                 <div className="text-lg font-bold">{t('floor.switchTable', {
-                  table: `${state?.table?.name ?? ''}${state?.table?.number ?? ''}`
+                  table: formatTableLabel(state?.table)
                 })}</div>
                 <div className="text-sm opacity-80">{t('floor.switchHint')}</div>
               </div>

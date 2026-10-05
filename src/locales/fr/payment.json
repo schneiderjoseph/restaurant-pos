@@ -35,7 +35,13 @@
     "items": "Articles ({{count}})"
   },
   "tax": {
-    "noTax": "Sans taxe"
+    "noTax": "Sans taxe",
+    "title": "Taxes de la commande",
+    "toggleHint": "Touchez une taxe pour la retirer ou la remettre.",
+    "pickOne": "Choisissez la taxe à appliquer à toute la commande.",
+    "applied": "Appliquée",
+    "removed": "Retirée",
+    "allTaxes": "Toutes les taxes"
   },
   "discount": {
     "noDiscount": "Aucune remise",
@@ -93,7 +99,9 @@
     "roomSyncStale": "Séjour non vérifiable (synchro ASI en retard) : le client paie directement",
     "roomNotHotelGuest": "La charge chambre exige un client hôtel présent",
     "roomDepartsToday": "Départ prévu aujourd’hui",
-    "notAllowed": "Votre rôle n’encaisse pas : appelez un caissier, ou changez d’utilisateur."
+    "notAllowed": "Votre rôle n’encaisse pas : appelez un caissier, ou changez d’utilisateur.",
+    "toPay": "À payer",
+    "tendered": "Reçu"
   },
   "remote": {
     "remoteLabel": "{{name}} (À distance)",

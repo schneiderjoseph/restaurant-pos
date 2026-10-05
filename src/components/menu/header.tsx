@@ -20,6 +20,7 @@ import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {toast} from "sonner";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -271,7 +272,7 @@ export const MenuHeader = () => {
               onClick={switchTable}
               icon={faTable}
               data-testid="menu-table"
-            >{state?.table?.name}{state?.table?.number}</Button>
+            >{formatTableLabel(state?.table)}</Button>
           )}
           <Button type="button"
                   className="btn btn-primary lg btn-flat"
