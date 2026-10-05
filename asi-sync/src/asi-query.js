@@ -74,11 +74,19 @@ function resolveTaxes(row, captions = {}) {
   return taxes;
 }
 
-function scoreRateRow(row) {
+/**
+ * @param {object} row
+ * @param {number[]} [posIds] selected outlets in priority order (first wins)
+ */
+function scoreRateRow(row, posIds = []) {
   let score = 0;
   if (row.isDefaultUnit === true || row.isDefaultUnit === 1) score += 100;
   const price = resolvePriceUsd(row);
   if (price > 0) score += 20;
+  // Outlet priority outranks everything else, but only for a priced row: an
+  // item left at 0 in the first outlet still takes its price from the next one.
+  const rank = posIds.indexOf(Number(row.posID));
+  if (rank >= 0 && price > 0) score += (posIds.length - rank) * 1000;
   // Prefer the defaultRate slot when set.
   if (row.defaultRate != null) score += 2;
   // Tie-break: higher selling price (avoids 0-rate outlet rows winning).
@@ -87,14 +95,14 @@ function scoreRateRow(row) {
 }
 
 /** Collapse join duplicates to one record per itemID (best rate / default unit). */
-function dedupeItems(rows) {
+function dedupeItems(rows, posIds = []) {
   /** @type {Map<number, object>} */
   const map = new Map();
   for (const row of rows) {
     const id = Number(row.itemID);
     if (!Number.isFinite(id)) continue;
     const prev = map.get(id);
-    if (!prev || scoreRateRow(row) > scoreRateRow(prev)) {
+    if (!prev || scoreRateRow(row, posIds) > scoreRateRow(prev, posIds)) {
       map.set(id, row);
     }
   }
@@ -123,6 +131,8 @@ function mapItem(row, fxHtg, captions = {}) {
 
   return {
     asiItemId: Number(row.itemID),
+    // Outlet whose rate row was kept: the item goes to that outlet's station.
+    posId: row.posID != null ? Number(row.posID) : null,
     // Display PLU = ASI alias (PRES, ACR); stable key remains asi_item_id
     number: itemAlias || `ASI-${row.itemID}`,
     alias: itemAlias,
@@ -152,7 +162,26 @@ async function fetchHtgRate(pool) {
   return Number.isFinite(rate) && rate > 0 ? rate : null;
 }
 
-async function fetchAsiCatalog(asiConfig) {
+function mapOutlet(row) {
+  return {
+    pos_id: Number(row.posID),
+    alias: String(row.posAlias || '').trim(),
+    name: String(row.posName || '').trim() || `POS ${row.posID}`,
+    is_active: row.isActive === true || row.isActive === 1,
+  };
+}
+
+/**
+ * @param {object} asiConfig
+ * @param {{ posIds?: number[] }} [opts] outlets picked in Manage, in priority
+ *   order. Empty → ASI_POS_ID, else every outlet.
+ */
+async function fetchAsiCatalog(asiConfig, opts = {}) {
+  let posIds = (opts.posIds || []).map(Number).filter((n) => Number.isInteger(n) && n > 0);
+  if (posIds.length === 0 && asiConfig.posId != null && Number.isFinite(asiConfig.posId)) {
+    posIds = [Number(asiConfig.posId)];
+  }
+
   const pool = await sql.connect({
     server: asiConfig.server,
     port: asiConfig.port,
@@ -196,18 +225,48 @@ async function fetchAsiCatalog(asiConfig) {
       WHERE i.isDeleted = 0
         AND g.isDeleted = 0
     `;
-    if (asiConfig.posId != null && Number.isFinite(asiConfig.posId)) {
-      itemsSql += ` AND p.posID = ${Number(asiConfig.posId)}`;
+    if (posIds.length > 0) {
+      itemsSql += ` AND p.posID IN (${posIds.join(', ')})`;
     }
     itemsSql += ` ORDER BY i.itemID`;
 
     const itemsResult = await pool.request().query(itemsSql);
 
+    const outletsResult = await pool.request().query(`
+      SELECT posID, posAlias, posName, isActive
+      FROM mPOS
+      WHERE isDeleted = 0
+      ORDER BY posID
+    `);
+    const outlets = outletsResult.recordset.map(mapOutlet);
+
+    // ASI modifiers are a flat, unpriced list (sides: RIZ, FRITES…) attached per item.
+    const modifiersResult = await pool.request().query(`
+      SELECT modifierID, modifierAlias, modifierName
+      FROM mModifiers
+      WHERE isDeleted = 0 AND isActive = 1
+      ORDER BY modifierID
+    `);
+    const modifiers = modifiersResult.recordset.map((row) => ({
+      asiModifierId: Number(row.modifierID),
+      alias: String(row.modifierAlias || '').trim(),
+      name: String(row.modifierName || '').trim() || `ASI Modifier ${row.modifierID}`,
+    }));
+    const itemModifiersResult = await pool.request().query(`
+      SELECT itemID, modifierID
+      FROM tItemModifier
+      WHERE isActive = 1
+    `);
+    const itemModifiers = itemModifiersResult.recordset.map((row) => ({
+      asiItemId: Number(row.itemID),
+      asiModifierId: Number(row.modifierID),
+    }));
+
     const groups = groupsResult.recordset
       .map(mapGroup)
       .filter((g) => g.asiGroupId !== 1);
 
-    const allItems = dedupeItems(itemsResult.recordset).map((row) =>
+    const allItems = dedupeItems(itemsResult.recordset, posIds).map((row) =>
       mapItem(row, fxHtg, taxCaptions),
     );
     const activeItems = allItems.filter((i) => i.sales && i.isActive && !i.isDeleted);
@@ -219,7 +278,10 @@ async function fetchAsiCatalog(asiConfig) {
       groups,
       activeItems,
       inactiveIds,
-      meta: { fxHtg, priceCurrency: fxHtg ? 'HTG' : 'USD', taxCaptions },
+      outlets,
+      modifiers,
+      itemModifiers,
+      meta: { fxHtg, priceCurrency: fxHtg ? 'HTG' : 'USD', taxCaptions, posIds },
     };
   } finally {
     await pool.close();

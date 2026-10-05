@@ -4,6 +4,7 @@ const { config } = require('./config');
 const { fetchAsiCatalog } = require('./asi-query');
 const { connectSurreal } = require('./surreal');
 const { upsertCatalog } = require('./posr-upsert');
+const { readSelectedPosIds, writeAsiOutlets } = require('./outlet-settings');
 const { fetchInHouseGuests } = require('./fd-query');
 const { upsertGuests } = require('./guest-upsert');
 const { fetchAsiTables } = require('./table-query');
@@ -22,13 +23,16 @@ async function syncMenu(db) {
     server: `${config.asi.server},${config.asi.port}`,
     database: config.asi.database,
   });
-  const catalog = await fetchAsiCatalog(config.asi);
+  const posIds = await readSelectedPosIds(db);
+  const catalog = await fetchAsiCatalog(config.asi, { posIds });
   log('ASI catalog loaded', {
     groups: catalog.groups.length,
     activeItems: catalog.activeItems.length,
     inactiveIds: catalog.inactiveIds.length,
+    posIds: catalog.meta.posIds.length ? catalog.meta.posIds : 'all',
   });
-  const stats = await upsertCatalog(db, catalog);
+  await writeAsiOutlets(db, catalog.outlets);
+  const stats = await upsertCatalog(db, catalog, { stationPosIds: posIds });
   log('Menu sync complete', stats);
   return stats;
 }

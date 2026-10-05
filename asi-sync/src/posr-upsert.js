@@ -1,6 +1,7 @@
 'use strict';
 
 const { queryRows, recordIdString, asRecord } = require('./surreal');
+const { upsertModifiers } = require('./modifier-upsert');
 
 const ASI_MENU_ID = 'menu:asi_restaurant';
 const ASI_MENU_NAME = 'Restaurant (ASI)';
@@ -223,10 +224,15 @@ async function upsertDish(db, item, categoryId) {
       { asiItemId: item.asiItemId },
     );
   }
+  // Adopt a same-PLU row only when no ASI item owns it: aliases are not unique
+  // in ASI ("JP" = 14 wines), so matching on PLU alone made items overwrite each other.
   if (!found[0]?.id) {
     found = await queryRows(
       db,
-      `SELECT id FROM menu_item WHERE number = $plu LIMIT 1`,
+      `SELECT id FROM menu_item
+       WHERE number = $plu
+         AND (asi_item_id = NONE OR asi_item_id = NULL)
+       LIMIT 1`,
       { plu: item.number },
     );
   }
@@ -535,6 +541,99 @@ async function assignKitchenItems(db, cuisineIds, barIds) {
   }
 }
 
+const OUTLET_STATION_PREFIX = 'asi_pos_';
+
+/**
+ * One station per outlet picked in Manage, named after it and holding the
+ * dishes whose price comes from that outlet (so a dish prints on one station).
+ * Reuses a live station with the outlet's name; dishes added by hand are kept.
+ * @param {{ pos_id: number, name: string }[]} outlets
+ * @param {number[]} posIds picked outlets, in priority order
+ * @param {Map<number, string[]>} dishIdsByPos
+ */
+async function assignOutletStations(db, outlets, posIds, dishIdsByPos) {
+  const asiRows = await queryRows(
+    db,
+    `SELECT id FROM menu_item
+     WHERE source = 'asi' AND (deleted_at = NONE OR deleted_at = NULL)`,
+  );
+  const asiSet = new Set(asiRows.map((r) => recordIdString(r.id)));
+  const withoutAsi = (items) =>
+    (Array.isArray(items) ? items : []).map(recordIdString).filter((id) => id && !asiSet.has(id));
+
+  /** @type {Record<string, number>} */
+  const stations = {};
+  /** @type {string[]} */
+  const activeTags = [];
+  for (let i = 0; i < posIds.length; i += 1) {
+    const outlet = outlets.find((o) => o.pos_id === posIds[i]);
+    if (!outlet) continue;
+    const tag = `${OUTLET_STATION_PREFIX}${outlet.pos_id}`;
+    activeTags.push(tag);
+    const dishIds = dishIdsByPos.get(outlet.pos_id) || [];
+
+    let found = await queryRows(
+      db,
+      `SELECT id, items, deleted_at FROM kitchen WHERE station = $tag`,
+      { tag },
+    );
+    found = [...found.filter((r) => r.deleted_at == null), ...found.filter((r) => r.deleted_at != null)];
+    if (!found[0]?.id) {
+      found = await queryRows(
+        db,
+        `SELECT id, items, priority FROM kitchen
+         WHERE string::lowercase(name) = $name
+           AND (deleted_at = NONE OR deleted_at = NULL)
+         ORDER BY priority ASC
+         LIMIT 1`,
+        { name: outlet.name.toLowerCase() },
+      );
+    }
+
+    if (found[0]?.id) {
+      const merged = [...new Set([...withoutAsi(found[0].items), ...dishIds])].map(asRecord);
+      await queryRows(
+        db,
+        `UPDATE $id SET items = $items, station = $tag, deleted_at = NONE, shows_all = false`,
+        { id: asRecord(found[0].id), items: merged, tag },
+      );
+    } else {
+      await queryRows(
+        db,
+        `CREATE kitchen SET
+          name = $name,
+          priority = $priority,
+          items = $items,
+          station = $tag,
+          shows_all = false,
+          deleted_at = NONE`,
+        { name: outlet.name, priority: 100 + i, items: dishIds.map(asRecord), tag },
+      );
+      console.log(`[asi-sync] Created station "${outlet.name}" for ASI outlet ${outlet.pos_id}`);
+    }
+    stations[outlet.name] = dishIds.length;
+  }
+
+  // Outlets no longer picked: keep the station (printers, manual dishes), drop its ASI dishes.
+  const tagged = await queryRows(
+    db,
+    `SELECT id, items, station FROM kitchen
+     WHERE station != NONE AND string::starts_with(station, $prefix)`,
+    { prefix: OUTLET_STATION_PREFIX },
+  );
+  for (const row of tagged) {
+    if (activeTags.includes(row.station)) continue;
+    const kept = withoutAsi(row.items);
+    if (kept.length === (row.items || []).length) continue;
+    await queryRows(db, `UPDATE $id SET items = $items`, {
+      id: asRecord(row.id),
+      items: kept.map(asRecord),
+    });
+  }
+
+  return stations;
+}
+
 /**
  * POSR Menu UI only shows dishes linked through an active selected menu.
  * Keep a dedicated ASI menu whose items[] = all live ASI dishes, and register it
@@ -625,7 +724,15 @@ async function ensureAsiMenu(db, dishEntries) {
   return itemRefs.length;
 }
 
-async function upsertCatalog(db, { groups, activeItems }) {
+/**
+ * @param {{ stationPosIds?: number[] }} [opts] outlets picked in Manage: each
+ *   gets its own station. Empty → legacy Cuisine/Bar split by item group.
+ */
+async function upsertCatalog(
+  db,
+  { groups, activeItems, outlets = [], modifiers = [], itemModifiers = [] },
+  { stationPosIds = [] } = {},
+) {
   /** @type {Map<number, string>} */
   const groupIdToCategory = new Map();
   /** @type {string[]} */
@@ -645,6 +752,10 @@ async function upsertCatalog(db, { groups, activeItems }) {
   const cuisineIds = [];
   const barIds = [];
   const allDishIds = [];
+  /** @type {Map<number, string[]>} */
+  const dishIdsByPos = new Map();
+  /** @type {Map<number, string>} */
+  const dishIdByAsiItemId = new Map();
   /** @type {{ id: string, taxIds: string[], taxInclusive: boolean }[]} */
   const dishEntries = [];
   let itemCount = 0;
@@ -671,6 +782,10 @@ async function upsertCatalog(db, { groups, activeItems }) {
 
     const dishId = await upsertDish(db, item, catId);
     allDishIds.push(dishId);
+    dishIdByAsiItemId.set(item.asiItemId, dishId);
+    if (item.posId != null) {
+      dishIdsByPos.set(item.posId, [...(dishIdsByPos.get(item.posId) || []), dishId]);
+    }
     const taxIds = (item.taxes || [])
       .map((t) => rateToTaxId.get(Number(t.rate)))
       .filter(Boolean);
@@ -690,10 +805,16 @@ async function upsertCatalog(db, { groups, activeItems }) {
   );
   const categoriesDeduped = await dedupeAsiCategories(db, categoryIds);
 
-  await assignKitchenItems(db, cuisineIds, barIds);
+  let stations;
+  if (stationPosIds.length > 0) {
+    stations = await assignOutletStations(db, outlets, stationPosIds, dishIdsByPos);
+  } else {
+    await assignKitchenItems(db, cuisineIds, barIds);
+  }
   const menuItems = await ensureAsiMenu(db, dishEntries);
   await reviveAsiRecords(db, allDishIds, categoryIds);
   const legacyDupes = await softDeleteLegacyAsiPluDupes(db);
+  const modifierStats = await upsertModifiers(db, { modifiers, itemModifiers }, dishIdByAsiItemId);
 
   return {
     categories: categoryCount,
@@ -705,6 +826,8 @@ async function upsertCatalog(db, { groups, activeItems }) {
     menuItems,
     legacyDupes,
     taxes: rateToTaxId.size,
+    ...(stations ? { stations } : {}),
+    modifiers: modifierStats,
   };
 }
 
