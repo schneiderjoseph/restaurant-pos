@@ -13,7 +13,7 @@ import {
   canRegisterGuestFromSearch,
   dropSupersededStays,
   generateWalkInGuestCode,
-  guestMatchesSearchTerm,
+  searchGuests,
   phoneDigits,
   PHONE_SEARCH_MIN_DIGITS,
   previewGuestCode,
@@ -47,7 +47,9 @@ export const Customers = ({
   const [newPhone, setNewPhone] = useState("");
   const [newIdDocument, setNewIdDocument] = useState("");
 
-  const canRegister = customers.length === 0 && canRegisterGuestFromSearch(search);
+  // Exact matches only: a name merely spelled close does not block registering a new guest.
+  const [exactCount, setExactCount] = useState(0);
+  const canRegister = exactCount === 0 && canRegisterGuestFromSearch(search);
 
   const displayCode = useMemo(() => {
     if (codeOverride) return codeOverride;
@@ -74,8 +76,9 @@ export const Customers = ({
            LIMIT 500`
         );
         const guests = dropSupersededStays(Array.isArray(list) ? list : []);
-        const trimmed = term.trim();
-        setCustomers(trimmed ? guests.filter((guest) => guestMatchesSearchTerm(guest, trimmed)) : guests);
+        const found = searchGuests(guests, term);
+        setExactCount(found.exact.length);
+        setCustomers([...found.exact, ...found.close]);
       } catch (error) {
         console.error('Customer list failed', error);
         setCustomers([]);

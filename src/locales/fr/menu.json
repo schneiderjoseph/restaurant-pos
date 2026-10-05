@@ -105,7 +105,8 @@
     "contactRequired": "Saisissez un téléphone ou une pièce d’identité",
     "departure": "Départ {{date}}",
     "departureToday": "Départ aujourd'hui",
-    "addPlace": "Table ou zone"
+    "addPlace": "Table ou zone",
+    "closeMatches": "Noms proches"
   },
   "outlets": {
     "all": "Tous"

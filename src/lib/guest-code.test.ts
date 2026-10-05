@@ -6,6 +6,7 @@ import {
   generateWalkInGuestCode,
   guestCodePrefixFromName,
   guestMatchesSearchTerm,
+  searchGuests,
   namesAreSamePerson,
   previewGuestCode,
   isAsiGuest,
@@ -145,5 +146,72 @@ describe('isAsiGuest', () => {
     expect(isAsiGuest({ source: 'local' })).toBe(false);
     expect(isAsiGuest({ source: null })).toBe(false);
     expect(isAsiGuest(undefined)).toBe(false);
+  });
+});
+
+describe('guestMatchesSearchTerm by any detail', () => {
+  const guest = {
+    name: 'Jean Dupont',
+    guest_code: 'DUJE42',
+    room: '20',
+    phone: '+509 3456 1234',
+    email: 'jean@example.com',
+    id_document_number: 'AB-123 456',
+    asi_folio_no: 'F-7781',
+  };
+
+  it('finds by room, however it is typed', () => {
+    for (const term of ['20', 'ch20', 'CH 20', 'R20', 'chambre 20', '#20']) {
+      expect(guestMatchesSearchTerm(guest, term), term).toBe(true);
+    }
+    expect(guestMatchesSearchTerm(guest, 'ch21')).toBe(false);
+    expect(guestMatchesSearchTerm({ ...guest, room: '120', phone: '' }, 'ch20')).toBe(false);
+  });
+
+  it('finds by ID document, code, folio and email', () => {
+    expect(guestMatchesSearchTerm(guest, 'ab123456')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, '123 456')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, 'DUJE')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, '7781')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, 'jean@ex')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, 'ZZ999')).toBe(false);
+  });
+
+  it('mixes details in one search', () => {
+    expect(guestMatchesSearchTerm(guest, '20 jean')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, 'dupont ch20')).toBe(true);
+    expect(guestMatchesSearchTerm(guest, 'paul 20')).toBe(false);
+  });
+});
+
+describe('searchGuests with close spellings', () => {
+  const guests = [
+    { name: 'Jean Dupont', room: '20', phone: '', guest_code: '', email: '' },
+    { name: 'Frederic Aka', room: '', phone: '', guest_code: '', email: '' },
+    { name: 'Marie Dupond', room: '', phone: '', guest_code: '', email: '' },
+  ];
+  const names = (list: { name: string }[]) => list.map((guest) => guest.name);
+
+  it('puts exact matches first and close spellings after', () => {
+    const found = searchGuests(guests, 'dupont');
+    expect(names(found.exact)).toEqual(['Jean Dupont']);
+    expect(names(found.close)).toEqual(['Marie Dupond']);
+  });
+
+  it('forgives a typo, a swap and a missing letter', () => {
+    expect(names(searchGuests(guests, 'frederik').close)).toEqual(['Frederic Aka']);
+    expect(names(searchGuests(guests, 'fredreic').close)).toEqual(['Frederic Aka']);
+    expect(names(searchGuests(guests, 'fedric').close)).toEqual([]);
+    expect(names(searchGuests(guests, 'federic').close)).toEqual(['Frederic Aka']);
+  });
+
+  it('works while typing and stays strict on short words', () => {
+    expect(names(searchGuests(guests, 'fredr').close)).toEqual(['Frederic Aka']);
+    expect(searchGuests(guests, 'jon').close).toEqual([]);
+    expect(searchGuests(guests, 'paul')).toEqual({ exact: [], close: [] });
+  });
+
+  it('returns everyone when nothing is typed', () => {
+    expect(searchGuests(guests, '  ').exact).toHaveLength(3);
   });
 });

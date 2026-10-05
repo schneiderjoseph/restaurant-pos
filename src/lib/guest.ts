@@ -84,15 +84,57 @@ export function phoneDigits(value?: string | number | null): string {
 /** Shortest digit run treated as a phone search (keeps "12" a room/table lookup). */
 export const PHONE_SEARCH_MIN_DIGITS = 3;
 
+type SearchableGuest = Pick<Customer, 'name' | 'guest_code' | 'room' | 'phone' | 'email'>
+  & Partial<Pick<Customer, 'id_document_number' | 'asi_folio_no' | 'asi_guest_id'>>;
+
+/** Letters and digits only, so "AB-123 456" and "ab123456" compare equal. */
+const alphanumeric = (value: unknown): string =>
+  String(value ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+const ID_SEARCH_MIN_CHARS = 3;
+
+/** One typed word against everything but the name: room, code, phone, email, ID document, folio. */
+function guestFieldMatchesToken(guest: SearchableGuest, token: string): boolean {
+  const lower = token.toLowerCase();
+  const room = guest.room != null ? String(guest.room).trim().toLowerCase() : '';
+
+  // "20", "ch20", "r20", "#20": the room itself, not every number that contains 20.
+  const roomQuery = lower.replace(/^(?:#|chambre|ch|room|r)/, '');
+  if (room && roomQuery && room === roomQuery) {
+    return true;
+  }
+
+  const texts = [guest.guest_code, guest.email, guest.asi_folio_no]
+    .map((value) => String(value ?? '').toLowerCase())
+    .filter(Boolean);
+  if (texts.some((text) => text.includes(lower.replace(/^#/, '')))) {
+    return true;
+  }
+
+  const digits = /\p{L}/u.test(token) ? '' : phoneDigits(token);
+  if (digits.length >= PHONE_SEARCH_MIN_DIGITS && phoneDigits(guest.phone).includes(digits)) {
+    return true;
+  }
+
+  const idQuery = alphanumeric(token);
+  if (idQuery.length >= ID_SEARCH_MIN_CHARS) {
+    if (alphanumeric(guest.id_document_number).includes(idQuery)) return true;
+    if (guest.asi_guest_id != null && String(guest.asi_guest_id) === idQuery) return true;
+  }
+
+  return false;
+}
+
 /**
- * Search match: code/room/phone/email substring, phone digits (any formatting),
- * OR name substring,
- * OR every query word appears in the guest name (order-independent).
- * So typing "Michel John" finds "John Michel".
+ * Search match on any detail of the guest: name, room, code, phone (any formatting),
+ * email, ID document number, ASI folio.
+ * Several words may mix details and come in any order: "Michel John" finds "John Michel",
+ * "20 jean" finds Jean in room 20.
  */
 export function guestMatchesSearchTerm(
-  guest: Pick<Customer, 'name' | 'guest_code' | 'room' | 'phone' | 'email'>,
+  guest: SearchableGuest,
   term: string,
+  options: { fuzzy?: boolean } = {},
 ): boolean {
   const q = term.trim();
   if (!q) {
@@ -125,20 +167,91 @@ export function guestMatchesSearchTerm(
     return true;
   }
 
-  const queryTokens = guestNameTokens(q);
-  if (queryTokens.length === 0) {
-    return false;
+  // The whole query as one detail: an ID number or a phone typed with spaces.
+  if (guestFieldMatchesToken(guest, q.replace(/\s+/g, ''))) {
+    return true;
   }
 
+  const words = q.split(/\s+/).filter(Boolean);
   const nameTokens = guestNameTokens(name);
-  if (nameTokens.length === 0) {
-    return false;
-  }
 
-  // Each typed word must match a name word (prefix OK while typing).
-  return queryTokens.every((qt) =>
-    nameTokens.some((nt) => nt.startsWith(qt) || nt.includes(qt)),
-  );
+  // Each typed word must match a name word (prefix OK while typing) or another detail.
+  return words.every((word) => {
+    const wordTokens = guestNameTokens(word);
+    const inName = wordTokens.length > 0 && wordTokens.every((qt) =>
+      nameTokens.some((nt) => nt.startsWith(qt) || nt.includes(qt)),
+    );
+    if (inName || guestFieldMatchesToken(guest, word)) {
+      return true;
+    }
+    return Boolean(options.fuzzy) && wordTokens.length > 0 && wordTokens.every((qt) =>
+      nameTokens.some((nt) => nameWordIsClose(qt, nt)),
+    );
+  });
+}
+
+/** Edit distance between two words, given up as soon as it passes `max`. */
+function editDistance(a: string, b: string, max: number): number {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let beforePrevious: number[] = [];
+  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const current = [i];
+    let rowMin = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let value = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + cost);
+      // Two neighbouring letters swapped ("Jaen") count as one slip.
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        value = Math.min(value, beforePrevious[j - 2] + 1);
+      }
+      current.push(value);
+      rowMin = Math.min(rowMin, value);
+    }
+    if (rowMin > max) return max + 1;
+    beforePrevious = previous;
+    previous = current;
+  }
+  return previous[b.length];
+}
+
+const FUZZY_MIN_LETTERS = 4;
+const FUZZY_TWO_SLIPS_FROM = 8;
+
+/**
+ * A typed word spelled almost like a name word: one slip from 4 letters, two from 8.
+ * Also true against the start of the name word, so it works while typing.
+ */
+function nameWordIsClose(typed: string, nameWord: string): boolean {
+  if (typed.length < FUZZY_MIN_LETTERS) return false;
+  const max = typed.length >= FUZZY_TWO_SLIPS_FROM ? 2 : 1;
+  if (editDistance(typed, nameWord, max) <= max) return true;
+  return nameWord.length > typed.length
+    && editDistance(typed, nameWord.slice(0, typed.length), max) <= max;
+}
+
+/**
+ * Guests for a search: exact matches first, then the ones whose name is only spelled
+ * close to what was typed ("Dupond" for "Dupont").
+ */
+export function searchGuests<T extends SearchableGuest>(
+  guests: readonly T[],
+  term: string,
+): { exact: T[]; close: T[] } {
+  const trimmed = term.trim();
+  if (!trimmed) {
+    return { exact: [...guests], close: [] };
+  }
+  const exact: T[] = [];
+  const close: T[] = [];
+  for (const guest of guests) {
+    if (guestMatchesSearchTerm(guest, trimmed)) {
+      exact.push(guest);
+    } else if (guestMatchesSearchTerm(guest, trimmed, { fuzzy: true })) {
+      close.push(guest);
+    }
+  }
+  return { exact, close };
 }
 
 /**

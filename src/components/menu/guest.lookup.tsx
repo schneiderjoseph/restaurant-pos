@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
@@ -17,7 +17,7 @@ import {
   generateWalkInGuestCode,
   canRegisterGuestFromSearch,
   previewGuestCode,
-  guestMatchesSearchTerm,
+  searchGuests,
   namesAreSamePerson,
   dropSupersededStays,
   isAsiGuest,
@@ -97,16 +97,14 @@ export const GuestLookup = () => {
 
   const floors: Floor[] = settings.floors ?? [];
 
-  const results = useMemo(() => {
-    const trimmed = search.trim();
-    if (!trimmed) {
-      return guests;
-    }
-    return guests.filter((guest) => guestMatchesSearchTerm(guest, trimmed));
-  }, [guests, search]);
+  // Exact matches first, then names only spelled close to the search.
+  const found = useMemo(() => searchGuests(guests, search), [guests, search]);
+  const results = useMemo(() => [...found.exact, ...found.close], [found]);
+  const firstCloseId = found.close[0]?.id?.toString();
 
+  // A close spelling is a hint, not the same person: the new name can still be registered.
   const canRegisterFromSearch =
-    results.length === 0 && canRegisterGuestFromSearch(search);
+    found.exact.length === 0 && canRegisterGuestFromSearch(search);
 
   const selectedLastOrderAt = folio[0]?.created_at ?? selected?.last_order_at;
   const selectedLastOrderLabel = selectedLastOrderAt
@@ -730,9 +728,17 @@ export const GuestLookup = () => {
               }
 
               return (
+                <React.Fragment key={guest.id?.toString()}>
+                {firstCloseId && firstCloseId === guest.id?.toString() && (
+                  <div
+                    className="px-3 py-1 text-sm font-medium text-neutral-500 bg-neutral-100"
+                    data-testid="guest-close-matches"
+                  >
+                    {t('menu:guest.closeMatches')}
+                  </div>
+                )}
                 <button
                   type="button"
-                  key={guest.id?.toString()}
                   className={cn(
                     'w-full text-left px-3 py-2 min-h-[64px] flex items-center gap-3 hover:bg-primary-50 active:bg-primary-100',
                     selected?.id?.toString() === guest.id?.toString() && 'bg-primary-100'
@@ -766,6 +772,7 @@ export const GuestLookup = () => {
                     </span>
                   ) : null}
                 </button>
+                </React.Fragment>
               );
             })}
           </div>

@@ -105,7 +105,8 @@
     "contactRequired": "Enter a phone number or an ID document",
     "departure": "Check-out {{date}}",
     "departureToday": "Checks out today",
-    "addPlace": "Table or zone"
+    "addPlace": "Table or zone",
+    "closeMatches": "Close matches"
   },
   "outlets": {
     "all": "All"
