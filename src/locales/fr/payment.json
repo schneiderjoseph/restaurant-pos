@@ -52,7 +52,8 @@
     "selectItems": "Sélectionner les articles",
     "reason": "Motif",
     "reasonNotes": "Notes (optionnel)",
-    "apply": "Appliquer la remise"
+    "apply": "Appliquer la remise",
+    "noneConfigured": "Aucune remise n'est créée. Un responsable doit d'abord en ajouter dans Gérer → Remises (par exemple « Remise % » avec un taux libre) ; elles apparaîtront ici."
   },
   "coupon": {
     "codeLabel": "Code coupon",

@@ -52,7 +52,8 @@
     "selectItems": "Select items",
     "reason": "Reason",
     "reasonNotes": "Notes (optional)",
-    "apply": "Apply discount"
+    "apply": "Apply discount",
+    "noneConfigured": "No discount has been created. A manager must first add some in Manage → Discounts (for example an open-rate “Discount %”); they will show up here."
   },
   "coupon": {
     "codeLabel": "Coupon code",

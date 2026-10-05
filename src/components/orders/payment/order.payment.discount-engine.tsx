@@ -201,6 +201,12 @@ export const OrderPaymentDiscountEngine = ({
           </div>
         )}
 
+        {discounts && manualDiscounts.length === 0 && (
+          <div className="alert alert-warning" role="status" data-testid="payment-discount-none">
+            {t('discount.noneConfigured')}
+          </div>
+        )}
+
         <div className="flex gap-3 flex-wrap">
           {manualDiscounts.map(item => (
             <Button
