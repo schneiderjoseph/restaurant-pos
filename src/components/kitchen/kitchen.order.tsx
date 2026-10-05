@@ -79,7 +79,9 @@ export const KitchenOrder = ({
 
   const ready = async () => {
     try {
-      const ids = batch.items
+      // Long sends are split into SUITE cards for display only — Prêt must clear
+      // the whole batch (reprintItems), not just this chunk's slice.
+      const ids = reprintItems
         .filter((item) => !item.order_item?.deleted_at)
         .map((item) => item.id.toString());
       await completeStages(db, ids, page?.user?.id);

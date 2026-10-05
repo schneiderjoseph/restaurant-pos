@@ -559,9 +559,12 @@ export const skipStage = async (
 
 /**
  * Recall a completed stage for a specific user: remove that user from
- * `completed_by` so the row reappears on their KDS. The global workflow state
- * is left intact (the dish has physically already moved on); recalling only
- * affects the calling user's view.
+ * `completed_by` so the row reappears on their KDS.
+ *
+ * If nobody else still has the row cleared, also reopen the global stage
+ * (`status` / `completed_at`) so Orders and the order display stop showing
+ * "Prête" while the kitchen board shows the ticket again. When a later stage
+ * was activated by this completion, put it back to `waiting`.
  */
 export const recallStage = async (
   db: AnyDb,
@@ -570,10 +573,68 @@ export const recallStage = async (
 ): Promise<void> => {
   if (!userId) return;
 
+  const oik = toRecordId(oikId);
+  const user = toRecordId(userId);
+
   await db.query(
     `UPDATE $oik SET completed_by = array::complement(completed_by ?? [], [$user])`,
-    { oik: toRecordId(oikId), user: toRecordId(userId) }
+    { oik, user }
   );
+
+  const row = firstRow<{
+    id: any;
+    status?: string | null;
+    completed_by?: unknown[] | null;
+    order_item: any;
+    sequence?: number;
+    workflow?: any;
+  }>(await db.query(`SELECT * FROM $oik`, { oik }));
+  if (!row) return;
+
+  const stillCleared = Array.isArray(row.completed_by) ? row.completed_by.length : 0;
+  if (stillCleared > 0) return;
+
+  const closed =
+    row.status === OrderItemKitchenStatus.Completed ||
+    row.status === OrderItemKitchenStatus.Skipped;
+  if (!closed) return;
+
+  // Last clearer recalled — reopen so Commandes / Affichage match the KDS.
+  await db.query(
+    `UPDATE $oik SET status = $pending, completed_at = NONE, user = NONE`,
+    { oik, pending: OrderItemKitchenStatus.Pending }
+  );
+
+  const next = firstRow<any>(
+    await db.query(
+      `SELECT * FROM ${Tables.order_items_kitchen}
+       WHERE order_item = $oi AND sequence > $seq
+         AND status IN [$pending, $inProgress]
+       ORDER BY sequence ASC LIMIT 1`,
+      {
+        oi: row.order_item,
+        seq: Number(row.sequence ?? 0),
+        pending: OrderItemKitchenStatus.Pending,
+        inProgress: OrderItemKitchenStatus.InProgress,
+      }
+    )
+  );
+
+  if (next) {
+    await db.query(
+      `UPDATE $next SET status = $waiting, activated_at = NONE, completed_by = []`,
+      { next: next.id, waiting: OrderItemKitchenStatus.Waiting }
+    );
+    await db.merge(row.order_item, {
+      current_sequence: Number(row.sequence ?? 0),
+      workflow_status: "in_progress",
+    });
+    return;
+  }
+
+  if (row.workflow) {
+    await db.merge(row.order_item, { workflow_status: "in_progress" });
+  }
 };
 
 /**
