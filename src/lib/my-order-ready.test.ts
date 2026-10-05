@@ -6,7 +6,7 @@ import { buildKitchenRowsMap } from '@/lib/order-display.ts';
 import { userModulesGrant } from '@/lib/access.rules.ts';
 import {
   findNewlyReadyOrders,
-  OrderColumns,
+  OrderReadyState,
   readyAnnouncement,
   toReadyAlert,
 } from '@/lib/my-order-ready.ts';
@@ -18,13 +18,18 @@ const order = (overrides: Record<string, unknown> = {}): Order =>
     id: { toString: () => 'order:12' },
     invoice_number: 12,
     items: [item],
-    created_at: new Date().toISOString(),
+    created_at: new Date('2026-10-05T10:00:00.000Z').toISOString(),
     ...overrides,
   }) as unknown as Order;
 
-const kitchen = (status: OrderItemKitchenStatus) =>
+const kitchen = (status: OrderItemKitchenStatus, completedAt?: string) =>
   buildKitchenRowsMap([
-    { id: { toString: () => 'oik:1' }, order_item: item, status } as unknown as OrderItemKitchen,
+    {
+      id: { toString: () => 'oik:1' },
+      order_item: item,
+      status,
+      ...(completedAt ? { completed_at: completedAt } : {}),
+    } as unknown as OrderItemKitchen,
   ]);
 
 describe('findNewlyReadyOrders', () => {
@@ -32,22 +37,70 @@ describe('findNewlyReadyOrders', () => {
     const first = findNewlyReadyOrders(new Map(), [order()], kitchen(OrderItemKitchenStatus.InProgress));
     expect(first.newlyReady).toEqual([]);
 
-    const second = findNewlyReadyOrders(first.columns, [order()], kitchen(OrderItemKitchenStatus.Completed));
+    const second = findNewlyReadyOrders(first.columns, [order()], kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z'));
     expect(second.newlyReady.map(o => o.id.toString())).toEqual(['order:12']);
   });
 
   it('announces it once', () => {
-    const running: OrderColumns = new Map([['order:12', 'running']]);
-    const ready = findNewlyReadyOrders(running, [order()], kitchen(OrderItemKitchenStatus.Completed));
-    const again = findNewlyReadyOrders(ready.columns, [order()], kitchen(OrderItemKitchenStatus.Completed));
+    const running: OrderReadyState = new Map([['order:12', { column: 'running', readyAtMs: null }]]);
+    const ready = findNewlyReadyOrders(
+      running,
+      [order()],
+      kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z'),
+    );
+    const again = findNewlyReadyOrders(
+      ready.columns,
+      [order()],
+      kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z'),
+    );
 
     expect(again.newlyReady).toEqual([]);
   });
 
   it('stays quiet for an order already ready when first seen, or with no kitchen work', () => {
-    expect(findNewlyReadyOrders(new Map(), [order()], kitchen(OrderItemKitchenStatus.Completed)).newlyReady)
+    expect(findNewlyReadyOrders(new Map(), [order()], kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z')).newlyReady)
       .toEqual([]);
-    expect(findNewlyReadyOrders(new Map([['order:12', 'ready']]), [order()], {}).newlyReady).toEqual([]);
+    expect(
+      findNewlyReadyOrders(
+        new Map([['order:12', { column: 'ready', readyAtMs: Date.parse('2026-10-05T10:05:00.000Z') }]]),
+        [order()],
+        {},
+      ).newlyReady,
+    ).toEqual([]);
+  });
+
+  it('announces again after a kitchen recall then finish (even if running was missed)', () => {
+    const firstReady = findNewlyReadyOrders(
+      new Map([['order:12', { column: 'running', readyAtMs: null }]]),
+      [order()],
+      kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z'),
+    );
+    expect(firstReady.newlyReady).toHaveLength(1);
+
+    // Debounce skipped the pending blip: still "ready" in memory, but completed_at advanced.
+    const afterRecallFinish = findNewlyReadyOrders(
+      firstReady.columns,
+      [order()],
+      kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:20:00.000Z'),
+    );
+    expect(afterRecallFinish.newlyReady.map(o => o.id.toString())).toEqual(['order:12']);
+  });
+
+  it('announces again when running was observed after recall', () => {
+    const ready: OrderReadyState = new Map([['order:12', {
+      column: 'ready',
+      readyAtMs: Date.parse('2026-10-05T10:05:00.000Z'),
+    }]]);
+    const recalled = findNewlyReadyOrders(ready, [order()], kitchen(OrderItemKitchenStatus.Pending));
+    expect(recalled.newlyReady).toEqual([]);
+    expect(recalled.columns.get('order:12')?.column).toBe('running');
+
+    const finished = findNewlyReadyOrders(
+      recalled.columns,
+      [order()],
+      kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:20:00.000Z'),
+    );
+    expect(finished.newlyReady.map(o => o.id.toString())).toEqual(['order:12']);
   });
 });
 

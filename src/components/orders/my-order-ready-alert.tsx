@@ -16,7 +16,7 @@ import {buildKitchenRowsMap} from "@/lib/order-display.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   findNewlyReadyOrders,
-  OrderColumns,
+  OrderReadyState,
   readyAnnouncement,
   ReadyAlert,
   toReadyAlert,
@@ -46,7 +46,7 @@ export const MyOrderReadyAlert = () => {
   const onOrderDisplay = pathname === ORDER_DISPLAY;
 
   const [alerts, setAlerts] = useState<ReadyAlert[]>([]);
-  const columnsRef = useRef<OrderColumns>(new Map());
+  const columnsRef = useRef<OrderReadyState>(new Map());
 
   const announce = useCallback((ready: ReadyAlert[]) => {
     setAlerts(prev => [...prev, ...ready.filter(alert => !prev.some(item => item.id === alert.id))]);
