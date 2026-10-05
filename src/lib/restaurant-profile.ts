@@ -20,6 +20,46 @@ function notify() {
   listeners.forEach((listener) => listener());
 }
 
+/**
+ * The login page has no database session yet, so the logo it shows is the copy this device
+ * kept from the last signed-in session.
+ */
+const LOGIN_LOGO_STORAGE_KEY = 'posr.login-logo';
+
+function rememberLoginLogo(logoDataUrl: string | null): void {
+  try {
+    if (logoDataUrl) {
+      localStorage.setItem(LOGIN_LOGO_STORAGE_KEY, logoDataUrl);
+    } else {
+      localStorage.removeItem(LOGIN_LOGO_STORAGE_KEY);
+    }
+  } catch {
+    // Storage full or blocked: the login page just shows no logo.
+  }
+}
+
+export function getStoredLoginLogo(): string | null {
+  try {
+    return localStorage.getItem(LOGIN_LOGO_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+let profileLoad: Promise<unknown> | null = null;
+
+/** Loads the profile once per page session (signed-in screens), which refreshes the login logo. */
+export function ensureRestaurantProfileLoaded(db: AnyDb, attempt = 0): void {
+  if (profileLoad) return;
+  profileLoad = fetchRestaurantProfile(db).catch(() => {
+    profileLoad = null;
+    // Right after sign-in the connection may not be up yet.
+    if (attempt < 5) {
+      setTimeout(() => ensureRestaurantProfileLoaded(db, attempt + 1), 2000);
+    }
+  });
+}
+
 export function subscribeRestaurantProfile(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
@@ -164,6 +204,7 @@ export async function fetchRestaurantProfile(db: AnyDb): Promise<{
   const logoDataUrl = logoToDataUrl(profile.logo);
   cachedProfile = profile;
   cachedLogoDataUrl = logoDataUrl ?? cachedLogoDataUrl ?? null;
+  rememberLoginLogo(logoDataUrl);
   notify();
   return {
     settingId: row?.id != null ? String(row.id) : undefined,
@@ -192,6 +233,7 @@ export async function saveRestaurantProfile(
   }
   cachedProfile = payload;
   cachedLogoDataUrl = logoToDataUrl(payload.logo);
+  rememberLoginLogo(cachedLogoDataUrl);
   notify();
 }
 

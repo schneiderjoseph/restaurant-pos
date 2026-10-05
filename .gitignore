@@ -64,3 +64,5 @@ payments/.env
 asi-sync/.env
 loyverse-sync/.env
 
+# Per-installation branding (login background), not shared between sites
+public/branding/

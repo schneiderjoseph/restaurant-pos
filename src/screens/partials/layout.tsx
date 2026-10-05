@@ -1,4 +1,6 @@
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
+import { useDB } from "@/api/db/db.ts";
+import { ensureRestaurantProfileLoaded } from "@/lib/restaurant-profile.ts";
 import { Sidebar } from "@/screens/partials/sidebar.tsx";
 import { cn } from "@/lib/utils.ts";
 
@@ -12,6 +14,13 @@ interface Props extends PropsWithChildren {
 export const Layout = ({
   showSidebar = true, ...props
 }: Props) => {
+  const db = useDB();
+  useEffect(() => {
+    // Keeps this device's copy of the logo fresh for the login page.
+    ensureRestaurantProfileLoaded(db);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount; db identity changes every render
+  }, []);
+
   return (
     <div className={
       cn(

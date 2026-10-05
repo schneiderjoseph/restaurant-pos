@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { PageLoader } from "@/components/common/loader/page-loader.tsx";
+import { getStoredLoginLogo } from "@/lib/restaurant-profile.ts";
 import {
   clearSessionTokens,
   gatewayLogin,
@@ -57,6 +58,9 @@ export const Login = () => {
   const gatewayAuth = isGatewayAuthEnabled();
 
   const [code, setCode] = useState('');
+  // The logo this device kept from the profile, else the installation's own file
+  // (public/branding/login-background.jpg, not in git); nothing shows when neither exists.
+  const [loginLogo] = useState(() => getStoredLoginLogo() ?? '/branding/login-background.jpg');
   const [page, setPage] = useAtom(appPage);
   const setAppState = useSetAtom(appState);
   const setEditSession = useSetAtom(orderEditSessionAtom);
@@ -359,9 +363,16 @@ export const Login = () => {
   }
 
   return (
-    <div className="relative" data-testid="login-page">
+    <div className="relative bg-neutral-900 overflow-hidden" data-testid="login-page">
       <DocumentTitle parts={[t('login.title')]} />
-      <div className="bg-neutral-900 flex justify-center items-center h-screen flex-col gap-8">
+      {loginLogo && (
+        <div
+          className="absolute inset-0 bg-center bg-cover blur-xl scale-110 opacity-30 pointer-events-none"
+          style={{backgroundImage: `url("${loginLogo}")`}}
+          data-testid="login-brand"
+        />
+      )}
+      <div className="relative flex justify-center items-center h-screen flex-col gap-8">
         <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
         {page.locked && (
           <div className="alert alert-warning" data-testid="login-locked-banner">{t('login.systemLocked', {
