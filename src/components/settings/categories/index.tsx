@@ -1,4 +1,4 @@
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Tables} from "@/api/db/tables.ts";
 import {Category} from "@/api/model/category.ts";
 import {Dish} from "@/api/model/dish.ts";
@@ -26,7 +26,7 @@ import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {isCategoryShownInMenu} from "@/lib/menu-categories.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
-import {suggestOutlet} from "@/lib/outlet.ts";
+import {outletOfCategory, suggestOutlet} from "@/lib/outlet.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {toast} from "sonner";
@@ -54,6 +54,38 @@ export const AdminCategories = () => {
     data: [] as Category[]
   });
   const [importModal, setImportModal] = useState(false);
+
+  // The table pages its rows, so inheritance and counts read every category / dish.
+  const [categoryTree, setCategoryTree] = useState<Category[]>([]);
+  const [itemCounts, setItemCounts] = useState<Map<string, number>>(new Map());
+  const listData = loadHook.data;
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [[categories], [dishes]] = await Promise.all([
+          db.query(`SELECT id, parent, outlet FROM ${Tables.categories} WHERE deleted_at = none FETCH outlet`),
+          db.query(`SELECT categories FROM ${Tables.dishes} WHERE deleted_at = none`),
+        ]) as [[Category[]], [Pick<Dish, 'categories'>[]]];
+        if (cancelled) return;
+        const counts = new Map<string, number>();
+        for (const dish of dishes ?? []) {
+          for (const category of dish.categories ?? []) {
+            const id = recordIdToString(category);
+            counts.set(id, (counts.get(id) ?? 0) + 1);
+          }
+        }
+        setCategoryTree(categories ?? []);
+        setItemCounts(counts);
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch when the list reloads; db identity changes every render
+  }, [listData]);
 
   const smartImportConfig = useMemo(
     () => createCategoryImportConfig({db, t}),
@@ -87,6 +119,18 @@ export const AdminCategories = () => {
       header: t('columns.showInMenu'),
       cell: info => isCategoryShownInMenu(info.row.original) ? <FontAwesomeIcon icon={faCheck} className="text-success-500"/> :
         <FontAwesomeIcon icon={faTimes} className="text-danger-500"/>
+    }),
+    columnHelper.display({
+      id: "outlet",
+      header: t('columns.outlet'),
+      enableSorting: false,
+      cell: (info) => outletOfCategory(info.row.original.id, categoryTree)?.name ?? '—',
+    }),
+    columnHelper.display({
+      id: "item_count",
+      header: t('columns.itemCount'),
+      enableSorting: false,
+      cell: (info) => itemCounts.get(recordIdToString(info.row.original.id)) ?? 0,
     }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')
