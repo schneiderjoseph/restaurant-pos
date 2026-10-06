@@ -2,12 +2,43 @@ import { Tables } from "@/api/db/tables.ts";
 import { Kitchen } from "@/api/model/kitchen.ts";
 import { Order } from "@/api/model/order.ts";
 import { getOrderFilteredItems } from "@/lib/order.ts";
+import { OrderItem } from "@/api/model/order_item.ts";
+import { buildModifierFetches, MODIFIER_FETCH_DEPTH } from "@/api/model/order_fetches.ts";
+import { linkOf } from "@/lib/order-split.ts";
 import { dispatchPrint } from "@/lib/print.service.ts";
 import { kitchenMatchesDish } from "@/lib/kitchen/routing.ts";
 import {
   formatKitchenGuestLabel,
   formatKitchenPlaceLabel,
 } from "@/lib/kitchen-ticket-label.ts";
+
+/**
+ * A split by amount re-creates every line on each split order at a share of its price, while
+ * the kitchen cooks the original line once. Print the original lines (whole quantities, once)
+ * instead of the copies, so no split order sends its share as full dishes.
+ */
+async function kitchenLines(db: any, items: OrderItem[]): Promise<OrderItem[]> {
+  const sources = new Map<string, unknown>();
+  for (const item of items) {
+    const source = linkOf(item.split_source);
+    if (source) {
+      sources.set(source.toString(), source);
+    }
+  }
+  if (sources.size === 0) {
+    return items;
+  }
+
+  const fetches = ['item', ...buildModifierFetches(MODIFIER_FETCH_DEPTH).map((path) => path.slice('items.'.length))];
+  const [originals]: [OrderItem[]] = await db.query(
+    `SELECT * FROM $lines FETCH ${fetches.join(', ')}`,
+    { lines: [...sources.values()] }
+  );
+  return [
+    ...items.filter((item) => !item.split_source),
+    ...(originals ?? []).filter((item) => item && !item.deleted_at),
+  ];
+}
 
 /**
  * Re-print full-order KOT(s) grouped by kitchen dish routing (same match as
@@ -22,7 +53,7 @@ export async function printDuplicateKotForOrder(opts: {
   placeLabels?: { room: string; table: string };
 }): Promise<boolean> {
   const { db, order, userId } = opts;
-  const items = getOrderFilteredItems(order);
+  const items = await kitchenLines(db, getOrderFilteredItems(order));
   if (items.length === 0) {
     return false;
   }

@@ -8,6 +8,7 @@ import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import React, {useMemo, useState} from "react";
 import {faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
+import {calculateOrderPaymentTaxAmount} from "@/lib/tax-calculator.ts";
 import {RecordId} from "surrealdb";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
@@ -45,7 +46,10 @@ export const SplitAmount = ({
   const itemsTotal = useMemo(() => calculateOrderTotal(order), [order]);
   const orderTotal = useMemo(() => {
     const extrasTotal = order?.extras ? order?.extras?.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0;
-    return itemsTotal + extrasTotal + Number(order?.tax_amount ?? 0) - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
+    // The split orders compute their tax from their own lines: share out that same tax,
+    // not the amount stored on the order.
+    const taxAmount = calculateOrderPaymentTaxAmount(order, order.tax ?? null);
+    return itemsTotal + extrasTotal + taxAmount - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
   }, [itemsTotal, order]);
 
   const allItems = useMemo(() => getOrderFilteredItems(order), [order]);
