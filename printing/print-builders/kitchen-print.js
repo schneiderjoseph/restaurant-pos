@@ -2,8 +2,10 @@
 
 const {
   normalizeConfig,
-  printReceiptHeader,
+  applyMargins,
+  hardResetLayout,
   feedBottomMargin,
+  feedDotsAndCut,
   buildItemRowString,
   buildItemHeaderString,
   printModifierLines,
@@ -145,7 +147,10 @@ function build(printer, data = {}, config = {}) {
       ? (L.duplicateKot || 'COPY')
       : (isAddOn ? (L.addon || 'ADDON') : (L.newOrder || 'NEW'));
 
-  return printReceiptHeader(printer, cfg).then(() => {
+  // Station tickets skip the receipt header (logo, address…): the kitchen only needs the order.
+  applyMargins(printer, cfg);
+  hardResetLayout(printer);
+  return Promise.resolve().then(() => {
     printKotHeader(printer, {
       kitchenName,
       bannerLabel,
@@ -173,7 +178,8 @@ function build(printer, data = {}, config = {}) {
 
     feedBottomMargin(printer, cfg);
     printPrintingTimestamp(printer, cfg);
-    printer.cut();
+    // Leave room below the last line so the cutter does not slice through it.
+    feedDotsAndCut(printer);
     return printer;
   });
 }

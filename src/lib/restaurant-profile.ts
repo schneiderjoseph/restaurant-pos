@@ -246,6 +246,7 @@ export function restaurantProfileHeaderSections(
   type: 'text' | 'image';
   align: 'center';
   size: 'large' | 'normal';
+  style?: 'bold';
   content: string;
 }> {
   const sections: Array<{
@@ -253,6 +254,7 @@ export function restaurantProfileHeaderSections(
     type: 'text' | 'image';
     align: 'center';
     size: 'large' | 'normal';
+    style?: 'bold';
     content: string;
   }> = [];
 
@@ -271,7 +273,9 @@ export function restaurantProfileHeaderSections(
       enabled: true,
       type: 'text',
       align: 'center',
-      size: 'large',
+      // Normal height, bold: double size made the name dominate the receipt.
+      size: 'normal',
+      style: 'bold',
       content: profile.name,
     });
   }

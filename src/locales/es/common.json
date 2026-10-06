@@ -128,7 +128,8 @@
   },
   "toast": {
     "printFailed": "Error al imprimir",
-    "printError": "Error en la impresión"
+    "printError": "Error en la impresión",
+    "printQueued": "Impresora no disponible: el ticket queda en espera y se imprimirá al reconectarse"
   },
   "notFound": {
     "title": "Página no encontrada",

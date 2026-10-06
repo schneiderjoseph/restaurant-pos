@@ -31,6 +31,7 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const { handlePrint } = require('./print-handler');
+const printQueue = require('./print-queue');
 const { renderPreview } = require('./lib/preview');
 const {
   createSessionAuthMiddleware,
@@ -147,6 +148,21 @@ app.post('/print', requireSession, async (req, res) => {
     const message = err && (err.message || String(err));
     res.status(400).json({ success: false, error: message });
   }
+});
+
+// Prints waiting for a printer that was unreachable (retried automatically).
+app.get('/print/queue', requireSession, (req, res) => {
+  res.json({ jobs: printQueue.list() });
+});
+
+app.post('/print/queue/retry', requireSession, async (req, res) => {
+  await printQueue.flush();
+  res.json({ jobs: printQueue.list() });
+});
+
+app.delete('/print/queue/:id', requireSession, (req, res) => {
+  const removed = printQueue.remove(String(req.params.id));
+  res.status(removed ? 200 : 404).json({ removed });
 });
 
 const HOST = process.env.PRINT_HOST || '0.0.0.0';

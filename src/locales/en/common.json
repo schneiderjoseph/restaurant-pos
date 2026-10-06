@@ -128,7 +128,8 @@
   },
   "toast": {
     "printFailed": "Print failed",
-    "printError": "Error in printing"
+    "printError": "Error in printing",
+    "printQueued": "Printer unreachable: the ticket is queued and will print once it reconnects"
   },
   "notFound": {
     "title": "Page not found",

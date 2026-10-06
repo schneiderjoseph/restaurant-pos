@@ -128,7 +128,8 @@
   },
   "toast": {
     "printFailed": "Échec de l'impression",
-    "printError": "Erreur lors de l'impression"
+    "printError": "Erreur lors de l'impression",
+    "printQueued": "Imprimante injoignable : le bon est en attente et sortira dès qu’elle sera reconnectée"
   },
   "notFound": {
     "title": "Page introuvable",

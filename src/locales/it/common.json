@@ -128,7 +128,8 @@
   },
   "toast": {
     "printFailed": "Stampa non riuscita",
-    "printError": "Errore durante la stampa"
+    "printError": "Errore durante la stampa",
+    "printQueued": "Stampante non raggiungibile: lo scontrino è in coda e verrà stampato alla riconnessione"
   },
   "notFound": {
     "title": "Pagina non trovata",

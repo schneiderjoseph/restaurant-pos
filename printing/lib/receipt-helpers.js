@@ -167,6 +167,7 @@ function normalizeSection(section) {
   if (!section || typeof section !== 'object') return null;
   const align = ['left', 'center', 'right'].includes(section.align) ? section.align : 'center';
   const size = ['normal', 'medium', 'large'].includes(section.size) ? section.size : 'normal';
+  const style = section.style === 'bold' ? 'bold' : undefined;
   const type = section.type === 'image' ? 'image' : 'text';
   let content;
   if (type === 'image') {
@@ -182,6 +183,7 @@ function normalizeSection(section) {
     type,
     align,
     size,
+    style,
     content,
   };
 }
@@ -626,6 +628,21 @@ function feedBottomMargin(printer, config) {
   if (n > 0) printer.feed(n);
 }
 
+// ~20 mm of blank paper between the last line and the cut, on every print.
+const CUT_FEED_DOTS = 160;
+
+/**
+ * Feed blank paper by dots (ESC J) then cut. Unlike LF, ESC J is not dropped by printers
+ * whose paper-saving mode collapses blank lines, so the space before the cut is always there.
+ * @param {Object} printer - escpos Printer
+ * @param {number} [dots] - paper feed in dots (8 dots ≈ 1 mm at 203 dpi), clamped to 0–255
+ */
+function feedDotsAndCut(printer, dots = CUT_FEED_DOTS) {
+  const n = Math.max(0, Math.min(255, Math.round(dots || 0)));
+  if (n > 0) printer.buffer.write(Buffer.from([0x1b, 0x4a, n]));
+  printer.cut(false, 1);
+}
+
 /**
  * Print configured receipt sections (text or image).
  * @param {Object} printer
@@ -650,6 +667,7 @@ function printSections(printer, sections, config) {
       if (section.type === 'text' && section.content) {
         printAlignedText(printer, section.content, section.align, {
           size: section.size,
+          style: section.style,
         });
       }
       return Promise.resolve();
@@ -1315,6 +1333,7 @@ module.exports = {
   formatPrintingTimestamp,
   printPrintingTimestamp,
   feedBottomMargin,
+  feedDotsAndCut,
   printReceiptHeader,
   printFooterSections,
   printSections,

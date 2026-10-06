@@ -128,7 +128,8 @@
   },
   "toast": {
     "printFailed": "Afdrukken mislukt",
-    "printError": "Fout bij afdrukken"
+    "printError": "Fout bij afdrukken",
+    "printQueued": "Printer onbereikbaar: de bon staat in de wachtrij en wordt afgedrukt zodra hij weer verbonden is"
   },
   "notFound": {
     "title": "Pagina niet gevonden",

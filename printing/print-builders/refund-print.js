@@ -8,6 +8,7 @@ const {
   printVatLine,
   feedBottomMargin,
   printPrintingTimestamp,
+  feedDotsAndCut,
 } = require('../lib/receipt-helpers');
 const { mapOrderToRefund } = require('../lib/order-mapping');
 
@@ -85,7 +86,7 @@ function build(printer, data = {}, config = {}) {
     printVatLine(printer, cfg);
     feedBottomMargin(printer, cfg);
     printPrintingTimestamp(printer, cfg);
-    printer.cut();
+    feedDotsAndCut(printer);
     return printer;
   });
 }

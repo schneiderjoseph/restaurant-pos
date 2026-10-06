@@ -396,6 +396,19 @@ export async function dispatchPrint<Payload = any>(
       toast.error(msg || i18n.t('common:toast.printFailed'));
       return false;
     }
+    // 207: at least one printer failed. Unreachable printers are queued server-side and retried.
+    if (res.status === 207) {
+      const result = await res.json().catch(() => null) as
+        { results?: Array<{ ok: boolean; queued?: boolean }> } | null;
+      const failed = (result?.results ?? []).filter((r) => !r.ok);
+      if (failed.some((r) => !r.queued)) {
+        toast.error(i18n.t('common:toast.printFailed'));
+        return false;
+      }
+      if (failed.length > 0) {
+        toast.warning(i18n.t('common:toast.printQueued'));
+      }
+    }
     return true;
   } catch (e) {
     const msg = e && typeof e === 'object' && 'message' in e ? String((e as Error).message) : 'Print request failed';

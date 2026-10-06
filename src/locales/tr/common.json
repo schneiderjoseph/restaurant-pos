@@ -128,7 +128,8 @@
   },
   "toast": {
     "printFailed": "Yazdırma başarısız",
-    "printError": "Yazdırma hatası"
+    "printError": "Yazdırma hatası",
+    "printQueued": "Yazıcıya ulaşılamıyor: fiş kuyrukta, bağlantı gelince yazdırılacak"
   },
   "notFound": {
     "title": "Sayfa bulunamadı",

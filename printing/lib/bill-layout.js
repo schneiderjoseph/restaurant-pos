@@ -15,6 +15,7 @@ const {
   printDivider,
   printFiscalQrRow,
   printPrintingTimestamp,
+  feedDotsAndCut,
 } = require('./receipt-helpers');
 
 /**
@@ -204,7 +205,7 @@ function printBillLayout(printer, bill, config, opts) {
 
     return printQrCodes(printer, qrItems, cfg).then(() => {
       printPrintingTimestamp(printer, cfg);
-      printer.cut();
+      feedDotsAndCut(printer);
     });
   });
 }
