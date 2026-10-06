@@ -35,15 +35,16 @@ export const TablesSummaryReport = () => {
       const orders = await fetchPaidOrders(db, {
         startDate: filters.startDate,
         endDate: filters.endDate,
-        fetches: ['table', 'floor', 'payments', 'payments.payment_type', 'tax', 'discount'],
+        fetches: ['table', 'floor', 'order_type', 'payments', 'payments.payment_type', 'tax', 'discount'],
       });
 
       const map = new Map<string, { orders: number; revenue: number }>();
       orders.forEach((order) => {
         const figures = getOrderFigures(order);
+        // No table: grouped by its order type (takeaway, delivery…), not all as delivery.
         const table = order?.table
           ? formatTableLabel(order.table, i18n.language)
-          : t('columns.delivery', { defaultValue: 'Delivery' });
+          : order?.order_type?.name || t('columns.noTable');
         const current = map.get(table) || { orders: 0, revenue: 0 };
         current.orders += 1;
         current.revenue += figures.totalRevenue;
@@ -128,7 +129,7 @@ export const TablesSummaryReport = () => {
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noTables', { defaultValue: 'No table sales for selected range.' })}
+                  {t('empty.noTables')}
                 </td>
               </tr>
             ) : (

@@ -98,7 +98,8 @@
     "parentModifier": "Родительский размер",
     "nextGroup": "Следующая группа",
     "color": "Цвет",
-    "outlet": "Точка продаж"
+    "outlet": "Точка продаж",
+    "stationAccount": "PIN учётной записи станции"
   },
   "entities": {
     "dish": "Блюдо",

@@ -378,7 +378,10 @@
     "issue": "Uitgifte",
     "employee": "Medewerker",
     "turnTime": "Omlooptijd (min)",
-    "outlet": "Verkooppunt"
+    "outlet": "Verkooppunt",
+    "authMethod": "Aanmeldmethode",
+    "details": "Details",
+    "noTable": "Geen tafel"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -657,9 +660,15 @@
     "noDiscountsByUsers": "Geen kortingen per gebruiker voor geselecteerd bereik.",
     "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik.",
     "noEmployeeSales": "Geen verkoopgegevens per medewerker beschikbaar",
-    "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik"
+    "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik",
+    "noTables": "Geen tafelverkopen in de gekozen periode.",
+    "noActivity": "Geen auditregels in de gekozen periode.",
+    "noProducts": "Geen producten gevonden."
   },
   "sections": {
     "salesByOutlet": "Verkoop per verkooppunt"
+  },
+  "messages": {
+    "auditTruncated": "Alleen de laatste {{count}} regels worden getoond. Verklein de periode om oudere te zien."
   }
 }

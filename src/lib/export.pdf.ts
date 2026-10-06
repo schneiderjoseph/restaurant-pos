@@ -335,9 +335,11 @@ function drawPageWatermark(
     try {
       const maxW = pageWidth * 0.55;
       const maxH = pageHeight * 0.4;
-      // Approximate square logo footprint; jsPDF scales by width/height we pass.
-      const w = maxW;
-      const h = Math.min(maxH, maxW * 0.7);
+      // Fit the logo in the box at its own aspect ratio, never stretched.
+      const props = doc.getImageProperties(logo);
+      const ratio = props.width > 0 && props.height > 0 ? props.width / props.height : 1;
+      const w = Math.min(maxW, maxH * ratio);
+      const h = w / ratio;
       const x = (pageWidth - w) / 2;
       const y = (pageHeight - h) / 2;
       const format =

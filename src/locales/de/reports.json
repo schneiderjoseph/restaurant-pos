@@ -378,7 +378,10 @@
     "issue": "Ausgabe",
     "employee": "Mitarbeiter",
     "turnTime": "Turn-Time (Min.)",
-    "outlet": "Verkaufsstelle"
+    "outlet": "Verkaufsstelle",
+    "authMethod": "Anmeldeart",
+    "details": "Details",
+    "noTable": "Ohne Tisch"
   },
   "labels": {
     "modifiers": "Modifikatoren",
@@ -657,9 +660,15 @@
     "noDiscountsByUsers": "Keine Rabatte nach Benutzer für den ausgewählten Zeitraum.",
     "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden.",
     "noEmployeeSales": "Keine Mitarbeiterverkaufsdaten verfügbar",
-    "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum"
+    "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum",
+    "noTables": "Keine Tischverkäufe im gewählten Zeitraum.",
+    "noActivity": "Keine Audit-Einträge im gewählten Zeitraum.",
+    "noProducts": "Keine Produkte gefunden."
   },
   "sections": {
     "salesByOutlet": "Verkäufe nach Verkaufsstelle"
+  },
+  "messages": {
+    "auditTruncated": "Nur die letzten {{count}} Einträge werden angezeigt. Grenzen Sie den Zeitraum ein, um ältere zu sehen."
   }
 }

@@ -22,10 +22,8 @@ const GENERAL_SETTINGS_CARDS: Array<{ testId: string; file: string }> = [
   { testId: 'settings-card-closing-cycle', file: 'settings-closing-cycle' },
   { testId: 'settings-card-auto-check-close', file: 'settings-auto-check-close' },
   { testId: 'settings-card-session-security', file: 'settings-session-security' },
-  { testId: 'settings-card-auto-clock-out', file: 'settings-auto-clock-out' },
   { testId: 'settings-card-show-inclusive-prices', file: 'settings-show-inclusive-prices' },
   { testId: 'settings-card-currency-symbol', file: 'settings-currency-symbol' },
-  { testId: 'settings-card-inventory', file: 'settings-inventory' },
   { testId: 'settings-card-items-visibility', file: 'settings-items-visibility' },
 ];
 

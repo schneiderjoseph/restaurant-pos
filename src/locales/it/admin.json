@@ -98,7 +98,8 @@
     "parentModifier": "Taglia padre",
     "nextGroup": "Gruppo successivo",
     "color": "Colore",
-    "outlet": "Punto vendita"
+    "outlet": "Punto vendita",
+    "stationAccount": "PIN dell'account postazione"
   },
   "entities": {
     "dish": "Piatto",

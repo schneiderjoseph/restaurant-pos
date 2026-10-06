@@ -9,6 +9,9 @@ import { detectBrowser, detectOS, displayValue } from '@/screens/reports/activit
 
 type AuditRow = Awaited<ReturnType<typeof getActivityLog>>['entries'][number];
 
+/** Rows loaded at most; the report says so when it hits it. */
+const AUDIT_ROW_LIMIT = 500;
+
 const parseFilters = () => parseDateRangeFromParams(new URLSearchParams(window.location.search));
 
 export const AuditReport = () => {
@@ -30,7 +33,7 @@ export const AuditReport = () => {
       const result = await getActivityLog(db, {
         startDate: filters.startDate,
         endDate: filters.endDate,
-        limit: 500,
+        limit: AUDIT_ROW_LIMIT,
       });
       setRows(result.entries);
     } catch (err) {
@@ -65,6 +68,11 @@ export const AuditReport = () => {
 
   return (
     <ReportsLayout title={t('titles.audit')} subtitle={subtitle} onRefresh={fetchData}>
+      {rows.length >= AUDIT_ROW_LIMIT && (
+        <div className="mb-3 rounded-lg bg-warning-50 px-4 py-2 text-sm text-warning-800">
+          {t('messages.auditTruncated', { count: AUDIT_ROW_LIMIT })}
+        </div>
+      )}
       <div className="overflow-hidden rounded-lg border border-neutral-200">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
@@ -81,8 +89,12 @@ export const AuditReport = () => {
               <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
                 {t('common:table.page')}
               </th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Auth</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Payload</th>
+              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
+                {t('columns.authMethod')}
+              </th>
+              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
+                {t('columns.details')}
+              </th>
               <th className="py-3 pr-6 text-left text-sm font-semibold text-neutral-700">
                 {t('columns.device')}
               </th>
@@ -92,7 +104,7 @@ export const AuditReport = () => {
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noActivity', { defaultValue: 'No audit entries for selected range.' })}
+                  {t('empty.noActivity')}
                 </td>
               </tr>
             ) : (

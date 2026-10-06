@@ -1,12 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from '@/screens/partials/reports.layout.tsx';
 import { useDB } from '@/api/db/db.ts';
 import { listMenuItems, type MenuItemSummary } from '@/api/reports/sales/products.ts';
-import { parseDateRangeFromParams } from '@/api/reports/shared/filters.ts';
 import { withDualCurrency } from '@/lib/utils.ts';
-
-const parseFilters = () => parseDateRangeFromParams(new URLSearchParams(window.location.search));
 
 export const ProductListReport = () => {
   const { t } = useTranslation('reports');
@@ -14,11 +11,6 @@ export const ProductListReport = () => {
   const [rows, setRows] = useState<MenuItemSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const filters = useMemo(parseFilters, []);
-  const subtitle =
-    filters.startDate && filters.endDate
-      ? `${filters.startDate} to ${filters.endDate}`
-      : undefined;
 
   const fetchData = async () => {
     try {
@@ -40,7 +32,7 @@ export const ProductListReport = () => {
 
   if (loading) {
     return (
-      <ReportsLayout title={t('titles.productList')} subtitle={subtitle}>
+      <ReportsLayout title={t('titles.productList')}>
         <div className="py-12 text-center text-neutral-500">{t('loading.report')}</div>
       </ReportsLayout>
     );
@@ -48,7 +40,7 @@ export const ProductListReport = () => {
 
   if (error) {
     return (
-      <ReportsLayout title={t('titles.productList')} subtitle={subtitle}>
+      <ReportsLayout title={t('titles.productList')}>
         <div className="py-12 text-center text-red-600">
           {t('errors.failedToLoad', { error })}
         </div>
@@ -57,7 +49,7 @@ export const ProductListReport = () => {
   }
 
   return (
-    <ReportsLayout title={t('titles.productList')} subtitle={subtitle} onRefresh={fetchData}>
+    <ReportsLayout title={t('titles.productList')} onRefresh={fetchData}>
       <div className="overflow-hidden rounded-lg border border-neutral-200">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
@@ -81,7 +73,7 @@ export const ProductListReport = () => {
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noProducts', { defaultValue: 'No products found.' })}
+                  {t('empty.noProducts')}
                 </td>
               </tr>
             ) : (

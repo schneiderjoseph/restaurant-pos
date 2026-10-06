@@ -6,9 +6,7 @@
  *   POSR Documentation
  *   ├── Employee Guide
  *   ├── Manager Guide
- *   ├── Inventory Guide
  *   ├── Accounts Guide
- *   ├── HR Guide
  *   └── Administrator Guide
  *
  * Chapters with key present map to locales/{lang}/{key}.json when the file exists.
@@ -51,7 +49,7 @@ export const GUIDES = [
     pdfName: 'posr-employee-guide.pdf',
     defaultTitle: 'Employee Guide',
     defaultIntro:
-      'Day-to-day POS work for floor staff: sign-in, take orders, cart and payment, manage open checks, lock the terminal, and clock out.',
+      'Day-to-day POS work for floor staff: sign-in, take orders, cart and payment, manage open checks, and lock the terminal.',
     chapters: [
       { key: 'login' },
       { key: 'menu' },
@@ -80,25 +78,7 @@ export const GUIDES = [
       { key: 'closing' },
       { key: 'reports-ops' },
       { key: 'tips-manager' },
-    ],
-  },
-  {
-    id: 'inventory',
-    emoji: '📙',
-    folder: 'inventory',
-    pdfName: 'posr-inventory-guide.pdf',
-    defaultTitle: 'Inventory Guide',
-    defaultIntro: 'Stock, purchases, issues, wastes, counts, kitchen reconciliation, production, and buffet.',
-    chapters: [
-      { key: 'inventory-overview' },
-      { key: 'inventory-items' },
-      { key: 'inventory-purchases' },
-      { key: 'inventory-issues' },
-      { key: 'inventory-wastes' },
-      { key: 'inventory-counts' },
-      { key: 'inventory-reconciliation' },
-      { key: 'inventory-production' },
-      { key: 'inventory-buffet' },
+      { key: 'tip-distribution' },
     ],
   },
   {
@@ -112,26 +92,6 @@ export const GUIDES = [
       { key: 'accounts-overview' },
       { key: 'accounts-expenses' },
       { key: 'accounts-ledgers' },
-    ],
-  },
-  {
-    id: 'hr',
-    emoji: '📒',
-    folder: 'hr',
-    pdfName: 'posr-hr-guide.pdf',
-    defaultTitle: 'HR Guide',
-    defaultIntro: 'People operations: employees, attendance, leave, payroll, documents, performance, and tip distribution.',
-    chapters: [
-      { key: 'hr-overview' },
-      { key: 'hr-employees' },
-      { key: 'hr-cost-centers' },
-      { key: 'hr-attendance' },
-      { key: 'hr-leave' },
-      { key: 'hr-pay' },
-      { key: 'hr-payroll' },
-      { key: 'hr-documents' },
-      { key: 'hr-performance' },
-      { key: 'tip-distribution' },
     ],
   },
   {

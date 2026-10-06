@@ -98,7 +98,8 @@
     "parentModifier": "Bovenliggende maat",
     "nextGroup": "Volgende groep",
     "color": "Kleur",
-    "outlet": "Verkooppunt"
+    "outlet": "Verkooppunt",
+    "stationAccount": "Pincode stationaccount"
   },
   "entities": {
     "dish": "Gerecht",

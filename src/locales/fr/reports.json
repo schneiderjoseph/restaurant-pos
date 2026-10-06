@@ -378,7 +378,10 @@
     "issue": "Sortie",
     "employee": "Employé",
     "turnTime": "Temps de rotation (min)",
-    "outlet": "Point de vente"
+    "outlet": "Point de vente",
+    "authMethod": "Mode d'auth.",
+    "details": "Détails",
+    "noTable": "Sans table"
   },
   "labels": {
     "modifiers": "Modificateurs",
@@ -657,9 +660,15 @@
     "noDiscountsByUsers": "Aucune remise par utilisateur pour la période sélectionnée.",
     "noDiscountRows": "Aucune ligne de remise trouvée pour la période sélectionnée.",
     "noEmployeeSales": "Aucune donnée de ventes par employé disponible",
-    "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée"
+    "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée",
+    "noTables": "Aucune vente en table sur la période.",
+    "noActivity": "Aucune entrée d'audit sur la période.",
+    "noProducts": "Aucun produit."
   },
   "sections": {
     "salesByOutlet": "Ventes par point de vente"
+  },
+  "messages": {
+    "auditTruncated": "Seules les {{count}} dernières entrées sont affichées. Réduisez la période pour voir les plus anciennes."
   }
 }

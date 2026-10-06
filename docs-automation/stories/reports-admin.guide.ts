@@ -16,24 +16,6 @@ test('capture admin reports hub packs', async ({ page }) => {
   await capturePage(page, 'reports-admin-overview', { fullPage: false });
   await clearHighlights(page);
 
-  await page.getByTestId('reports-category-inventory').click();
-  await page.waitForTimeout(600);
-  await highlightAndReady(page, page.getByTestId('reports-page'));
-  await capturePage(page, 'reports-admin-inventory', { fullPage: false });
-  await clearHighlights(page);
-
-  await page.getByTestId('reports-report-currentInventory').click();
-  await page.waitForTimeout(800);
-  await highlightAndReady(page, page.getByTestId('reports-filters'));
-  await captureLocator(page.getByTestId('reports-filters'), 'reports-admin-inventory-filters');
-  await clearHighlights(page);
-
-  await page.getByTestId('reports-category-labor').click();
-  await page.waitForTimeout(600);
-  await highlightAndReady(page, page.getByTestId('reports-page'));
-  await capturePage(page, 'reports-admin-labor', { fullPage: false });
-  await clearHighlights(page);
-
   await page.getByTestId('reports-category-products').click();
   await page.waitForTimeout(600);
   await highlightAndReady(page, page.getByTestId('reports-page'));

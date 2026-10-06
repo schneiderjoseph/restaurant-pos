@@ -382,7 +382,10 @@
     "issue": "Issue",
     "employee": "Employee",
     "turnTime": "Turn Time (min)",
-    "outlet": "Point of sale"
+    "outlet": "Point of sale",
+    "authMethod": "Auth method",
+    "details": "Details",
+    "noTable": "No table"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -661,9 +664,15 @@
     "noDiscountsByUsers": "No discounts by users for selected range.",
     "noDiscountRows": "No discount rows found for selected range.",
     "noEmployeeSales": "No employee sales data available",
-    "noScheduleRoster": "No scheduled shifts for the selected range"
+    "noScheduleRoster": "No scheduled shifts for the selected range",
+    "noTables": "No table sales for the selected range.",
+    "noActivity": "No audit entries for the selected range.",
+    "noProducts": "No products found."
   },
   "sections": {
     "salesByOutlet": "Sales by point of sale"
+  },
+  "messages": {
+    "auditTruncated": "Showing the latest {{count}} entries only. Narrow the date range to see older ones."
   }
 }

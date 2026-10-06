@@ -13,7 +13,6 @@ describe("manage parity routing", () => {
     "admin.modifier_groups",
     "admin.coupons.create",
     "admin.kitchens.update",
-    "inventory.purchases",
   ];
 
   it.each([
@@ -35,7 +34,6 @@ describe("manage parity routing", () => {
     ["create modifier group Sizes", "propose_create_modifier_groups"],
     ["create coupon SAVE10", "propose_create_coupons"],
     ["add Pizza to Grill kitchen", "propose_update_kitchens"],
-    ["record purchase 5kg flour from Supplier A to Main Store", "propose_create_purchases"],
   ])("write prompt %s includes %s", (prompt, expected) => {
     const names = selectAssistantToolsForPrompt(prompt, manageModules, {compact: true}).writeTools.map(
       t => t.function.name,

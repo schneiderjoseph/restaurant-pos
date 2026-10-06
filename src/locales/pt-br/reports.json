@@ -378,7 +378,10 @@
     "issue": "Saída",
     "employee": "Funcionário",
     "turnTime": "Tempo de rotação (min)",
-    "outlet": "Ponto de venda"
+    "outlet": "Ponto de venda",
+    "authMethod": "Método de acesso",
+    "details": "Detalhes",
+    "noTable": "Sem mesa"
   },
   "labels": {
     "modifiers": "Modificadores",
@@ -657,9 +660,15 @@
     "noDiscountsByUsers": "Nenhum desconto por usuários para o intervalo selecionado.",
     "noDiscountRows": "Nenhuma linha de desconto encontrada para o intervalo selecionado.",
     "noEmployeeSales": "Nenhum dado de vendas por funcionário disponível",
-    "noScheduleRoster": "Nenhum turno agendado para o período selecionado"
+    "noScheduleRoster": "Nenhum turno agendado para o período selecionado",
+    "noTables": "Nenhuma venda em mesa no período selecionado.",
+    "noActivity": "Nenhum registro de auditoria no período selecionado.",
+    "noProducts": "Nenhum produto encontrado."
   },
   "sections": {
     "salesByOutlet": "Vendas por ponto de venda"
+  },
+  "messages": {
+    "auditTruncated": "Apenas as últimas {{count}} entradas são exibidas. Reduza o período para ver as mais antigas."
   }
 }

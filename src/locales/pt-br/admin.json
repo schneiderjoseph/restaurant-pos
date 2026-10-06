@@ -98,7 +98,8 @@
     "parentModifier": "Tamanho pai",
     "nextGroup": "Próximo grupo",
     "color": "Cor",
-    "outlet": "Ponto de venda"
+    "outlet": "Ponto de venda",
+    "stationAccount": "PIN da conta de estação"
   },
   "entities": {
     "dish": "Prato",

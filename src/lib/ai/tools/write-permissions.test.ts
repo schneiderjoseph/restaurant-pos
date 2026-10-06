@@ -56,7 +56,6 @@ describe("canUseWriteTool", () => {
     const allowed = filterWriteToolsByPermissions(AI_WRITE_TOOLS, ["admin.dishes.create"]);
     const names = allowed.map(tool => tool.function.name).sort();
     expect(names).toEqual([
-      "propose_create_dish_ingredients",
       "propose_create_dish_modifiers",
       "propose_create_dishes",
     ]);

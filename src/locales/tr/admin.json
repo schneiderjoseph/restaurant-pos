@@ -98,7 +98,8 @@
     "parentModifier": "Üst boyut",
     "nextGroup": "Sonraki grup",
     "color": "Renk",
-    "outlet": "Satış noktası"
+    "outlet": "Satış noktası",
+    "stationAccount": "İstasyon hesabı PIN"
   },
   "entities": {
     "dish": "Yemek",

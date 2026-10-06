@@ -98,7 +98,8 @@
     "parentModifier": "الحجم الأب",
     "nextGroup": "المجموعة التالية",
     "color": "اللون",
-    "outlet": "نقطة البيع"
+    "outlet": "نقطة البيع",
+    "stationAccount": "رمز PIN لحساب المحطة"
   },
   "entities": {
     "dish": "طبق",

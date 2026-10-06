@@ -98,7 +98,8 @@
     "parentModifier": "Übergeordnete Größe",
     "nextGroup": "Nächste Gruppe",
     "color": "Farbe",
-    "outlet": "Verkaufsstelle"
+    "outlet": "Verkaufsstelle",
+    "stationAccount": "PIN des Stationskontos"
   },
   "entities": {
     "dish": "Gericht",

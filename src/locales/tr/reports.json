@@ -378,7 +378,10 @@
     "issue": "Çıkış",
     "employee": "Çalışan",
     "turnTime": "Dönüş süresi (dk)",
-    "outlet": "Satış noktası"
+    "outlet": "Satış noktası",
+    "authMethod": "Giriş yöntemi",
+    "details": "Ayrıntılar",
+    "noTable": "Masasız"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -657,9 +660,15 @@
     "noDiscountsByUsers": "Seçilen aralık için kullanıcıya göre indirim yok.",
     "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı.",
     "noEmployeeSales": "Çalışan satış verisi yok",
-    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok"
+    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok",
+    "noTables": "Seçilen dönemde masa satışı yok.",
+    "noActivity": "Seçilen dönemde denetim kaydı yok.",
+    "noProducts": "Ürün bulunamadı."
   },
   "sections": {
     "salesByOutlet": "Satış noktasına göre satışlar"
+  },
+  "messages": {
+    "auditTruncated": "Yalnızca son {{count}} kayıt gösteriliyor. Daha eskilerini görmek için dönemi daraltın."
   }
 }
