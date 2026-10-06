@@ -43,6 +43,7 @@
     "chooseTableAlert": "Scegli un nuovo tavolo",
     "success": "Unito con successo in {{invoiceNumber}}",
     "failed": "Creazione unione ordini non riuscita",
+    "changed": "Uno degli ordini è cambiato durante l’unione (pagamento, articolo o divisione). Selezionali di nuovo e riprova.",
     "chooseTable": "Scegli un tavolo",
     "selectTwoOrMore": "Seleziona 2 o più ordini",
     "confirmMerging": "Conferma unione di {{count}} ordini",
@@ -139,9 +140,13 @@
     "splitName": "Divisione {{number}}",
     "seatName": "Coperto {{number}}",
     "noSeat": "Nessun coperto",
+    "carveOne": "Separa 1 unità",
+    "tapHint": "Tocca un articolo, poi la divisione in cui va. Le forbici separano un’unità da un articolo con più unità.",
     "toast": {
       "success": "{{count}} ordine/i diviso/i creato/i con successo",
-      "failed": "Divisione ordine non riuscita"
+      "failed": "Divisione ordine non riuscita",
+      "hasPayments": "Impossibile dividere un ordine con pagamenti già registrati. Rimuovi prima il pagamento.",
+      "changed": "L’ordine è cambiato durante la divisione (pagamento, nuovo articolo o altra divisione). Riaprilo e riprova."
     },
     "bySeats": {
       "heading": "Divisioni aggiuntive",
@@ -189,6 +194,7 @@
       "autoFillRemaining": "Compila automaticamente il resto",
       "distributeEvenly": "Distribuisci equamente",
       "assignRemaining": "Assegna resto {{amount}}",
+      "extrasOnFirst": "La divisione 1 deve coprire gli extra ({{amount}})",
       "exceedsTotal": "Supera il totale di {{amount}}",
       "creating": "Creazione divisioni...",
       "save": "Salva {{count}} divisione/i"

@@ -48,6 +48,7 @@
     "chooseTableAlert": "Please choose a new table",
     "success": "Successfully merged into {{invoiceNumber}}",
     "failed": "Failed to create merging orders",
+    "changed": "One of the orders changed while merging (payment, item or split). Select them again and retry.",
     "chooseTable": "Choose a table",
     "selectTwoOrMore": "Select 2 or more orders",
     "confirmMerging": "Confirm merging of {{count}} orders",
@@ -153,9 +154,13 @@
     "splitName": "Split {{number}}",
     "seatName": "Seat {{number}}",
     "noSeat": "No Seat",
+    "carveOne": "Separate 1 unit",
+    "tapHint": "Tap an item, then the split it goes to. The scissors separate one unit from a multi-unit item.",
     "toast": {
       "success": "Successfully created {{count}} split order(s)",
-      "failed": "Failed to split order"
+      "failed": "Failed to split order",
+      "hasPayments": "An order with payments already taken cannot be split. Remove the payment first.",
+      "changed": "The order changed while it was being split (payment, new item or another split). Reopen it and try again."
     },
     "bySeats": {
       "heading": "Additional splits",
@@ -203,6 +208,7 @@
       "autoFillRemaining": "Auto-fill remaining",
       "distributeEvenly": "Distribute evenly",
       "assignRemaining": "Assign remaining {{amount}}",
+      "extrasOnFirst": "Split 1 must cover the extras ({{amount}})",
       "exceedsTotal": "Exceeds total by {{amount}}",
       "creating": "Creating splits...",
       "save": "Save {{count}} split(s)"

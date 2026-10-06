@@ -6,7 +6,7 @@ import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts"
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals, getOrderDiscountTotal, orderHasDiscount} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderDiscountTotal, orderHasDiscount, soldQuantity} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {getDayPartLabel} from "@/utils/dayParts";
 import {toJsDate} from "@/lib/datetime.ts";
@@ -252,7 +252,7 @@ export const getHourlyProductSales = async (
       const key = `${dishId}-${hour}`;
       const revenue = safeNumber(calculateOrderItemPrice(item));
       const existing = byItem.get(key) || {name: `${name} (hour ${hour})`, quantity: 0, revenue: 0};
-      existing.quantity += safeNumber(item.quantity);
+      existing.quantity += soldQuantity(item, 0);
       existing.revenue += revenue;
       byItem.set(key, existing);
     });

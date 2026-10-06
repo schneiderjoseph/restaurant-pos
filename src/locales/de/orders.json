@@ -43,6 +43,7 @@
     "chooseTableAlert": "Bitte einen neuen Tisch wählen",
     "success": "Erfolgreich in {{invoiceNumber}} zusammengeführt",
     "failed": "Zusammenführen der Bestellungen fehlgeschlagen",
+    "changed": "Eine der Bestellungen wurde während des Zusammenführens geändert (Zahlung, Artikel oder Teilung). Wählen Sie sie erneut aus und versuchen Sie es noch einmal.",
     "chooseTable": "Tisch wählen",
     "selectTwoOrMore": "Mindestens 2 Bestellungen auswählen",
     "confirmMerging": "Zusammenführen von {{count}} Bestellungen bestätigen",
@@ -139,9 +140,13 @@
     "splitName": "Teilung {{number}}",
     "seatName": "Platz {{number}}",
     "noSeat": "Kein Platz",
+    "carveOne": "1 Stück abtrennen",
+    "tapHint": "Tippen Sie auf einen Artikel und dann auf den Teil, in den er soll. Die Schere trennt ein Stück von einer Mehrfachposition ab.",
     "toast": {
       "success": "{{count}} geteilte Bestellung(en) erfolgreich erstellt",
-      "failed": "Bestellung konnte nicht aufgeteilt werden"
+      "failed": "Bestellung konnte nicht aufgeteilt werden",
+      "hasPayments": "Eine Bestellung mit bereits erfassten Zahlungen kann nicht geteilt werden. Entfernen Sie zuerst die Zahlung.",
+      "changed": "Die Bestellung wurde während des Teilens geändert (Zahlung, Artikel oder Teilung). Öffnen Sie sie erneut und versuchen Sie es noch einmal."
     },
     "bySeats": {
       "heading": "Zusätzliche Teilungen",
@@ -189,6 +194,7 @@
       "autoFillRemaining": "Rest automatisch ausfüllen",
       "distributeEvenly": "Gleichmäßig verteilen",
       "assignRemaining": "Verbleibende {{amount}} zuweisen",
+      "extrasOnFirst": "Teil 1 muss die Zuschläge abdecken ({{amount}})",
       "exceedsTotal": "Überschreitet Gesamtsumme um {{amount}}",
       "creating": "Teilungen werden erstellt...",
       "save": "{{count}} Teilung(en) speichern"

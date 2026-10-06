@@ -48,6 +48,7 @@
     "chooseTableAlert": "Veuillez choisir une nouvelle table",
     "success": "Fusion réussie dans {{invoiceNumber}}",
     "failed": "Échec de la fusion des commandes",
+    "changed": "Une des commandes a changé pendant la fusion (paiement, article ou division). Resélectionnez-les et réessayez.",
     "chooseTable": "Choisir une table",
     "selectTwoOrMore": "Sélectionner 2 commandes ou plus",
     "confirmMerging": "Confirmer la fusion de {{count}} commandes",
@@ -150,9 +151,13 @@
     "splitName": "Division {{number}}",
     "seatName": "Place {{number}}",
     "noSeat": "Sans place",
+    "carveOne": "Séparer 1 unité",
+    "tapHint": "Touchez un article, puis la division où le placer. Les ciseaux séparent une unité d’un article en plusieurs exemplaires.",
     "toast": {
       "success": "{{count}} commande(s) divisée(s) créée(s) avec succès",
-      "failed": "Échec de la division de la commande"
+      "failed": "Échec de la division de la commande",
+      "hasPayments": "Impossible de diviser une commande qui a déjà un paiement. Retirez d’abord le paiement.",
+      "changed": "La commande a changé pendant la division (paiement, nouvel article ou autre division). Rouvrez-la et réessayez."
     },
     "bySeats": {
       "heading": "Divisions supplémentaires",
@@ -200,6 +205,7 @@
       "autoFillRemaining": "Remplir automatiquement le restant",
       "distributeEvenly": "Répartir équitablement",
       "assignRemaining": "Attribuer le restant {{amount}}",
+      "extrasOnFirst": "La division 1 doit couvrir les frais supplémentaires ({{amount}})",
       "exceedsTotal": "Dépasse le total de {{amount}}",
       "creating": "Création des divisions...",
       "save": "Enregistrer {{count}} division(s)"

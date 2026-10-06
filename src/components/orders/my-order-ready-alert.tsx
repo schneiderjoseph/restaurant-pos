@@ -99,7 +99,9 @@ export const MyOrderReadyAlert = () => {
         },
       );
       const orders = Array.isArray(orderRows) ? (orderRows as Order[]) : [];
-      const itemIds = orders.flatMap(order => getOrderFilteredItems(order).map(item => item.id));
+      // Lines re-created by a split by amount follow the original line's kitchen rows.
+      const itemIds = orders.flatMap(order => getOrderFilteredItems(order)
+        .flatMap(item => item.split_source ? [item.id, item.split_source] : [item.id]));
 
       let kitchenRows: OrderItemKitchen[] = [];
       if (itemIds.length > 0) {

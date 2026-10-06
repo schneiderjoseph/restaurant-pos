@@ -87,6 +87,17 @@ describe('classifyOrder', () => {
   });
 });
 
+describe('classifyOrder with split by amount', () => {
+  it('classifies a re-created line by the original line kitchen rows', () => {
+    const source = { id: { toString: () => 'order_item:src' } };
+    const copy = { id: { toString: () => 'order_item:copy' }, split_source: source.id };
+    const order = orderWithItems([copy]);
+
+    expect(classifyOrder(order, buildKitchenRowsMap([kitchenRow(source, OrderItemKitchenStatus.Pending)]))).toBe('running');
+    expect(classifyOrder(order, buildKitchenRowsMap([kitchenRow(source, OrderItemKitchenStatus.Completed)]))).toBe('ready');
+  });
+});
+
 describe('kitchenReadyOrderIds', () => {
   const orderRef = (orderId: string) => ({ tb: 'order', id: orderId, toString: () => `order:${orderId}` });
   const item = (
@@ -157,6 +168,23 @@ describe('kitchenReadyOrderIds', () => {
       ]
     );
     expect([...ready]).toEqual(['order:a']);
+  });
+
+  it('follows the original line of a split by amount (split_source)', () => {
+    const source = new RecordId('order_item', 'src');
+    const copies = [
+      {order: orderRef('s1'), split_source: source},
+      {order: orderRef('s2'), split_source: source},
+    ];
+    const cooking = kitchenReadyOrderIds(copies, [
+      {order: orderRef('old'), order_item: source, status: OrderItemKitchenStatus.Pending},
+    ]);
+    expect(cooking.size).toBe(0);
+
+    const done = kitchenReadyOrderIds(copies, [
+      {order: orderRef('old'), order_item: source, status: OrderItemKitchenStatus.Completed},
+    ]);
+    expect([...done].sort()).toEqual(['order:s1', 'order:s2']);
   });
 
   it('handles two orders mixed in one result set', () => {

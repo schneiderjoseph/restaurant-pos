@@ -43,6 +43,7 @@
     "chooseTableAlert": "Kies een nieuwe tafel",
     "success": "Succesvol samengevoegd in {{invoiceNumber}}",
     "failed": "Bestellingen samenvoegen mislukt",
+    "changed": "Een van de bestellingen is gewijzigd tijdens het samenvoegen (betaling, artikel of splitsing). Selecteer ze opnieuw en probeer het nog eens.",
     "chooseTable": "Kies een tafel",
     "selectTwoOrMore": "Selecteer 2 of meer bestellingen",
     "confirmMerging": "Bevestig samenvoegen van {{count}} bestellingen",
@@ -139,9 +140,13 @@
     "splitName": "Splitsing {{number}}",
     "seatName": "Stoel {{number}}",
     "noSeat": "Geen stoel",
+    "carveOne": "1 stuk afsplitsen",
+    "tapHint": "Tik op een artikel en dan op de splitsing waar het heen moet. De schaar splitst één stuk af van een artikel met meerdere stuks.",
     "toast": {
       "success": "{{count}} gesplitste bestelling(en) succesvol aangemaakt",
-      "failed": "Bestelling splitsen mislukt"
+      "failed": "Bestelling splitsen mislukt",
+      "hasPayments": "Een bestelling met reeds geregistreerde betalingen kan niet worden gesplitst. Verwijder eerst de betaling.",
+      "changed": "De bestelling is gewijzigd tijdens het splitsen (betaling, nieuw artikel of andere splitsing). Open haar opnieuw en probeer het nog eens."
     },
     "bySeats": {
       "heading": "Extra splitsingen",
@@ -189,6 +194,7 @@
       "autoFillRemaining": "Resterend automatisch invullen",
       "distributeEvenly": "Gelijk verdelen",
       "assignRemaining": "Resterend {{amount}} toewijzen",
+      "extrasOnFirst": "Splitsing 1 moet de toeslagen dekken ({{amount}})",
       "exceedsTotal": "Overschrijdt totaal met {{amount}}",
       "creating": "Splitsingen aanmaken...",
       "save": "{{count}} splitsing(en) opslaan"

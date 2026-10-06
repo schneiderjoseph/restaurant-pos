@@ -43,6 +43,7 @@
     "chooseTableAlert": "Elija una nueva mesa",
     "success": "Combinado correctamente en {{invoiceNumber}}",
     "failed": "Error al combinar los pedidos",
+    "changed": "Uno de los pedidos cambió durante la fusión (pago, artículo o división). Selecciónelos de nuevo e inténtelo otra vez.",
     "chooseTable": "Elija una mesa",
     "selectTwoOrMore": "Seleccione 2 o más pedidos",
     "confirmMerging": "Confirmar combinación de {{count}} pedidos",
@@ -139,9 +140,13 @@
     "splitName": "División {{number}}",
     "seatName": "Asiento {{number}}",
     "noSeat": "Sin asiento",
+    "carveOne": "Separar 1 unidad",
+    "tapHint": "Toque un artículo y luego la división a la que va. Las tijeras separan una unidad de un artículo con varias.",
     "toast": {
       "success": "{{count}} pedido(s) dividido(s) creado(s) correctamente",
-      "failed": "Error al dividir el pedido"
+      "failed": "Error al dividir el pedido",
+      "hasPayments": "No se puede dividir un pedido con pagos ya registrados. Elimine primero el pago.",
+      "changed": "El pedido cambió mientras se dividía (pago, artículo nuevo u otra división). Vuelva a abrirlo e inténtelo de nuevo."
     },
     "bySeats": {
       "heading": "Divisiones adicionales",
@@ -189,6 +194,7 @@
       "autoFillRemaining": "Completar restante automáticamente",
       "distributeEvenly": "Distribuir equitativamente",
       "assignRemaining": "Asignar restante {{amount}}",
+      "extrasOnFirst": "La división 1 debe cubrir los extras ({{amount}})",
       "exceedsTotal": "Supera el total en {{amount}}",
       "creating": "Creando divisiones...",
       "save": "Guardar {{count}} división(es)"

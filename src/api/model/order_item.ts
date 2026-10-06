@@ -43,6 +43,10 @@ export interface OrderItem extends ID {
   workflow_status?: string
 
   order?: Order
+  /** Split by amount: the original line this re-priced copy stands for in the kitchen. */
+  split_source?: string | OrderItem
+  /** Split by amount: the share of the line's units this copy stands for (reports). */
+  split_share?: number
 }
 
 export interface OrderItemModifier extends ID, DishModifierGroup{

@@ -43,6 +43,7 @@
     "chooseTableAlert": "Lütfen yeni bir masa seçin",
     "success": "{{invoiceNumber}} numaralı siparişe başarıyla birleştirildi",
     "failed": "Siparişler birleştirilemedi",
+    "changed": "Birleştirme sırasında siparişlerden biri değişti (ödeme, ürün veya bölme). Yeniden seçip tekrar deneyin.",
     "chooseTable": "Masa seçin",
     "selectTwoOrMore": "2 veya daha fazla sipariş seçin",
     "confirmMerging": "{{count}} siparişin birleştirilmesini onaylayın",
@@ -139,9 +140,13 @@
     "splitName": "Bölüm {{number}}",
     "seatName": "Koltuk {{number}}",
     "noSeat": "Koltuk Yok",
+    "carveOne": "1 adet ayır",
+    "tapHint": "Bir ürüne, sonra gideceği bölüme dokunun. Makas, çok adetli bir üründen bir adet ayırır.",
     "toast": {
       "success": "{{count}} bölünmüş sipariş başarıyla oluşturuldu",
-      "failed": "Sipariş bölünemedi"
+      "failed": "Sipariş bölünemedi",
+      "hasPayments": "Ödemesi alınmış bir sipariş bölünemez. Önce ödemeyi kaldırın.",
+      "changed": "Sipariş bölünürken değişti (ödeme, yeni ürün veya başka bir bölme). Yeniden açıp tekrar deneyin."
     },
     "bySeats": {
       "heading": "Ek bölmeler",
@@ -189,6 +194,7 @@
       "autoFillRemaining": "Kalanı otomatik doldur",
       "distributeEvenly": "Eşit dağıt",
       "assignRemaining": "Kalan {{amount}} ata",
+      "extrasOnFirst": "Bölüm 1 ek ücretleri karşılamalıdır ({{amount}})",
       "exceedsTotal": "Toplamı {{amount}} kadar aşıyor",
       "creating": "Bölmeler oluşturuluyor...",
       "save": "{{count}} bölmeyi kaydet"

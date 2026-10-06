@@ -14,7 +14,7 @@ import {
   KitchenOrderTicket,
 } from "@/api/model/kitchen.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order} from "@/api/model/order.ts";
+import {Order, OrderStatus} from "@/api/model/order.ts";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {OrderItemKitchen} from "@/api/model/order_item_kitchen.ts";
@@ -24,7 +24,7 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
 import {toLuxonDateTime, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
 import {fetchDueOrderItemIds} from "@/lib/order-due-items.ts";
-import {getInvoiceNumber} from "@/lib/order.ts";
+import {formatOrderNumber, getInvoiceNumber} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {useAtom} from "jotai";
@@ -189,6 +189,8 @@ export const KitchenScreen = () => {
   }, [allKitchens, ownStationId]);
   const [allOrders, setOrders] = useState<KitchenOrderModel[]>([]);
   const [ordersHydrated, setOrdersHydrated] = useState(false);
+  /** Original order id -> numbers of the orders a split by amount replaced it with. */
+  const [splitIntoByOrder, setSplitIntoByOrder] = useState<Record<string, string>>({});
   const orders = useMemo(() => {
     // Drop groups that have no remaining non-deleted items (voided lines stay visible
     // inside a batch if other items remain).
@@ -361,8 +363,46 @@ export const KitchenScreen = () => {
       return;
     }
 
-    setOrders(groupKitchenOrderItems(kitchenOrderItemsRecord ?? []));
+    const groups = groupKitchenOrderItems(kitchenOrderItemsRecord ?? []);
+    setOrders(groups);
     setOrdersHydrated(true);
+
+    // A split by amount leaves the tickets on the original order: name the orders replacing it.
+    const splitOrderIds = groups
+      .filter((group) => group.order?.status === OrderStatus.Spilt)
+      .map((group) => group.order.id);
+    const splitInto: Record<string, string> = {};
+    if (splitOrderIds.length > 0) {
+      // A split order split again: follow it down to the orders still open.
+      const childrenOf = new Map<string, any[]>();
+      let pending: unknown[] = splitOrderIds;
+      for (let depth = 0; depth < 4 && pending.length > 0; depth++) {
+        const [splits]: any = await db.query(
+          `SELECT old_order, new_orders.*.{id, invoice_number, split, status} AS new_orders
+           FROM ${Tables.order_split} WHERE old_order IN $orders`,
+          {orders: pending},
+        ).catch(() => [[]]);
+        pending = [];
+        for (const split of splits ?? []) {
+          childrenOf.set(String(split.old_order), split.new_orders ?? []);
+          pending.push(...(split.new_orders ?? [])
+            .filter((child: any) => child.status === OrderStatus.Spilt)
+            .map((child: any) => child.id));
+        }
+      }
+      const openDescendants = (orderId: string, depth = 0): any[] =>
+        (childrenOf.get(orderId) ?? []).flatMap((child: any) =>
+          child.status === OrderStatus.Spilt && depth < 4 ? openDescendants(String(child.id), depth + 1) : [child]);
+      for (const orderId of splitOrderIds) {
+        const label = openDescendants(String(orderId)).map(formatOrderNumber).join(' · ');
+        if (label) {
+          splitInto[String(orderId)] = label;
+        }
+      }
+    }
+    if (request === loadRequestRef.current) {
+      setSplitIntoByOrder(splitInto);
+    }
 
     await calculateAverageTime(kitchenId);
   }, [groupKitchenOrderItems, page?.user?.id]);
@@ -645,6 +685,7 @@ export const KitchenScreen = () => {
                       ticket={ticket}
                       kitchen={kitchen}
                       isNew={highlightedBatchKeys.has(ticket.batch.batchKey)}
+                      splitInto={splitIntoByOrder[String(ticket.order?.id)]}
                     />
                   </div>
                 );

@@ -1,24 +1,23 @@
-import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
+import {Order as OrderModel} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {calculateOrderItemPrice, calculateOrderTotal} from "@/lib/cart.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import React, {useMemo, useState} from "react";
 import {faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
+import {RecordId} from "surrealdb";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
-import {RecordId, StringRecordId} from "surrealdb";
+import {commitSplit, linkOf, linkOrText, newRecordId, orderExtrasTotal, orderHasPayments, splitErrorKey} from "@/lib/order-split.ts";
 import {nanoid} from "nanoid";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
-import {toRecordId} from "@/lib/utils.ts";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -67,16 +66,22 @@ export const SplitAmount = ({
     return Math.max(0, orderTotal - assignedTotal);
   }, [orderTotal, assignedTotal]);
 
+  // Extras are charged in full on the first split (the payment screen re-applies them whole).
+  const extrasTotal = useMemo(() => orderExtrasTotal(order), [order]);
+  const firstSplitCoversExtras = (splits[0]?.amount ?? 0) >= extrasTotal - 0.005;
+
   const isValid = useMemo(() => {
     return splits.length >= 2 &&
       splits.every(split => split.amount > 0) &&
+      firstSplitCoversExtras &&
       Math.abs(assignedTotal - orderTotal) < 0.01; // Allow small rounding differences
-  }, [splits, assignedTotal, orderTotal]);
+  }, [splits, assignedTotal, orderTotal, firstSplitCoversExtras]);
 
-  // Calculate adjusted prices for each split based on ratio
-  const getSplitRatio = (splitAmount: number) => {
-    if (orderTotal === 0) return 1;
-    return splitAmount / orderTotal;
+  // Share of the order (lines, tax, discounts, charges) a split carries, extras set aside
+  const getSplitRatio = (splitAmount: number, index: number) => {
+    const shareable = orderTotal - extrasTotal;
+    if (shareable <= 0) return 1 / Math.max(1, splits.length);
+    return Math.max(0, splitAmount - (index === 0 ? extrasTotal : 0)) / shareable;
   };
 
   // Calculate adjusted item price for a split
@@ -86,13 +91,13 @@ export const SplitAmount = ({
 
   // Calculate split totals with adjusted prices
   const splitTotals = useMemo(() => {
-    return splits.map(split => {
-      const ratio = getSplitRatio(split.amount);
+    return splits.map((split, index) => {
+      const ratio = getSplitRatio(split.amount, index);
       return allItems.reduce((total, item) => {
         return total + getAdjustedItemPrice(item, ratio);
       }, 0);
     });
-  }, [splits, allItems, orderTotal]);
+  }, [splits, allItems, orderTotal, extrasTotal]);
 
   const updateSplitAmount = (splitId: string, amount: number) => {
     const newAmount = Math.max(0, Math.min(amount, orderTotal));
@@ -152,146 +157,88 @@ export const SplitAmount = ({
   };
 
   // Recursively adjust modifier prices
+  // Recursively scale modifier prices, sub-options (selectedGroups) included. A modifier
+  // priced by its dish gets that price written out, or the copy would charge it in full;
+  // the loaded order has dishes expanded, which go back to record links.
   const adjustModifierPrice = (modifier: any, ratio: number): any => {
-    if (!modifier) return modifier;
+    if (!modifier || typeof modifier !== 'object') return modifier;
 
-    if (modifier.price !== undefined) {
-      modifier = {
-        ...modifier,
-        price: modifier.price * ratio
-      };
+    const next = {...modifier};
+    if (next.dish && typeof next.dish === 'object' && !(next.dish instanceof RecordId)) {
+      if (next.price === undefined && next.dish.price !== undefined) {
+        next.price = next.dish.price;
+      }
+      next.dish = linkOf(next.dish);
     }
-
-    if (modifier.selectedModifiers && Array.isArray(modifier.selectedModifiers)) {
-      modifier = {
-        ...modifier,
-        selectedModifiers: modifier.selectedModifiers.map((sm: any) => adjustModifierPrice(sm, ratio))
-      };
+    if (next.price !== undefined && next.price !== null) {
+      next.price = safeNumber(next.price) * ratio;
     }
-
-    if (modifier.modifiers && Array.isArray(modifier.modifiers)) {
-      modifier = {
-        ...modifier,
-        modifiers: modifier.modifiers.map((m: any) => adjustModifierPrice(m, ratio))
-      };
+    for (const key of ['selectedModifiers', 'modifiers', 'selectedGroups']) {
+      if (Array.isArray(next[key])) {
+        next[key] = next[key].map((child: any) => adjustModifierPrice(child, ratio));
+      }
     }
-
-    return modifier;
+    return next;
   };
 
   const handleSaveSplits = async () => {
     if (!isValid) return;
+    if (orderHasPayments(order)) {
+      toast.error(t('split.toast.hasPayments'));
+      return;
+    }
 
     setIsSaving(true);
     try {
       await assertOrderMutationsAllowed(db);
-      const createdAt = new Date();
-      const createdOrders = [];
-      const oldOrderId = order.id.toString();
-      const oldItems: Record<string, string[]> = {
-        [oldOrderId]: allItems.map(item => item.id.toString())
-      };
-      const newItems: Record<string, string[]> = {};
 
-      for (let i = 0; i < splits.length; i++) {
-        const split = splits[i];
-        if (split.amount <= 0) continue;
-
-        // Calculate proportional values for tax, discount, etc.
-        const splitRatio = split.amount / orderTotal;
-        const splitTaxAmount = order.tax_amount ? Number(order.tax_amount) * splitRatio : 0;
-        const splitDiscountAmount = order.discount_amount ? Number(order.discount_amount) * splitRatio : 0;
-        const splitServiceChargeAmount = order.service_charge_amount ? Number(order.service_charge_amount) * splitRatio : 0;
-        const splitTipAmount = order.tip_amount ? Number(order.tip_amount) * splitRatio : 0;
-
-        // Create new order items with adjusted prices for this split
-        const newItemIds = [];
-
-        for (const originalItem of allItems) {
-          // Get the base price to adjust from (current price)
-          const basePrice = originalItem.price;
-          const newPrice = basePrice * splitRatio;
-
-          // Set original_price: use current price if original_price is empty, otherwise keep existing
-          const originalPrice = originalItem.original_price ?? basePrice;
-
-          // Prepare item data with adjusted price
-          const itemData: any = {
-            item: new StringRecordId(originalItem.item.id.toString()),
-            price: newPrice,
-            quantity: originalItem.quantity,
-            position: originalItem.position,
-            comments: originalItem.comments || undefined,
-            service_charges: originalItem.service_charges ? (originalItem.service_charges * splitRatio) : 0,
-            discount: originalItem.discount ? (originalItem.discount * splitRatio) : 0,
-            modifiers: originalItem.modifiers ? originalItem.modifiers.map((mod: any) => adjustModifierPrice(mod, splitRatio)) : undefined,
-            seat: originalItem.seat || undefined,
-            is_suspended: originalItem.is_suspended || false,
-            level: originalItem.level,
-            category: originalItem.category || undefined,
-            is_addition: false,
-            tax: originalItem.tax ? (originalItem.tax * splitRatio) : 0,
-            tax_mode: originalItem.tax_mode || 'exclusive',
-            taxes: originalItem.taxes || undefined,
-            created_at: nowSurrealDateTime(),
-            // Set original_price: use current price if empty, otherwise keep existing original_price
-            original_price: originalPrice
-          };
-
-          // Create the new order item
-          const [createdItem] = await db.create(Tables.order_items, itemData);
-          newItemIds.push(createdItem.id);
-        }
-
-        const nextInvoiceNumber = await generateNextInvoiceNumber(db);
-        const nextAutoId = await getNextAutoId(db);
-
-        // Create the split order
-        const orderData = {
-          floor: new RecordId('floor', order.floor.id),
-          covers: Math.ceil(order.covers / splits.length) || 1,
-          tags: [OrderStatus['Spilt']],
-          order_type: order.order_type.id,
-          status: OrderStatus["In Progress"],
-          auto_id: nextAutoId,
-          invoice_number: nextInvoiceNumber,
-          items: newItemIds,
-          table: order.table.id,
-          user: order.user.id,
-          created_at: createdAt,
-          split: split.number,
-          tax_amount: splitTaxAmount,
-          discount_amount: splitDiscountAmount,
-          service_charge_amount: splitServiceChargeAmount,
-          tip_amount: splitTipAmount,
-          // Distribute extras proportionally if any
-          extras: order.extras
-            ?.filter((extra): extra is NonNullable<typeof extra> => !!extra)
-            .map(extra => ({
-              name: extra.name,
-              value: Number(extra.value || 0) * splitRatio
-            }))
-        };
-
-        const splitOrder = await db.create(Tables.orders, orderData);
-        createdOrders.push(splitOrder[0]);
-        newItems[splitOrder[0].id.toString()] = newItemIds.map(item => item.toString());
-      }
-
-      // Mark original order as split
-      await db.merge(order.id, {
-        status: OrderStatus['Spilt'],
-        items: [], // items moved to new orders
-        tags: [...(order.tags || []), OrderStatus['Spilt']]
-      });
-
-      await db.create(Tables.order_split, {
-        created_at: new Date(),
-        created_by: toRecordId(page.user.id),
-        old_order: order.id,
-        new_orders: createdOrders.map(item => item.id),
-        old_items: oldItems,
-        new_items: newItems,
+      const newOrders = await commitSplit(db, {
+        order,
+        user: page?.user,
+        parts: splits.map((split, index) => {
+          const splitRatio = getSplitRatio(split.amount, index);
+          // Every split gets each line, re-priced to its share of the order.
+          const newItems = allItems.map((originalItem) => {
+            const basePrice = originalItem.price;
+            return {
+              id: newRecordId(Tables.order_items),
+              sourceId: originalItem.id,
+              data: {
+                item: linkOf(originalItem.item),
+                price: basePrice * splitRatio,
+                quantity: originalItem.quantity,
+                position: originalItem.position,
+                comments: originalItem.comments || undefined,
+                service_charges: originalItem.service_charges ? (originalItem.service_charges * splitRatio) : 0,
+                discount: originalItem.discount ? (originalItem.discount * splitRatio) : 0,
+                modifiers: originalItem.modifiers?.map((mod: any) => adjustModifierPrice(mod, splitRatio)),
+                seat: originalItem.seat || undefined,
+                is_suspended: false,
+                level: originalItem.level,
+                category: originalItem.category || undefined,
+                is_addition: false,
+                tax: originalItem.tax ? (originalItem.tax * splitRatio) : 0,
+                tax_mode: originalItem.tax_mode || 'exclusive',
+                taxes: originalItem.taxes?.map(linkOf) || undefined,
+                created_at: nowSurrealDateTime(),
+                // Set original_price: use current price if empty, otherwise keep existing original_price
+                original_price: originalItem.original_price ?? basePrice,
+                // Keep the sale attributed to the outlet of the line it replaces.
+                outlet: originalItem.outlet || undefined,
+                // These accept a record or a plain string: keep a plain string as it is.
+                outlet_id: linkOrText(originalItem.outlet_id),
+                category_id: linkOrText(originalItem.category_id),
+                created_by: linkOf(originalItem.created_by),
+                // The kitchen keeps cooking the original line: this order follows its tickets.
+                // Re-splitting a copy still points at the line the kitchen cooks.
+                split_source: linkOf(originalItem.split_source ?? originalItem.id),
+                // Reports count this copy for its share of the units.
+                split_share: safeNumber(originalItem.split_share ?? 1) * splitRatio,
+              },
+            };
+          });
+          return {ratio: splitRatio, newItems};
+        }),
       });
 
       postOrderTracking({
@@ -299,17 +246,17 @@ export const SplitAmount = ({
         page: page?.page,
         orderId: order.id,
         payload: {
-          split_count: createdOrders.length,
-          new_orders: createdOrders.map((item) => item.id.toString()),
+          split_count: newOrders.length,
+          new_orders: newOrders.map(String),
         },
         user: page?.user,
       });
 
-      toast.success(t('split.toast.success', {count: createdOrders.length}));
+      toast.success(t('split.toast.success', {count: newOrders.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating split orders:', error);
-      toast.error(t('split.toast.failed'));
+      toast.error(t(splitErrorKey(error)));
     } finally {
       setIsSaving(false);
     }
@@ -321,7 +268,7 @@ export const SplitAmount = ({
     <>
       <Modal
         testId="order-split-amount"
-        title={t('split.titleByAmount', {invoice: order.invoice_number})}
+        title={t('split.titleByAmount', {invoice: getInvoiceNumber(order)})}
         open={true}
         size="full"
         onClose={onClose}
@@ -358,7 +305,7 @@ export const SplitAmount = ({
           <div className="flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {splits.map((split, index) => {
-                const ratio = getSplitRatio(split.amount);
+                const ratio = getSplitRatio(split.amount, index);
                 const percentage = orderTotal > 0 ? ((split.amount / orderTotal) * 100).toFixed(1) : '0';
 
                 return (
@@ -376,7 +323,7 @@ export const SplitAmount = ({
                         <IconTooltipButton
                           variant="danger"
                           icon={faTrash}
-                          label={t('common:remove')}
+                          label={t('common:actions.delete')}
                           size="sm"
                           onClick={() => removeSplit(split.id)}
                         />
@@ -514,9 +461,11 @@ export const SplitAmount = ({
             <div className="flex-1 flex items-center justify-end gap-4">
               {!isValid && (
                 <div className="text-sm text-red-600">
-                  {assignedTotal < orderTotal
-                    ? t('split.byAmount.assignRemaining', {amount: withCurrency(remainingAmount)})
-                    : t('split.byAmount.exceedsTotal', {amount: withCurrency(assignedTotal - orderTotal)})
+                  {Math.abs(assignedTotal - orderTotal) < 0.01 && !firstSplitCoversExtras
+                    ? t('split.byAmount.extrasOnFirst', {amount: withCurrency(extrasTotal)})
+                    : assignedTotal < orderTotal
+                      ? t('split.byAmount.assignRemaining', {amount: withCurrency(remainingAmount)})
+                      : t('split.byAmount.exceedsTotal', {amount: withCurrency(assignedTotal - orderTotal)})
                   }
                 </div>
               )}

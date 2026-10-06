@@ -16,7 +16,7 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderItemTaxAmount, getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderItemDisplayLineTotal, getOrderItemModifierDisplayPrice} from "@/lib/order-item-display.ts";
 import {toJsDate} from "@/lib/datetime.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderCartDiscountAmount, getOrderLineDiscountTotal, calculateOrderNetSales, aggregateOrderDiscountBreakdown} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, soldQuantity, getOrderPaymentTotals, getOrderRounding, getOrderCartDiscountAmount, getOrderLineDiscountTotal, calculateOrderNetSales, aggregateOrderDiscountBreakdown} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DAY_PARTS, getDayPartLabel, type DayPartLabel} from "@/utils/dayParts";
 
@@ -173,7 +173,7 @@ export const aggregateTopSellingDishes = (
       const name = item.item?.name || "Unknown";
       const key = dishId || name;
       const current = map.get(key) || {dishId: dishId || undefined, name, quantity: 0, revenue: 0};
-      current.quantity += safeNumber(item.quantity ?? 1);
+      current.quantity += soldQuantity(item);
       current.revenue += calculateOrderItemPrice(item);
       map.set(key, current);
     });
@@ -381,7 +381,7 @@ export const aggregateSalesByOutlet = (orders: Order[]): OutletSales[] => {
       const tax = safeNumber(getOrderItemTaxAmount(item, order));
       const serviceCharges = safeNumber(item.service_charges || 0);
 
-      row.quantity += safeNumber(item.quantity);
+      row.quantity += soldQuantity(item, 0);
       row.netSales += netSales;
       row.discount += discount;
       row.tax += tax;
@@ -471,7 +471,7 @@ export const aggregateProductMixByCategory = (
           modifiers: new Map<string, ModifierDetail>(),
         };
 
-        existing.numSold += quantity;
+        existing.numSold += soldQuantity(item, 0);
         existing.totalAmount += amount;
         existing.discount += discount;
         existing.tax += tax;
@@ -486,7 +486,7 @@ export const aggregateProductMixByCategory = (
           const existingModifier = existing.modifiers.get(modifierKey);
 
           if (existingModifier) {
-            existingModifier.quantity += modifier.quantity;
+            existingModifier.quantity += modifier.quantity * safeNumber(item.split_share ?? 1);
             existingModifier.total += modifier.price;
           } else {
             existing.modifiers.set(modifierKey, {
@@ -494,7 +494,7 @@ export const aggregateProductMixByCategory = (
               modifierId: modifier.modifierId,
               modifierName: modifier.modifierName,
               depth: modifier.depth,
-              quantity: modifier.quantity,
+              quantity: modifier.quantity * safeNumber(item.split_share ?? 1),
               unitPrice,
               discount: 0,
               tax: 0,

@@ -1,4 +1,4 @@
-import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
+import {Order as OrderModel} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {Customer} from "@/api/model/customer.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -11,14 +11,14 @@ import {faArrowLeft, faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
-import {RecordId} from "surrealdb";
+import {canCarveUnit, carveUnit, commitSplit, linesRatio, orderHasPayments, partLines, splitErrorKey} from "@/lib/order-split.ts";
+import {CarveUnitButton} from "@/components/orders/split/carve-unit-button.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {nanoid} from "nanoid";
 import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
@@ -27,6 +27,7 @@ import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {formatGuestLabel} from "@/lib/guest-label.ts";
 import {LabelValue} from "@/api/model/common.ts";
 import {ACTIVE_CUSTOMER} from "@/lib/customer-scope.ts";
+import {tapSelectedClass, useTapToMove} from "@/components/orders/split/use-tap-to-move.ts";
 
 interface Props {
   order: OrderModel
@@ -105,14 +106,9 @@ export const SplitByClients = ({
     setSplits(prev => {
       const removed = prev.find(s => s.id === splitId);
       const filtered = prev.filter(s => s.id !== splitId);
-      if (removed) {
-        const first = filtered.find(s => s.id === 'split-1');
-        if (first) {
-          first.items = [...first.items, ...removed.items];
-        }
-      }
       return filtered.map((split, index) => ({
         ...split,
+        items: split.id === 'split-1' && removed ? [...split.items, ...removed.items] : split.items,
         name: t('split.splitName', {number: index + 1}),
         number: index + 1,
       }));
@@ -131,6 +127,17 @@ export const SplitByClients = ({
       });
     });
   };
+
+  const tap = useTapToMove(moveItemToSplit);
+
+  // One unit of a multi-unit line becomes its own line (3 beers for 3 guests).
+  const carveOne = (item: OrderItem, splitId: string) => {
+    setSplits(prev => prev.map(split => split.id !== splitId ? split : {
+      ...split,
+      items: split.items.flatMap(line => line.id === item.id ? carveUnit(line) : [line]),
+    }));
+  };
+
 
   const handleDragStart = (e: React.DragEvent, item: OrderItem) => {
     setDraggedItem(item);
@@ -162,62 +169,23 @@ export const SplitByClients = ({
       }
       return;
     }
+    if (orderHasPayments(order)) {
+      toast.error(t('split.toast.hasPayments'));
+      return;
+    }
 
     setIsSaving(true);
     try {
       await assertOrderMutationsAllowed(db);
-      const createdAt = new Date();
-      const createdOrders = [];
-      const oldOrderId = order.id.toString();
-      const oldItems: Record<string, string[]> = {
-        [oldOrderId]: getOrderFilteredItems(order).map(item => item.id.toString()),
-      };
-      const newItems: Record<string, string[]> = {};
-
-      for (const split of splits) {
-        if (split.items.length === 0) continue;
-        const items = split.items.map(item => item.id);
-        const nextInvoiceNumber = await generateNextInvoiceNumber(db);
-        const nextAutoId = await getNextAutoId(db);
-
-        const orderData = {
-          floor: new RecordId('floor', order.floor.id),
-          covers: Math.ceil(order.covers / splits.length) || 1,
-          tags: [OrderStatus['Spilt']],
-          customer: toRecordId(split.customer!.id),
-          order_type: order.order_type.id,
-          status: OrderStatus["In Progress"],
-          auto_id: nextAutoId,
-          invoice_number: nextInvoiceNumber,
-          items,
-          table: order.table.id,
-          user: order.user.id,
-          created_at: createdAt,
-          split: split.number,
-        };
-
-        const splitOrder = await db.create(Tables.orders, orderData);
-        createdOrders.push(splitOrder[0]);
-        newItems[splitOrder[0].id.toString()] = items.map(item => item.toString());
-
-        for (const item of items) {
-          await db.merge(item, {order: splitOrder[0].id});
-        }
-      }
-
-      await db.merge(order.id, {
-        status: OrderStatus['Spilt'],
-        items: [],
-        tags: [...(order.tags || []), OrderStatus['Spilt']],
-      });
-
-      await db.create(Tables.order_split, {
-        created_at: new Date(),
-        created_by: toRecordId(page.user.id),
-        old_order: order.id,
-        new_orders: createdOrders.map(item => item.id),
-        old_items: oldItems,
-        new_items: newItems,
+      const allLines = getOrderFilteredItems(order);
+      const newOrders = await commitSplit(db, {
+        order,
+        user: page?.user,
+        parts: splits.map(split => ({
+          ...partLines(split.items),
+          fields: {customer: toRecordId(split.customer!.id)},
+          ratio: linesRatio(split.items, allLines, splits.length),
+        })),
       });
 
       postOrderTracking({
@@ -225,18 +193,18 @@ export const SplitByClients = ({
         page: page?.page,
         orderId: order.id,
         payload: {
-          split_count: createdOrders.length,
+          split_count: newOrders.length,
           mode: 'clients',
-          new_orders: createdOrders.map((item) => item.id.toString()),
+          new_orders: newOrders.map(String),
         },
         user: page?.user,
       });
 
-      toast.success(t('split.toast.success', {count: createdOrders.length}));
+      toast.success(t('split.toast.success', {count: newOrders.length}));
       onClose?.();
     } catch (error) {
       console.error('Error creating client split orders:', error);
-      toast.error(t('split.toast.failed'));
+      toast.error(t(splitErrorKey(error)));
     } finally {
       setIsSaving(false);
     }
@@ -283,7 +251,7 @@ export const SplitByClients = ({
             {t('split.byItems.total', {amount: withCurrency(splitTotals[index] ?? 0)})}
           </div>
         </div>
-        <ScrollContainer className="max-h-[360px] p-3 space-y-2">
+        <ScrollContainer className="max-h-[360px] min-h-[120px] p-3 space-y-2" {...tap.splitProps(split.id)}>
           {split.items.length === 0 ? (
             <div className="text-sm text-neutral-400 p-3">{t('split.byItems.dragFromSplitOne')}</div>
           ) : (
@@ -293,10 +261,14 @@ export const SplitByClients = ({
                 draggable
                 onDragStart={(e) => handleDragStart(e, item)}
                 onDragEnd={() => setDraggedItem(null)}
-                className="p-2 rounded-lg border bg-neutral-50 cursor-grab active:cursor-grabbing"
+                {...tap.itemProps(item)}
+                className={`p-2 rounded-lg border bg-neutral-50 cursor-pointer ${tap.isSelected(item) ? tapSelectedClass : ''}`}
               >
                 <OrderItemName item={item}/>
-                <div className="text-sm font-bold">{withCurrency(calculateOrderItemPrice(item))}</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-bold">{withCurrency(calculateOrderItemPrice(item))}</div>
+                  {canCarveUnit(item) && <CarveUnitButton onCarve={() => carveOne(item, split.id)}/>}
+                </div>
               </div>
             ))
           )}
@@ -315,6 +287,7 @@ export const SplitByClients = ({
     >
       <div className="flex flex-col h-full gap-4 p-4">
         <p className="text-sm text-neutral-600">{t('split.byClients.hint')}</p>
+        <p className="text-xs text-primary-600">{t('split.tapHint')}</p>
         <ScrollContainer className="flex-1">
           <div className="flex gap-4 min-h-[420px] pb-4">
             {splits.map((split, index) => renderSplitCard(split, index))}

@@ -52,6 +52,7 @@ import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
 import {fetchOrderById, fetchOrderFull} from "@/lib/order-fetch.ts";
 import {ORDER_FETCHES} from "@/api/model/order.ts";
 import {toast} from "sonner";
+import {orderHasPayments} from "@/lib/order-split.ts";
 import {useNavigate} from "react-router";
 import {MENU} from "@/routes/posr.ts";
 import {canEditOrder} from "@/lib/order-edit.ts";
@@ -122,8 +123,9 @@ export const OrderBox = ({
 
   const hasSeats = useMemo(() => {
     if (!cardReady) return false;
-    const items = getOrderFilteredItems(order).filter((item) => item.seat !== undefined);
-    return items.length > 1
+    // Splitting by seats needs at least two seat groups, one of them a real seat (unset seats are null).
+    const seats = getOrderFilteredItems(order).map((item) => item.seat || '');
+    return seats.some(Boolean) && new Set(seats).size > 1
   }, [cardReady, order]);
 
   const mergingOrderIds = useMemo(() => {
@@ -176,6 +178,19 @@ export const OrderBox = ({
       setIsLoadingFull(false);
     }
   };
+
+  /** Opens a split screen only on an order that can still be split, loaded fresh. */
+  const openSplit = (open: () => void) => withFullOrder((full) => {
+    if (full.status !== OrderStatus["In Progress"]) {
+      toast.error(t('split.toast.changed'));
+      return;
+    }
+    if (orderHasPayments(full)) {
+      toast.error(t('split.toast.hasPayments'));
+      return;
+    }
+    open();
+  });
 
   const openOrderForEdit = async () => {
     setIsLoadingFull(true);
@@ -419,7 +434,7 @@ export const OrderBox = ({
 
                   if (key === 'split_by_seats' && hasSeats) {
                     protectAction(() => {
-                      void withFullOrder(() => setSplitBySeats(true));
+                      void openSplit(() => setSplitBySeats(true));
                     }, {
                       module: 'orders.split_by_seats',
                       description: 'Split by seats',
@@ -431,7 +446,7 @@ export const OrderBox = ({
 
                   if (key === 'split_by_items') {
                     protectAction(() => {
-                      void withFullOrder(() => setSplitByManually(true));
+                      void openSplit(() => setSplitByManually(true));
                     }, {
                       module: 'orders.split_by_items',
                       description: 'Split by items',
@@ -443,7 +458,7 @@ export const OrderBox = ({
 
                   if (key === 'split_by_amount') {
                     protectAction(() => {
-                      void withFullOrder(() => setSplitByAmount(true));
+                      void openSplit(() => setSplitByAmount(true));
                     }, {
                       module: 'orders.split_by_amount',
                       description: 'Split by amount',
@@ -455,7 +470,7 @@ export const OrderBox = ({
 
                   if (key === 'split_by_clients') {
                     protectAction(() => {
-                      void withFullOrder(() => setSplitByClients(true));
+                      void openSplit(() => setSplitByClients(true));
                     }, {
                       module: 'orders.split_by_items',
                       description: 'Split by clients',

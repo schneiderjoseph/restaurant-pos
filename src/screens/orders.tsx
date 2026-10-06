@@ -20,14 +20,13 @@ import {faBars, faChair, faMoneyBillWave, faTableColumns} from "@fortawesome/fre
 import {OrderRow, ORDERS_LIST_GRID_CLASS} from "@/components/orders/order.row.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
-import {LiveSubscription, RecordId, StringRecordId} from "surrealdb";
+import {LiveSubscription, RecordId} from "surrealdb";
 import {toast} from "sonner";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {LabelValue} from "@/api/model/common.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
-import {OrderMerge, OrderMergeCreatePayload} from "@/api/model/order_merge.ts";
 import {toRecordId} from "@/lib/utils.ts";
-import {generateNextInvoiceNumber, getNextAutoId} from "@/lib/invoice.ts";
+import {commitMerge, MergeConflictError} from "@/lib/order-merge.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {translateOrderStatus} from "@/lib/order.ts";
@@ -206,12 +205,14 @@ export const Orders = () => {
     }
 
     try {
-      const [itemRows, kitchenRows] = await db.query(
-        `SELECT order, deleted_at, is_refunded, is_suspended FROM ${Tables.order_items}
+      // Lines re-created by a split by amount follow the original line's kitchen rows.
+      const [itemRows, , kitchenRows] = await db.query(
+        `SELECT order, deleted_at, is_refunded, is_suspended, split_source FROM ${Tables.order_items}
          WHERE id IN $items;
-         SELECT status, order_item.order AS order, order_item.deleted_at AS deleted_at,
+         LET $sources = array::filter((SELECT VALUE split_source FROM ${Tables.order_items} WHERE id IN $items), |$v| $v != NONE AND $v != NULL);
+         SELECT status, order_item, order_item.order AS order, order_item.deleted_at AS deleted_at,
          order_item.is_suspended AS is_suspended FROM ${Tables.order_items_kitchen}
-         WHERE order_item IN $items`,
+         WHERE order_item IN array::concat($items, $sources)`,
         { items: inProgressItems }
       );
       setKitchenReadyIds(
@@ -310,77 +311,18 @@ export const Orders = () => {
     try {
       await assertOrderMutationsAllowed(db);
       setIsSaving(true);
-      let items: string[] = [];
-      const oldItems: OrderMerge['old_items'] = {};
 
-      for (const order of mergingOrders) {
-        const orderItems = order.items.map(item => toRecordId(item.id.toString()));
-        oldItems[order.id.toString()] = orderItems;
-
-        // Collect item ids from all selected orders
-        items = [
-          ...items,
-          ...orderItems
-        ];
-
-        // Mark orders as merged
-        await db.merge(order.id, {
-          status: OrderStatus['Merged'],
-          items: [], // remove items from main order
-          tags: [...(order.tags || []), OrderStatus['Merged']]
-        });
-      }
-
-      const nextInvoiceNumber = await generateNextInvoiceNumber(db);
-      const nextAutoId = await getNextAutoId(db);
-
-      const orderData = {
-        floor: new RecordId('floor', selectedTable.floor.id),
-        covers: mergingOrders.reduce((prev, item) => prev + item.covers, 0) || 1, // Distribute covers
-        // tax: order.tax ? new StringRecordId(order.tax.id.toString()) : null,
-        // tax_amount: 0, // Will be calculated per split
-        tags: [OrderStatus['Merged']],
-        // discount: order.discount ? new StringRecordId(order.discount.id.toString()) : null,
-        // discount_amount: 0, // Will be calculated per split
-        // customer: order.customer ? new StringRecordId(order.customer.id.toString()) : null,
-        order_type: mergingOrders[0].order_type.id,
-        status: OrderStatus["In Progress"],
-        auto_id: nextAutoId,
-        invoice_number: nextInvoiceNumber,
-        items: items,
-        table: new StringRecordId(mergingTable),
-        user: mergingOrders[0].user.id,
-        created_at: new Date(),
-      };
-
-      const mergedOrder = await db.create(Tables.orders, orderData);
-      const mergedOrderId = mergedOrder[0].id.toString();
-      const newItems: OrderMerge['new_items'] = {
-        [mergedOrderId]: [...items]
-      };
-
-      for (const item of items) {
-        await db.merge(item, {
-          order: mergedOrder[0].id
-        });
-      }
-
-      // create merge entry
-      const mergePayload = {
-        created_at: new Date(),
-        created_by: toRecordId(app.user.id),
-        new_order: mergedOrder[0].id,
-        old_orders: mergingOrders.map(item => item.id),
-        old_items: oldItems,
-        new_items: newItems,
-      };
-
-      await db.create(Tables.order_merge, mergePayload)
+      // One transaction: lines, payments taken, discounts, coupon and extras move together.
+      const merged = await commitMerge(db, {
+        orderIds: mergingOrders.map(item => item.id),
+        table: {id: mergingTable, floor: selectedTable?.floor},
+        user: app?.user,
+      });
 
       postOrderTracking({
         module: "orders.merge",
         page: app?.page,
-        orderId: mergedOrder[0].id,
+        orderId: merged.id,
         payload: {
           source_orders: mergingOrders.map((item) => item.id.toString()),
           table: mergingTable,
@@ -388,7 +330,7 @@ export const Orders = () => {
         user: app?.user,
       });
 
-      toast.success(t('merge.success', {invoiceNumber: mergedOrder[0].invoice_number}));
+      toast.success(t('merge.success', {invoiceNumber: merged.invoiceNumber}));
 
       // reset to default
       setMerging(false);
@@ -397,7 +339,7 @@ export const Orders = () => {
 
     } catch (error) {
       console.error('Error creating merging orders:', error);
-      toast.error(t('merge.failed'));
+      toast.error(t(error instanceof MergeConflictError ? 'merge.changed' : 'merge.failed'));
     } finally {
       setIsSaving(false);
     }

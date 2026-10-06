@@ -49,6 +49,13 @@ export const asRecordArray = <T>(value: unknown): T[] => {
   return [value as T];
 };
 
+/**
+ * Units a line sold, for item counts in reports. A line re-created by a split by amount
+ * carries every unit at a share of the price: it counts for that share of its units.
+ */
+export const soldQuantity = (item: OrderItem, fallback = 1): number =>
+  safeNumber(item?.quantity ?? fallback) * safeNumber(item?.split_share ?? 1);
+
 export const getOrderFilteredItems = (order: OrderModel): OrderItem[] => {
   return asRecordArray<OrderItem>(order?.items)
     .filter(item => item?.deleted_at == null)

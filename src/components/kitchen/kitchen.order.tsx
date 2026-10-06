@@ -41,6 +41,8 @@ interface Props {
   ticket: KitchenBoardTicket
   kitchen?: Kitchen
   isNew?: boolean
+  /** Numbers of the orders that replaced this one after a split by amount. */
+  splitInto?: string
 }
 
 const batchStart = (batch: KitchenOrderBatch) =>
@@ -50,6 +52,7 @@ export const KitchenOrder = ({
   ticket,
   kitchen,
   isNew = false,
+  splitInto,
 }: Props) => {
   const db = useDB();
   const [page] = useAtom(appPage);
@@ -184,6 +187,11 @@ export const KitchenOrder = ({
             <span className="font-bold text-lg truncate max-w-full">
               {[order?.order_type?.name, formatOrderNumber(order)].filter(Boolean).join(' / ')}
             </span>
+            {splitInto && (
+              <span className="font-bold text-base truncate max-w-full" data-testid="kitchen-split-into">
+                → {splitInto}
+              </span>
+            )}
             {order?.due_at && (
               <span className="font-black text-lg" data-testid="kitchen-due-at">
                 {t('due.forTime', {

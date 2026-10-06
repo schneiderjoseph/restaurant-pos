@@ -22,6 +22,8 @@ export type KitchenReadyItem = {
   deleted_at?: unknown;
   is_refunded?: boolean | null;
   is_suspended?: boolean | null;
+  /** Split by amount: the original line whose kitchen rows this line follows. */
+  split_source?: unknown;
 };
 
 /** Kitchen rows flattened for the Orders-screen ready check (one query, no FETCH). */
@@ -30,6 +32,7 @@ export type KitchenReadyRow = {
   status?: string | null;
   deleted_at?: unknown;
   is_suspended?: boolean | null;
+  order_item?: unknown;
 };
 
 /** Full "order:id" string, as the Orders screen keys its list (`order.id.toString()`). */
@@ -48,6 +51,8 @@ export function kitchenReadyOrderIds(
   rows: KitchenReadyRow[] = []
 ): Set<string> {
   const ready = new Set<string>();
+  // Original line -> orders whose re-priced copies follow its kitchen rows.
+  const ordersBySource = new Map<string, string[]>();
 
   for (const item of items) {
     if (item.deleted_at || item.is_refunded === true || item.is_suspended === true) {
@@ -56,6 +61,10 @@ export function kitchenReadyOrderIds(
     const orderId = orderIdKey(item.order);
     if (orderId) {
       ready.add(orderId);
+      const source = item.split_source ? kitchenOrderItemKey(item.split_source) : '';
+      if (source) {
+        ordersBySource.set(source, [...(ordersBySource.get(source) ?? []), orderId]);
+      }
     }
   }
 
@@ -65,6 +74,9 @@ export function kitchenReadyOrderIds(
     }
     if (row.status && INCOMPLETE_KITCHEN_STATUSES.has(row.status)) {
       ready.delete(orderIdKey(row.order));
+      for (const orderId of ordersBySource.get(kitchenOrderItemKey(row.order_item)) ?? []) {
+        ready.delete(orderId);
+      }
     }
   }
 
@@ -136,10 +148,11 @@ export function buildKitchenRowsMap(rows: OrderItemKitchen[] = []): KitchenRowsB
 }
 
 const rowsForItem = (
-  item: { id?: unknown },
+  item: { id?: unknown, split_source?: unknown },
   kitchenRowsByOrderItemId: KitchenRowsByOrderItemId
 ): OrderItemKitchen[] => {
-  const key = kitchenOrderItemKey(item?.id);
+  // A line re-created by a split by amount follows the original line's tickets.
+  const key = kitchenOrderItemKey(item?.split_source ?? item?.id);
   if (!key) {
     return [];
   }
