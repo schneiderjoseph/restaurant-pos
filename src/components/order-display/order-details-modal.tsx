@@ -7,6 +7,7 @@ import { Button } from '@/components/common/input/button.tsx';
 import { Countdown } from '@/components/floor/countdown.tsx';
 import { formatOrderNumber, getOrderFilteredItems } from '@/lib/order.ts';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
+import { isHotelRoomTable } from '@/lib/kitchen-ticket-label.ts';
 import { nowInAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts';
 import { formatDueLabel, timerStartWithDue } from '@/lib/order-due.ts';
 import {
@@ -90,7 +91,10 @@ export const OrderDetailsModal = ({
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3 rounded-lg bg-white p-3">
           <InfoRow label={t('details.type')} value={order.order_type?.name} />
-          <InfoRow label={t('details.table')} value={order.table?.number} />
+          <InfoRow
+            label={t(isHotelRoomTable(order.table) ? 'details.room' : 'details.table')}
+            value={order.table?.number || order.table?.asi_alias}
+          />
           <InfoRow label={t('details.guest')} value={formatGuestLabel(order.customer)} />
           <InfoRow label={t('details.server')} value={order.user?.first_name} />
           <InfoRow

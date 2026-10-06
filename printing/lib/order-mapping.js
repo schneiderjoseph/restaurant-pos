@@ -812,6 +812,8 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
   return {
     originalOrderId: getOrderId(orig),
     table: getOrderTable(orig),
+    placeKind: getOrderPlaceKind(orig),
+    placeValue: getOrderPlaceValue(orig),
     orderType: getOrderType(orig),
     userName: getOrderUserName(orig),
     refundDate: new Date().toLocaleString(locale, refundFormatOpts),

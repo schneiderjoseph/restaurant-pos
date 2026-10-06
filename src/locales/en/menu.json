@@ -64,6 +64,7 @@
     "table": "Table number (optional)",
     "tablePlaceholder": "e.g. 7",
     "tableNotFound": "Table {{number}} not found",
+    "roomNotFound": "Room {{number}} not found",
     "openFloor": "Floor plan / Walk-in",
     "backToGuests": "Back to guests",
     "floorOpenFailed": "Could not open floor plan",

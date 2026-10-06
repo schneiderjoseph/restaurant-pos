@@ -14,6 +14,7 @@ import {Discount} from "@/api/model/discount.ts";
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {Menu} from "@/api/model/menu.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -96,7 +97,7 @@ export const SalesAdvancedFilter = () => {
             isLoading={loadingTables}
             className="w-full"
             options={(tablesData?.data || [])
-              .map(table => toOption(table, table.name ? `${table.name}${table.number ?? ''}` : `Table ${table.number ?? ''}`))
+              .map(table => toOption(table, table.name || table.source === 'asi-room' ? formatTableLabel(table) : `Table ${table.number ?? ''}`))
               .filter(notNull)}
           />
         </div>

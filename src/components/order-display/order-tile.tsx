@@ -6,6 +6,7 @@ import { nowInAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts';
 import { formatDueLabel, timerStartWithDue } from '@/lib/order-due.ts';
 import { useTranslation } from 'react-i18next';
 import { formatGuestLabel } from '@/lib/guest-label.ts';
+import { isHotelRoomTable } from '@/lib/kitchen-ticket-label.ts';
 import { KitchenStationStatus } from '@/lib/order-display.ts';
 
 interface Props {
@@ -24,7 +25,11 @@ export const OrderTile = ({ order, variant, celebrate = false, stations = [], on
     : null;
   const itemCount = getOrderFilteredItems(order).reduce((sum, item) => sum + (item.quantity ?? 0), 0);
   const guest = formatGuestLabel(order.customer);
-  const subtitle = [order.order_type?.name, order.table?.number && t('table', { number: order.table.number })]
+  const placeNumber = order.table?.number || order.table?.asi_alias;
+  const place = placeNumber
+    ? t(isHotelRoomTable(order.table) ? 'room' : 'table', { number: placeNumber })
+    : '';
+  const subtitle = [order.order_type?.name, place]
     .filter(Boolean)
     .join(' · ');
 

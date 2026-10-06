@@ -11,6 +11,7 @@ import {getOrderFilteredItems, getOrderCartDiscountAmount} from "@/lib/order.ts"
 import {toJsDate} from "@/lib/datetime.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const STATUS_ALIASES: Record<string, string> = {
   "in progress": OrderStatus["In Progress"],
@@ -79,7 +80,7 @@ const formatOrderRow = (order: Order) => {
     place?: string;
     rider?: {first_name?: string; last_name?: string};
   } | undefined;
-  const table = order.table as {name?: string; number?: string | number} | undefined;
+  const table = order.table as {name?: string; number?: string | number; source?: string | null; asi_alias?: string | null} | undefined;
   const orderType = order.order_type as {name?: string} | undefined;
   const jsDate = toJsDate(order.created_at as Parameters<typeof toJsDate>[0]);
 
@@ -96,7 +97,7 @@ const formatOrderRow = (order: Order) => {
     rider: delivery?.rider
       ? `${delivery.rider.first_name ?? ""} ${delivery.rider.last_name ?? ""}`.trim()
       : undefined,
-    table: table?.name ?? (table?.number != null ? String(table.number) : undefined),
+    table: formatTableLabel(table) || undefined,
     orderType: orderType?.name,
     itemCount: getOrderFilteredItems(order).length,
     covers: safeNumber(order.covers),

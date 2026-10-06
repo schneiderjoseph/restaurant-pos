@@ -17,6 +17,7 @@
   "openDetails": "عرض تفاصيل الطلب",
   "readyBadge": "جاهز",
   "table": "طاولة {{number}}",
+  "room": "غرفة {{number}}",
   "itemsCount_zero": "لا عناصر",
   "itemsCount_one": "عنصر واحد",
   "itemsCount_two": "عنصران",
@@ -26,6 +27,7 @@
   "details": {
     "type": "النوع",
     "table": "الطاولة",
+    "room": "غرفة",
     "guest": "الضيف",
     "server": "النادل",
     "due": "الموعد",

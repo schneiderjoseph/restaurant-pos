@@ -93,7 +93,8 @@ export async function fetchExistingTableRaw(
   number: string,
 ): Promise<Record<string, unknown> | null> {
   const [rows] = await db.query(
-    `SELECT * FROM ${Tables.tables} WHERE number = $number AND deleted_at = none LIMIT 1 FETCH floor, categories, order_types, payment_types`,
+    // Dining tables only: a hotel room (source = 'asi-room') can carry the same number.
+    `SELECT * FROM ${Tables.tables} WHERE number = $number AND deleted_at = none AND (source IS NONE OR source != 'asi-room') LIMIT 1 FETCH floor, categories, order_types, payment_types`,
     {number},
   );
   const row = rows?.[0];

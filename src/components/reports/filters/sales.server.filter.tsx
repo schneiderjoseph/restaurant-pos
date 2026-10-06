@@ -11,6 +11,7 @@ import {Category} from "@/api/model/category.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {Floor} from "@/api/model/floor.ts";
 import {Table} from "@/api/model/table.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -131,7 +132,7 @@ export const SalesServerFilter = () => {
             isLoading={loadingTables}
             className="w-full"
             options={(tablesData?.data || [])
-              .map(table => toOption(table, table.name ? `${table.name}${table.number ?? ''}` : `Table ${table.number ?? ''}`))
+              .map(table => toOption(table, table.name || table.source === 'asi-room' ? formatTableLabel(table) : `Table ${table.number ?? ''}`))
               .filter(notNull)}
           />
         </div>

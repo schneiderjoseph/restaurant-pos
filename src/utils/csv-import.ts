@@ -33,7 +33,7 @@ export async function findCsvImportMatches(
   db: Pick<DbLike, 'query'>,
   table: string,
   conditions: Array<{ column: string; value: any }>,
-  options?: { softDelete?: boolean }
+  options?: { softDelete?: boolean; extraWhere?: string }
 ): Promise<Array<{ id: any }>> {
   if (conditions.length === 0) {
     return [];
@@ -42,6 +42,9 @@ export async function findCsvImportMatches(
   const whereParts = conditions.map((c, i) => `${c.column} = $v${i}`);
   if (options?.softDelete !== false) {
     whereParts.push('deleted_at = none');
+  }
+  if (options?.extraWhere) {
+    whereParts.push(options.extraWhere);
   }
 
   const vars: Record<string, any> = {};

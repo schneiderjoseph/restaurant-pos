@@ -17,6 +17,7 @@ import {
   getOrderSettlementFigures,
 } from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 export interface GetOrderDetailOptions {
   orderId?: string;
@@ -784,7 +785,7 @@ export const getOrderDetail = async (
     }));
 
   const figures = getOrderSettlementFigures(order);
-  const table = order.table as {name?: string; number?: string | number} | undefined;
+  const table = order.table as {name?: string; number?: string | number; source?: string | null; asi_alias?: string | null} | undefined;
   const floor = (order as {floor?: {name?: string}}).floor;
 
   const result: OrderDetailResult = {
@@ -800,7 +801,7 @@ export const getOrderDetail = async (
       server: personName(order.user as any),
       cashier: personName(order.cashier as any),
       customer: personName(order.customer as any) || (order.customer as {name?: string} | undefined)?.name,
-      table: table?.name || (table?.number != null ? String(table.number) : undefined),
+      table: formatTableLabel(table) || undefined,
       floor: floor?.name,
       orderType: order.order_type?.name,
       covers: order.covers,

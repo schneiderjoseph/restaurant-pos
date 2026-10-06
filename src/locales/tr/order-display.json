@@ -17,11 +17,13 @@
   "openDetails": "Sipariş detaylarını aç",
   "readyBadge": "Hazır",
   "table": "Masa {{number}}",
+  "room": "Oda {{number}}",
   "itemsCount_one": "{{count}} ürün",
   "itemsCount_other": "{{count}} ürün",
   "details": {
     "type": "Tür",
     "table": "Masa",
+    "room": "Oda",
     "guest": "Misafir",
     "server": "Garson",
     "due": "Saat",

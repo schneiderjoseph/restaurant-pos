@@ -65,6 +65,7 @@
     "table": "Numéro de table (optionnel)",
     "tablePlaceholder": "Ex. 7",
     "tableNotFound": "Table {{number}} introuvable",
+    "roomNotFound": "Chambre {{number}} introuvable",
     "openFloor": "Plan de salle / Walk-in",
     "backToGuests": "Retour clients",
     "floorOpenFailed": "Impossible d'ouvrir le plan de salle",

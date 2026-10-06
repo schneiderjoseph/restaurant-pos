@@ -17,11 +17,13 @@
   "openDetails": "Apri dettagli dell'ordine",
   "readyBadge": "Pronto",
   "table": "Tavolo {{number}}",
+  "room": "Camera {{number}}",
   "itemsCount_one": "{{count}} articolo",
   "itemsCount_other": "{{count}} articoli",
   "details": {
     "type": "Tipo",
     "table": "Tavolo",
+    "room": "Camera",
     "guest": "Cliente",
     "server": "Cameriere",
     "due": "Per",

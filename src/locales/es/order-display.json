@@ -17,11 +17,13 @@
   "openDetails": "Ver detalle del pedido",
   "readyBadge": "Listo",
   "table": "Mesa {{number}}",
+  "room": "Habitación {{number}}",
   "itemsCount_one": "{{count}} artículo",
   "itemsCount_other": "{{count}} artículos",
   "details": {
     "type": "Tipo",
     "table": "Mesa",
+    "room": "Habitación",
     "guest": "Cliente",
     "server": "Camarero",
     "due": "Para",

@@ -42,7 +42,7 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
   const search = normalizeSearch(options.search);
   const floorName = normalizeSearch(options.floor_name);
   const query = `
-    SELECT id, name, number, floor.name AS floor_name FROM ${Tables.tables}
+    SELECT id, name, number, source, floor.name AS floor_name FROM ${Tables.tables}
     WHERE deleted_at = NONE
     ORDER BY number ASC
     LIMIT ${limit}
@@ -52,6 +52,7 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
     id: unknown;
     name?: string;
     number?: string | number;
+    source?: string | null;
     floor_name?: string;
     floor?: {name?: string};
   }>(await db.query(query));
@@ -63,6 +64,8 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
         id: recordIdToString(row.id),
         name: row.name ?? "",
         number: String(row.number ?? ""),
+        // Hotel rooms share floor_table (and its numbers) with dining tables.
+        kind: row.source === "asi-room" ? "room" : "table",
         floor_name: floor,
       };
     })

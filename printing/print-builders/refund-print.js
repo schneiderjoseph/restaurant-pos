@@ -33,7 +33,7 @@ function build(printer, data = {}, config = {}) {
 
   const refundReceiptLabel = L.refundReceipt || 'REFUND RECEIPT';
   const originalInvoiceLabel = L.originalInvoice || 'Original Invoice#';
-  const tableLabel = L.table || 'Table';
+  const placeLabel = bill.placeKind === 'room' ? (L.room || 'Room') : (L.table || 'Table');
   const orderTypeLabel = L.orderType || 'Order Type';
   const cashierLabel = L.cashier || 'Cashier';
   const refundDateLabel = L.refundDate || 'Refund Date';
@@ -47,7 +47,7 @@ function build(printer, data = {}, config = {}) {
   return printReceiptHeader(printer, cfg).then(() => {
     printer.align('ct').style('bu').text(refundReceiptLabel).style('normal');
     printLineLeftRight(printer, `${originalInvoiceLabel} ${bill.originalOrderId || ''}`, '');
-    printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+    printLineLeftRight(printer, `${placeLabel}: ${bill.placeValue || bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
     printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
     printLineLeftRight(printer, `${refundDateLabel}: ${bill.refundDate || ''}`, '');
     printer.drawLine();

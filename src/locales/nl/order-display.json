@@ -17,11 +17,13 @@
   "openDetails": "Bestelling bekijken",
   "readyBadge": "Klaar",
   "table": "Tafel {{number}}",
+  "room": "Kamer {{number}}",
   "itemsCount_one": "{{count}} artikel",
   "itemsCount_other": "{{count}} artikelen",
   "details": {
     "type": "Type",
     "table": "Tafel",
+    "room": "Kamer",
     "guest": "Gast",
     "server": "Bediening",
     "due": "Gepland",

@@ -17,11 +17,13 @@
   "openDetails": "Bestelldetails öffnen",
   "readyBadge": "Fertig",
   "table": "Tisch {{number}}",
+  "room": "Zimmer {{number}}",
   "itemsCount_one": "{{count}} Artikel",
   "itemsCount_other": "{{count}} Artikel",
   "details": {
     "type": "Art",
     "table": "Tisch",
+    "room": "Zimmer",
     "guest": "Gast",
     "server": "Bedienung",
     "due": "Fällig",

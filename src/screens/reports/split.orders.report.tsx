@@ -4,6 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import {formatTableLabel} from "@/lib/table-label.ts";
 
 type SplitOrderRow = {
   id: string;
@@ -13,7 +14,7 @@ type SplitOrderRow = {
   status?: string;
   tags?: string[];
   user?: {first_name?: string; last_name?: string};
-  table?: {name?: string; number?: string | number};
+  table?: {name?: string; number?: string | number; source?: string | null; asi_alias?: string | null};
 };
 
 const parseFilters = () => {
@@ -109,7 +110,7 @@ export const SplitOrdersReport = () => {
               <td className="py-3 px-3 text-sm text-neutral-700">{row.invoice_number ? `#${row.invoice_number}` : row.id}</td>
               <td className="py-3 px-3 text-sm text-neutral-700">{row.split ?? "-"}</td>
               <td className="py-3 px-3 text-sm text-neutral-700">{row.status || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.table ? `${row.table.name || "Table"} ${row.table.number || ""}`.trim() : "-"}</td>
+              <td className="py-3 px-3 text-sm text-neutral-700">{!row.table ? "-" : row.table.name || row.table.source === "asi-room" ? formatTableLabel(row.table) : `Table ${row.table.number ?? ""}`.trim()}</td>
               <td className="py-3 px-3 text-sm text-neutral-700">{`${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-"}</td>
             </tr>
           ))}

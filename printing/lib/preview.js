@@ -192,7 +192,9 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
   parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
-  parts.push(row(bill.table || '', bill.userName || ''));
+  const placeValue = bill.placeValue || bill.table || '';
+  const placeTitle = bill.placeKind === 'room' ? (L.room || 'Room') : (L.table || 'Table');
+  parts.push(row(placeValue ? `${placeTitle}: ${placeValue}` : '', bill.userName || ''));
   if (address) parts.push(`<div class="row"><span>${escapeHtml(addressLabel)}: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
   if (phone) parts.push(`<div class="row"><span>${escapeHtml(phoneLabel)}: ${escapeHtml(String(phone))}</span></div>`);
   parts.push('<hr/>');
@@ -466,16 +468,17 @@ function renderKitchenToHtml(data, config) {
   const cfg = normalizeConfig(config || {});
   const order = data && data.order;
   if (!order) return `<html><body><p>data.order required for kitchen preview</p></body></html>`;
-  const { getOrderId, getOrderCreatedAt, getOrderUserName, getOrderType } = require('./order-mapping');
+  const { getOrderId, getOrderCreatedAt, getOrderUserName, getOrderType, getOrderPlaceKind, getOrderPlaceValue } = require('./order-mapping');
+  const L = cfg.labels || {};
   const kitchenName = data.kitchenName || 'KOT';
   const isAddOn = !!data.isAddOn;
   const orderId = getOrderId(order);
   const createdAt = getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale });
   const orderTaker = getOrderUserName(order);
   const orderType = getOrderType(order);
-  const table = data.table
-    ? String(data.table.name || '') + String(data.table.number || '')
-    : '';
+  const placeTable = data.table || order.table || null;
+  const table = getOrderPlaceValue({ table: placeTable });
+  const placeTitle = getOrderPlaceKind({ table: placeTable }) === 'room' ? (L.room || 'Room') : (L.table || 'Table');
   const items = Array.isArray(data.items) ? data.items : [];
   const parts = [];
   const brandingHeader = renderBrandingHeader(cfg);
@@ -493,7 +496,7 @@ function renderKitchenToHtml(data, config) {
   }
   if (table || orderType) {
     parts.push(
-      `<div class="row"><span>${table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
+      `<div class="row"><span>${table ? `${escapeHtml(placeTitle)}: ${escapeHtml(table)}` : ''}</span>` +
         `<span>${orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
     );
   }

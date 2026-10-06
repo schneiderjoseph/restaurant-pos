@@ -19,11 +19,13 @@
   "openDetails": "Open order details",
   "readyBadge": "Ready",
   "table": "Table {{number}}",
+  "room": "Room {{number}}",
   "itemsCount_one": "{{count}} item",
   "itemsCount_other": "{{count}} items",
   "details": {
     "type": "Type",
     "table": "Table",
+    "room": "Room",
     "guest": "Guest",
     "server": "Server",
     "due": "Due",

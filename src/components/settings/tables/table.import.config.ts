@@ -121,7 +121,12 @@ export function createTableImportConfig({
       });
 
       const existing =
-        ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.tables, conditions);
+        ctx.mode === "create"
+          ? []
+          : await findCsvImportMatches(db, Tables.tables, conditions, {
+            // Never match a hotel room (same collection, same numbers as dining tables).
+            extraWhere: "(source IS NONE OR source != 'asi-room')",
+          });
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

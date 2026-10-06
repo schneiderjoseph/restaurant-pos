@@ -38,6 +38,7 @@ import {
   loadResortChambresFloor,
 } from '@/lib/resort-floor-tables.ts';
 import { usesAsiPmsRooms } from '@/lib/pos-mode.ts';
+import { formatTableLabel } from '@/lib/table-label.ts';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { cn, toRecordId } from '@/lib/utils.ts';
@@ -517,13 +518,19 @@ export const GuestLookup = () => {
 
   const startNewOrderFor = async (guest: Customer) => {
     let table: Table | undefined;
-    const wantedTable = tableNumber.trim() || String(guest.room ?? '').trim();
+    // The typed number is a dining table; only the guest's own room resolves to a hotel room.
+    const wantedTable = tableNumber.trim();
+    const guestRoom = String(guest.room ?? '').trim();
     if (wantedTable) {
-      table =
-        (await findRoomByNumber(db, wantedTable)) ??
-        (await findTableByNumber(db, wantedTable));
+      table = await findTableByNumber(db, wantedTable);
       if (!table) {
         toast.error(t('menu:guest.tableNotFound', { number: wantedTable }));
+        return;
+      }
+    } else if (guestRoom) {
+      table = await findRoomByNumber(db, guestRoom);
+      if (!table) {
+        toast.error(t('menu:guest.roomNotFound', { number: guestRoom }));
         return;
       }
     }
@@ -1178,8 +1185,8 @@ export const GuestLookup = () => {
                             </div>
                             <div className="text-sm text-neutral-600">
                               {translateOrderStatus(tOrders, order.status)}
-                              {order.table?.number ? ` · T${order.table.number}` : ''}
-                              {!order.table?.number && orderZoneLabel(order) ? ` · ${orderZoneLabel(order)}` : ''}
+                              {order.table ? ` · ${formatTableLabel(order.table)}` : ''}
+                              {!order.table && orderZoneLabel(order) ? ` · ${orderZoneLabel(order)}` : ''}
                             </div>
                             <div className="text-sm text-neutral-500 mt-1">
                               {toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}

@@ -19,11 +19,13 @@
   "openDetails": "Voir le détail de la commande",
   "readyBadge": "Prête",
   "table": "Table {{number}}",
+  "room": "Chambre {{number}}",
   "itemsCount_one": "{{count}} article",
   "itemsCount_other": "{{count}} articles",
   "details": {
     "type": "Type",
     "table": "Table",
+    "room": "Chambre",
     "guest": "Client",
     "server": "Serveur",
     "due": "Prévue",

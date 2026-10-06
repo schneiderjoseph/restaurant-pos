@@ -17,6 +17,7 @@
   "openDetails": "Открыть детали заказа",
   "readyBadge": "Готов",
   "table": "Стол {{number}}",
+  "room": "Номер {{number}}",
   "itemsCount_one": "{{count}} позиция",
   "itemsCount_few": "{{count}} позиции",
   "itemsCount_many": "{{count}} позиций",
@@ -24,6 +25,7 @@
   "details": {
     "type": "Тип",
     "table": "Стол",
+    "room": "Номер",
     "guest": "Гость",
     "server": "Официант",
     "due": "К",

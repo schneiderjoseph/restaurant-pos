@@ -17,6 +17,8 @@ const {
   getOrderItemModifierLines,
   getOrderUserName,
   getOrderType,
+  getOrderPlaceKind,
+  getOrderPlaceValue,
 } = require('../lib/order-mapping');
 
 function mapPrintItems(items) {
@@ -33,11 +35,13 @@ function mapPrintItems(items) {
   });
 }
 
-function getTableLabel(data) {
-  if (data.table) {
-    return String(data.table.name || '') + String(data.table.number || '');
-  }
-  return '';
+/** Place of the order: a hotel room prints as "Room: 20", a dining table as "Table: T7". */
+function getPlace(data) {
+  const table = data.table || (data.order && data.order.table) || null;
+  return {
+    table: getOrderPlaceValue({ table }),
+    placeKind: getOrderPlaceKind({ table }),
+  };
 }
 
 /**
@@ -59,7 +63,7 @@ function build(printer, data = {}, config = {}) {
     : getOrderCreatedAt(null, dateOpts);
   const orderTaker = order ? getOrderUserName(order) : '';
   const orderType = order ? getOrderType(order) : '';
-  const table = getTableLabel(data);
+  const { table, placeKind } = getPlace(data);
   const printItems = mapPrintItems(items);
 
   const L = cfg.labels || {};
@@ -73,6 +77,7 @@ function build(printer, data = {}, config = {}) {
       bannerLabel: L.deletion || 'DELETION',
       orderId,
       table,
+      placeKind,
       orderType,
       orderTaker,
       createdAt,

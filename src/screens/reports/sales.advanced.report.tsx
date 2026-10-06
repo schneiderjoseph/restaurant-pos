@@ -643,7 +643,7 @@ export const SalesAdvancedReport = () => {
                 const cashierName = order.cashier
                   ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || 'Unknown'
                   : 'N/A';
-                const tableName = order.table?.name
+                const tableName = order.table?.name || order.table?.source === 'asi-room'
                   ? formatTableLabel(order.table)
                   : `Table ${order.table?.number ?? ''}`;
                 const floorName = order.floor?.name || 'Unknown';
