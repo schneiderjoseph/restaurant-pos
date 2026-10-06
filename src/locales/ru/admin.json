@@ -23,7 +23,8 @@
     "accessTab": "Доступ к {{title}}",
     "ariaLabel": "Вкладки администрирования",
     "securityAlerts": "Оповещения безопасности",
-    "generalSettings": "Общие настройки"
+    "generalSettings": "Общие настройки",
+    "customers": "Клиенты"
   },
   "columns": {
     "photo": "Фото",
@@ -462,6 +463,9 @@
       },
       "integrations": {
         "label": "Интеграции"
+      },
+      "customers": {
+        "label": "Клиенты"
       }
     },
     "permissions": {
@@ -698,7 +702,14 @@
       "integrations.queue": "Очередь интеграции",
       "integrations.toggle_provider": "Включить или отключить провайдера интеграции",
       "integrations.open_configuration": "Открыть конфигурацию интеграции",
-      "integrations.save_configuration": "Сохранить конфигурацию интеграции"
+      "integrations.save_configuration": "Сохранить конфигурацию интеграции",
+      "customers.create": "Регистрировать клиентов без брони",
+      "customers.preferences": "Изменять аллергии, питание и заметки",
+      "customers.view_id_document": "Видеть документы полностью",
+      "admin.customers": "Клиенты",
+      "admin.customers.update": "Изменять любого клиента",
+      "admin.customers.delete": "Удалять и восстанавливать клиентов",
+      "admin.customers.merge": "Объединять дубликаты"
     }
   },
   "discountEngine": {
@@ -878,5 +889,52 @@
     "hideDetails": "▼ Скрыть детали",
     "showDetails": "▶ Показать детали",
     "badgeTooltip": "{{count}} открытых критических оповещений"
+  },
+  "customers": {
+    "email": "Эл. почта",
+    "source": "Источник",
+    "sources": {
+      "walk-in": "Без брони",
+      "asi-fd": "Отель (ASI)",
+      "local": "Локальный"
+    },
+    "createdAt": "Создан",
+    "deletedAt": "Удалён",
+    "view": "Открыть",
+    "merge": "Объединить с другим клиентом",
+    "restore": "Восстановить",
+    "scope": {
+      "active": "Активные",
+      "deleted": "Удалённые"
+    },
+    "searchPlaceholder": "Имя, телефон, документ, C-000123…",
+    "saved": "Клиент сохранён",
+    "saveFailed": "Не удалось сохранить клиента",
+    "editTitle": "Изменить клиента",
+    "deletedBanner": "Этот клиент удалён.",
+    "mergedBanner": "Этот клиент объединён с другим.",
+    "deleteTitle": "Удалить {{name}}?",
+    "deleteHint": "Клиент исчезнет из всех списков. Заказы сохранятся, менеджер сможет его восстановить.",
+    "deleteReasonPlaceholder": "Причина (необязательно)",
+    "deleted": "{{name}} удалён",
+    "deleteFailed": "Не удалось удалить клиента",
+    "restored": "{{name}} восстановлен",
+    "restoreFailed": "Не удалось восстановить клиента",
+    "restoreIdTaken": "Этот документ теперь у другого активного клиента: сначала объедините или измените его.",
+    "mergeTitle": "Объединить {{name}}",
+    "mergeHint": "Выберите клиента, который останется. Дубликат исчезнет из списков; его заказы будут видны у оставшегося клиента, который получит недостающие данные.",
+    "mergeDuplicate": "Дубликат",
+    "mergeKeep": "Остаётся клиент",
+    "mergeSummary": "{{from}} будет объединён с {{to}}.",
+    "mergeConfirm": "Объединить",
+    "merged": "{{from}} объединён с {{to}}",
+    "mergeFailed": "Не удалось объединить клиентов",
+    "stats": {
+      "visits": "Визиты",
+      "spent": "Потрачено",
+      "average": "Средний чек",
+      "lastVisit": "Последний визит",
+      "favorites": "Любимые блюда"
+    }
   }
 }

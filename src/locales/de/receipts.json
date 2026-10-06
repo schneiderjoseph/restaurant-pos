@@ -42,5 +42,6 @@
   "time": "Zeit",
   "reason": "Grund",
   "note": "Notiz",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "ALLERGIEN"
 }

@@ -42,5 +42,6 @@
   "time": "وقت",
   "reason": "سبب",
   "note": "ملاحظة",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "الحساسية"
 }

@@ -107,9 +107,77 @@
     "departure": "Check-out {{date}}",
     "departureToday": "Checks out today",
     "addPlace": "Table or zone",
-    "closeMatches": "Close matches"
+    "closeMatches": "Close matches",
+    "phoneCountry": "Country code",
+    "phoneCountriesFrequent": "Frequent",
+    "phoneCountriesAll": "All countries"
   },
   "outlets": {
     "all": "All"
+  },
+  "customer": {
+    "number": "No.",
+    "name": "Name",
+    "editName": "Edit name",
+    "nameSaved": "Name saved",
+    "nameSaveFailed": "Could not save the name",
+    "preferences": "Preferences",
+    "preferencesTitle": "Preferences of {{name}}",
+    "preferencesSaved": "Preferences saved",
+    "preferencesSaveFailed": "Could not save the preferences",
+    "allergies": "Allergies",
+    "allergiesHint": "Printed on kitchen tickets.",
+    "otherAllergyPlaceholder": "Other allergy…",
+    "dietTitle": "Diet",
+    "seating": "Seating",
+    "seatingPlaceholder": "Terrace, by the window…",
+    "language": "Language",
+    "languagePlaceholder": "Creole, English…",
+    "birthday": "Birthday",
+    "birthdayToday": "Birthday today",
+    "marketingConsent": "Agrees to receive offers",
+    "matchesTitle_one": "1 known client may be this person",
+    "matchesTitle_other": "{{count}} known clients may be this person",
+    "matchesHint": "Same name or same phone does not mean the same person. Pick the client if it is them, otherwise register “{{name}}” as a new client.",
+    "samePhone": "Same phone",
+    "sameName": "Same name",
+    "createAnyway": "New client “{{name}}”",
+    "registerAnother": "Register another client named “{{name}}”",
+    "idDocumentType": "ID type",
+    "allergen": {
+      "peanuts": "Peanuts",
+      "nuts": "Tree nuts",
+      "gluten": "Gluten",
+      "milk": "Milk",
+      "eggs": "Eggs",
+      "fish": "Fish",
+      "crustaceans": "Shellfish",
+      "molluscs": "Molluscs",
+      "soy": "Soy",
+      "sesame": "Sesame",
+      "celery": "Celery",
+      "mustard": "Mustard",
+      "sulphites": "Sulphites",
+      "lupin": "Lupin"
+    },
+    "diet": {
+      "vegetarian": "Vegetarian",
+      "vegan": "Vegan",
+      "pescatarian": "Pescatarian",
+      "halal": "Halal",
+      "kosher": "Kosher",
+      "gluten_free": "Gluten-free",
+      "lactose_free": "Lactose-free",
+      "no_pork": "No pork",
+      "low_salt": "Low salt",
+      "diabetic": "Diabetic"
+    },
+    "idType": {
+      "cin": "National ID (CIN)",
+      "nif": "Tax ID (NIF)",
+      "passport": "Passport",
+      "license": "Driving licence",
+      "other": "Other"
+    }
   }
 }

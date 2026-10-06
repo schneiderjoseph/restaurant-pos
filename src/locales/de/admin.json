@@ -23,7 +23,8 @@
     "accessTab": "Zugriff auf {{title}}",
     "ariaLabel": "Verwaltungsregisterkarten",
     "securityAlerts": "Sicherheitswarnungen",
-    "generalSettings": "Allgemeine Einstellungen"
+    "generalSettings": "Allgemeine Einstellungen",
+    "customers": "Kunden"
   },
   "columns": {
     "photo": "Foto",
@@ -462,6 +463,9 @@
       },
       "integrations": {
         "label": "Integrationen"
+      },
+      "customers": {
+        "label": "Kunden"
       }
     },
     "permissions": {
@@ -698,7 +702,14 @@
       "integrations.queue": "Integrationswarteschlange",
       "integrations.toggle_provider": "Integrationsanbieter umschalten",
       "integrations.open_configuration": "Integrationskonfiguration öffnen",
-      "integrations.save_configuration": "Integrationskonfiguration speichern"
+      "integrations.save_configuration": "Integrationskonfiguration speichern",
+      "customers.create": "Laufkunden anlegen",
+      "customers.preferences": "Allergien, Ernährung und Notizen bearbeiten",
+      "customers.view_id_document": "Ausweise vollständig sehen",
+      "admin.customers": "Kunden",
+      "admin.customers.update": "Jeden Kunden bearbeiten",
+      "admin.customers.delete": "Kunden löschen und wiederherstellen",
+      "admin.customers.merge": "Doppelte Kunden zusammenführen"
     }
   },
   "discountEngine": {
@@ -878,5 +889,52 @@
     "hideDetails": "▼ Details ausblenden",
     "showDetails": "▶ Details anzeigen",
     "badgeTooltip": "{{count}} offene kritische Warnung(en)"
+  },
+  "customers": {
+    "email": "E-Mail",
+    "source": "Herkunft",
+    "sources": {
+      "walk-in": "Laufkunde",
+      "asi-fd": "Hotel (ASI)",
+      "local": "Lokal"
+    },
+    "createdAt": "Erstellt",
+    "deletedAt": "Gelöscht",
+    "view": "Ansehen",
+    "merge": "Mit anderem Kunden zusammenführen",
+    "restore": "Wiederherstellen",
+    "scope": {
+      "active": "Aktiv",
+      "deleted": "Gelöscht"
+    },
+    "searchPlaceholder": "Name, Telefon, Ausweis, C-000123…",
+    "saved": "Kunde gespeichert",
+    "saveFailed": "Kunde konnte nicht gespeichert werden",
+    "editTitle": "Kunde bearbeiten",
+    "deletedBanner": "Dieser Kunde wurde gelöscht.",
+    "mergedBanner": "Dieser Kunde wurde mit einem anderen zusammengeführt.",
+    "deleteTitle": "{{name}} löschen?",
+    "deleteHint": "Der Kunde verschwindet aus allen Listen. Seine Bestellungen bleiben, ein Manager kann ihn wiederherstellen.",
+    "deleteReasonPlaceholder": "Grund (optional)",
+    "deleted": "{{name}} gelöscht",
+    "deleteFailed": "Kunde konnte nicht gelöscht werden",
+    "restored": "{{name}} wiederhergestellt",
+    "restoreFailed": "Kunde konnte nicht wiederhergestellt werden",
+    "restoreIdTaken": "Ein anderer aktiver Kunde hat jetzt diesen Ausweis: zuerst zusammenführen oder bearbeiten.",
+    "mergeTitle": "{{name}} zusammenführen",
+    "mergeHint": "Wählen Sie den Kunden, der bleibt. Das Duplikat verschwindet aus den Listen; seine Bestellungen erscheinen beim behaltenen Kunden, der fehlende Angaben übernimmt.",
+    "mergeDuplicate": "Duplikat",
+    "mergeKeep": "Kunde, der bleibt",
+    "mergeSummary": "{{from}} wird mit {{to}} zusammengeführt.",
+    "mergeConfirm": "Zusammenführen",
+    "merged": "{{from}} mit {{to}} zusammengeführt",
+    "mergeFailed": "Kunden konnten nicht zusammengeführt werden",
+    "stats": {
+      "visits": "Besuche",
+      "spent": "Ausgegeben",
+      "average": "Durchschnittsbon",
+      "lastVisit": "Letzter Besuch",
+      "favorites": "Lieblingsgerichte"
+    }
   }
 }

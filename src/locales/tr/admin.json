@@ -23,7 +23,8 @@
     "accessTab": "{{title}} modülüne eriş",
     "ariaLabel": "Yönetim sekmeleri",
     "securityAlerts": "Güvenlik Uyarıları",
-    "generalSettings": "Genel ayarlar"
+    "generalSettings": "Genel ayarlar",
+    "customers": "Müşteriler"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -462,6 +463,9 @@
       },
       "integrations": {
         "label": "Entegrasyonlar"
+      },
+      "customers": {
+        "label": "Müşteriler"
       }
     },
     "permissions": {
@@ -698,7 +702,14 @@
       "integrations.queue": "Entegrasyon kuyruğu",
       "integrations.toggle_provider": "Entegrasyon sağlayıcısını aç/kapat",
       "integrations.open_configuration": "Entegrasyon yapılandırmasını aç",
-      "integrations.save_configuration": "Entegrasyon yapılandırmasını kaydet"
+      "integrations.save_configuration": "Entegrasyon yapılandırmasını kaydet",
+      "customers.create": "Rezervasyonsuz müşteri kaydet",
+      "customers.preferences": "Alerji, diyet ve notları düzenle",
+      "customers.view_id_document": "Belgeleri tam görme",
+      "admin.customers": "Müşteriler",
+      "admin.customers.update": "Her müşteriyi düzenle",
+      "admin.customers.delete": "Müşteri sil ve geri yükle",
+      "admin.customers.merge": "Kopya müşterileri birleştir"
     }
   },
   "discountEngine": {
@@ -878,5 +889,52 @@
     "hideDetails": "▼ Detayları gizle",
     "showDetails": "▶ Detayları göster",
     "badgeTooltip": "{{count}} açık kritik uyarı"
+  },
+  "customers": {
+    "email": "E-posta",
+    "source": "Kaynak",
+    "sources": {
+      "walk-in": "Rezervasyonsuz",
+      "asi-fd": "Otel (ASI)",
+      "local": "Yerel"
+    },
+    "createdAt": "Oluşturulma",
+    "deletedAt": "Silinme",
+    "view": "Görüntüle",
+    "merge": "Başka bir müşteriyle birleştir",
+    "restore": "Geri yükle",
+    "scope": {
+      "active": "Aktif",
+      "deleted": "Silinmiş"
+    },
+    "searchPlaceholder": "Ad, telefon, belge, C-000123…",
+    "saved": "Müşteri kaydedildi",
+    "saveFailed": "Müşteri kaydedilemedi",
+    "editTitle": "Müşteriyi düzenle",
+    "deletedBanner": "Bu müşteri silindi.",
+    "mergedBanner": "Bu müşteri başka bir müşteriyle birleştirildi.",
+    "deleteTitle": "{{name}} silinsin mi?",
+    "deleteHint": "Müşteri tüm listelerden kalkar. Siparişleri kalır ve bir yönetici geri yükleyebilir.",
+    "deleteReasonPlaceholder": "Neden (isteğe bağlı)",
+    "deleted": "{{name}} silindi",
+    "deleteFailed": "Müşteri silinemedi",
+    "restored": "{{name}} geri yüklendi",
+    "restoreFailed": "Müşteri geri yüklenemedi",
+    "restoreIdTaken": "Bu belge artık başka bir aktif müşteride: önce birleştirin veya düzenleyin.",
+    "mergeTitle": "{{name}} birleştir",
+    "mergeHint": "Kalacak müşteriyi seçin. Kopya listelerden kalkar; siparişleri kalan müşteriyle görünür ve eksik bilgileri ona aktarılır.",
+    "mergeDuplicate": "Kopya",
+    "mergeKeep": "Kalacak müşteri",
+    "mergeSummary": "{{from}}, {{to}} ile birleştirilecek.",
+    "mergeConfirm": "Birleştir",
+    "merged": "{{from}}, {{to}} ile birleştirildi",
+    "mergeFailed": "Müşteriler birleştirilemedi",
+    "stats": {
+      "visits": "Ziyaret",
+      "spent": "Harcama",
+      "average": "Ortalama fiş",
+      "lastVisit": "Son ziyaret",
+      "favorites": "Favori yemekler"
+    }
   }
 }

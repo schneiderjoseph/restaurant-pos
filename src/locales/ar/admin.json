@@ -23,7 +23,8 @@
     "accessTab": "الوصول إلى {{title}}",
     "ariaLabel": "علامات تبويب الإدارة",
     "securityAlerts": "تنبيهات الأمان",
-    "generalSettings": "الإعدادات العامة"
+    "generalSettings": "الإعدادات العامة",
+    "customers": "العملاء"
   },
   "columns": {
     "photo": "الصورة",
@@ -462,6 +463,9 @@
       },
       "integrations": {
         "label": "التكاملات"
+      },
+      "customers": {
+        "label": "العملاء"
       }
     },
     "permissions": {
@@ -698,7 +702,14 @@
       "integrations.queue": "قائمة انتظار التكامل",
       "integrations.toggle_provider": "تفعيل أو تعطيل مزود التكامل",
       "integrations.open_configuration": "فتح إعداد التكامل",
-      "integrations.save_configuration": "حفظ إعداد التكامل"
+      "integrations.save_configuration": "حفظ إعداد التكامل",
+      "customers.create": "تسجيل عملاء بدون حجز",
+      "customers.preferences": "تعديل الحساسية والنظام الغذائي والملاحظات",
+      "customers.view_id_document": "رؤية وثائق الهوية كاملة",
+      "admin.customers": "العملاء",
+      "admin.customers.update": "تعديل أي عميل",
+      "admin.customers.delete": "حذف العملاء واستعادتهم",
+      "admin.customers.merge": "دمج العملاء المكررين"
     }
   },
   "discountEngine": {
@@ -878,5 +889,52 @@
     "hideDetails": "▼ إخفاء التفاصيل",
     "showDetails": "▶ إظهار التفاصيل",
     "badgeTooltip": "{{count}} تنبيه حرج مفتوح"
+  },
+  "customers": {
+    "email": "البريد الإلكتروني",
+    "source": "المصدر",
+    "sources": {
+      "walk-in": "بدون حجز",
+      "asi-fd": "الفندق (ASI)",
+      "local": "محلي"
+    },
+    "createdAt": "تاريخ الإنشاء",
+    "deletedAt": "تاريخ الحذف",
+    "view": "عرض",
+    "merge": "دمج مع عميل آخر",
+    "restore": "استعادة",
+    "scope": {
+      "active": "النشطون",
+      "deleted": "المحذوفون"
+    },
+    "searchPlaceholder": "الاسم، الهاتف، الوثيقة، C-000123…",
+    "saved": "تم حفظ العميل",
+    "saveFailed": "تعذّر حفظ العميل",
+    "editTitle": "تعديل العميل",
+    "deletedBanner": "تم حذف هذا العميل.",
+    "mergedBanner": "تم دمج هذا العميل مع عميل آخر.",
+    "deleteTitle": "حذف {{name}}؟",
+    "deleteHint": "يختفي العميل من كل القوائم. تبقى طلباته، ويمكن للمدير استعادته.",
+    "deleteReasonPlaceholder": "السبب (اختياري)",
+    "deleted": "تم حذف {{name}}",
+    "deleteFailed": "تعذّر حذف العميل",
+    "restored": "تمت استعادة {{name}}",
+    "restoreFailed": "تعذّرت استعادة العميل",
+    "restoreIdTaken": "وثيقة الهوية هذه أصبحت لدى عميل نشط آخر: ادمجه أو عدّله أولًا.",
+    "mergeTitle": "دمج {{name}}",
+    "mergeHint": "اختر العميل الذي سيبقى. تختفي النسخة المكررة من القوائم؛ تظهر طلباتها مع العميل الباقي الذي يأخذ بياناتها الناقصة.",
+    "mergeDuplicate": "نسخة مكررة",
+    "mergeKeep": "العميل الباقي",
+    "mergeSummary": "سيتم دمج {{from}} مع {{to}}.",
+    "mergeConfirm": "دمج",
+    "merged": "تم دمج {{from}} مع {{to}}",
+    "mergeFailed": "تعذّر دمج العملاء",
+    "stats": {
+      "visits": "الزيارات",
+      "spent": "المبلغ المنفق",
+      "average": "متوسط الفاتورة",
+      "lastVisit": "آخر زيارة",
+      "favorites": "الأطباق المفضلة"
+    }
   }
 }

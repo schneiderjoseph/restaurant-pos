@@ -12,6 +12,10 @@ import {MenuItemType} from "@/api/model/cart_item.ts";
 import {orderToCartItems, seatsFromOrder} from "@/lib/order-edit.ts";
 import {Payment} from "@/components/payment/payment.tsx";
 import {Customers} from "@/components/customer/customer.tsx";
+import {CustomerAlerts} from "@/components/customer/customer.alerts.tsx";
+import {customerAllergies as customerAllergiesOf} from "@/lib/customer-preferences.ts";
+import {customerNumberLabel} from "@/lib/customer.service.ts";
+import {displayPhone} from "@/lib/phone.ts";
 import {formatOrderNumber, getInvoiceNumber} from "@/lib/order.ts";
 import {formatGuestLabel, guestCodeLabel} from "@/lib/guest.ts";
 import {useResortFb} from "@/hooks/useResortFb.ts";
@@ -200,6 +204,7 @@ export const MenuHeader = () => {
   const backGuestLabel = state.resortEntry === 'floor'
     ? (state?.floor?.name ?? t('guest.openFloor'))
     : t('guest.title');
+  const customerAllergies = customerAllergiesOf(state?.customer);
   const customerLabel = state?.customer
     ? formatGuestLabel(state.customer)
     : t('header.customer');
@@ -293,7 +298,7 @@ export const MenuHeader = () => {
             {personsCount}
           </Button>
 
-          <div className="input-group">
+          <div className="input-group relative">
             <Button
               flat
               variant="primary"
@@ -303,9 +308,18 @@ export const MenuHeader = () => {
               active={!!state?.customer}
               onClick={() => setCustomerModal(true)}
               aria-label={customerLabel}
-              title={customerLabel}
+              title={customerAllergies.length
+                ? `${customerLabel} · ${t('customer.allergies')}: ${customerAllergies.join(', ')}`
+                : customerLabel}
               data-testid="menu-customer"
             />
+            {customerAllergies.length > 0 && (
+              // Allergies must not go unseen: a red mark on the customer button.
+              <span
+                className="pointer-events-none absolute -top-1 -right-1 h-5 w-5 rounded-full bg-danger-600 text-white text-xs font-bold flex items-center justify-center"
+                data-testid="menu-customer-allergy"
+              >!</span>
+            )}
           </div>
         </div>
 
@@ -348,7 +362,12 @@ export const MenuHeader = () => {
             className="mb-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 space-y-1"
             data-testid="menu-customer-info"
           >
-            <div className="font-semibold text-lg">{formatGuestLabel(state.customer)}</div>
+            <div className="font-semibold text-lg">
+              {formatGuestLabel(state.customer)}
+              {customerNumberLabel(state.customer) ? (
+                <span className="ml-2 text-sm font-normal text-neutral-600">{customerNumberLabel(state.customer)}</span>
+              ) : null}
+            </div>
             {state.customer.guest_code && state.customer.name?.trim() ? (
               <div className="text-sm text-neutral-600">#{guestCodeLabel(state.customer)}</div>
             ) : null}
@@ -359,12 +378,13 @@ export const MenuHeader = () => {
             ) : null}
             {state.customer.phone != null && String(state.customer.phone).trim() ? (
               <div className="text-sm text-neutral-600">
-                {t('guest.phone')} {String(state.customer.phone).trim()}
+                {t('guest.phone')} {displayPhone(state.customer.phone)}
               </div>
             ) : null}
             {state.customer.email?.trim() ? (
               <div className="text-sm text-neutral-600">{state.customer.email.trim()}</div>
             ) : null}
+            <CustomerAlerts customer={state.customer} className="pt-2" />
           </div>
         )}
         <Customers onAttach={() => {

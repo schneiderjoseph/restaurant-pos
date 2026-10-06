@@ -23,7 +23,8 @@
     "accessTab": "Toegang tot {{title}}",
     "ariaLabel": "Beheertabs",
     "securityAlerts": "Beveiligingsmeldingen",
-    "generalSettings": "Algemene instellingen"
+    "generalSettings": "Algemene instellingen",
+    "customers": "Klanten"
   },
   "columns": {
     "photo": "Foto",
@@ -462,6 +463,9 @@
       },
       "integrations": {
         "label": "Integraties"
+      },
+      "customers": {
+        "label": "Klanten"
       }
     },
     "permissions": {
@@ -698,7 +702,14 @@
       "integrations.queue": "Integratiewachtrij",
       "integrations.toggle_provider": "Integratieprovider in- of uitschakelen",
       "integrations.open_configuration": "Integratieconfiguratie openen",
-      "integrations.save_configuration": "Integratieconfiguratie opslaan"
+      "integrations.save_configuration": "Integratieconfiguratie opslaan",
+      "customers.create": "Inloopklanten registreren",
+      "customers.preferences": "Allergieën, dieet en notities bewerken",
+      "customers.view_id_document": "Documenten volledig zien",
+      "admin.customers": "Klanten",
+      "admin.customers.update": "Elke klant bewerken",
+      "admin.customers.delete": "Klanten verwijderen en herstellen",
+      "admin.customers.merge": "Dubbele klanten samenvoegen"
     }
   },
   "discountEngine": {
@@ -878,5 +889,52 @@
     "hideDetails": "▼ Details verbergen",
     "showDetails": "▶ Details tonen",
     "badgeTooltip": "{{count}} open kritieke melding(en)"
+  },
+  "customers": {
+    "email": "E-mail",
+    "source": "Herkomst",
+    "sources": {
+      "walk-in": "Inloop",
+      "asi-fd": "Hotel (ASI)",
+      "local": "Lokaal"
+    },
+    "createdAt": "Aangemaakt",
+    "deletedAt": "Verwijderd",
+    "view": "Bekijken",
+    "merge": "Samenvoegen met een andere klant",
+    "restore": "Herstellen",
+    "scope": {
+      "active": "Actief",
+      "deleted": "Verwijderd"
+    },
+    "searchPlaceholder": "Naam, telefoon, document, C-000123…",
+    "saved": "Klant opgeslagen",
+    "saveFailed": "Klant kon niet worden opgeslagen",
+    "editTitle": "Klant bewerken",
+    "deletedBanner": "Deze klant is verwijderd.",
+    "mergedBanner": "Deze klant is samengevoegd met een andere.",
+    "deleteTitle": "{{name}} verwijderen?",
+    "deleteHint": "De klant verdwijnt uit alle lijsten. Bestellingen blijven, en een manager kan de klant herstellen.",
+    "deleteReasonPlaceholder": "Reden (optioneel)",
+    "deleted": "{{name}} verwijderd",
+    "deleteFailed": "Klant kon niet worden verwijderd",
+    "restored": "{{name}} hersteld",
+    "restoreFailed": "Klant kon niet worden hersteld",
+    "restoreIdTaken": "Een andere actieve klant heeft nu dit document: eerst samenvoegen of bewerken.",
+    "mergeTitle": "{{name}} samenvoegen",
+    "mergeHint": "Kies de klant die blijft. Het duplicaat verdwijnt uit de lijsten; de bestellingen verschijnen bij de behouden klant, die ontbrekende gegevens overneemt.",
+    "mergeDuplicate": "Duplicaat",
+    "mergeKeep": "Klant die blijft",
+    "mergeSummary": "{{from}} wordt samengevoegd met {{to}}.",
+    "mergeConfirm": "Samenvoegen",
+    "merged": "{{from}} samengevoegd met {{to}}",
+    "mergeFailed": "Klanten konden niet worden samengevoegd",
+    "stats": {
+      "visits": "Bezoeken",
+      "spent": "Besteed",
+      "average": "Gemiddelde bon",
+      "lastVisit": "Laatste bezoek",
+      "favorites": "Favoriete gerechten"
+    }
   }
 }

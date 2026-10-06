@@ -42,5 +42,6 @@
   "time": "Ora",
   "reason": "Motivo",
   "note": "Nota",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "ALLERGIE"
 }

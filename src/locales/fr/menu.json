@@ -107,9 +107,77 @@
     "departure": "Départ {{date}}",
     "departureToday": "Départ aujourd'hui",
     "addPlace": "Table ou zone",
-    "closeMatches": "Noms proches"
+    "closeMatches": "Noms proches",
+    "phoneCountry": "Indicatif",
+    "phoneCountriesFrequent": "Fréquents",
+    "phoneCountriesAll": "Tous les pays"
   },
   "outlets": {
     "all": "Tous"
+  },
+  "customer": {
+    "number": "N°",
+    "name": "Nom",
+    "editName": "Modifier le nom",
+    "nameSaved": "Nom enregistré",
+    "nameSaveFailed": "Impossible d'enregistrer le nom",
+    "preferences": "Préférences",
+    "preferencesTitle": "Préférences de {{name}}",
+    "preferencesSaved": "Préférences enregistrées",
+    "preferencesSaveFailed": "Impossible d'enregistrer les préférences",
+    "allergies": "Allergies",
+    "allergiesHint": "Imprimées sur les tickets cuisine.",
+    "otherAllergyPlaceholder": "Autre allergie…",
+    "dietTitle": "Régime",
+    "seating": "Place préférée",
+    "seatingPlaceholder": "Terrasse, près de la fenêtre…",
+    "language": "Langue",
+    "languagePlaceholder": "Créole, anglais…",
+    "birthday": "Anniversaire",
+    "birthdayToday": "Anniversaire aujourd'hui",
+    "marketingConsent": "Accepte de recevoir des offres",
+    "matchesTitle_one": "1 client connu pourrait être cette personne",
+    "matchesTitle_other": "{{count}} clients connus pourraient être cette personne",
+    "matchesHint": "Même nom ou même téléphone ne veut pas dire même personne. Choisissez le client si c'est lui, sinon enregistrez « {{name}} » comme nouveau client.",
+    "samePhone": "Même téléphone",
+    "sameName": "Même nom",
+    "createAnyway": "Nouveau client « {{name}} »",
+    "registerAnother": "Enregistrer un autre client « {{name}} »",
+    "idDocumentType": "Type de pièce",
+    "allergen": {
+      "peanuts": "Arachides",
+      "nuts": "Fruits à coque",
+      "gluten": "Gluten",
+      "milk": "Lait",
+      "eggs": "Œufs",
+      "fish": "Poisson",
+      "crustaceans": "Crustacés",
+      "molluscs": "Mollusques",
+      "soy": "Soja",
+      "sesame": "Sésame",
+      "celery": "Céleri",
+      "mustard": "Moutarde",
+      "sulphites": "Sulfites",
+      "lupin": "Lupin"
+    },
+    "diet": {
+      "vegetarian": "Végétarien",
+      "vegan": "Végan",
+      "pescatarian": "Pescétarien",
+      "halal": "Halal",
+      "kosher": "Casher",
+      "gluten_free": "Sans gluten",
+      "lactose_free": "Sans lactose",
+      "no_pork": "Sans porc",
+      "low_salt": "Peu salé",
+      "diabetic": "Diabétique"
+    },
+    "idType": {
+      "cin": "CIN",
+      "nif": "NIF",
+      "passport": "Passeport",
+      "license": "Permis de conduire",
+      "other": "Autre"
+    }
   }
 }

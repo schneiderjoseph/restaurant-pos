@@ -104,6 +104,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_05_free_discounts', file: '2026_10_05_free_discounts.surql' },
   { id: '2026_10_05_station_accounts', file: '2026_10_05_station_accounts.surql' },
   { id: '2026_10_05_order_edit_split_roles', file: '2026_10_05_order_edit_split_roles.surql' },
+  { id: '2026_10_06_customer_management', file: '2026_10_06_customer_management.surql' },
 ];
 
 const rows = (result) => {

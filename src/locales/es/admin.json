@@ -23,7 +23,8 @@
     "accessTab": "Acceder a {{title}}",
     "ariaLabel": "Pestañas de administración",
     "securityAlerts": "Alertas de Seguridad",
-    "generalSettings": "Ajustes generales"
+    "generalSettings": "Ajustes generales",
+    "customers": "Clientes"
   },
   "columns": {
     "photo": "Foto",
@@ -462,6 +463,9 @@
       },
       "integrations": {
         "label": "Integraciones"
+      },
+      "customers": {
+        "label": "Clientes"
       }
     },
     "permissions": {
@@ -698,7 +702,14 @@
       "integrations.queue": "Cola de integración",
       "integrations.toggle_provider": "Activar o desactivar proveedor de integración",
       "integrations.open_configuration": "Abrir configuración de integración",
-      "integrations.save_configuration": "Guardar configuración de integración"
+      "integrations.save_configuration": "Guardar configuración de integración",
+      "customers.create": "Registrar clientes sin reserva",
+      "customers.preferences": "Editar alergias, dieta y notas",
+      "customers.view_id_document": "Ver documentos completos",
+      "admin.customers": "Clientes",
+      "admin.customers.update": "Editar cualquier cliente",
+      "admin.customers.delete": "Eliminar y restaurar clientes",
+      "admin.customers.merge": "Fusionar clientes duplicados"
     }
   },
   "discountEngine": {
@@ -878,5 +889,52 @@
     "hideDetails": "▼ Ocultar detalles",
     "showDetails": "▶ Mostrar detalles",
     "badgeTooltip": "{{count}} alerta(s) crítica(s) abierta(s)"
+  },
+  "customers": {
+    "email": "Correo",
+    "source": "Origen",
+    "sources": {
+      "walk-in": "Sin reserva",
+      "asi-fd": "Hotel (ASI)",
+      "local": "Local"
+    },
+    "createdAt": "Creado",
+    "deletedAt": "Eliminado",
+    "view": "Ver",
+    "merge": "Fusionar con otro cliente",
+    "restore": "Restaurar",
+    "scope": {
+      "active": "Activos",
+      "deleted": "Eliminados"
+    },
+    "searchPlaceholder": "Nombre, teléfono, documento, C-000123…",
+    "saved": "Cliente guardado",
+    "saveFailed": "No se pudo guardar el cliente",
+    "editTitle": "Editar cliente",
+    "deletedBanner": "Este cliente fue eliminado.",
+    "mergedBanner": "Este cliente fue fusionado con otro.",
+    "deleteTitle": "¿Eliminar a {{name}}?",
+    "deleteHint": "El cliente desaparece de las listas. Sus pedidos se conservan y un gerente puede restaurarlo.",
+    "deleteReasonPlaceholder": "Motivo (opcional)",
+    "deleted": "{{name}} eliminado",
+    "deleteFailed": "No se pudo eliminar el cliente",
+    "restored": "{{name}} restaurado",
+    "restoreFailed": "No se pudo restaurar el cliente",
+    "restoreIdTaken": "Otro cliente activo tiene ahora este documento: fusiónelo o edítelo primero.",
+    "mergeTitle": "Fusionar {{name}}",
+    "mergeHint": "Elija el cliente que se conserva. El duplicado desaparece de las listas; sus pedidos aparecen con el cliente conservado, que toma sus datos faltantes.",
+    "mergeDuplicate": "Duplicado",
+    "mergeKeep": "Cliente que se conserva",
+    "mergeSummary": "{{from}} se fusionará con {{to}}.",
+    "mergeConfirm": "Fusionar",
+    "merged": "{{from}} fusionado con {{to}}",
+    "mergeFailed": "No se pudieron fusionar los clientes",
+    "stats": {
+      "visits": "Visitas",
+      "spent": "Gastado",
+      "average": "Ticket medio",
+      "lastVisit": "Última visita",
+      "favorites": "Platos favoritos"
+    }
   }
 }

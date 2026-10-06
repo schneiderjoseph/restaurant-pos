@@ -18,12 +18,26 @@ import {
   PHONE_SEARCH_MIN_DIGITS,
   previewGuestCode,
 } from "@/lib/guest.ts";
-import { findCustomerByPhone } from "@/lib/customer-phone.ts";
 import {
   findCustomerByIdDocument,
   hasWalkInContact,
   normalizeIdDocument,
 } from "@/lib/customer-id-document.ts";
+import {
+  ACTIVE_CUSTOMER,
+  createWalkInCustomer,
+  customerNumberLabel,
+  CustomerIdDocumentTakenError,
+  findWalkInMatches,
+  parseCustomerNumber,
+  type CustomerMatch,
+} from "@/lib/customer.service.ts";
+import { displayPhone } from "@/lib/phone.ts";
+import { PhoneInput } from "@/components/customer/phone.input.tsx";
+import { CustomerMatchesModal } from "@/components/customer/customer.matches.modal.tsx";
+import { useModuleAccess } from "@/providers/module-access.provider.tsx";
+import { appPage } from "@/store/jotai.ts";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner";
 import { usesAsiPmsRooms } from "@/lib/pos-mode.ts";
 
@@ -46,10 +60,15 @@ export const Customers = ({
   const [saving, setSaving] = useState(false);
   const [newPhone, setNewPhone] = useState("");
   const [newIdDocument, setNewIdDocument] = useState("");
+  const [page] = useAtom(appPage);
+  const { can } = useModuleAccess();
+  const [matches, setMatches] = useState<CustomerMatch[] | null>(null);
 
-  // Exact matches only: a name merely spelled close does not block registering a new guest.
+  // A name already listed is not the same person: registering it again is one tap away.
   const [exactCount, setExactCount] = useState(0);
-  const canRegister = exactCount === 0 && canRegisterGuestFromSearch(search);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const canRegisterName = can("customers.create") && canRegisterGuestFromSearch(search);
+  const canRegister = canRegisterName && (exactCount === 0 || registerOpen);
 
   const displayCode = useMemo(() => {
     if (codeOverride) return codeOverride;
@@ -58,6 +77,7 @@ export const Customers = ({
 
   useEffect(() => {
     setCodeOverride(null);
+    setRegisterOpen(false);
   }, [search]);
 
   const loadCustomers = async (term: string) => {
@@ -68,10 +88,12 @@ export const Customers = ({
       try {
         const [list] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers}
-           WHERE in_house = true OR tags CONTAINS 'in-house'
+           WHERE ${ACTIVE_CUSTOMER} AND (
+              in_house = true OR tags CONTAINS 'in-house'
               OR source = 'walk-in' OR tags CONTAINS 'walk-in'
               OR source = 'local'
               OR (notes != NONE AND notes != NULL AND notes != '')
+           )
            ORDER BY in_house DESC, name
            LIMIT 500`
         );
@@ -89,7 +111,7 @@ export const Customers = ({
     if(term.trim().length === 0){
       try {
         const [list] = await db.query<Customer[]>(
-          `SELECT * FROM ${Tables.customers} ORDER BY name LIMIT 500`
+          `SELECT * FROM ${Tables.customers} WHERE ${ACTIVE_CUSTOMER} ORDER BY name LIMIT 500`
         );
         setCustomers(Array.isArray(list) ? list : []);
       } catch (error) {
@@ -105,15 +127,22 @@ export const Customers = ({
     try {
       const [list] = await db.query<Customer[]>(
         `SELECT * FROM ${Tables.customers}
-         WHERE string::contains(string::lowercase(name ?? ''), $q)
+         WHERE ${ACTIVE_CUSTOMER} AND (
+            string::contains(string::lowercase(name ?? ''), $q)
             OR string::contains(string::lowercase(guest_code ?? ''), $q)
             OR string::contains(string::lowercase(type::string(phone ?? '')), $q)
             OR ($digits != '' AND string::contains(string::replace(type::string(phone ?? ''), /[^0-9]/, ''), $digits))
             OR string::contains(string::lowercase(email ?? ''), $q)
             OR string::contains(string::lowercase(type::string(room ?? '')), $q)
+            OR ($number != NONE AND number = $number)
+         )
          ORDER BY name
          LIMIT 25`,
-        { q, digits: digits.length >= PHONE_SEARCH_MIN_DIGITS ? digits : '' }
+        {
+          q,
+          digits: digits.length >= PHONE_SEARCH_MIN_DIGITS ? digits : '',
+          number: parseCustomerNumber(term) ?? undefined,
+        }
       );
 
       setCustomers(Array.isArray(list) ? list : []);
@@ -140,28 +169,19 @@ export const Customers = ({
     onAttach?.();
   };
 
-  const createFromSearch = async () => {
+  const createFromSearch = async (confirmed = false) => {
     const name = search.trim().replace(/\s+/g, ' ');
     if (!canRegisterGuestFromSearch(name)) {
       toast.error(t("menu:guest.nameRequired"));
       return;
     }
 
-    if (newPhone.trim()) {
-      // A failed duplicate check must not block the registration.
-      const existing = await findCustomerByPhone(db, newPhone).catch((error) => {
-        console.error("Phone lookup failed", error);
-        return undefined;
-      });
-      if (existing) {
-        toast.message(t("menu:guest.phoneExists", {
-          name: existing.name || existing.guest_code || "",
-        }));
-        await attachCustomer(existing);
-        return;
-      }
+    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
+      toast.error(t("menu:guest.contactRequired"));
+      return;
     }
 
+    // One ID document, one client: that client is attached.
     if (normalizeIdDocument(newIdDocument)) {
       // A failed duplicate check must not block the registration.
       const existing = await findCustomerByIdDocument(db, newIdDocument).catch((error) => {
@@ -177,9 +197,16 @@ export const Customers = ({
       }
     }
 
-    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
-      toast.error(t("menu:guest.contactRequired"));
-      return;
+    // Same phone or same name is not the same person: staff choose.
+    if (!confirmed) {
+      const found = await findWalkInMatches(db, { name, phone: newPhone }).catch((error) => {
+        console.error("Walk-in match lookup failed", error);
+        return [] as CustomerMatch[];
+      });
+      if (found.length > 0) {
+        setMatches(found);
+        return;
+      }
     }
 
     setSaving(true);
@@ -196,33 +223,26 @@ export const Customers = ({
         guest_code = generateWalkInGuestCode(name);
       }
 
-      const [created] = await db.insert(Tables.customers, {
+      const created = await createWalkInCustomer(db, {
         name,
-        guest_code,
-        room: null,
-        in_house: false,
-        source: 'walk-in',
-        tags: ['walk-in'],
-        phone: newPhone.trim() || null,
-        // Only named when set: keeps this insert valid on a DB without
-        // migrations/2026_10_02_customer_id_document.surql (customer is SCHEMAFULL).
-        ...(normalizeIdDocument(newIdDocument)
-          ? { id_document_number: normalizeIdDocument(newIdDocument) }
-          : {}),
+        guestCode: guest_code,
+        phone: newPhone,
+        idDocument: newIdDocument,
+        createdBy: page?.user,
       });
 
-      if (!created) {
-        toast.error(t("menu:guest.createFailed"));
-        return;
-      }
-
+      setMatches(null);
       setNewPhone("");
       setNewIdDocument("");
       toast.success(t("menu:guest.created"));
-      await attachCustomer(created as unknown as Customer);
+      await attachCustomer(created);
     } catch (error) {
       console.error(error);
-      toast.error(t("menu:guest.createFailed"));
+      toast.error(
+        error instanceof CustomerIdDocumentTakenError
+          ? t("menu:guest.idDocumentTaken", { name: "" })
+          : t("menu:guest.createFailed"),
+      );
     } finally {
       setSaving(false);
     }
@@ -250,6 +270,20 @@ export const Customers = ({
         />
       </div>
 
+      {canRegisterName && !canRegister && (
+        <Button
+          type="button"
+          variant="primary"
+          flat
+          icon={faPlus}
+          className="mb-3"
+          onClick={() => setRegisterOpen(true)}
+          data-testid="walkin-register-homonym"
+        >
+          {t("menu:customer.registerAnother", { name: search.trim() })}
+        </Button>
+      )}
+
       {canRegister && (
         <div className="mb-4 rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3" data-testid="walkin-create">
           <div className="font-semibold text-lg">
@@ -266,14 +300,12 @@ export const Customers = ({
                 data-testid="walkin-code"
               />
             </div>
-            <div className="flex-1 min-w-[120px]">
-              <Input
-                type="tel"
-                inputMode="tel"
+            <div className="flex-[2] min-w-[240px]">
+              <PhoneInput
                 label={t("menu:guest.phone")}
                 value={newPhone}
-                onChange={(event) => setNewPhone(event.target.value)}
-                data-testid="walkin-phone"
+                onChange={setNewPhone}
+                testId="walkin-phone"
               />
             </div>
             <div className="flex-1 min-w-[120px]">
@@ -316,6 +348,7 @@ export const Customers = ({
           <thead>
             <tr>
               <th>{t("customer.columns.select")}</th>
+              <th>{t("menu:customer.number")}</th>
               <th>{t("customer.columns.name")}</th>
               <th>{t("customer.columns.email")}</th>
               <th>{t("customer.columns.phone")}</th>
@@ -337,6 +370,7 @@ export const Customers = ({
                   variant="secondary"
                 />
               </td>
+              <td className="whitespace-nowrap text-neutral-600">{customerNumberLabel(item)}</td>
               <td>
                 {item.name}
                 {item.room ? (
@@ -346,7 +380,7 @@ export const Customers = ({
                 ) : null}
               </td>
               <td>{item.email}</td>
-              <td>{item.phone}</td>
+              <td className="whitespace-nowrap">{displayPhone(item.phone)}</td>
               <td>{item.address}</td>
               <td>{item.secondary_address}</td>
               <td>{item.points}</td>
@@ -355,6 +389,21 @@ export const Customers = ({
           </tbody>
         </table>
       </div>
+
+      {matches && (
+        <CustomerMatchesModal
+          open
+          name={search.trim().replace(/\s+/g, " ")}
+          matches={matches}
+          creating={saving}
+          onPick={(customer) => {
+            setMatches(null);
+            void attachCustomer(customer);
+          }}
+          onCreateNew={() => void createFromSearch(true)}
+          onClose={() => setMatches(null)}
+        />
+      )}
     </>
   )
 }

@@ -1,6 +1,7 @@
 import { Tables } from '@/api/db/tables.ts';
 import type { Customer } from '@/api/model/customer.ts';
-import { MIN_PHONE_DIGITS } from '@/lib/customer-phone.ts';
+import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
+import { MIN_PHONE_DIGITS } from '@/lib/phone.ts';
 import { phoneDigits } from '@/lib/guest.ts';
 
 type AnyDb = {
@@ -42,10 +43,19 @@ export function hasWalkInContact(contact: { phone?: string | null; idDocument?: 
   );
 }
 
-/** Existing customer holding this ID document number, so registering it again re-selects them. */
+/** Kinds of ID document a walk-in may show. */
+export const ID_DOCUMENT_TYPES = ['cin', 'nif', 'passport', 'license', 'other'] as const;
+export type IdDocumentType = (typeof ID_DOCUMENT_TYPES)[number];
+
+/**
+ * Active customer holding this ID document number, so registering it again re-selects them.
+ * The ID identifies one person: the database refuses a second active holder.
+ * With `includeDeleted`, a deleted or merged holder is found too (to offer restoring it).
+ */
 export async function findCustomerByIdDocument(
   db: AnyDb,
   idDocument?: string | null,
+  options: { includeDeleted?: boolean } = {},
 ): Promise<Customer | undefined> {
   const number = normalizeIdDocument(idDocument);
   if (!number) {
@@ -53,7 +63,10 @@ export async function findCustomerByIdDocument(
   }
 
   const result = await db.query(
-    `SELECT * FROM ${Tables.customers} WHERE id_document_number = $number LIMIT 1`,
+    `SELECT * FROM ${Tables.customers}
+     WHERE id_document_number = $number${options.includeDeleted ? '' : ` AND ${ACTIVE_CUSTOMER}`}
+     ORDER BY deleted_at, number
+     LIMIT 1`,
     { number },
   );
   const rows = Array.isArray(result) ? result[0] : undefined;

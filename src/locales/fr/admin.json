@@ -23,7 +23,8 @@
     "accessTab": "Accéder à {{title}}",
     "ariaLabel": "Onglets d'administration",
     "securityAlerts": "Alertes de Sécurité",
-    "generalSettings": "Paramètres généraux"
+    "generalSettings": "Paramètres généraux",
+    "customers": "Clients"
   },
   "columns": {
     "photo": "Photo",
@@ -496,6 +497,9 @@
       },
       "integrations": {
         "label": "Intégrations"
+      },
+      "customers": {
+        "label": "Clients"
       }
     },
     "permissions": {
@@ -736,7 +740,14 @@
       "integrations.queue": "File d'attente d'intégration",
       "integrations.toggle_provider": "Activer ou désactiver le fournisseur d'intégration",
       "integrations.open_configuration": "Ouvrir la configuration d'intégration",
-      "integrations.save_configuration": "Enregistrer la configuration d'intégration"
+      "integrations.save_configuration": "Enregistrer la configuration d'intégration",
+      "customers.create": "Enregistrer des clients walk-in",
+      "customers.preferences": "Modifier allergies, régime et notes",
+      "customers.view_id_document": "Voir les pièces d'identité en entier",
+      "admin.customers": "Clients",
+      "admin.customers.update": "Modifier n'importe quel client",
+      "admin.customers.delete": "Supprimer et restaurer des clients",
+      "admin.customers.merge": "Fusionner les doublons"
     }
   },
   "discountEngine": {
@@ -916,5 +927,52 @@
     "hideDetails": "▼ Masquer détails",
     "showDetails": "▶ Afficher détails",
     "badgeTooltip": "{{count}} alerte(s) critique(s) ouverte(s)"
+  },
+  "customers": {
+    "email": "E-mail",
+    "source": "Origine",
+    "sources": {
+      "walk-in": "Walk-in",
+      "asi-fd": "Hôtel (ASI)",
+      "local": "Local"
+    },
+    "createdAt": "Créé le",
+    "deletedAt": "Supprimé le",
+    "view": "Voir",
+    "merge": "Fusionner dans un autre client",
+    "restore": "Restaurer",
+    "scope": {
+      "active": "Actifs",
+      "deleted": "Supprimés"
+    },
+    "searchPlaceholder": "Nom, téléphone, pièce, C-000123…",
+    "saved": "Client enregistré",
+    "saveFailed": "Impossible d'enregistrer le client",
+    "editTitle": "Modifier le client",
+    "deletedBanner": "Ce client a été supprimé.",
+    "mergedBanner": "Ce client a été fusionné dans un autre.",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteHint": "Le client disparaît des listes. Ses commandes restent, et un manager peut le restaurer.",
+    "deleteReasonPlaceholder": "Motif (facultatif)",
+    "deleted": "{{name}} supprimé",
+    "deleteFailed": "Impossible de supprimer le client",
+    "restored": "{{name}} restauré",
+    "restoreFailed": "Impossible de restaurer le client",
+    "restoreIdTaken": "Un autre client actif détient maintenant cette pièce d'identité : fusionnez-le ou modifiez-le d'abord.",
+    "mergeTitle": "Fusionner {{name}}",
+    "mergeHint": "Choisissez le client à garder. Le doublon disparaît des listes ; ses commandes apparaissent avec le client gardé, qui reprend ses informations manquantes.",
+    "mergeDuplicate": "Doublon",
+    "mergeKeep": "Client à garder",
+    "mergeSummary": "{{from}} sera fusionné dans {{to}}.",
+    "mergeConfirm": "Fusionner",
+    "merged": "{{from}} fusionné dans {{to}}",
+    "mergeFailed": "Impossible de fusionner les clients",
+    "stats": {
+      "visits": "Visites",
+      "spent": "Dépensé",
+      "average": "Ticket moyen",
+      "lastVisit": "Dernière visite",
+      "favorites": "Plats préférés"
+    }
   }
 }

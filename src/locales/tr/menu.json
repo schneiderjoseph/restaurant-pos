@@ -105,9 +105,77 @@
     "contactHint": "Telefon veya kimlik belgesi: en az biri gerekli.",
     "contactRequired": "Bir telefon numarası veya kimlik belgesi girin",
     "departure": "Check-out {{date}}",
-    "departureToday": "Checks out today"
+    "departureToday": "Checks out today",
+    "phoneCountry": "Ülke kodu",
+    "phoneCountriesFrequent": "Sık kullanılan",
+    "phoneCountriesAll": "Tüm ülkeler"
   },
   "outlets": {
     "all": "Tümü"
+  },
+  "customer": {
+    "number": "No",
+    "name": "Ad",
+    "editName": "Adı düzenle",
+    "nameSaved": "Ad kaydedildi",
+    "nameSaveFailed": "Ad kaydedilemedi",
+    "preferences": "Tercihler",
+    "preferencesTitle": "{{name}} tercihleri",
+    "preferencesSaved": "Tercihler kaydedildi",
+    "preferencesSaveFailed": "Tercihler kaydedilemedi",
+    "allergies": "Alerjiler",
+    "allergiesHint": "Mutfak fişlerine yazdırılır.",
+    "otherAllergyPlaceholder": "Diğer alerji…",
+    "dietTitle": "Diyet",
+    "seating": "Tercih edilen yer",
+    "seatingPlaceholder": "Teras, pencere kenarı…",
+    "language": "Dil",
+    "languagePlaceholder": "Kreolce, İngilizce…",
+    "birthday": "Doğum günü",
+    "birthdayToday": "Bugün doğum günü",
+    "marketingConsent": "Teklif almayı kabul ediyor",
+    "matchesTitle_one": "1 kayıtlı müşteri bu kişi olabilir",
+    "matchesTitle_other": "{{count}} kayıtlı müşteri bu kişi olabilir",
+    "matchesHint": "Aynı ad veya aynı telefon aynı kişi demek değildir. O ise müşteriyi seçin, değilse “{{name}}” adını yeni müşteri olarak kaydedin.",
+    "samePhone": "Aynı telefon",
+    "sameName": "Aynı ad",
+    "createAnyway": "Yeni müşteri “{{name}}”",
+    "registerAnother": "Başka bir “{{name}}” müşterisi kaydet",
+    "idDocumentType": "Belge türü",
+    "allergen": {
+      "peanuts": "Yer fıstığı",
+      "nuts": "Kabuklu yemişler",
+      "gluten": "Gluten",
+      "milk": "Süt",
+      "eggs": "Yumurta",
+      "fish": "Balık",
+      "crustaceans": "Kabuklular",
+      "molluscs": "Yumuşakçalar",
+      "soy": "Soya",
+      "sesame": "Susam",
+      "celery": "Kereviz",
+      "mustard": "Hardal",
+      "sulphites": "Sülfitler",
+      "lupin": "Acı bakla"
+    },
+    "diet": {
+      "vegetarian": "Vejetaryen",
+      "vegan": "Vegan",
+      "pescatarian": "Pesketaryen",
+      "halal": "Helal",
+      "kosher": "Koşer",
+      "gluten_free": "Glutensiz",
+      "lactose_free": "Laktozsuz",
+      "no_pork": "Domuz eti yok",
+      "low_salt": "Az tuzlu",
+      "diabetic": "Diyabetik"
+    },
+    "idType": {
+      "cin": "Kimlik kartı",
+      "nif": "Vergi no (NIF)",
+      "passport": "Pasaport",
+      "license": "Ehliyet",
+      "other": "Diğer"
+    }
   }
 }

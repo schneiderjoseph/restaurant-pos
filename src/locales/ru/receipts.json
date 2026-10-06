@@ -42,5 +42,6 @@
   "time": "Время",
   "reason": "Причина",
   "note": "Заметка",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "АЛЛЕРГИИ"
 }

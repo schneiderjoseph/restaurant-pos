@@ -16,6 +16,31 @@ function toIsoDay(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 10);
 }
 
+/** What a guest's new stay takes from the previous ones (staff note and preferences). */
+const CARRIED_FIELDS = [
+  'notes', 'allergies', 'dietary', 'seating_pref', 'language', 'birthday', 'vip', 'marketing_consent',
+];
+
+const hasValue = (value) => {
+  if (value == null) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+};
+
+/**
+ * For each carried field, the latest value set on one of the previous stays (newest first).
+ * A boolean is carried only when true: false is the default anyway.
+ */
+function carriedPreferences(previousStays) {
+  const carried = {};
+  for (const field of CARRIED_FIELDS) {
+    const stay = previousStays.find((row) => hasValue(row[field]) && row[field] !== false);
+    if (stay) carried[field] = stay[field];
+  }
+  return carried;
+}
+
 /**
  * Upsert in-house FrontDesk guests into POSR customers.
  * Soft-clears room / in-house for previous ASI stays no longer checked in.
@@ -77,22 +102,20 @@ async function upsertGuests(db, guests) {
       );
       updated += 1;
     } else {
-      // New stay: carry the staff note over from this guest's previous stay.
-      // Only on CREATE, so a note edited or cleared in POSR survives later polls.
-      let notes = null;
-      if (g.guestId != null) {
-        const previous = await queryRows(
+      // New stay: carry the staff note and preferences over from this guest's previous
+      // stays. Only on CREATE, so what staff edit or clear in POSR survives later polls.
+      const carried = g.guestId != null
+        ? carriedPreferences(await queryRows(
           db,
-          `SELECT notes, asi_synced_at FROM customer
-           WHERE asi_guest_id = $gid AND notes != NONE AND notes != NULL AND notes != ''
-           ORDER BY asi_synced_at DESC LIMIT 1`,
+          `SELECT ${CARRIED_FIELDS.join(', ')}, asi_synced_at FROM customer
+           WHERE asi_guest_id = $gid
+           ORDER BY asi_synced_at DESC LIMIT 10`,
           { gid: g.guestId },
-        );
-        notes = previous[0]?.notes ?? null;
-      }
-      // Only name the field when there is a note: keeps this CREATE valid on a DB
-      // that has not received migrations/2026_10_01_customer_notes.surql yet.
-      const notesSet = notes ? 'notes = $notes,' : '';
+        ))
+        : {};
+      // Only name the fields that have a value: keeps this CREATE valid on a DB without
+      // migrations/2026_10_01_customer_notes.surql or 2026_10_06_customer_management.surql.
+      const notesSet = Object.keys(carried).map((field) => `${field} = $carried.${field},`).join(' ');
       try {
         await queryRows(
           db,
@@ -113,7 +136,7 @@ async function upsertGuests(db, guests) {
             tags = $tags,
             ${notesSet}
             points = 0`,
-          { id: asRecord(id), ...payload, notes },
+          { id: asRecord(id), ...payload, carried },
         );
         created += 1;
       } catch (err) {
@@ -184,4 +207,4 @@ async function upsertGuests(db, guests) {
   };
 }
 
-module.exports = { upsertGuests, customerRecordId, toIsoDay };
+module.exports = { upsertGuests, customerRecordId, toIsoDay, carriedPreferences };

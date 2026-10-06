@@ -85,7 +85,7 @@ export function phoneDigits(value?: string | number | null): string {
 export const PHONE_SEARCH_MIN_DIGITS = 3;
 
 type SearchableGuest = Pick<Customer, 'name' | 'guest_code' | 'room' | 'phone' | 'email'>
-  & Partial<Pick<Customer, 'id_document_number' | 'asi_folio_no' | 'asi_guest_id'>>;
+  & Partial<Pick<Customer, 'id_document_number' | 'asi_folio_no' | 'asi_guest_id' | 'number'>>;
 
 /** Letters and digits only, so "AB-123 456" and "ab123456" compare equal. */
 const alphanumeric = (value: unknown): string =>
@@ -113,6 +113,12 @@ function guestFieldMatchesToken(guest: SearchableGuest, token: string): boolean 
 
   const digits = /\p{L}/u.test(token) ? '' : phoneDigits(token);
   if (digits.length >= PHONE_SEARCH_MIN_DIGITS && phoneDigits(guest.phone).includes(digits)) {
+    return true;
+  }
+
+  // Customer number: "C-000123", "c123".
+  const customerNumber = /^c-?0*(\d{1,9})$/i.exec(token);
+  if (customerNumber && guest.number != null && guest.number === Number(customerNumber[1])) {
     return true;
   }
 

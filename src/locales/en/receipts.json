@@ -45,5 +45,6 @@
   "time": "Time",
   "reason": "Reason",
   "note": "Note",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "ALLERGIES"
 }

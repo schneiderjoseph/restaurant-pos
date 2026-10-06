@@ -58,6 +58,12 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
     label: "Editing sent orders",
     children: ["order_edit.sent_items", "order_edit.approve"],
   },
+  // Customers from the POS, its own section for the same reason. Managing the customer file
+  // (edit any customer, delete, restore, merge) is admin.customers.*.
+  customers: {
+    label: "Customers",
+    children: ["customers.create", "customers.preferences", "customers.view_id_document"],
+  },
   summary: {
     label: "Summary",
     children: [
@@ -214,6 +220,10 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "admin.tips_definition.delete",
       "admin.security_alerts",
       "admin.general_settings",
+      "admin.customers",
+      "admin.customers.update",
+      "admin.customers.delete",
+      "admin.customers.merge",
     ],
   },
   riders: {

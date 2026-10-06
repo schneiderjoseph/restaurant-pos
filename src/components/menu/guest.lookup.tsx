@@ -7,7 +7,6 @@ import { Floor } from '@/api/model/floor.ts';
 import { Order, OrderStatus } from '@/api/model/order.ts';
 import { Table } from '@/api/model/table.ts';
 import { Input } from '@/components/common/input/input.tsx';
-import { Textarea } from '@/components/common/input/textarea.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
 import {
@@ -18,17 +17,35 @@ import {
   canRegisterGuestFromSearch,
   previewGuestCode,
   searchGuests,
-  namesAreSamePerson,
   dropSupersededStays,
   isAsiGuest,
 } from '@/lib/guest.ts';
-import { findCustomerByPhone } from '@/lib/customer-phone.ts';
 import {
   findCustomerByIdDocument,
   hasWalkInContact,
+  ID_DOCUMENT_TYPES,
   maskIdDocument,
   normalizeIdDocument,
 } from '@/lib/customer-id-document.ts';
+import {
+  ACTIVE_CUSTOMER,
+  canEditCustomerIdentity,
+  createWalkInCustomer,
+  customerHistoryIds,
+  customerNumberLabel,
+  CustomerIdDocumentTakenError,
+  findWalkInMatches,
+  LAST_ORDER_AT,
+  updateCustomer,
+  type CustomerMatch,
+  type CustomerPatch,
+} from '@/lib/customer.service.ts';
+import { displayPhone } from '@/lib/phone.ts';
+import { PhoneInput } from '@/components/customer/phone.input.tsx';
+import { CustomerAlerts } from '@/components/customer/customer.alerts.tsx';
+import { CustomerPreferencesForm } from '@/components/customer/customer.preferences.form.tsx';
+import { CustomerMatchesModal } from '@/components/customer/customer.matches.modal.tsx';
+import { useModuleAccess } from '@/providers/module-access.provider.tsx';
 import { toLuxonDateTime, nowSurrealDateTime } from '@/lib/datetime.ts';
 import { getGuestDeparture } from '@/lib/guest-departure.ts';
 import {
@@ -55,7 +72,7 @@ import { appPage, appSettings, appState } from '@/store/jotai.ts';
 import { orderEditSessionAtom } from '@/store/order-edit-session.ts';
 import { flushSync } from 'react-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faNoteSticky, faPencil, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faNoteSticky, faPencil, faPlus, faSliders, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 type FolioOrder = Order & { item_count?: number };
 
@@ -70,6 +87,10 @@ export const GuestLookup = () => {
   const [page] = useAtom(appPage);
   const preferInHouse = usesAsiPmsRooms();
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const { can } = useModuleAccess();
+  const canCreateCustomer = can('customers.create');
+  const canEditPreferences = can('customers.preferences');
+  const canViewIdDocument = can('customers.view_id_document');
 
   const [search, setSearch] = useState('');
   const [guests, setGuests] = useState<Customer[]>([]);
@@ -87,10 +108,16 @@ export const GuestLookup = () => {
   const [editInfo, setEditInfo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [transferOrder, setTransferOrder] = useState<FolioOrder | undefined>();
-  const [editingNote, setEditingNote] = useState(false);
-  const [noteDraft, setNoteDraft] = useState('');
-  const [savingNote, setSavingNote] = useState(false);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  // Known clients the walk-in being registered may be (same phone or name): staff choose.
+  const [walkInMatches, setWalkInMatches] = useState<{ list: CustomerMatch[]; andStartOrder: boolean } | null>(null);
+  // A name already known still registers a new client, from an explicit button.
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const [savingName, setSavingName] = useState(false);
   const [newPhone, setNewPhone] = useState('');
+  const [newIdDocumentType, setNewIdDocumentType] = useState('');
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
@@ -106,9 +133,9 @@ export const GuestLookup = () => {
   const results = useMemo(() => [...found.exact, ...found.close], [found]);
   const firstCloseId = found.close[0]?.id?.toString();
 
-  // A close spelling is a hint, not the same person: the new name can still be registered.
-  const canRegisterFromSearch =
-    found.exact.length === 0 && canRegisterGuestFromSearch(search);
+  // The name never identifies a client: a known name can be registered again, as a new client.
+  const canRegisterFromSearch = canCreateCustomer && canRegisterGuestFromSearch(search);
+  const showRegisterPanel = canRegisterFromSearch && (found.exact.length === 0 || registerOpen);
 
   const selectedLastOrderAt = folio[0]?.created_at ?? selected?.last_order_at;
   const selectedLastOrderLabel = selectedLastOrderAt
@@ -127,6 +154,7 @@ export const GuestLookup = () => {
   useEffect(() => {
     // Name changed → drop manual override so the stable preview tracks the typed name.
     setCodeOverride(null);
+    setRegisterOpen(false);
   }, [search]);
 
   useEffect(() => {
@@ -166,23 +194,23 @@ export const GuestLookup = () => {
   const loadGuests = async () => {
     setLoadingGuests(true);
     try {
-      const lastOrderAt = `(SELECT VALUE created_at FROM ${Tables.orders}
-         WHERE customer = $parent.id
-         ORDER BY created_at DESC LIMIT 1)[0] AS last_order_at`;
       // ASI mode: PMS in-house + POSR walk-in / local guests (never hide local registry),
-      // plus checked-out FD guests that carry a staff note.
+      // plus checked-out FD guests that carry a staff note. Deleted / merged clients never.
       const [list] = preferInHouse
         ? await db.query<Customer[]>(
-            `SELECT *, ${lastOrderAt} FROM ${Tables.customers}
-             WHERE in_house = true OR tags CONTAINS 'in-house'
+            `SELECT *, ${LAST_ORDER_AT} FROM ${Tables.customers}
+             WHERE ${ACTIVE_CUSTOMER} AND (
+                in_house = true OR tags CONTAINS 'in-house'
                 OR source = 'walk-in' OR tags CONTAINS 'walk-in'
                 OR source = 'local'
                 OR (notes != NONE AND notes != NULL AND notes != '')
+             )
              ORDER BY in_house DESC, name
              LIMIT 500`
           )
         : await db.query<Customer[]>(
-            `SELECT *, ${lastOrderAt} FROM ${Tables.customers}
+            `SELECT *, ${LAST_ORDER_AT} FROM ${Tables.customers}
+             WHERE ${ACTIVE_CUSTOMER}
              ORDER BY name
              LIMIT 500`
           );
@@ -202,13 +230,15 @@ export const GuestLookup = () => {
       return;
     }
 
+    // Its own orders and those of the duplicates merged into it.
+    const customers = await customerHistoryIds(db, customer.id);
     const [rows] = await db.query<FolioOrder[]>(
       `SELECT * FROM ${Tables.orders}
-       WHERE customer = $customer
+       WHERE customer IN $customers
        ORDER BY created_at DESC
        LIMIT 20
        FETCH floor, order_type, customer, table`,
-      { customer: customer.id }
+      { customers }
     );
 
     setFolio(Array.isArray(rows) ? rows : []);
@@ -232,8 +262,8 @@ export const GuestLookup = () => {
   }, [selected?.id]);
 
   useEffect(() => {
-    setEditingNote(false);
-    setNoteDraft(selected?.notes ?? '');
+    setEditingName(false);
+    setNameDraft(selected?.name ?? '');
     setEditingPhone(false);
     setPhoneDraft(
       selected?.phone != null && selected.phone !== ''
@@ -242,78 +272,63 @@ export const GuestLookup = () => {
     );
     setEditingIdDocument(false);
     setIdDocumentDraft('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset note/phone/ID editors when guest selection changes
+    setPreferencesOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset name/phone/ID editors when guest selection changes
   }, [selected?.id]);
 
-  const saveGuestNote = async () => {
-    if (!selected?.id) {
+  /** The stored customer replaces its copy everywhere on this screen and on the order. */
+  const applyUpdatedGuest = (updated: Customer) => {
+    setSelected(updated);
+    setGuests((prev) =>
+      prev.map((guest) =>
+        guest.id?.toString() === updated.id?.toString() ? { ...guest, ...updated } : guest,
+      ),
+    );
+    setState((prev) =>
+      prev.customer?.id?.toString() === updated.id?.toString()
+        ? { ...prev, customer: updated }
+        : prev,
+    );
+  };
+
+  /** Saves name, phone or ID document: only who may edit this client's identity. */
+  const saveGuestIdentity = async (patch: CustomerPatch) => {
+    if (!selected?.id || !canEditCustomerIdentity(selected, page?.user, can)) {
+      return false;
+    }
+    const updated = await updateCustomer(db, selected.id, patch, page?.user);
+    applyUpdatedGuest({ ...selected, ...updated, last_order_at: selected.last_order_at });
+    return true;
+  };
+
+  const saveGuestName = async () => {
+    const value = nameDraft.trim().replace(/\s+/g, ' ');
+    if (!canRegisterGuestFromSearch(value)) {
+      toast.error(t('menu:guest.nameRequired'));
       return;
     }
-
-    const value = noteDraft.trim() || null;
-    setSavingNote(true);
+    setSavingName(true);
     try {
-      await db.merge(toRecordId(selected.id), { notes: value });
-      const updated = { ...selected, notes: value };
-      setSelected(updated);
-      setGuests((prev) =>
-        prev.map((guest) =>
-          guest.id?.toString() === updated.id?.toString() ? updated : guest,
-        ),
-      );
-      setState((prev) =>
-        prev.customer?.id?.toString() === updated.id?.toString()
-          ? { ...prev, customer: updated }
-          : prev,
-      );
-      toast.success(t('menu:guest.noteSaved'));
-      setEditingNote(false);
+      if (await saveGuestIdentity({ name: value })) {
+        toast.success(t('menu:customer.nameSaved'));
+        setEditingName(false);
+      }
     } catch (error) {
       console.error(error);
-      toast.error(t('menu:guest.noteSaveFailed'));
+      toast.error(t('menu:customer.nameSaveFailed'));
     } finally {
-      setSavingNote(false);
+      setSavingName(false);
     }
   };
 
   const saveGuestPhone = async () => {
-    if (!selected?.id || isAsiGuest(selected)) {
-      return;
-    }
-
-    const value = phoneDraft.trim() || null;
+    // A phone may be shared (a family, a company): no uniqueness check.
     setSavingPhone(true);
     try {
-      if (value) {
-        const byPhone = await findCustomerByPhone(db, value);
-        if (
-          byPhone &&
-          byPhone.id?.toString() !== selected.id?.toString()
-        ) {
-          toast.error(
-            t('menu:guest.phoneTaken', {
-              name: byPhone.name || byPhone.guest_code || '',
-            }),
-          );
-          return;
-        }
+      if (await saveGuestIdentity({ phone: phoneDraft.trim() || null })) {
+        toast.success(t('menu:guest.phoneSaved'));
+        setEditingPhone(false);
       }
-
-      await db.merge(toRecordId(selected.id), { phone: value });
-      const updated = { ...selected, phone: value };
-      setSelected(updated);
-      setGuests((prev) =>
-        prev.map((guest) =>
-          guest.id?.toString() === updated.id?.toString() ? updated : guest,
-        ),
-      );
-      setState((prev) =>
-        prev.customer?.id?.toString() === updated.id?.toString()
-          ? { ...prev, customer: updated }
-          : prev,
-      );
-      toast.success(t('menu:guest.phoneSaved'));
-      setEditingPhone(false);
     } catch (error) {
       console.error(error);
       toast.error(t('menu:guest.phoneSaveFailed'));
@@ -323,7 +338,7 @@ export const GuestLookup = () => {
   };
 
   const saveGuestIdDocument = async () => {
-    if (!selected?.id || isAsiGuest(selected)) {
+    if (!selected?.id) {
       return;
     }
 
@@ -335,6 +350,7 @@ export const GuestLookup = () => {
     }
     setSavingIdDocument(true);
     try {
+      // One ID, one client: the database refuses a second holder too.
       const byIdDocument = await findCustomerByIdDocument(db, value);
       if (
         byIdDocument &&
@@ -348,25 +364,18 @@ export const GuestLookup = () => {
         return;
       }
 
-      await db.merge(toRecordId(selected.id), { id_document_number: value });
-      const updated = { ...selected, id_document_number: value };
-      setSelected(updated);
-      setGuests((prev) =>
-        prev.map((guest) =>
-          guest.id?.toString() === updated.id?.toString() ? updated : guest,
-        ),
-      );
-      setState((prev) =>
-        prev.customer?.id?.toString() === updated.id?.toString()
-          ? { ...prev, customer: updated }
-          : prev,
-      );
-      toast.success(t('menu:guest.idDocumentSaved'));
-      setEditingIdDocument(false);
-      setIdDocumentDraft('');
+      if (await saveGuestIdentity({ id_document_number: value })) {
+        toast.success(t('menu:guest.idDocumentSaved'));
+        setEditingIdDocument(false);
+        setIdDocumentDraft('');
+      }
     } catch (error) {
       console.error(error);
-      toast.error(t('menu:guest.idDocumentSaveFailed'));
+      toast.error(
+        error instanceof CustomerIdDocumentTakenError
+          ? t('menu:guest.idDocumentTaken', { name: '' })
+          : t('menu:guest.idDocumentSaveFailed'),
+      );
     } finally {
       setSavingIdDocument(false);
     }
@@ -375,9 +384,9 @@ export const GuestLookup = () => {
   const selectGuest = (customer: Customer) => {
     setSelected(customer);
     setEditInfo(false);
+    setEditingName(false);
     setEditingPhone(false);
     setEditingIdDocument(false);
-    setEditingNote(false);
     // The field holds a dining table only; an empty field sends the order to the guest's room.
     if (customer.room) {
       setTableNumber('');
@@ -388,37 +397,39 @@ export const GuestLookup = () => {
     }));
   };
 
-  const createGuestFromSearch = async (andStartOrder = false) => {
+  /** An existing client chosen instead of registering a new one. */
+  const pickExistingGuest = async (customer: Customer, andStartOrder: boolean) => {
+    selectGuest(customer);
+    setGuests((prev) => {
+      const id = customer.id?.toString();
+      const without = prev.filter((item) => item.id?.toString() !== id);
+      return [customer, ...without];
+    });
+    setSearch(customer.name?.trim() || search);
+    setWalkInMatches(null);
+    setNewPhone('');
+    setNewIdDocument('');
+    setNewIdDocumentType('');
+    if (andStartOrder) {
+      await startNewOrderFor(customer);
+    }
+  };
+
+  /**
+   * Registers the walk-in typed in the search. Its ID document is a known client's →
+   * that client. Same phone or same name → staff choose between the known clients and a
+   * new one (`confirmed` once they chose new). Otherwise a new client.
+   */
+  const createGuestFromSearch = async (andStartOrder = false, confirmed = false) => {
     const name = search.trim().replace(/\s+/g, ' ');
     if (!canRegisterGuestFromSearch(name)) {
       toast.error(t('menu:guest.nameRequired'));
       return;
     }
 
-    if (newPhone.trim()) {
-      // A failed duplicate check must not block the registration.
-      const byPhone = await findCustomerByPhone(db, newPhone).catch((error) => {
-        console.error('Phone lookup failed', error);
-        return undefined;
-      });
-      if (byPhone) {
-        selectGuest(byPhone);
-        setGuests((prev) => {
-          const id = byPhone.id?.toString();
-          const without = prev.filter((item) => item.id?.toString() !== id);
-          return [byPhone, ...without];
-        });
-        setSearch(byPhone.name?.trim() || name);
-        toast.message(
-          t('menu:guest.phoneExists', {
-            name: byPhone.name || byPhone.guest_code || '',
-          }),
-        );
-        if (andStartOrder) {
-          await startNewOrderFor(byPhone);
-        }
-        return;
-      }
+    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
+      toast.error(t('menu:guest.contactRequired'));
+      return;
     }
 
     if (normalizeIdDocument(newIdDocument)) {
@@ -428,40 +439,25 @@ export const GuestLookup = () => {
         return undefined;
       });
       if (byIdDocument) {
-        selectGuest(byIdDocument);
-        setGuests((prev) => {
-          const id = byIdDocument.id?.toString();
-          const without = prev.filter((item) => item.id?.toString() !== id);
-          return [byIdDocument, ...without];
-        });
-        setSearch(byIdDocument.name?.trim() || name);
         toast.message(
           t('menu:guest.idDocumentExists', {
             name: byIdDocument.name || byIdDocument.guest_code || '',
           }),
         );
-        if (andStartOrder) {
-          await startNewOrderFor(byIdDocument);
-        }
+        await pickExistingGuest(byIdDocument, andStartOrder);
         return;
       }
     }
 
-    // Same words, any order → treat as existing client (John Michel ≈ Michel John)
-    const samePerson = guests.find((guest) => namesAreSamePerson(guest.name, name));
-    if (samePerson) {
-      selectGuest(samePerson);
-      setSearch(samePerson.name?.trim() || name);
-      toast.message(t('menu:guest.alreadyExists', { name: samePerson.name }));
-      if (andStartOrder) {
-        await startNewOrderFor(samePerson);
+    if (!confirmed) {
+      const matches = await findWalkInMatches(db, { name, phone: newPhone }).catch((error) => {
+        console.error('Walk-in match lookup failed', error);
+        return [] as CustomerMatch[];
+      });
+      if (matches.length > 0) {
+        setWalkInMatches({ list: matches, andStartOrder });
+        return;
       }
-      return;
-    }
-
-    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
-      toast.error(t('menu:guest.contactRequired'));
-      return;
     }
 
     setSaving(true);
@@ -478,26 +474,16 @@ export const GuestLookup = () => {
         guest_code = generateWalkInGuestCode(name);
       }
 
-      const [created] = await db.insert(Tables.customers, {
+      const guest = await createWalkInCustomer(db, {
         name,
-        guest_code,
-        room: null,
-        in_house: false,
-        source: 'walk-in',
-        tags: ['walk-in'],
-        phone: newPhone.trim() || null,
-        // Only named when set: keeps this insert valid on a DB without
-        // migrations/2026_10_02_customer_id_document.surql (customer is SCHEMAFULL).
-        ...(normalizeIdDocument(newIdDocument)
-          ? { id_document_number: normalizeIdDocument(newIdDocument) }
-          : {}),
+        guestCode: guest_code,
+        phone: newPhone,
+        idDocument: newIdDocument,
+        idDocumentType: newIdDocumentType,
+        createdBy: page?.user,
       });
-      if (!created) {
-        toast.error(t('menu:guest.createFailed'));
-        return;
-      }
 
-      const guest = created as unknown as Customer;
+      setWalkInMatches(null);
       selectGuest(guest);
       setGuests((prev) => {
         const id = guest.id?.toString();
@@ -507,6 +493,7 @@ export const GuestLookup = () => {
       setSearch(name);
       setNewPhone('');
       setNewIdDocument('');
+      setNewIdDocumentType('');
       toast.success(t('menu:guest.created'));
 
       if (andStartOrder) {
@@ -514,7 +501,11 @@ export const GuestLookup = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error(t('menu:guest.createFailed'));
+      toast.error(
+        error instanceof CustomerIdDocumentTakenError
+          ? t('menu:guest.idDocumentTaken', { name: '' })
+          : t('menu:guest.createFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -671,7 +662,9 @@ export const GuestLookup = () => {
     }
   };
 
-  const selectedFromAsi = isAsiGuest(selected);
+  // Name, phone, ID: a manager, or the server who registered this walk-in. Never an ASI guest.
+  const selectedIdentityEditable =
+    !isAsiGuest(selected) && canEditCustomerIdentity(selected, page?.user, can);
   const selectedDeparture = selected?.room
     ? getGuestDeparture(selected.asi_date_out)
     : null;
@@ -730,12 +723,17 @@ export const GuestLookup = () => {
             )}
             {results.map((guest) => {
               const note = guest.notes?.trim();
+              const hasAllergies = (guest.allergies?.length ?? 0) > 0;
               const metaParts: string[] = [];
+              // The number tells two clients of the same name apart.
+              if (customerNumberLabel(guest)) {
+                metaParts.push(customerNumberLabel(guest));
+              }
               if (guest.guest_code && guest.name?.trim()) {
                 metaParts.push(`#${guestCodeLabel(guest)}`);
               }
               if (guest.phone != null && String(guest.phone).trim()) {
-                metaParts.push(String(guest.phone).trim());
+                metaParts.push(displayPhone(guest.phone));
               }
 
               return (
@@ -759,10 +757,17 @@ export const GuestLookup = () => {
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-xl leading-tight">
                       {formatGuestLabel(guest)}
+                      {hasAllergies ? (
+                        <FontAwesomeIcon
+                          icon={faTriangleExclamation}
+                          className="ml-2 text-danger-600"
+                          title={guest.allergies?.join(', ')}
+                        />
+                      ) : null}
                       {note ? (
                         <FontAwesomeIcon
                           icon={faNoteSticky}
-                          className="ml-2 text-amber-500"
+                          className="ml-2 text-warning-500"
                           title={note}
                         />
                       ) : null}
@@ -788,7 +793,20 @@ export const GuestLookup = () => {
             })}
           </div>
 
-          {canRegisterFromSearch && (
+          {canRegisterFromSearch && !showRegisterPanel && (
+            <Button
+              variant="primary"
+              flat
+              className="mt-3 min-h-[48px] shrink-0"
+              icon={faPlus}
+              data-testid="guest-register-new-homonym"
+              onClick={() => setRegisterOpen(true)}
+            >
+              {t('menu:customer.registerAnother', { name: search.trim() })}
+            </Button>
+          )}
+
+          {showRegisterPanel && (
             <div
               className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3 mt-3 shrink-0 max-h-[40%] overflow-auto"
               data-testid="guest-register-from-search"
@@ -813,15 +831,28 @@ export const GuestLookup = () => {
                     data-testid="guest-walkin-code"
                   />
                 </div>
-                <div className="flex-1 min-w-[140px]">
-                  <Input
-                    type="tel"
-                    inputMode="tel"
+                <div className="flex-[2] min-w-[260px]">
+                  <PhoneInput
                     label={t('menu:guest.phone')}
                     value={newPhone}
-                    onChange={(event) => setNewPhone(event.target.value)}
-                    data-testid="guest-walkin-phone"
+                    onChange={setNewPhone}
+                    testId="guest-walkin-phone"
                   />
+                </div>
+                <div className="min-w-[120px]">
+                  <label htmlFor="guest-walkin-id-type">{t('menu:customer.idDocumentType')}</label>
+                  <select
+                    id="guest-walkin-id-type"
+                    className="input"
+                    value={newIdDocumentType}
+                    onChange={(event) => setNewIdDocumentType(event.target.value)}
+                    data-testid="guest-walkin-id-type"
+                  >
+                    <option value="">—</option>
+                    {ID_DOCUMENT_TYPES.map((type) => (
+                      <option key={type} value={type}>{t(`menu:customer.idType.${type}`)}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex-1 min-w-[140px]">
                   <Input
@@ -878,9 +909,17 @@ export const GuestLookup = () => {
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-sm uppercase text-neutral-500">{t('menu:guest.selected')}</div>
+                      <div className="text-sm uppercase text-neutral-500">
+                        {t('menu:guest.selected')}
+                        {customerNumberLabel(selected) ? (
+                          <span className="ml-2 normal-case font-semibold text-neutral-700" data-testid="guest-number">
+                            {customerNumberLabel(selected)}
+                          </span>
+                        ) : null}
+                      </div>
                       <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
                     </div>
+                    {selectedIdentityEditable && (
                     <Button
                       variant="neutral"
                       flat
@@ -896,20 +935,25 @@ export const GuestLookup = () => {
                       data-testid="guest-edit-toggle"
                       onClick={() => {
                         setEditInfo((prev) => !prev);
+                        setEditingName(false);
                         setEditingPhone(false);
                         setEditingIdDocument(false);
-                        setEditingNote(false);
                       }}
                     />
+                    )}
                   </div>
                   {(selected.phone != null && String(selected.phone).trim()) || selected.id_document_number ? (
                     <div className="text-neutral-600 mt-1" data-testid="guest-contact">
                       {[
                         selected.phone != null && String(selected.phone).trim()
-                          ? String(selected.phone).trim()
+                          ? displayPhone(selected.phone)
                           : '',
                         selected.id_document_number
-                          ? `${t('menu:guest.idDocument')}: ${maskIdDocument(selected.id_document_number)}`
+                          ? `${selected.id_document_type
+                              ? t(`menu:customer.idType.${selected.id_document_type}`, { defaultValue: t('menu:guest.idDocument') })
+                              : t('menu:guest.idDocument')}: ${canViewIdDocument
+                              ? selected.id_document_number
+                              : maskIdDocument(selected.id_document_number)}`
                           : '',
                       ].filter(Boolean).join(' · ')}
                     </div>
@@ -938,15 +982,7 @@ export const GuestLookup = () => {
                   </div>
                 </div>
 
-                {selected.notes?.trim() && !editingNote ? (
-                  <div
-                    className="rounded-lg border border-amber-300 bg-amber-50 p-3"
-                    data-testid="guest-note-banner"
-                  >
-                    <div className="font-bold text-sm mb-1">{t('menu:guest.notes')}</div>
-                    <div className="whitespace-pre-wrap text-lg">{selected.notes}</div>
-                  </div>
-                ) : null}
+                <CustomerAlerts customer={selected} />
 
                 {showPlace && (
                 <div className="rounded-lg border border-neutral-200 p-3 space-y-3" data-testid="guest-place">
@@ -1001,15 +1037,72 @@ export const GuestLookup = () => {
                       {t('menu:guest.addPlace')}
                     </Button>
                   )}
-                  {!editInfo || selectedFromAsi ? null : editingPhone ? (
+                  {canEditPreferences && (
+                    <Button
+                      variant="neutral"
+                      flat
+                      className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
+                      icon={faSliders}
+                      data-testid="guest-preferences"
+                      onClick={() => setPreferencesOpen(true)}
+                    >
+                      {t('menu:customer.preferences')}
+                    </Button>
+                  )}
+                  {!editInfo || !selectedIdentityEditable ? null : editingName ? (
                     <div className="w-full space-y-2">
                       <Input
-                        type="tel"
-                        inputMode="tel"
+                        label={t('menu:customer.name')}
+                        value={nameDraft}
+                        onChange={(event) => setNameDraft(event.target.value)}
+                        data-testid="guest-name-input"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          variant="primary"
+                          flat
+                          className="min-h-[48px]"
+                          data-testid="guest-name-save"
+                          isLoading={savingName}
+                          onClick={() => void saveGuestName()}
+                        >
+                          {t('common:actions.save')}
+                        </Button>
+                        <Button
+                          variant="neutral"
+                          flat
+                          className="min-h-[48px]"
+                          disabled={savingName}
+                          onClick={() => {
+                            setEditingName(false);
+                            setNameDraft(selected.name ?? '');
+                          }}
+                        >
+                          {t('common:actions.cancel')}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="neutral"
+                      flat
+                      className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
+                      data-testid="guest-name-edit"
+                      onClick={() => {
+                        setNameDraft(selected.name ?? '');
+                        setEditingName(true);
+                      }}
+                    >
+                      {t('menu:customer.editName')}
+                    </Button>
+                  )}
+                  {!editInfo || !selectedIdentityEditable ? null : editingPhone ? (
+                    <div className="w-full space-y-2">
+                      <PhoneInput
                         label={t('menu:guest.phone')}
                         value={phoneDraft}
-                        onChange={(event) => setPhoneDraft(event.target.value)}
-                        data-testid="guest-phone-input"
+                        onChange={setPhoneDraft}
+                        testId="guest-phone-input"
                       />
                       <div className="flex flex-wrap gap-2">
                         <Button
@@ -1064,7 +1157,7 @@ export const GuestLookup = () => {
                     </div>
                   )}
 
-                  {!editInfo || selectedFromAsi ? null : editingIdDocument ? (
+                  {!editInfo || !selectedIdentityEditable ? null : editingIdDocument ? (
                     <div className="w-full space-y-2">
                       <Input
                         label={t('menu:guest.idDocument')}
@@ -1117,58 +1210,6 @@ export const GuestLookup = () => {
                           : t('menu:guest.addIdDocument')}
                       </Button>
                     </div>
-                  )}
-
-                  {!editInfo ? null : editingNote ? (
-                    <div className="w-full space-y-2">
-                      <Textarea
-                        data-testid="guest-note-input"
-                        rows={3}
-                        placeholder={t('menu:guest.notePlaceholder')}
-                        value={noteDraft}
-                        onChange={(event) => setNoteDraft((event.target as HTMLTextAreaElement).value)}
-                      />
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          variant="primary"
-                          flat
-                          className="min-h-[48px]"
-                          data-testid="guest-note-save"
-                          isLoading={savingNote}
-                          onClick={() => void saveGuestNote()}
-                        >
-                          {t('common:actions.save')}
-                        </Button>
-                        <Button
-                          variant="neutral"
-                          flat
-                          className="min-h-[48px]"
-                          data-testid="guest-note-cancel"
-                          disabled={savingNote}
-                          onClick={() => {
-                            setEditingNote(false);
-                            setNoteDraft(selected.notes ?? '');
-                          }}
-                        >
-                          {t('common:actions.cancel')}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="neutral"
-                      flat
-                      className="min-h-[48px] !bg-neutral-200 !text-neutral-700 !border-transparent"
-                      data-testid={selected.notes?.trim() ? 'guest-note-edit' : 'guest-note-add'}
-                      onClick={() => {
-                        setNoteDraft(selected.notes ?? '');
-                        setEditingNote(true);
-                      }}
-                    >
-                      {selected.notes?.trim()
-                        ? t('menu:guest.editNote')
-                        : t('menu:guest.addNote')}
-                    </Button>
                   )}
                   </div>
 
@@ -1245,6 +1286,27 @@ export const GuestLookup = () => {
           )}
         </div>
       </div>
+
+      {walkInMatches && (
+        <CustomerMatchesModal
+          open
+          name={search.trim().replace(/\s+/g, ' ')}
+          matches={walkInMatches.list}
+          creating={saving}
+          onPick={(customer) => void pickExistingGuest(customer, walkInMatches.andStartOrder)}
+          onCreateNew={() => void createGuestFromSearch(walkInMatches.andStartOrder, true)}
+          onClose={() => setWalkInMatches(null)}
+        />
+      )}
+
+      {selected && (
+        <CustomerPreferencesForm
+          open={preferencesOpen}
+          customer={selected}
+          onClose={() => setPreferencesOpen(false)}
+          onSaved={(updated) => applyUpdatedGuest({ ...updated, last_order_at: selected.last_order_at })}
+        />
+      )}
 
       {transferOrder && (
         <Modal

@@ -23,7 +23,8 @@
     "accessTab": "Access {{title}}",
     "ariaLabel": "Administration tabs",
     "securityAlerts": "Security Alerts",
-    "generalSettings": "General settings"
+    "generalSettings": "General settings",
+    "customers": "Clients"
   },
   "columns": {
     "photo": "Photo",
@@ -650,6 +651,9 @@
       },
       "integrations": {
         "label": "Integrations"
+      },
+      "customers": {
+        "label": "Customers"
       }
     },
     "permissions": {
@@ -890,7 +894,14 @@
       "integrations.queue": "Integration queue",
       "integrations.toggle_provider": "Toggle integration provider",
       "integrations.open_configuration": "Open integration configuration",
-      "integrations.save_configuration": "Save integration configuration"
+      "integrations.save_configuration": "Save integration configuration",
+      "customers.create": "Register walk-in clients",
+      "customers.preferences": "Edit allergies, diet and notes",
+      "customers.view_id_document": "See ID documents in full",
+      "admin.customers": "Clients",
+      "admin.customers.update": "Edit any client",
+      "admin.customers.delete": "Delete and restore clients",
+      "admin.customers.merge": "Merge duplicate clients"
     }
   },
   "securityAlerts": {
@@ -917,5 +928,52 @@
     "showDetails": "▶ Show details",
     "badgeTooltip": "{{count}} open critical alert(s)",
     "badgeTooltipPlural": "{{count}} open critical alerts"
+  },
+  "customers": {
+    "email": "Email",
+    "source": "Source",
+    "sources": {
+      "walk-in": "Walk-in",
+      "asi-fd": "Hotel (ASI)",
+      "local": "Local"
+    },
+    "createdAt": "Created",
+    "deletedAt": "Deleted",
+    "view": "View",
+    "merge": "Merge into another client",
+    "restore": "Restore",
+    "scope": {
+      "active": "Active",
+      "deleted": "Deleted"
+    },
+    "searchPlaceholder": "Name, phone, ID, C-000123…",
+    "saved": "Client saved",
+    "saveFailed": "Could not save the client",
+    "editTitle": "Edit client",
+    "deletedBanner": "This client was deleted.",
+    "mergedBanner": "This client was merged into another one.",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteHint": "The client leaves every list. Their orders stay, and a manager can restore them.",
+    "deleteReasonPlaceholder": "Reason (optional)",
+    "deleted": "{{name}} deleted",
+    "deleteFailed": "Could not delete the client",
+    "restored": "{{name}} restored",
+    "restoreFailed": "Could not restore the client",
+    "restoreIdTaken": "Another active client now holds this ID document: merge or edit it first.",
+    "mergeTitle": "Merge {{name}}",
+    "mergeHint": "Pick the client to keep. The duplicate disappears from lists; its orders show with the kept client, which takes its missing details.",
+    "mergeDuplicate": "Duplicate",
+    "mergeKeep": "Client to keep",
+    "mergeSummary": "{{from}} will be merged into {{to}}.",
+    "mergeConfirm": "Merge",
+    "merged": "{{from}} merged into {{to}}",
+    "mergeFailed": "Could not merge the clients",
+    "stats": {
+      "visits": "Visits",
+      "spent": "Spent",
+      "average": "Average ticket",
+      "lastVisit": "Last visit",
+      "favorites": "Favourite dishes"
+    }
   }
 }

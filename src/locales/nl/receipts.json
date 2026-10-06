@@ -42,5 +42,6 @@
   "time": "Tijd",
   "reason": "Reden",
   "note": "Notitie",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "ALLERGIEËN"
 }

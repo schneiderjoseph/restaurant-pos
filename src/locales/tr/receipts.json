@@ -42,5 +42,6 @@
   "time": "Saat",
   "reason": "Neden",
   "note": "Not",
-  "dueAt": "FOR"
+  "dueAt": "FOR",
+  "allergies": "ALERJİLER"
 }

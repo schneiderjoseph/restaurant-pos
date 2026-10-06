@@ -25,6 +25,7 @@ import {Customer} from "@/api/model/customer.ts";
 import {formatGuestLabel} from "@/lib/guest.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {narrowToTableList} from "@/lib/menu-categories.ts";
+import {ACTIVE_CUSTOMER} from "@/lib/customer-scope.ts";
 
 
 const normalizeRoomKey = (raw?: string | number | null): string => {
@@ -146,6 +147,7 @@ export const FloorLayout = () => {
     const [rows] = await db.query<Customer[]>(
       `SELECT * FROM ${Tables.customers}
        WHERE (in_house = true OR tags CONTAINS 'in-house')
+         AND ${ACTIVE_CUSTOMER}
          AND room != NONE
          AND room != NULL`
     );

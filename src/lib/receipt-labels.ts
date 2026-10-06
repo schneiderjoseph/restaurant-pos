@@ -50,6 +50,7 @@ export function buildReceiptLabels(t: TFunction): ReceiptLabels {
     addon: t("receipts:addon"),
     duplicateKot: t("receipts:duplicateKot"),
     modifiedKot: t("receipts:modifiedKot"),
+    allergies: t("receipts:allergies"),
     deletion: t("receipts:deletion"),
     orderNumber: t("receipts:orderNumber"),
     orderTaker: t("receipts:orderTaker"),

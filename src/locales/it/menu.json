@@ -105,9 +105,77 @@
     "contactHint": "Telefono o documento d’identità: almeno uno dei due.",
     "contactRequired": "Inserisci un telefono o un documento d’identità",
     "departure": "Check-out {{date}}",
-    "departureToday": "Checks out today"
+    "departureToday": "Checks out today",
+    "phoneCountry": "Prefisso",
+    "phoneCountriesFrequent": "Frequenti",
+    "phoneCountriesAll": "Tutti i paesi"
   },
   "outlets": {
     "all": "Tutti"
+  },
+  "customer": {
+    "number": "N.",
+    "name": "Nome",
+    "editName": "Modifica nome",
+    "nameSaved": "Nome salvato",
+    "nameSaveFailed": "Impossibile salvare il nome",
+    "preferences": "Preferenze",
+    "preferencesTitle": "Preferenze di {{name}}",
+    "preferencesSaved": "Preferenze salvate",
+    "preferencesSaveFailed": "Impossibile salvare le preferenze",
+    "allergies": "Allergie",
+    "allergiesHint": "Stampate sui ticket di cucina.",
+    "otherAllergyPlaceholder": "Altra allergia…",
+    "dietTitle": "Dieta",
+    "seating": "Posto preferito",
+    "seatingPlaceholder": "Terrazza, vicino alla finestra…",
+    "language": "Lingua",
+    "languagePlaceholder": "Creolo, inglese…",
+    "birthday": "Compleanno",
+    "birthdayToday": "Compleanno oggi",
+    "marketingConsent": "Accetta di ricevere offerte",
+    "matchesTitle_one": "1 cliente noto potrebbe essere questa persona",
+    "matchesTitle_other": "{{count}} clienti noti potrebbero essere questa persona",
+    "matchesHint": "Stesso nome o stesso telefono non vuol dire stessa persona. Scegli il cliente se è lui, altrimenti registra «{{name}}» come nuovo cliente.",
+    "samePhone": "Stesso telefono",
+    "sameName": "Stesso nome",
+    "createAnyway": "Nuovo cliente «{{name}}»",
+    "registerAnother": "Registra un altro cliente «{{name}}»",
+    "idDocumentType": "Tipo di documento",
+    "allergen": {
+      "peanuts": "Arachidi",
+      "nuts": "Frutta a guscio",
+      "gluten": "Glutine",
+      "milk": "Latte",
+      "eggs": "Uova",
+      "fish": "Pesce",
+      "crustaceans": "Crostacei",
+      "molluscs": "Molluschi",
+      "soy": "Soia",
+      "sesame": "Sesamo",
+      "celery": "Sedano",
+      "mustard": "Senape",
+      "sulphites": "Solfiti",
+      "lupin": "Lupini"
+    },
+    "diet": {
+      "vegetarian": "Vegetariano",
+      "vegan": "Vegano",
+      "pescatarian": "Pescetariano",
+      "halal": "Halal",
+      "kosher": "Kosher",
+      "gluten_free": "Senza glutine",
+      "lactose_free": "Senza lattosio",
+      "no_pork": "Senza maiale",
+      "low_salt": "Poco sale",
+      "diabetic": "Diabetico"
+    },
+    "idType": {
+      "cin": "Carta d'identità",
+      "nif": "Codice fiscale (NIF)",
+      "passport": "Passaporto",
+      "license": "Patente",
+      "other": "Altro"
+    }
   }
 }

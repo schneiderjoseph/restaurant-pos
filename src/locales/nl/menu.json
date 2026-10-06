@@ -105,9 +105,77 @@
     "contactHint": "Telefoon of identiteitsbewijs: minstens één van beide.",
     "contactRequired": "Voer een telefoonnummer of identiteitsbewijs in",
     "departure": "Check-out {{date}}",
-    "departureToday": "Checks out today"
+    "departureToday": "Checks out today",
+    "phoneCountry": "Landcode",
+    "phoneCountriesFrequent": "Vaak gebruikt",
+    "phoneCountriesAll": "Alle landen"
   },
   "outlets": {
     "all": "Alles"
+  },
+  "customer": {
+    "number": "Nr.",
+    "name": "Naam",
+    "editName": "Naam wijzigen",
+    "nameSaved": "Naam opgeslagen",
+    "nameSaveFailed": "Naam kon niet worden opgeslagen",
+    "preferences": "Voorkeuren",
+    "preferencesTitle": "Voorkeuren van {{name}}",
+    "preferencesSaved": "Voorkeuren opgeslagen",
+    "preferencesSaveFailed": "Voorkeuren konden niet worden opgeslagen",
+    "allergies": "Allergieën",
+    "allergiesHint": "Worden op keukenbonnen afgedrukt.",
+    "otherAllergyPlaceholder": "Andere allergie…",
+    "dietTitle": "Dieet",
+    "seating": "Voorkeursplaats",
+    "seatingPlaceholder": "Terras, bij het raam…",
+    "language": "Taal",
+    "languagePlaceholder": "Creools, Engels…",
+    "birthday": "Verjaardag",
+    "birthdayToday": "Vandaag jarig",
+    "marketingConsent": "Wil aanbiedingen ontvangen",
+    "matchesTitle_one": "1 bekende klant kan deze persoon zijn",
+    "matchesTitle_other": "{{count}} bekende klanten kunnen deze persoon zijn",
+    "matchesHint": "Dezelfde naam of hetzelfde telefoonnummer betekent niet dezelfde persoon. Kies de klant als hij het is, registreer anders „{{name}}” als nieuwe klant.",
+    "samePhone": "Zelfde telefoon",
+    "sameName": "Zelfde naam",
+    "createAnyway": "Nieuwe klant „{{name}}”",
+    "registerAnother": "Nog een klant „{{name}}” registreren",
+    "idDocumentType": "Soort document",
+    "allergen": {
+      "peanuts": "Pinda’s",
+      "nuts": "Noten",
+      "gluten": "Gluten",
+      "milk": "Melk",
+      "eggs": "Eieren",
+      "fish": "Vis",
+      "crustaceans": "Schaaldieren",
+      "molluscs": "Weekdieren",
+      "soy": "Soja",
+      "sesame": "Sesam",
+      "celery": "Selderij",
+      "mustard": "Mosterd",
+      "sulphites": "Sulfiet",
+      "lupin": "Lupine"
+    },
+    "diet": {
+      "vegetarian": "Vegetarisch",
+      "vegan": "Veganistisch",
+      "pescatarian": "Pescotarisch",
+      "halal": "Halal",
+      "kosher": "Koosjer",
+      "gluten_free": "Glutenvrij",
+      "lactose_free": "Lactosevrij",
+      "no_pork": "Geen varkensvlees",
+      "low_salt": "Zoutarm",
+      "diabetic": "Diabetisch"
+    },
+    "idType": {
+      "cin": "Identiteitskaart",
+      "nif": "Fiscaal nummer (NIF)",
+      "passport": "Paspoort",
+      "license": "Rijbewijs",
+      "other": "Anders"
+    }
   }
 }

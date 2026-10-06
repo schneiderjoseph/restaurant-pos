@@ -105,9 +105,77 @@
     "contactHint": "Telefon oder Ausweisdokument: mindestens eines ist erforderlich.",
     "contactRequired": "Geben Sie eine Telefonnummer oder ein Ausweisdokument ein",
     "departure": "Check-out {{date}}",
-    "departureToday": "Checks out today"
+    "departureToday": "Checks out today",
+    "phoneCountry": "Ländervorwahl",
+    "phoneCountriesFrequent": "Häufig",
+    "phoneCountriesAll": "Alle Länder"
   },
   "outlets": {
     "all": "Alle"
+  },
+  "customer": {
+    "number": "Nr.",
+    "name": "Name",
+    "editName": "Name ändern",
+    "nameSaved": "Name gespeichert",
+    "nameSaveFailed": "Name konnte nicht gespeichert werden",
+    "preferences": "Vorlieben",
+    "preferencesTitle": "Vorlieben von {{name}}",
+    "preferencesSaved": "Vorlieben gespeichert",
+    "preferencesSaveFailed": "Vorlieben konnten nicht gespeichert werden",
+    "allergies": "Allergien",
+    "allergiesHint": "Werden auf Küchenbons gedruckt.",
+    "otherAllergyPlaceholder": "Andere Allergie…",
+    "dietTitle": "Ernährung",
+    "seating": "Lieblingsplatz",
+    "seatingPlaceholder": "Terrasse, am Fenster…",
+    "language": "Sprache",
+    "languagePlaceholder": "Kreolisch, Englisch…",
+    "birthday": "Geburtstag",
+    "birthdayToday": "Hat heute Geburtstag",
+    "marketingConsent": "Möchte Angebote erhalten",
+    "matchesTitle_one": "1 bekannter Kunde könnte diese Person sein",
+    "matchesTitle_other": "{{count}} bekannte Kunden könnten diese Person sein",
+    "matchesHint": "Gleicher Name oder gleiche Telefonnummer heißt nicht gleiche Person. Wählen Sie den Kunden, wenn er es ist, sonst legen Sie „{{name}}“ als neuen Kunden an.",
+    "samePhone": "Gleiche Telefonnummer",
+    "sameName": "Gleicher Name",
+    "createAnyway": "Neuer Kunde „{{name}}“",
+    "registerAnother": "Weiteren Kunden „{{name}}“ anlegen",
+    "idDocumentType": "Ausweisart",
+    "allergen": {
+      "peanuts": "Erdnüsse",
+      "nuts": "Schalenfrüchte",
+      "gluten": "Gluten",
+      "milk": "Milch",
+      "eggs": "Eier",
+      "fish": "Fisch",
+      "crustaceans": "Krebstiere",
+      "molluscs": "Weichtiere",
+      "soy": "Soja",
+      "sesame": "Sesam",
+      "celery": "Sellerie",
+      "mustard": "Senf",
+      "sulphites": "Sulfite",
+      "lupin": "Lupinen"
+    },
+    "diet": {
+      "vegetarian": "Vegetarisch",
+      "vegan": "Vegan",
+      "pescatarian": "Pescetarisch",
+      "halal": "Halal",
+      "kosher": "Koscher",
+      "gluten_free": "Glutenfrei",
+      "lactose_free": "Laktosefrei",
+      "no_pork": "Ohne Schwein",
+      "low_salt": "Salzarm",
+      "diabetic": "Diabetiker"
+    },
+    "idType": {
+      "cin": "Personalausweis",
+      "nif": "Steuernummer (NIF)",
+      "passport": "Reisepass",
+      "license": "Führerschein",
+      "other": "Andere"
+    }
   }
 }
