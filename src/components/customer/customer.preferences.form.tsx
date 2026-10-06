@@ -163,7 +163,7 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
             ))}
           </div>
           <div className="flex gap-2 items-end mt-2">
-            <div className="flex-1">
+            <div className="flex flex-col flex-1">
               <Input
                 placeholder={t('menu:customer.otherAllergyPlaceholder')}
                 value={allergyDraft}
@@ -194,19 +194,23 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
           </div>
         </section>
 
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Input
-            label={t('menu:customer.seating')}
-            placeholder={t('menu:customer.seatingPlaceholder')}
-            value={seating}
-            onChange={(event) => setSeating(event.target.value)}
-          />
-          <Input
-            label={t('menu:customer.language')}
-            placeholder={t('menu:customer.languagePlaceholder')}
-            value={language}
-            onChange={(event) => setLanguage(event.target.value)}
-          />
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <div className="flex flex-col">
+            <Input
+              label={t('menu:customer.seating')}
+              placeholder={t('menu:customer.seatingPlaceholder')}
+              value={seating}
+              onChange={(event) => setSeating(event.target.value)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <Input
+              label={t('menu:customer.language')}
+              placeholder={t('menu:customer.languagePlaceholder')}
+              value={language}
+              onChange={(event) => setLanguage(event.target.value)}
+            />
+          </div>
           <div className="flex flex-col">
             <label>{t('menu:customer.birthday')}</label>
             <input
@@ -219,7 +223,7 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
           </div>
         </section>
 
-        <section className="flex flex-wrap gap-6">
+        <section className="flex flex-wrap gap-8">
           <Switch checked={vip} onChange={(event) => setVip(event.target.checked)}>
             VIP
           </Switch>
