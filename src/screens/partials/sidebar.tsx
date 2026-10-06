@@ -150,7 +150,11 @@ export const Sidebar = () => {
   return (
     <div className="flex flex-col justify-between h-screen items-center sidebar border border-y-0 border-white bg-white/50 backdrop-blur">
       <div className="w-full">
-        <ScrollContainer className="h-[calc(100vh_-_150px)]" hideScrollbars={false}>
+        {/* Gutter reserved on both sides: the buttons stay centered whether the scrollbar shows or not. */}
+        <ScrollContainer
+          className="h-[calc(100vh_-_150px)] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]"
+          hideScrollbars={false}
+        >
           <div className="p-2 flex flex-col">
             {sidebarItems.map(item => (
               <button
@@ -160,8 +164,8 @@ export const Sidebar = () => {
                   protectedNavigate(item.link, item.role);
                 }}
                 className={cn(
-                  'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
-                  pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900 border-[3px] border-transparent'
+                  'relative flex flex-col items-center text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full border-[3px] border-transparent',
+                  pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900'
                 )}
                 key={item.title}
                 style={{
