@@ -9,6 +9,8 @@ import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {Category} from "@/api/model/category.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
+import {useEffect} from "react";
+import {isCategoryShownInMenu} from "@/lib/menu-categories.ts";
 
 interface Props {
   open: boolean
@@ -30,16 +32,24 @@ export const CategoryBulkForm = ({
   const closeModal = () => {
     onClose();
     reset({
-      show_in_menu: false
+      show_in_menu: true
     });
   };
 
   const {control, handleSubmit, reset} = useForm({
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      show_in_menu: false
+      show_in_menu: true
     }
   });
+
+  // Start from the selection's state (on unless every row is hidden) so saving
+  // untouched is a no-op instead of hiding everything.
+  useEffect(() => {
+    if (open) {
+      reset({show_in_menu: !(data?.length && data.every((category) => !isCategoryShownInMenu(category)))});
+    }
+  }, [open, data, reset]);
 
   const onSubmit = async (values: any) => {
     if (!data?.length) {

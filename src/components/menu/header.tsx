@@ -4,7 +4,7 @@ import {orderEditSessionAtom, orderIdToString} from "@/store/order-edit-session.
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faPlus, faTable, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn, toRecordId} from "@/lib/utils.ts";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {useDatabase} from "@/hooks/useDatabase.ts";
@@ -21,6 +21,7 @@ import {toast} from "sonner";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
+import {narrowToTableList} from "@/lib/menu-categories.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -42,14 +43,21 @@ export const MenuHeader = () => {
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
 
+  const orderTypes = useMemo(() => {
+    const all = setting?.order_types ?? [];
+    const forTable = narrowToTableList(all, state.table?.order_types);
+    // Every type on the table was deleted → offer the full list rather than none.
+    return forTable.length > 0 ? forTable : all;
+  }, [setting?.order_types, state.table?.order_types]);
+
   useEffect(() => {
     if (!state.orderType) {
       setState(prev => ({
         ...prev,
-        orderType: setting?.order_types[0]
+        orderType: orderTypes[0]
       }))
     }
-  }, [setting?.order_types, state.orderType]);
+  }, [orderTypes, state.orderType]);
 
   useEffect(() => {
     // load old items into cart — skip when edit session already hydrated the cart
@@ -302,14 +310,14 @@ export const MenuHeader = () => {
         </div>
 
         <div className="flex input-group rounded-full shrink-0" data-testid="menu-order-types">
-          {setting?.order_types?.map((item, index) => (
+          {orderTypes.map((item, index) => (
             <Button
               variant="primary"
               size="lg"
               className={cn(
                 "flex-1",
                 index === 0 && '!rounded-l-lg',
-                index === setting?.order_types?.length - 1 && ' !rounded-r-lg'
+                index === orderTypes.length - 1 && ' !rounded-r-lg'
               )}
               active={item.id.toString() === state?.orderType?.id?.toString()}
               onClick={() => {

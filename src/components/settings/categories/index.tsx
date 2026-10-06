@@ -23,6 +23,7 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
+import {isCategoryShownInMenu} from "@/lib/menu-categories.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {suggestOutlet} from "@/lib/outlet.ts";
@@ -84,7 +85,7 @@ export const AdminCategories = () => {
     }),
     columnHelper.accessor("show_in_menu", {
       header: t('columns.showInMenu'),
-      cell: info => info.getValue() ? <FontAwesomeIcon icon={faCheck} className="text-success-500"/> :
+      cell: info => isCategoryShownInMenu(info.row.original) ? <FontAwesomeIcon icon={faCheck} className="text-success-500"/> :
         <FontAwesomeIcon icon={faTimes} className="text-danger-500"/>
     }),
     columnHelper.accessor("priority", {
@@ -269,7 +270,7 @@ export const AdminCategories = () => {
             );
             return (categories as Category[]).map((row) => ({
               name: row.name ?? '',
-              show_in_menu: row.show_in_menu ? 'true' : 'false',
+              show_in_menu: isCategoryShownInMenu(row) ? 'true' : 'false',
               priority: String(row.priority ?? ''),
             }));
           }}

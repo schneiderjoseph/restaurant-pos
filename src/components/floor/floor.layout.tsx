@@ -24,6 +24,7 @@ import {ensureResortFloorTables, loadResortChambresFloor} from "@/lib/resort-flo
 import {Customer} from "@/api/model/customer.ts";
 import {formatGuestLabel} from "@/lib/guest.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
+import {narrowToTableList} from "@/lib/menu-categories.ts";
 
 
 const normalizeRoomKey = (raw?: string | number | null): string => {
@@ -87,17 +88,9 @@ export const FloorLayout = () => {
     isPanning,
   } = useFloorMapCamera(viewportRef, tableBounds, state.floor?.id?.toString());
 
-  const categories = useMemo(() => {
-    return settings.categories.filter(item => item.show_in_menu !== false);
-  }, [settings.categories]);
-
   const orderTypes = useMemo(() => {
     return settings.order_types;
   }, [settings.order_types]);
-
-  const paymentTypes = useMemo(() => {
-    return settings.payment_types;
-  }, [settings.payment_types]);
 
   const {
     data: orders,
@@ -475,14 +468,9 @@ export const FloorLayout = () => {
         switchTable: false, // turn off switch table flag
         customer: order?.customer ?? roomGuest ?? undefined,
         resortEntry: prev.resortEntry === 'floor' ? 'floor' : prev.resortEntry,
-        orderType: (item.order_types?.length > 0 ? item.order_types : orderTypes)[0]
-      }));
-
-      setSettings(prev => ({
-        ...prev,
-        categories: item.categories?.length > 0 ? item.categories : categories,
-        order_types: item.order_types?.length > 0 ? item.order_types : orderTypes,
-        payment_types: item.payment_types?.length > 0 ? item.payment_types : paymentTypes,
+        // Table lists narrow the menu at render time (header / categories); the
+        // global cache stays whole so the next table sees every type.
+        orderType: narrowToTableList(orderTypes, item.order_types)[0] ?? orderTypes[0]
       }));
 
       await db.merge(item.id, {

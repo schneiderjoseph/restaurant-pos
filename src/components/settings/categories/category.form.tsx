@@ -21,6 +21,7 @@ import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { suggestOutlet } from "@/lib/outlet.ts";
+import { isCategoryShownInMenu } from "@/lib/menu-categories.ts";
 import { KITCHEN_FETCHES } from "@/api/model/kitchen.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
@@ -53,7 +54,7 @@ export const CategoryForm = ({
     reset({
       name: null,
       priority: null,
-      show_in_menu: null,
+      show_in_menu: true,
       outlet: null,
     });
   }
@@ -65,7 +66,7 @@ export const CategoryForm = ({
         ...data,
         name: data.name,
         priority: data.priority.toString(),
-        show_in_menu: data.show_in_menu,
+        show_in_menu: isCategoryShownInMenu(data),
         outlet: outletId
           ? { label: (data.outlet as Outlet)?.name ?? outletId, value: outletId }
           : { label: t('forms.outletNone'), value: '' },
@@ -116,7 +117,8 @@ export const CategoryForm = ({
   );
 
   const { control, handleSubmit, formState: {errors}, reset, setValue } = useForm({
-    resolver: yupResolver(validationSchema)
+    resolver: yupResolver(validationSchema),
+    defaultValues: { show_in_menu: true },
   });
 
   const selectedOutlet = useWatch({ control, name: 'outlet' });
@@ -217,8 +219,8 @@ export const CategoryForm = ({
                 name={`show_in_menu`}
                 control={control}
                 render={({ field }) => (
-                  <Switch checked={field.value} onChange={field.onChange}>
-                    Show this category in menu
+                  <Switch checked={field.value !== false} onChange={field.onChange}>
+                    {t('forms.showCategoryInMenu')}
                   </Switch>
                 )}
               />

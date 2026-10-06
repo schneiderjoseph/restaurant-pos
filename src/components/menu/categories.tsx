@@ -7,6 +7,7 @@ import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 import {outletsInUse} from "@/lib/outlet-tabs.ts";
 import {outletOfCategory} from "@/lib/outlet.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {menuCategoriesFor} from "@/lib/menu-categories.ts";
 import {useTranslation} from "react-i18next";
 
 
@@ -19,11 +20,11 @@ export const MenuCategories = () => {
 
   const {categories: allCategories} = useMemo(() => (
     resolveMenuAwareData({
-      categories: settings.categories,
+      categories: menuCategoriesFor(settings.categories, state.table),
       dishes: settings.dishes,
       menus: settings.menus
     })
-  ), [settings.categories, settings.dishes, settings.menus]);
+  ), [settings.categories, settings.dishes, settings.menus, state.table]);
 
   const outletTabs = useMemo(
     () => outletsInUse(settings.categories ?? []),

@@ -25,7 +25,7 @@ export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
   const [state, setState] = useAtom(appState);
   const [editSession] = useAtom(orderEditSessionAtom);
-  const [settings, setSettings] = useAtom(appSettings);
+  const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [, setAlert] = useAtom(appAlert);
   const db = useDB();
@@ -86,15 +86,9 @@ export const Menu = () => {
       floor: prev.floor ?? settings.floors[0],
       orderType: prev.orderType ?? settings.order_types[0],
     }));
-
-    setSettings(prev => ({
-      ...prev,
-      categories: prev.categories.filter(item => item.show_in_menu !== false),
-    }));
   }, [
     enforcement.orderTakingBlocked,
     hideTableSelectionSetting,
-    setSettings,
     setState,
     settings.floors,
     settings.order_types,
