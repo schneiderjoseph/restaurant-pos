@@ -8,6 +8,7 @@ const {
   buildItemHeaderString,
   printModifierLines,
   printFixedLine,
+  printDivider,
   printPrintingTimestamp,
   getEffectiveLineWidth,
 } = require('../lib/receipt-helpers');
@@ -104,6 +105,7 @@ function printAllergies(printer, allergies, labels) {
   wrapWords(`!! ${label}: ${allergies.join(', ')}`, getEffectiveLineWidth('normal')).forEach((line) => {
     printFixedLine(printer, line, { align: 'left', style: 'bold' });
   });
+  printDivider(printer);
 }
 
 /**
