@@ -7,7 +7,7 @@ import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {toRecordId, withCurrency} from "@/lib/utils.ts";
 import React, {useMemo, useState} from "react";
-import {faArrowLeft, faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faCheck, faPlus, faTrash, faUserPlus} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
@@ -28,6 +28,8 @@ import {formatGuestLabel} from "@/lib/guest-label.ts";
 import {LabelValue} from "@/api/model/common.ts";
 import {ACTIVE_CUSTOMER} from "@/lib/customer-scope.ts";
 import {tapSelectedClass, useTapToMove} from "@/components/orders/split/use-tap-to-move.ts";
+import {QuickCreateCustomerModal} from "@/components/customer/quick.create.modal.tsx";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 
 interface Props {
   order: OrderModel
@@ -48,7 +50,16 @@ export const SplitByClients = ({
   const {t} = useTranslation(['orders', 'common']);
   const db = useDB();
   const [page] = useAtom(appPage);
-  const {data: customersData} = useApi<SettingsData<Customer>>(Tables.customers, [ACTIVE_CUSTOMER], ['name asc'], 0, 99999);
+  const {can} = useModuleAccess();
+  const canCreateCustomer = can('customers.create');
+  const {data: customersData, fetchData: refreshCustomers} = useApi<SettingsData<Customer>>(
+    Tables.customers,
+    [ACTIVE_CUSTOMER],
+    ['name asc'],
+    0,
+    99999,
+  );
+  const [createForSplitId, setCreateForSplitId] = useState<string | null>(null);
 
   const customerOptions: LabelValue[] = useMemo(() => (
     (customersData?.data ?? []).map((c) => ({
@@ -86,6 +97,12 @@ export const SplitByClients = ({
 
   const setSplitCustomer = (splitId: string, option: LabelValue | null) => {
     const customer = option?.value ? customerById.get(String(option.value)) : undefined;
+    setSplits(prev => prev.map(split =>
+      split.id === splitId ? {...split, customer} : split
+    ));
+  };
+
+  const assignCustomerToSplit = (splitId: string, customer: Customer) => {
     setSplits(prev => prev.map(split =>
       split.id === splitId ? {...split, customer} : split
     ));
@@ -240,13 +257,26 @@ export const SplitByClients = ({
               />
             )}
           </div>
-          <ReactSelect
-            options={customerOptions}
-            value={selectedOption}
-            onChange={(value: LabelValue | null) => setSplitCustomer(split.id, value)}
-            placeholder={t('split.byClients.pickCustomer')}
-            isClearable
-          />
+          <div className="flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <ReactSelect
+                options={customerOptions}
+                value={selectedOption}
+                onChange={(value: LabelValue | null) => setSplitCustomer(split.id, value)}
+                placeholder={t('split.byClients.pickCustomer')}
+                isClearable
+              />
+            </div>
+            {canCreateCustomer && (
+              <IconTooltipButton
+                label={t('split.byClients.newCustomer')}
+                icon={faUserPlus}
+                variant="primary"
+                onClick={() => setCreateForSplitId(split.id)}
+                data-testid={`split-create-customer-${split.number}`}
+              />
+            )}
+          </div>
           <div className="text-sm font-semibold text-neutral-600">
             {t('split.byItems.total', {amount: withCurrency(splitTotals[index] ?? 0)})}
           </div>
@@ -316,6 +346,18 @@ export const SplitByClients = ({
           </Button>
         </div>
       </div>
+
+      {createForSplitId && (
+        <QuickCreateCustomerModal
+          open
+          onClose={() => setCreateForSplitId(null)}
+          onCreated={(customer) => {
+            assignCustomerToSplit(createForSplitId, customer);
+            refreshCustomers();
+            setCreateForSplitId(null);
+          }}
+        />
+      )}
     </Modal>
   );
 };

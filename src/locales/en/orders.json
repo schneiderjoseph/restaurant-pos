@@ -217,6 +217,7 @@
       "title": "Split by clients — Order {{invoice}}",
       "hint": "Create one split per client, assign a customer to each, then drag items.",
       "pickCustomer": "Pick a customer",
+      "newCustomer": "Register a new customer",
       "customerRequired": "Each split needs a customer and at least one item"
     }
   },

@@ -214,6 +214,7 @@
       "title": "Diviser par clients — Commande {{invoice}}",
       "hint": "Créez une division par client, attribuez un client à chacune, puis glissez les articles.",
       "pickCustomer": "Choisir un client",
+      "newCustomer": "Enregistrer un nouveau client",
       "customerRequired": "Chaque division doit avoir un client et au moins un article"
     }
   },
