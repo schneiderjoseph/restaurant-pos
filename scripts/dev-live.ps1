@@ -99,8 +99,15 @@ switch ($Mode) {
         error_page 502 504 = @static;
     }
 
+    # Vite down: serve the static build. index.html is served from disk with
+    # rewrite...break - a try_files fallback to /index.html would re-enter
+    # location / and hit the dead proxy again (502).
     location @static {
-        try_files `$uri /index.html;
+        try_files `$uri @static_index;
+    }
+
+    location @static_index {
+        rewrite ^ /index.html break;
     }
 "@
             $dev = [regex]::Replace($static, '(?m)^[ \t]*location / \{[^}]*\}\r?\n', { param($m) $devRoot + "`r`n" }, 1)

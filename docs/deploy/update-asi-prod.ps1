@@ -247,6 +247,16 @@ function Test-Changed([string]$Prefix) {
 # ---------------------------------------------------------------------------
 Step "5. Dependances npm"
 
+# A running dev-live Vite keeps native modules (rolldown .node) open: npm then
+# fails to remove the old copies (EPERM). Stop it here, restart it after the build.
+$devLiveScript = Join-Path $RepoPath "scripts\dev-live.ps1"
+$viteConn = Get-NetTCPConnection -State Listen -LocalPort 5173 -ErrorAction SilentlyContinue | Select-Object -First 1
+$script:RestartDevLive = [bool]$viteConn
+if ($viteConn) {
+  Write-Host "Vite (dev-live) arrete pendant l'installation, nginx sert le build statique."
+  Stop-Process -Id $viteConn.OwningProcess -Force
+}
+
 $rootDeps = (Test-Changed 'package.json') -or (Test-Changed 'package-lock.json') -or -not (Test-Path 'node_modules')
 if ($rootDeps -or $Force) {
   Invoke-Native "npm install (racine)" { npm install }
@@ -318,6 +328,10 @@ try {
   Fail "Bascule de l'interface impossible ($($_.Exception.Message)). L'ancienne interface est toujours en ligne."
 }
 Write-Host "Interface en ligne (ancienne version : $htmlPrev)." -ForegroundColor Green
+
+if ($script:RestartDevLive) {
+  & $devLiveScript on
+}
 
 # ---------------------------------------------------------------------------
 Step "9. asi-sync"
