@@ -12,5 +12,20 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "markServed": "Marcar como entregue",
+  "openDetails": "Ver detalhes do pedido",
+  "readyBadge": "Pronto",
+  "table": "Mesa {{number}}",
+  "itemsCount_one": "{{count}} item",
+  "itemsCount_other": "{{count}} itens",
+  "details": {
+    "type": "Tipo",
+    "table": "Mesa",
+    "guest": "Cliente",
+    "server": "Garçom",
+    "due": "Para",
+    "elapsed": "Decorrido",
+    "notes": "Observações"
   }
 }

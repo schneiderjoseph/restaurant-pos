@@ -12,5 +12,22 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "markServed": "Отметить как выданный",
+  "openDetails": "Открыть детали заказа",
+  "readyBadge": "Готов",
+  "table": "Стол {{number}}",
+  "itemsCount_one": "{{count}} позиция",
+  "itemsCount_few": "{{count}} позиции",
+  "itemsCount_many": "{{count}} позиций",
+  "itemsCount_other": "{{count}} позиции",
+  "details": {
+    "type": "Тип",
+    "table": "Стол",
+    "guest": "Гость",
+    "server": "Официант",
+    "due": "К",
+    "elapsed": "Прошло",
+    "notes": "Примечания"
   }
 }

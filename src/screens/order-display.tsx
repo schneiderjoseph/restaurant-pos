@@ -27,6 +27,7 @@ import {
   partitionDisplayOrders,
 } from '@/lib/order-display.ts';
 import { OrderTile } from '@/components/order-display/order-tile.tsx';
+import { OrderDetailsModal } from '@/components/order-display/order-details-modal.tsx';
 import { OrderReadyCelebration } from '@/components/order-display/order-ready-celebration.tsx';
 import { useOrderReadyAnnouncements } from '@/hooks/useOrderReadyAnnouncements.ts';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
@@ -53,6 +54,7 @@ export const OrderDisplayScreen = () => {
   const liveKitchenRef = useRef<{ kill: () => Promise<void> } | null>(null);
   const fetchRequestRef = useRef(0);
   const [hydrated, setHydrated] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const defaultStatusFilter = useMemo(
     () => [{ label: OrderStatus['In Progress'], value: OrderStatus['In Progress'] }],
@@ -127,7 +129,7 @@ export const OrderDisplayScreen = () => {
       `SELECT * FROM ${Tables.orders}
        WHERE (created_at >= $startDate OR due_at >= $startDate) ${filterSql}
        ORDER BY created_at DESC
-       FETCH items, table, user, order_type, customer;
+       FETCH items, items.item, table, user, order_type, customer;
        SELECT * FROM ${Tables.order_items_kitchen}
        WHERE created_at >= $startDate OR order_item IN $dueItems
        FETCH order_item, kitchen`,
@@ -213,11 +215,22 @@ export const OrderDisplayScreen = () => {
       });
     } catch (error) {
       console.error('Mark order served failed', error);
+      throw error;
     }
   }, [setServed, t]);
 
   const { activeCelebration, completeCelebration, highlightedOrderIds } =
     useOrderReadyAnnouncements(all.ready, all.preparing, hydrated);
+
+  // Looked up live so the modal follows the order between columns and closes once it leaves the board.
+  const selected = useMemo(() => {
+    if (!selectedOrderId) return null;
+    const find = (list: OrderModel[]) => list.find((order) => order.id.toString() === selectedOrderId);
+    const readyOrder = find(all.ready);
+    if (readyOrder) return { order: readyOrder, variant: 'ready' as const };
+    const preparingOrder = find(all.preparing);
+    return preparingOrder ? { order: preparingOrder, variant: 'preparing' as const } : null;
+  }, [selectedOrderId, all]);
 
   return (
     <Layout showSidebar={showSidebar} overflowHidden containerClassName="overflow-hidden">
@@ -227,6 +240,16 @@ export const OrderDisplayScreen = () => {
           orderNumber={activeCelebration.orderNumber}
           displayNumber={activeCelebration.displayNumber}
           onComplete={completeCelebration}
+        />
+      )}
+      {selected && (
+        <OrderDetailsModal
+          order={selected.order}
+          variant={selected.variant}
+          stations={getKitchenStationStatuses(selected.order, kitchenRowsByOrderItemId)}
+          kitchenRowsByOrderItemId={kitchenRowsByOrderItemId}
+          onClose={() => setSelectedOrderId(null)}
+          onServe={selected.variant === 'ready' ? () => markServed(selected.order) : undefined}
         />
       )}
       <div className="flex flex-col gap-3 p-3 h-full" data-testid="order-display-page">
@@ -282,12 +305,13 @@ export const OrderDisplayScreen = () => {
               </h2>
             </div>
             <div className="flex-1 overflow-auto p-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3">
                 {preparing.map((order) => (
                   <OrderTile
                     key={order.id.toString()}
                     order={order}
                     variant="preparing"
+                    onOpen={() => setSelectedOrderId(order.id.toString())}
                     stations={getKitchenStationStatuses(order, kitchenRowsByOrderItemId)}
                   />
                 ))}
@@ -302,14 +326,14 @@ export const OrderDisplayScreen = () => {
               </h2>
             </div>
             <div className="flex-1 overflow-auto p-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3">
                 {ready.map((order) => (
                   <OrderTile
                     key={order.id.toString()}
                     order={order}
                     variant="ready"
                     celebrate={highlightedOrderIds.has(order.id.toString())}
-                    onServe={() => void markServed(order)}
+                    onOpen={() => setSelectedOrderId(order.id.toString())}
                     stations={getKitchenStationStatuses(order, kitchenRowsByOrderItemId)}
                   />
                 ))}

@@ -9,11 +9,25 @@
     "orderTypes": "Types de commande"
   },
   "toggleSidebar": "Afficher la barre latérale",
-  "markServed": "Toucher pour marquer comme livrée",
+  "markServed": "Marquer comme livrée",
   "served": "Commande {{number}} livrée",
   "undo": "Annuler",
   "due": {
     "forTime": "Pour {{time}}",
     "tomorrowShort": "dem."
+  },
+  "openDetails": "Voir le détail de la commande",
+  "readyBadge": "Prête",
+  "table": "Table {{number}}",
+  "itemsCount_one": "{{count}} article",
+  "itemsCount_other": "{{count}} articles",
+  "details": {
+    "type": "Type",
+    "table": "Table",
+    "guest": "Client",
+    "server": "Serveur",
+    "due": "Prévue",
+    "elapsed": "Écoulé",
+    "notes": "Notes"
   }
 }

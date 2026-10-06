@@ -12,5 +12,20 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "markServed": "Markeren als geserveerd",
+  "openDetails": "Bestelling bekijken",
+  "readyBadge": "Klaar",
+  "table": "Tafel {{number}}",
+  "itemsCount_one": "{{count}} artikel",
+  "itemsCount_other": "{{count}} artikelen",
+  "details": {
+    "type": "Type",
+    "table": "Tafel",
+    "guest": "Gast",
+    "server": "Bediening",
+    "due": "Gepland",
+    "elapsed": "Verstreken",
+    "notes": "Notities"
   }
 }

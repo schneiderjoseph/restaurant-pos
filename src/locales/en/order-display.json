@@ -9,11 +9,25 @@
     "orderTypes": "Order types"
   },
   "toggleSidebar": "Show sidebar",
-  "markServed": "Tap to mark as served",
+  "markServed": "Mark as served",
   "served": "Order {{number}} served",
   "undo": "Undo",
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "openDetails": "Open order details",
+  "readyBadge": "Ready",
+  "table": "Table {{number}}",
+  "itemsCount_one": "{{count}} item",
+  "itemsCount_other": "{{count}} items",
+  "details": {
+    "type": "Type",
+    "table": "Table",
+    "guest": "Guest",
+    "server": "Server",
+    "due": "Due",
+    "elapsed": "Elapsed",
+    "notes": "Notes"
   }
 }

@@ -12,5 +12,20 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "markServed": "Teslim edildi olarak işaretle",
+  "openDetails": "Sipariş detaylarını aç",
+  "readyBadge": "Hazır",
+  "table": "Masa {{number}}",
+  "itemsCount_one": "{{count}} ürün",
+  "itemsCount_other": "{{count}} ürün",
+  "details": {
+    "type": "Tür",
+    "table": "Masa",
+    "guest": "Misafir",
+    "server": "Garson",
+    "due": "Saat",
+    "elapsed": "Geçen",
+    "notes": "Notlar"
   }
 }

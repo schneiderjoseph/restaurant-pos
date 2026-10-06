@@ -12,5 +12,24 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "markServed": "تحديد كمُسلَّم",
+  "openDetails": "عرض تفاصيل الطلب",
+  "readyBadge": "جاهز",
+  "table": "طاولة {{number}}",
+  "itemsCount_zero": "لا عناصر",
+  "itemsCount_one": "عنصر واحد",
+  "itemsCount_two": "عنصران",
+  "itemsCount_few": "{{count}} عناصر",
+  "itemsCount_many": "{{count}} عنصرًا",
+  "itemsCount_other": "{{count}} عنصر",
+  "details": {
+    "type": "النوع",
+    "table": "الطاولة",
+    "guest": "الضيف",
+    "server": "النادل",
+    "due": "الموعد",
+    "elapsed": "المنقضي",
+    "notes": "ملاحظات"
   }
 }
