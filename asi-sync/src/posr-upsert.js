@@ -129,7 +129,7 @@ async function upsertCategory(db, group, priority) {
   // Treat JS null and Surreal NONE as "alive" — merge(null) previously broke NONE checks.
   let found = await queryRows(
     db,
-    `SELECT id FROM category
+    `SELECT id, show_in_menu, priority FROM category
      WHERE asi_group_id = $gid
        AND (deleted_at = NONE OR deleted_at = NULL)
      LIMIT 1`,
@@ -139,7 +139,7 @@ async function upsertCategory(db, group, priority) {
   if (!found[0]?.id) {
     found = await queryRows(
       db,
-      `SELECT id FROM category
+      `SELECT id, show_in_menu, priority FROM category
        WHERE asi_group_id = $gid
        ORDER BY id ASC
        LIMIT 1`,
@@ -150,7 +150,7 @@ async function upsertCategory(db, group, priority) {
   if (!found[0]?.id && group.name) {
     found = await queryRows(
       db,
-      `SELECT id FROM category
+      `SELECT id, show_in_menu, priority FROM category
        WHERE name = $name
          AND (source = 'asi' OR source = NONE OR source = NULL)
          AND (deleted_at = NONE OR deleted_at = NULL)
@@ -169,6 +169,11 @@ async function upsertCategory(db, group, priority) {
   };
 
   if (found[0]?.id) {
+    // "Show in menu" and order belong to the POS once the category exists: an
+    // inactive ASI group still hides it, but an active one keeps the POS toggle
+    // (unset → shown), and a POS reorder survives the next poll.
+    const existingShow = found[0].show_in_menu;
+    const existingPriority = found[0].priority;
     await queryRows(
       db,
       `UPDATE $id SET
@@ -179,7 +184,12 @@ async function upsertCategory(db, group, priority) {
         asi_group_id = $asi_group_id,
         asi_alias = $asi_alias,
         deleted_at = NONE`,
-      { id: asRecord(found[0].id), ...payload },
+      {
+        id: asRecord(found[0].id),
+        ...payload,
+        show_in_menu: group.isActive ? existingShow !== false : false,
+        priority: Number.isFinite(existingPriority) ? existingPriority : priority,
+      },
     );
     return recordIdString(found[0].id);
   }
