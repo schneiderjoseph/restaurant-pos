@@ -163,7 +163,7 @@
     "past": "That time has already passed."
   },
   "editRequest": {
-    "notice": "Changes to lines already sent will be submitted to an approver.",
+    "notice": "Send: an approver will approve the changes to lines already sent.",
     "sent": "Changes to lines already sent were submitted for approval."
   }
 }

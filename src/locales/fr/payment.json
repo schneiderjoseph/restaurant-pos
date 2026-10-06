@@ -163,7 +163,7 @@
     "past": "Cette heure est déjà passée."
   },
   "editRequest": {
-    "notice": "Les modifications des lignes déjà envoyées seront soumises à un approbateur.",
+    "notice": "Envoyez : un approbateur approuvera les modifications des lignes déjà envoyées.",
     "sent": "Les modifications des lignes déjà envoyées ont été envoyées pour approbation."
   }
 }
