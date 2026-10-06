@@ -1,6 +1,6 @@
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -19,6 +19,9 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createKitchenImportConfig} from "@/components/settings/kitchens/kitchen.import.config.ts";
+import {ensureStationAccounts, removeStationAccount, StationAccount} from "@/lib/kitchen/station-account.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {toast} from "sonner";
 
 export const AdminKitchens = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -34,6 +37,22 @@ export const AdminKitchens = () => {
   const [data, setData] = useState<Kitchen>();
   const [formModal, setFormModal] = useState(false);
   const [importModal, setImportModal] = useState(false);
+
+  // Every station gets its account here; the PIN is shown so it can be typed on the tablet.
+  const [stationAccounts, setStationAccounts] = useState<Record<string, StationAccount>>({});
+  const refreshStationAccounts = async () => {
+    try {
+      setStationAccounts(await ensureStationAccounts(db));
+    } catch (error) {
+      console.error('Station accounts failed', error);
+      toast.error(error instanceof Error ? error.message : String(error));
+    }
+  };
+
+  useEffect(() => {
+    void refreshStationAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount; db identity changes every render
+  }, []);
 
   const smartImportConfig = useMemo(
     () => createKitchenImportConfig({db, t}),
@@ -60,6 +79,14 @@ export const AdminKitchens = () => {
     }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')
+    }),
+    columnHelper.display({
+      id: "station_account",
+      header: t('columns.stationAccount'),
+      cell: info => {
+        const account = stationAccounts[recordIdToString(info.row.original.id)];
+        return account ? <span className="tag">{account.login}</span> : '-';
+      }
     }),
     ...(canUpdate || canDelete ? [columnHelper.accessor("id", {
       id: "actions",
@@ -113,7 +140,9 @@ export const AdminKitchens = () => {
         }
       ],
       onAfter: async () => {
+        await removeStationAccount(db, id);
         loadHook.fetchData();
+        void refreshStationAccounts();
       }
     });
   };
@@ -163,7 +192,10 @@ export const AdminKitchens = () => {
               shows_all: row.shows_all ? 'true' : 'false',
             }));
           }}
-          onDone={() => loadHook.fetchData()}
+          onDone={() => {
+            loadHook.fetchData();
+            void refreshStationAccounts();
+          }}
         />
       )}
 
@@ -175,6 +207,7 @@ export const AdminKitchens = () => {
             setFormModal(false);
             setData(undefined);
             loadHook.fetchData();
+            void refreshStationAccounts();
           }}
         />
       )}

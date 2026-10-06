@@ -15,14 +15,12 @@ import {
   isAccountingModuleEnabled,
   isClosingModuleEnabled,
   isDeliveryModuleEnabled,
-  isHrModuleEnabled,
   isIntegrationsModuleEnabled,
 } from "@/lib/feature-modules.ts";
 import {NoModuleAccess} from "@/screens/no-module-access.tsx";
 import {PageLoader} from "@/components/common/loader/page-loader.tsx";
 
 const readFeatureFlags = (): ModuleAccessFeatureFlags => ({
-  hr: isHrModuleEnabled(),
   delivery: isDeliveryModuleEnabled(),
   integrations: isIntegrationsModuleEnabled(),
   accounting: isAccountingModuleEnabled(),

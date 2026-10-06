@@ -18,15 +18,10 @@ function envEnabled(raw: unknown, defaultEnabled = true): boolean {
 }
 
 export type FeatureModuleId =
-  | 'hr'
   | 'delivery'
   | 'integrations'
   | 'accounting'
   | 'closing';
-
-export function isHrModuleEnabled(): boolean {
-  return envEnabled(import.meta.env.VITE_MODULE_HR);
-}
 
 export function isDeliveryModuleEnabled(): boolean {
   return envEnabled(import.meta.env.VITE_MODULE_DELIVERY);
@@ -46,8 +41,6 @@ export function isClosingModuleEnabled(): boolean {
 
 export function isFeatureModuleEnabled(id: FeatureModuleId): boolean {
   switch (id) {
-    case 'hr':
-      return isHrModuleEnabled();
     case 'delivery':
       return isDeliveryModuleEnabled();
     case 'integrations':

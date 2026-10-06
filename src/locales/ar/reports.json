@@ -365,7 +365,6 @@
     "sale": "البيع",
     "itemName": "اسم الصنف",
     "itemCode": "رمز الصنف",
-    "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
     "taxPercent": "نسبة الضريبة %",
     "scope": "النطاق",
@@ -379,7 +378,10 @@
     "issue": "صرف",
     "employee": "الموظف",
     "turnTime": "وقت الالتفاف (دقيقة)",
-    "outlet": "نقطة البيع"
+    "outlet": "نقطة البيع",
+    "authMethod": "طريقة الدخول",
+    "details": "التفاصيل",
+    "noTable": "بدون طاولة"
   },
   "labels": {
     "modifiers": "الإضافات",
@@ -417,7 +419,6 @@
     "grossSale": "إجمالي البيع",
     "guestAvg": "متوسط الضيف",
     "estimatedProfit": "الربح المقدّر",
-    "foodCostPercent": "نسبة تكلفة الطعام %",
     "allTimeSale": "مبيعات كل الوقت",
     "lastWeekSale": "مبيعات الأسبوع الماضي",
     "lastMonthSale": "مبيعات الشهر الماضي",
@@ -625,7 +626,6 @@
     "businessDate": "تاريخ العمل",
     "actualGuests": "الضيوف الفعليون",
     "totalSales": "إجمالي المبيعات",
-    "totalFoodCost": "إجمالي تكلفة الطعام",
     "costPerGuest": "التكلفة لكل ضيف",
     "wastePercent": "الهدر %",
     "overproduction": "الإنتاج الزائد",
@@ -660,9 +660,15 @@
     "noDiscountsByUsers": "لا توجد خصومات حسب المستخدمين للنطاق المحدد.",
     "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد.",
     "noEmployeeSales": "لا توجد بيانات مبيعات حسب الموظفين",
-    "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد"
+    "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد",
+    "noTables": "لا توجد مبيعات على الطاولات في الفترة المحددة.",
+    "noActivity": "لا توجد سجلات تدقيق في الفترة المحددة.",
+    "noProducts": "لم يتم العثور على منتجات."
   },
   "sections": {
     "salesByOutlet": "المبيعات حسب نقطة البيع"
+  },
+  "messages": {
+    "auditTruncated": "يتم عرض آخر {{count}} سجل فقط. قلّص الفترة لرؤية السجلات الأقدم."
   }
 }

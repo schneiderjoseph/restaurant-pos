@@ -4,10 +4,10 @@ import {Input, InputError} from "@/components/common/input/input.tsx";
 import {InputField} from "@/components/common/form/rhf-fields.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import {Controller, useFieldArray, useForm, useWatch} from "react-hook-form";
+import {Controller, useFieldArray, useForm} from "react-hook-form";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useDB} from "@/api/db/db.ts";
-import React, { useMemo, useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState} from "react";
 import {Tables} from "@/api/db/tables.ts";
 import {Category} from "@/api/model/category.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -23,24 +23,12 @@ import {ModifierGroup} from "@/api/model/modifier_group.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import get from "lodash/get";
 import {ModifierGroupForm} from "@/components/settings/modifier_groups/modifier_group.form.tsx";
-import {RecordId, StringRecordId} from "surrealdb";
-import {InventoryItem} from "@/api/model/inventory_item.ts";
-import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
+import {StringRecordId} from "surrealdb";
 import {detectMimeType, formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
 import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
-import { withCurrency } from "@/lib/utils.ts";
-
-const inventoryItemOptionLabel = (item: InventoryItem) =>
-  item.uom ? `${item.name} (${item.uom})` : item.name;
-
-const inventoryItemUnitCost = (item: InventoryItem) =>
-  Number(item.price ?? item.average_price ?? 0) || 0;
-
-const findInventoryItem = (items: InventoryItem[] | undefined, id?: string | null) =>
-  items?.find((i) => String(i.id) === String(id));
 
 interface Props {
   open: boolean
@@ -52,9 +40,7 @@ const validationSchema = yup.object({
   name: yup.string().required(i18n.t('validation:required')),
   number: yup.string().required(i18n.t('validation:required')),
   priority: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
-  // position: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   price: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
-  cost: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   categories: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
@@ -76,20 +62,6 @@ const validationSchema = yup.object({
     should_auto_select: yup.boolean(),
     priority: yup.string().required(i18n.t('validation:required')),
   })),
-  recipes: yup.array(yup.object({
-    item: yup.object({
-      label: yup.string(),
-      value: yup.string()
-    }).required(i18n.t('validation:required')),
-    quantity: yup.number().required(i18n.t('validation:required')).min(0.01, i18n.t('validation:quantityMin')),
-    cost: yup.number().required(i18n.t('validation:required')).min(0, i18n.t('validation:costMin')),
-    is_price_locked: yup.boolean().optional(),
-    id: yup.string().nullable().optional()
-  })).test('unique-items', i18n.t('validation:uniqueItems'), function (recipes) {
-    if (!recipes || recipes.length === 0) return true;
-    const itemValues = recipes.map(r => r?.item?.value).filter(Boolean);
-    return itemValues.length === new Set(itemValues).size;
-  })
 });
 
 export const DishForm = ({
@@ -125,7 +97,6 @@ export const DishForm = ({
           label: item.name,
           value: item.id
         })),
-        recipes: [],
         modifier_groups: []
       });
 
@@ -139,7 +110,6 @@ export const DishForm = ({
       }
 
       getModifierGroups(data.id);
-      getRecipes(data.id);
       loadWorkflowAssignment(data.id);
     } else {
       setPhotoFile(null);
@@ -168,14 +138,6 @@ export const DishForm = ({
   });
 
   const {
-    data: inventoryItems,
-    fetchData: fetchInventoryItems,
-    isFetching: loadingInventoryItems
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 99999, ['category'], {
-    enabled: false
-  });
-
-  const {
     data: workflows,
     fetchData: fetchWorkflows
   } = useApi<SettingsData<Workflow>>(Tables.workflows, ['deleted_at = none'], ['name asc'], 0, 99999, [], {
@@ -193,7 +155,6 @@ export const DishForm = ({
     if (open) {
       fetchCategories();
       fetchModifierGroups();
-      fetchInventoryItems();
       fetchWorkflows();
       fetchKitchens();
     }
@@ -216,30 +177,6 @@ export const DishForm = ({
       should_auto_open: item.should_auto_open,
       priority: item.priority
     })));
-  }
-
-  const getRecipes = async (id) => {
-    try {
-      const record: any = await db.query(`SELECT *
-                                          FROM ${Tables.dishes_recipes}
-                                          WHERE menu_item = $item FETCH item`, {item: id});
-      if (record[0] && record[0].length > 0) {
-
-        replaceRecipes(record[0].map(rec => ({
-          item: {
-            label: rec.item.name,
-            value: rec.item.id
-          },
-          quantity: rec.quantity,
-          cost: rec.cost,
-          is_price_locked: rec.is_price_locked || false,
-          id: rec.id // Store the recipe ID for updates
-        })));
-      }
-    } catch (e) {
-      // If recipes don't exist yet, that's fine
-      console.log('No recipes found or error loading recipes:', e);
-    }
   }
 
   const [categoriesModal, setCategoriesModal] = useState(false);
@@ -295,7 +232,7 @@ export const DishForm = ({
     }
   }
 
-  const {control, handleSubmit, formState: {errors}, reset, watch, getValues, setValue} = useForm({
+  const {control, handleSubmit, formState: {errors}, reset, watch, getValues} = useForm({
     resolver: yupResolver(validationSchema)
   });
 
@@ -307,24 +244,12 @@ export const DishForm = ({
     control: control
   });
 
-  const {
-    fields: recipeFields,
-    append: appendRecipe,
-    remove: removeRecipe,
-    replace: replaceRecipes
-  } = useFieldArray({
-    name: 'recipes',
-    control: control
-  });
-
   const onSubmit = async (values: any) => {
     try {
       const formData = {
         ...values,
-        // position: parseInt(values.position),
         priority: parseInt(values.priority),
         price: parseFloat(values.price),
-        cost: parseFloat(values.cost),
         categories: values?.categories?.map(item => new StringRecordId(item.value.toString()))
       };
 
@@ -342,10 +267,9 @@ export const DishForm = ({
       const dishData: any = {
         name: formData.name,
         number: formData.number,
-        // position: data.position,
         priority: formData.priority,
         price: formData.price,
-        cost: formData.cost,
+        cost: 0,
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
@@ -389,37 +313,6 @@ export const DishForm = ({
         }
       }
 
-      // Save recipes as separate records in dishes_recipes table
-      if (formData.recipes) {
-        // Delete existing recipe records
-        await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
-
-        // Create new recipe records and collect their IDs
-        const recipeIds: RecordId[] = [];
-        for (const recipe of formData.recipes) {
-          const recipeData = {
-            menu_item: menuId,
-            item: new StringRecordId(recipe.item.value.toString()),
-            quantity: parseFloat(recipe.quantity),
-            cost: parseFloat(recipe.cost),
-            is_price_locked: recipe.is_price_locked || false
-          };
-          const [recipeRecord] = await db.create(Tables.dishes_recipes, recipeData);
-          recipeIds.push(recipeRecord.id);
-        }
-
-        // Update dish with recipe IDs in items field
-        await db.merge(menuId, {
-          items: recipeIds
-        });
-      } else {
-        // Clear recipes if none provided
-        await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
-        await db.merge(menuId, {
-          items: []
-        });
-      }
-
       await emitEntityCrudSave({
         domain: 'manage',
         table: Tables.dishes,
@@ -442,14 +335,6 @@ export const DishForm = ({
     return watch(`modifier_groups.${index}.has_required_modifiers`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getValues()]);
-
-  // Watch recipes and calculate total cost
-  // Use useWatch to watch the entire recipes array for proper reactivity
-  const watchedRecipes = useWatch({
-    control,
-    name: 'recipes',
-    defaultValue: []
-  });
 
   const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -487,24 +372,6 @@ export const DishForm = ({
     }
   };
 
-  useEffect(() => {
-    if (watchedRecipes && watchedRecipes.length > 0) {
-      const totalCost = watchedRecipes.reduce((sum: number, recipe: any) => {
-        if (recipe?.quantity !== undefined && recipe?.cost !== undefined) {
-          const quantity = parseFloat(String(recipe.quantity)) || 0;
-          const cost = parseFloat(String(recipe.cost)) || 0;
-          return sum + (quantity * cost);
-        }
-        return sum;
-      }, 0);
-
-      setValue('cost', totalCost, {shouldValidate: false, shouldDirty: false});
-    } else {
-      // If no recipes, keep the current cost value (don't reset to 0)
-      // User can still manually set the cost
-    }
-  }, [watchedRecipes, setValue]);
-
   return (
     <>
       <Modal
@@ -539,23 +406,6 @@ export const DishForm = ({
             </div>
           </div>
 
-          <div className="flex gap-3">
-            {/*<div className="flex-1">*/}
-            {/*  <Controller*/}
-            {/*    name="position"*/}
-            {/*    control={control}*/}
-            {/*    render={({ field }) => (*/}
-            {/*      <Input*/}
-            {/*        value={field.value}*/}
-            {/*        onChange={field.onChange}*/}
-            {/*        type="number"*/}
-            {/*        label="Position on menu"*/}
-            {/*        error={errors?.position?.message}*/}
-            {/*      />*/}
-            {/*    )}*/}
-            {/*  />*/}
-            {/*</div>*/}
-          </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
               <Controller
@@ -568,21 +418,6 @@ export const DishForm = ({
                     type="number"
                     label={t('columns.salePrice')}
                     error={errors?.price?.message}
-                  />
-                )}
-              />
-            </div>
-            <div className="flex-1">
-              <Controller
-                name="cost"
-                control={control}
-                render={({field}) => (
-                  <Input
-                    value={field.value}
-                    onChange={field.onChange}
-                    type="number"
-                    label={t('forms.costOfItem')}
-                    error={errors?.cost?.message}
                   />
                 )}
               />
@@ -814,141 +649,6 @@ export const DishForm = ({
                   </div>
                 </div>
               ))}
-            </fieldset>
-          </div>
-
-          <div className="flex mb-3">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend>Recipe</legend>
-              <div className="mb-3">
-                <Button type="button" icon={faPlus} variant="primary" onClick={() => {
-                  appendRecipe({
-                    item: null,
-                    quantity: 1,
-                    cost: 0,
-                    is_price_locked: false
-                  })
-                }}>
-                  Add recipe item
-                </Button>
-              </div>
-
-              {recipeFields.map((item, index) => {
-                const selectedItemId = watch(`recipes.${index}.item`)?.value;
-                const selectedInvItem = findInventoryItem(inventoryItems?.data, selectedItemId);
-                const rowQuantity = parseFloat(String(watch(`recipes.${index}.quantity`) ?? 0)) || 0;
-                const rowCost = parseFloat(String(watch(`recipes.${index}.cost`) ?? 0)) || 0;
-                const rowTotal = rowQuantity * rowCost;
-                const availableOptions = inventoryItems?.data
-                  ?.filter(invItem => canUseInDishRecipe(invItem))
-                  ?.filter(invItem => {
-                    // Filter out items that are already selected in other recipe fields
-                    const allSelectedItems = watch('recipes')
-                      ?.map((r: any, idx: number) => idx !== index ? r?.item?.value : null)
-                      .filter(Boolean)
-                      .map((id: any) => String(id));
-                    return !allSelectedItems?.includes(String(invItem.id));
-                  })
-                  ?.map(invItem => ({
-                    label: inventoryItemOptionLabel(invItem),
-                    value: invItem.id.toString()
-                  })) || [];
-
-                return (
-                  <div className="flex gap-3 mb-3" key={item.id}>
-                    <div className="flex-[2]">
-                      <label htmlFor="recipe-item">{t('forms.inventoryItem')}</label>
-                      <Controller
-                        name={`recipes.${index}.item`}
-                        control={control}
-                        render={({field}) => (
-                          <ReactSelect
-                            value={field.value}
-                            onChange={(selected) => {
-                              field.onChange(selected);
-                              // Auto-fill cost from inventory item if available
-                              if (selected) {
-                                const invItem = findInventoryItem(inventoryItems?.data, selected.value);
-                                if (invItem) {
-                                  setValue(`recipes.${index}.cost`, inventoryItemUnitCost(invItem));
-                                }
-                              }
-                            }}
-                            isLoading={loadingInventoryItems}
-                            options={availableOptions}
-                          />
-                        )}
-                      />
-                      <InputError error={get(errors, ['recipes', index, 'item', 'message'])}/>
-                    </div>
-                    <div className="w-20">
-                      <Input
-                        type="text"
-                        value={selectedInvItem?.uom ?? ''}
-                        label={t('forms.uom')}
-                        readOnly
-                        disabled
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`recipes.${index}.quantity`}
-                        control={control}
-                        render={({field}) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            label={t('forms.quantity')}
-                            error={get(errors, ['recipes', index, 'quantity', 'message'])}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`recipes.${index}.cost`}
-                        control={control}
-                        render={({field}) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            label={t('forms.unitCost')}
-                            error={get(errors, ['recipes', index, 'cost', 'message'])}
-                          />
-                        )}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="text"
-                        value={withCurrency(rowTotal)}
-                        label={t('forms.lineTotal')}
-                        readOnly
-                        disabled
-                      />
-                    </div>
-                    <div className="flex-1 self-end">
-                      <Controller
-                        name={`recipes.${index}.is_price_locked`}
-                        control={control}
-                        render={({field}) => (
-                          <Switch checked={field.value} onChange={field.onChange}>
-                            {t('forms.priceLocked')}
-                          </Switch>
-                        )}
-                      />
-                    </div>
-                    <div className="flex-0 self-end">
-                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
-                    </div>
-                  </div>
-                );
-              })}
-              {errors?.recipes && typeof errors.recipes === 'object' && 'message' in errors.recipes && (
-                <InputError error={errors.recipes.message as string}/>
-              )}
             </fieldset>
           </div>
 

@@ -4,20 +4,16 @@ import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {DateTime} from "luxon";
-import {getInventoryMovements, getRecipeConsumptionTimeSeries, type InventoryMovementType} from "@/api/reports/inventory/index.ts";
 
 export type TimeSeriesMetric =
   | "net_sales"
   | "order_count"
-  | "void_amount"
-  | "consumption_qty"
-  | "waste_qty"
-  | "purchase_qty";
+  | "void_amount";
 
 export type TimeSeriesGranularity = "daily" | "weekly" | "hourly";
 
@@ -124,30 +120,7 @@ export const getTimeSeries = async (
     };
   }
 
-  if (metric === "consumption_qty") {
-    const points = await getRecipeConsumptionTimeSeries(db, {...dateRange, granularity});
-    return {
-      metric,
-      granularity,
-      points,
-    };
-  }
-
-  const movementType: Record<string, InventoryMovementType> = {
-    waste_qty: "waste",
-    purchase_qty: "purchase",
-  };
-  const type = movementType[metric];
-  if (!type) {
-    throw new Error(`Unknown metric: ${metric}`);
-  }
-
-  const movement = await getInventoryMovements(db, {...dateRange, type, limit: 200});
-  return {
-    metric,
-    granularity,
-    points: movement.byItem.map(item => ({period: item.name, value: item.quantity})),
-  };
+  throw new Error(`Unknown metric: ${metric}`);
 };
 
 export const comparePeriods = async (

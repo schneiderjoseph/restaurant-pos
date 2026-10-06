@@ -10,7 +10,7 @@ import { captureLocator, capturePage } from '../helpers/screenshot.ts';
 
 test.describe.configure({ mode: 'serial' });
 
-test('capture lock, locked login, and clock screen', async ({ page }) => {
+test('capture lock and locked login', async ({ page }) => {
   test.setTimeout(360_000);
   await resetSession(page);
   await loginWithPin(page);
@@ -19,33 +19,11 @@ test('capture lock, locked login, and clock screen', async ({ page }) => {
   await expect(page.getByTestId('nav-lock')).toBeVisible({ timeout: 30_000 });
   await highlightAndReady(page, [
     page.getByTestId('nav-settings'),
-    page.getByTestId('nav-clock'),
     page.getByTestId('nav-lock'),
     page.getByTestId('nav-logout'),
   ]);
   await capturePage(page, 'session-sidebar-controls', { fullPage: false });
   await clearHighlights(page);
-
-  // Clock (needs active time entry from login clock-in when required)
-  await page.getByTestId('nav-clock').click();
-  await page.waitForTimeout(1_500);
-  if (await page.getByTestId('clock-page').isVisible().catch(() => false)) {
-    await capturePage(page, 'session-clock', { fullPage: false });
-
-    if (await page.getByTestId('clock-session').isVisible().catch(() => false)) {
-      await highlightAndReady(page, page.getByTestId('clock-session'));
-      await captureLocator(page.getByTestId('clock-session'), 'session-clock-detail');
-      await clearHighlights(page);
-    }
-    if (await page.getByTestId('clock-sale-summary').isVisible().catch(() => false)) {
-      await highlightAndReady(page, page.getByTestId('clock-sale-summary'));
-      await captureLocator(page.getByTestId('clock-sale-summary'), 'session-clock-sales');
-      await clearHighlights(page);
-    }
-  } else {
-    // No open time entry: capture login toast/redirect state briefly
-    await capturePage(page, 'session-clock', { fullPage: false });
-  }
 
   // Ensure we are logged in before lock shot
   if (await page.getByTestId('login-page').isVisible().catch(() => false)) {
@@ -71,7 +49,7 @@ test('capture lock, locked login, and clock screen', async ({ page }) => {
   for (const digit of pin.slice(0, 4)) {
     await page.getByTestId('login-pin-pad').getByRole('button', { name: digit, exact: true }).click();
   }
-  await page.waitForURL(/\/(menu|settings|orders|admin|clock)/, { timeout: 60_000 });
+  await page.waitForURL(/\/(menu|settings|orders|admin)/, { timeout: 60_000 });
 
   // Session security (idle lock/logout), set once for every user under Manage > General settings
   await openAdminPage(page);

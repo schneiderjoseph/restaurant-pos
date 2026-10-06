@@ -6,7 +6,7 @@ import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-too
 const REGISTERED_CONFIG_IDS = new Set(WRITE_TOOL_REGISTRY.map(entry => entry.configId));
 
 describe("assistant import-config parity", () => {
-  it("registers inventory transaction write tools", () => {
+  it("does not register removed inventory transaction write tools", () => {
     for (const id of [
       "inventory_purchases",
       "inventory_wastes",
@@ -15,23 +15,18 @@ describe("assistant import-config parity", () => {
       "inventory_suppliers",
       "inventory_locations",
     ]) {
-      expect(REGISTERED_CONFIG_IDS.has(id)).toBe(true);
+      expect(REGISTERED_CONFIG_IDS.has(id)).toBe(false);
     }
   });
 
-  it("registers HR and accounts write tools", () => {
-    for (const id of [
-      "positions",
-      "cost_centers",
-      "leave_requests",
-      "time_entries",
-      "accounts",
-      "journal_entries",
-    ]) {
+  it("registers accounts write tools without HR", () => {
+    for (const id of ["accounts", "journal_entries"]) {
       expect(REGISTERED_CONFIG_IDS.has(id)).toBe(true);
     }
+    for (const id of ["positions", "cost_centers", "leave_requests", "time_entries"]) {
+      expect(REGISTERED_CONFIG_IDS.has(id)).toBe(false);
+    }
   });
-
   it("exposes get_kitchen_detail for manage kitchen prompts", () => {
     const names = selectAssistantToolsForPrompt(
       "show dishes on Grill kitchen",

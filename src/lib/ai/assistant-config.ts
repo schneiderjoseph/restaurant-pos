@@ -10,7 +10,7 @@ export const ASSISTANT_EXAMPLE_PROMPT_IDS = [
   "bogoDiscount",
   "addDish",
   "listUsers",
-  "inventoryStock",
+  "voidsToday",
 ] as const;
 
 export type AssistantExamplePromptId = (typeof ASSISTANT_EXAMPLE_PROMPT_IDS)[number];

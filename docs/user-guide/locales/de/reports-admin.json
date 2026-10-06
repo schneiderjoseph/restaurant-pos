@@ -1,52 +1,17 @@
 {
   "title": "Berichte-Hub (Administrator-Pakete)",
-  "intro": "Administratoren nutzen denselben Berichte-Hub mit tieferen Paketen: Inventar, Personal, Produkte und Steuern.",
+  "intro": "Administratoren nutzen denselben Berichts-Hub wie Manager, mit tieferen Paketen wie Produkte und Steuern. Kategorie öffnen, Bericht wählen, Filter setzen, dann ausführen oder exportieren.",
   "sections": [
     {
       "id": "overview",
       "title": "Administrator-Berichtslayout",
       "steps": [
         "Berichte in der Seitenleiste tippen.",
-        "Kategorien: Inventar, Personal, Produkte, Verkauf.",
+        "Kategorien: Verkauf, Produkte, Betrieb und mehr.",
         "Mittlere Spalte listet Berichte; rechtes Panel Filter."
       ],
       "image": "reports-admin-overview.png",
       "caption": "Berichte-Hub für Administrator-Pakete."
-    },
-    {
-      "id": "inventory",
-      "title": "Inventarpaket",
-      "intro": "Deckt Bestand, Einkäufe, Ausgaben, Verluste, Verbrauch, Produktion und Buffet ab.",
-      "steps": [
-        "Inventar wählen.",
-        "Aktueller Bestand oder Einkauf wählen.",
-        "Standort und Datum setzen und ausführen."
-      ],
-      "image": "reports-admin-inventory.png",
-      "caption": "Inventar-Berichtspaket."
-    },
-    {
-      "id": "inventory-filters",
-      "title": "Inventarfilter",
-      "steps": [
-        "Nach Berichtswahl zeigt das Panel Filter.",
-        "Daten, Standorte oder Artikel anpassen.",
-        "Ausführen oder exportieren wenn passend."
-      ],
-      "image": "reports-admin-inventory-filters.png",
-      "caption": "Inventar-Filterpanel."
-    },
-    {
-      "id": "labor",
-      "title": "Personalpaket",
-      "intro": "Fasst Kosten, Überstunden, Anwesenheit, Lohn und Plan vs Ist zusammen.",
-      "steps": [
-        "Personal wählen.",
-        "Dashboard oder Tageskosten öffnen.",
-        "Anwesenheit oder Lohnübersicht für Details."
-      ],
-      "image": "reports-admin-labor.png",
-      "caption": "Personal-Berichtspaket."
     },
     {
       "id": "products",

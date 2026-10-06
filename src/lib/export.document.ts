@@ -1,4 +1,4 @@
-import { exportElementAsRealPdf } from "@/lib/export.pdf.ts";
+import { exportElementAsRealPdf, type PdfExportOptions } from "@/lib/export.pdf.ts";
 
 export const printDocument = () => {
   window.print();
@@ -8,8 +8,9 @@ export const printDocument = () => {
 export const exportElementAsPdf = async (
   element: HTMLElement | null,
   filename = "document.pdf",
+  options: PdfExportOptions = {},
 ) => {
-  await exportElementAsRealPdf(element, filename);
+  await exportElementAsRealPdf(element, filename, options);
 };
 
 export const exportElementAsImage = async (

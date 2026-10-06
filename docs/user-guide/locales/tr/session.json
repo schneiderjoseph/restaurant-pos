@@ -1,18 +1,17 @@
 {
-  "title": "Kilitleme, çıkış ve saat",
-  "intro": "Yan menü altı: kilitle, çıkış, saat ve Ayarlar. Boşta kilidi Yönet → Genel ayarlar altındaki Oturum güvenliğini izler.",
+  "title": "Oturum kilitleme ve çıkış",
+  "intro": "Terminali kilitlemek, çıkış yapmak veya Ayarları açmak için kenar çubuğunun altındaki kontrolleri kullanın. Boşta kilitleme/çıkış, Yönet → Genel ayarlar altındaki Oturum güvenliğine göre çalışır.",
   "sections": [
     {
       "id": "controls",
       "title": "Oturum kontrolleri",
       "steps": [
         "Anahtar: Ayarlar.",
-        "Kullanıcı: Saat.",
         "Kilit: kilitle.",
         "Güç: çıkış."
       ],
       "image": "session-sidebar-controls.png",
-      "caption": "Settings, clock, lock, and logout on the sidebar."
+      "caption": "Kenar çubuğunda ayarlar, kilitleme ve çıkış."
     },
     {
       "id": "lock",
@@ -25,39 +24,6 @@
       "image": "session-locked.png",
       "caption": "System locked banner on login.",
       "intro": "Kısa mola; yalnızca aynı kullanıcı açar."
-    },
-    {
-      "id": "clock",
-      "title": "Saat ekranı",
-      "steps": [
-        "Saati açın.",
-        "Açık giriş gerekir.",
-        "Satış ve giriş saatini kontrol edin."
-      ],
-      "image": "session-clock.png",
-      "caption": "Clock screen overview.",
-      "intro": "Giriş kaydı, vardiya, süre ve metrikler."
-    },
-    {
-      "id": "clock-detail",
-      "title": "Kullanıcı, vardiya ve çıkış",
-      "steps": [
-        "Kullanıcı ve vardiya.",
-        "Geçen süre.",
-        "Vardiya bitince çıkış."
-      ],
-      "image": "session-clock-detail.png",
-      "caption": "Session panel with Clock Out."
-    },
-    {
-      "id": "clock-sales",
-      "title": "Oturum satış özeti",
-      "steps": [
-        "Oturum metrikleri.",
-        "Çıkış öncesi bakın."
-      ],
-      "image": "session-clock-sales.png",
-      "caption": "Sale summary metrics."
     },
     {
       "id": "idle",

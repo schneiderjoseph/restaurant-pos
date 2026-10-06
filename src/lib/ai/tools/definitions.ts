@@ -1,6 +1,5 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
-import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
 
 const dateRangeProps = {
   startDate: {type: "string", description: "Optional start datetime in DB format"},
@@ -11,7 +10,8 @@ const dateRangeProps = {
   },
 };
 
-export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
+export const AI_REPORT_TOOLS: OpenAIToolDefinition[
+] = [
   {
     type: "function",
     function: {
@@ -186,198 +186,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "get_current_inventory",
-      description: "Get current inventory levels from the inventory ledger (source of truth) and items below reorder level.",
-      parameters: {
-        type: "object",
-        properties: {limit: {type: "number", default: 100}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_inventory_movements",
-      description:
-        "Get posted inventory ledger movements aggregated by item for a reference type "
-        + "(purchase, purchase_return, issue, issue_return, waste, adjustment, transfer, production, buffet). "
-        + "For purchase receipts with invoice/supplier detail, prefer get_inventory_documents with documentType=purchase. "
-        + "Never use for purchase orders — those are get_purchase_orders.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          type: {
-            type: "string",
-            enum: [
-              "purchase",
-              "purchase_return",
-              "issue",
-              "issue_return",
-              "waste",
-              "adjustment",
-              "transfer_in",
-              "transfer_out",
-              "production_input",
-              "production_output",
-              "buffet_consumption",
-            ],
-          },
-          limit: {type: "number", default: 50},
-        },
-        required: ["type"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_inventory_documents",
-      description:
-        "Get posted inventory documents with headers and totals: purchases (supplier receipts), "
-        + "purchase returns, issues, issue returns, waste, adjustments, stock transfers. "
-        + "Use when the user asks about purchases/purchase report/history — NOT purchase orders "
-        + "(approval workflow: use get_purchase_orders only when they say purchase order or PO). "
-        + "For voided/cancelled inventory purchases use documentStatus=voided or cancelled — NOT get_voids (POS order dish voids).",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          documentType: {
-            type: "string",
-            enum: [
-              "purchase",
-              "purchase_return",
-              "issue",
-              "issue_return",
-              "waste",
-              "adjustment",
-              "transfer",
-            ],
-          },
-          documentStatus: {
-            type: "string",
-            enum: ["draft", "approved", "posted", "cancelled", "voided"],
-            description: "Optional lifecycle filter. Use voided for voided inventory purchases/receipts.",
-          },
-          limit: {type: "number", default: 50},
-        },
-        required: ["documentType"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_consumption",
-      description: "Theoretical inventory consumption by item = recipe ingredient qty × sold (Paid) dishes. Not inventory issuance.",
-      parameters: {
-        type: "object",
-        properties: {...dateRangeProps, limit: {type: "number", default: 50}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_issuance",
-      description: "Actual inventory issuance from the ledger (issues + buffet consumption). Distinct from recipe-based consumption.",
-      parameters: {
-        type: "object",
-        properties: {...dateRangeProps, limit: {type: "number", default: 50}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_waste_summary",
-      description: "Get waste summary by inventory item from the inventory ledger.",
-      parameters: {
-        type: "object",
-        properties: {...dateRangeProps, limit: {type: "number", default: 50}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_sale_vs_consumption",
-      description: "Compare sales vs recipe consumption vs issuance vs purchases (same as Sale vs Consumption report).",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_kitchen_reconciliation",
-      description: "Get kitchen reconciliation records.",
-      parameters: {
-        type: "object",
-        properties: {...dateRangeProps, limit: {type: "number", default: 20}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_purchase_orders",
-      description: "Get purchase order documents (Draft, Pending Approval, Approved, Fulfilled) with line items and totals. Use ONLY when the user says purchase order, PO, or procurement approval — NOT for purchases/purchase history (use get_inventory_documents with documentType=purchase).",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          status: {
-            type: "string",
-            enum: ["Draft", "Pending Approval", "Approved", "Fulfilled"],
-            description: "Optional single status filter",
-          },
-          statuses: {
-            type: "array",
-            items: {
-              type: "string",
-              enum: ["Draft", "Pending Approval", "Approved", "Fulfilled"],
-            },
-            description: "Optional multiple status filters",
-          },
-          limit: {type: "number", default: 50},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "list_suppliers",
-      description: "List inventory suppliers by name (for purchase proposals).",
-      parameters: {
-        type: "object",
-        properties: {
-          search: {type: "string"},
-          limit: {type: "number", default: 50},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "list_inventory_locations",
-      description: "List inventory stock locations (stores, kitchens, etc.).",
-      parameters: {
-        type: "object",
-        properties: {
-          search: {type: "string"},
-          limit: {type: "number", default: 50},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_expenses",
-      description: "Get expenses from day closings by category.",
+      name: "get_expenses",      description: "Get expenses from day closings by category.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },
@@ -502,92 +311,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "forecast_inventory",
-      description: "Forecast ONE inventory item's stock depletion. Requires currentStock and daily consumptionPoints for that item. For overall consumption qty forecasts use get_time_series(consumption_qty) + forecast_sales instead.",
-      parameters: {
-        type: "object",
-        properties: {
-          itemId: {type: "string"},
-          itemName: {type: "string"},
-          currentStock: {type: "number"},
-          consumptionPoints: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {period: {type: "string"}, value: {type: "number"}},
-            },
-          },
-          forecastDays: {type: "number", default: 14},
-          reorderLevel: {type: "number"},
-        },
-        required: ["currentStock", "consumptionPoints"],
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "forecast_inventory_need",
-      description: "Inventory qty needed for a named day (this Friday) or the next N days: same-weekday history, current on-hand, holidays/weather, prompt localEvents, and suggestedPurchaseQty. Use ONLY when the user asks how much stock/inventory they need or what to buy. Do NOT use for overall consumption trends (use get_time_series + forecast_sales) or one-item runout (forecast_inventory). Never invent localEvents.",
-      parameters: {
-        type: "object",
-        properties: {
-          days: {type: "number", default: 7, description: "Horizon length 1–14. Use 1 for a named day."},
-          phrase: {type: "string", description: 'Date phrase such as "this Friday" or "next 7 days"'},
-          targetDate: {type: "string", description: "ISO date for a single named day"},
-          store: {type: "string", description: "Optional inventory location id"},
-          localEvents: {
-            type: "array",
-            description: "Events mentioned in the user prompt only. Never invent. Default lift 20% if liftPct omitted.",
-            items: {
-              type: "object",
-              properties: {
-                name: {type: "string"},
-                startDate: {type: "string"},
-                endDate: {type: "string"},
-                liftPct: {type: "number"},
-              },
-              required: ["name"],
-            },
-          },
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "forecast_staff_need",
-      description: "Recommended staff hours and headcount for a named day (this Friday) or the next N days, using last same-weekday clocked labor vs published schedule, plus holidays/weather/prompt events. Use ONLY when asked how many staff/people are needed. Never invent localEvents.",
-      parameters: {
-        type: "object",
-        properties: {
-          days: {type: "number", default: 7, description: "Horizon length 1–14. Use 1 for a named day."},
-          phrase: {type: "string", description: 'Date phrase such as "this Friday" or "next 7 days"'},
-          targetDate: {type: "string", description: "ISO date for a single named day"},
-          localEvents: {
-            type: "array",
-            description: "Events mentioned in the user prompt only. Never invent. Default lift 20% if liftPct omitted.",
-            items: {
-              type: "object",
-              properties: {
-                name: {type: "string"},
-                startDate: {type: "string"},
-                endDate: {type: "string"},
-                liftPct: {type: "number"},
-              },
-              required: ["name"],
-            },
-          },
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "compare_periods",
-      description: "Compare a metric between two date ranges.",
+      name: "compare_periods",      description: "Compare a metric between two date ranges.",
       parameters: {
         type: "object",
         properties: {
@@ -636,46 +360,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "get_menu_engineering_matrix",
-      description: "Menu engineering matrix: classify items as Stars, Plowhorses, Puzzles, or Dogs by popularity and margin.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_menu_sales_trends",
-      description: "Month-over-month dish volume trends. Highlights high-profit items with declining sales.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          volumeDropPercent: {type: "number", default: 10},
-          highProfitOnly: {type: "boolean", default: true},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "estimate_price_change_impact",
-      description: "Estimate gross profit impact of a price change on top-volume items (assumes volume unchanged).",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          priceChangePercent: {type: "number", default: 5},
-          topN: {type: "number", default: 3},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_void_and_cancel_summary",
-      description: "Summarize void reasons, cancelled orders, and complimentary (100% discount) comps.",
+      name: "get_void_and_cancel_summary",      description: "Summarize void reasons, cancelled orders, and complimentary (100% discount) comps.",
       parameters: {
         type: "object",
         properties: {...dateRangeProps, limit: {type: "number", default: 50}},
@@ -685,25 +370,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
-      name: "get_hourly_labor_vs_sales",
-      description: "Hourly labor cost % vs net sales. Flags over-staffing windows. Use phrase last Friday or peak hours for hour filter.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          startHour: {type: "number"},
-          endHour: {type: "number"},
-          hourPhrase: {type: "string"},
-          laborPercentThreshold: {type: "number", default: 35},
-        },
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_prep_times_by_order_type",
-      description: "Average ticket time (created to completed) by order type — e.g. delivery vs dine-in.",
+      name: "get_prep_times_by_order_type",      description: "Average ticket time (created to completed) by order type — e.g. delivery vs dine-in.",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },
@@ -923,98 +590,5 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       },
     },
   },
-  {
-    type: "function",
-    function: {
-      name: "list_inventory_items",
-      description: "List inventory items for name-to-ID resolution.",
-      parameters: {
-        type: "object",
-        properties: {search: {type: "string"}, limit: {type: "number", default: 50}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_labor_dashboard_snapshot",
-      description: "Get real-time labor dashboard KPIs: clocked-in count, labor cost today, projected EOD cost, labor %, scheduled/missing/late/on-break counts.",
-      parameters: {type: "object", properties: {}},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_daily_labor_cost",
-      description: "Get day-by-day labor cost breakdown for a date range.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_labor_percent",
-      description: "Get labor cost as a percentage of net sales for a date range.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_overtime_report",
-      description: "Get overtime hours and pay by employee for a date range.",
-      parameters: {
-        type: "object",
-        properties: {...dateRangeProps, limit: {type: "number", default: 20}},
-      },
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_attendance_report",
-      description: "Get attendance summary: scheduled vs worked, late, absent, on-time counts by employee.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_payroll_summary",
-      description: "Get payroll summary from payroll snapshots for a date range.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_scheduled_vs_actual",
-      description: "Compare scheduled vs actual labor hours and cost by employee and day.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_labor_trend",
-      description: "Get labor cost trend over time with optional labor percent.",
-      parameters: {type: "object", properties: dateRangeProps},
-    },
-  },
-  {
-    type: "function",
-    function: {
-      name: "get_ai_labor_datasets",
-      description: "Bundle key labor metrics for AI analysis: dashboard, daily cost, labor %, overtime, attendance, payroll, schedule variance, trend, top cost employees.",
-      parameters: {
-        type: "object",
-        properties: {
-          ...dateRangeProps,
-          topLimit: {type: "number", default: 10},
-        },
-      },
-    },
-  },
   ...AI_MANAGE_READ_TOOLS,
-  ...AI_HR_READ_TOOLS,
 ];

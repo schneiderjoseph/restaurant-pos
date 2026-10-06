@@ -365,7 +365,6 @@
     "sale": "Venta",
     "itemName": "Nombre del artículo",
     "itemCode": "Código del artículo",
-    "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
     "taxPercent": "Impuesto %",
     "scope": "Alcance",
@@ -379,7 +378,10 @@
     "issue": "Salida",
     "employee": "Empleado",
     "turnTime": "Tiempo de rotación (min)",
-    "outlet": "Punto de venta"
+    "outlet": "Punto de venta",
+    "authMethod": "Método de acceso",
+    "details": "Detalles",
+    "noTable": "Sin mesa"
   },
   "labels": {
     "modifiers": "Modificadores",
@@ -417,7 +419,6 @@
     "grossSale": "Venta bruta",
     "guestAvg": "Comensal prom.",
     "estimatedProfit": "Ganancia estimada",
-    "foodCostPercent": "Costo de alimentos %",
     "allTimeSale": "Venta de todo el tiempo",
     "lastWeekSale": "Venta de la semana pasada",
     "lastMonthSale": "Venta del mes pasado",
@@ -625,7 +626,6 @@
     "businessDate": "Fecha comercial",
     "actualGuests": "Comensales reales",
     "totalSales": "Ventas totales",
-    "totalFoodCost": "Costo total de alimentos",
     "costPerGuest": "Costo por comensal",
     "wastePercent": "Desperdicio %",
     "overproduction": "Sobreproducción",
@@ -660,9 +660,15 @@
     "noDiscountsByUsers": "No hay descuentos por usuarios para el rango seleccionado.",
     "noDiscountRows": "No se encontraron filas de descuento para el rango seleccionado.",
     "noEmployeeSales": "No hay datos de ventas por empleados",
-    "noScheduleRoster": "No hay turnos programados para el rango seleccionado"
+    "noScheduleRoster": "No hay turnos programados para el rango seleccionado",
+    "noTables": "No hay ventas en mesa en el periodo seleccionado.",
+    "noActivity": "No hay registros de auditoría en el periodo seleccionado.",
+    "noProducts": "No se encontraron productos."
   },
   "sections": {
     "salesByOutlet": "Ventas por punto de venta"
+  },
+  "messages": {
+    "auditTruncated": "Solo se muestran las últimas {{count}} entradas. Acote el periodo para ver las anteriores."
   }
 }

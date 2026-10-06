@@ -62,7 +62,7 @@ describe('findNewlyReadyOrders', () => {
       .toEqual([]);
     expect(
       findNewlyReadyOrders(
-        new Map([['order:12', { column: 'ready', readyAtMs: Date.parse('2026-10-05T10:05:00.000Z') }]]),
+        new Map([['order:12', { column: 'ready', readyAtMs: Date.parse('2026-10-05T10:05:00.000Z') }]]) as OrderReadyState,
         [order()],
         {},
       ).newlyReady,
@@ -71,7 +71,7 @@ describe('findNewlyReadyOrders', () => {
 
   it('announces again after a kitchen recall then finish (even if running was missed)', () => {
     const firstReady = findNewlyReadyOrders(
-      new Map([['order:12', { column: 'running', readyAtMs: null }]]),
+      new Map([['order:12', { column: 'running', readyAtMs: null }]]) as OrderReadyState,
       [order()],
       kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z'),
     );

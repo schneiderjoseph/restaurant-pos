@@ -365,7 +365,6 @@
     "sale": "Verkoop",
     "itemName": "Artikelnaam",
     "itemCode": "Artikelcode",
-    "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
     "taxPercent": "Belasting %",
     "scope": "Bereik",
@@ -379,7 +378,10 @@
     "issue": "Uitgifte",
     "employee": "Medewerker",
     "turnTime": "Omlooptijd (min)",
-    "outlet": "Verkooppunt"
+    "outlet": "Verkooppunt",
+    "authMethod": "Aanmeldmethode",
+    "details": "Details",
+    "noTable": "Geen tafel"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -417,7 +419,6 @@
     "grossSale": "Brutoverkoop",
     "guestAvg": "Gem. gast",
     "estimatedProfit": "Geschatte winst",
-    "foodCostPercent": "Voedselkosten %",
     "allTimeSale": "Totale verkoop",
     "lastWeekSale": "Verkoop vorige week",
     "lastMonthSale": "Verkoop vorige maand",
@@ -625,7 +626,6 @@
     "businessDate": "Bedrijfsdatum",
     "actualGuests": "Werkelijke gasten",
     "totalSales": "Totale omzet",
-    "totalFoodCost": "Totale voedselkosten",
     "costPerGuest": "Kosten per gast",
     "wastePercent": "Verspilling %",
     "overproduction": "Overproductie",
@@ -660,9 +660,15 @@
     "noDiscountsByUsers": "Geen kortingen per gebruiker voor geselecteerd bereik.",
     "noDiscountRows": "Geen kortingsregels gevonden voor geselecteerd bereik.",
     "noEmployeeSales": "Geen verkoopgegevens per medewerker beschikbaar",
-    "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik"
+    "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik",
+    "noTables": "Geen tafelverkopen in de gekozen periode.",
+    "noActivity": "Geen auditregels in de gekozen periode.",
+    "noProducts": "Geen producten gevonden."
   },
   "sections": {
     "salesByOutlet": "Verkoop per verkooppunt"
+  },
+  "messages": {
+    "auditTruncated": "Alleen de laatste {{count}} regels worden getoond. Verklein de periode om oudere te zien."
   }
 }

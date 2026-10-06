@@ -243,7 +243,7 @@
       "bogoDiscount": "Create automatic BOGO discount for starters",
       "addDish": "Add a new dish Margherita for x price",
       "listUsers": "List all POS users",
-      "inventoryStock": "Show inventory items below reorder level"
+      "voidsToday": "Show voids for today"
     },
     "unknownConfig": "Unknown import configuration for preview.",
     "passwordWillBeSet": "Password will be set on confirm"

@@ -12,7 +12,6 @@ import {TableComponent} from "@/components/common/table/table.tsx";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createDishImportConfig} from "@/components/settings/dishes/dish.import.config.ts";
-import {createDishIngredientsImportConfig} from "@/components/settings/dishes/dish-ingredients.import.config.ts";
 import {createDishModifiersImportConfig} from "@/components/settings/dishes/dish-modifiers.import.config.ts";
 import {createSmartMenuImportConfig} from "@/components/settings/dishes/smart-menu.import.config.ts";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
@@ -38,7 +37,7 @@ export const AdminDishes = () => {
   const canCreate = isVisible('admin.dishes.create');
 
   const loadHook = useApi<SettingsData<Dish & { modifiers: [] }>>(
-    Tables.dishes, [`deleted_at = none`], [], 0, 10, ['categories', 'items', 'items.item'], {}, [
+    Tables.dishes, [`deleted_at = none`], [], 0, 10, ['categories'], {}, [
       '*',
       '(SELECT out.name from menu_item_modifier_group where in = $parent.id) as modifiers',
       '(SELECT name, modifiers[where modifier.id = $parent.id][0].price as price from modifier_group where array::any(modifiers.modifier.id ?? [], $parent.id)) as modifier_items'
@@ -49,7 +48,6 @@ export const AdminDishes = () => {
   const [formModal, setFormModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [dishImportModal, setImportModal] = useState(false);
-  const [ingredientsImportModal, setIngredientsImportModal] = useState(false);
   const [modifierGroupsImportModal, setModifierGroupsImportModal] = useState(false);
   const [menuStructureImportModal, setMenuStructureImportModal] = useState(false);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -60,10 +58,6 @@ export const AdminDishes = () => {
 
   const smartImportConfig = useMemo(
     () => createDishImportConfig({db, t}),
-    [db, t]
-  );
-  const ingredientsImportConfig = useMemo(
-    () => createDishIngredientsImportConfig({db, t}),
     [db, t]
   );
   const modifiersImportConfig = useMemo(
@@ -119,9 +113,6 @@ export const AdminDishes = () => {
     }),
     columnHelper.accessor("price", {
       header: t('columns.salePrice')
-    }),
-    columnHelper.accessor("cost", {
-      header: t('columns.costPrice')
     }),
     columnHelper.accessor("categories", {
       header: t('columns.categories'),
@@ -228,9 +219,6 @@ export const AdminDishes = () => {
       ],
       cleanupQueries: [
         {
-          query: `DELETE ${Tables.dishes_recipes} WHERE menu_item = $idRecord`
-        },
-        {
           query: `DELETE ${Tables.dish_modifier_groups} WHERE in = $idRecord`
         },
         {
@@ -257,7 +245,6 @@ export const AdminDishes = () => {
               onAction={(key) => {
                 protectAction(() => {
                   if (key === 'dishes') setImportModal(true);
-                  else if (key === 'ingredients') setIngredientsImportModal(true);
                   else if (key === 'modifier_groups') setModifierGroupsImportModal(true);
                   else if (key === 'menu_structure') setMenuStructureImportModal(true);
                 }, {
@@ -268,9 +255,6 @@ export const AdminDishes = () => {
             >
               <DropdownItem id="dishes" textValue={t('buttons.smartImportDishes')} className="text-left min-w-[16rem]">
                 {t('buttons.smartImportDishes')}
-              </DropdownItem>
-              <DropdownItem id="ingredients" textValue={t('buttons.smartImportIngredients')} className="text-left min-w-[16rem]">
-                {t('buttons.smartImportIngredients')}
               </DropdownItem>
               <DropdownItem id="modifier_groups" textValue={t('buttons.smartImportModifierGroups')} className="text-left min-w-[16rem]">
                 {t('buttons.smartImportModifierGroups')}
@@ -357,32 +341,7 @@ export const AdminDishes = () => {
               number: d.number ?? '',
               priority: String(d.priority ?? ''),
               price: String(d.price ?? ''),
-              cost: String(d.cost ?? ''),
               categories: (d.categories ?? []).map((c) => c.name).join('|'),
-            }));
-          }}
-          onDone={() => loadHook.fetchData()}
-        />
-      )}
-
-      {ingredientsImportModal && (
-        <DataImportModal
-          isOpen
-          onClose={() => setIngredientsImportModal(false)}
-          config={ingredientsImportConfig}
-          title={t('forms.smartImportIngredientsTitle', {defaultValue: t('forms.importIngredientsTitle')})}
-          enableImportModes
-          defaultMatchFields={['dish_number', 'ingredient']}
-          onExport={async () => {
-            const [recipes] = await db.query(
-              `SELECT *, menu_item.number AS dish_number FROM ${Tables.dishes_recipes} FETCH item, menu_item`
-            );
-            return ((recipes as any[]) ?? []).map((rec) => ({
-              dish_number: String(rec.dish_number ?? rec.menu_item?.number ?? ''),
-              ingredient: rec.item?.code || rec.item?.name || '',
-              quantity: String(rec.quantity ?? ''),
-              cost: String(rec.cost ?? ''),
-              is_price_locked: rec.is_price_locked ? 'true' : 'false',
             }));
           }}
           onDone={() => loadHook.fetchData()}

@@ -1,18 +1,17 @@
 {
-  "title": "Bloqueio, logout e relógio",
-  "intro": "Base da barra: bloquear, sair, relógio e Configurações. O idle segue Segurança da sessão em Gerenciar → Configurações gerais.",
+  "title": "Bloqueio e saída",
+  "intro": "Use os controles inferiores da barra lateral para bloquear o terminal, sair ou abrir Configurações. O bloqueio/saída por inatividade segue a Segurança de sessão em Gerenciar → Configurações gerais.",
   "sections": [
     {
       "id": "controls",
       "title": "Controles de sessão",
       "steps": [
         "Chave: Configurações.",
-        "Usuário: Relógio.",
         "Cadeado: bloquear.",
         "Energia: sair."
       ],
       "image": "session-sidebar-controls.png",
-      "caption": "Settings, clock, lock, and logout on the sidebar."
+      "caption": "Configurações, bloqueio e saída na barra lateral."
     },
     {
       "id": "lock",
@@ -25,39 +24,6 @@
       "image": "session-locked.png",
       "caption": "System locked banner on login.",
       "intro": "Pausas curtas; só o mesmo usuário desbloqueia."
-    },
-    {
-      "id": "clock",
-      "title": "Tela de relógio",
-      "steps": [
-        "Abra o Relógio.",
-        "Precisa de ponto aberto.",
-        "Revise vendas e hora de entrada."
-      ],
-      "image": "session-clock.png",
-      "caption": "Clock screen overview.",
-      "intro": "Ponto, turno, tempo decorrido e métricas."
-    },
-    {
-      "id": "clock-detail",
-      "title": "Usuário, turno e saída",
-      "steps": [
-        "Usuário e turno.",
-        "Tempo decorrido.",
-        "Saída só no fim do turno."
-      ],
-      "image": "session-clock-detail.png",
-      "caption": "Session panel with Clock Out."
-    },
-    {
-      "id": "clock-sales",
-      "title": "Resumo de vendas da sessão",
-      "steps": [
-        "Métricas da sessão.",
-        "Confira antes de sair."
-      ],
-      "image": "session-clock-sales.png",
-      "caption": "Sale summary metrics."
     },
     {
       "id": "idle",

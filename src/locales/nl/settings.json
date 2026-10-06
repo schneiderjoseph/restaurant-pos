@@ -177,41 +177,6 @@
     "showTotalInPaymentCard": "Totalen voor artikelen in betalingsvenster weergeven",
     "showDishPhotos": "Gerechtenfotos op menutegels tonen"
   },
-  "inventory": {
-    "title": "Inventory",
-    "description": "Ledger cutover and optional advanced tracking. Keep batch/expiry off unless you need them.",
-    "ledgerEnabled": "Use inventory ledger (single source of truth)",
-    "ledgerHint": "Enable only after running the ledger backfill and confirming reconciliation.",
-    "costingMethod": "Costing method",
-    "costing": {
-      "average": "Weighted Average",
-      "fifo": "FIFO",
-      "fefo": "FEFO"
-    },
-    "enableBatchTracking": "Enable batch tracking",
-    "enableExpiryTracking": "Enable expiry tracking",
-    "enableManufacturingDate": "Enable manufacturing dates",
-    "requireBatchSelection": "Require batch selection on issues",
-    "updated": "Inventory settings updated",
-    "save": "Save",
-    "saveDescription": "Save inventory settings",
-    "landedCostsSection": "Purchase cost allocation",
-    "enableLandedCosts": "Enable landed costs (shipping, freight, etc.)",
-    "enablePurchaseDiscounts": "Enable purchase discounts in inventory cost",
-    "enablePurchaseTaxes": "Enable purchase taxes in inventory cost",
-    "defaultAllocationMethod": "Default allocation method",
-    "allocation": {
-      "by_value": "By value",
-      "by_quantity": "By quantity",
-      "equal": "Equal"
-    },
-    "defaultPurchaseTaxBehavior": "Default purchase tax behavior",
-    "defaultPurchaseTaxBehaviorHint": "Non-recoverable tax is capitalized into inventory. Recoverable tax is ignored for valuation.",
-    "taxBehavior": {
-      "non_recoverable": "Non-recoverable (capitalize)",
-      "recoverable": "Recoverable (ignore for inventory)"
-    }
-  },
   "sessionSecurity": {
     "title": "Sessiebeveiliging",
     "description": "Alle gebruikers automatisch vergrendelen of afmelden na een periode van inactiviteit. Geldt voor alle gebruikers en terminals.",
@@ -221,15 +186,5 @@
     "actionLogout": "Uitloggen",
     "updated": "Sessiebeveiligingsinstellingen bijgewerkt",
     "saveDescription": "Sessiebeveiligingsinstellingen opslaan"
-  },
-  "autoClockOut": {
-    "title": "Automatisch uitklokken",
-    "description": "Klok automatisch uit aan het einde van de dienst en/of op een vast dagelijks tijdstip. Gebruikt de geplande dienst indien aanwezig, anders de toegewezen dienst. Geldt voor alle gebruikers.",
-    "onShiftEnd": "Uitklokken bij einde dienst",
-    "onDefinedTime": "Uitklokken op een vast tijdstip",
-    "definedTime": "Uitkloktijd",
-    "triggerRequired": "Schakel einde dienst en/of een vast tijdstip in wanneer automatisch uitklokken aan staat",
-    "updated": "Instellingen voor automatisch uitklokken bijgewerkt",
-    "saveDescription": "Instellingen voor automatisch uitklokken opslaan"
   }
 }

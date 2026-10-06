@@ -17,12 +17,10 @@ export const I18N_NAMESPACES = [
   'closing',
   'summary',
   'receipts',
-  'inventory',
   'reports',
   'delivery',
   'admin',
   'accounts',
-  'hr',
   'integrations',
   'validation',
 ] as const;

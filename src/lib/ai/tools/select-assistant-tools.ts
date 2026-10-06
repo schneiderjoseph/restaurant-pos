@@ -5,8 +5,6 @@ import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {AI_REPORT_TOOLS} from "@/lib/ai/tools/definitions.ts";
 import {filterToolsByPermissions} from "@/lib/ai/tools/permissions.ts";
 import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
-import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
-import {isHrOperationPrompt} from "@/lib/ai/employee-query.ts";
 import {detectWriteToolsForPrompt, listPermittedWriteTools, WRITE_INTENT_PATTERN} from "@/lib/ai/tools/write-tool-registry.ts";
 
 const ASSISTANT_CORE_READ_TOOLS = ["resolve_date_range", "get_sales_summary", "get_orders"];
@@ -22,11 +20,6 @@ const resolveManageReadTools = (allowedModules: string[]): OpenAIToolDefinition[
   allowedModules.length
     ? filterToolsByPermissions(AI_MANAGE_READ_TOOLS, allowedModules)
     : AI_MANAGE_READ_TOOLS;
-
-const resolveHrReadTools = (allowedModules: string[]): OpenAIToolDefinition[] =>
-  allowedModules.length
-    ? filterToolsByPermissions(AI_HR_READ_TOOLS, allowedModules)
-    : AI_HR_READ_TOOLS;
 
 const mergeDomainTools = (
   tools: OpenAIToolDefinition[],
@@ -54,9 +47,6 @@ const resolveReadTools = (
     if (domains.includes("manage")) {
       merged = mergeDomainTools(merged, resolveManageReadTools(allowedModules));
     }
-    if (domains.includes("hr") || isHrOperationPrompt(prompt)) {
-      merged = mergeDomainTools(merged, resolveHrReadTools(allowedModules));
-    }
     return {readTools: merged, domains};
   }
 
@@ -72,11 +62,6 @@ const resolveReadTools = (
 
   if (resolvedDomains.includes("manage")) {
     for (const tool of resolveManageReadTools(allowedModules)) {
-      nameSet.add(tool.function.name);
-    }
-  }
-  if (resolvedDomains.includes("hr") || isHrOperationPrompt(prompt)) {
-    for (const tool of resolveHrReadTools(allowedModules)) {
       nameSet.add(tool.function.name);
     }
   }

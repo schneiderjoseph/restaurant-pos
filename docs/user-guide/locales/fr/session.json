@@ -1,18 +1,17 @@
 {
-  "title": "Verrouillage, déconnexion et pointeuse",
-  "intro": "Bas de barre latérale : verrouiller, déconnecter, pointeuse et Paramètres. Le verrouillage d’inactivité suit Sécurité de session sous Gérer → Paramètres généraux.",
+  "title": "Verrouillage et déconnexion",
+  "intro": "Les commandes en bas de la barre latérale verrouillent le terminal, déconnectent ou ouvrent les Paramètres. Le verrouillage/la déconnexion automatique suit la Sécurité de session dans Gérer → Paramètres généraux.",
   "sections": [
     {
       "id": "controls",
       "title": "Contrôles de session",
       "steps": [
         "Clé : Paramètres.",
-        "Utilisateur : Pointeuse.",
         "Cadenas : verrouiller.",
         "Marche : déconnexion."
       ],
       "image": "session-sidebar-controls.png",
-      "caption": "Settings, clock, lock, and logout on the sidebar."
+      "caption": "Paramètres, verrouillage et déconnexion dans la barre latérale."
     },
     {
       "id": "lock",
@@ -25,39 +24,6 @@
       "image": "session-locked.png",
       "caption": "System locked banner on login.",
       "intro": "Pauses courtes ; seul le même utilisateur déverrouille."
-    },
-    {
-      "id": "clock",
-      "title": "Écran pointeuse",
-      "steps": [
-        "Ouvrez la pointeuse.",
-        "Pointage ouvert requis.",
-        "Vérifiez ventes et heure d’entrée."
-      ],
-      "image": "session-clock.png",
-      "caption": "Clock screen overview.",
-      "intro": "Pointage, service, temps écoulé et métriques."
-    },
-    {
-      "id": "clock-detail",
-      "title": "Utilisateur, service et dépointage",
-      "steps": [
-        "Utilisateur et service.",
-        "Temps écoulé.",
-        "Dépointer en fin de service."
-      ],
-      "image": "session-clock-detail.png",
-      "caption": "Session panel with Clock Out."
-    },
-    {
-      "id": "clock-sales",
-      "title": "Résumé des ventes de session",
-      "steps": [
-        "Métriques de session.",
-        "Contrôlez avant dépointage."
-      ],
-      "image": "session-clock-sales.png",
-      "caption": "Sale summary metrics."
     },
     {
       "id": "idle",

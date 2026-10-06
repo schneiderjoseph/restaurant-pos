@@ -1,10 +1,7 @@
 export type AiReportToolDomain =
   | "sales"
-  | "inventory"
   | "operations"
   | "analysis"
-  | "labor"
-  | "hr"
   | "accounts"
   | "chart"
   | "lookup"
@@ -29,22 +26,6 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_dashboard_snapshot",
     "get_server_ticket_times",
     "get_staff_accountability_metrics",
-    "get_menu_engineering_matrix",
-    "get_menu_sales_trends",
-    "estimate_price_change_impact",
-  ],
-  inventory: [
-    "get_current_inventory",
-    "get_inventory_documents",
-    "get_inventory_movements",
-    "get_consumption",
-    "get_issuance",
-    "get_waste_summary",
-    "get_sale_vs_consumption",
-    "get_kitchen_reconciliation",
-    "get_purchase_orders",
-    "list_suppliers",
-    "list_inventory_locations",
   ],
   operations: [
     "get_orders",
@@ -62,28 +43,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
   analysis: [
     "get_time_series",
     "forecast_sales",
-    "forecast_inventory",
     "compare_periods",
-  ],
-  labor: [
-    "get_labor_dashboard_snapshot",
-    "get_daily_labor_cost",
-    "get_labor_percent",
-    "get_overtime_report",
-    "get_attendance_report",
-    "get_payroll_summary",
-    "get_scheduled_vs_actual",
-    "get_labor_trend",
-    "get_ai_labor_datasets",
-    "get_hourly_labor_vs_sales",
-  ],
-  hr: [
-    "list_employees",
-    "get_employee_detail",
-    "list_departments",
-    "list_positions",
-    "list_cost_centers",
-    "list_hr_leave_requests",
   ],
   accounts: [
     "get_trial_balance",
@@ -100,7 +60,6 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "list_staff",
     "list_categories",
     "list_menu_items",
-    "list_inventory_items",
   ],
   manage: [
     "list_floors",
@@ -127,11 +86,8 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
 export const ALL_AI_REPORT_TOOL_NAMES = [
   ...AI_REPORT_TOOL_CATEGORIES.core,
   ...AI_REPORT_TOOL_CATEGORIES.sales,
-  ...AI_REPORT_TOOL_CATEGORIES.inventory,
   ...AI_REPORT_TOOL_CATEGORIES.operations,
   ...AI_REPORT_TOOL_CATEGORIES.analysis,
-  ...AI_REPORT_TOOL_CATEGORIES.labor,
-  ...AI_REPORT_TOOL_CATEGORIES.hr,
   ...AI_REPORT_TOOL_CATEGORIES.accounts,
   ...AI_REPORT_TOOL_CATEGORIES.chart,
   ...AI_REPORT_TOOL_CATEGORIES.lookup,

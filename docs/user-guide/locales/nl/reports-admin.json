@@ -1,52 +1,17 @@
 {
   "title": "Rapporteragehub (beheerderspakketten)",
-  "intro": "Beheerders gebruiken dezelfde Rapporthub, met diepere pakketten: voorraad, arbeid, producten en belasting.",
+  "intro": "Beheerders gebruiken dezelfde rapportenhub als managers, met diepere pakketten zoals producten en btw. Open een categorie, kies een rapport, stel filters in en voer uit of exporteer.",
   "sections": [
     {
       "id": "overview",
       "title": "Beheerder rapportlayout",
       "steps": [
         "Tik op Rapporten.",
-        "Categorieën omvatten Voorraad, Arbeid, Producten, Verkoop.",
+        "Categorieën omvatten Verkoop, Producten, Operaties en meer.",
         "Middenkolom toont rapporten; rechterpaneel filters."
       ],
       "image": "reports-admin-overview.png",
       "caption": "Rapporthub voor beheerderspakketten."
-    },
-    {
-      "id": "inventory",
-      "title": "Voorraadpakket",
-      "intro": "Dekt voorraad, inkopen, uitgiftes, afval, verbruik, productie en buffet.",
-      "steps": [
-        "Selecteer Voorraad.",
-        "Kies Huidige voorraad of Inkopen.",
-        "Stel locatie en datums in en voer uit."
-      ],
-      "image": "reports-admin-inventory.png",
-      "caption": "Voorraad rapportpakket."
-    },
-    {
-      "id": "inventory-filters",
-      "title": "Voorraadfilters",
-      "steps": [
-        "Na rapportkeuze toont het paneel filters.",
-        "Pas datums, locaties of artikelen aan.",
-        "Voer uit of exporteer wanneer filters kloppen."
-      ],
-      "image": "reports-admin-inventory-filters.png",
-      "caption": "Voorraad filterpaneel."
-    },
-    {
-      "id": "labor",
-      "title": "Arbeidspakket",
-      "intro": "Vat kosten, overwerk, aanwezigheid, payroll en gepland vs werkelijk samen.",
-      "steps": [
-        "Selecteer Arbeid.",
-        "Open Dashboard of Dagelijkse kosten.",
-        "Gebruik Aanwezigheid of Payrollsamenvatting voor detail."
-      ],
-      "image": "reports-admin-labor.png",
-      "caption": "Arbeid rapportpakket."
     },
     {
       "id": "products",

@@ -1,18 +1,17 @@
 {
-  "title": "Sperre, Abmelden und Stempeluhr",
-  "intro": "Untere Seitenleiste: Sperren, Abmelden, Uhr und Einstellungen. Idle-Sperre folgt der Sitzungssicherheit unter Verwalten → Allgemeine Einstellungen.",
+  "title": "Sperren und Abmelden",
+  "intro": "Mit den Schaltflächen unten in der Seitenleiste sperren Sie das Terminal, melden sich ab oder öffnen die Einstellungen. Sperren/Abmelden bei Inaktivität folgt der Sitzungssicherheit unter Verwalten → Allgemeine Einstellungen.",
   "sections": [
     {
       "id": "controls",
       "title": "Sitzungssteuerung",
       "steps": [
         "Schraubenschlüssel: Einstellungen.",
-        "Benutzer: Uhr.",
         "Schloss: sperren.",
         "Power: abmelden."
       ],
       "image": "session-sidebar-controls.png",
-      "caption": "Settings, clock, lock, and logout on the sidebar."
+      "caption": "Einstellungen, Sperren und Abmelden in der Seitenleiste."
     },
     {
       "id": "lock",
@@ -25,39 +24,6 @@
       "image": "session-locked.png",
       "caption": "System locked banner on login.",
       "intro": "Kurze Pausen; nur derselbe Benutzer entsperrt."
-    },
-    {
-      "id": "clock",
-      "title": "Stempeluhr",
-      "steps": [
-        "Uhr über Benutzersymbol.",
-        "Offener Clock-In nötig.",
-        "Verkauf und Einstempelzeit prüfen."
-      ],
-      "image": "session-clock.png",
-      "caption": "Clock screen overview.",
-      "intro": "Zeiteintrag, Schicht, verstrichene Zeit und Kennzahlen."
-    },
-    {
-      "id": "clock-detail",
-      "title": "Benutzer, Schicht und Ausstempeln",
-      "steps": [
-        "Benutzer und Schicht prüfen.",
-        "Verstrichene Zeit sehen.",
-        "Ausstempeln nur am Schichtende."
-      ],
-      "image": "session-clock-detail.png",
-      "caption": "Session panel with Clock Out."
-    },
-    {
-      "id": "clock-sales",
-      "title": "Sitzungs-Verkaufsübersicht",
-      "steps": [
-        "Kennzahlen der aktuellen Schicht.",
-        "Vor dem Ausstempeln prüfen."
-      ],
-      "image": "session-clock-sales.png",
-      "caption": "Sale summary metrics."
     },
     {
       "id": "idle",

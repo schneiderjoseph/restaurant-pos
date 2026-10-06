@@ -365,7 +365,6 @@
     "sale": "Vendita",
     "itemName": "Nome articolo",
     "itemCode": "Codice articolo",
-    "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
     "taxPercent": "Imposta %",
     "scope": "Ambito",
@@ -379,7 +378,10 @@
     "issue": "Uscita",
     "employee": "Dipendente",
     "turnTime": "Tempo di rotazione (min)",
-    "outlet": "Punto vendita"
+    "outlet": "Punto vendita",
+    "authMethod": "Metodo di accesso",
+    "details": "Dettagli",
+    "noTable": "Senza tavolo"
   },
   "labels": {
     "modifiers": "Modificatori",
@@ -417,7 +419,6 @@
     "grossSale": "Vendita lorda",
     "guestAvg": "Media ospite",
     "estimatedProfit": "Profitto stimato",
-    "foodCostPercent": "Costo cibo %",
     "allTimeSale": "Vendite totali",
     "lastWeekSale": "Vendite settimana scorsa",
     "lastMonthSale": "Vendite mese scorso",
@@ -625,7 +626,6 @@
     "businessDate": "Data commerciale",
     "actualGuests": "Ospiti effettivi",
     "totalSales": "Vendite totali",
-    "totalFoodCost": "Costo alimentare totale",
     "costPerGuest": "Costo per ospite",
     "wastePercent": "Scarto %",
     "overproduction": "Sovrapproduzione",
@@ -660,9 +660,15 @@
     "noDiscountsByUsers": "Nessuno sconto per utente per l'intervallo selezionato.",
     "noDiscountRows": "Nessuna riga sconto trovata per l'intervallo selezionato.",
     "noEmployeeSales": "Nessun dato di vendita per dipendente disponibile",
-    "noScheduleRoster": "Nessun turno programmato per l'intervallo selezionato"
+    "noScheduleRoster": "Nessun turno programmato per l'intervallo selezionato",
+    "noTables": "Nessuna vendita al tavolo nel periodo selezionato.",
+    "noActivity": "Nessuna voce di audit nel periodo selezionato.",
+    "noProducts": "Nessun prodotto trovato."
   },
   "sections": {
     "salesByOutlet": "Vendite per punto vendita"
+  },
+  "messages": {
+    "auditTruncated": "Vengono mostrate solo le ultime {{count}} voci. Restringi il periodo per vedere quelle precedenti."
   }
 }

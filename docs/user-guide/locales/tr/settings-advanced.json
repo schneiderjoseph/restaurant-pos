@@ -120,17 +120,6 @@
       "caption": "Oturum güvenliği kartı (işletme geneli)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Otomatik çıkış",
-      "steps": [
-        "Otomatik çıkışı açın.",
-        "Vardiya sonu, sabit saat veya ikisi.",
-        "Kaydedin."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Otomatik çıkış kartı."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Vergi dahil fiyatlar",
       "intro": "Etkinse menü ve sipariş arayüzü vergi konfigürasyonuna göre vergi dahil fiyat gösterebilir.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Vergi dahil fiyat gösterimi."
-    },
-    {
-      "id": "inventory",
-      "title": "Stok ayarları",
-      "steps": [
-        "Stok tercihlerini yapılandırın.",
-        "Kaydedin.",
-        "Derin belgeler Stok menüsünde."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Stok ayarları kartı."
     },
     {
       "id": "items-visibility",

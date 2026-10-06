@@ -17,32 +17,6 @@ const WEEKDAY_TO_NUM: Record<string, number> = {
   sunday: 7,
 };
 
-const hasInventoryWord = /\b(inventory|stock|ingredient)\b/i;
-const hasNeedWord = /\b(need(?:ed)?|required|require|restock|prep(?:are)?)\b/i;
-
-/** Coming-days / named-day inventory qty + purchase suggestion (not consumption trend). */
-export const isInventoryNeedPrompt = (prompt: string): boolean => {
-  if (!prompt.trim()) {
-    return false;
-  }
-  if (/\bconsumption\b/i.test(prompt) && !hasNeedWord.test(prompt) && !/\bhow much\b/i.test(prompt)) {
-    return false;
-  }
-  if (/\bhow much (inventory|stock)\b/i.test(prompt)) {
-    return true;
-  }
-  if (/\bwhat should i (buy|purchase|order|restock)\b/i.test(prompt)) {
-    return true;
-  }
-  if (hasInventoryWord.test(prompt) && hasNeedWord.test(prompt)) {
-    return true;
-  }
-  if (/\b(prep(?:are)? for (the )?next|inventory for (the )?next)\b/i.test(prompt)) {
-    return true;
-  }
-  return false;
-};
-
 export const isStaffNeedPrompt = (prompt: string): boolean => {
   if (!prompt.trim()) {
     return false;
@@ -112,7 +86,7 @@ export const parseLocalEventsArg = (value: unknown): LocalEventInput[] => {
     .filter(row => row.name);
 };
 
-export const resolveInventoryNeedArgsFromPrompt = (prompt: string) => {
+export const resolveStaffNeedArgsFromPrompt = (prompt: string) => {
   const horizon = resolveDemandHorizon({prompt});
   return {
     days: horizon.horizonDays,
@@ -122,5 +96,3 @@ export const resolveInventoryNeedArgsFromPrompt = (prompt: string) => {
     localEvents: extractLocalEventsFromPrompt(prompt),
   };
 };
-
-export const resolveStaffNeedArgsFromPrompt = (prompt: string) => resolveInventoryNeedArgsFromPrompt(prompt);

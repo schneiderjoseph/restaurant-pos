@@ -365,7 +365,6 @@
     "sale": "Satış",
     "itemName": "Ürün Adı",
     "itemCode": "Ürün kodu",
-    "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
     "taxPercent": "Vergi %",
     "scope": "Kapsam",
@@ -379,7 +378,10 @@
     "issue": "Çıkış",
     "employee": "Çalışan",
     "turnTime": "Dönüş süresi (dk)",
-    "outlet": "Satış noktası"
+    "outlet": "Satış noktası",
+    "authMethod": "Giriş yöntemi",
+    "details": "Ayrıntılar",
+    "noTable": "Masasız"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -417,7 +419,6 @@
     "grossSale": "Brüt Satış",
     "guestAvg": "Misafir Ort.",
     "estimatedProfit": "Tahmini Kâr",
-    "foodCostPercent": "Yiyecek Maliyeti %",
     "allTimeSale": "Tüm zamanlar satışı",
     "lastWeekSale": "Geçen hafta satışı",
     "lastMonthSale": "Geçen ay satışı",
@@ -625,7 +626,6 @@
     "businessDate": "İş günü",
     "actualGuests": "Gerçek misafirler",
     "totalSales": "Toplam satış",
-    "totalFoodCost": "Toplam yiyecek maliyeti",
     "costPerGuest": "Misafir başına maliyet",
     "wastePercent": "Fire %",
     "overproduction": "Fazla üretim",
@@ -660,9 +660,15 @@
     "noDiscountsByUsers": "Seçilen aralık için kullanıcıya göre indirim yok.",
     "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı.",
     "noEmployeeSales": "Çalışan satış verisi yok",
-    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok"
+    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok",
+    "noTables": "Seçilen dönemde masa satışı yok.",
+    "noActivity": "Seçilen dönemde denetim kaydı yok.",
+    "noProducts": "Ürün bulunamadı."
   },
   "sections": {
     "salesByOutlet": "Satış noktasına göre satışlar"
+  },
+  "messages": {
+    "auditTruncated": "Yalnızca son {{count}} kayıt gösteriliyor. Daha eskilerini görmek için dönemi daraltın."
   }
 }

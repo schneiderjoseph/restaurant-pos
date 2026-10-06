@@ -1,5 +1,12 @@
-import { jsPDF } from 'jspdf';
+import { jsPDF, GState } from 'jspdf';
 import html2canvas from 'html2canvas';
+
+export type PdfExportOptions = {
+  /** Logo data URL drawn as a faded center watermark on every page. */
+  watermarkDataUrl?: string | null;
+  /** Fallback text watermark when no logo is available. */
+  watermarkText?: string | null;
+};
 
 export type PdfCell = {
   content: string;
@@ -250,9 +257,14 @@ function drawTable(
   doc: jsPDF,
   table: { head: PdfCell[][]; body: PdfCell[][]; columnCount: number },
   startY: number,
-  opts: { margin: number; contentWidth: number; pageHeight: number },
+  opts: {
+    margin: number;
+    contentWidth: number;
+    pageHeight: number;
+    onNewPage?: () => void;
+  },
 ): number {
-  const { margin, contentWidth, pageHeight } = opts;
+  const { margin, contentWidth, pageHeight, onNewPage } = opts;
   const cols = Math.max(1, table.columnCount);
   const colWidth = contentWidth / cols;
   const fontSize = cols > 8 ? 7 : 8;
@@ -264,6 +276,7 @@ function drawTable(
     if (y + needed > pageHeight - margin - 8) {
       doc.addPage();
       y = margin;
+      onNewPage?.();
     }
   };
 
@@ -306,9 +319,60 @@ function drawTable(
   return y + 6;
 }
 
+function drawPageWatermark(
+  doc: jsPDF,
+  pageWidth: number,
+  pageHeight: number,
+  options: PdfExportOptions,
+): void {
+  const logo = options.watermarkDataUrl?.trim();
+  const text = options.watermarkText?.trim();
+
+  doc.saveGraphicsState();
+  doc.setGState(new GState({ opacity: 0.08 }));
+
+  if (logo) {
+    try {
+      const maxW = pageWidth * 0.55;
+      const maxH = pageHeight * 0.4;
+      // Fit the logo in the box at its own aspect ratio, never stretched.
+      const props = doc.getImageProperties(logo);
+      const ratio = props.width > 0 && props.height > 0 ? props.width / props.height : 1;
+      const w = Math.min(maxW, maxH * ratio);
+      const h = w / ratio;
+      const x = (pageWidth - w) / 2;
+      const y = (pageHeight - h) / 2;
+      const format =
+        logo.includes('image/jpeg') || logo.includes('image/jpg')
+          ? 'JPEG'
+          : logo.includes('image/webp')
+            ? 'WEBP'
+            : 'PNG';
+      doc.addImage(logo, format, x, y, w, h);
+      doc.restoreGraphicsState();
+      return;
+    } catch {
+      /* fall through to text watermark */
+    }
+  }
+
+  if (text) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(42);
+    doc.setTextColor(80);
+    doc.text(text, pageWidth / 2, pageHeight / 2, {
+      align: 'center',
+      angle: 35,
+    });
+  }
+
+  doc.restoreGraphicsState();
+}
+
 export async function exportElementAsRealPdf(
   element: HTMLElement | null,
   filename = 'report.pdf',
+  options: PdfExportOptions = {},
 ): Promise<void> {
   if (!element) return;
 
@@ -351,10 +415,17 @@ export async function exportElementAsRealPdf(
   const contentWidth = pageWidth - margin * 2;
   let y = margin;
 
+  const paintWatermarkOnCurrentPage = () => {
+    drawPageWatermark(doc, pageWidth, pageHeight, options);
+  };
+
+  paintWatermarkOnCurrentPage();
+
   const ensureSpace = (needed: number) => {
     if (y + needed > pageHeight - margin - 8) {
       doc.addPage();
       y = margin;
+      paintWatermarkOnCurrentPage();
     }
   };
 
@@ -422,7 +493,12 @@ export async function exportElementAsRealPdf(
 
     if (block.type === 'table') {
       ensureSpace(18);
-      y = drawTable(doc, block, y, { margin, contentWidth, pageHeight });
+      y = drawTable(doc, block, y, {
+        margin,
+        contentWidth,
+        pageHeight,
+        onNewPage: paintWatermarkOnCurrentPage,
+      });
     }
   }
 

@@ -11,7 +11,7 @@ POSR Documentation
 │   ├── Cart
 │   ├── Payment screen
 │   ├── Orders
-│   ├── Session lock, logout, and clock
+│   ├── Session lock and logout
 │   ├── Settings
 │   ├── Tables and dine-in
 │   └── Security re-authentication
@@ -23,35 +23,13 @@ POSR Documentation
 │   ├── Delivery
 │   ├── Closing
 │   ├── Reports (operations)
-│   └── Tip oversight
-│
-├── 📙 Inventory Guide
-│   ├── Inventory overview
-│   ├── Items and stock master data
-│   ├── Purchases
-│   ├── Issues and returns
-│   ├── Wastes
-│   ├── Stock counts and transfers
-│   ├── Kitchen reconciliation
-│   ├── Recipes & production
-│   └── Buffet menus & sessions
+│   ├── Tip oversight
+│   └── Tip distribution
 │
 ├── 📕 Accounts Guide
 │   ├── Accounts overview
 │   ├── Journal entries and account groups
 │   └── Ledgers, P&L, and cash flow
-│
-├── 📒 HR Guide
-│   ├── HR overview
-│   ├── Employees
-│   ├── Cost centers
-│   ├── Attendance
-│   ├── Leave
-│   ├── Pay profiles & rules
-│   ├── Payroll periods & runs
-│   ├── Employee documents
-│   ├── Performance notes
-│   └── Tip distribution
 │
 └── 📓 Administrator Guide
     ├── Manage overview

@@ -13,6 +13,8 @@ export interface User extends ID {
   user_shift?: UserShift
   roles?: string[]
   role?: UserRole
+  /** Station account: the station (record id) this user is bound to. */
+  kitchen?: unknown
 
   deleted_at?: DateTime
 }

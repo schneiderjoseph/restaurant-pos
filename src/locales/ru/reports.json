@@ -365,7 +365,6 @@
     "sale": "Продажа",
     "itemName": "Название товара",
     "itemCode": "Код товара",
-    "landedCost": "Landed cost",
     "finalInventory": "Final inventory",
     "taxPercent": "Налог %",
     "scope": "Область",
@@ -379,7 +378,10 @@
     "issue": "Выдача",
     "employee": "Сотрудник",
     "turnTime": "Время оборота (мин)",
-    "outlet": "Точка продаж"
+    "outlet": "Точка продаж",
+    "authMethod": "Способ входа",
+    "details": "Подробности",
+    "noTable": "Без стола"
   },
   "labels": {
     "modifiers": "Модификаторы",
@@ -417,7 +419,6 @@
     "grossSale": "Валовая продажа",
     "guestAvg": "Ср. на гостя",
     "estimatedProfit": "Расчётная прибыль",
-    "foodCostPercent": "Себестоимость продуктов %",
     "allTimeSale": "Продажи за всё время",
     "lastWeekSale": "Продажи за прошлую неделю",
     "lastMonthSale": "Продажи за прошлый месяц",
@@ -625,7 +626,6 @@
     "businessDate": "Рабочая дата",
     "actualGuests": "Фактические гости",
     "totalSales": "Общие продажи",
-    "totalFoodCost": "Общая стоимость продуктов",
     "costPerGuest": "Стоимость на гостя",
     "wastePercent": "Потери %",
     "overproduction": "Сверхпроизводство",
@@ -660,9 +660,15 @@
     "noDiscountsByUsers": "Нет скидок по пользователям за выбранный период.",
     "noDiscountRows": "Строки скидок за выбранный период не найдены.",
     "noEmployeeSales": "Нет данных о продажах по сотрудникам",
-    "noScheduleRoster": "Нет запланированных смен за выбранный период"
+    "noScheduleRoster": "Нет запланированных смен за выбранный период",
+    "noTables": "Нет продаж за столами за выбранный период.",
+    "noActivity": "Нет записей аудита за выбранный период.",
+    "noProducts": "Товары не найдены."
   },
   "sections": {
     "salesByOutlet": "Продажи по точкам продаж"
+  },
+  "messages": {
+    "auditTruncated": "Показаны только последние {{count}} записей. Сузьте период, чтобы увидеть более ранние."
   }
 }

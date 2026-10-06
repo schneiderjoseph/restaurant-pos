@@ -12,6 +12,8 @@ import {
 import { DiscountReason } from '@/api/model/discount_reason.ts'
 import { Order } from '@/api/model/order.ts'
 import { withCurrency } from '@/lib/utils.ts'
+import { formatTaxLabel } from '@/lib/tax-label.ts'
+import type { Tax } from '@/api/model/tax.ts'
 import { useTranslation } from 'react-i18next'
 import type { AppliedDiscountLine } from '@/lib/discount-engine/types.ts'
 import { computeScopedDiscount } from '@/lib/discount-engine/calculator.ts'
@@ -25,6 +27,8 @@ interface Props {
   order: Order
   discountLines: AppliedDiscountLine[]
   automaticLines?: AppliedDiscountLine[]
+  /** Taxes applied to the order, proposed as ready-made values for an open discount. */
+  taxRows?: Array<{ tax: Tax; amount: number }>
   onApply: (lines: AppliedDiscountLine[]) => void
 }
 
@@ -32,6 +36,7 @@ export const OrderPaymentDiscountEngine = ({
   order,
   discountLines,
   automaticLines = [],
+  taxRows = [],
   onApply,
 }: Props) => {
   const { t } = useTranslation(['payment', 'common'])
@@ -138,6 +143,37 @@ export const OrderPaymentDiscountEngine = ({
     })
     return { amount: computed.appliedAmount, rate: computed.appliedRate ?? 0 }
   }, [draftDiscount, evalItems, percentInput, draftRate, draftAmount, selectedItemIds])
+
+  // An open discount proposes the order's taxes: giving back a tax is the usual reason for one.
+  const suggestions = useMemo(() => {
+    if (!draftDiscount || taxRows.length === 0) return []
+    const minVal = getDiscountMinValue(draftDiscount)
+    const maxVal = getDiscountMaxValue(draftDiscount)
+    if (minVal === maxVal) return []
+
+    const isPercent = getDiscountValueType(draftDiscount) === 'percent'
+    const rows = taxRows.map(row => ({
+      name: formatTaxLabel(row.tax.name, row.tax.rate),
+      rate: Number(row.tax.rate || 0),
+      amount: row.amount,
+    }))
+    if (rows.length > 1) {
+      rows.push({
+        name: t('tax.allTaxes'),
+        rate: rows.reduce((sum, row) => sum + row.rate, 0),
+        amount: Math.round(rows.reduce((sum, row) => sum + row.amount, 0) * 100) / 100,
+      })
+    }
+
+    return rows
+      .map(row => ({
+        value: isPercent ? row.rate : row.amount,
+        isPercent,
+        label: isPercent ? `${row.rate} %` : withCurrency(row.amount),
+        hint: row.name,
+      }))
+      .filter(item => item.value > 0 && item.value >= minVal && item.value <= maxVal)
+  }, [draftDiscount, taxRows, t])
 
   const reasonOptions = (reasons?.data || []).map(r => ({
     label: r.name,
@@ -256,6 +292,30 @@ export const OrderPaymentDiscountEngine = ({
           </div>
         )}
       </div>
+
+      {suggestions.length > 0 && (
+        <div className="grid grid-cols-3 gap-2" data-testid="payment-discount-suggestions">
+          {suggestions.map(item => (
+            <Button
+              key={item.hint}
+              variant="primary"
+              flat
+              className="!h-auto min-h-[56px] flex-col !py-1"
+              active={item.isPercent ? (percentInput ?? draftRate) === item.value : draftAmount === item.value}
+              onClick={() => {
+                if (item.isPercent) {
+                  setPercentInput(item.value)
+                } else {
+                  setDraftAmount(item.value)
+                }
+              }}
+            >
+              <span className="text-lg font-bold leading-tight">{item.label}</span>
+              <span className="text-xs opacity-70 leading-tight">{item.hint}</span>
+            </Button>
+          ))}
+        </div>
+      )}
 
       <div className="text-2xl text-center">
         {withCurrency(resolved.amount)}{' '}

@@ -1064,6 +1064,7 @@ export const OrderPayment = ({
               order={order}
               discountLines={discountLines.filter(l => l.applicationType === 'manual')}
               automaticLines={cartTotals.discountLines.filter(l => l.applicationType === 'automatic')}
+              taxRows={appliedTaxRows}
               onApply={(manualLines) => {
                 const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
                 setDiscountLines([...autoLines, ...manualLines]);

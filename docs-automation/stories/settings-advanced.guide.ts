@@ -10,10 +10,8 @@ const ADVANCED_GENERAL_CARDS: Array<{ testId: string; file: string }> = [
   { testId: 'settings-card-closing-cycle', file: 'settings-adv-closing-cycle' },
   { testId: 'settings-card-auto-check-close', file: 'settings-adv-auto-check-close' },
   { testId: 'settings-card-session-security', file: 'settings-adv-session-security' },
-  { testId: 'settings-card-auto-clock-out', file: 'settings-adv-auto-clock-out' },
   { testId: 'settings-card-service-charges', file: 'settings-adv-service-charges' },
   { testId: 'settings-card-menus', file: 'settings-adv-menus' },
-  { testId: 'settings-card-inventory', file: 'settings-adv-inventory' },
 ];
 
 test('capture advanced general settings', async ({ page }) => {

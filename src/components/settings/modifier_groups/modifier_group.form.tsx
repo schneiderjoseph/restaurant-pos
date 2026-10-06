@@ -268,7 +268,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
 
     const loadForm = async () => {
       const modifiers = await Promise.all(
-        data.modifiers.map(async (item) => {
+        (data.modifiers ?? []).filter((item) => item?.modifier).map(async (item) => {
           const dishId = toRecordId(item.modifier.id).toString();
           const attachable = await fetchAttachableGroupsForDish(db, dishId);
           const attachableIds = attachable.map((g) => g.out.id.toString());

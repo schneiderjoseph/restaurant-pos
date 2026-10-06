@@ -1,6 +1,7 @@
 import {OrderStatus} from "@/api/model/order.ts";
 import {normalizeOrderStatus} from "@/api/reports/operations/orders.ts";
-import {isPurchaseOrderPrompt} from "@/lib/ai/purchase-order-query.ts";
+const isPurchaseOrderPrompt = (prompt: string): boolean =>
+  /\bpurchase\s+orders?\b/i.test(prompt) || /\bPOs?\b/.test(prompt);
 
 const STATUS_PATTERNS: Array<{pattern: RegExp; status: string}> = [
   {pattern: /\b(?:in[\s_-]*)?progress\b/i, status: OrderStatus["In Progress"]},

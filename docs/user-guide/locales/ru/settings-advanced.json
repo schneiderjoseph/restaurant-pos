@@ -120,17 +120,6 @@
       "caption": "Карточка безопасности сеанса (на всё заведение)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Авто-выход",
-      "steps": [
-        "Включите авто-выход.",
-        "Конец смены, время или оба.",
-        "Сохраните."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Карточка авто-выхода."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Цены с налогами",
       "intro": "При включении UI может показывать цены с налогами по налоговой настройке.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Отображение цен с налогами."
-    },
-    {
-      "id": "inventory",
-      "title": "Настройки склада",
-      "steps": [
-        "Предпочтения склада.",
-        "Сохраните.",
-        "Документы в Склад."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Карточка склада."
     },
     {
       "id": "items-visibility",

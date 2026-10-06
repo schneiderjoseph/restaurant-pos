@@ -7,9 +7,6 @@ import {createDishImportConfig} from "@/components/settings/dishes/dish.import.c
 import {createCategoryImportConfig} from "@/components/settings/categories/category.import.config.ts";
 import {createTableImportConfig} from "@/components/settings/tables/table.import.config.ts";
 import {createDishModifiersImportConfig} from "@/components/settings/dishes/dish-modifiers.import.config.ts";
-import {createDishIngredientsImportConfig} from "@/components/settings/dishes/dish-ingredients.import.config.ts";
-import {createInventoryItemImportConfig} from "@/components/inventory/items/item.import.config.ts";
-import {createScheduledShiftImportConfig} from "@/components/hr/scheduling/scheduled-shift.import.config.ts";
 import {createFloorImportConfig} from "@/components/settings/floors/floor.import.config.ts";
 import {createTaxImportConfig} from "@/components/settings/taxes/tax.import.config.ts";
 import {createOrderTypeImportConfig} from "@/components/settings/order_types/order-type.import.config.ts";
@@ -28,22 +25,6 @@ import {createUserImportConfig} from "@/components/settings/users/user.import.co
 import {createRoleImportConfig} from "@/components/settings/users/roles/role.import.config.ts";
 import {createShiftImportConfig} from "@/components/settings/users/shifts/shift.import.config.ts";
 import {createTipDistributionImportConfig} from "@/components/settings/prints/print-settings.import.config.ts";
-import {createEmployeeImportConfig} from "@/components/hr/employees/employee.import.config.ts";
-import {createDepartmentImportConfig} from "@/components/hr/departments/department.import.config.ts";
-import {createSupplierImportConfig} from "@/components/inventory/suppliers/supplier.import.config.ts";
-import {createLocationImportConfig} from "@/components/inventory/locations/location.import.config.ts";
-import {
-  createAiAdjustmentImportConfig,
-  createAiIssueImportConfig,
-  createAiPurchaseImportConfig,
-  createAiWasteImportConfig,
-} from "@/lib/ai/import-configs/inventory-documents.ts";
-import {
-  createAiAttendanceImportConfig,
-  createCostCenterImportConfig,
-  createLeaveRequestImportConfig,
-  createPositionImportConfig,
-} from "@/lib/ai/import-configs/hr-documents.ts";
 import {createAiAccountImportConfig, createAiJournalEntryImportConfig} from "@/lib/ai/import-configs/accounts.ts";
 import {createSoftDeleteImportConfig} from "@/lib/ai/import-configs/soft-delete.ts";
 import type {TFunc} from "@/lib/ai/tools/write-tools.ts";
@@ -56,12 +37,9 @@ import {
 } from "@/lib/ai/tools/write-tool-helpers.ts";
 import {
   fetchExistingKitchenRaw,
-  fetchExistingDishIngredientRaw,
   fetchExistingDishModifierRaw,
   fetchExistingDishRaw,
-  fetchExistingInventoryItemRaw,
   fetchExistingModifierGroupOptionRaw,
-  fetchExistingScheduledShiftRaw,
   fetchExistingTableRaw,
 } from "@/lib/ai/tools/write-tool-fetchers.ts";
 import {
@@ -117,17 +95,6 @@ const mergeDiscountUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.
   softDelete: true,
 });
 const mergeDishModifierUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingDishModifierRaw);
-const mergeDishIngredientUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingDishIngredientRaw);
-const mergeInventoryItemUpdatePatches = createMergeUpdatePatchesByFetcher(
-  async (db, patch) => fetchExistingInventoryItemRaw(db, String(patch.code ?? "").trim()),
-);
-const mergeScheduledShiftUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingScheduledShiftRaw);
-const mergeEmployeeUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.employees, ["employee_number"], {
-  softDelete: false,
-});
-const mergeDepartmentUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.departments, ["name"], {
-  softDelete: false,
-});
 const mergeModifierGroupUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingModifierGroupOptionRaw);
 const normalizeLabelList = (value: unknown): string[] => {
   if (!Array.isArray(value)) return [];
@@ -283,40 +250,6 @@ const dishModifierFields: WriteFieldSpec[] = [
   {name: "required_modifiers", type: "number"},
   {name: "should_auto_open", type: "boolean"},
   {name: "should_auto_select", type: "boolean"},
-];
-
-const dishIngredientFields: WriteFieldSpec[] = [
-  {name: "dish_number", type: "string", requiredOnCreate: true},
-  {name: "ingredient", type: "string", requiredOnCreate: true, description: "Inventory item name or code"},
-  {name: "uom", type: "string"},
-  {name: "quantity", type: "number", requiredOnCreate: true},
-  {name: "cost", type: "number"},
-  {name: "is_price_locked", type: "boolean"},
-];
-
-const inventoryItemFields: WriteFieldSpec[] = [
-  {name: "name", type: "string", requiredOnCreate: true},
-  {name: "code", type: "string", requiredOnCreate: true, description: "SKU / item code"},
-  {name: "category", type: "string", requiredOnCreate: true, description: "Inventory category name"},
-  {name: "uom", type: "string", requiredOnCreate: true},
-  {name: "base_quantity", type: "number"},
-  {name: "price", type: "number"},
-  {name: "average_price", type: "number"},
-  {name: "locations", type: "string[]", requiredOnCreate: true, description: "Location names"},
-  {name: "suppliers", type: "string[]", requiredOnCreate: true, description: "Supplier names"},
-  {name: "item_types", type: "string", description: "raw, semi_finished, finished (comma-separated)"},
-  {name: "reorder_levels", type: "string", description: "location:level pairs, comma-separated"},
-];
-
-const scheduledShiftFields: WriteFieldSpec[] = [
-  {name: "employee", type: "string", requiredOnCreate: true, description: "Employee number or name"},
-  {name: "schedule", type: "string", requiredOnCreate: true, description: "Work schedule name"},
-  {name: "start_at", type: "string", requiredOnCreate: true, description: "Start datetime (ISO or locale string)"},
-  {name: "end_at", type: "string", requiredOnCreate: true, description: "End datetime"},
-  {name: "shift_template", type: "string"},
-  {name: "department", type: "string"},
-  {name: "position", type: "string"},
-  {name: "notes", type: "string"},
 ];
 
 const floorFields: WriteFieldSpec[] = [
@@ -525,7 +458,7 @@ const smartMenuFields: WriteFieldSpec[] = [
 ];
 
 export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
-  {
+{
     configId: "dishes",
     recordsArgKey: "dishes",
     createToolName: "propose_create_dishes",
@@ -561,7 +494,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       }),
     ],
   },
-  {
+{
     configId: "categories",
     recordsArgKey: "categories",
     createToolName: "propose_create_categories",
@@ -580,7 +513,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: categoryFields,
     }),
   },
-  {
+{
     configId: "tables",
     recordsArgKey: "tables",
     createToolName: "propose_create_tables",
@@ -603,7 +536,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
         "Propose updating tables matched by table number. Only include fields that should change.",
     }),
   },
-  {
+{
     configId: "dish_modifier_groups",
     recordsArgKey: "dish_modifiers",
     createToolName: "propose_create_dish_modifiers",
@@ -622,65 +555,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: dishModifierFields,
     }),
   },
-  {
-    configId: "dish_ingredients",
-    recordsArgKey: "dish_ingredients",
-    createToolName: "propose_create_dish_ingredients",
-    updateToolName: "propose_update_dish_ingredients",
-    permissionModules: {create: "admin.dishes.create", update: "admin.dishes.update"},
-    keywords: /\b((dish|recipe)\s+ingredient|ingredient\s+(to|for)\s+dish|add\s+ingredient)\b/i,
-    domains: ["sales", "inventory"],
-    createConfig: createDishIngredientsImportConfig,
-    mergeUpdatePatches: mergeDishIngredientUpdatePatches,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Dish ingredient",
-      recordsArgKey: "dish_ingredients",
-      createToolName: "propose_create_dish_ingredients",
-      updateToolName: "propose_update_dish_ingredients",
-      matchFields: ["dish_number", "ingredient"],
-      fields: dishIngredientFields,
-    }),
-  },
-  {
-    configId: "inventory_items",
-    recordsArgKey: "inventory_items",
-    createToolName: "propose_create_inventory_items",
-    updateToolName: "propose_update_inventory_items",
-    permissionModules: {create: "inventory.items", update: "inventory.items"},
-    keywords: /\b(inventory item|inventory items|stock item|stock items|sku)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|update|change|set|new|import)\b/i,
-    createConfig: createInventoryItemImportConfig,
-    mergeUpdatePatches: mergeInventoryItemUpdatePatches,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Inventory item",
-      recordsArgKey: "inventory_items",
-      createToolName: "propose_create_inventory_items",
-      updateToolName: "propose_update_inventory_items",
-      matchFields: ["code"],
-      fields: inventoryItemFields,
-    }),
-  },
-  {
-    configId: "scheduled_shifts",
-    recordsArgKey: "scheduled_shifts",
-    createToolName: "propose_create_scheduled_shifts",
-    updateToolName: "propose_update_scheduled_shifts",
-    permissionModules: {create: "hr.scheduling", update: "hr.scheduling"},
-    keywords: /\b(scheduled shift|scheduled shifts|shift schedule|roster|add shift)\b/i,
-    domains: ["labor"],
-    createConfig: createScheduledShiftImportConfig,
-    mergeUpdatePatches: mergeScheduledShiftUpdatePatches,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Scheduled shift",
-      recordsArgKey: "scheduled_shifts",
-      createToolName: "propose_create_scheduled_shifts",
-      updateToolName: "propose_update_scheduled_shifts",
-      matchFields: ["employee", "start_at"],
-      fields: scheduledShiftFields,
-    }),
-  },
-  {
+{
     configId: "floors",
     recordsArgKey: "floors",
     createToolName: "propose_create_floors",
@@ -700,7 +575,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: floorFields,
     }),
   },
-  {
+{
     configId: "taxes",
     recordsArgKey: "taxes",
     createToolName: "propose_create_taxes",
@@ -720,7 +595,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: taxFields,
     }),
   },
-  {
+{
     configId: "order_types",
     recordsArgKey: "order_types",
     createToolName: "propose_create_order_types",
@@ -739,7 +614,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: orderTypeFields,
     }),
   },
-  {
+{
     configId: "payment_types",
     recordsArgKey: "payment_types",
     createToolName: "propose_create_payment_types",
@@ -758,7 +633,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: paymentTypeFields,
     }),
   },
-  {
+{
     configId: "discounts",
     recordsArgKey: "discounts",
     createToolName: "propose_create_discounts",
@@ -780,47 +655,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
         "Propose creating discounts including BXGY, targets, schedules, and stacking/tax fields. Call list_categories/list_menu_items/list_floors first when scoping.",
     }),
   },
-  {
-    configId: "employees",
-    recordsArgKey: "employees",
-    createToolName: "propose_create_employees",
-    updateToolName: "propose_update_employees",
-    permissionModules: {create: "hr.employees", update: "hr.employees"},
-    keywords: /\b(employee|employees|staff member|hire employee)\b/i,
-    domains: ["labor", "lookup"],
-    actionKeywords: /\b(add|create|update|change|set|new|hire)\b/i,
-    createConfig: createEmployeeImportConfig,
-    mergeUpdatePatches: mergeEmployeeUpdatePatches,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Employee",
-      recordsArgKey: "employees",
-      createToolName: "propose_create_employees",
-      updateToolName: "propose_update_employees",
-      matchFields: ["employee_number"],
-      fields: employeeFields,
-    }),
-  },
-  {
-    configId: "departments",
-    recordsArgKey: "departments",
-    createToolName: "propose_create_departments",
-    updateToolName: "propose_update_departments",
-    permissionModules: {create: "hr.departments", update: "hr.departments"},
-    keywords: /\b(department|departments)\b/i,
-    domains: ["labor"],
-    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
-    createConfig: createDepartmentImportConfig,
-    mergeUpdatePatches: mergeDepartmentUpdatePatches,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Department",
-      recordsArgKey: "departments",
-      createToolName: "propose_create_departments",
-      updateToolName: "propose_update_departments",
-      matchFields: ["name"],
-      fields: departmentFields,
-    }),
-  },
-  {
+{
     configId: "modifier_groups",
     recordsArgKey: "modifier_groups",
     createToolName: "propose_create_modifier_groups",
@@ -846,7 +681,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
         + "Do NOT use propose_update_dishes — that changes the base menu item price, not the modifier option price.",
     }),
   },
-  {
+{
     configId: "kitchens",
     recordsArgKey: "kitchens",
     createToolName: "propose_create_kitchens",
@@ -891,7 +726,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       }),
     ],
   },
-  {
+{
     configId: "extras",
     recordsArgKey: "extras",
     createToolName: "propose_create_extras",
@@ -911,7 +746,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: extraFields,
     }),
   },
-  {
+{
     configId: "smart_menu",
     recordsArgKey: "menu_records",
     createToolName: "propose_import_smart_menu",
@@ -929,7 +764,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       createDescription: "Propose importing structured menu records (dishes, size groups, addons). Use only for full menu structure imports.",
     }),
   },
-  {
+{
     configId: "coupons",
     recordsArgKey: "coupons",
     createToolName: "propose_create_coupons",
@@ -948,7 +783,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: couponFields,
     }),
   },
-  {
+{
     configId: "menus",
     recordsArgKey: "menus",
     createToolName: "propose_create_menus",
@@ -968,7 +803,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: menuFields,
     }),
   },
-  {
+{
     configId: "workflows",
     recordsArgKey: "workflows",
     createToolName: "propose_create_workflows",
@@ -987,7 +822,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: workflowFields,
     }),
   },
-  {
+{
     configId: "printers",
     recordsArgKey: "printers",
     createToolName: "propose_create_printers",
@@ -1006,7 +841,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: printerFields,
     }),
   },
-  {
+{
     configId: "print_settings",
     recordsArgKey: "print_settings",
     createToolName: "propose_update_print_settings",
@@ -1024,7 +859,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       createDescription: "Propose updating receipt print settings for a fixed print type key.",
     }),
   },
-  {
+{
     configId: "users",
     recordsArgKey: "users",
     createToolName: "propose_create_users",
@@ -1045,7 +880,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       createDescription: "Propose creating/updating POS users. The PIN (login) is hashed on commit.",
     }),
   },
-  {
+{
     configId: "roles",
     recordsArgKey: "roles",
     createToolName: "propose_create_roles",
@@ -1065,14 +900,14 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: roleFields,
     }),
   },
-  {
+{
     configId: "shifts",
     recordsArgKey: "shifts",
     createToolName: "propose_create_shifts",
     updateToolName: "propose_update_shifts",
     permissionModules: {create: "admin.shifts.create", update: "admin.shifts.update"},
     keywords: /\b(work shift|shifts)\b/i,
-    domains: ["manage", "labor"],
+    domains: ["manage"],
     actionKeywords: /\b(add|create|update|change|set|new)\b/i,
     createConfig: createShiftImportConfig,
     mergeUpdatePatches: mergeShiftUpdatePatches,
@@ -1085,7 +920,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       fields: shiftFields,
     }),
   },
-  {
+{
     configId: "tip_distribution",
     recordsArgKey: "tip_distributions",
     createToolName: "propose_update_tip_distribution",
@@ -1103,248 +938,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       createDescription: "Propose updating tip distribution weights by role name and user login.",
     }),
   },
-  {
-    configId: "inventory_purchases",
-    recordsArgKey: "purchases",
-    createToolName: "propose_create_purchases",
-    permissionModules: {create: "inventory.purchases", update: "inventory.purchases"},
-    keywords: /\b(purchase|purchases|buy|received|receipt)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|record|post|receive)\b/i,
-    createConfig: ({db, t, context}) => createAiPurchaseImportConfig({db, t, context}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Purchase",
-      recordsArgKey: "purchases",
-      createToolName: "propose_create_purchases",
-      matchFields: [],
-      fields: [
-        {name: "item", type: "string", requiredOnCreate: true},
-        {name: "quantity", type: "number", requiredOnCreate: true},
-        {name: "price", type: "number", requiredOnCreate: true},
-        {name: "supplier", type: "string", requiredOnCreate: true},
-        {name: "location", type: "string", requiredOnCreate: true},
-        {name: "post", type: "boolean"},
-        {name: "comments", type: "string"},
-      ],
-    }),
-  },
-  {
-    configId: "inventory_wastes",
-    recordsArgKey: "wastes",
-    createToolName: "propose_create_wastes",
-    permissionModules: {create: "inventory.wastes", update: "inventory.wastes"},
-    keywords: /\b(waste|wastage|spoilage|spoil)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|record|post)\b/i,
-    createConfig: ({db, t, context}) => createAiWasteImportConfig({db, t, context}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Waste",
-      recordsArgKey: "wastes",
-      createToolName: "propose_create_wastes",
-      matchFields: [],
-      fields: [
-        {name: "item", type: "string", requiredOnCreate: true},
-        {name: "quantity", type: "number", requiredOnCreate: true},
-        {name: "location", type: "string", requiredOnCreate: true},
-        {name: "post", type: "boolean"},
-        {name: "comments", type: "string"},
-      ],
-    }),
-  },
-  {
-    configId: "inventory_issues",
-    recordsArgKey: "issues",
-    createToolName: "propose_create_issues",
-    permissionModules: {create: "inventory.issues", update: "inventory.issues"},
-    keywords: /\b(issue|issues|issuance|issued)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|record|post)\b/i,
-    createConfig: ({db, t, context}) => createAiIssueImportConfig({db, t, context}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Issue",
-      recordsArgKey: "issues",
-      createToolName: "propose_create_issues",
-      matchFields: [],
-      fields: [
-        {name: "item", type: "string", requiredOnCreate: true},
-        {name: "quantity", type: "number", requiredOnCreate: true},
-        {name: "location", type: "string", requiredOnCreate: true},
-        {name: "post", type: "boolean"},
-        {name: "comments", type: "string"},
-      ],
-    }),
-  },
-  {
-    configId: "inventory_adjustments",
-    recordsArgKey: "adjustments",
-    createToolName: "propose_create_adjustments",
-    permissionModules: {create: "inventory.adjustments", update: "inventory.adjustments"},
-    keywords: /\b(adjustment|adjustments|stock adjustment)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|record|post)\b/i,
-    createConfig: ({db, t, context}) => createAiAdjustmentImportConfig({db, t, context}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Adjustment",
-      recordsArgKey: "adjustments",
-      createToolName: "propose_create_adjustments",
-      matchFields: [],
-      fields: [
-        {name: "item", type: "string", requiredOnCreate: true},
-        {name: "quantity_change", type: "number", requiredOnCreate: true},
-        {name: "location", type: "string", requiredOnCreate: true},
-        {name: "post", type: "boolean"},
-        {name: "comments", type: "string"},
-      ],
-    }),
-  },
-  {
-    configId: "inventory_suppliers",
-    recordsArgKey: "suppliers",
-    createToolName: "propose_create_suppliers",
-    updateToolName: "propose_update_suppliers",
-    permissionModules: {create: "inventory.suppliers", update: "inventory.suppliers"},
-    keywords: /\b(supplier|suppliers|vendor|vendors)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
-    createConfig: createSupplierImportConfig,
-    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.inventory_suppliers, ["name"], {softDelete: false}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Supplier",
-      recordsArgKey: "suppliers",
-      createToolName: "propose_create_suppliers",
-      updateToolName: "propose_update_suppliers",
-      matchFields: ["name"],
-      fields: [
-        {name: "name", type: "string", requiredOnCreate: true},
-        {name: "address", type: "string"},
-        {name: "phone", type: "string"},
-        {name: "email", type: "string"},
-      ],
-    }),
-  },
-  {
-    configId: "inventory_locations",
-    recordsArgKey: "locations",
-    createToolName: "propose_create_locations",
-    updateToolName: "propose_update_locations",
-    permissionModules: {create: "inventory.locations", update: "inventory.locations"},
-    keywords: /\b(inventory location|stock location|warehouse|store location)\b/i,
-    domains: ["inventory"],
-    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
-    createConfig: createLocationImportConfig,
-    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.inventory_locations, ["name"], {softDelete: true}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Location",
-      recordsArgKey: "locations",
-      createToolName: "propose_create_locations",
-      updateToolName: "propose_update_locations",
-      matchFields: ["name"],
-      fields: [
-        {name: "name", type: "string", requiredOnCreate: true},
-        {name: "type", type: "string", requiredOnCreate: true, description: "Store, Kitchen, etc."},
-        {name: "is_active", type: "boolean"},
-      ],
-    }),
-  },
-  {
-    configId: "positions",
-    recordsArgKey: "positions",
-    createToolName: "propose_create_positions",
-    updateToolName: "propose_update_positions",
-    permissionModules: {create: "hr.positions", update: "hr.positions"},
-    keywords: /\b(position|positions|job title)\b/i,
-    domains: ["hr"],
-    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
-    createConfig: createPositionImportConfig,
-    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.positions, ["code"], {softDelete: false}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Position",
-      recordsArgKey: "positions",
-      createToolName: "propose_create_positions",
-      updateToolName: "propose_update_positions",
-      matchFields: ["code"],
-      fields: [
-        {name: "code", type: "string", requiredOnCreate: true},
-        {name: "name", type: "string", requiredOnCreate: true},
-        {name: "department", type: "string"},
-        {name: "default_cost_center", type: "string"},
-        {name: "is_active", type: "boolean"},
-      ],
-    }),
-  },
-  {
-    configId: "cost_centers",
-    recordsArgKey: "cost_centers",
-    createToolName: "propose_create_cost_centers",
-    updateToolName: "propose_update_cost_centers",
-    permissionModules: {create: "hr.cost_centers", update: "hr.cost_centers"},
-    keywords: /\b(cost center|cost centres?)\b/i,
-    domains: ["hr"],
-    actionKeywords: /\b(add|create|update|change|set|new)\b/i,
-    createConfig: createCostCenterImportConfig,
-    mergeUpdatePatches: createMergeUpdatePatchesByMatchFields(Tables.cost_centers, ["code"], {softDelete: false}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Cost center",
-      recordsArgKey: "cost_centers",
-      createToolName: "propose_create_cost_centers",
-      updateToolName: "propose_update_cost_centers",
-      matchFields: ["code"],
-      fields: [
-        {name: "code", type: "string", requiredOnCreate: true},
-        {name: "name", type: "string", requiredOnCreate: true},
-        {name: "is_active", type: "boolean"},
-      ],
-    }),
-  },
-  {
-    configId: "leave_requests",
-    recordsArgKey: "leave_requests",
-    createToolName: "propose_create_leave_requests",
-    permissionModules: {create: "hr.leave", update: "hr.leave"},
-    keywords: /\b(leave request|time off|pto|vacation request)\b/i,
-    domains: ["hr"],
-    actionKeywords: /\b(add|create|request|submit)\b/i,
-    createConfig: createLeaveRequestImportConfig,
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Leave request",
-      recordsArgKey: "leave_requests",
-      createToolName: "propose_create_leave_requests",
-      matchFields: [],
-      fields: [
-        {name: "employee", type: "string", requiredOnCreate: true},
-        {name: "leave_type", type: "string", requiredOnCreate: true},
-        {name: "start_date", type: "string", requiredOnCreate: true},
-        {name: "end_date", type: "string", requiredOnCreate: true},
-        {name: "days", type: "number"},
-        {name: "reason", type: "string"},
-      ],
-    }),
-  },
-  {
-    configId: "time_entries",
-    recordsArgKey: "attendance",
-    createToolName: "propose_create_attendance",
-    updateToolName: "propose_update_attendance",
-    permissionModules: {create: "hr.attendance", update: "hr.attendance"},
-    keywords: /\b(attendance|clock in|clock out|time entry|punch)\b/i,
-    domains: ["hr", "labor"],
-    actionKeywords: /\b(add|create|update|correct|fix|record)\b/i,
-    createConfig: ({db, t, context}) => createAiAttendanceImportConfig({db, t, context}),
-    buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
-      entityLabel: "Attendance",
-      recordsArgKey: "attendance",
-      createToolName: "propose_create_attendance",
-      updateToolName: "propose_update_attendance",
-      matchFields: ["employee", "clock_in"],
-      fields: [
-        {name: "employee", type: "string", requiredOnCreate: true},
-        {name: "clock_in", type: "string", requiredOnCreate: true},
-        {name: "clock_out", type: "string", requiredOnCreate: true},
-        {name: "notes", type: "string"},
-      ],
-    }),
-  },
-  {
+{
     configId: "accounts",
     recordsArgKey: "accounts",
     createToolName: "propose_create_accounts",
@@ -1372,7 +966,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       ],
     }),
   },
-  {
+{
     configId: "journal_entries",
     recordsArgKey: "journal_entries",
     createToolName: "propose_create_journal_entries",

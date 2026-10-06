@@ -5,17 +5,12 @@ import {Menu} from "@/screens/menu";
 import {Orders} from "@/screens/orders.tsx";
 import {Summary} from "@/screens/summary.tsx";
 import {KitchenScreen} from "@/screens/kitchen.tsx";
-import {Clock} from "@/screens/clock.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
 import {SuspenseOutlet} from "@/routes/suspense-outlet.tsx";
 import {
   ADMIN,
-  CLOCK,
   CLOSING,
   DELIVERY,
-  INVENTORY,
-  INVENTORY_PRINT,
-  HR,
   KITCHEN,
   ORDER_DISPLAY,
   LOGIN,
@@ -26,16 +21,10 @@ import {
   REPORTS_AI,
   REPORTS_AUDIT,
   REPORTS_CASH_CLOSING,
-  REPORTS_CONSUMPTION,
   REPORTS_COUPON,
-  REPORTS_CURRENT_INVENTORY,
   REPORTS_DELIVERY_DENSITY,
-  REPORTS_DETAILED_INVENTORY,
   REPORTS_DISCOUNTS,
   REPORTS_EXPENSE,
-  REPORTS_INVENTORY_DASHBOARD,
-  REPORTS_ISSUE,
-  REPORTS_ISSUE_RETURN,
   REPORTS_MERGE_ORDERS,
   REPORTS_ORDER_FISCAL,
   REPORTS_ORDER_LIFECYCLE,
@@ -44,24 +33,8 @@ import {
   REPORTS_PRODUCT_LIST,
   REPORTS_PRODUCT_MIX_SUMMARY,
   REPORTS_PRODUCT_MIX_WEEKLY,
-  REPORTS_PURCHASE,
-  REPORTS_PURCHASE_ORDER,
-  REPORTS_PURCHASE_RETURN,
-  REPORTS_SALE_VS_CONSUMPTION,
-  REPORTS_KITCHEN_RECONCILIATION,
-  REPORTS_PRODUCTION,
-  REPORTS_BUFFET,
-  REPORTS_LABOR_ATTENDANCE,
-  REPORTS_LABOR_DAILY_COST,
-  REPORTS_LABOR_DASHBOARD,
-  REPORTS_LABOR_OVERTIME,
-  REPORTS_LABOR_PAYROLL_SUMMARY,
-  REPORTS_LABOR_SCHEDULED_VS_ACTUAL,
-  REPORTS_LABOR_SCHEDULE_ROSTER,
   REPORTS_SALES_ADVANCED,
   REPORTS_SALES_DASHBOARD,
-  REPORTS_SALES_HOURLY_LABOUR,
-  REPORTS_SALES_HOURLY_LABOUR_WEEKLY,
   REPORTS_SALES_SERVER,
   REPORTS_SALES_SUMMARY,
   REPORTS_SALES_SUMMARY2,
@@ -71,7 +44,6 @@ import {
   REPORTS_TAX,
   REPORTS_TIPS,
   REPORTS_VOIDS,
-  REPORTS_WASTE,
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
@@ -83,32 +55,14 @@ import {
   Admin,
   AiReport,
   AuditReport,
-  BuffetReport,
   Closing,
   Delivery,
-  HrScreen,
   IntegrationsScreen,
-  Inventory,
-  LaborAttendanceReport,
-  LaborDailyCostReport,
-  LaborDashboardReport,
-  LaborOvertimeReport,
-  LaborPayrollSummaryReport,
-  LaborScheduledVsActualReport,
-  LaborScheduleRosterReport,
   CashClosingReport,
-  ConsumptionReport,
   CouponReport,
-  CurrentInventoryReport,
   DeliveryDensityReport,
-  DetailedInventoryReport,
   DiscountsReport,
   ExpenseReport,
-  InventoryDashboardReport,
-  InventoryDocumentPrintPage,
-  IssueReport,
-  IssueReturnReport,
-  KitchenReconciliationReport,
   MergeOrdersReport,
   OrderDisplayScreen,
   OrderFiscalReport,
@@ -118,16 +72,9 @@ import {
   ProductListReport,
   ProductMixSummaryReport,
   ProductMixWeeklyReport,
-  ProductionReport,
-  PurchaseOrderReport,
-  PurchaseReport,
-  PurchaseReturnReport,
   Reports,
-  SaleVsConsumptionReport,
   SalesAdvancedReport,
   SalesDashboardReport,
-  SalesHourlyLabourReport,
-  SalesHourlyLabourWeeklyReport,
   SalesServerReport,
   SalesSummary2Report,
   SalesSummaryReport,
@@ -139,18 +86,15 @@ import {
   TipDistributionScreen,
   TipsReport,
   VoidsReport,
-  WasteReport,
 } from "@/routes/lazy-screens.ts";
 import {
   isAccountingModuleEnabled,
   isClosingModuleEnabled,
   isDeliveryModuleEnabled,
-  isHrModuleEnabled,
   isIntegrationsModuleEnabled,
 } from "@/lib/feature-modules.ts";
 
 export const AppRoutes = () => {
-  const hr = isHrModuleEnabled();
   const delivery = isDeliveryModuleEnabled();
   const integrations = isIntegrationsModuleEnabled();
   const accounting = isAccountingModuleEnabled();
@@ -164,7 +108,6 @@ export const AppRoutes = () => {
       <Route path={ORDERS} element={<Orders/>}/>
       <Route path={SUMMARY} element={<Summary/>}/>
       <Route path={KITCHEN} element={<KitchenScreen/>}/>
-      {hr && <Route path={CLOCK} element={<Clock/>}/>}
 
       <Route element={<SuspenseOutlet/>}>
         {closing && <Route path={CLOSING} element={<Closing/>}/>}
@@ -173,14 +116,10 @@ export const AppRoutes = () => {
         <Route path={ADMIN} element={<Admin/>}/>
         <Route path={SETTINGS} element={<Settings/>}/>
         {integrations && <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>}
-        <Route path={INVENTORY} element={<Inventory/>}/>
-        {hr && <Route path={HR} element={<HrScreen/>}/>}
         <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
         {accounting && <Route path={ACCOUNTS} element={<AccountsScreen/>}/>}
         <Route path={REPORTS} element={<Reports/>}/>
-        <Route path={INVENTORY_PRINT} element={<InventoryDocumentPrintPage/>}/>
         <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>
-        <Route path={REPORTS_INVENTORY_DASHBOARD} element={<InventoryDashboardReport/>}/>
         <Route path={REPORTS_AUDIT} element={<AuditReport/>}/>
         {closing && <Route path={REPORTS_CASH_CLOSING} element={<CashClosingReport/>}/>}
         <Route path={REPORTS_DISCOUNTS} element={<DiscountsReport/>}/>
@@ -200,8 +139,6 @@ export const AppRoutes = () => {
         <Route path={REPORTS_PRODUCT_MIX_WEEKLY} element={<ProductMixWeeklyReport/>}/>
         <Route path={REPORTS_SALES_ADVANCED} element={<SalesAdvancedReport/>}/>
         {delivery && <Route path={REPORTS_DELIVERY_DENSITY} element={<DeliveryDensityReport/>}/>}
-        <Route path={REPORTS_SALES_HOURLY_LABOUR} element={<SalesHourlyLabourReport/>}/>
-        <Route path={REPORTS_SALES_HOURLY_LABOUR_WEEKLY} element={<SalesHourlyLabourWeeklyReport/>}/>
         <Route path={REPORTS_SALES_SERVER} element={<SalesServerReport/>}/>
         <Route path={REPORTS_SALES_SUMMARY} element={<SalesSummaryReport/>}/>
         <Route path={REPORTS_SALES_SUMMARY2} element={<SalesSummary2Report/>}/>
@@ -209,26 +146,6 @@ export const AppRoutes = () => {
         <Route path={REPORTS_SALES_WEEKLY} element={<SalesWeeklyReport/>}/>
         <Route path={REPORTS_TABLES_SUMMARY} element={<TablesSummaryReport/>}/>
         <Route path={REPORTS_VOIDS} element={<VoidsReport/>}/>
-        <Route path={REPORTS_DETAILED_INVENTORY} element={<DetailedInventoryReport/>}/>
-        <Route path={REPORTS_CURRENT_INVENTORY} element={<CurrentInventoryReport/>}/>
-        <Route path={REPORTS_PURCHASE} element={<PurchaseReport/>}/>
-        <Route path={REPORTS_PURCHASE_ORDER} element={<PurchaseOrderReport/>}/>
-        <Route path={REPORTS_PURCHASE_RETURN} element={<PurchaseReturnReport/>}/>
-        <Route path={REPORTS_ISSUE} element={<IssueReport/>}/>
-        <Route path={REPORTS_ISSUE_RETURN} element={<IssueReturnReport/>}/>
-        <Route path={REPORTS_WASTE} element={<WasteReport/>}/>
-        <Route path={REPORTS_CONSUMPTION} element={<ConsumptionReport/>}/>
-        <Route path={REPORTS_SALE_VS_CONSUMPTION} element={<SaleVsConsumptionReport/>}/>
-        <Route path={REPORTS_KITCHEN_RECONCILIATION} element={<KitchenReconciliationReport/>}/>
-        <Route path={REPORTS_PRODUCTION} element={<ProductionReport/>}/>
-        <Route path={REPORTS_BUFFET} element={<BuffetReport/>}/>
-        {hr && <Route path={REPORTS_LABOR_DASHBOARD} element={<LaborDashboardReport/>}/>}
-        {hr && <Route path={REPORTS_LABOR_DAILY_COST} element={<LaborDailyCostReport/>}/>}
-        {hr && <Route path={REPORTS_LABOR_OVERTIME} element={<LaborOvertimeReport/>}/>}
-        {hr && <Route path={REPORTS_LABOR_ATTENDANCE} element={<LaborAttendanceReport/>}/>}
-        {hr && <Route path={REPORTS_LABOR_PAYROLL_SUMMARY} element={<LaborPayrollSummaryReport/>}/>}
-        {hr && <Route path={REPORTS_LABOR_SCHEDULED_VS_ACTUAL} element={<LaborScheduledVsActualReport/>}/>}
-        {hr && <Route path={REPORTS_LABOR_SCHEDULE_ROSTER} element={<LaborScheduleRosterReport/>}/>}
       </Route>
     </Route>
     <Route path="*" element={<NotFound/>}/>

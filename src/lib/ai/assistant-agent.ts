@@ -15,8 +15,6 @@ import {buildWriteProposal, type TFunc, type WriteProposal, type WriteToolContex
 import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
-import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
-import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
 
 const MAX_ITERATIONS = 10;
 const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
@@ -189,38 +187,6 @@ export async function runAiAssistantAgent(
     charts: [],
     messages: turnMessages([...(extra ?? []), {role: "assistant", content: answer}]),
   });
-
-  const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmed, {
-    onToolStart: options.onToolStart,
-  });
-  if (inventoryFastPath) {
-    const response = await callOpenAIChat({
-      messages: fastPathMessages(inventoryFastPath.instruction),
-      tools: [],
-      task: options.task ?? "reporting",
-    });
-    const answer = messageText(response.choices[0]?.message?.content);
-    if (!answer) {
-      throw new Error("AI returned an empty response.");
-    }
-    return finishAnswer(answer);
-  }
-
-  const employeeFastPath = await tryEmployeeDetailFastPath(db, trimmed, {
-    onToolStart: options.onToolStart,
-  });
-  if (employeeFastPath) {
-    const response = await callOpenAIChat({
-      messages: fastPathMessages(employeeFastPath.instruction),
-      tools: [],
-      task: options.task ?? "reporting",
-    });
-    const answer = messageText(response.choices[0]?.message?.content);
-    if (!answer) {
-      throw new Error("AI returned an empty response.");
-    }
-    return finishAnswer(answer);
-  }
 
   return runLoop(db, t, turnMessages(), {...options, prompt: trimmed, tools});
 }

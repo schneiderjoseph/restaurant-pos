@@ -1,52 +1,17 @@
 {
   "title": "Hub report (pacchetti amministratore)",
-  "intro": "Gli amministratori usano lo stesso hub Report, con pacchetti più profondi: inventario, labor, prodotti e tasse.",
+  "intro": "Gli amministratori usano lo stesso hub Report dei manager, con pacchetti più approfonditi come prodotti e tasse. Apri una categoria, scegli un report, imposta i filtri, poi esegui o esporta.",
   "sections": [
     {
       "id": "overview",
       "title": "Layout report amministratore",
       "steps": [
         "Tocca Report.",
-        "Categorie: Inventario, Labor, Prodotti, Vendite.",
+        "Categorie: Vendite, Prodotti, Operazioni e altro.",
         "La colonna centrale elenca i report; il pannello destro i filtri."
       ],
       "image": "reports-admin-overview.png",
       "caption": "Hub report per pacchetti amministratore."
-    },
-    {
-      "id": "inventory",
-      "title": "Pacchetto Inventario",
-      "intro": "Copre scorte, acquisti, uscite, scarti, consumo, produzione e buffet.",
-      "steps": [
-        "Seleziona Inventario.",
-        "Scegli Inventario attuale o Acquisti.",
-        "Imposta ubicazione e date ed esegui."
-      ],
-      "image": "reports-admin-inventory.png",
-      "caption": "Pacchetto report inventario."
-    },
-    {
-      "id": "inventory-filters",
-      "title": "Filtri inventario",
-      "steps": [
-        "Dopo la scelta del report, il pannello mostra i filtri.",
-        "Regola date, ubicazioni o articoli.",
-        "Esegui o esporta quando i filtri rispondono."
-      ],
-      "image": "reports-admin-inventory-filters.png",
-      "caption": "Pannello filtri inventario."
-    },
-    {
-      "id": "labor",
-      "title": "Pacchetto Labor",
-      "intro": "Riassume costo, straordinari, presenza, payroll e pianificato vs reale.",
-      "steps": [
-        "Seleziona Labor.",
-        "Apri Dashboard o Costo giornaliero.",
-        "Usa Presenza o Riepilogo payroll per il dettaglio."
-      ],
-      "image": "reports-admin-labor.png",
-      "caption": "Pacchetto report labor."
     },
     {
       "id": "products",

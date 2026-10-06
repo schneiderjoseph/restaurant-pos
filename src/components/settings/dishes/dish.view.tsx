@@ -35,17 +35,6 @@ interface DishModifierGroupRow {
   priority?: number
 }
 
-interface DishRecipeRow {
-  id: string
-  item?: {
-    id: string
-    name: string
-  }
-  quantity: number
-  cost: number
-  is_price_locked?: boolean
-}
-
 export const DishView = ({
   open, onClose, data
 }: Props) => {
@@ -53,7 +42,6 @@ export const DishView = ({
 
   const db = useDB();
   const [modifierGroups, setModifierGroups] = useState<DishModifierGroupRow[]>([]);
-  const [recipes, setRecipes] = useState<DishRecipeRow[]>([]);
   const [imageSrc, setImageSrc] = useState(defaultImage);
 
   const categories = useMemo(() => data?.categories ?? [], [data?.categories]);
@@ -61,13 +49,6 @@ export const DishView = ({
     const source = (data as any)?.modifier_items;
     return Array.isArray(source) ? source : [];
   }, [data]);
-  const totalRecipeCost = useMemo(() => {
-    return recipes.reduce((sum, recipe) => {
-      const quantity = Number(recipe.quantity ?? 0);
-      const cost = Number(recipe.cost ?? 0);
-      return sum + quantity * cost;
-    }, 0);
-  }, [recipes]);
 
   useEffect(() => {
     if (!open || !data?.id) {
@@ -94,27 +75,7 @@ export const DishView = ({
       }
     };
 
-    const loadRecipes = async () => {
-      try {
-        const [record]: any = await db.query(
-          `SELECT * FROM ${Tables.dishes_recipes}
-           WHERE menu_item = $dish
-           FETCH item`,
-          {dish: data.id}
-        );
-
-        if (!cancelled) {
-          setRecipes(record ?? []);
-        }
-      } catch {
-        if (!cancelled) {
-          setRecipes([]);
-        }
-      }
-    };
-
     loadModifierGroups();
-    loadRecipes();
 
     return () => {
       cancelled = true;
@@ -221,10 +182,6 @@ export const DishView = ({
                   <p className="font-medium">{withCurrency(data.price ?? 0)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('columns.costPrice')}</p>
-                  <p className="font-medium">{withCurrency(data.cost ?? 0)}</p>
-                </div>
-                <div>
                   <p className="text-neutral-500">{t('dishView.discount')}</p>
                   <p className="font-medium">{data.discount ?? '-'}</p>
                 </div>
@@ -297,50 +254,6 @@ export const DishView = ({
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-
-          <div className="rounded-lg border border-neutral-200 bg-white p-4">
-            <h4 className="font-semibold text-lg mb-3">{t('dishView.recipeItems')}</h4>
-
-            {recipes.length === 0 ? (
-              <p className="text-sm text-neutral-500">{t('dishView.noRecipeItems')}</p>
-            ) : (
-              <>
-                <div className="overflow-auto">
-                  <table className="table-auto w-full">
-                    <thead>
-                    <tr className="text-left border-b border-neutral-200">
-                      <th className="py-2">{t('dishView.item')}</th>
-                      <th className="py-2">{t('dishView.quantity')}</th>
-                      <th className="py-2">{t('dishView.cost')}</th>
-                      <th className="py-2">{t('dishView.priceLocked')}</th>
-                      <th className="py-2">{t('dishView.lineTotal')}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {recipes.map((recipe) => {
-                      const quantity = Number(recipe.quantity ?? 0);
-                      const cost = Number(recipe.cost ?? 0);
-                      const lineTotal = quantity * cost;
-                      return (
-                        <tr key={recipe.id} className="border-b border-neutral-100">
-                          <td className="py-2">{recipe.item?.name ?? '-'}</td>
-                          <td className="py-2">{quantity}</td>
-                          <td className="py-2">{withCurrency(cost)}</td>
-                          <td className="py-2">{yesNo(recipe.is_price_locked)}</td>
-                          <td className="py-2">{withCurrency(lineTotal)}</td>
-                        </tr>
-                      );
-                    })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-3 flex justify-end">
-                  <span className="tag">{t('dishView.totalRecipeCost', { amount: withCurrency(totalRecipeCost) })}</span>
-                </div>
-              </>
             )}
           </div>
         </div>
