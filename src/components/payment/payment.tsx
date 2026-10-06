@@ -47,7 +47,7 @@ import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {orderIdToString} from "@/store/order-edit-session.ts";
 import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
-import {createOrderEditRequest, diffSentLines, EDIT_SENT_ITEMS_MODULE} from "@/lib/order-edit-request.ts";
+import {createOrderEditRequest, diffSentLines, sentItemsEditMode} from "@/lib/order-edit-request.ts";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast", "kitchen", "menu"]);
@@ -165,8 +165,10 @@ export const Payment = () => {
   const hasPersistedCartEdits = () => sentLineChanges().length > 0;
 
   /** The role is read again from the database, as `protectAction` does. */
-  const canEditSentItems = async () =>
-    userModulesGrant(await fetchUserModules(db, page?.user), EDIT_SENT_ITEMS_MODULE);
+  const fetchSentItemsEditMode = async () => {
+    const modules = await fetchUserModules(db, page?.user);
+    return sentItemsEditMode((module) => userModulesGrant(modules, module));
+  };
 
   const hasCartChangesToPersist = () => hasNewCartItems() || hasPersistedCartEdits();
 
@@ -227,7 +229,7 @@ export const Payment = () => {
       // Changing a line already sent takes the right to; without it the lines stay as sent
       // and the changes wait for an approver. New lines are saved and sent either way.
       const changes = sentLineChanges();
-      const awaitsApproval = changes.length > 0 && !(await canEditSentItems());
+      const awaitsApproval = changes.length > 0 && (await fetchSentItemsEditMode()) === 'request';
 
       const kitchenItems: Record<string, any[]> = {};
       const items: any[] = [];
@@ -650,7 +652,7 @@ export const Payment = () => {
 
 
         <div className="p-3" data-testid="cart-payment-actions">
-          {hasPersistedCartEdits() && !can(EDIT_SENT_ITEMS_MODULE) && (
+          {hasPersistedCartEdits() && sentItemsEditMode(can) === 'request' && (
             <p className="mb-3 text-sm font-normal text-warning-700" data-testid="cart-edit-needs-approval">
               {t("payment:editRequest.notice")}
             </p>

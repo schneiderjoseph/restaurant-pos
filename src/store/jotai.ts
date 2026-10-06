@@ -151,8 +151,10 @@ export interface MenuConfigInterface {
    * name = display name (shortened), code = guest code, both = name · #CODE
    */
   kitchenGuestLabel?: 'name' | 'code' | 'both'
-  /** Last selected point-of-sale filter tab on the menu (this device). */
+  /** @deprecated single-tab filter, superseded by `outletTabs`; ignored. */
   outletTab?: string
+  /** Point-of-sale filters selected on the menu (this device); empty = every category. */
+  outletTabs?: string[]
 }
 
 export interface AppPageInterface {

@@ -15,8 +15,8 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {printApprovedOrderEdit} from "@/lib/kitchen/print-order-edit.ts";
 import type {KitchenGuestLabelMode} from "@/lib/kitchen-ticket-label.ts";
 import {
+  APPROVE_SENT_ITEMS_EDIT_MODULE,
   approveOrderEditRequest,
-  EDIT_SENT_ITEMS_MODULE,
   fetchPendingOrderEditRequests,
   OrderEditDecision,
   refKey,
@@ -28,7 +28,7 @@ const REFRESH_DEBOUNCE_MS = 500;
 
 /**
  * Changes to lines already sent, asked for by a user who may not make them: every signed-in
- * user holding `order_edit.sent_items` gets the request on their terminal and accepts or
+ * user holding `order_edit.approve` gets the request on their terminal and accepts or
  * refuses it; the user who asked is told the answer on theirs. Nothing shows on a locked screen.
  */
 export const OrderEditRequestWatcher = () => {
@@ -65,7 +65,7 @@ export const OrderEditRequestWatcher = () => {
     fetchUserModules(dbRef.current, userRef.current)
       .then((modules) => {
         if (!cancelled) {
-          setCanApprove(userModulesGrant(modules, EDIT_SENT_ITEMS_MODULE));
+          setCanApprove(userModulesGrant(modules, APPROVE_SENT_ITEMS_EDIT_MODULE));
         }
       })
       .catch(() => undefined);
@@ -176,7 +176,7 @@ export const OrderEditRequestWatcher = () => {
 
       if (decision === 'approved' || decision === 'rejected') {
         postOrderTracking({
-          module: EDIT_SENT_ITEMS_MODULE,
+          module: APPROVE_SENT_ITEMS_EDIT_MODULE,
           page: page?.page,
           orderId: refKey(request.order),
           payload: {

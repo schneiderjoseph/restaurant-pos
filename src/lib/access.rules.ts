@@ -52,11 +52,11 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
     label: "Payments",
     children: ["payments.receive"],
   },
-  // Its own section for the same reason. Holders change sent lines directly and decide the
-  // requests of everyone else.
+  // Its own section for the same reason. Holders of `sent_items` change sent lines directly;
+  // everyone else sends a request, which holders of `approve` accept or refuse.
   order_edit: {
     label: "Editing sent orders",
-    children: ["order_edit.sent_items"],
+    children: ["order_edit.sent_items", "order_edit.approve"],
   },
   summary: {
     label: "Summary",

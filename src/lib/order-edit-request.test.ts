@@ -6,11 +6,13 @@ import { OrderStatus } from '@/api/model/order.ts';
 import { OrderEditRequestStatus, SentLineChange } from '@/api/model/order_edit_request.ts';
 import { userModulesGrant } from '@/lib/access.rules.ts';
 import {
+  APPROVE_SENT_ITEMS_EDIT_MODULE,
   approveOrderEditRequest,
   diffSentLines,
   EDIT_SENT_ITEMS_MODULE,
   refKey,
   rejectOrderEditRequest,
+  sentItemsEditMode,
 } from '@/lib/order-edit-request.ts';
 
 // The kitchen workflow module pulls in the print service and the browser store.
@@ -43,6 +45,25 @@ describe('order_edit.sent_items', () => {
   it('is not granted by the orders section', () => {
     expect(userModulesGrant(['orders', 'menu'], EDIT_SENT_ITEMS_MODULE)).toBe(false);
     expect(userModulesGrant(['orders', EDIT_SENT_ITEMS_MODULE], EDIT_SENT_ITEMS_MODULE)).toBe(true);
+  });
+});
+
+describe('sentItemsEditMode', () => {
+  const modeOf = (modules: string[]) =>
+    sentItemsEditMode((module) => userModulesGrant(modules, module));
+
+  it('edits directly with order_edit.sent_items', () => {
+    expect(modeOf(['menu', EDIT_SENT_ITEMS_MODULE])).toBe('direct');
+  });
+
+  it('sends a request to an approver without it, approving alone included', () => {
+    expect(modeOf(['menu', 'orders'])).toBe('request');
+    expect(modeOf([APPROVE_SENT_ITEMS_EDIT_MODULE])).toBe('request');
+  });
+
+  it('approving is its own right: the edit right does not grant it', () => {
+    expect(userModulesGrant([EDIT_SENT_ITEMS_MODULE], APPROVE_SENT_ITEMS_EDIT_MODULE)).toBe(false);
+    expect(userModulesGrant(['order_edit'], APPROVE_SENT_ITEMS_EDIT_MODULE)).toBe(true);
   });
 });
 

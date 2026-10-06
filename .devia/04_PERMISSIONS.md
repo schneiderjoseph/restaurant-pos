@@ -71,22 +71,28 @@ their own PIN (see `11_GAPS.md`).
 
 ## Changing an order already sent
 
-`order_edit.sent_items` (role editor, section "Editing sent orders"; rule `EDIT_SENT_ITEMS_MODULE`,
-`src/lib/order-edit-request.ts`) is the right to change a line that was already sent: quantity,
-removal, comment, options (`diffSentLines`). Adding dishes to a sent order needs no permission.
+Changing a line that was already sent (quantity, removal, comment, options; `diffSentLines`)
+is saved directly or waits for an approver, by role (role editor, section "Editing sent orders";
+`src/lib/order-edit-request.ts`, `sentItemsEditMode`). Adding dishes to a sent order needs nothing.
 
-A user who holds it saves the change directly, as before. A user who does not still edits the
-cart, but on Envoyer (`src/components/payment/payment.tsx`) the sent lines are left as they are,
-the new dishes are saved and sent, and the changes go into an `order_edit_request` (pending). The
-role is read again from the database at that moment. Every signed-in user holding the permission
-gets the request on their own terminal (`OrderEditRequestWatcher`, mounted in `src/app.tsx`, any
-page, never on a locked screen): accept, refuse, or later. Only on accept are the lines written
-(`approveOrderEditRequest`) and the kitchens told (`printApprovedOrderEdit`). The requester is told
-the answer on the terminal where they are signed in.
+| Permission | Rule | Effect |
+| --- | --- | --- |
+| `order_edit.sent_items` | `EDIT_SENT_ITEMS_MODULE` | saves the change directly, no approval |
+| `order_edit.approve` | `APPROVE_SENT_ITEMS_EDIT_MODULE` | receives and decides the requests; does not by itself allow editing directly |
 
-It sits in its own section for the same reason as `order_visibility.all`. No migration grants it:
-after deploy nobody holds it until it is ticked on a role, so until then every change to a sent
-line waits with no one to answer it. This is enforced in the POS screens, not in the database.
+Without `sent_items`, the cart says an approver will approve, and on Envoyer
+(`src/components/payment/payment.tsx`) the sent lines are left as they are, the new dishes are
+saved and sent, and the changes go into an `order_edit_request` (pending). The role is read again
+from the database at that moment. Every signed-in user holding
+`order_edit.approve` gets the request on their own terminal (`OrderEditRequestWatcher`, mounted in
+`src/app.tsx`, any page, never on a locked screen): accept, refuse, or later. Only on accept are
+the lines written (`approveOrderEditRequest`) and the kitchens told (`printApprovedOrderEdit`). The
+requester is told the answer on the terminal where they are signed in.
+
+It sits in its own section for the same reason as `order_visibility.all`. Until 2026-10-05
+`sent_items` also made its holder the approver; `migrations/2026_10_05_order_edit_split_roles.surql`
+(one-shot) keeps that on deploy by giving `approve` to the roles holding `sent_items`. This is
+enforced in the POS screens, not in the database.
 
 ## Isolation
 

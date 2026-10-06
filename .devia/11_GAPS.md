@@ -15,7 +15,7 @@ Add one with `npx devia gap add "question"`.
 | G3 | Order due time (order.due_at) is printed on the kitchen ticket, shown on the Orders screen, and since 2026-10-04 also on the order display screen and the kitchen display screen (KDS); still not on the temp / final bill. Wanted there too? | | | open |
 | G4 | A user holding order_edit.sent_items changes a sent line directly: the change is saved but no kitchen ticket prints (only an approved request prints one, and a removed line only cancels its kitchen rows). Should the direct change print the same tickets? | | | open |
 | G5 | A server who reopens an order with a change request still pending sees the order as sent, with no sign that a request is waiting, and can send a second one. Show the pending request in the cart, or replace the earlier one? | | | open |
-| G6 | Order change requests never time out: with no user holding order_edit.sent_items signed in, a request stays pending until the order is paid (then it expires when someone opens it). Is a timeout or an alert to the server wanted? | | | open |
+| G6 | Order change requests never time out: with no user holding order_edit.approve signed in, a request stays pending until the order is paid (then it expires when someone opens it). Is a timeout or an alert to the server wanted? | | | open |
 
 ## Closed
 

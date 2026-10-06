@@ -16,10 +16,19 @@ import { toRecordId } from '@/lib/utils.ts';
 import { orderIdToString } from '@/store/order-edit-session.ts';
 
 /**
- * Role permission: this user may change a line that was already sent (quantity, removal,
- * comment, options) and decides the requests of the users who may not.
+ * Role permission: this user changes a line that was already sent (quantity, removal, comment,
+ * options) directly, with no approval.
  */
 export const EDIT_SENT_ITEMS_MODULE = 'order_edit.sent_items';
+
+/** Role permission: this user receives the change requests of others and accepts or refuses them. */
+export const APPROVE_SENT_ITEMS_EDIT_MODULE = 'order_edit.approve';
+
+/** How a user changes sent lines: directly, or as a request an approver decides. */
+export type SentItemsEditMode = 'direct' | 'request';
+
+export const sentItemsEditMode = (can: (module: string) => boolean): SentItemsEditMode =>
+  can(EDIT_SENT_ITEMS_MODULE) ? 'direct' : 'request';
 
 type AnyDb = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<any>;

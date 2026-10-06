@@ -3,11 +3,9 @@ import type {Swiper as SwiperInstance} from "swiper";
 import {cn} from "@/lib/utils.ts";
 import {useAtom} from "jotai";
 import {
-  appPage,
   appSettings,
   appState,
   closingEnforcementAtom,
-  type DishSearchType,
   menuSearchAtom,
 } from "@/store/jotai.ts";
 import {useEffect, useMemo, useRef, useState, type ReactNode} from "react";
@@ -20,39 +18,29 @@ import {searchDishes} from "@/lib/menu-search.ts";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {useTranslation} from "react-i18next";
-import {Button} from "@/components/common/input/button.tsx";
-import {faSearch, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Input} from "@/components/common/input/input.tsx";
 import {MenuCategories} from "@/components/menu/categories.tsx";
-import {DishSearchKeyboard} from "@/components/menu/dish.search.keyboard.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 
 export const MenuDishes = () => {
   const {t} = useTranslation('menu');
   const isTablet = useMediaQuery({maxWidth: 1024});
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchBuffer, setSearchBuffer] = useState('');
   const [activeSlide, setActiveSlide] = useState(0);
   const swiperRef = useRef<SwiperInstance | null>(null);
 
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
-  const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [menuSearch, setMenuSearch] = useAtom(menuSearchAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
-  const enableDishSearch = !!page.menuConfig?.enableDishSearch;
-  const dishSearchType: DishSearchType = page.menuConfig?.dishSearchType ?? 'number';
   const headerQuery = menuSearch.trim();
   const hasHeaderSearch = headerQuery.length > 0;
 
   const ITEMS_PER_SLIDE = useMemo(() => {
-    if (!hasHeaderSearch && searchOpen && enableDishSearch) {
-      return isTablet ? 9 : 12;
-    }
     return isTablet ? 15 : 20;
-  }, [isTablet, searchOpen, enableDishSearch, hasHeaderSearch]);
+  }, [isTablet]);
 
   const {dishes: allDishes} = useMemo(() => (
     resolveMenuAwareData({
@@ -76,34 +64,17 @@ export const MenuDishes = () => {
     if (hasHeaderSearch) {
       return searchDishes(allDishes || [], menuSearch);
     }
-    if (!searchOpen || !enableDishSearch) {
-      return categoryDishes;
-    }
-    const buffer = searchBuffer.trim();
-    if (!buffer) {
-      return allDishes || [];
-    }
-    const q = buffer.toLowerCase();
-    return (allDishes || []).filter(item => {
-      const number = String(item.number ?? '').trim();
-      const numberMatch = number.startsWith(buffer) || number.toLowerCase().startsWith(q);
-      if (dishSearchType === 'number') {
-        return numberMatch;
-      }
-      const nameMatch = (item.name ?? '').toLowerCase().includes(q);
-      return numberMatch || nameMatch;
-    });
-  }, [hasHeaderSearch, menuSearch, searchOpen, enableDishSearch, searchBuffer, allDishes, categoryDishes, dishSearchType]);
+    return categoryDishes;
+  }, [hasHeaderSearch, menuSearch, allDishes, categoryDishes]);
 
   const slides = Math.ceil((dishes?.length || 0) / ITEMS_PER_SLIDE) || 1;
-  const isSearchMode = !hasHeaderSearch && enableDishSearch && searchOpen;
   const categoryId = state.category?.id?.toString();
   const headerSearchEmpty = hasHeaderSearch && (dishes?.length || 0) === 0;
 
   useEffect(() => {
     setActiveSlide(0);
     swiperRef.current?.slideTo(0, 0);
-  }, [categoryId, searchOpen, searchBuffer, menuSearch, slides]);
+  }, [categoryId, menuSearch, slides]);
 
   const onClick = (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
     if (orderTakingBlocked) {
@@ -182,22 +153,6 @@ export const MenuDishes = () => {
     </div>
   );
 
-  const toggleSearch = () => {
-    setSearchOpen(prev => {
-      if (prev) {
-        setSearchBuffer('');
-      }
-      return !prev;
-    });
-  };
-
-  useEffect(() => {
-    if (!enableDishSearch && searchOpen) {
-      setSearchOpen(false);
-      setSearchBuffer('');
-    }
-  }, [enableDishSearch, searchOpen]);
-
   useEffect(() => {
     return () => {
       setMenuSearch('');
@@ -214,7 +169,6 @@ export const MenuDishes = () => {
         slidesPerView={1}
         className={cn(
           "dishes-swiper",
-          isSearchMode && "dishes-swiper--search",
           orderTakingBlocked && "opacity-50 pointer-events-none"
         )}
         direction="vertical"
@@ -228,10 +182,7 @@ export const MenuDishes = () => {
         {Array.from({length: slides}, (_, i) => i).map(rowId => (
           <SwiperSlide
             key={rowId}
-            className={cn(
-              "!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4",
-              isSearchMode && "md:grid-rows-3 sm:grid-rows-3"
-            )}
+            className="!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4"
           >
             {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item) => (
               <MenuDish
@@ -314,37 +265,11 @@ export const MenuDishes = () => {
         <div className="min-w-0 flex-1 rounded-xl">
           <MenuCategories/>
         </div>
-        {enableDishSearch && (
-          <Button
-            size="lg"
-            variant="primary"
-            icon={faSearch}
-            active={searchOpen}
-            onClick={toggleSearch}
-            className="flex-shrink-0 h-[56px]"
-            data-testid="menu-dish-search"
-          >
-            {t('actions.search')}
-          </Button>
-        )}
       </div>
 
-      {isSearchMode ? (
-        <div className="dishes-search-stack">
-          <div className="dishes-search-dishes min-w-0 rounded-xl">
-            {dishesArea}
-          </div>
-          <DishSearchKeyboard
-            value={searchBuffer}
-            onChange={setSearchBuffer}
-            searchType={dishSearchType}
-          />
-        </div>
-      ) : (
-        <div className="min-h-0 flex-1 rounded-xl">
-          {dishesArea}
-        </div>
-      )}
+      <div className="min-h-0 flex-1 rounded-xl">
+        {dishesArea}
+      </div>
     </div>
   );
 };

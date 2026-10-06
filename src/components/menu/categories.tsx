@@ -8,11 +8,9 @@ import {outletsInUse} from "@/lib/outlet-tabs.ts";
 import {outletOfCategory} from "@/lib/outlet.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {menuCategoriesFor} from "@/lib/menu-categories.ts";
-import {useTranslation} from "react-i18next";
 
 
 export const MenuCategories = () => {
-  const { t } = useTranslation('menu');
   const [settings] = useAtom(appSettings);
   const [state, setState] = useAtom(appState);
   const [page, setPage] = useAtom(appPage);
@@ -31,20 +29,19 @@ export const MenuCategories = () => {
     [settings.categories],
   );
 
-  const selectedOutletTab = page.menuConfig?.outletTab;
-  const activeOutletId = useMemo(() => {
-    if (!selectedOutletTab) return undefined;
-    return outletTabs.some((outlet) => recordIdToString(outlet.id) === selectedOutletTab)
-      ? selectedOutletTab
-      : undefined;
-  }, [selectedOutletTab, outletTabs]);
+  // Selected points of sale, minus any that no longer have a category.
+  const selectedOutletTabs = page.menuConfig?.outletTabs;
+  const activeOutletIds = useMemo(() => {
+    const inUse = new Set(outletTabs.map((outlet) => recordIdToString(outlet.id)));
+    return new Set((selectedOutletTabs ?? []).filter((id) => inUse.has(id)));
+  }, [selectedOutletTabs, outletTabs]);
 
   const categories = useMemo(() => {
-    if (!activeOutletId) return allCategories;
+    if (activeOutletIds.size === 0) return allCategories;
     return allCategories.filter((category) =>
-      recordIdToString(outletOfCategory(category.id, settings.categories ?? [])?.id) === activeOutletId
+      activeOutletIds.has(recordIdToString(outletOfCategory(category.id, settings.categories ?? [])?.id))
     );
-  }, [allCategories, activeOutletId, settings.categories]);
+  }, [allCategories, activeOutletIds, settings.categories]);
 
   useEffect(() => {
     const currentCategoryExists = categories.some(
@@ -67,13 +64,21 @@ export const MenuCategories = () => {
     }
   }, [categories, state.category]);
 
-  const setOutletTab = (outletId?: string) => {
+  // Each point of sale toggles on its own; several can be on at once.
+  const toggleOutletTab = (outletId: string) => {
     setMenuSearch('');
+    const next = new Set(activeOutletIds);
+    if (next.has(outletId)) {
+      next.delete(outletId);
+    } else {
+      next.add(outletId);
+    }
     setPage((prev) => ({
       ...prev,
       menuConfig: {
         ...prev.menuConfig,
-        outletTab: outletId,
+        outletTab: undefined,
+        outletTabs: [...next],
       },
     }));
   };
@@ -87,22 +92,9 @@ export const MenuCategories = () => {
     <div data-testid="menu-categories">
       {outletTabs.length > 0 && (
         <ScrollContainer className="flex flex-row gap-1 p-1 pb-0" mouseScroll>
-          <button
-            type="button"
-            data-testid="menu-outlet-tab"
-            aria-pressed={!activeOutletId}
-            className={cn(
-              categoryClasses,
-              !activeOutletId ? 'bg-gradient' : 'bg-white border-3 border-transparent select-none'
-            )}
-            onClick={() => setOutletTab(undefined)}
-            style={categoryStyles}
-          >
-            {t('outlets.all')}
-          </button>
           {outletTabs.map((outlet) => {
             const outletId = recordIdToString(outlet.id);
-            const pressed = activeOutletId === outletId;
+            const pressed = activeOutletIds.has(outletId);
             return (
               <button
                 key={outletId}
@@ -111,9 +103,9 @@ export const MenuCategories = () => {
                 aria-pressed={pressed}
                 className={cn(
                   categoryClasses,
-                  pressed ? 'bg-gradient' : 'bg-white border-3 border-transparent select-none'
+                  pressed ? '!bg-black !text-white border-3 border-black' : 'bg-white border-3 border-transparent select-none'
                 )}
-                onClick={() => setOutletTab(outletId)}
+                onClick={() => toggleOutletTab(outletId)}
                 style={categoryStyles}
               >
                 {outlet.name}
