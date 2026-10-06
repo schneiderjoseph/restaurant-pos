@@ -120,17 +120,6 @@
       "caption": "Tarjeta de seguridad de sesión (todo el local)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Salida automática",
-      "steps": [
-        "Active salida automática.",
-        "Elija fin de turno, hora fija o ambos.",
-        "Guarde."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Tarjeta salida automática."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Mostrar precios con impuestos",
       "intro": "Cuando está activo, la UI puede mostrar precios con impuestos incluidos según la configuración fiscal.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Mostrar precios inclusivos."
-    },
-    {
-      "id": "inventory",
-      "title": "Ajustes de inventario",
-      "steps": [
-        "Configure preferencias de stock.",
-        "Guarde.",
-        "Documentos profundos en Inventario."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Tarjeta inventario."
     },
     {
       "id": "items-visibility",

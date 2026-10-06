@@ -1,6 +1,6 @@
 {
   "title": "Documentación POSR",
-  "intro": "Guías por rol para POSR. Elija la guía que coincida con su trabajo: personal de sala, gerente, inventario, contabilidad, RR. HH. o administrador.",
+  "intro": "Guías por rol para POSR. Elija la guía que corresponde a su puesto: personal de sala, gerente, contabilidad o administrador.",
   "toc": "Guías",
   "openGuide": "Abrir guía",
   "statusReady": "Lista",
@@ -16,17 +16,9 @@
       "title": "Guía del gerente",
       "intro": "Liderazgo de turno: resumen de ventas, cocina, delivery, cierre e informes operativos."
     },
-    "inventory": {
-      "title": "Guía de inventario",
-      "intro": "Existencias, compras, salidas, mermas y recuentos para el rol de almacén."
-    },
     "accounts": {
       "title": "Guía de contabilidad",
       "intro": "Libros contables, gastos y herramientas financieras del TPV."
-    },
-    "hr": {
-      "title": "Guía de RR. HH.",
-      "intro": "Personas: empleados, asistencia, ausencias, nómina, documentos, desempeño y distribución de propinas."
     },
     "admin": {
       "title": "Guía del administrador",

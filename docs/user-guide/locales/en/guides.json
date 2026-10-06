@@ -1,6 +1,6 @@
 {
   "title": "POSR Documentation",
-  "intro": "Role-based guides for POSR. Choose a guide that matches your job: floor staff, manager, inventory, accounts, HR, or administrator.",
+  "intro": "Role-based guides for POSR. Choose a guide that matches your job: floor staff, manager, accounts, or administrator.",
   "toc": "Guides",
   "openGuide": "Open guide",
   "statusReady": "Ready",
@@ -16,17 +16,9 @@
       "title": "Manager Guide",
       "intro": "Shift leadership: sales summary, kitchen board, delivery, closing, and operational reports."
     },
-    "inventory": {
-      "title": "Inventory Guide",
-      "intro": "Stock, purchases, issues, wastes, counts, kitchen reconciliation, production, and buffet."
-    },
     "accounts": {
       "title": "Accounts Guide",
       "intro": "Financial ledgers, expenses, and accounting-related POS tools."
-    },
-    "hr": {
-      "title": "HR Guide",
-      "intro": "People operations: employees, attendance, leave, payroll, documents, performance, and tip distribution."
     },
     "admin": {
       "title": "Administrator Guide",

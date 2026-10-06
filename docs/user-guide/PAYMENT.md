@@ -1,6 +1,6 @@
 # Payment screen
 
-The pay button on an order (Orders screen) opens a full-screen payment layout: order summary and adjustable totals on the left, an editor in the middle for tax/discount/coupon/service charge/tip/notes, and tender tools on the right.
+Pay now opens a full-screen payment layout: order summary and adjustable totals on the left, an editor in the middle for tax/discount/coupon/service charge/tip/notes, and tender tools on the right.
 
 ### Payment layout
 

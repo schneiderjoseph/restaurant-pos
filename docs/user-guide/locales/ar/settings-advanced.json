@@ -120,17 +120,6 @@
       "caption": "بطاقة أمان الجلسة (على مستوى المنشأة)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "الخروج التلقائي",
-      "steps": [
-        "فعّل الخروج التلقائي.",
-        "نهاية الوردية أو وقت محدد أو كلاهما.",
-        "احفظ."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "بطاقة الخروج التلقائي."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "عرض الأسعار شاملة الضريبة",
       "intro": "عند التمكين يمكن عرض أسعار شاملة الضريبة حسب الإعدادات الضريبية.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "الأسعار الشاملة."
-    },
-    {
-      "id": "inventory",
-      "title": "إعدادات المخزون",
-      "steps": [
-        "اضبط تفضيلات المخزون.",
-        "احفظ.",
-        "المستندات تحت المخزون."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "بطاقة المخزون."
     },
     {
       "id": "items-visibility",

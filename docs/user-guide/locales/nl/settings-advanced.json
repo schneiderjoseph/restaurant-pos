@@ -120,17 +120,6 @@
       "caption": "Kaart sessiebeveiliging (vestigingsbreed)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Auto uitklokken",
-      "steps": [
-        "Auto uitklokken aan.",
-        "Shift-einde, tijd of beide.",
-        "Opslaan."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Auto-uitklokkaart."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Prijs incl. btw tonen",
       "intro": "Toont waar mogelijk prijzen inclusief belasting.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Prijs incl. btw."
-    },
-    {
-      "id": "inventory",
-      "title": "Voorraadinstellingen",
-      "steps": [
-        "Voorraadvoorkeuren.",
-        "Opslaan.",
-        "Docs onder Voorraad."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Voorraadkaart."
     },
     {
       "id": "items-visibility",

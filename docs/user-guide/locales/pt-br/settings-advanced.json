@@ -120,17 +120,6 @@
       "caption": "Cartão segurança da sessão (estabelecimento inteiro)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Saída automática",
-      "steps": [
-        "Ative saída automática.",
-        "Escolha fim de turno, horário ou ambos.",
-        "Salve."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Cartão saída automática."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Mostrar preços com impostos",
       "intro": "Quando ativo, a UI pode mostrar preços com impostos conforme a configuração fiscal.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Preços com impostos."
-    },
-    {
-      "id": "inventory",
-      "title": "Configurações de estoque",
-      "steps": [
-        "Configure preferências de estoque.",
-        "Salve.",
-        "Documentos em Estoque."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Cartão estoque."
     },
     {
       "id": "items-visibility",

@@ -120,17 +120,6 @@
       "caption": "Session security card (venue-wide)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Auto clock-out",
-      "steps": [
-        "Enable automatic clock-out for labor accuracy.",
-        "Choose triggers: shift end, defined time, or both.",
-        "Save when finished."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Auto clock-out card."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Show inclusive prices",
       "intro": "When enabled, menu and order UI can display tax-inclusive prices according to venue tax configuration.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Inclusive price display toggle."
-    },
-    {
-      "id": "inventory",
-      "title": "Inventory settings",
-      "steps": [
-        "Configure inventory-related device preferences used by stock flows.",
-        "Save when finished.",
-        "Deep inventory documents live under the Inventory sidebar."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Inventory settings card."
     },
     {
       "id": "items-visibility",

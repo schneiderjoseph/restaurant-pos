@@ -14,10 +14,11 @@ The right-hand cart lists new lines (not yet sent) and previously ordered lines 
 
 *Cart panel with payment actions.*
 
-### Send, Cancel
+### Send, Pay now, Cancel
 
-1. **Send** (formerly “To kitchen”) saves the order and sends new items to kitchen workflows/print when configured (one KOT per station), then returns to the floor when tables are used.
-2. Cancel drops new cart lines (or returns) according to current cart rules.
+1. Send saves the order and sends new items to kitchen workflows/print when configured (one KOT per station), then returns to the floor when tables are used.
+2. Pay now saves the order if needed and opens the full payment screen (see the Payment chapter).
+3. Cancel drops new cart lines (or returns) according to current cart rules.
 
 ![Cart action buttons (highlighted).](images/en/cart-payment-actions.png)
 

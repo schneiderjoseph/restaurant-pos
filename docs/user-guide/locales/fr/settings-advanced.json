@@ -120,17 +120,6 @@
       "caption": "Carte sécurité de session (tout le site)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Pointage sortie auto",
-      "steps": [
-        "Activez la sortie auto.",
-        "Fin de shift, heure fixe ou les deux.",
-        "Enregistrez."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Carte sortie auto."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Prix TTC",
       "intro": "Affiche des prix TTC selon la config des taxes.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Prix TTC."
-    },
-    {
-      "id": "inventory",
-      "title": "Paramètres inventaire",
-      "steps": [
-        "Préférences stock.",
-        "Enregistrez.",
-        "Docs sous Inventaire."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Carte inventaire."
     },
     {
       "id": "items-visibility",

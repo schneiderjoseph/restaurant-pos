@@ -120,17 +120,6 @@
       "caption": "Scheda sicurezza sessione (sede intera)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Uscita automatica",
-      "steps": [
-        "Attiva uscita automatica.",
-        "Fine turno, orario o entrambi.",
-        "Salva."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Card uscita automatica."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Prezzi tasse incluse",
       "intro": "Mostra prezzi tasse incluse secondo la configurazione fiscale.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Prezzi tasse incluse."
-    },
-    {
-      "id": "inventory",
-      "title": "Impostazioni inventario",
-      "steps": [
-        "Preferenze stock.",
-        "Salva.",
-        "Doc in Magazzino."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Card inventario."
     },
     {
       "id": "items-visibility",

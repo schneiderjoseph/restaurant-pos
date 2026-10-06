@@ -1,18 +1,17 @@
 {
-  "title": "القفل وتسجيل الخروج والساعة",
-  "intro": "أسفل الشريط الجانبي: قفل، خروج، ساعة وإعدادات. قفل الخمول يتبع أمان الجلسة تحت الإدارة → الإعدادات العامة.",
+  "title": "قفل الجلسة وتسجيل الخروج",
+  "intro": "استخدم الأزرار أسفل الشريط الجانبي لقفل الجهاز أو تسجيل الخروج أو فتح الإعدادات. يتبع القفل/الخروج عند الخمول إعداد أمان الجلسة في الإدارة ← الإعدادات العامة.",
   "sections": [
     {
       "id": "controls",
       "title": "عناصر تحكم الجلسة",
       "steps": [
         "مفتاح: الإعدادات.",
-        "مستخدم: الساعة.",
         "قفل: يُقفل.",
         "طاقة: خروج."
       ],
       "image": "session-sidebar-controls.png",
-      "caption": "Settings, clock, lock, and logout on the sidebar."
+      "caption": "الإعدادات والقفل وتسجيل الخروج في الشريط الجانبي."
     },
     {
       "id": "lock",
@@ -25,39 +24,6 @@
       "image": "session-locked.png",
       "caption": "System locked banner on login.",
       "intro": "استراحة قصيرة؛ نفس المستخدم فقط يفتح."
-    },
-    {
-      "id": "clock",
-      "title": "شاشة الساعة",
-      "steps": [
-        "افتح الساعة.",
-        "يلزم تسجيل دخول مفتوح.",
-        "راجع المبيعات ووقت الدخول."
-      ],
-      "image": "session-clock.png",
-      "caption": "Clock screen overview.",
-      "intro": "تسجيل دخول/خروج ووردية ووقت ومؤشرات."
-    },
-    {
-      "id": "clock-detail",
-      "title": "المستخدم والوردية والخروج",
-      "steps": [
-        "المستخدم والوردية.",
-        "الوقت المنقضي.",
-        "الخروج عند نهاية الوردية."
-      ],
-      "image": "session-clock-detail.png",
-      "caption": "Session panel with Clock Out."
-    },
-    {
-      "id": "clock-sales",
-      "title": "ملخص مبيعات الجلسة",
-      "steps": [
-        "مؤشرات الجلسة.",
-        "تحقق قبل الخروج."
-      ],
-      "image": "session-clock-sales.png",
-      "caption": "Sale summary metrics."
     },
     {
       "id": "idle",

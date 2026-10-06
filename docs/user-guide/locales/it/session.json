@@ -1,18 +1,17 @@
 {
-  "title": "Blocco, logout e orologio",
-  "intro": "Controlli in basso: blocca, esci, orologio e Impostazioni. Il blocco idle segue Sicurezza sessione in Gestione → Impostazioni generali.",
+  "title": "Blocco e disconnessione",
+  "intro": "Usa i controlli in basso nella barra laterale per bloccare il terminale, disconnetterti o aprire le Impostazioni. Il blocco/la disconnessione per inattività segue la Sicurezza sessione in Gestisci → Impostazioni generali.",
   "sections": [
     {
       "id": "controls",
       "title": "Controlli sessione",
       "steps": [
         "Chiave: Impostazioni.",
-        "Utente: Orologio.",
         "Lucchetto: blocca.",
         "Power: logout."
       ],
       "image": "session-sidebar-controls.png",
-      "caption": "Settings, clock, lock, and logout on the sidebar."
+      "caption": "Impostazioni, blocco e disconnessione nella barra laterale."
     },
     {
       "id": "lock",
@@ -25,39 +24,6 @@
       "image": "session-locked.png",
       "caption": "System locked banner on login.",
       "intro": "Pause brevi; sblocca solo lo stesso utente."
-    },
-    {
-      "id": "clock",
-      "title": "Schermata orologio",
-      "steps": [
-        "Apri Orologio.",
-        "Serve clock-in aperto.",
-        "Controlla vendite e ora di entrata."
-      ],
-      "image": "session-clock.png",
-      "caption": "Clock screen overview.",
-      "intro": "Timbratura, turno, tempo e metriche."
-    },
-    {
-      "id": "clock-detail",
-      "title": "Utente, turno e uscita",
-      "steps": [
-        "Utente e turno.",
-        "Tempo trascorso.",
-        "Uscita a fine turno."
-      ],
-      "image": "session-clock-detail.png",
-      "caption": "Session panel with Clock Out."
-    },
-    {
-      "id": "clock-sales",
-      "title": "Riepilogo vendite sessione",
-      "steps": [
-        "Metriche di sessione.",
-        "Controlla prima di uscire."
-      ],
-      "image": "session-clock-sales.png",
-      "caption": "Sale summary metrics."
     },
     {
       "id": "idle",

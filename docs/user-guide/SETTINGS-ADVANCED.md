@@ -112,16 +112,6 @@ One setting for every user and terminal. Until an admin saves it, the default ap
 
 *Session security card (venue-wide).*
 
-### Auto clock-out
-
-1. Enable automatic clock-out for labor accuracy.
-2. Choose triggers: shift end, defined time, or both.
-3. Save when finished.
-
-![Auto clock-out card.](images/en/settings-adv-auto-clock-out.png)
-
-*Auto clock-out card.*
-
 ### Show inclusive prices
 
 When enabled, menu and order UI can display tax-inclusive prices according to venue tax configuration.
@@ -133,16 +123,6 @@ When enabled, menu and order UI can display tax-inclusive prices according to ve
 ![Inclusive price display toggle.](images/en/settings-show-inclusive-prices.png)
 
 *Inclusive price display toggle.*
-
-### Inventory settings
-
-1. Configure inventory-related device preferences used by stock flows.
-2. Save when finished.
-3. Deep inventory documents live under the Inventory sidebar.
-
-![Inventory settings card.](images/en/settings-adv-inventory.png)
-
-*Inventory settings card.*
 
 ### Items visibility
 

@@ -120,17 +120,6 @@
       "caption": "Karte Sitzungssicherheit (standortweit)."
     },
     {
-      "id": "auto-clock-out",
-      "title": "Auto-Ausstempeln",
-      "steps": [
-        "Auto-Ausstempeln an.",
-        "Schichtende, Uhrzeit oder beides.",
-        "Speichern."
-      ],
-      "image": "settings-adv-auto-clock-out.png",
-      "caption": "Auto-Ausstempel-Karte."
-    },
-    {
       "id": "show-inclusive-prices",
       "title": "Inklusive Preise anzeigen",
       "intro": "UI kann steuerinklusive Preise gemäß Steuerkonfiguration anzeigen.",
@@ -141,17 +130,6 @@
       ],
       "image": "settings-show-inclusive-prices.png",
       "caption": "Inklusive Preise."
-    },
-    {
-      "id": "inventory",
-      "title": "Inventareinstellungen",
-      "steps": [
-        "Bestandspräferenzen.",
-        "Speichern.",
-        "Docs unter Inventar."
-      ],
-      "image": "settings-adv-inventory.png",
-      "caption": "Inventar-Karte."
     },
     {
       "id": "items-visibility",
