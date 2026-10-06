@@ -39,6 +39,7 @@ import {
 } from '@/lib/resort-floor-tables.ts';
 import { usesAsiPmsRooms } from '@/lib/pos-mode.ts';
 import { formatTableLabel } from '@/lib/table-label.ts';
+import { isHotelRoomTable } from '@/lib/kitchen-ticket-label.ts';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { cn, toRecordId } from '@/lib/utils.ts';
@@ -77,9 +78,11 @@ export const GuestLookup = () => {
   const [folio, setFolio] = useState<FolioOrder[]>([]);
   /** Only set when user clicks "Nouveau code" — otherwise preview is stable from the name. */
   const [codeOverride, setCodeOverride] = useState<string | null>(null);
-  const [tableNumber, setTableNumber] = useState(state.table?.number ?? '');
+  // A hotel room is not a table: it never pre-fills the table-number field.
+  const initialTableNumber = isHotelRoomTable(state.table) ? '' : (state.table?.number ?? '');
+  const [tableNumber, setTableNumber] = useState(initialTableNumber);
   // Table number and zone are optional: folded away until the server asks for them.
-  const [showPlace, setShowPlace] = useState(Boolean(state.table?.number));
+  const [showPlace, setShowPlace] = useState(Boolean(initialTableNumber));
   // Phone, ID document and note are read-only until the pencil is tapped.
   const [editInfo, setEditInfo] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -375,8 +378,9 @@ export const GuestLookup = () => {
     setEditingPhone(false);
     setEditingIdDocument(false);
     setEditingNote(false);
+    // The field holds a dining table only; an empty field sends the order to the guest's room.
     if (customer.room) {
-      setTableNumber(String(customer.room));
+      setTableNumber('');
     }
     setState((prev) => ({
       ...prev,
