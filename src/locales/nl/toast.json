@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "Geen artikelen gevonden voor productmix.",
     "noTimeEntries": "Geen voltooide tijdregistraties gevonden voor deze datum.",
-    "noServerSales": "Geen serververkoopgegevens gevonden voor deze datum."
+    "noServerSales": "Geen serververkoopgegevens gevonden voor deze datum.",
+    "loadFailed": "Bestellingen voor deze datum konden niet worden geladen."
   },
   "clock": {
     "noActiveEntry": "Geen actieve tijdregistratie gevonden",

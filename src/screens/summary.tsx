@@ -1,9 +1,8 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Order as OrderModel, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {DateValue} from "react-aria-components";
-import {getLocalTimeZone, today} from "@internationalized/date";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faArrowRight, faPrint, faSpinner} from "@fortawesome/free-solid-svg-icons";
 import {Calendar} from "@/components/common/antd/calendar.tsx";
@@ -24,7 +23,8 @@ import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { useActionVisible } from "@/hooks/useActionVisible.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import {calendarDateToAppDateTime, toJsDate, toSurrealDateTime} from "@/lib/datetime.ts";
+import {getToday} from "@/utils/date.ts";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
@@ -63,6 +63,12 @@ const getOrderSale = (order: OrderModel): number => {
   return safeNumber(itemsTotal + extrasTotal + taxAmount + serviceAmount - discountAmount);
 };
 
+/** [start, end) of the selected calendar day in the app timezone (SurrealDB formats datetimes in UTC). */
+const getDayBounds = (date: DateValue) => {
+  const dayStart = calendarDateToAppDateTime({year: date.year, month: date.month, day: date.day});
+  return {dayStart, dayEnd: dayStart.plus({days: 1})};
+};
+
 const formatDuration = (ms: number): string => {
   const totalMinutes = Math.max(0, Math.floor(ms / 60000));
   const hours = Math.floor(totalMinutes / 60);
@@ -82,20 +88,25 @@ export const Summary = () => {
   const canPrintServerSales = isVisible("summary.server_sales");
   const showPrintActions = canPrintSummary || canPrintProductMix || canPrintServerSales;
 
-  const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
+  const [date, setDate] = useState<DateValue>(getToday());
   const [orders, setOrders] = useState<OrderModel[]>([]);
+  // Query params the loaded `orders` were fetched with (identity-compared with the current day's).
+  const [loadedParams, setLoadedParams] = useState<object | null>(null);
   const [isLoading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [isPrintingMix, setIsPrintingMix] = useState(false);
   const [isPrintingServerSales, setIsPrintingServerSales] = useState(false);
+  const fetchSeq = useRef(0);
 
-  const orderFilters = useMemo(() => {
-    const f = [`status = '${OrderStatus.Paid}'`];
-
-    if (date) {
-      f.push(`(time::format(created_at, "%Y-%m-%d") = "${date?.toString()}")`);
-    }
-
-    return f;
+  const {orderFilters, orderFilterParams} = useMemo(() => {
+    const {dayStart, dayEnd} = getDayBounds(date);
+    return {
+      orderFilters: [`status = '${OrderStatus.Paid}'`, `created_at >= $dayStart`, `created_at < $dayEnd`],
+      orderFilterParams: {
+        dayStart: toSurrealDateTime(dayStart),
+        dayEnd: toSurrealDateTime(dayEnd),
+      },
+    };
   }, [date]);
 
   const ordersQb = useQueryBuilder(
@@ -105,38 +116,62 @@ export const Summary = () => {
 
   useEffect(() => {
     ordersQb.setWheres(orderFilters.map(item => `and ${item}`));
-  }, [orderFilters]);
+    ordersQb.setParameters(orderFilterParams);
+  }, [orderFilters, orderFilterParams]);
 
   const fetchOrders = useCallback(async () => {
+    // The query builder picks up new params one render after a date change; only query
+    // once it holds the params for the selected day.
+    const params = ordersQb.parameters as typeof orderFilterParams | Record<string, never>;
+    if (!params?.dayStart) return;
+    const seq = ++fetchSeq.current;
     setLoading(true);
-    const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
-
-    setOrders(listQuery as OrderModel[]);
-    setLoading(false);
+    setLoadFailed(false);
+    try {
+      const [listQuery] = await db.query(ordersQb.queryString, params);
+      if (seq !== fetchSeq.current) return;
+      setOrders(Array.isArray(listQuery) ? listQuery as OrderModel[] : []);
+      setLoadedParams(params);
+    } catch (error) {
+      if (seq !== fetchSeq.current) return;
+      console.error('Summary: failed to load orders', error);
+      setOrders([]);
+      setLoadedParams(null);
+      setLoadFailed(true);
+      toast.error(t("toast:summary.loadFailed"));
+    } finally {
+      if (seq === fetchSeq.current) setLoading(false);
+    }
+    // `db` is left out on purpose: useDB() returns a new object every render.
   }, [ordersQb.queryString, ordersQb.parameters]);
 
   useEffect(() => {
-    fetchOrders();
-  }, [ordersQb.queryString, ordersQb.parameters]);
+    void fetchOrders();
+  }, [fetchOrders]);
+
+  // Prints and the on-screen report only use orders loaded for the selected day.
+  const ordersReady = !isLoading && loadedParams === orderFilterParams;
+  const todayDate = getToday();
 
   const handlePrintSummary = useCallback(() => {
+    if (!ordersReady) return;
     void dispatchPrint(db, PRINT_TYPE.summary, {
       orders,
       date: date.toString(),
     }, {userId: page?.user?.id});
-  }, [db, orders, date, page?.user?.id]);
+  }, [db, orders, ordersReady, date, page?.user?.id]);
 
   const handlePrintProductMix = useCallback(async () => {
+    if (!ordersReady) return;
     setIsPrintingMix(true);
     try {
       const dishMap = new Map<string, { name: string; qty: number; total: number }>();
 
       (orders || []).forEach((order) => {
         (getOrderFilteredItems(order) || []).forEach((item) => {
-          const name = item?.item?.name || 'Unknown Item';
+          const key = String(item?.item?.name || t("summary:report.unknownItem"));
           const qty = safeNumber(item?.quantity);
           const total = safeNumber(calculateOrderItemPrice(item));
-          const key = String(item.item.name);
           const prev = dishMap.get(key) || {name: key.substring(0, 12), qty: 0, total: 0};
           prev.qty += qty;
           prev.total += total;
@@ -184,7 +219,7 @@ export const Summary = () => {
         }, {text: withCurrency(undefined) + formatNumber(totalSale), align: 'RIGHT', width: 0.50, style: 'B'}],
       ];
 
-      void dispatchPrint(db, PRINT_TYPE.summary, {
+      await dispatchPrint(db, PRINT_TYPE.summary, {
         printType: 'table',
         rows: tableRows,
         cut: true,
@@ -192,29 +227,27 @@ export const Summary = () => {
     } finally {
       setIsPrintingMix(false);
     }
-  }, [db, date, orders, page?.user?.id]);
+  }, [db, date, orders, ordersReady, page?.user?.id, t]);
 
   const handlePrintServerSales = useCallback(async () => {
+    if (!ordersReady) return;
     setIsPrintingServerSales(true);
     try {
 
       const reportDate = date.toString();
+      const {dayStart, dayEnd} = getDayBounds(date);
+      // Shifts started that day (app timezone), including ones still open.
       const [entryRes] = await db.query(
         `SELECT *
          FROM ${Tables.time_entries}
-         WHERE clock_out != NONE
-           AND time::format(clock_in, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") = $date
-           AND time::format(clock_out
-             , "${import.meta.env.VITE_DB_DATABASE_FORMAT}") = $date
+         WHERE clock_in >= $dayStart
+           AND clock_in < $dayEnd
              FETCH user`,
-        {date: reportDate}
+        {dayStart: toSurrealDateTime(dayStart), dayEnd: toSurrealDateTime(dayEnd)}
       );
 
       const entries = (Array.isArray(entryRes) ? entryRes : []) as TimeEntry[];
-      if (entries.length === 0) {
-        toast.error(t("toast:summary.noTimeEntries"));
-        return;
-      }
+      const nowMs = Date.now();
 
       const perUser = new Map<string, {
         name: string;
@@ -223,25 +256,35 @@ export const Summary = () => {
         checks: number;
         sales: number
       }>();
+      const ensureRow = (user: unknown) => {
+        const userId = toIdString(user);
+        if (!userId) return null;
+        let row = perUser.get(userId);
+        if (!row) {
+          row = {
+            name: getUserDisplayName(user, t("summary:unknown.user")).substring(0, 12),
+            durationMs: 0,
+            guests: 0,
+            checks: 0,
+            sales: 0,
+          };
+          perUser.set(userId, row);
+        }
+        return row;
+      };
+
       entries.forEach((entry) => {
-        const userId = toIdString(entry.user);
-        if (!userId) return;
-        const current = perUser.get(userId) || {
-          name: getUserDisplayName(entry.user, t("summary:unknown.user")).substring(0, 12),
-          durationMs: 0,
-          guests: 0,
-          checks: 0,
-          sales: 0,
-        };
+        const current = ensureRow(entry.user);
+        if (!current) return;
         const inAt = entry.clock_in ? toJsDate(entry.clock_in).getTime() : 0;
-        const outAt = entry.clock_out ? toJsDate(entry.clock_out).getTime() : 0;
+        // Open shift: count up to now.
+        const outAt = entry.clock_out ? toJsDate(entry.clock_out).getTime() : nowMs;
         if (inAt > 0 && outAt > inAt) current.durationMs += (outAt - inAt);
-        perUser.set(userId, current);
       });
 
+      // Every paid order counts, even when its server never clocked in, so the total matches the day.
       (orders || []).forEach((order) => {
-        const userId = toIdString(order.user);
-        const row = perUser.get(userId);
+        const row = ensureRow(order.user);
         if (!row) return;
         row.checks += 1;
         row.guests += safeNumber(order.covers);
@@ -299,15 +342,18 @@ export const Summary = () => {
         }, {text: withCurrency(undefined) + formatNumber(totals.sales), align: 'RIGHT', width: 0.22, style: 'B'}],
       ];
 
-      void dispatchPrint(db, PRINT_TYPE.summary, {
+      await dispatchPrint(db, PRINT_TYPE.summary, {
         printType: 'table',
         rows: tableRows,
         cut: true,
       }, {userId: page?.user?.id});
+    } catch (error) {
+      console.error('Summary: server sales print failed', error);
+      toast.error(t("common:toast.printError"));
     } finally {
       setIsPrintingServerSales(false);
     }
-  }, [db, date, orders, page?.user?.id]);
+  }, [db, date, orders, ordersReady, page?.user?.id, t]);
 
   return (
     <Layout overflowHidden>
@@ -319,7 +365,7 @@ export const Summary = () => {
               <Calendar
                 onChange={setDate}
                 value={date}
-                maxValue={today(getLocalTimeZone())}
+                maxValue={todayDate}
               />
             </div>
             <div className="flex gap-3 mt-3">
@@ -336,6 +382,7 @@ export const Summary = () => {
                 {t("summary:screen.previousDate")}</Button>
               <Button
                 rightIcon={faArrowRight} size="lg" variant="primary" filled
+                disabled={date.compare(todayDate) >= 0}
                 onClick={() => {
                   setDate(prevState => {
                     return prevState.add({
@@ -352,6 +399,7 @@ export const Summary = () => {
                   <Button
                     icon={faPrint}
                     variant="lg"
+                    disabled={!ordersReady}
                     onClick={() => {
                       protectAction(handlePrintSummary, {
                         description: t("summary:security.printSummaryDescription"),
@@ -365,6 +413,7 @@ export const Summary = () => {
                     icon={faPrint}
                     variant="lg"
                     isLoading={isPrintingMix}
+                    disabled={!ordersReady}
                     onClick={() => {
                       protectAction(handlePrintProductMix, {
                         description: t("summary:security.productMixDescription"),
@@ -380,6 +429,7 @@ export const Summary = () => {
                     icon={faPrint}
                     variant="lg"
                     isLoading={isPrintingServerSales}
+                    disabled={!ordersReady}
                     onClick={() => {
                       protectAction(handlePrintServerSales, {
                         description: t("summary:security.serverSalesDescription"),
@@ -394,7 +444,11 @@ export const Summary = () => {
             )}
           </div>
           <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
-            {isLoading ? (
+            {loadFailed ? (
+              <div className="flex w-full justify-center items-center flex-1 text-neutral-500">
+                {t("toast:summary.loadFailed")}
+              </div>
+            ) : !ordersReady ? (
               <div className="flex h-screen w-full justify-center items-center flex-1">
                 <FontAwesomeIcon icon={faSpinner} spin size="5x"/>
               </div>

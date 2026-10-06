@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "Ürün karışımı için öğe bulunamadı.",
     "noTimeEntries": "Bu tarih için tamamlanmış zaman kaydı bulunamadı.",
-    "noServerSales": "Bu tarih için garson satış verisi bulunamadı."
+    "noServerSales": "Bu tarih için garson satış verisi bulunamadı.",
+    "loadFailed": "Bu tarihin siparişleri yüklenemedi."
   },
   "clock": {
     "noActiveEntry": "Aktif zaman kaydı bulunamadı",

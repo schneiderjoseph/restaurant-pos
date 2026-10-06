@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "Keine Artikel für Produktmix gefunden.",
     "noTimeEntries": "Keine abgeschlossenen Zeiteinträge für dieses Datum gefunden.",
-    "noServerSales": "Keine Kellnerumsatzdaten für dieses Datum gefunden."
+    "noServerSales": "Keine Kellnerumsatzdaten für dieses Datum gefunden.",
+    "loadFailed": "Bestellungen für dieses Datum konnten nicht geladen werden."
   },
   "clock": {
     "noActiveEntry": "Kein aktiver Zeiteintrag gefunden",

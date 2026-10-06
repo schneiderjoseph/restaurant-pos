@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "No items found for product mix.",
     "noTimeEntries": "No completed time entries found for this date.",
-    "noServerSales": "No server sales data found for this date."
+    "noServerSales": "No server sales data found for this date.",
+    "loadFailed": "Could not load orders for this date."
   },
   "clock": {
     "noActiveEntry": "No active time entry found",

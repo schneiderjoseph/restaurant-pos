@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "Nenhum item encontrado para o mix de produtos.",
     "noTimeEntries": "Nenhum registro de ponto concluído encontrado para esta data.",
-    "noServerSales": "Nenhum dado de vendas por garçom encontrado para esta data."
+    "noServerSales": "Nenhum dado de vendas por garçom encontrado para esta data.",
+    "loadFailed": "Não foi possível carregar os pedidos desta data."
   },
   "clock": {
     "noActiveEntry": "Nenhum registro de ponto ativo encontrado",

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path"
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -8,8 +8,28 @@ const devPort = Number(process.env.POSR_DEV_PORT || 5173)
 const gatewayPort = process.env.POSR_GATEWAY_PORT || '3142'
 const printPort = process.env.POSR_PRINT_PORT || '3133'
 
+// Date formats the app interpolates into SurrealQL and Luxon calls. A .env missing them
+// bakes "undefined" into queries and silently empties date-filtered reports.
+const DATE_FORMAT_DEFAULTS: Record<string, string> = {
+  VITE_DATE_FORMAT: 'yyyy-MM-dd',
+  VITE_TIME_FORMAT: 'HH:mm',
+  VITE_DATE_TIME_FORMAT: 'yyyy-MM-dd HH:mm',
+  VITE_DATE_HUMAN_FORMAT: 'ff',
+  VITE_DB_DATABASE_DATE_FORMAT: '%Y-%m-%d',
+  VITE_DB_DATABASE_FORMAT: '%Y-%m-%d %H:%M',
+}
+
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_')
+  const dateFormatDefines = Object.fromEntries(
+    Object.entries(DATE_FORMAT_DEFAULTS)
+      .filter(([key]) => !env[key])
+      .map(([key, value]) => [`import.meta.env.${key}`, JSON.stringify(value)])
+  )
+
+  return {
+  define: dateFormatDefines,
   plugins: [
     react(),
     visualizer({
@@ -79,4 +99,5 @@ export default defineConfig({
       },
     },
   },
+}
 })

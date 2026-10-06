@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "Nessun articolo trovato per il product mix.",
     "noTimeEntries": "Nessuna timbratura completata trovata per questa data.",
-    "noServerSales": "Nessun dato vendite per cameriere trovato per questa data."
+    "noServerSales": "Nessun dato vendite per cameriere trovato per questa data.",
+    "loadFailed": "Impossibile caricare gli ordini per questa data."
   },
   "clock": {
     "noActiveEntry": "Nessuna timbratura attiva trovata",

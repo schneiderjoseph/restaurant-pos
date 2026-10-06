@@ -65,7 +65,8 @@
   "summary": {
     "noProductMix": "No se encontraron artículos para la mezcla de productos.",
     "noTimeEntries": "No se encontraron registros de tiempo completados para esta fecha.",
-    "noServerSales": "No se encontraron datos de ventas del servidor para esta fecha."
+    "noServerSales": "No se encontraron datos de ventas del servidor para esta fecha.",
+    "loadFailed": "No se pudieron cargar los pedidos de esta fecha."
   },
   "clock": {
     "noActiveEntry": "No se encontró registro de tiempo activo",
