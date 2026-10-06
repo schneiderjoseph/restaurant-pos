@@ -211,11 +211,14 @@ export const MenuDish = ({
         }}
       >
         <div
-          className="flex-1 bg-white min-w-0 min-h-0 overflow-hidden rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-neutral-900 active:text-warning-500"
+          className="flex-1 bg-white min-w-0 min-h-0 overflow-hidden rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-neutral-900 active:text-warning-500 relative"
           style={{
             '--padding': '0'
           } as any}
         >
+          <span className="absolute top-0 right-0 z-10 bg-neutral-900 text-white rounded-bl-xl rounded-tr-xl px-2.5 py-1 text-sm sm:text-base font-bold leading-none tabular-nums shadow-sm">
+            {withCurrency(price)}
+          </span>
           {showDishPhotos && (
             <div className="flex-shrink-0 flex justify-start">
               <img
@@ -225,26 +228,23 @@ export const MenuDish = ({
                 className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
             </div>
           )}
-          <div className="flex flex-1 flex-col px-3 py-2 min-w-0 min-h-0 overflow-hidden justify-center gap-1">
+          <div className="flex flex-1 flex-col px-3 py-2 pr-16 sm:pr-20 min-w-0 min-h-0 overflow-hidden justify-center gap-1">
             <h6
               className="text-ellipsis line-clamp-2 min-h-0 shrink break-words text-pretty text-neutral-900 font-semibold leading-snug text-sm sm:text-base"
               title={item.name}
             >
               {item.name || item.number || '—'}
             </h6>
-            <span className="flex flex-row gap-2 flex-nowrap items-center shrink-0 min-w-0 overflow-hidden whitespace-nowrap">
-              {showDishNumber && item.number != null && String(item.number).trim() !== '' && (
+            {showDishNumber && item.number != null && String(item.number).trim() !== '' && (
+              <span className="flex flex-row gap-2 flex-nowrap items-center shrink-0 min-w-0 overflow-hidden whitespace-nowrap">
                 <span
                   className="bg-primary-100 text-primary-700 rounded-full border-2 border-primary-300 py-0.5 px-2 text-xs font-bold truncate min-w-0"
                   title={String(item.number)}
                 >
                   #{String(item.number).trim()}
                 </span>
-              )}
-              <span className="bg-neutral-900 text-warning-500 rounded-full border-2 border-warning-500 py-0.5 px-2 text-xs font-bold shrink-0">
-                {withCurrency(price)}
               </span>
-            </span>
+            )}
           </div>
         </div>
         {Number(dishCount(item)) > 0 && (
