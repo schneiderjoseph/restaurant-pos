@@ -22,7 +22,11 @@
     @include gradient-background;
   }
 }
+// Sea waves: blues with a thin white foam crest roll sideways along the border.
+// The border layer is twice as wide and holds the same wave twice, so sliding it
+// by one wave (sea-wave-roll) loops without a jump.
 @mixin gradient-background{
+  --overlay: rgba(236, 248, 255, 0.92);
   background:
           linear-gradient(
                           to bottom,
@@ -30,16 +34,25 @@
                           var(--overlay)
           )
           padding-box,
-          conic-gradient(
-                          from var(--bg-angle),
-                          theme('colors.danger.500'),
-                          theme('colors.warning.500'),
-                          theme('colors.success.500'),
-                          theme('colors.info.500'),
-                          theme('colors.warning.500'),
-                          theme('colors.danger.500')
+          linear-gradient(
+                          110deg,
+                          theme('colors.info.700') 0%,
+                          theme('colors.info.500') 10%,
+                          theme('colors.info.300') 18%,
+                          theme('colors.white') 22%,
+                          theme('colors.info.300') 26%,
+                          theme('colors.info.600') 37%,
+                          theme('colors.info.700') 50%,
+                          theme('colors.info.500') 60%,
+                          theme('colors.info.300') 68%,
+                          theme('colors.white') 72%,
+                          theme('colors.info.300') 76%,
+                          theme('colors.info.600') 87%,
+                          theme('colors.info.700') 100%
           )
           border-box;
-  animation: bg-angle-spin var(--duration) infinite linear;
+  background-size: 100% 100%, 200% 100%;
+  box-shadow: 0 0 10px rgba(48, 198, 232, 0.35);
+  animation: sea-wave-roll var(--duration) infinite linear;
 }
 

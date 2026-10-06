@@ -926,6 +926,16 @@ table th {
   }
 }
 
+/** Rolls the gradient-background waves by one wave (half the 200% layer). */
+@keyframes sea-wave-roll {
+  from {
+    background-position: 0 0, 0% 50%;
+  }
+  to {
+    background-position: 0 0, 100% 50%;
+  }
+}
+
 
 
 @keyframes category-gradient {
