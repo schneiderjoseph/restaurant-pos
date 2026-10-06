@@ -228,11 +228,13 @@ export const MenuDish = ({
                 className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
             </div>
           )}
-          <div className="flex flex-1 flex-col px-3 py-2 pr-16 sm:pr-20 min-w-0 min-h-0 overflow-hidden justify-center gap-1">
+          <div className="flex flex-1 flex-col px-3 py-2 min-w-0 min-h-0 overflow-hidden justify-center gap-1">
             <h6
-              className="text-ellipsis line-clamp-2 min-h-0 shrink break-words text-pretty text-neutral-900 font-semibold leading-snug text-sm sm:text-base"
+              className="max-h-[4.125em] overflow-hidden min-h-0 shrink break-words text-pretty text-neutral-900 font-semibold leading-snug text-sm sm:text-base"
               title={item.name}
             >
+              {/* Room for the price badge on the first line only: the rest of the name uses the full width. */}
+              <span aria-hidden className="float-right w-12 sm:w-16 h-[1.1em]" />
               {item.name || item.number || '—'}
             </h6>
             {showDishNumber && item.number != null && String(item.number).trim() !== '' && (
