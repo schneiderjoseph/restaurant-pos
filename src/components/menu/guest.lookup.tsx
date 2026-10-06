@@ -11,7 +11,6 @@ import { Button } from '@/components/common/input/button.tsx';
 import { getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
 import {
   formatGuestLabel,
-  guestCodeLabel,
   orderZoneLabel,
   generateWalkInGuestCode,
   canRegisterGuestFromSearch,
@@ -32,7 +31,6 @@ import {
   canEditCustomerIdentity,
   createWalkInCustomer,
   customerHistoryIds,
-  customerNumberLabel,
   CustomerIdDocumentTakenError,
   findWalkInMatches,
   LAST_ORDER_AT,
@@ -97,8 +95,6 @@ export const GuestLookup = () => {
   const [loadingGuests, setLoadingGuests] = useState(false);
   const [selected, setSelected] = useState<Customer | undefined>(state.customer);
   const [folio, setFolio] = useState<FolioOrder[]>([]);
-  /** Only set when user clicks "Nouveau code" — otherwise preview is stable from the name. */
-  const [codeOverride, setCodeOverride] = useState<string | null>(null);
   // A hotel room is not a table: it never pre-fills the table-number field.
   const initialTableNumber = isHotelRoomTable(state.table) ? '' : (state.table?.number ?? '');
   const [tableNumber, setTableNumber] = useState(initialTableNumber);
@@ -144,16 +140,9 @@ export const GuestLookup = () => {
       })
     : t('menu:guest.noOrders');
 
-  const displayCode = useMemo(() => {
-    if (codeOverride) {
-      return codeOverride;
-    }
-    return previewGuestCode(search.trim());
-  }, [codeOverride, search]);
+  const displayCode = useMemo(() => previewGuestCode(search.trim()), [search]);
 
   useEffect(() => {
-    // Name changed → drop manual override so the stable preview tracks the typed name.
-    setCodeOverride(null);
     setRegisterOpen(false);
   }, [search]);
 
@@ -725,13 +714,6 @@ export const GuestLookup = () => {
               const note = guest.notes?.trim();
               const hasAllergies = (guest.allergies?.length ?? 0) > 0;
               const metaParts: string[] = [];
-              // The number tells two clients of the same name apart.
-              if (customerNumberLabel(guest)) {
-                metaParts.push(customerNumberLabel(guest));
-              }
-              if (guest.guest_code && guest.name?.trim()) {
-                metaParts.push(`#${guestCodeLabel(guest)}`);
-              }
               if (guest.phone != null && String(guest.phone).trim()) {
                 metaParts.push(displayPhone(guest.phone));
               }
@@ -823,14 +805,6 @@ export const GuestLookup = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
-                <div className="flex-1 min-w-[140px]">
-                  <Input
-                    label={t('menu:guest.code')}
-                    value={displayCode}
-                    readOnly
-                    data-testid="guest-walkin-code"
-                  />
-                </div>
                 <div className="flex-[2] min-w-[260px]">
                   <PhoneInput
                     label={t('menu:guest.phone')}
@@ -864,15 +838,6 @@ export const GuestLookup = () => {
                     data-testid="guest-walkin-id-document"
                   />
                 </div>
-                <Button
-                  variant="neutral"
-                  flat
-                  className="min-h-[48px]"
-                  onClick={() => setCodeOverride(generateWalkInGuestCode(search.trim()))}
-                  data-testid="guest-walkin-regen"
-                >
-                  {t('menu:guest.regenCode')}
-                </Button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button
@@ -911,11 +876,6 @@ export const GuestLookup = () => {
                     <div className="min-w-0">
                       <div className="text-sm uppercase text-neutral-500">
                         {t('menu:guest.selected')}
-                        {customerNumberLabel(selected) ? (
-                          <span className="ml-2 normal-case font-semibold text-neutral-700" data-testid="guest-number">
-                            {customerNumberLabel(selected)}
-                          </span>
-                        ) : null}
                       </div>
                       <div className="text-2xl font-black">{formatGuestLabel(selected)}</div>
                     </div>

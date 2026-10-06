@@ -3,7 +3,7 @@ import type { Customer } from '@/api/model/customer.ts';
 import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { formatGuestLabel } from '@/lib/guest.ts';
-import { customerNumberLabel, type CustomerMatch } from '@/lib/customer.service.ts';
+import { type CustomerMatch } from '@/lib/customer.service.ts';
 import { maskIdDocument } from '@/lib/customer-id-document.ts';
 import { maskPhone } from '@/lib/phone.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
@@ -39,7 +39,6 @@ export const CustomerMatchesModal = ({ open, name, matches, creating, onPick, on
       <div className="divide-y rounded-lg border border-neutral-200 max-h-[50vh] overflow-auto">
         {matches.map(({ customer, reasons }) => {
           const details = [
-            customerNumberLabel(customer),
             maskPhone(customer.phone),
             customer.id_document_number ? maskIdDocument(customer.id_document_number) : '',
             customer.room ? `${t('menu:guest.room')} ${customer.room}` : '',
