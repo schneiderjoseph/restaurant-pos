@@ -26,6 +26,7 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {formatGuestLabel} from "@/lib/guest-label.ts";
 import {LabelValue} from "@/api/model/common.ts";
+import {ACTIVE_CUSTOMER} from "@/lib/customer-scope.ts";
 
 interface Props {
   order: OrderModel
@@ -46,7 +47,7 @@ export const SplitByClients = ({
   const {t} = useTranslation(['orders', 'common']);
   const db = useDB();
   const [page] = useAtom(appPage);
-  const {data: customersData} = useApi<SettingsData<Customer>>(Tables.customers, [], ['name asc'], 0, 99999);
+  const {data: customersData} = useApi<SettingsData<Customer>>(Tables.customers, [ACTIVE_CUSTOMER], ['name asc'], 0, 99999);
 
   const customerOptions: LabelValue[] = useMemo(() => (
     (customersData?.data ?? []).map((c) => ({

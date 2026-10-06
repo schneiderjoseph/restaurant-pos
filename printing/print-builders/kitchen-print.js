@@ -9,6 +9,7 @@ const {
   printModifierLines,
   printFixedLine,
   printPrintingTimestamp,
+  getEffectiveLineWidth,
 } = require('../lib/receipt-helpers');
 const { printKotHeader } = require('../lib/kot-layout');
 const {
@@ -67,6 +68,44 @@ function getGuestLabel(order) {
   return name || code;
 }
 
+/** The customer's allergies (customer.allergies, fetched with the order). */
+function getCustomerAllergies(order) {
+  const customer = order && order.customer;
+  if (!customer || typeof customer !== 'object' || !Array.isArray(customer.allergies)) {
+    return [];
+  }
+  return customer.allergies.map((item) => String(item || '').trim()).filter(Boolean);
+}
+
+/** Splits text on spaces into lines of at most `width` characters (long words cut). */
+function wrapWords(text, width) {
+  const lines = [];
+  let line = '';
+  String(text).split(/\s+/).filter(Boolean).forEach((word) => {
+    let rest = word;
+    while (rest.length > width) {
+      if (line) { lines.push(line); line = ''; }
+      lines.push(rest.slice(0, width));
+      rest = rest.slice(width);
+    }
+    if (!rest) return;
+    if (!line) line = rest;
+    else if (line.length + 1 + rest.length <= width) line += ` ${rest}`;
+    else { lines.push(line); line = rest; }
+  });
+  if (line) lines.push(line);
+  return lines;
+}
+
+/** Allergies in bold under the header (which ends with a divider), so the kitchen cannot miss them. */
+function printAllergies(printer, allergies, labels) {
+  if (!allergies.length) return;
+  const label = (labels && labels.allergies) || 'ALLERGIES';
+  wrapWords(`!! ${label}: ${allergies.join(', ')}`, getEffectiveLineWidth('normal')).forEach((line) => {
+    printFixedLine(printer, line, { align: 'left', style: 'bold' });
+  });
+}
+
 /**
  * Kitchen print builder (KOT).
  * Expects data: { order, items, kitchenName?, table?, guestLabel?, placeLabel?, placeKind?, isAddOn?, duplicate?, modified? }
@@ -118,6 +157,8 @@ function build(printer, data = {}, config = {}) {
       dueAt,
       labels: L,
     });
+
+    printAllergies(printer, getCustomerAllergies(order), L);
 
     printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
     printItems.forEach((it) => {
