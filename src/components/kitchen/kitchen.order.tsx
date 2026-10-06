@@ -172,24 +172,19 @@ export const KitchenOrder = ({
         )
       }>
         <div className="flex gap-2 min-w-0">
-          {!placeLabel && guestLabel && (
-            <span className="p-2 text-base rounded-lg min-w-[48px] flex justify-center items-center shrink-0 bg-neutral-100">
-              {guestLabel}
-            </span>
-          )}
-
           <div className="flex flex-col items-start gap-0.5 min-w-0">
-            {placeLabel && guestLabel && (
-              <span className="font-black text-base truncate max-w-full" data-testid="kitchen-guest-label">
-                {guestLabel}
-              </span>
-            )}
-            <span className="font-bold text-lg truncate max-w-full">
-              {[order?.order_type?.name, formatOrderNumber(order)].filter(Boolean).join(' / ')}
+            {/* The order number, not the guest name, heads the ticket on screen (prints keep the guest). */}
+            <span className="font-black text-xl truncate max-w-full" data-testid="kitchen-order-number">
+              {formatOrderNumber(order)}
             </span>
             {splitInto && (
               <span className="font-bold text-base truncate max-w-full" data-testid="kitchen-split-into">
                 → {splitInto}
+              </span>
+            )}
+            {order?.order_type?.name && (
+              <span className="font-bold text-lg truncate max-w-full">
+                {order.order_type.name}
               </span>
             )}
             {order?.due_at && (
