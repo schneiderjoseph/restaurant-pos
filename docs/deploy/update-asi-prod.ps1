@@ -61,6 +61,7 @@ $UpgradeMigrations = @(
   '2026_10_05_order_edit_split_roles.surql'
   '2026_10_07_order_item_split_source.surql'
   '2026_10_07_duo.surql'
+  '2026_10_07_included_modifiers.surql'
 )
 
 # Docker services the ASI profile runs, and the folder each one mounts.
