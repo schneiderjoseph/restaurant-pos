@@ -7,14 +7,12 @@
     "orderDisplay": "Order Display",
     "delivery": "Delivery",
     "closing": "Closing",
-    "inventory": "Inventory",
     "manage": "Manage",
     "reports": "Reports",
     "tipDist": "Tip Dist.",
     "accounts": "Accounts",
     "settings": "Settings",
     "clock": "Clock",
-    "hr": "HR",
     "integrations": "Integrations"
   },
   "modules": {
@@ -29,10 +27,8 @@
     "Admin": "Administration",
     "Riders": "Riders",
     "Tips": "Tip Distribution",
-    "Inventory": "Inventory",
     "Accounts": "Accounts",
     "Settings": "Settings",
-    "HR": "Human Resources",
     "Integrations": "Integrations"
   },
   "authenticateToAccess": "Authenticate to access {{module}}"

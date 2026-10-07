@@ -270,14 +270,14 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[
     type: "function",
     function: {
       name: "get_time_series",
-      description: "Get time-bucketed data for charts and forecasting. consumption_qty is recipe×sold ingredient qty (not issuance).",
+      description: "Get time-bucketed data for charts and forecasting.",
       parameters: {
         type: "object",
         properties: {
           ...dateRangeProps,
           metric: {
             type: "string",
-            enum: ["net_sales", "order_count", "void_amount", "consumption_qty", "waste_qty", "purchase_qty"],
+            enum: ["net_sales", "order_count", "void_amount"],
           },
           granularity: {type: "string", enum: ["daily", "weekly", "hourly"], default: "daily"},
         },

@@ -41,27 +41,6 @@ export function parseImportBool(value: any, defaultValue = false): boolean {
 
 export type TFunc = (key: string, options?: any) => string;
 
-/** Resolve inventory item by code first, then case-insensitive name. */
-export async function resolveInventoryItem(
-  db: ImportDbLike,
-  codeOrName: string,
-  fetch: string = ""
-): Promise<any> {
-  const key = codeOrName.trim();
-  if (!key) return null;
-  const fetchClause = fetch ? ` FETCH ${fetch}` : "";
-  const [byCode] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE code = $key${fetchClause} LIMIT 1`,
-    {key}
-  );
-  if (byCode?.length) return byCode[0];
-  const [byName] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE string::lowercase(name) = string::lowercase($key)${fetchClause} LIMIT 1`,
-    {key}
-  );
-  return byName?.[0] ?? null;
-}
-
 export type DishResolveResult =
   | {status: "found"; dish: any}
   | {status: "not_found"}

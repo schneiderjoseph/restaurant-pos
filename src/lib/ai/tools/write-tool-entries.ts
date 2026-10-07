@@ -312,23 +312,6 @@ const discountFields: WriteFieldSpec[] = [
   {name: "schedules", type: "string", description: "JSON array of schedule objects"},
 ];
 
-const employeeFields: WriteFieldSpec[] = [
-  {name: "employee_number", type: "string", requiredOnCreate: true},
-  {name: "first_name", type: "string", requiredOnCreate: true},
-  {name: "last_name", type: "string"},
-  {name: "department", type: "string", description: "Department name"},
-  {name: "position", type: "string", description: "Position name"},
-  {name: "employment_status", type: "string"},
-  {name: "employment_type", type: "string"},
-  {name: "hire_date", type: "string"},
-  {name: "notes", type: "string"},
-];
-
-const departmentFields: WriteFieldSpec[] = [
-  {name: "name", type: "string", requiredOnCreate: true},
-  {name: "code", type: "string"},
-];
-
 const modifierGroupFields: WriteFieldSpec[] = [
   {name: "group", type: "string", requiredOnCreate: true, description: "Modifier group name (e.g. Select pizza size)"},
   {
