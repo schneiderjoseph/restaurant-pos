@@ -274,6 +274,9 @@ export const commitSplit = async (
 
   const activeParts = parts.filter((part) =>
     (part.itemIds?.length ?? 0) + (part.newItems?.length ?? 0) + (part.pieces?.length ?? 0) > 0);
+  const loadedItems = new Map(asRecordArray<OrderItem>(order.items).map((item) => [keyOf(item?.id), item]));
+  /** Lines of each new order's first send: its original, no longer a supplement. */
+  const promoted: RecordId[] = [];
   const loadedQuantity = new Map(asRecordArray<OrderItem>(order.items)
     .map((item) => [keyOf(item?.id), Number(item?.quantity ?? 0)]));
   const carvedBySource = new Map<string, {id: RecordId, carved: number}>();
@@ -327,6 +330,19 @@ export const commitSplit = async (
       oldItemKeys.add(keyOf(sourceId));
       pieceIds.push(pieceId);
       pieceLines.push({id: pieceId, sourceKey: keyOf(sourceId), quantity: piece.quantity});
+    }
+
+    // A line added after the first send is a supplement of the original order. In this new
+    // order, the lines of its own first send are its original: the kitchen and the order
+    // display must not show them as a supplement.
+    const sent = [
+      ...movedIds.map((id) => ({id, item: loadedItems.get(keyOf(id))})),
+      ...pieceLines.map((piece) => ({id: piece.id, item: loadedItems.get(piece.sourceKey)})),
+    ].filter(({item}) => item && !item.is_suspended && !item.deleted_at);
+    if (sent.length > 0 && sent.every(({item}) => item!.is_addition)) {
+      const sentAt = (item?: OrderItem) => String(item?.created_at ?? '');
+      const firstSend = sent.map(({item}) => sentAt(item)).sort()[0];
+      promoted.push(...sent.filter(({item}) => sentAt(item) === firstSend).map(({id}) => id));
     }
 
     const itemIds = [...movedIds, ...(part.newItems ?? []).map((line) => line.id), ...pieceIds];
@@ -386,6 +402,11 @@ export const commitSplit = async (
 
     newOrderIds.push(orderId);
     newItems[orderId.toString()] = itemIds.map((id) => id.toString());
+  }
+
+  // After every copy was made from the lines as they were.
+  if (promoted.length > 0) {
+    statements.push(`UPDATE ${bind(promoted)} SET is_addition = false;`);
   }
 
   // The carved lines keep what is left, once every copy has read them.
