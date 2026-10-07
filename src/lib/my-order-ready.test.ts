@@ -6,6 +6,7 @@ import { buildKitchenRowsMap } from '@/lib/order-display.ts';
 import { userModulesGrant } from '@/lib/access.rules.ts';
 import {
   findNewlyReadyOrders,
+  findNewlyReadyStations,
   OrderReadyState,
   readyAnnouncement,
   toReadyAlert,
@@ -143,6 +144,57 @@ describe('ready alert on a hotel room', () => {
     expect(readyAnnouncement(alert)).toEqual({
       key: 'readyAlert.speechRoom',
       values: { number: alert.orderNumber, room: '20' },
+    });
+  });
+});
+
+describe('findNewlyReadyStations', () => {
+  const bar = { id: { toString: () => 'kitchen:bar' }, name: 'Bar' };
+  const cuisine = { id: { toString: () => 'kitchen:cuisine' }, name: 'Cuisine' };
+  const drink = { id: { toString: () => 'order_item:1' } };
+  const dish = { id: { toString: () => 'order_item:2' } };
+  const twoStations = order({ items: [drink, dish] });
+
+  const rows = (barStatus: OrderItemKitchenStatus, cuisineStatus: OrderItemKitchenStatus) =>
+    buildKitchenRowsMap([
+      { id: { toString: () => 'oik:1' }, order_item: drink, kitchen: bar, status: barStatus },
+      { id: { toString: () => 'oik:2' }, order_item: dish, kitchen: cuisine, status: cuisineStatus },
+    ] as unknown as OrderItemKitchen[]);
+
+  const { InProgress, Completed } = OrderItemKitchenStatus;
+
+  it('announces the bar when it finishes before the kitchen', () => {
+    const first = findNewlyReadyStations(new Map(), [twoStations], rows(InProgress, InProgress));
+    expect(first.newlyReady).toEqual([]);
+
+    const second = findNewlyReadyStations(first.stations, [twoStations], rows(Completed, InProgress));
+    expect(second.newlyReady.map(r => r.station)).toEqual(['Bar']);
+
+    const again = findNewlyReadyStations(second.stations, [twoStations], rows(Completed, InProgress));
+    expect(again.newlyReady).toEqual([]);
+  });
+
+  it('leaves the last station to the whole-order alert', () => {
+    const first = findNewlyReadyStations(new Map(), [twoStations], rows(Completed, InProgress));
+    const second = findNewlyReadyStations(first.stations, [twoStations], rows(Completed, Completed));
+    expect(second.newlyReady).toEqual([]);
+  });
+
+  it('stays quiet for a single-station order', () => {
+    const single = order({ items: [drink] });
+    const map = (status: OrderItemKitchenStatus) => buildKitchenRowsMap([
+      { id: { toString: () => 'oik:1' }, order_item: drink, kitchen: bar, status },
+    ] as unknown as OrderItemKitchen[]);
+    const first = findNewlyReadyStations(new Map(), [single], map(InProgress));
+    expect(findNewlyReadyStations(first.stations, [single], map(Completed)).newlyReady).toEqual([]);
+  });
+
+  it('reads the station aloud and keys the alert apart from the whole order', () => {
+    const alert = toReadyAlert(twoStations, 'Bar');
+    expect(alert.id).toBe('order:12#Bar');
+    expect(readyAnnouncement(alert)).toEqual({
+      key: 'readyAlert.speechStation',
+      values: { number: '12', station: 'Bar' },
     });
   });
 });

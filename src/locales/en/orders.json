@@ -225,6 +225,8 @@
   "retryLoad": "Retry loading items",
   "loadFailed": "Failed to load order",
   "readyAlert": {
+    "stationTitle": "{{station}} ready",
+    "speechStation": "Order {{number}}, {{station}} is ready",
     "title": "Order ready",
     "table": "Table {{table}}",
     "ok": "OK",

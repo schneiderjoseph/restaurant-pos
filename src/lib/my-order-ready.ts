@@ -1,6 +1,7 @@
 import { Order } from '@/api/model/order.ts';
 import {
   classifyOrder,
+  getKitchenStationStatuses,
   getReadyAt,
   KitchenRowsByOrderItemId,
   OrderDisplayColumn,
@@ -88,10 +89,13 @@ export interface ReadyAlert {
   table: string;
   /** Room number when the order is on a hotel room, else ''. Read aloud as "room 20". */
   room: string;
+  /** Station that finished its part ("Bar") while another still works, else ''. */
+  station: string;
 }
 
-export const toReadyAlert = (order: Order): ReadyAlert => ({
-  id: order.id.toString(),
+export const toReadyAlert = (order: Order, station = ''): ReadyAlert => ({
+  id: station ? `${order.id.toString()}#${station}` : order.id.toString(),
+  station,
   orderNumber: getInvoiceNumber(order),
   displayNumber: formatOrderNumber(order),
   guest: formatGuestLabel(order.customer),
@@ -104,6 +108,9 @@ export const toReadyAlert = (order: Order): ReadyAlert => ({
 export const readyAnnouncement = (
   alert: ReadyAlert,
 ): { key: string; values: Record<string, string> } => {
+  if (alert.station) {
+    return { key: 'readyAlert.speechStation', values: { number: alert.orderNumber, station: alert.station } };
+  }
   if (alert.spokenGuest) {
     return { key: 'readyAlert.speechGuest', values: { number: alert.orderNumber, guest: alert.spokenGuest } };
   }
@@ -116,4 +123,39 @@ export const readyAnnouncement = (
     return { key: 'readyAlert.speechTable', values: { number: alert.orderNumber, table } };
   }
   return { key: 'readyAlert.speech', values: { number: alert.orderNumber } };
+};
+
+/** Last ready flag seen for each station of each order (order id -> kitchen id -> ready). */
+export type StationReadyState = Map<string, Map<string, boolean>>;
+
+/**
+ * Stations (bar, kitchen…) that finished their part of an order this terminal saw them
+ * working on, while another station still works on it. The last station is covered by the
+ * whole-order alert, and a single-station order only gets that one.
+ */
+export const findNewlyReadyStations = (
+  previous: StationReadyState,
+  orders: Order[],
+  kitchenRowsByOrderItemId: KitchenRowsByOrderItemId,
+): { stations: StationReadyState; newlyReady: { order: Order; station: string }[] } => {
+  const stations: StationReadyState = new Map();
+  const newlyReady: { order: Order; station: string }[] = [];
+
+  for (const order of orders) {
+    const id = order.id.toString();
+    const statuses = getKitchenStationStatuses(order, kitchenRowsByOrderItemId);
+    const prev = previous.get(id);
+    const orderRunning = statuses.some(status => !status.ready);
+
+    if (statuses.length > 1 && orderRunning) {
+      for (const status of statuses) {
+        if (status.ready && prev?.get(status.kitchenId) === false) {
+          newlyReady.push({ order, station: status.kitchenName });
+        }
+      }
+    }
+    stations.set(id, new Map(statuses.map(status => [status.kitchenId, status.ready])));
+  }
+
+  return { stations, newlyReady };
 };
