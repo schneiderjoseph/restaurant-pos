@@ -104,25 +104,29 @@ export const toReadyAlert = (order: Order, station = ''): ReadyAlert => ({
   room: isHotelRoomTable(order.table) ? String(order.table?.number ?? '').trim() : '',
 });
 
-/** i18n key and values for the spoken announcement: guest name first, else the table. */
+/**
+ * i18n key and values for the spoken announcement: guest name first, else the room, else
+ * the table. A station alert says the same, then which station is ready.
+ */
 export const readyAnnouncement = (
   alert: ReadyAlert,
 ): { key: string; values: Record<string, string> } => {
-  if (alert.station) {
-    return { key: 'readyAlert.speechStation', values: { number: alert.orderNumber, station: alert.station } };
-  }
+  const prefix = alert.station ? 'readyAlert.speechStation' : 'readyAlert.speech';
+  const values: Record<string, string> = alert.station
+    ? { number: alert.orderNumber, station: alert.station }
+    : { number: alert.orderNumber };
   if (alert.spokenGuest) {
-    return { key: 'readyAlert.speechGuest', values: { number: alert.orderNumber, guest: alert.spokenGuest } };
+    return { key: `${prefix}Guest`, values: { ...values, guest: alert.spokenGuest } };
   }
   if (alert.room) {
-    return { key: 'readyAlert.speechRoom', values: { number: alert.orderNumber, room: alert.room } };
+    return { key: `${prefix}Room`, values: { ...values, room: alert.room } };
   }
   if (alert.table) {
     // "T4" is read "table 4"; another code (B3) is read as it is.
     const table = alert.table.replace(/^(?:t|table)\s*(?=\d)/i, '');
-    return { key: 'readyAlert.speechTable', values: { number: alert.orderNumber, table } };
+    return { key: `${prefix}Table`, values: { ...values, table } };
   }
-  return { key: 'readyAlert.speech', values: { number: alert.orderNumber } };
+  return { key: prefix, values };
 };
 
 /** Last ready flag seen for each station of each order (order id -> kitchen id -> ready). */

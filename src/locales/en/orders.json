@@ -227,6 +227,9 @@
   "readyAlert": {
     "stationTitle": "{{station}} ready",
     "speechStation": "Order {{number}}, {{station}} is ready",
+    "speechStationGuest": "Order {{number}}, {{guest}}, {{station}} is ready",
+    "speechStationTable": "Order {{number}}, table {{table}}, {{station}} is ready",
+    "speechStationRoom": "Order {{number}}, room {{room}}, {{station}} is ready",
     "title": "Order ready",
     "table": "Table {{table}}",
     "ok": "OK",

@@ -227,6 +227,9 @@
   "readyAlert": {
     "stationTitle": "{{station}} prêt",
     "speechStation": "Commande {{number}}, {{station}} prêt",
+    "speechStationGuest": "Commande {{number}}, {{guest}}, {{station}} prêt",
+    "speechStationTable": "Commande {{number}}, table {{table}}, {{station}} prêt",
+    "speechStationRoom": "Commande {{number}}, chambre {{room}}, {{station}} prêt",
     "title": "Commande prête",
     "table": "Table {{table}}",
     "ok": "OK",

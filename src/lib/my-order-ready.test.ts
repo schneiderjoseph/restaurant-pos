@@ -197,4 +197,24 @@ describe('findNewlyReadyStations', () => {
       values: { number: '12', station: 'Bar' },
     });
   });
+
+  it('names the guest, room or table like the whole-order alert', () => {
+    const withGuest = order({ items: [drink, dish], customer: { name: 'Jean Dupont' }, table: { name: 'T', number: 4 } });
+    expect(readyAnnouncement(toReadyAlert(withGuest, 'Bar'))).toEqual({
+      key: 'readyAlert.speechStationGuest',
+      values: { number: '12', station: 'Bar', guest: 'Jean Dupont' },
+    });
+
+    const atTable = order({ items: [drink, dish], table: { name: 'T', number: 4 } });
+    expect(readyAnnouncement(toReadyAlert(atTable, 'Bar'))).toEqual({
+      key: 'readyAlert.speechStationTable',
+      values: { number: '12', station: 'Bar', table: '4' },
+    });
+
+    const inRoom = order({ items: [drink, dish], table: { name: 'R', number: '20', source: 'asi-room' } });
+    expect(readyAnnouncement(toReadyAlert(inRoom, 'Bar'))).toEqual({
+      key: 'readyAlert.speechStationRoom',
+      values: { number: '12', station: 'Bar', room: '20' },
+    });
+  });
 });
