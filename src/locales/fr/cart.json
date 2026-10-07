@@ -7,5 +7,26 @@
     "newSeat": "Nouvelle place",
     "deleteSeat": "Place ?",
     "addComment": "Ajouter un commentaire"
+  },
+  "comments": {
+    "forTime": "Pour heure",
+    "forTimeValue": "POUR {{time}}",
+    "presets": {
+      "noSalt": "Sans sel",
+      "noSugar": "Sans sucre",
+      "noOnion": "Sans oignon",
+      "noGarlic": "Sans ail",
+      "noSpice": "Sans piment",
+      "noSauce": "Sans sauce",
+      "sauceOnSide": "Sauce à part",
+      "extraSauce": "Extra sauce",
+      "noButter": "Sans beurre",
+      "noCheese": "Sans fromage",
+      "rare": "Saignant",
+      "medium": "À point",
+      "wellDone": "Bien cuit",
+      "allergy": "Allergie",
+      "immediate": "Immédiat"
+    }
   }
 }

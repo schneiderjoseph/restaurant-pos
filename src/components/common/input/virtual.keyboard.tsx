@@ -12,12 +12,14 @@ interface VirtualKeyboardProps {
   onChange: (value: string) => void;
   /** Rendered in the keyboard's header row, next to the close button. */
   header?: ReactNode;
+  /** Rendered between the value field and the keys (e.g. quick comment chips). */
+  extras?: ReactNode;
   /** When true, do not pass a title to the Modal (caller still provides placeholder on the input). */
   hideTitle?: boolean;
 }
 
 export function VirtualKeyboard(props: VirtualKeyboardProps) {
-  const {open, onClose, type, placeholder, value, onChange, header, hideTitle} = props;
+  const {open, onClose, type, placeholder, value, onChange, header, extras, hideTitle} = props;
 
   const [isCaps, setIsCaps] = useState(false);
 
@@ -150,6 +152,7 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
             readOnly
           />
         </div>
+        {extras ? <div className="mb-4">{extras}</div> : null}
         <div className="flex gap-y-2 flex-col">
           {keyboardLayout.map((row: string[], rowIndex: number) => (
             <div key={rowIndex} className="flex gap-2 flex-row justify-center">

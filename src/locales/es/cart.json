@@ -1,4 +1,4 @@
-{
+﻿{
   "removeSelectedConfirm": "¿Quitar los artículos seleccionados de este pedido?",
   "seats": {
     "seat": "Asiento",
@@ -7,5 +7,26 @@
     "newSeat": "Nuevo asiento",
     "deleteSeat": "¿Asiento?",
     "addComment": "Agregar comentario"
+  },
+  "comments": {
+    "forTime": "Para hora",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "Sin sal",
+      "noSugar": "Sin azúcar",
+      "noOnion": "Sin cebolla",
+      "noGarlic": "Sin ajo",
+      "noSpice": "Sin picante",
+      "noSauce": "Sin salsa",
+      "sauceOnSide": "Salsa aparte",
+      "extraSauce": "Extra salsa",
+      "noButter": "Sin mantequilla",
+      "noCheese": "Sin queso",
+      "rare": "Poco hecho",
+      "medium": "Al punto",
+      "wellDone": "Bien hecho",
+      "allergy": "Alergia",
+      "immediate": "Inmediato"
+    }
   }
 }

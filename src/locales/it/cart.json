@@ -1,4 +1,4 @@
-{
+﻿{
   "removeSelectedConfirm": "Rimuovere gli articoli selezionati da questo ordine?",
   "seats": {
     "seat": "Coperto",
@@ -7,5 +7,26 @@
     "newSeat": "Nuovo coperto",
     "deleteSeat": "Coperto?",
     "addComment": "Aggiungi commento"
+  },
+  "comments": {
+    "forTime": "Per ora",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "Senza sale",
+      "noSugar": "Senza zucchero",
+      "noOnion": "Senza cipolla",
+      "noGarlic": "Senza aglio",
+      "noSpice": "Senza piccante",
+      "noSauce": "Senza salsa",
+      "sauceOnSide": "Salsa a parte",
+      "extraSauce": "Extra salsa",
+      "noButter": "Senza burro",
+      "noCheese": "Senza formaggio",
+      "rare": "Al sangue",
+      "medium": "Al punto",
+      "wellDone": "Ben cotto",
+      "allergy": "Allergia",
+      "immediate": "Immediato"
+    }
   }
 }

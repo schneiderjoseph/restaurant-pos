@@ -512,7 +512,7 @@ function renderKitchenToHtml(data, config) {
     const name = (dish.name || dish.title || '').slice(0, 28);
     const qty = it.quantity != null ? it.quantity : 1;
     parts.push(`<div class="row"><span>${escapeHtml(name)} x${qty}</span></div>`);
-    if (it.comments) parts.push(`<div class="indent">>> ${escapeHtml(String(it.comments).slice(0, 26))}</div>`);
+    if (it.comments) parts.push(`<div class="indent">>> ${escapeHtml(String(it.comments).slice(0, 48))}</div>`);
   });
   parts.push(`<div class="center" style="margin-top:8px">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
   return `<!DOCTYPE html>

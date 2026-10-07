@@ -10,9 +10,30 @@ import {CartItemName} from "@/components/common/cart/cart.item.name.tsx";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
+import {Button} from "@/components/common/input/button.tsx";
+import {OrderDueModal} from "@/components/menu/order-due.modal.tsx";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
-import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {nowInAppTimezone, nowSurrealDateTime, toLuxonDateTime} from "@/lib/datetime.ts";
+import {
+  getItemPourLabel,
+  hasItemCommentPreset,
+  ITEM_COMMENT_PRESET_IDS,
+  type ItemCommentPresetId,
+  parseItemPourParts,
+  setItemPourComment,
+  toggleItemCommentPreset,
+} from "@/lib/item-comments.ts";
+import {dueFromParts, formatDueLabel, isDueAhead} from "@/lib/order-due.ts";
+
+function itemPourModalValue(pourLabel: string | null): string | null {
+  if (!pourLabel) return null;
+  const parts = parseItemPourParts(pourLabel);
+  if (!parts) return null;
+  const now = nowInAppTimezone();
+  const due = dueFromParts(now, parts.dayOffset, parts.hour, parts.minute);
+  return isDueAhead(due, now) ? due.toUTC().toISO() : null;
+}
 
 interface Props {
   item: MenuItem
@@ -20,11 +41,17 @@ interface Props {
 }
 
 export const CartItem = ({ item, index }: Props) => {
-  const { t } = useTranslation(['cart', 'common']);
+  const { t } = useTranslation(['cart', 'common', 'payment', 'receipts']);
   const [state, setState] = useAtom(appState);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
   const [isCommentKeyboardOpen, setCommentKeyboardOpen] = useState(false);
+  const [isItemDueOpen, setItemDueOpen] = useState(false);
   const [commentText, setCommentText] = useState(item.comments || "");
+
+  const presetLabel = (id: ItemCommentPresetId) => t(`cart:comments.presets.${id}`);
+  const immediateLabel = presetLabel('immediate');
+  const pourPrefix = t('receipts:dueAt');
+  const pourLabel = getItemPourLabel(commentText, pourPrefix);
 
   const lineTotal = useMemo(() => calculateCartItemPrice(item), [item]);
 
@@ -179,6 +206,7 @@ export const CartItem = ({ item, index }: Props) => {
           open={isCommentKeyboardOpen}
           onClose={() => {
             setCommentKeyboardOpen(false);
+            setItemDueOpen(false);
             setState(prev => ({
               ...prev,
               cart: prev.cart.map((_item) => {
@@ -193,6 +221,71 @@ export const CartItem = ({ item, index }: Props) => {
           placeholder={t('seats.addComment')}
           value={commentText}
           onChange={(v) => setCommentText(v)}
+          extras={(
+            <div className="flex flex-wrap gap-2" data-testid="item-comment-presets">
+              {ITEM_COMMENT_PRESET_IDS.map((id) => {
+                const label = presetLabel(id);
+                const active = hasItemCommentPreset(commentText, label);
+                return (
+                  <Button
+                    key={id}
+                    type="button"
+                    variant="primary"
+                    flat={!active}
+                    filled={active}
+                    size="lg"
+                    data-testid={`item-comment-preset-${id}`}
+                    onClick={() => {
+                      setCommentText((prev) =>
+                        toggleItemCommentPreset(prev, label, {
+                          clearsPour: id === 'immediate',
+                          pourPrefix,
+                        }),
+                      );
+                    }}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
+              <Button
+                type="button"
+                variant="warning"
+                flat={!pourLabel}
+                filled={!!pourLabel}
+                size="lg"
+                data-testid="item-comment-pour"
+                onClick={() => setItemDueOpen(true)}
+              >
+                {pourLabel ? `${pourPrefix} ${pourLabel}` : t('cart:comments.forTime')}
+              </Button>
+            </div>
+          )}
+        />
+      )}
+      {isItemDueOpen && (
+        <OrderDueModal
+          value={itemPourModalValue(pourLabel)}
+          onChange={(value) => {
+            const now = nowInAppTimezone();
+            if (!value) {
+              setCommentText((prev) => setItemPourComment(prev, null, { pourPrefix }));
+              return;
+            }
+            const due = toLuxonDateTime(value);
+            if (!isDueAhead(due, now)) {
+              setCommentText((prev) => setItemPourComment(prev, null, { pourPrefix }));
+              return;
+            }
+            const label = formatDueLabel(due, now, t('payment:due.tomorrowShort'));
+            setCommentText((prev) =>
+              setItemPourComment(prev, label, {
+                pourPrefix,
+                immediateLabel,
+              }),
+            );
+          }}
+          onClose={() => setItemDueOpen(false)}
         />
       )}
     </>

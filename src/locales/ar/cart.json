@@ -1,4 +1,4 @@
-{
+﻿{
   "removeSelectedConfirm": "هل تريد إزالة العناصر المحددة من هذا الطلب؟",
   "seats": {
     "seat": "مقعد",
@@ -7,5 +7,26 @@
     "newSeat": "مقعد جديد",
     "deleteSeat": "المقعد؟",
     "addComment": "إضافة تعليق"
+  },
+  "comments": {
+    "forTime": "لوقت",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "بدون ملح",
+      "noSugar": "بدون سكر",
+      "noOnion": "بدون بصل",
+      "noGarlic": "بدون ثوم",
+      "noSpice": "بدون فلفل",
+      "noSauce": "بدون صلصة",
+      "sauceOnSide": "صلصة جانباً",
+      "extraSauce": "صلصة إضافية",
+      "noButter": "بدون زبدة",
+      "noCheese": "بدون جبن",
+      "rare": "نيء قليلاً",
+      "medium": "متوسط",
+      "wellDone": "مطهو جيداً",
+      "allergy": "حساسية",
+      "immediate": "فوري"
+    }
   }
 }

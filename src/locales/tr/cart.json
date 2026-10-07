@@ -1,4 +1,4 @@
-{
+﻿{
   "removeSelectedConfirm": "Seçili ürünler bu siparişten kaldırılsın mı?",
   "seats": {
     "seat": "Koltuk",
@@ -7,5 +7,26 @@
     "newSeat": "Yeni Koltuk",
     "deleteSeat": "Koltuk ?",
     "addComment": "Yorum ekle"
+  },
+  "comments": {
+    "forTime": "Saat için",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "Tuzsuz",
+      "noSugar": "Şekersiz",
+      "noOnion": "Soğansız",
+      "noGarlic": "Sarımsaksız",
+      "noSpice": "Acısız",
+      "noSauce": "Sossuz",
+      "sauceOnSide": "Sos ayrı",
+      "extraSauce": "Ekstra sos",
+      "noButter": "Tereyağsız",
+      "noCheese": "Peynirsiz",
+      "rare": "Az pişmiş",
+      "medium": "Orta",
+      "wellDone": "İyi pişmiş",
+      "allergy": "Alerji",
+      "immediate": "Hemen"
+    }
   }
 }

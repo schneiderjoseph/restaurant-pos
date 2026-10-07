@@ -171,7 +171,7 @@ function build(printer, data = {}, config = {}) {
     printItems.forEach((it) => {
       printFixedLine(printer, buildItemRowString(it, cfg), { align: 'left' });
       if (it.notes) {
-        printFixedLine(printer, ` >> ${it.notes.slice(0, 26)}`, { align: 'left' });
+        printFixedLine(printer, ` >> ${it.notes.slice(0, 48)}`, { align: 'left' });
       }
       printModifierLines(printer, it.modifierLines);
     });

@@ -1,4 +1,4 @@
-{
+﻿{
   "removeSelectedConfirm": "Удалить выбранные позиции из этого заказа?",
   "seats": {
     "seat": "Место",
@@ -7,5 +7,26 @@
     "newSeat": "Новое место",
     "deleteSeat": "Место?",
     "addComment": "Добавить комментарий"
+  },
+  "comments": {
+    "forTime": "Ко времени",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "Без соли",
+      "noSugar": "Без сахара",
+      "noOnion": "Без лука",
+      "noGarlic": "Без чеснока",
+      "noSpice": "Без острого",
+      "noSauce": "Без соуса",
+      "sauceOnSide": "Соус отдельно",
+      "extraSauce": "Ещё соус",
+      "noButter": "Без масла",
+      "noCheese": "Без сыра",
+      "rare": "С кровью",
+      "medium": "Средней прожарки",
+      "wellDone": "Прожаренный",
+      "allergy": "Аллергия",
+      "immediate": "Срочно"
+    }
   }
 }

@@ -7,5 +7,26 @@
     "newSeat": "New Seat",
     "deleteSeat": "Seat ?",
     "addComment": "Add comment"
+  },
+  "comments": {
+    "forTime": "For time",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "No salt",
+      "noSugar": "No sugar",
+      "noOnion": "No onion",
+      "noGarlic": "No garlic",
+      "noSpice": "No chili",
+      "noSauce": "No sauce",
+      "sauceOnSide": "Sauce on side",
+      "extraSauce": "Extra sauce",
+      "noButter": "No butter",
+      "noCheese": "No cheese",
+      "rare": "Rare",
+      "medium": "Medium",
+      "wellDone": "Well done",
+      "allergy": "Allergy",
+      "immediate": "Immediate"
+    }
   }
 }

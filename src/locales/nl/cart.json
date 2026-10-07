@@ -1,4 +1,4 @@
-{
+﻿{
   "removeSelectedConfirm": "Geselecteerde artikelen uit deze bestelling verwijderen?",
   "seats": {
     "seat": "Stoel",
@@ -7,5 +7,26 @@
     "newSeat": "Nieuwe stoel",
     "deleteSeat": "Stoel ?",
     "addComment": "Opmerking toevoegen"
+  },
+  "comments": {
+    "forTime": "Voor tijd",
+    "forTimeValue": "FOR {{time}}",
+    "presets": {
+      "noSalt": "Zonder zout",
+      "noSugar": "Zonder suiker",
+      "noOnion": "Zonder ui",
+      "noGarlic": "Zonder knoflook",
+      "noSpice": "Zonder peper",
+      "noSauce": "Zonder saus",
+      "sauceOnSide": "Saus apart",
+      "extraSauce": "Extra saus",
+      "noButter": "Zonder boter",
+      "noCheese": "Zonder kaas",
+      "rare": "Rood",
+      "medium": "Medium",
+      "wellDone": "Doorbakken",
+      "allergy": "Allergie",
+      "immediate": "Direct"
+    }
   }
 }
