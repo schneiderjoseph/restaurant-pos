@@ -3,13 +3,22 @@
 const express = require('express');
 const { getClient } = require('../lib/surreal-client');
 const { createSessionAuthMiddleware } = require('../lib/session-auth.middleware');
-const { normalizeOrderKey: _unused } = require('../lib/intent.utils');
+const { requirePaymentTypeAdmin } = require('../lib/require-module.middleware');
 const { encryptGatewayConfig } = require('../lib/payment-credential.crypto');
 const { sendSuccess, sendError } = require('../lib/response');
 const logger = require('../lib/logger');
 
 const router = express.Router();
 const requireSession = createSessionAuthMiddleware();
+const requireAdmin = requirePaymentTypeAdmin();
+
+/** Only payment_type records: an id naming another table is refused. */
+function paymentTypeRecordId(raw) {
+  const text = String(raw || '').trim();
+  const key = text.startsWith('payment_type:') ? text.slice('payment_type:'.length) : text;
+  if (!/^[A-Za-z0-9_]+$/.test(key)) return null;
+  return `payment_type:${key}`;
+}
 
 /**
  * POST /payments/credentials/:paymentTypeId
@@ -29,15 +38,12 @@ const requireSession = createSessionAuthMiddleware();
  * plaintext via the old field. If the encryption key is unset in production,
  * the endpoint returns 500 (refuses to persist plaintext).
  */
-router.post('/credentials/:paymentTypeId', requireSession, async (req, res, next) => {
+router.post('/credentials/:paymentTypeId', requireSession, requireAdmin, async (req, res, next) => {
   try {
-    const paymentTypeId = String(req.params.paymentTypeId || '').trim();
-    if (!paymentTypeId) {
-      return sendError(res, 400, 'paymentTypeId is required');
+    const recordId = paymentTypeRecordId(req.params.paymentTypeId);
+    if (!recordId) {
+      return sendError(res, 400, 'paymentTypeId must be a payment_type id');
     }
-    const recordId = paymentTypeId.includes(':')
-      ? paymentTypeId
-      : `payment_type:${paymentTypeId}`;
 
     const gatewayConfig = req.body?.gatewayConfig;
     if (!gatewayConfig || typeof gatewayConfig !== 'object' || Array.isArray(gatewayConfig)) {
@@ -88,15 +94,12 @@ router.post('/credentials/:paymentTypeId', requireSession, async (req, res, next
  * NOT deleted — only the credential fields. Useful for revoking access without
  * losing the payment type configuration (name, gateway, etc.).
  */
-router.delete('/credentials/:paymentTypeId', requireSession, async (req, res, next) => {
+router.delete('/credentials/:paymentTypeId', requireSession, requireAdmin, async (req, res, next) => {
   try {
-    const paymentTypeId = String(req.params.paymentTypeId || '').trim();
-    if (!paymentTypeId) {
-      return sendError(res, 400, 'paymentTypeId is required');
+    const recordId = paymentTypeRecordId(req.params.paymentTypeId);
+    if (!recordId) {
+      return sendError(res, 400, 'paymentTypeId must be a payment_type id');
     }
-    const recordId = paymentTypeId.includes(':')
-      ? paymentTypeId
-      : `payment_type:${paymentTypeId}`;
 
     const client = await getClient();
     await client.query(

@@ -85,7 +85,15 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: '2mb' }));
+app.use(
+  express.json({
+    limit: '2mb',
+    // Webhook signatures are computed over the exact bytes received.
+    verify(req, _res, buf) {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(requestLogMiddleware);
 
 app.get('/health', (req, res) => {

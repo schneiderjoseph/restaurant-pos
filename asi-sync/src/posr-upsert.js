@@ -743,6 +743,12 @@ async function upsertCatalog(
   { groups, activeItems, outlets = [], modifiers = [], itemModifiers = [] },
   { stationPosIds = [] } = {},
 ) {
+  // An empty answer is far more likely a glitch (outlet filter, ASI mid-update) than a
+  // real menu with nothing on it: syncing it would soft-delete every ASI dish.
+  if (!activeItems || activeItems.length === 0) {
+    throw new Error('ASI returned no active item — POS menu left unchanged');
+  }
+
   /** @type {Map<number, string>} */
   const groupIdToCategory = new Map();
   /** @type {string[]} */

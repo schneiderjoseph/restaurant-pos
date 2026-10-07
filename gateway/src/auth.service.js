@@ -11,6 +11,12 @@ function firstQueryRow(result) {
   return null;
 }
 
+/** A soft-deleted role grants nothing, even though FETCH still returns it. */
+function liveRole(role) {
+  if (role && typeof role === 'object' && role.deleted_at != null) return null;
+  return role;
+}
+
 function serializeUser(row) {
   if (!row) return null;
   const { password: _password, ...safe } = row;
@@ -68,6 +74,7 @@ async function authenticatePosUser({ login }) {
       fetchedRole = roleRow;
     }
   }
+  fetchedRole = liveRole(fetchedRole);
 
   const roles = fetchedRole?.roles
     ? [...new Set(fetchedRole.roles || [])]
@@ -75,7 +82,7 @@ async function authenticatePosUser({ login }) {
 
   return serializeUser({
     ...user,
-    user_role: fetchedRole || user.user_role,
+    user_role: fetchedRole,
     roles,
   });
 }
@@ -104,6 +111,7 @@ async function getUserRoleModules(userId) {
       fetchedRole = roleRow;
     }
   }
+  fetchedRole = liveRole(fetchedRole);
 
   return fetchedRole?.roles ? [...new Set(fetchedRole.roles.map(String))] : [];
 }

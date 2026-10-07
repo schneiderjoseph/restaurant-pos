@@ -12,6 +12,22 @@ const {
   maskPhone,
 } = require('../mpesa/daraja.client');
 
+/**
+ * Daraja callbacks carry no signature. An STK push started here is remembered by its
+ * CheckoutRequestID, and a callback only counts once Safaricom confirms it (STK query).
+ */
+const PENDING_STK_TTL_MS = 30 * 60 * 1000;
+/** checkoutRequestId -> { paymentTypeId, expiresAt } */
+const pendingStk = new Map();
+
+function rememberStk(checkoutRequestId, paymentTypeId) {
+  const now = Date.now();
+  for (const [id, entry] of pendingStk) {
+    if (entry.expiresAt <= now) pendingStk.delete(id);
+  }
+  pendingStk.set(String(checkoutRequestId), { paymentTypeId, expiresAt: now + PENDING_STK_TTL_MS });
+}
+
 function getPaymentTypeId(payload) {
   const id = payload?.metadata?.paymentTypeId;
   if (!id) {
@@ -105,6 +121,8 @@ class MpesaGateway extends BaseGateway {
       customerMessage: stk.customerMessage,
     });
 
+    rememberStk(stk.checkoutRequestId, paymentTypeId);
+
     const now = Date.now();
     return {
       gateway: this.name,
@@ -168,6 +186,34 @@ class MpesaGateway extends BaseGateway {
         receivedAt: new Date().toISOString(),
       };
     }
+
+    const pending = pendingStk.get(String(parsed.checkoutRequestId || ''));
+    let confirmedCode = null;
+    if (pending && pending.expiresAt > Date.now()) {
+      try {
+        const { loadPaymentTypeGatewayConfig } = require('../../lib/gateway-config.store');
+        const { credentials } = await loadPaymentTypeGatewayConfig(pending.paymentTypeId, this.name);
+        const query = await stkPushQuery({ credentials, checkoutRequestId: parsed.checkoutRequestId });
+        confirmedCode = Number(query.ResultCode);
+      } catch (err) {
+        logger.warn('mpesa', 'STK query for callback failed', { message: err.message });
+      }
+    }
+    if (confirmedCode === null || confirmedCode !== Number(parsed.resultCode)) {
+      logger.warn('mpesa', 'Callback not confirmed by STK query — rejected', {
+        checkoutRequestId: parsed.checkoutRequestId,
+        known: Boolean(pending),
+      });
+      return {
+        gateway: this.name,
+        status: WebhookStatus.REJECTED,
+        eventType: 'stk_callback',
+        eventId: parsed.checkoutRequestId,
+        normalizedData: { ...parsed, signatureValid: false },
+        receivedAt: new Date().toISOString(),
+      };
+    }
+    pendingStk.delete(String(parsed.checkoutRequestId));
 
     const paymentStatus = mapStkResultCode(parsed.resultCode);
 

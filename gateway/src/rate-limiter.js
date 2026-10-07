@@ -13,8 +13,13 @@
  * is crossed, sets a lockout window.
  *
  * Configurable via env vars:
- *   AUTH_LOGIN_MAX_ATTEMPTS    default 5  — failures before lockout
- *   AUTH_LOGIN_LOCKOUT_MS      default 15 * 60 * 1000 (15 minutes)
+ *   AUTH_LOGIN_MAX_ATTEMPTS    default 5  — failures on one PIN before it locks
+ *   AUTH_LOGIN_IP_MAX_ATTEMPTS default 20 — failures from one device before it locks
+ *                             (a tablet is shared by the whole staff, typos add up)
+ *   AUTH_LOGIN_GLOBAL_MAX_ATTEMPTS default 40 — failures from every device before
+ *                             all PIN logins lock. The login IS the PIN, so during a
+ *                             brute force the per-login bucket never sees a key twice.
+ *   AUTH_LOGIN_LOCKOUT_MS     default 15 * 60 * 1000 (15 minutes)
  *   AUTH_LOGIN_WINDOW_MS       default 15 * 60 * 1000 (sliding failure window)
  *   AUTH_LOGIN_BYPASS_IPS      comma-separated CIDRs / IPs that skip limiting
  *                             (e.g. 127.0.0.1, 10.0.0.0/8). Use sparingly.
@@ -24,6 +29,10 @@
  */
 
 const MAX_ATTEMPTS = Number(process.env.AUTH_LOGIN_MAX_ATTEMPTS || 5);
+const IP_MAX_ATTEMPTS = Number(process.env.AUTH_LOGIN_IP_MAX_ATTEMPTS || 20);
+const GLOBAL_MAX_ATTEMPTS = Number(process.env.AUTH_LOGIN_GLOBAL_MAX_ATTEMPTS || 40);
+const GLOBAL_LOCKOUT_MS = Number(process.env.AUTH_LOGIN_GLOBAL_LOCKOUT_MS || 5 * 60 * 1000);
+const GLOBAL_KEY = '*';
 const LOCKOUT_MS = Number(process.env.AUTH_LOGIN_LOCKOUT_MS || 15 * 60 * 1000);
 const WINDOW_MS = Number(process.env.AUTH_LOGIN_WINDOW_MS || 15 * 60 * 1000);
 
@@ -38,7 +47,9 @@ const BYPASS_IPS = new Set(
  * @typedef {{ failures: number[], lockedUntil: number }} Bucket
  */
 class Buckets {
-  constructor() {
+  constructor(maxAttempts = MAX_ATTEMPTS, lockoutMs = LOCKOUT_MS) {
+    this.maxAttempts = maxAttempts;
+    this.lockoutMs = lockoutMs;
     /** @type {Map<string, Bucket>} */
     this.byKey = new Map();
     // Periodic GC so memory doesn't grow unbounded.
@@ -86,13 +97,13 @@ class Buckets {
     const now = Date.now();
     b.failures.push(now);
     b.failures = b.failures.filter((t) => now - t < WINDOW_MS);
-    if (b.failures.length >= MAX_ATTEMPTS) {
-      b.lockedUntil = now + LOCKOUT_MS;
-      return { locked: true, retryAfterMs: LOCKOUT_MS };
+    if (b.failures.length >= this.maxAttempts) {
+      b.lockedUntil = now + this.lockoutMs;
+      return { locked: true, retryAfterMs: this.lockoutMs };
     }
     return {
       locked: false,
-      attemptsRemaining: Math.max(0, MAX_ATTEMPTS - b.failures.length),
+      attemptsRemaining: Math.max(0, this.maxAttempts - b.failures.length),
     };
   }
 
@@ -102,19 +113,21 @@ class Buckets {
   }
 }
 
-const ipBuckets = new Buckets();
-const loginBuckets = new Buckets();
+const ipBuckets = new Buckets(IP_MAX_ATTEMPTS);
+const loginBuckets = new Buckets(MAX_ATTEMPTS);
+const globalBuckets = new Buckets(GLOBAL_MAX_ATTEMPTS, GLOBAL_LOCKOUT_MS);
 
 /**
- * Extract client IP from the request. Falls back through common proxy headers
- * (the docker-compose stack runs behind nginx in production). Takes the first
- * IP in X-Forwarded-For (set by the trusted reverse proxy).
+ * Extract client IP from the request. The stack runs behind nginx, whose
+ * `$proxy_add_x_forwarded_for` APPENDS the peer address: only the last entry of
+ * X-Forwarded-For comes from the proxy, anything before it is whatever the
+ * client sent.
  */
 function clientIp(req) {
   const xff = req.headers['x-forwarded-for'];
   if (typeof xff === 'string' && xff.length > 0) {
-    const first = xff.split(',')[0].trim();
-    if (first) return first;
+    const last = xff.split(',').pop().trim();
+    if (last) return last;
   }
   const realIp = req.headers['x-real-ip'];
   if (typeof realIp === 'string' && realIp.length > 0) return realIp.trim();
@@ -142,6 +155,19 @@ function loginRateLimit() {
     const login = req.body?.login || req.body?.pin;
     const loginKey = login ? String(login).toLowerCase() : null;
 
+    const globalCheck = globalBuckets.check(GLOBAL_KEY);
+    if (globalCheck.locked) {
+      res.set('Retry-After', String(Math.ceil(globalCheck.retryAfterMs / 1000)));
+      return res.status(429).json({
+        ok: false,
+        error: 'Too many failed logins on this POS. Try again later.',
+        code: 'rate_limited_global',
+        retryAfterMs: globalCheck.retryAfterMs,
+        maxAttempts: GLOBAL_MAX_ATTEMPTS,
+        lockoutMs: GLOBAL_LOCKOUT_MS,
+      });
+    }
+
     const ipCheck = ipBuckets.check(ip);
     if (ipCheck.locked) {
       res.set('Retry-After', String(Math.ceil(ipCheck.retryAfterMs / 1000)));
@@ -150,7 +176,7 @@ function loginRateLimit() {
         error: 'Too many login attempts. Try again later.',
         code: 'rate_limited_ip',
         retryAfterMs: ipCheck.retryAfterMs,
-        maxAttempts: MAX_ATTEMPTS,
+        maxAttempts: IP_MAX_ATTEMPTS,
         lockoutMs: LOCKOUT_MS,
       });
     }
@@ -186,9 +212,14 @@ function recordAuthResult(req, success) {
 
   const loginResult = loginKey ? loginBuckets.recordFailure(loginKey) : null;
   const ipResult = ipBuckets.recordFailure(ip);
+  const globalResult = globalBuckets.recordFailure(GLOBAL_KEY);
 
-  if (loginResult?.locked || ipResult?.locked) {
-    const retryAfterMs = Math.max(loginResult?.retryAfterMs || 0, ipResult?.retryAfterMs || 0);
+  if (loginResult?.locked || ipResult?.locked || globalResult.locked) {
+    const retryAfterMs = Math.max(
+      loginResult?.retryAfterMs || 0,
+      ipResult?.retryAfterMs || 0,
+      globalResult.retryAfterMs || 0
+    );
     return {
       locked: true,
       retryAfterMs,
@@ -198,7 +229,7 @@ function recordAuthResult(req, success) {
   }
 
   const loginRemaining = loginResult?.attemptsRemaining ?? MAX_ATTEMPTS;
-  const ipRemaining = ipResult?.attemptsRemaining ?? MAX_ATTEMPTS;
+  const ipRemaining = ipResult?.attemptsRemaining ?? IP_MAX_ATTEMPTS;
   return {
     locked: false,
     attemptsRemaining: Math.min(loginRemaining, ipRemaining),
@@ -214,5 +245,6 @@ module.exports = {
   // Test hooks (not used in routes):
   _ipBuckets: ipBuckets,
   _loginBuckets: loginBuckets,
-  _config: { MAX_ATTEMPTS, LOCKOUT_MS, WINDOW_MS },
+  _globalBuckets: globalBuckets,
+  _config: { MAX_ATTEMPTS, IP_MAX_ATTEMPTS, GLOBAL_MAX_ATTEMPTS, LOCKOUT_MS, WINDOW_MS },
 };

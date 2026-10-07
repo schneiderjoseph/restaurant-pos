@@ -20,6 +20,7 @@ const rl = require('./rate-limiter');
 beforeEach(() => {
   rl._ipBuckets.byKey.clear();
   rl._loginBuckets.byKey.clear();
+  rl._globalBuckets.byKey.clear();
   delete process.env.AUTH_LOGIN_BYPASS_IPS;
   delete process.env.AUTH_LOGIN_BYPASS_LOOPBACK;
 });
@@ -122,4 +123,27 @@ test('per-login lockout triggers independently of IP lockout', () => {
   let status = null;
   rl.loginRateLimit()(req, { set: () => {}, status: (s) => { status = s; return { json: () => {} }; } }, () => { status = 'passed'; });
   assert.equal(status, 429, 'per-login bucket should lock regardless of source IP');
+});
+
+test('keys the IP on the hop appended by nginx, not on a client-sent X-Forwarded-For', () => {
+  const req = {
+    body: {},
+    headers: { 'x-forwarded-for': '1.2.3.4, 192.168.0.50' },
+    socket: { remoteAddress: '172.18.0.1' },
+  };
+  assert.equal(rl.clientIp(req), '192.168.0.50');
+});
+
+test('a PIN brute force spread over spoofed IPs hits the global lockout', () => {
+  const { GLOBAL_MAX_ATTEMPTS } = rl._config;
+  for (let i = 0; i < GLOBAL_MAX_ATTEMPTS; i++) {
+    const pin = String(i).padStart(4, '0');
+    const req = fakeReq(`10.9.${Math.floor(i / 250)}.${i % 250}`, pin);
+    rl.loginRateLimit()(req, {}, () => {});
+    rl.recordAuthResult(req, false);
+  }
+  const req = fakeReq('10.9.99.99', '9999');
+  let status = null;
+  rl.loginRateLimit()(req, { set: () => {}, status: (s) => { status = s; return { json: () => {} }; } }, () => { status = 'passed'; });
+  assert.equal(status, 429, 'new IP + new PIN must still be refused');
 });

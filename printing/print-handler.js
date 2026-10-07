@@ -54,16 +54,33 @@ function printOnDevice(device, escposOptions, printType, data, config) {
         return reject(openErr);
       }
 
-      const builder = getBuilder(printType);
+      // A builder that fails (unknown type, bad payload) fails the same way on every
+      // retry: mark it permanent so the queue drops it instead of holding the printer.
+      const buildFailed = (err) => {
+        const error = err instanceof Error ? err : new Error(String(err));
+        error.permanent = true;
+        try {
+          device.close();
+        } catch (e) {
+          // ignore
+        }
+        reject(error);
+      };
 
-      Promise.resolve(builder.build(printer, data, configWithPrinter))
-        .then(() => {
-          return new Promise((res, rej) => {
-            printer.close((closeErr) => (closeErr ? rej(closeErr) : res()));
-          });
-        })
-        .then(resolve)
-        .catch(reject);
+      let built;
+      try {
+        built = getBuilder(printType).build(printer, data, configWithPrinter);
+      } catch (err) {
+        return buildFailed(err);
+      }
+
+      Promise.resolve(built).then(() => {
+        try {
+          printer.close((closeErr) => (closeErr ? reject(closeErr) : resolve()));
+        } catch (err) {
+          reject(err);
+        }
+      }, buildFailed);
     });
   });
 }

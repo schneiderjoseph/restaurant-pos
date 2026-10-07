@@ -93,6 +93,19 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       station: isStationAccount,
     });
 
+    // Before displacing the user's other devices: if the database token cannot be
+    // issued the login fails, and those devices must keep their session.
+    let surrealToken = null;
+    try {
+      surrealToken = await issueSurrealAccessToken();
+    } catch (err) {
+      console.error('Failed to issue Surreal access token', err);
+      return res.status(503).json({
+        ok: false,
+        error: 'Database session unavailable',
+      });
+    }
+
     if (!isStationAccount) {
       try {
         await replaceOtherDeviceSession(user, session, readDeviceId(req.body));
@@ -109,17 +122,6 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       session.roles,
       req.socket?.remoteAddress || req.ip
     ).catch(() => {});
-
-    let surrealToken = null;
-    try {
-      surrealToken = await issueSurrealAccessToken();
-    } catch (err) {
-      console.error('Failed to issue Surreal access token', err);
-      return res.status(503).json({
-        ok: false,
-        error: 'Database session unavailable',
-      });
-    }
 
     return res.json({
       ok: true,
@@ -141,7 +143,7 @@ router.post('/login', loginRateLimit(), async (req, res) => {
   }
 });
 
-router.get('/session', loginRateLimit(), async (req, res) => {
+router.get('/session', async (req, res) => {
   try {
     const payload = await verifySession(extractBearer(req));
     return res.json({ ok: true, session: payload });
@@ -160,6 +162,7 @@ router.post('/logout', async (req, res) => {
     // Pass the token's `exp` so the revocation store can GC expired rows
     // after the natural TTL elapses.
     await revokeSession(payload.jti, payload.exp);
+    closeSessionSockets(payload.jti);
     // Audit log the session revocation.
     auditLog.logSessionRevoked(payload.jti, payload.sub, payload.login).catch(() => {});
     return res.json({ ok: true });
@@ -173,7 +176,7 @@ router.post('/logout', async (req, res) => {
  * Refresh Surreal access token for an existing gateway session.
  * Used when the Surreal token expires but the POS session is still valid.
  */
-router.post('/db-token', loginRateLimit(), async (req, res) => {
+router.post('/db-token', async (req, res) => {
   try {
     await verifySession(extractBearer(req));
     const surrealToken = await issueSurrealAccessToken();

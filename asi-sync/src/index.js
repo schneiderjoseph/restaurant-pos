@@ -78,28 +78,29 @@ async function runOnce() {
   const db = await connectSurreal(config.surreal);
   try {
     const out = {};
-    if (config.syncMenu) {
-      out.menu = await syncMenu(db);
-    } else {
-      log('Menu sync skipped (ASI_MENU_SYNC=0)');
-    }
-    if (config.syncTables) {
-      out.tables = await syncTables(db);
-    } else {
-      log('Table sync skipped (ASI_TABLE_SYNC=0)');
-    }
-    if (config.syncRooms) {
-      out.rooms = await syncRooms(db);
-    } else {
-      log('Room sync skipped (ASI_ROOM_SYNC=0)');
-    }
-    if (config.fd.enabled) {
-      out.guests = await syncGuests(db);
-    } else {
-      log('Guest sync skipped (ASI_FD_SYNC=0)');
-    }
+    const failures = [];
+    // Each part runs on its own: ASI POS being down must not stop the FrontDesk guests.
+    const run = async (name, enabled, skippedMsg, fn) => {
+      if (!enabled) {
+        log(skippedMsg);
+        return;
+      }
+      try {
+        out[name] = await fn(db);
+      } catch (err) {
+        failures.push(name);
+        console.error(`[${new Date().toISOString()}] ${name} sync failed:`, err?.message || err);
+      }
+    };
+    await run('menu', config.syncMenu, 'Menu sync skipped (ASI_MENU_SYNC=0)', syncMenu);
+    await run('tables', config.syncTables, 'Table sync skipped (ASI_TABLE_SYNC=0)', syncTables);
+    await run('rooms', config.syncRooms, 'Room sync skipped (ASI_ROOM_SYNC=0)', syncRooms);
+    await run('guests', config.fd.enabled, 'Guest sync skipped (ASI_FD_SYNC=0)', syncGuests);
     if (!config.syncMenu && !config.syncTables && !config.syncRooms && !config.fd.enabled) {
       log('Nothing to sync — enable ASI_MENU_SYNC, ASI_TABLE_SYNC, ASI_ROOM_SYNC and/or ASI_FD_SYNC in asi-sync/.env');
+    }
+    if (failures.length > 0) {
+      throw new Error(`Sync incomplete — failed: ${failures.join(', ')}`);
     }
     log('Sync complete', out);
     return out;

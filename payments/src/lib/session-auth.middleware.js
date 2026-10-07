@@ -33,6 +33,41 @@ function extractBearer(req) {
   return null;
 }
 
+const REVOCATION_CACHE_MS = 30 * 1000;
+/** jti -> { revoked, checkedAt } */
+const revocationCache = new Map();
+
+/**
+ * A signature check alone keeps accepting a token after logout or after the user
+ * signed in on another device. When GATEWAY_VERIFY_URL is set, ask the gateway (which
+ * holds the revocation list). An unreachable gateway does not block printing or
+ * payments: the token is then accepted on its signature.
+ */
+async function isRevokedAtGateway(token, jti) {
+  const url = process.env.GATEWAY_VERIFY_URL;
+  if (!url || !jti) return false;
+
+  const now = Date.now();
+  const cached = revocationCache.get(jti);
+  if (cached && now - cached.checkedAt < REVOCATION_CACHE_MS) return cached.revoked;
+
+  let revoked = false;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(2000),
+    });
+    revoked = res.status === 401;
+  } catch {
+    return false;
+  }
+
+  if (revocationCache.size > 5000) revocationCache.clear();
+  revocationCache.set(jti, { revoked, checkedAt: now });
+  return revoked;
+}
+
 function createSessionAuthMiddleware(options = {}) {
   const optional = Boolean(options.optional);
   // Optional hook: services can register a denial callback to log to their
@@ -77,6 +112,12 @@ function createSessionAuthMiddleware(options = {}) {
           try { await onDenied(req, 401, 'Invalid token type'); } catch {}
         }
         return res.status(401).json({ ok: false, error: 'Invalid token type' });
+      }
+      if (await isRevokedAtGateway(token, payload.jti)) {
+        if (onDenied) {
+          try { await onDenied(req, 401, 'Session revoked'); } catch {}
+        }
+        return res.status(401).json({ ok: false, error: 'Session revoked', code: 'session_revoked' });
       }
       req.posSession = payload;
       return next();

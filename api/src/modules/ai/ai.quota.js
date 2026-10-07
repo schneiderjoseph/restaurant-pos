@@ -10,6 +10,9 @@ const USAGE_FILE = path.join(USAGE_DIR, 'ai-usage.json');
 /** Serialize read-modify-write so concurrent requests do not clobber counters. */
 let writeChain = Promise.resolve();
 
+/** Calls started but not yet recorded: counted against the limit so parallel calls cannot overrun it. */
+let inFlight = 0;
+
 function parseOptionalLimit(raw) {
   if (raw === undefined || raw === null || String(raw).trim() === '') {
     return null;
@@ -141,7 +144,7 @@ function assertAllowed() {
     throw quotaError(403, 'AI_DISABLED', 'AI is disabled on this server.', snapshot);
   }
 
-  if (snapshot.daily.limit !== null && snapshot.daily.used >= snapshot.daily.limit) {
+  if (snapshot.daily.limit !== null && snapshot.daily.used + inFlight >= snapshot.daily.limit) {
     throw quotaError(
       429,
       'AI_DAILY_LIMIT',
@@ -150,7 +153,7 @@ function assertAllowed() {
     );
   }
 
-  if (snapshot.monthly.limit !== null && snapshot.monthly.used >= snapshot.monthly.limit) {
+  if (snapshot.monthly.limit !== null && snapshot.monthly.used + inFlight >= snapshot.monthly.limit) {
     throw quotaError(
       429,
       'AI_MONTHLY_LIMIT',
@@ -180,12 +183,28 @@ function recordUse() {
   return writeChain;
 }
 
+/** Check the quota and hold one slot; call the returned release() once the call is over. */
+function reserve() {
+  const snapshot = assertAllowed();
+  inFlight += 1;
+  let released = false;
+  return {
+    snapshot,
+    release() {
+      if (released) return;
+      released = true;
+      inFlight -= 1;
+    },
+  };
+}
+
 function getUsage() {
   return buildSnapshot();
 }
 
 module.exports = {
   assertAllowed,
+  reserve,
   recordUse,
   getUsage,
   // Exported for tests / diagnostics

@@ -94,6 +94,27 @@ function isUpstreamAllowed(url, allowList) {
   );
 }
 
+const MAX_REDIRECTS = 3;
+
+/**
+ * POST without letting fetch follow redirects on its own: every hop must pass the
+ * allow-list too, or an allowed host could bounce the request to an internal one.
+ */
+async function postFollowingAllowedRedirects(url, allowList, headers, body) {
+  let target = url;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
+    const response = await fetch(target, { method: 'POST', headers, body, redirect: 'manual' });
+    const location = response.status >= 300 && response.status < 400 ? response.headers.get('location') : null;
+    if (!location) return response;
+    const next = new URL(location, target).toString();
+    if (!isHttpUrl(next) || !isUpstreamAllowed(next, allowList)) {
+      throw new Error(`Fiscal authority redirected to a host that is not allowed (${new URL(next).hostname})`);
+    }
+    target = next;
+  }
+  throw new Error('Fiscal authority redirected too many times');
+}
+
 function pickUpstreamUrl(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return '';
   // Accept several aliases — clients / manual tests may use any of these.
@@ -219,14 +240,10 @@ async function proxyInvoice(req, res, next) {
 
     let upstream;
     try {
-      upstream = await fetch(url, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      upstream = await postFollowingAllowedRedirects(url, allowList, {
+        Authorization: `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+      }, JSON.stringify(payload));
     } catch (err) {
       logger.error('fiscal', 'upstream fetch failed', {
         message: err && err.message ? err.message : String(err),

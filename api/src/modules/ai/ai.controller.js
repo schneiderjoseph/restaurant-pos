@@ -1,7 +1,7 @@
 'use strict';
 
 const { chatCompletion } = require('./ai.provider');
-const { assertAllowed, recordUse, getUsage } = require('./ai.quota');
+const { reserve, recordUse, getUsage } = require('./ai.quota');
 const { getPublicConfig } = require('./ai.profiles');
 const logger = require('../../lib/logger');
 
@@ -17,18 +17,21 @@ function sendQuotaError(res, err) {
 }
 
 async function createChatCompletion(req, res, next) {
+  let slot = null;
   try {
-    assertAllowed();
+    slot = reserve();
 
     const { task, messages, tools, response_format } = req.body || {};
     const data = await chatCompletion({ task, messages, tools, response_format });
 
     await recordUse();
+    slot.release();
 
     // Return the raw OpenAI-compatible response so the frontend agent can
     // consume it unchanged.
     res.status(200).json(data);
   } catch (err) {
+    slot?.release();
     logger.error('ai', 'chat completion failed', {
       statusCode: err.statusCode,
       code: err.code,

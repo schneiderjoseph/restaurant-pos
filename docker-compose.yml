@@ -55,6 +55,9 @@ services:
     image: posr-react-printer:latest
     working_dir: /app
     env_file:
+      # Root .env first: shared GATEWAY_JWT_SECRET (session auth), service files override it.
+      - path: ./.env
+        required: false
       - path: ./api/.env
         required: false
       - path: ./api/.env.local
@@ -66,6 +69,7 @@ services:
       - printer-node_modules:/app/node_modules
     environment:
       - PRINT_PORT=3132
+      - GATEWAY_VERIFY_URL=${GATEWAY_VERIFY_URL:-http://gateway:3142/auth/verify}
       - PRINT_HOST=0.0.0.0
       - TZ=${VITE_APP_TIMEZONE:-UTC}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
@@ -86,6 +90,9 @@ services:
       - ./payments:/app
       - payment-node_modules:/app/node_modules
     env_file:
+      # Root .env first: shared GATEWAY_JWT_SECRET (session auth), service files override it.
+      - path: ./.env
+        required: false
       - path: ./payments/.env
         required: false
       - path: ./payments/.env.local
@@ -94,6 +101,7 @@ services:
         required: false
     environment:
       - PAYMENT_PORT=3134
+      - GATEWAY_VERIFY_URL=${GATEWAY_VERIFY_URL:-http://gateway:3142/auth/verify}
       - PAYMENT_HOST=0.0.0.0
       - PAYMENT_BASE_URL=${VITE_PAYMENT_SERVER_URL:-http://localhost:3134}
       - SURREAL_URL=ws://surrealdb:8000/rpc
@@ -146,6 +154,9 @@ services:
     image: node:20-alpine
     working_dir: /app
     env_file:
+      # Root .env first: shared GATEWAY_JWT_SECRET (session auth), service files override it.
+      - path: ./.env
+        required: false
       - path: ./tracking/.env
         required: false
       - path: ./tracking/.env.local
@@ -157,6 +168,7 @@ services:
       - tracking-api-node_modules:/app/node_modules
     environment:
       - TRACKING_PORT=3138
+      - GATEWAY_VERIFY_URL=${GATEWAY_VERIFY_URL:-http://gateway:3142/auth/verify}
       - TRACKING_HOST=0.0.0.0
       - TRACKING_DB_URL=ws://surrealdb:8000/rpc
       - TRACKING_DB_NS=posr
@@ -179,12 +191,16 @@ services:
       - ./api:/app
       - api-node_modules:/app/node_modules
     env_file:
+      # Root .env first: shared GATEWAY_JWT_SECRET (session auth), service files override it.
+      - path: ./.env
+        required: false
       - path: ./api/.env
         required: false
       - path: ./api/.env.local
         required: false
     environment:
       - API_PORT=3140
+      - GATEWAY_VERIFY_URL=${GATEWAY_VERIFY_URL:-http://gateway:3142/auth/verify}
       - API_HOST=0.0.0.0
       - API_LOG_LEVEL=info
       - API_ALLOWED_ORIGINS=${API_ALLOWED_ORIGINS:-http://localhost:5173}

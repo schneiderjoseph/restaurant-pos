@@ -21,10 +21,10 @@ async function handleWebhook(req, res) {
     const signature = req.get('intuit-signature');
     const rawBody = req.body;
 
-    if (!verifier.verify(
-      typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody),
-      signature
-    )) {
+    const signedPayload = req.rawBody
+      ? req.rawBody.toString('utf8')
+      : typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody);
+    if (!verifier.verify(signedPayload, signature)) {
       logger.warn('integrations.qbo.webhook', 'Invalid or missing webhook signature');
       return res.status(401).json({ success: false, error: 'Invalid signature' });
     }

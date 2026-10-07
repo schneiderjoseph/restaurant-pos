@@ -7,9 +7,8 @@ const TRACKING_TABLE = 'tracking';
 function normalizeTrackingPayload(raw) {
   const payload = { ...(raw || {}) };
 
-  if (!payload.created_at) {
-    payload.created_at = new Date();
-  }
+  // The audit trail is dated by the server, never by the client.
+  payload.created_at = new Date();
 
   if (!payload.page) {
     payload.page = 'unknown';
@@ -43,9 +42,28 @@ function toTrackingId(value) {
   return text;
 }
 
-async function createTracking(rawPayload) {
+/** Display name of the signed-in user, so a client cannot log events under someone else. */
+async function sessionUserName(client, userId) {
+  if (!userId) return null;
+  try {
+    const [row] = await client.query(
+      'SELECT VALUE string::trim(string::concat(first_name ?? "", " ", last_name ?? "")) FROM ONLY type::record($id)',
+      { id: String(userId) }
+    );
+    const name = Array.isArray(row) ? row[0] : row;
+    return typeof name === 'string' && name ? name : null;
+  } catch {
+    return null;
+  }
+}
+
+async function createTracking(rawPayload, sessionUserId) {
   const client = await getClient();
   const payload = normalizeTrackingPayload(rawPayload);
+  const name = await sessionUserName(client, sessionUserId);
+  if (name) {
+    payload.user = name;
+  }
   const trackingId = toTrackingId(payload.id);
 
   if (trackingId) {
