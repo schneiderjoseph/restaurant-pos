@@ -17,7 +17,7 @@ describe('loadOrderLineage', () => {
     const lineage = await loadOrderLineage(db, ['order:old', 'order:a', 'order:m', 'order:x']);
 
     expect(lineage['order:old']).toEqual({splitInto: '#089/1 · #090/2'});
-    expect(lineage['order:a']).toEqual({splitFrom: '#088'});
+    expect(lineage['order:a']).toEqual({splitFrom: '#088', splitPart: '1/2'});
     expect(lineage['order:b']).toBeUndefined();
     expect(lineage['order:m']).toEqual({mergedFrom: '#081 · #082'});
     expect(lineage['order:x']).toEqual({mergedInto: '#095'});

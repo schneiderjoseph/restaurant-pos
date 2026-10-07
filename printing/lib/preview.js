@@ -1,7 +1,7 @@
 'use strict';
 
 const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp } = require('./receipt-helpers');
-const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
+const { formatBillLineage, mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
 
 /**
@@ -192,6 +192,8 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
   parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
+  const lineageNote = formatBillLineage(bill.lineage, L);
+  if (lineageNote) parts.push(`<div class="row"><b>${escapeHtml(lineageNote)}</b></div>`);
   const placeValue = bill.placeValue || bill.table || '';
   const placeTitle = bill.placeKind === 'room' ? (L.room || 'Room') : (L.table || 'Table');
   parts.push(row(placeValue ? `${placeTitle}: ${placeValue}` : '', bill.userName || ''));

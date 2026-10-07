@@ -613,6 +613,29 @@ function formatDiscountMinimal(name, valueType, rate, fallback) {
 }
 
 /**
+ * Split / merge note printed under the invoice number ("Split 1/2 of #088"), from the
+ * `lineage` the app adds to the order. Labels come translated in config.labels, English otherwise.
+ * @param {{ splitFrom?: string, splitPart?: string, mergedFrom?: string } | null | undefined} lineage
+ * @param {Record<string, string>} [labels]
+ * @returns {string}
+ */
+function formatBillLineage(lineage, labels) {
+  if (!lineage || typeof lineage !== 'object') return '';
+  const L = labels || {};
+  const fill = (text, values) => Object.keys(values)
+    .reduce((out, key) => out.split(`{${key}}`).join(String(values[key])), text);
+  if (lineage.splitFrom) {
+    return lineage.splitPart
+      ? fill(L.splitPartOf || 'Split {part} of {numbers}', { part: lineage.splitPart, numbers: lineage.splitFrom })
+      : fill(L.splitFrom || 'Split from {numbers}', { numbers: lineage.splitFrom });
+  }
+  if (lineage.mergedFrom) {
+    return fill(L.mergedFrom || 'Merged from {numbers}', { numbers: lineage.mergedFrom });
+  }
+  return '';
+}
+
+/**
  * Common bill shape aligned with _common.bill.tsx and final.bill.tsx.
  * @param {Object} order
  * @param {{ forDelivery?: boolean, showInclusivePrices?: boolean, timezone?: string, locale?: string }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
@@ -652,6 +675,7 @@ function mapOrderToBill(order, opts) {
 
   return {
     orderId: getOrderId(order),
+    lineage: order && order.lineage ? order.lineage : null,
     table: getOrderTable(order),
     placeKind: getOrderPlaceKind(order),
     placeValue: getOrderPlaceValue(order),
@@ -834,6 +858,7 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
 }
 
 module.exports = {
+  formatBillLineage,
   getOrderId,
   getOrderItems,
   getOrderTotals,

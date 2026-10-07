@@ -17,6 +17,7 @@ const {
   printPrintingTimestamp,
   feedDotsAndCut,
 } = require('./receipt-helpers');
+const { formatBillLineage } = require('./order-mapping');
 
 /**
  * Single-discount header: "Discount (10% Summer Sale)" — value before name.
@@ -102,6 +103,10 @@ function printBillLayout(printer, bill, config, opts) {
   const checkClosedLabel = L.checkClosed || 'Check Closed';
 
   printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
+  const lineageNote = formatBillLineage(bill.lineage, L);
+  if (lineageNote) {
+    printFixedLine(printer, lineageNote, { align: 'left', style: 'bold' });
+  }
   const placeKind = bill.placeKind === 'room' ? 'room' : 'table';
   const placeLabel = placeKind === 'room' ? roomLabel : tableLabel;
   const placeValue = bill.placeValue || bill.table || '-';

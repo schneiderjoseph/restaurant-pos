@@ -11,6 +11,8 @@ type OrderRef = {id?: unknown, invoice_number?: number, split?: number};
 /** Where an order comes from and where it went, as order numbers ("#088", "#089/1 · #090/2"). */
 export type OrderLineage = {
   splitFrom?: string
+  /** This order's place among the orders of its split ("1/2"). */
+  splitPart?: string
   splitInto?: string
   mergedFrom?: string
   mergedInto?: string
@@ -51,9 +53,10 @@ export const loadOrderLineage = async (
 
   for (const split of splits ?? []) {
     set(split.old, {splitInto: numbers(split.news)});
-    for (const child of split.news ?? []) {
-      set(child, {splitFrom: numbers([split.old!])});
-    }
+    const siblings = (split.news ?? []).filter(Boolean);
+    siblings.forEach((child, index) => {
+      set(child, {splitFrom: numbers([split.old!]), splitPart: `${index + 1}/${siblings.length}`});
+    });
   }
   for (const merge of merges ?? []) {
     set(merge.merged, {mergedFrom: numbers(merge.olds)});

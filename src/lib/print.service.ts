@@ -11,6 +11,9 @@ import { fetchTranslateReceiptsEnabled } from "@/hooks/useTranslateReceipts.ts";
 import { fetchCurrencySymbolSettings } from "@/hooks/useCurrencySymbol.ts";
 import { DEFAULT_CURRENCY_SYMBOL } from "@/api/model/currency_symbol.ts";
 import { buildReceiptLabels } from "@/lib/receipt-labels.ts";
+import { loadOrderLineage } from "@/lib/order-lineage.ts";
+import { keyOf } from "@/lib/order-split.ts";
+import { OrderStatus } from "@/api/model/order.ts";
 import { systemPrinterSettings, type SystemPrinterSettings } from "@/store/jotai.ts";
 import {
   copiesKeyForTemplate,
@@ -327,6 +330,22 @@ export async function dispatchPrint<Payload = any>(
       template === 'delivery';
     if (needsEnrich) {
       printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
+    }
+  }
+
+  // A bill of an order from a split or a merge says where it comes from ("Split 1/2 of #088").
+  if ((template === 'temp' || template === 'final') && printPayload.order) {
+    const order = printPayload.order as {id?: unknown, split?: number, tags?: string[]};
+    if (order.split || (order.tags ?? []).includes(OrderStatus.Merged)) {
+      const lineage = await loadOrderLineage(db, [order.id])
+        .then((byOrder) => byOrder[keyOf(order.id)])
+        .catch(() => undefined);
+      if (lineage?.splitFrom || lineage?.mergedFrom) {
+        printPayload.order = {
+          ...order,
+          lineage: {splitFrom: lineage.splitFrom, splitPart: lineage.splitPart, mergedFrom: lineage.mergedFrom},
+        };
+      }
     }
   }
 

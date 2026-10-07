@@ -37,6 +37,10 @@ export function buildReceiptLabels(t: TFunction): ReceiptLabels {
     change: t("receipts:change"),
     notes: t("receipts:notes"),
     checkClosed: t("receipts:checkClosed"),
+    // Split / merge note; {part} and {numbers} are filled by the print server.
+    splitPartOf: t("receipts:splitPartOf"),
+    splitFrom: t("receipts:splitFrom"),
+    mergedFrom: t("receipts:mergedFrom"),
 
     // Refund
     refundReceipt: t("receipts:refundReceipt"),
