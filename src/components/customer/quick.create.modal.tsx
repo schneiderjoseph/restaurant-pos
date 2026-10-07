@@ -84,42 +84,57 @@ export const QuickCreateCustomerModal = ({ open, onClose, onCreated }: Props) =>
       toast.error(t('menu:guest.contactRequired'));
       return;
     }
-
-    if (normalizeIdDocument(idDocument)) {
-      const existing = await findCustomerByIdDocument(db, idDocument).catch((error) => {
-        console.error('ID document lookup failed', error);
-        return undefined;
-      });
-      if (existing) {
-        toast.message(t('menu:guest.idDocumentExists', {
-          name: existing.name || existing.guest_code || '',
-        }));
-        finish(existing);
-        return;
-      }
-    }
-
-    if (!confirmed) {
-      const found = await findWalkInMatches(db, { name: cleanName, phone }).catch((error) => {
-        console.error('Walk-in match lookup failed', error);
-        return [] as CustomerMatch[];
-      });
-      if (found.length > 0) {
-        setMatches(found);
-        return;
-      }
+    if (saving) {
+      return;
     }
 
     setSaving(true);
     try {
+      if (normalizeIdDocument(idDocument)) {
+        const existing = await findCustomerByIdDocument(db, idDocument).catch((error) => {
+          console.error('ID document lookup failed', error);
+          return undefined;
+        });
+        if (existing) {
+          toast.message(t('menu:guest.idDocumentExists', {
+            name: existing.name || existing.guest_code || '',
+          }));
+          finish(existing);
+          return;
+        }
+      }
+
+      if (!confirmed) {
+        let found: CustomerMatch[];
+        try {
+          found = await findWalkInMatches(db, { name: cleanName, phone });
+        } catch (error) {
+          console.error('Walk-in match lookup failed', error);
+          toast.error(t('menu:guest.matchLookupFailed'));
+          return;
+        }
+        if (found.length > 0) {
+          setMatches(found);
+          return;
+        }
+      }
+
       let guest_code = displayCode.trim().toUpperCase() || generateWalkInGuestCode(cleanName);
+      let codeAvailable = false;
       for (let attempt = 0; attempt < 8; attempt += 1) {
         const [existing] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers} WHERE guest_code = $code LIMIT 1`,
           { code: guest_code },
         );
-        if (!Array.isArray(existing) || !existing[0]) break;
+        if (!Array.isArray(existing) || !existing[0]) {
+          codeAvailable = true;
+          break;
+        }
         guest_code = generateWalkInGuestCode(cleanName);
+      }
+      if (!codeAvailable) {
+        toast.error(t('menu:guest.codeUnavailable'));
+        return;
       }
 
       const created = await createWalkInCustomer(db, {
@@ -136,7 +151,9 @@ export const QuickCreateCustomerModal = ({ open, onClose, onCreated }: Props) =>
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError
-          ? t('menu:guest.idDocumentTaken', { name: '' })
+          ? t('menu:guest.idDocumentTaken', {
+              name: error.holder?.name || error.holder?.guest_code || '',
+            })
           : t('menu:guest.createFailed'),
       );
     } finally {

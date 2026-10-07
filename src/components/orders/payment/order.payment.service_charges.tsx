@@ -89,7 +89,7 @@ export const OrderPaymentServiceCharges = ({
     if (
       defaultAppliedRef.current ||
       serviceCharge !== 0 ||
-      !order.order_type.allow_service_charges ||
+      !order.order_type?.allow_service_charges ||
       defaultFromSettings.value <= 0
     ) {
       return;
@@ -98,7 +98,7 @@ export const OrderPaymentServiceCharges = ({
     setDraftServiceCharge(defaultFromSettings.value);
     setDraftServiceChargeType(defaultFromSettings.type);
     defaultAppliedRef.current = true;
-  }, [defaultFromSettings, order.order_type.allow_service_charges, serviceCharge]);
+  }, [defaultFromSettings, order.order_type?.allow_service_charges, serviceCharge]);
 
   return (
     <div className="flex flex-col justify-between min-h-full" data-testid="payment-panel-service-charges">

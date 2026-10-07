@@ -45,9 +45,9 @@ export const FloorLayout = () => {
   const [state, setState] = useAtom(appState);
   const [, setSettings] = useAtom(appSettings);
   const db = useDB();
-  const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
-  const [tablesLiveQuery, setTablesLiveQuery] = useState<LiveSubscription | null>(null);
-  const [inHouseLiveQuery, setInHouseLiveQuery] = useState<LiveSubscription | null>(null);
+  // Refs, not state: the unmount cleanup must see the subscriptions opened after mount.
+  const liveSubscriptions = useRef<LiveSubscription[]>([]);
+  const unmounted = useRef(false);
   const [page] = useAtom(appPage);
   const [, setAlert] = useAtom(appAlert);
   const [settings] = useAtom(appSettings);
@@ -63,7 +63,7 @@ export const FloorLayout = () => {
 
   const tables = useMemo(() => {
     if (state.floor) {
-      return settings.tables.filter(item => item.floor.id.toString() === state.floor.id.toString());
+      return settings.tables.filter(item => item.floor?.id?.toString() === state.floor.id.toString());
     }
 
     return settings.tables;
@@ -173,27 +173,30 @@ export const FloorLayout = () => {
     );
   };
 
-  const runLiveQuery = async () => {
-    const result = await db.live(Tables.orders, function () {
-      fetchOrders();
-    });
+  const keepSubscription = (subscription: LiveSubscription) => {
+    if (unmounted.current) {
+      subscription.kill().catch(() => undefined);
+      return;
+    }
+    liveSubscriptions.current.push(subscription);
+  }
 
-    setLiveQuery(result);
+  const runLiveQuery = async () => {
+    keepSubscription(await db.live(Tables.orders, function () {
+      fetchOrders();
+    }));
   }
 
   const runTablesLiveQuery = async () => {
-    const result = await db.live(Tables.tables, function () {
+    keepSubscription(await db.live(Tables.tables, function () {
       fetchTables();
-    });
-
-    setTablesLiveQuery(result);
+    }));
   }
 
   const runInHouseLiveQuery = async () => {
-    const result = await db.live(Tables.customers, function () {
+    keepSubscription(await db.live(Tables.customers, function () {
       void fetchInHouseRooms();
-    });
-    setInHouseLiveQuery(result);
+    }));
   }
 
   useEffect(() => {
@@ -202,10 +205,11 @@ export const FloorLayout = () => {
     void fetchInHouseRooms();
     runInHouseLiveQuery().then();
 
+    unmounted.current = false;
     return () => {
-      liveQuery?.kill().catch(() => undefined);
-      tablesLiveQuery?.kill().catch(() => undefined);
-      inHouseLiveQuery?.kill().catch(() => undefined);
+      unmounted.current = true;
+      liveSubscriptions.current.forEach(subscription => subscription.kill().catch(() => undefined));
+      liveSubscriptions.current = [];
     }
   }, []);
 
@@ -393,7 +397,7 @@ export const FloorLayout = () => {
       }
 
       if (state.switchTable) {
-        if (state.order.id !== 'new') {
+        if (state.order?.id && state.order.id !== 'new') {
           const fromTableId = state?.table?.id?.toString();
           // update new table in order
           await db.merge(toRecordId(state.order.id), {
@@ -434,8 +438,8 @@ export const FloorLayout = () => {
             },
             user: page?.user,
           });
+          cart = [];
         }
-        cart = [];
       }
 
       if (order) {
@@ -443,7 +447,7 @@ export const FloorLayout = () => {
       }
 
       const seats = new Map();
-      order?.items.forEach(item => {
+      (order?.items ?? []).forEach(item => {
         if (item.seat) {
           seats.set(item.seat, item.seat);
         }
@@ -451,7 +455,7 @@ export const FloorLayout = () => {
 
       const seatsArray = Array.from(seats.values());
 
-      const noSeat = state.cart.some(item => item.seat === undefined);
+      const noSeat = cart.some(item => item.seat === undefined);
 
       setState(prev => ({
         ...prev,
@@ -506,6 +510,7 @@ export const FloorLayout = () => {
                 order: undefined,
                 orders: [],
                 cart: [],
+                switchTable: false,
               }))}
             >
               {t('menu:guest.backToGuests')}

@@ -73,7 +73,8 @@
     "totalWithTax": "Totale con {{label}}",
     "change": "Resto",
     "sc": "CS ({{value}}%)",
-    "extras": "Extra"
+    "extras": "Extra",
+    "payment": "Pagamento"
   },
   "actions": {
     "selectToMerge": "Seleziona per unire",

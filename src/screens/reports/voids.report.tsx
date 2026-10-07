@@ -201,7 +201,7 @@ export const VoidsReport = () => {
     orderVoids.forEach(voidItem => {
       const reason = voidItem.reason || 'Unknown';
       const voidItems = getVoidItems(voidItem);
-      const quantity = safeNumber(voidItem.quantity ?? 1) * voidItems.length;
+      const quantity = safeNumber(voidItem.quantity ?? 1);
       const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
       
       const existing = map.get(reason) || {count: 0, quantity: 0, amount: 0};
@@ -225,7 +225,7 @@ export const VoidsReport = () => {
         ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || 'Unknown'
         : 'Unknown';
       const voidItems = getVoidItems(voidItem);
-      const quantity = safeNumber(voidItem.quantity ?? 1) * voidItems.length;
+      const quantity = safeNumber(voidItem.quantity ?? 1);
       const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
       
       const existing = map.get(managerName) || {count: 0, quantity: 0, amount: 0};

@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Harita alanları kaydedilemedi"
   },
   "kitchen": {
-    "recallFailed": "Sipariş geri çağrılamadı"
+    "recallFailed": "Sipariş geri çağrılamadı",
+    "readyFailed": "Sipariş hazır olarak işaretlenemedi",
+    "itemReadyFailed": "Kalem hazır olarak işaretlenemedi",
+    "reprintFailed": "Mutfak fişi yeniden yazdırılamadı"
   },
   "closing": {
     "loadFailed": "Kapanış yüklenemedi",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz",
     "outletSaved": "Satış noktası {{name}} kaydedildi",
     "outletDeleted": "Satış noktası {{name}} silindi",
-    "outletSuggestionsApplied": "{{count}} kategori sınıflandırıldı"
+    "outletSuggestionsApplied": "{{count}} kategori sınıflandırıldı",
+    "dishRelationsLoading": "Lütfen yemek ilişkilerinin yüklenmesi bitsin"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} kullanımda olduğu için devre dışı bırakıldı.",

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils.ts';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +23,8 @@ const CONFETTI_COLORS = [
 export const OrderReadyCelebration = ({ orderNumber, displayNumber, onComplete }: Props) => {
   const { t } = useTranslation('order-display');
   const shownNumber = displayNumber ?? orderNumber;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const confetti = useMemo(
     () =>
@@ -39,9 +41,9 @@ export const OrderReadyCelebration = ({ orderNumber, displayNumber, onComplete }
   );
 
   useEffect(() => {
-    const timer = window.setTimeout(onComplete, 2800);
+    const timer = window.setTimeout(() => onCompleteRef.current(), 2800);
     return () => window.clearTimeout(timer);
-  }, [onComplete]);
+  }, []);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center overflow-hidden">

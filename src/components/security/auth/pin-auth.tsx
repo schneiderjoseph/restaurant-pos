@@ -1,5 +1,5 @@
 import { Button } from '@/components/common/input/button';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SecurityAction, SecurityManager } from '@/providers/security.provider';
 import {cn} from "@/lib/utils.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -23,6 +23,9 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const db = useDB();
+  const submittingRef = useRef(false);
+  const pinRef = useRef(pin);
+  pinRef.current = pin;
 
   const handleNumberClick = (num: string) => {
     if (pin.length < 4) {
@@ -41,14 +44,14 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     setError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validatePIN = async () => {
+    if (submittingRef.current) return;
+    const currentPin = pinRef.current;
+    if (currentPin.length !== 4) return;
+
+    submittingRef.current = true;
     setError('');
 
-    await validatePIN();
-  };
-
-  const validatePIN = async () => {
     const module = currentAction?.module;
     const alternateModule = currentAction?.alternateModule;
     const excludeUserId = currentAction?.excludeUserId
@@ -60,78 +63,91 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     // Limit override: Override print limit (any user) OR print module (another user only).
     const useOverrideGate = Boolean(alternateModule && excludeUserId);
 
-    const [userWithModules] = useOverrideGate
-      ? await db.query(
-          `SELECT * FROM ${Tables.users}
-           WHERE deleted_at = none
-             AND login_method = 'pin'
-             AND login = $pin
-             AND crypto::bcrypt::compare(password, $pin) = true
-             AND (
-               array::len(array::intersect(user_role.roles ?? [], $overrideModules)) > 0
-               OR (
-                 array::len(array::intersect(user_role.roles ?? [], $printModules)) > 0
-                 AND id != $excludeUserId
+    try {
+      const [userWithModules] = useOverrideGate
+        ? await db.query(
+            `SELECT * FROM ${Tables.users}
+             WHERE deleted_at = none
+               AND (login_method = 'pin' OR login_method = NONE)
+               AND login = $pin
+               AND crypto::bcrypt::compare(password, $pin) = true
+               AND (
+                 array::len(array::intersect(user_role.roles ?? [], $overrideModules)) > 0
+                 OR (
+                   array::len(array::intersect(user_role.roles ?? [], $printModules)) > 0
+                   AND id != $excludeUserId
+                 )
                )
-             )
-           FETCH user_role, user_shift`,
-          {
-            pin,
-            overrideModules: moduleCandidates,
-            printModules: alternateCandidates,
-            excludeUserId,
-          }
-        )
-      : await db.query(
-          `SELECT * FROM ${Tables.users}
-           WHERE deleted_at = none
-             AND array::len(array::intersect(user_role.roles ?? [], $modules)) > 0
-             AND login_method = 'pin'
-             AND login = $pin
-             AND crypto::bcrypt::compare(password, $pin) = true
-           FETCH user_role, user_shift`,
-          {
-            modules: moduleCandidates,
-            pin,
-          }
-        );
+             FETCH user_role, user_shift`,
+            {
+              pin: currentPin,
+              overrideModules: moduleCandidates,
+              printModules: alternateCandidates,
+              excludeUserId,
+            }
+          )
+        : await db.query(
+            `SELECT * FROM ${Tables.users}
+             WHERE deleted_at = none
+               AND array::len(array::intersect(user_role.roles ?? [], $modules)) > 0
+               AND (login_method = 'pin' OR login_method = NONE)
+               AND login = $pin
+               AND crypto::bcrypt::compare(password, $pin) = true
+             FETCH user_role, user_shift`,
+            {
+              modules: moduleCandidates,
+              pin: currentPin,
+            }
+          );
 
-    if (userWithModules.length > 0) {
-      onSuccess(userWithModules[0] as SecurityManager);
-    } else {
-      setError(t('security.invalidPin', { module: currentAction?.module }));
-    }
-
-    setPin('');
-  }
-
-  const handleKeyPress = (key: string) => {
-    switch (key) {
-      case 'Enter':
-        handleSubmit({ preventDefault: () => {} } as React.FormEvent);
-        break;
-      case 'Escape':
-        onCancel();
-        break;
-      case 'Backspace':
-        handleDelete();
-        break;
-      default:
-        if (/^[0-9]$/.test(key)) {
-          handleNumberClick(key);
-        }
-        break;
+      if (userWithModules.length > 0) {
+        onSuccess(userWithModules[0] as SecurityManager);
+      } else {
+        setError(t('security.invalidPin', { module: currentAction?.module }));
+      }
+    } finally {
+      setPin('');
+      submittingRef.current = false;
     }
   };
 
-  useEffect(() => {
-    document.addEventListener('keydown', (e) => handleKeyPress(e.key));
-    return () => document.removeEventListener('keydown', (e) => handleKeyPress(e.key));
-  }, []);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await validatePIN();
+  };
 
   useEffect(() => {
-    if(pin.length === 4){
-      validatePIN();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Enter':
+          void validatePIN();
+          break;
+        case 'Escape':
+          onCancel();
+          break;
+        case 'Backspace':
+          setPin(prev => prev.slice(0, -1));
+          setError('');
+          break;
+        default:
+          if (/^[0-9]$/.test(e.key)) {
+            setPin(prev => {
+              if (prev.length >= 4) return prev;
+              return prev + e.key;
+            });
+            setError('');
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [currentAction, onCancel, onSuccess, t]);
+
+  useEffect(() => {
+    if (pin.length === 4) {
+      void validatePIN();
     }
   }, [pin]);
 

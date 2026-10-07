@@ -92,7 +92,9 @@
     "roomCheckedOut": "ASI’de çıkış yapıldı: bu misafir doğrudan öder, dışarıdan gelen müşteri gibi",
     "roomSyncStale": "Konaklama doğrulanamıyor (ASI senkronizasyonu gecikti): misafir doğrudan öder",
     "roomNotHotelGuest": "Odaya yazmak için konaklayan bir otel misafiri gerekir",
-    "roomDepartsToday": "Bugün ayrılış planlandı"
+    "roomDepartsToday": "Bugün ayrılış planlandı",
+    "fiscalFailed": "Mali gönderim başarısız",
+    "fiscalPartialFailure": "Bazı mali sağlayıcılar başarısız oldu; Entegrasyonlar kuyruğunu kontrol edin"
   },
   "remote": {
     "remoteLabel": "{{name}} (Uzaktan)",

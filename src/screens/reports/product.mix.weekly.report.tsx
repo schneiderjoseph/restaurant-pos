@@ -8,7 +8,7 @@ import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {DateTime} from "luxon";
-import { toLuxonDateTime } from "@/lib/datetime.ts";
+import { getAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
@@ -50,11 +50,14 @@ const parseFilters = (): ReportFilters => {
 };
 
 const parseWeekParams = (weekParam?: string) => {
-  let weekStart = weekParam ? DateTime.fromISO(weekParam) : DateTime.now();
+  const zone = getAppTimezone();
+  let weekStart = weekParam
+    ? DateTime.fromISO(weekParam, {zone})
+    : DateTime.now().setZone(zone);
   if (!weekStart.isValid) {
-    weekStart = DateTime.now();
+    weekStart = DateTime.now().setZone(zone);
   }
-  weekStart = weekStart.startOf('week');
+  weekStart = weekStart.setZone(zone).startOf('week');
   const weekEnd = weekStart.plus({days: 6});
   const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 

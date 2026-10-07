@@ -7,7 +7,7 @@ import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
-import {getAccountHeadType, toAccountBalance, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {getAccountHeadType, POSTED_ENTRY_FILTER, toAccountBalance, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 
 interface BalanceSheetRow {
   account: {
@@ -43,7 +43,8 @@ export const BalanceSheet = () => {
                  math::sum(debit) as total_debit,
                  math::sum(credit) as total_credit
           FROM ${Tables.account_journal_lines}
-          WHERE entry.date <= <datetime>$as_of
+          WHERE ${POSTED_ENTRY_FILTER}
+            AND entry.date <= <datetime>$as_of
           GROUP BY account.code, account.name, account.group
           ORDER BY account.code ASC
           FETCH account, account.group
@@ -68,21 +69,30 @@ export const BalanceSheet = () => {
       liability: [] as Array<BalanceSheetRow & {balance: number}>,
       equity: [] as Array<BalanceSheetRow & {balance: number}>,
     };
+    let netIncome = 0;
 
     rows.forEach((row) => {
       const head = getAccountHeadType(row.account);
+      const normalBalance = row.account?.normal_balance || row.account?.group?.normal_balance;
+      const balance = toAccountBalance(
+        Number(row.total_debit || 0),
+        Number(row.total_credit || 0),
+        normalBalance
+      );
+
+      if (head === "income") {
+        netIncome += balance;
+        return;
+      }
+      if (head === "expense") {
+        netIncome -= balance;
+        return;
+      }
       if (!head || !["asset", "liability", "equity"].includes(head)) {
         return;
       }
-      const normalBalance = row.account?.normal_balance || row.account?.group?.normal_balance;
-      const rowWithBalance = {
-        ...row,
-        balance: toAccountBalance(
-          Number(row.total_debit || 0),
-          Number(row.total_credit || 0),
-          normalBalance
-        ),
-      };
+
+      const rowWithBalance = {...row, balance};
 
       if (head === "asset") {
         sections.asset.push(rowWithBalance);
@@ -95,10 +105,12 @@ export const BalanceSheet = () => {
 
     const totalAssets = sections.asset.reduce((sum, row) => sum + row.balance, 0);
     const totalLiabilities = sections.liability.reduce((sum, row) => sum + row.balance, 0);
-    const totalEquity = sections.equity.reduce((sum, row) => sum + row.balance, 0);
+    const equityAccounts = sections.equity.reduce((sum, row) => sum + row.balance, 0);
+    const totalEquity = equityAccounts + netIncome;
 
     return {
       sections,
+      netIncome,
       totalAssets,
       totalLiabilities,
       totalEquity,
@@ -126,7 +138,7 @@ export const BalanceSheet = () => {
           {[
             {key: "asset", title: t('reports.assets'), rows: summary.sections.asset, total: summary.totalAssets},
             {key: "liability", title: t('reports.liabilities'), rows: summary.sections.liability, total: summary.totalLiabilities},
-            {key: "equity", title: t('reports.equity'), rows: summary.sections.equity, total: summary.totalEquity},
+            {key: "equity", title: t('reports.equity'), rows: summary.sections.equity, total: summary.totalEquity, netIncome: summary.netIncome},
           ].map((section) => (
             <div key={section.key} className="border rounded-lg bg-white">
               <div className="border-b p-3 font-semibold">{section.title}</div>
@@ -137,7 +149,15 @@ export const BalanceSheet = () => {
                     <span>{formatMoney(row.balance)}</span>
                   </div>
                 ))}
-                {section.rows.length === 0 && <div className="text-gray-500">{t('reports.noData')}</div>}
+                {section.key === "equity" && Number(section.netIncome) !== 0 && (
+                  <div className="flex justify-between">
+                    <span>{t('reports.netIncome')}</span>
+                    <span>{formatMoney(Number(section.netIncome))}</span>
+                  </div>
+                )}
+                {section.rows.length === 0 && !(section.key === "equity" && Number(section.netIncome) !== 0) && (
+                  <div className="text-gray-500">{t('reports.noData')}</div>
+                )}
               </div>
               <div className="border-t p-3 font-semibold flex justify-between">
                 <span>{t('reports.total')} {section.title}</span>

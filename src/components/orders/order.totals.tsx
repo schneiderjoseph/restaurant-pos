@@ -6,7 +6,7 @@ import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {previewCartTotals} from "@/lib/cart-tax-preview.ts";
 import {cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
-import {getActiveOrderDiscounts, getOrderDisplayItems} from "@/lib/order.ts";
+import {getActiveOrderDiscounts, getOrderDisplayItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -101,7 +101,8 @@ export const OrderTotals = ({order, cart, className, compact}: Props) => {
     const serviceChargeAmount = getOrderServiceChargeAmount(order, itemsTotal);
     const discountAmount = itemsTotal <= 0 ? 0 : Number(order?.discount_amount ?? 0);
     const tipAmount = itemsTotal <= 0 ? 0 : Number(order?.tip_amount ?? 0);
-    const total = itemsTotal + extrasTotal + taxAmount - discountAmount + serviceChargeAmount + tipAmount;
+    const couponAmount = itemsTotal <= 0 ? 0 : Number(order?.coupon?.discount ?? 0);
+    const total = itemsTotal + extrasTotal + taxAmount - discountAmount - couponAmount + serviceChargeAmount + tipAmount;
 
     return {
       itemsTotal,
@@ -121,11 +122,8 @@ export const OrderTotals = ({order, cart, className, compact}: Props) => {
     return getOrderTaxBreakdown(order);
   }, [order, cart]);
 
-  const changeDue = useMemo(() => {
-    return order?.payments
-      ?.filter(item => item !== null)
-      ?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
-  }, [order?.payments]);
+  // Tendered minus applied: positive when the guest over-pays in cash.
+  const changeDue = useMemo(() => getOrderPaymentTotals({payments: order?.payments}).change, [order?.payments]);
 
   /** Detail label for a discount line: "10% Summer Sale" or "50 Summer Sale" */
   const formatDiscountDetail = (name: string | undefined | null, valueType?: string | null, rate?: number | null) => {
@@ -261,7 +259,7 @@ export const OrderTotals = ({order, cart, className, compact}: Props) => {
       {order?.payments?.filter(item => item != null)
         ?.map((item, index) => (
         <div key={index} className="flex">
-          <div className="flex-1">{item.payment_type?.name ?? 'Payment'}</div>
+          <div className="flex-1">{item.payment_type?.name ?? t('totals.payment')}</div>
           <div className="text-right"><DualCurrency amount={item.amount} /></div>
         </div>
       ))}

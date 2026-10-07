@@ -402,7 +402,9 @@
     "extraModifierPrice": "سعر الإضافة",
     "extraModifierPriceHint": "سعر واحد لكل خيار مدفوع. فارغ = سعر كل خيار.",
     "extraModifierPricePlaceholder": "سعر كل خيار",
-    "includedModifiersGroupHint": "يُستخدم عندما يقدّم طبق خيارات من هذه المجموعة مجانًا («مشمول» في الطبق): أيها مجاني وكم تكلف التالية."
+    "includedModifiersGroupHint": "يُستخدم عندما يقدّم طبق خيارات من هذه المجموعة مجانًا («مشمول» في الطبق): أيها مجاني وكم تكلف التالية.",
+    "maxRateGteMin": "يجب أن يكون المعدل الأقصى أكبر من أو يساوي المعدل الأدنى",
+    "weightMustBeNonNegative": "يجب أن تكون الأوزان أكبر من أو تساوي 0"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -951,6 +953,7 @@
       "average": "متوسط الفاتورة",
       "lastVisit": "آخر زيارة",
       "favorites": "الأطباق المفضلة"
-    }
+    },
+    "historyLoadFailed": "تعذر تحميل سجل طلبات العميل"
   }
 }

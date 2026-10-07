@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
 import {DateTime as SurrealDateTime} from 'surrealdb';
+import {getAppTimezone} from "@/lib/datetime.ts";
 
 interface WeekOption {
   label: string;
@@ -19,7 +20,8 @@ interface WeekOption {
 }
 
 const formatWeekLabel = (date: DateTime) => {
-  const start = date.startOf('week');
+  const zone = getAppTimezone();
+  const start = date.setZone(zone).startOf('week');
   const end = start.plus({days: 6});
   return `${start.toFormat('yyyy-LL-dd')} → ${end.toFormat('yyyy-LL-dd')}`;
 };
@@ -28,17 +30,17 @@ const parseCreatedAt = (value?: string | Date | null | SurrealDateTime) => {
   if (!value) {
     return null;
   }
+  const zone = getAppTimezone();
   if (typeof value === 'string') {
-    const parsed = DateTime.fromISO(value);
-    return parsed.isValid ? parsed : null;
+    const parsed = DateTime.fromISO(value, {zone});
+    return parsed.isValid ? parsed.setZone(zone) : null;
   }
 
   if(value instanceof SurrealDateTime){
     value = value.toDate();
   }
 
-
-  const parsed = DateTime.fromJSDate(value);
+  const parsed = DateTime.fromJSDate(value, {zone});
   return parsed.isValid ? parsed : null;
 };
 
@@ -96,8 +98,9 @@ export const ProductMixWeeklyReportFilter = () => {
 
         const firstOrderRecord = result?.[0]?.[0];
         const firstOrderDate = parseCreatedAt(firstOrderRecord?.created_at);
-        const start = firstOrderDate?.startOf('week') || DateTime.now().startOf('week');
-        const end = DateTime.now().startOf('week');
+        const zone = getAppTimezone();
+        const start = firstOrderDate?.setZone(zone).startOf('week') || DateTime.now().setZone(zone).startOf('week');
+        const end = DateTime.now().setZone(zone).startOf('week');
 
         const generatedWeeks: WeekOption[] = [];
         let current = start;
@@ -117,7 +120,7 @@ export const ProductMixWeeklyReportFilter = () => {
       } catch (err) {
         console.error("Failed to load weeks:", err);
         if (isMounted) {
-          setError("Unable to load weeks");
+          setError(t('filters.unableToLoadWeeks'));
         }
       } finally {
         if (isMounted) {
@@ -133,7 +136,7 @@ export const ProductMixWeeklyReportFilter = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   const weekOptions = useMemo(() => {
     return weeks.map((week) => (
@@ -150,7 +153,7 @@ export const ProductMixWeeklyReportFilter = () => {
       target="_blank"
     >
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="product-mix-weekly-week">Week</label>
+        <label htmlFor="product-mix-weekly-week">{t('filters.week')}</label>
         <select
           id="product-mix-weekly-week"
           name="week"
@@ -161,11 +164,11 @@ export const ProductMixWeeklyReportFilter = () => {
           required
         >
           {!loading && !weeks.length && (
-            <option>No weeks available</option>
+            <option>{t('filters.noWeeksAvailable')}</option>
           )}
           {weekOptions}
         </select>
-        {loading && <p className="text-sm text-gray-500">Loading weeks...</p>}
+        {loading && <p className="text-sm text-gray-500">{t('filters.loadingWeeks')}</p>}
         {error && <p className="text-sm text-danger-600">{error}</p>}
       </div>
 
@@ -235,7 +238,7 @@ export const ProductMixWeeklyReportFilter = () => {
         type="submit"
         disabled={!selectedWeek}
       >
-        Generate
+        {t('filters.generate')}
       </Button>
     </form>
   );

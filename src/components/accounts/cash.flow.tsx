@@ -7,7 +7,7 @@ import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
-import {classifyCashFlowBucket, isCashGroupAccount, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {classifyCashFlowBucket, isCashGroupAccount, POSTED_ENTRY_FILTER, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 
 interface CashFlowRow {
   source_module?: string;
@@ -39,7 +39,8 @@ export const CashFlow = () => {
             account.code, account.name, 
             account.group
           FROM ${Tables.account_journal_lines}
-          WHERE entry.date >= <datetime>$date_from
+          WHERE ${POSTED_ENTRY_FILTER}
+            AND entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to
           FETCH account, account.group, entry
         `,

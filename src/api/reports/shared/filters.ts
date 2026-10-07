@@ -228,14 +228,20 @@ export const parseHourRangeFromPhrase = (
     return {startHour: peak.startHour, endHour: peak.endHour};
   }
 
-  const rangeMatch = normalized.match(/(\d{1,2})\s*(?:pm|am)?\s*[-–to]+\s*(\d{1,2})\s*(pm|am)?/i);
+  const rangeMatch = normalized.match(/(\d{1,2})\s*(am|pm)?\s*(?:-|–|to)\s*(\d{1,2})\s*(am|pm)?/i);
   if (rangeMatch) {
-    let start = Number(rangeMatch[1]);
-    let end = Number(rangeMatch[2]);
-    const suffix = (rangeMatch[3] || normalized.match(/pm/i) ? "pm" : "").toLowerCase();
-    if (suffix === "pm" || normalized.includes("pm")) {
-      if (start < 12) start += 12;
-      if (end < 12) end += 12;
+    // Each side keeps its own am/pm; a side without one takes the other's ("9-11 pm").
+    const to24 = (hour: number, suffix?: string) => {
+      if (suffix === "pm" && hour < 12) return hour + 12;
+      if (suffix === "am" && hour === 12) return 0;
+      return hour;
+    };
+    const rawStart = Number(rangeMatch[1]);
+    const end = to24(Number(rangeMatch[3]), rangeMatch[4] ?? rangeMatch[2]);
+    let start = to24(rawStart, rangeMatch[2] ?? rangeMatch[4]);
+    // "11 - 2 pm": the borrowed pm would put the start after the end — it was morning.
+    if (!rangeMatch[2] && start >= end) {
+      start = rawStart;
     }
     if (end > start) {
       return {startHour: start, endHour: end};

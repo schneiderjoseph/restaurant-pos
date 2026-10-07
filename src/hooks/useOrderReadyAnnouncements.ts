@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Order } from '@/api/model/order.ts';
 import { formatOrderNumber, getInvoiceNumber } from '@/lib/order.ts';
@@ -90,22 +90,24 @@ export const useOrderReadyAnnouncements = (
 
   useEffect(() => () => cancelOrderReadySpeech(), []);
 
-  const completeCelebration = () => {
-    if (!activeCelebration) {
-      return;
-    }
+  const completeCelebration = useCallback(() => {
+    setActiveCelebration((current) => {
+      if (!current) {
+        return current;
+      }
 
-    const completedId = activeCelebration.id;
-    setActiveCelebration(null);
+      const completedId = current.id;
+      window.setTimeout(() => {
+        setHighlightedOrderIds((prev) => {
+          const next = new Set(prev);
+          next.delete(completedId);
+          return next;
+        });
+      }, 1200);
 
-    window.setTimeout(() => {
-      setHighlightedOrderIds((prev) => {
-        const next = new Set(prev);
-        next.delete(completedId);
-        return next;
-      });
-    }, 1200);
-  };
+      return null;
+    });
+  }, []);
 
   return {
     activeCelebration,

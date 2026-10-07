@@ -106,7 +106,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
   }, [entity, reset, groupsHook.data?.data]);
 
   useEffect(() => {
-    if (!watchedGroup?.value) {
+    if (!watchedGroup?.value || operation === "update") {
       return;
     }
     const selected = (groupsHook.data?.data || []).find(
@@ -118,7 +118,7 @@ export const CreateAccount: FC<CreateAccountProps> = ({
         NORMAL_BALANCE_OPTIONS.find((item) => item.value === selected.normal_balance)
       );
     }
-  }, [watchedGroup?.value, groupsHook.data?.data, setValue]);
+  }, [watchedGroup?.value, groupsHook.data?.data, operation, setValue]);
 
   const groupOptions = useMemo(() => {
     return (groupsHook.data?.data || []).map((item) => ({

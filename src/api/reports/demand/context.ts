@@ -101,11 +101,14 @@ const parseMapCenter = (raw: unknown): {lat: number; lng: number} | undefined =>
       return undefined;
     }
   }
-  const lat = safeNumber(value?.lat ?? value?.latitude);
-  const lng = safeNumber(value?.lng ?? value?.longitude);
-  if (!lat && !lng) {
+  const rawLat = value?.lat ?? value?.latitude;
+  const rawLng = value?.lng ?? value?.longitude;
+  // Missing coordinates, not (0, 0), mean "no center".
+  if (rawLat == null || rawLng == null || rawLat === "" || rawLng === "") {
     return undefined;
   }
+  const lat = safeNumber(rawLat);
+  const lng = safeNumber(rawLng);
   if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
     return undefined;
   }

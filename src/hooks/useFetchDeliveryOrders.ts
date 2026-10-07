@@ -14,6 +14,8 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
   const [deliveryOrders, setDeliveryOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<Error | null>(null);
+  /** True once a first fetch has completed since the hook was enabled. */
+  const [loaded, setLoaded] = useState(false);
 
   const fetchDeliveryOrders = useCallback(async () => {
     if (!enabled) return;
@@ -50,6 +52,7 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
       setDeliveryOrders([]);
     } finally {
       setLoading(false);
+      setLoaded(true);
     }
   }, [enabled]);
 
@@ -58,6 +61,7 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
       setDeliveryOrders([]);
       setLoading(false);
       setError(null);
+      setLoaded(false);
       return;
     }
     void fetchDeliveryOrders();
@@ -66,6 +70,7 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
   return {
     deliveryOrders,
     loading,
+    loaded,
     error,
     refetch: fetchDeliveryOrders,
   };

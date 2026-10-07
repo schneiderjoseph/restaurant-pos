@@ -63,6 +63,7 @@ function preserveSectionImages(
   return sections.map((section, index) => {
     if (section.type !== 'image') return section;
     const hasNewImage = section.content instanceof ArrayBuffer
+      || ArrayBuffer.isView(section.content)
       || (Array.isArray(section.content) && section.content.length > 0);
     if (hasNewImage) return section;
     const prev = existing?.[index];

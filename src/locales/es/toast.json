@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Error al guardar las áreas del mapa"
   },
   "kitchen": {
-    "recallFailed": "Error al recuperar el pedido"
+    "recallFailed": "Error al recuperar el pedido",
+    "readyFailed": "No se pudo marcar el pedido como listo",
+    "itemReadyFailed": "No se pudo marcar el artículo como listo",
+    "reprintFailed": "No se pudo reimprimir el ticket de cocina"
   },
   "closing": {
     "loadFailed": "Error al cargar el cierre",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido",
     "outletSaved": "Punto de venta {{name}} guardado",
     "outletDeleted": "Punto de venta {{name}} eliminado",
-    "outletSuggestionsApplied": "{{count}} categorías clasificadas"
+    "outletSuggestionsApplied": "{{count}} categorías clasificadas",
+    "dishRelationsLoading": "Espere a que terminen de cargarse las relaciones del plato"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está en uso y fue desactivado.",

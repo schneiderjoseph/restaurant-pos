@@ -402,7 +402,9 @@
     "extraModifierPrice": "Toeslagprijs",
     "extraModifierPriceHint": "Eén prijs voor elke betaalde keuze. Leeg = de prijs van elke keuze.",
     "extraModifierPricePlaceholder": "Prijs van elke keuze",
-    "includedModifiersGroupHint": "Gebruikt wanneer een gerecht keuzes uit deze groep gratis geeft („Inbegrepen” bij het gerecht): welke gratis zijn en wat de volgende kosten."
+    "includedModifiersGroupHint": "Gebruikt wanneer een gerecht keuzes uit deze groep gratis geeft („Inbegrepen” bij het gerecht): welke gratis zijn en wat de volgende kosten.",
+    "maxRateGteMin": "Het maximumtarief moet groter of gelijk zijn aan het minimumtarief",
+    "weightMustBeNonNegative": "Gewichten moeten groter of gelijk aan 0 zijn"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -951,6 +953,7 @@
       "average": "Gemiddelde bon",
       "lastVisit": "Laatste bezoek",
       "favorites": "Favoriete gerechten"
-    }
+    },
+    "historyLoadFailed": "Kon de bestelgeschiedenis van de klant niet laden"
   }
 }

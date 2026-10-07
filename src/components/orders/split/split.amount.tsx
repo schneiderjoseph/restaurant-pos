@@ -49,7 +49,8 @@ export const SplitAmount = ({
     // The split orders compute their tax from their own lines: share out that same tax,
     // not the amount stored on the order.
     const taxAmount = calculateOrderPaymentTaxAmount(order, order.tax ?? null);
-    return itemsTotal + extrasTotal + taxAmount - Number(order?.discount_amount ?? 0) + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
+    return itemsTotal + extrasTotal + taxAmount - Number(order?.discount_amount ?? 0) - Number(order?.coupon?.discount ?? 0)
+      + Number(order.service_charge_amount ?? 0) + Number(order?.tip_amount ?? 0);
   }, [itemsTotal, order]);
 
   const allItems = useMemo(() => getOrderFilteredItems(order), [order]);

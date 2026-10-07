@@ -13,7 +13,7 @@ import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {calculateOrderItemPrice, calculateOrderTotal} from "@/lib/cart.ts";
-import {withCurrency} from "@/lib/utils.ts";
+import {toRecordId, withCurrency} from "@/lib/utils.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
@@ -89,7 +89,8 @@ export const OrderRefundModal = ({
 
     const ratio = selectedItemsTotal / originalOrderTotal;
     const taxAmount = order.tax_amount ? Number(order.tax_amount) * ratio : 0;
-    const discountAmount = order.discount_amount ? Number(order.discount_amount) * ratio : 0;
+    // The coupon was taken off what the guest paid: its share comes off the refund too.
+    const discountAmount = (Number(order.discount_amount ?? 0) + Number(order.coupon?.discount ?? 0)) * ratio;
     const serviceChargeAmount = order.service_charge_amount ? Number(order.service_charge_amount) * ratio : 0;
     const tipAmount = order.tip_amount ? Number(order.tip_amount) * ratio : 0;
     const extras = order.extras
@@ -172,6 +173,9 @@ export const OrderRefundModal = ({
             }
           : {}),
       });
+      if (isFullRefund && order.coupon?.id) {
+        await db.merge(toRecordId(order.coupon.id), {discount: 0});
+      }
 
       // Recompute order_taxes / tax_amount from remaining (non-refunded) items
       await syncOrderTaxes(db, orderId);
@@ -278,7 +282,7 @@ export const OrderRefundModal = ({
                     <span>{withCurrency(refundCharges.taxAmount)}</span>
                   </div>
                 )}
-                {order.discount && refundCharges.discountAmount > 0 ? (
+                {refundCharges.discountAmount > 0 ? (
                   <div className="flex justify-between items-center text-sm">
                     <span>{t('refund.discount')}</span>
                     <span>{withCurrency(refundCharges.discountAmount)}</span>

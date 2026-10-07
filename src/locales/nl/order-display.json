@@ -29,5 +29,6 @@
     "due": "Gepland",
     "elapsed": "Verstreken",
     "notes": "Notities"
-  }
+  },
+  "markServedFailed": "Kon bestelling niet als geserveerd markeren"
 }

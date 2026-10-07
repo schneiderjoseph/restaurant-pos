@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {Order} from "@/api/model/order.ts";
+import {Order, OrderStatus} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
@@ -82,14 +82,15 @@ export const ProductHourlyReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
+        const conditions: string[] = [`status = '${OrderStatus.Paid}'`];
         const params: Record<string, any> = {};
 
-        // Date range filter
-        if (filters.startDate && filters.endDate) {
+        if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           params.startDate = filters.startDate;
+        }
+        if (filters.endDate) {
+          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           params.endDate = filters.endDate;
         }
 
@@ -128,8 +129,7 @@ export const ProductHourlyReport = () => {
       : Array.from({length: 24}, (_, i) => i);
 
     orders.forEach(order => {
-      const orderDate = toJsDate(order.created_at);
-      const orderHour = orderDate.getHours();
+      const orderHour = toLuxonDateTime(order.created_at).hour;
 
       // Skip if hour filter is applied and this hour is not in the filter
       if (filters.hours.length > 0 && !hoursToInclude.includes(orderHour)) {
@@ -250,13 +250,13 @@ export const ProductHourlyReport = () => {
 
   return (
     <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
-      <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
+      <div className="alert alert-warning">{t('messages.productHourlyDisclaimer')}</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
               <th rowSpan={2} className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700 border-r border-neutral-200">
-                Menu Item
+                {t('filters.menuItems')}
               </th>
               {displayHours.map(hour => (
                 <th key={hour} colSpan={1} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
@@ -266,16 +266,16 @@ export const ProductHourlyReport = () => {
                 </th>
               ))}
               <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
-                Total Qty
+                {t('columns.totalQty')}
               </th>
               <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
-                Subtotal
+                {t('columns.subtotal')}
               </th>
               <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
-                Taxes
+                {t('columns.tax')}
               </th>
               <th rowSpan={2} className="py-3 pr-6 text-center text-xs font-semibold text-neutral-700">
-                Final Total
+                {t('columns.grandTotal')}
               </th>
             </tr>
           </thead>
@@ -311,7 +311,7 @@ export const ProductHourlyReport = () => {
             {menuItemMetrics.length === 0 && (
               <tr>
                 <td colSpan={displayHours.length + 5} className="py-6 text-center text-sm text-neutral-500">
-                  No data available for the selected filters
+                  {t('empty.noDataForFilters')}
                 </td>
               </tr>
             )}
@@ -319,7 +319,7 @@ export const ProductHourlyReport = () => {
           <tfoot className="bg-neutral-50 font-semibold">
             <tr>
               <td className="py-3 pl-6 pr-3 text-sm text-neutral-900 border-r border-neutral-200">
-                Totals
+                {t('columns.total')}
               </td>
               {displayHours.map(hour => {
                 const hourTotal = menuItemMetrics.reduce((sum, metrics) => {

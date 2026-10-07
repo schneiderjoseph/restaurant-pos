@@ -2,14 +2,14 @@ import {Tables} from "@/api/db/tables.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderDiscountTotal, orderHasDiscount, soldQuantity} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {getDayPartLabel} from "@/utils/dayParts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {getAppTimezone, toJsDate} from "@/lib/datetime.ts";
 import {DateTime} from "luxon";
 import {orderSellers} from "@/lib/duo.ts";
 
@@ -39,7 +39,8 @@ export const getVoids = async (db: DbClient, options: DateRangeFilter & {limit?:
   const voids = unwrapQueryResult<OrderVoid>(await db.query(query, params));
 
   const byReason = new Map<string, {count: number; quantity: number; amount: number}>();
-  const entries = voids.slice(0, limit).map(voidItem => {
+  // Every void counts in the per-reason breakdown; `limit` only caps the listed entries.
+  voids.forEach(voidItem => {
     const voidItems = getVoidItems(voidItem);
     const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
     const reason = voidItem.reason || "Unknown";
@@ -48,6 +49,12 @@ export const getVoids = async (db: DbClient, options: DateRangeFilter & {limit?:
     existing.quantity += safeNumber(voidItem.quantity ?? 1) * voidItems.length;
     existing.amount += amount;
     byReason.set(reason, existing);
+  });
+
+  const entries = voids.slice(0, limit).map(voidItem => {
+    const voidItems = getVoidItems(voidItem);
+    const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
+    const reason = voidItem.reason || "Unknown";
 
     return {
       reason,
@@ -121,7 +128,6 @@ export const getOrderFinanceSummary = async (
     SELECT * FROM ${Tables.orders}
     WHERE ${conditions.join(" AND ")}
     ORDER BY created_at DESC
-    LIMIT 200
     FETCH ${ORDER_FINANCE_FETCHES.join(", ")}
   `;
 
@@ -164,13 +170,14 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
   orders.forEach(order => {
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
-      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
+      // Tips are collected with the bill but are not sales.
+      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
     );
 
     // A duo's order counts for each of the two by the lines they added.
     orderSellers(order).forEach(({user: seller, share}) => {
       const user = seller as {id?: unknown; first_name?: string; last_name?: string} | undefined;
-      const userId = recordToString(user?.id ?? user);
+      const userId = recordIdToString(user?.id ?? user);
       const userName = user && typeof user === "object"
         ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
         : "Unknown";
@@ -208,10 +215,11 @@ export const getWeeklySales = async (db: DbClient, options: DateRangeFilter) => 
 
   orders.forEach(order => {
     const jsDate = toJsDate(order.created_at as Parameters<typeof toJsDate>[0]);
-    const dayKey = DateTime.fromJSDate(jsDate).toISODate() ?? "unknown";
+    const dayKey = DateTime.fromJSDate(jsDate, {zone: getAppTimezone()}).toISODate() ?? "unknown";
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
-      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
+      // Tips are collected with the bill but are not sales.
+      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
     );
     const existing = byDay.get(dayKey) || {netSales: 0, orderCount: 0};
     existing.netSales += netSales;
@@ -231,7 +239,8 @@ export const getHourlyProductSales = async (
   options: DateRangeFilter & {limit?: number},
 ) => {
   const {limit = 20, ...dateRange} = options;
-  const conditions: string[] = [];
+  // Sales only: open or cancelled checks are not revenue.
+  const conditions: string[] = ["status = 'Paid'"];
   const params: Record<string, string> = {};
   const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(dateRange);
   conditions.push(...dateConditions);
@@ -248,10 +257,10 @@ export const getHourlyProductSales = async (
 
   orders.forEach(order => {
     const jsDate = toJsDate(order.created_at as Parameters<typeof toJsDate>[0]);
-    const hour = DateTime.fromJSDate(jsDate).hour;
+    const hour = DateTime.fromJSDate(jsDate, {zone: getAppTimezone()}).hour;
 
     getOrderFilteredItems(order).forEach(item => {
-      const dishId = recordToString((item.item as {id?: unknown})?.id ?? item.item);
+      const dishId = recordIdToString((item.item as {id?: unknown})?.id ?? item.item);
       const name = (item.item as {name?: string})?.name ?? "Unknown";
       const key = `${dishId}-${hour}`;
       const revenue = safeNumber(calculateOrderItemPrice(item));
@@ -282,7 +291,7 @@ export const listStaff = async (db: DbClient, options: {search?: string; limit?:
 
   return users
     .map(user => ({
-      id: recordToString(user.id),
+      id: recordIdToString(user.id),
       name: `${user.first_name || ""} ${user.last_name || ""}`.trim(),
     }))
     .filter(user => !search || user.name.toLowerCase().includes(search));

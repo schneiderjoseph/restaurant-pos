@@ -154,7 +154,8 @@ export const computeBxgyCandidates = (
     } else if (conditions.get_value_type === 'percent') {
       itemDiscount = (unitPrice * qty * conditions.get_value) / 100
     } else {
-      itemDiscount = conditions.get_value * qty
+      // A fixed amount off never exceeds the price of the items it applies to.
+      itemDiscount = Math.min(unitPrice * qty, conditions.get_value * qty)
     }
 
     itemDiscount = roundCurrency(itemDiscount)

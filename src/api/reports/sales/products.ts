@@ -2,8 +2,8 @@ import {Tables} from "@/api/db/tables.ts";
 import type {Dish} from "@/api/model/dish.ts";
 import {aggregateTopSellingDishes} from "@/api/reports/sales/aggregate.ts";
 import {fetchPaidOrders} from "@/api/reports/sales/fetch.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
-import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {safeLimit, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
@@ -29,7 +29,7 @@ export const listMenuItems = async (
     SELECT id, name, number, price FROM ${Tables.dishes}
     WHERE deleted_at = NONE
     ORDER BY name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
     FETCH categories
   `;
 
@@ -38,7 +38,7 @@ export const listMenuItems = async (
 
   return dishes
     .map(dish => ({
-      id: recordToString(dish.id),
+      id: recordIdToString(dish.id),
       name: dish.name ?? "Unknown",
       number: dish.number,
       price: safeNumber(dish.price),

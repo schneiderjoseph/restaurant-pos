@@ -4,7 +4,7 @@ import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/sha
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {parseHourRangeFromPhrase} from "@/api/reports/shared/filters.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {toJsDate, toLuxonDateTime} from "@/lib/datetime.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
 const getTicketSeconds = (order: Order): number | null => {
@@ -125,7 +125,8 @@ export const getKitchenStationDelays = async (
     if (!row.activated_at) {
       return false;
     }
-    const hour = toJsDate(row.activated_at as Parameters<typeof toJsDate>[0]).getHours();
+    // Restaurant hours, not the browser's timezone.
+    const hour = toLuxonDateTime(row.activated_at as Parameters<typeof toLuxonDateTime>[0]).hour;
     return hour >= startHour && hour < endHour;
   });
 

@@ -23,7 +23,8 @@
     "rectangleTooSmall": "Прямоугольник слишком мал. Нарисуйте область побольше.",
     "circleTooSmall": "Круг слишком мал. Задайте больший радиус.",
     "polygonTooSmall": "Многоугольник слишком мал. Нарисуйте контур побольше.",
-    "areasSaved": "Зоны на карте успешно сохранены"
+    "areasSaved": "Зоны на карте успешно сохранены",
+    "deleteSelected": "Удалить выбранное"
   },
   "settings": {
     "title": "Настройка доставки",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Заказ {{invoice}} отправлен на доставку",
     "accepted": "Заказ {{invoice}} принят",
     "riderAttached": "Курьер {{name}} назначен на заказ",
-    "rejected": "Заказ {{invoice}} отклонён"
+    "rejected": "Заказ {{invoice}} отклонён",
+    "title": "Заказ на доставку - {{invoice}}",
+    "position": "Заказ {{current}} из {{total}}",
+    "noDeliveryAddress": "Адрес доставки не указан",
+    "itemsCount": "Позиции ({{count}})",
+    "loadingRiders": "Загрузка курьеров...",
+    "noRidersAvailable": "Нет доступных курьеров",
+    "orderedAt": "Заказано в: {{time}}",
+    "deliveryTimeLabel": "Время доставки: {{time}}",
+    "asap": "Как можно скорее",
+    "phone": "Телефон",
+    "email": "Эл. почта",
+    "coordinates": "Координаты",
+    "details": "Детали заказа",
+    "status": "Статус:",
+    "created": "Создан:",
+    "discount": "Скидка:",
+    "coupon": "Купон",
+    "tax": "Налог:",
+    "serviceCharge": "Сервисный сбор:",
+    "extras": "Дополнительно:"
   },
   "days": {
     "monday": "Понедельник",

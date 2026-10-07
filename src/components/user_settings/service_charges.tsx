@@ -66,6 +66,7 @@ export const ServiceChargesSettings = () => {
     }
 
     toast.success(t('settings:serviceCharges.updated'));
+    await loadSettings();
   }
 
   useEffect(() => {

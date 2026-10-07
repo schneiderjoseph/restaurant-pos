@@ -166,5 +166,18 @@
       "amount": "Importo"
     },
     "empty": "Nessuna distribuzione calcolata."
+  },
+  "print": {
+    "productMixTitle": "MIX PRODOTTI ({{date}})",
+    "serverSalesTitle": "VENDITE PER CAMERIERE ({{date}})",
+    "item": "Articolo",
+    "qty": "Qtà",
+    "total": "Tot",
+    "grandTotal": "TOTALE",
+    "name": "Nome",
+    "time": "Tempo",
+    "guests": "Coperti",
+    "checks": "Conti",
+    "sale": "Vendita"
   }
 }

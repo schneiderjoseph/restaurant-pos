@@ -48,11 +48,11 @@ export const SalesServerFilter = () => {
       className="flex flex-col gap-3 items-start"
       target="_blank"
     >
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-users">Users</label>
+          <label htmlFor="sales-server-users">{t('filters.users')}</label>
           <ReactSelect
             id="sales-server-users"
             name="users[]"
@@ -68,7 +68,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-order-types">Order types</label>
+          <label htmlFor="sales-server-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="sales-server-order-types"
             name="order_types[]"

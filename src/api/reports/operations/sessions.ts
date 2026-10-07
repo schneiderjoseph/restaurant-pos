@@ -23,6 +23,8 @@ export interface ActiveSessionSummary {
 }
 
 export interface SessionSalesRow extends ActiveSessionSummary {
+  /** The session's orders could not be read: its zeros are unknown, not "no sales". */
+  salesUnavailable?: boolean;
   netSales: number;
   checks: number;
   guests: number;
@@ -94,7 +96,8 @@ const calculateSessionNetSales = (order: Order): number => {
   return safeNumber(
     paymentTotals.amountCollected
     - safeNumber(order.service_charge_amount)
-    - safeNumber(order.tax_amount),
+    - safeNumber(order.tax_amount)
+    - safeNumber(order.tip_amount),
   );
 };
 
@@ -166,12 +169,14 @@ export const getCurrentSessionServerSales = async (db: DbClient) => {
   for (const entry of entries) {
     const session = mapActiveSession(entry);
     let sessionOrders: Order[] = [];
+    let salesUnavailable = false;
 
     try {
       sessionOrders = await fetchSessionOrders(db, entry);
     } catch (err) {
       console.error("Session order fetch failed for", session.userId, err);
       sessionOrders = [];
+      salesUnavailable = true;
     }
 
     const netSales = sessionOrders.reduce((sum, order) => sum + calculateSessionNetSales(order), 0);
@@ -180,6 +185,7 @@ export const getCurrentSessionServerSales = async (db: DbClient) => {
 
     orderTakers.push({
       ...session,
+      salesUnavailable,
       netSales,
       checks,
       guests,

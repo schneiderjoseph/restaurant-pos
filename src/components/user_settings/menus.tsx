@@ -68,7 +68,9 @@ export const MenusSettings = () => {
     };
 
     load();
-  }, [menus, userId]);
+    // Load once per user; do not reset the form when the menus list refetches.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: stable load
+  }, [userId]);
 
   const fetchMenus = async (ids: RecordId[]) => {
     const [rows] = await db.query<Menu[]>(`SELECT * FROM ${Tables.menus}

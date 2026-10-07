@@ -4,7 +4,7 @@ import type {User} from "@/api/model/user.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {safeNumber} from "@/lib/utils.ts";
+import {safeNumber, toRecordId} from "@/lib/utils.ts";
 import {duoTipParts} from "@/lib/duo.ts";
 
 interface TipDistributionSettings {
@@ -68,7 +68,7 @@ const fetchSavedDistributions = async (
   options: DateRangeFilter & {shiftId?: string},
 ) => {
   const conditions: string[] = [];
-  const params: Record<string, string> = {};
+  const params: Record<string, unknown> = {};
   const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
   if (options.startDate) {
@@ -81,7 +81,7 @@ const fetchSavedDistributions = async (
   }
   if (options.shiftId) {
     conditions.push("shift = $shiftId");
-    params.shiftId = options.shiftId;
+    params.shiftId = toRecordId(options.shiftId);
   }
 
   const query = `
@@ -205,9 +205,17 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
 
   // Each tip goes to whoever cashed the order; a duo's tip is split by the two's sales in it.
   const hasDuoTips = orders.some(order => duoTipParts(order).size > 0);
-  const userById = new Map(
-    (hasDuoTips ? await fetchActiveUsers(db) : []).map(user => [recordIdToString(user.id), user]),
-  );
+  // The duo's users by id, deleted ones included: a tip earned before someone left still counts.
+  const duoUserIds = hasDuoTips
+    ? Array.from(new Set(orders.flatMap(order => Array.from(duoTipParts(order).keys()).map(id => recordIdToString(id)))))
+    : [];
+  const duoUsers = duoUserIds.length > 0
+    ? unwrapQueryResult<User>(await db.query(
+      "SELECT * FROM $ids FETCH user_role, user_shift",
+      {ids: duoUserIds.map(id => toRecordId(id))},
+    ))
+    : [];
+  const userById = new Map(duoUsers.map(user => [recordIdToString(user.id), user]));
   const tipParts = orders.flatMap(order => {
     const duoParts = duoTipParts(order);
     if (duoParts.size > 0) {

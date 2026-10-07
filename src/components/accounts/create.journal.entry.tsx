@@ -224,6 +224,11 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
         return;
       }
 
+      if (validLines.some((line) => Number(line.debit) > 0 && Number(line.credit) > 0)) {
+        toast.error(t('messages.lineBothDebitCredit'));
+        return;
+      }
+
       const debits = validLines.reduce((sum, line) => sum + Number(line.debit || 0), 0);
       const credits = validLines.reduce((sum, line) => sum + Number(line.credit || 0), 0);
       if (Number(debits.toFixed(2)) !== Number(credits.toFixed(2))) {

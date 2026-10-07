@@ -166,5 +166,18 @@
       "amount": "Betrag"
     },
     "empty": "Noch keine Verteilung berechnet."
+  },
+  "print": {
+    "productMixTitle": "PRODUKTMIX ({{date}})",
+    "serverSalesTitle": "UMSATZ JE KELLNER ({{date}})",
+    "item": "Artikel",
+    "qty": "Mng",
+    "total": "Ges",
+    "grandTotal": "GESAMT",
+    "name": "Name",
+    "time": "Zeit",
+    "guests": "Gäste",
+    "checks": "Bons",
+    "sale": "Umsatz"
   }
 }

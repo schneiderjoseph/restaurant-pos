@@ -32,13 +32,14 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
   const db = useDB();
   const dbRef = useRef(db);
   dbRef.current = db;
-  const [{ user }] = useAtom(appPage);
+  const [{ user, locked }] = useAtom(appPage);
 
+  // Not while the screen is locked: no popup or print over the lock screen.
   const canUseDeliveryOrders = Boolean(
-    user && getUserModules(user).includes("delivery")
+    user && !locked && getUserModules(user).includes("delivery")
   );
 
-  const { deliveryOrders, refetch: fetchDeliveryOrders } = useFetchDeliveryOrders({
+  const { deliveryOrders, loaded: deliveryOrdersLoaded, refetch: fetchDeliveryOrders } = useFetchDeliveryOrders({
     enabled: canUseDeliveryOrders,
   });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -86,6 +87,8 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
   useEffect(() => {
     if (!canUseDeliveryOrders) return;
     if (!initialLoadDoneRef.current) {
+      // Wait for the first real fetch: the empty list before it is not "no orders".
+      if (!deliveryOrdersLoaded) return;
       deliveryOrders.forEach(order => {
         processedOrderIdsRef.current.add(order.id.toString());
       });
@@ -110,7 +113,7 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
       setSelectedOrder(newestOrder);
       setIsPopupOpen(true);
     }
-  }, [deliveryOrders, canUseDeliveryOrders]);
+  }, [deliveryOrders, deliveryOrdersLoaded, canUseDeliveryOrders]);
 
   // Set up live query to watch for new delivery orders
   useEffect(() => {

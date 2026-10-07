@@ -35,6 +35,7 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { publishDayClosed } from "@/integrations/events/publish/ops.ts";
 import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
+import { getAppliedPaymentAmounts } from "@/lib/order.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -153,18 +154,22 @@ export const Closing = () => {
 
       orders.forEach((order: any) => {
         if (!order.payments) return;
-        order.payments.forEach((payment: any) => {
+        const payments = (order.payments as any[]).filter(Boolean);
+        // Change handed back is not in the drawer: count what each payment applied.
+        const appliedAmounts = getAppliedPaymentAmounts(payments);
+        payments.forEach((payment: any, index: number) => {
           const paymentTypeId = payment.payment_type?.id?.toString();
           if (!paymentTypeId) return;
           const current = paymentTotals.get(paymentTypeId) || 0;
-          paymentTotals.set(paymentTypeId, current + Number(payment.amount || 0));
+          paymentTotals.set(paymentTypeId, current + appliedAmounts[index]);
         });
       });
 
       return paymentTotals;
     } catch (error) {
+      // Rethrown: empty totals would silently overwrite the closing with zeros.
       console.error("Error fetching closing-window payments:", error);
-      return new Map<string, number>();
+      throw error;
     }
   }, [closingWindow.date_from, closingWindow.date_to]);
 
@@ -440,15 +445,14 @@ export const Closing = () => {
         ...(complete ? {closed_at: nowSurrealDateTime()} : {}),
       };
 
+      let closingId: string;
       if (existingClosing?.id) {
         await db.update(existingClosing.id, closingData);
+        closingId = String(existingClosing.id);
       } else {
-        await db.create(Tables.closings, closingData);
+        const [created] = await db.create(Tables.closings, closingData);
+        closingId = String(created.id);
       }
-
-      const closingId = existingClosing?.id
-        ? String(existingClosing.id)
-        : Tables.closings;
 
       await entityAfterWrite({
         domain: 'ops',

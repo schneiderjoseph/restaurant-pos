@@ -7,6 +7,7 @@ import {
 } from '@/integrations/providers/fiscal/submit-fiscal-invoice.ts';
 import { getIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
 import { ORDER_PAYMENT_FETCHES, parseOrderQueryResult } from '@/api/model/order.ts';
+import { toRecordId } from '@/lib/utils.ts';
 import {
   persistFiscalSubmissionsForOrder,
   resolveFiscalQrcodeForPrint,
@@ -34,7 +35,7 @@ const withReceiptLogos = async (
 
 export const loadOrderForFiscal = async (db: DbLike, orderId: string): Promise<Order | undefined> => {
   const fetches = ORDER_PAYMENT_FETCHES.join(', ');
-  const result = await db.query(`SELECT * FROM ONLY ${orderId} FETCH ${fetches}`);
+  const result = await db.query(`SELECT * FROM ONLY $id FETCH ${fetches}`, { id: toRecordId(orderId) });
   return parseOrderQueryResult(result);
 };
 

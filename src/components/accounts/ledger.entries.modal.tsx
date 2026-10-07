@@ -11,7 +11,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
-import {computeRunningBalances, sortJournalLinesByEntry, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {computeRunningBalances, POSTED_ENTRY_FILTER, sortJournalLinesByEntry, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 import {ViewJournalEntry} from "@/components/accounts/view.journal.entry.tsx";
 import {AccountJournalEntry} from "@/api/model/account.journal.entry.ts";
 
@@ -91,21 +91,26 @@ export const LedgerEntriesModal = ({
     const loadLines = async () => {
       setIsLoading(true);
       try {
+        const clauses = [POSTED_ENTRY_FILTER, "account = $account"];
+        const params: Record<string, unknown> = {account: toRecordId(accountId)};
+        if (dateFrom) {
+          clauses.push("entry.date >= <datetime>$date_from");
+          params.date_from = toQueryDateTime(dateFrom);
+        }
+        if (dateTo) {
+          clauses.push("entry.date <= <datetime>$date_to");
+          params.date_to = toQueryDateTime(dateTo);
+        }
+
         const [lineRows] = await db.query(
           `
             SELECT *
             FROM ${Tables.account_journal_lines}
-            WHERE account = $account
-              AND entry.date >= <datetime>$date_from
-              AND entry.date <= <datetime>$date_to
+            WHERE ${clauses.join(" AND ")}
             ORDER BY entry.date ASC, entry.entry_number ASC
             FETCH entry
           `,
-          {
-            account: toRecordId(accountId),
-            date_from: toQueryDateTime(dateFrom),
-            date_to: toQueryDateTime(dateTo),
-          },
+          params,
         );
 
         if (cancelled) {

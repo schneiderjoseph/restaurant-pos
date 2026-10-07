@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "فشل حفظ مناطق الخريطة"
   },
   "kitchen": {
-    "recallFailed": "فشل استرجاع الطلب"
+    "recallFailed": "فشل استرجاع الطلب",
+    "readyFailed": "فشل وضع الطلب كجاهز",
+    "itemReadyFailed": "فشل وضع العنصر كجاهز",
+    "reprintFailed": "فشل إعادة طباعة تذكرة المطبخ"
   },
   "closing": {
     "loadFailed": "فشل تحميل الإغلاق",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة",
     "outletSaved": "تم حفظ نقطة البيع {{name}}",
     "outletDeleted": "تم حذف نقطة البيع {{name}}",
-    "outletSuggestionsApplied": "تم تصنيف {{count}} فئات"
+    "outletSuggestionsApplied": "تم تصنيف {{count}} فئات",
+    "dishRelationsLoading": "يرجى الانتظار حتى ينتهي تحميل علاقات الطبق"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} قيد الاستخدام وتم تعطيله.",

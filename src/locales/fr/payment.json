@@ -102,7 +102,9 @@
     "roomDepartsToday": "Départ prévu aujourd’hui",
     "notAllowed": "Votre rôle n’encaisse pas : appelez un caissier, ou changez d’utilisateur.",
     "toPay": "À payer",
-    "tendered": "Reçu"
+    "tendered": "Reçu",
+    "fiscalFailed": "Échec de la transmission fiscale",
+    "fiscalPartialFailure": "Certains services fiscaux ont échoué ; vérifiez la file Intégrations"
   },
   "remote": {
     "remoteLabel": "{{name}} (À distance)",

@@ -6,6 +6,7 @@ import { useDB } from "@/api/db/db.ts";
 import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
+import { toast } from "sonner";
 
 export const MenuPersons = () => {
   const { t } = useTranslation('menu');
@@ -78,6 +79,7 @@ export const MenuPersons = () => {
       }
     } catch (error) {
       console.error("Failed to check closing enforcement:", error);
+      toast.error(t('persons.enforcementCheckFailed'));
       return;
     }
 
@@ -87,7 +89,7 @@ export const MenuPersons = () => {
     }));
 
     // if we have order set in the order directly
-    if(state.order.id !== 'new'){
+    if(state.order?.id && state.order.id !== 'new'){
       await db.merge(state.order.id, {
         covers: parseInt(state?.persons)
       });
@@ -95,9 +97,11 @@ export const MenuPersons = () => {
   }
 
   useEffect(() => {
-    if( error ) {
-      setTimeout(() => setError(false), 400);
+    if (!error) {
+      return;
     }
+    const timer = window.setTimeout(() => setError(false), 400);
+    return () => window.clearTimeout(timer);
   }, [error]);
 
   const btnClasses = 'size-[85px] sm:size-[100px] md:size-[120px] p-0 text-neutral-900 active:scale-[0.95] transition-all duration-75 bg-neutral-100 active:text-neutral-100 active:bg-neutral-900 rounded-full text-3xl';
@@ -141,13 +145,13 @@ export const MenuPersons = () => {
           ...prev,
           persons: undefined
         }))}
-                className="size-[85px] sm:size-[100px] md:size-[120px] p-0 text-white active:scale-[0.95] transition-all duration-75 bg-danger-500 active:bg-danger-900 rounded-full text-3xl">C
+                className="size-[85px] sm:size-[100px] md:size-[120px] p-0 text-white active:scale-[0.95] transition-all duration-75 bg-danger-500 active:bg-danger-900 rounded-full text-3xl">{t('persons.clear')}
         </button>
         <button type="button" onClick={() => onKey('0')}
                 className={btnClasses}>0
         </button>
         <button type="button" onClick={onOk} data-testid="menu-persons-ok"
-                className="size-[85px] sm:size-[100px] md:size-[120px] p-0 text-white active:scale-[0.95] transition-all duration-75 bg-success-500 active:bg-success-900 rounded-full text-3xl">OK
+                className="size-[85px] sm:size-[100px] md:size-[120px] p-0 text-white active:scale-[0.95] transition-all duration-75 bg-success-500 active:bg-success-900 rounded-full text-3xl">{t('persons.ok')}
         </button>
       </div>
     </div>

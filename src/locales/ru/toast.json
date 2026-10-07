@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Не удалось сохранить зоны на карте"
   },
   "kitchen": {
-    "recallFailed": "Не удалось вернуть заказ"
+    "recallFailed": "Не удалось вернуть заказ",
+    "readyFailed": "Не удалось отметить заказ как готовый",
+    "itemReadyFailed": "Не удалось отметить позицию как готовую",
+    "reprintFailed": "Не удалось повторно напечатать кухонный чек"
   },
   "closing": {
     "loadFailed": "Не удалось загрузить закрытие смены",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "Значение обязательных модификаторов недействительно",
     "outletSaved": "Точка продаж {{name}} сохранена",
     "outletDeleted": "Точка продаж {{name}} удалена",
-    "outletSuggestionsApplied": "{{count}} категорий классифицировано"
+    "outletSuggestionsApplied": "{{count}} категорий классифицировано",
+    "dishRelationsLoading": "Дождитесь завершения загрузки связей блюда"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} используется и был деактивирован.",

@@ -1,5 +1,5 @@
 import { Table } from "@/api/model/table.ts";
-import React, {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
+import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useMove } from 'react-aria';
 import { cn } from "@/lib/utils.ts";
 import { DualCurrency } from "@/components/common/currency/dual-currency.tsx";
@@ -158,7 +158,13 @@ export const FloorTable = ({
     });
   }
 
+  const wasGroupMovingRef = useRef(false);
   useEffect(() => {
+    if (wasGroupMovingRef.current && !isGroupMoving) {
+      wasGroupMovingRef.current = false;
+      return;
+    }
+    wasGroupMovingRef.current = !!isGroupMoving;
     if (isEditing && !isGroupMoving) {
       saveTableInfo();
     }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getPosMode,
   isAsiMode,
@@ -9,6 +9,15 @@ import {
 } from '@/lib/pos-mode.ts';
 
 describe('pos-mode', () => {
+  // The machine's .env (e.g. VITE_POS_MODE=asi) must not decide the defaults under test.
+  beforeEach(() => {
+    vi.stubEnv('VITE_POS_MODE', '');
+    vi.stubEnv('VITE_RESORT_FB', '');
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('defaults to native when unset', () => {
     expect(getPosMode()).toBe('native');
     expect(isAsiMode()).toBe(false);

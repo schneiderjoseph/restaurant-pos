@@ -54,11 +54,12 @@ export const OrderRow = ({
     const serviceChargeAmount = cardReady
       ? getOrderServiceChargeAmount(order, itemsTotal)
       : Number(order?.service_charge_amount ?? 0);
+    const adjustments = Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0)
+      - Number(order?.coupon?.discount || 0) + serviceChargeAmount + Number(order?.tip_amount || 0) + extrasTotal;
     if (!cardReady) {
-      return Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + serviceChargeAmount
-        + extrasTotal;
+      return adjustments;
     }
-    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + serviceChargeAmount;
+    return itemsTotal + adjustments;
   }, [cardReady, itemsTotal, order]);
 
   // A role that cannot take a payment gets a read-only row.

@@ -33,7 +33,10 @@
     "confirm": "Confirmar"
   },
   "persons": {
-    "chooseCount": "Escolha o número de pessoas"
+    "chooseCount": "Escolha o número de pessoas",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "Não foi possível verificar o fechamento. Tente novamente."
   },
   "guest": {
     "title": "Guest",
@@ -111,7 +114,9 @@
     "departureToday": "Checks out today",
     "phoneCountry": "Código do país",
     "phoneCountriesFrequent": "Frequentes",
-    "phoneCountriesAll": "Todos os países"
+    "phoneCountriesAll": "Todos os países",
+    "codeUnavailable": "Não foi possível gerar um código de cliente único. Tente novamente.",
+    "matchLookupFailed": "Não foi possível verificar clientes existentes. Tente novamente."
   },
   "outlets": {
     "all": "Todos"
@@ -179,6 +184,10 @@
       "passport": "Passaporte",
       "license": "Carteira de motorista",
       "other": "Outro"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "Slide {{current}} de {{total}}"
   }
 }

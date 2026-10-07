@@ -60,7 +60,7 @@ export const ProductMixSummaryFilter = () => {
       className="flex flex-col gap-3 items-start"
       target="_blank"
     >
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">

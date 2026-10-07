@@ -54,10 +54,11 @@ export const useQueryBuilder = (tb: string, cols: string|string[] = '*', conditi
     // where conditions
     if( wheres.length > 0 ) {
       q.push('WHERE ');
-      const w = [...wheres];
+      // Conditions passed bare (e.g. initial filters) join with AND.
+      const w = wheres.map(item => (/^(and|or)\b/i.test(item.trim()) ? item.trim() : `and ${item.trim()}`));
 
       // remove 'and', 'or' from first where condition
-      w[0] = w[0].replace(/^(and|or)\b\s*/, '');
+      w[0] = w[0].replace(/^(and|or)\b\s*/i, '');
 
       q.push(w.map(item => item.trim()).join(' '));
     }
@@ -135,17 +136,17 @@ export const useQueryBuilder = (tb: string, cols: string|string[] = '*', conditi
   }
 
   const addGroup = (val: string) => {
-    setGroups(prev => ({
+    setGroups(prev => [
       ...prev,
       val
-    }));
+    ]);
   }
 
   const addOrderBy = (val: string) => {
-    setOrderBys(prev => ({
+    setOrderBys(prev => [
       ...prev,
       val
-    }));
+    ]);
   }
 
   const addFetch = (val: string) => {

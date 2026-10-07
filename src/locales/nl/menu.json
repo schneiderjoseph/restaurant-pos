@@ -33,7 +33,10 @@
     "confirm": "Bevestigen"
   },
   "persons": {
-    "chooseCount": "Kies aantal personen"
+    "chooseCount": "Kies aantal personen",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "Afsluitstatus kon niet worden gecontroleerd. Probeer opnieuw."
   },
   "guest": {
     "title": "Guest",
@@ -111,7 +114,9 @@
     "departureToday": "Checks out today",
     "phoneCountry": "Landcode",
     "phoneCountriesFrequent": "Vaak gebruikt",
-    "phoneCountriesAll": "Alle landen"
+    "phoneCountriesAll": "Alle landen",
+    "codeUnavailable": "Kon geen unieke gastcode genereren. Probeer opnieuw.",
+    "matchLookupFailed": "Kon bestaande klanten niet controleren. Probeer opnieuw."
   },
   "outlets": {
     "all": "Alles"
@@ -179,6 +184,10 @@
       "passport": "Paspoort",
       "license": "Rijbewijs",
       "other": "Anders"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "Dia {{current}} van {{total}}"
   }
 }

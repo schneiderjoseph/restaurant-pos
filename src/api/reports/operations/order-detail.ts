@@ -594,8 +594,12 @@ export const getOrderDetail = async (
     const itemNames = relatedItems
       .map(item => item?.item?.name || "Item")
       .filter(Boolean);
+    // A partial void (1 of 2) is worth the voided quantity, not the whole line.
     const amount = relatedItems.reduce(
-      (sum, item) => sum + safeNumber(calculateOrderItemPrice(item as OrderItem)),
+      (sum, item) => sum + safeNumber(calculateOrderItemPrice({
+        ...(item as OrderItem),
+        ...(row.quantity != null ? {quantity: safeNumber(row.quantity)} : {}),
+      } as OrderItem)),
       0,
     );
     return {

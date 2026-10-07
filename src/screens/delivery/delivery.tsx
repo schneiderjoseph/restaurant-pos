@@ -92,7 +92,19 @@ const getOrderCoordinates = (order: any): {lat: number; lng: number} | null => {
   return {lat, lng};
 };
 
+const PanToSelectedOrder = ({center}: {center: {lat: number; lng: number} | null}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !center) return;
+    map.panTo(center);
+  }, [map, center?.lat, center?.lng]);
+
+  return null;
+};
+
 const DeliveryMapOverlays = ({mapAreas, deliveryOrders, openOrderPopup}: DeliveryMapOverlaysProps) => {
+  const { t } = useTranslation('delivery');
   const map = useMap();
 
   useEffect(() => {
@@ -162,7 +174,7 @@ const DeliveryMapOverlays = ({mapAreas, deliveryOrders, openOrderPopup}: Deliver
       const marker = new google.maps.Marker({
         map,
         position: coordinates,
-        title: order?.customer?.name ?? "Delivery Order",
+        title: order?.customer?.name ?? t('map.deliveryOrder'),
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           scale: 8,
@@ -185,7 +197,7 @@ const DeliveryMapOverlays = ({mapAreas, deliveryOrders, openOrderPopup}: Deliver
       listeners.forEach((listener) => listener.remove());
       markers.forEach((marker) => marker.setMap(null));
     };
-  }, [map, deliveryOrders, openOrderPopup]);
+  }, [map, deliveryOrders, openOrderPopup, t]);
 
   return null;
 };
@@ -254,11 +266,11 @@ export const Delivery = () => {
           <Map
             className="h-[calc(100vh_-_70px_-_25px)]"
             defaultCenter={center}
-            center={selectedOrderCenter ?? undefined}
             defaultZoom={11}
             gestureHandling="greedy"
             disableDefaultUI
           >
+            <PanToSelectedOrder center={selectedOrderCenter} />
             <DeliveryMapOverlays
               mapAreas={mapAreas}
               deliveryOrders={deliveryOrders}
@@ -281,7 +293,7 @@ export const Delivery = () => {
             ) : (
               <div className="text-center text-3xl flex flex-col justify-center items-center h-[calc(100vh_-_200px)] gap-5">
                 <FontAwesomeIcon icon={faExclamationCircle} size="2x" />
-                No delivery orders...
+                {t('map.noOrders')}
               </div>
             )}
           </div>

@@ -23,7 +23,8 @@
     "rectangleTooSmall": "Dikdörtgen çok küçük. Daha büyük bir alan çizin.",
     "circleTooSmall": "Daire çok küçük. Daha büyük bir yarıçap çizin.",
     "polygonTooSmall": "Çokgen çok küçük. Daha büyük bir çerçeve çizin.",
-    "areasSaved": "Harita alanları başarıyla kaydedildi"
+    "areasSaved": "Harita alanları başarıyla kaydedildi",
+    "deleteSelected": "Seçimi sil"
   },
   "settings": {
     "title": "Teslimat Yapılandırması",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Sipariş {{invoice}} teslimata gönderildi",
     "accepted": "Sipariş {{invoice}} kabul edildi",
     "riderAttached": "Kurye {{name}} siparişe atandı",
-    "rejected": "Sipariş {{invoice}} reddedildi"
+    "rejected": "Sipariş {{invoice}} reddedildi",
+    "title": "Teslimat siparişi - {{invoice}}",
+    "position": "Sipariş {{current}} / {{total}}",
+    "noDeliveryAddress": "Teslimat adresi sağlanmadı",
+    "itemsCount": "Ürünler ({{count}})",
+    "loadingRiders": "Kuryeler yükleniyor...",
+    "noRidersAvailable": "Uygun kurye yok",
+    "orderedAt": "Sipariş saati: {{time}}",
+    "deliveryTimeLabel": "Teslimat saati: {{time}}",
+    "asap": "En kısa sürede",
+    "phone": "Telefon",
+    "email": "E-posta",
+    "coordinates": "Koordinatlar",
+    "details": "Sipariş ayrıntıları",
+    "status": "Durum:",
+    "created": "Oluşturulma:",
+    "discount": "İndirim:",
+    "coupon": "Kupon",
+    "tax": "Vergi:",
+    "serviceCharge": "Servis ücreti:",
+    "extras": "Ekstralar:"
   },
   "days": {
     "monday": "Pazartesi",

@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import {useAtom, useAtomValue, useSetAtom} from "jotai";
+import {useAtom, useAtomValue} from "jotai";
 import {useTranslation} from "react-i18next";
 import {LiveSubscription} from "surrealdb";
 import {toast} from "sonner";
@@ -39,7 +39,7 @@ export const DuoWatcher = () => {
   const page = useAtomValue(appPage);
   const userId = page?.user?.id?.toString();
   const [running, setRunning] = useAtom(appDuo);
-  const setOutgoing = useSetAtom(appDuoInvite);
+  const [outgoing, setOutgoing] = useAtom(appDuoInvite);
 
   const [incoming, setIncoming] = useState<Duo | null>(null);
   const [nowMs, setNowMs] = useState(() => Date.now());
@@ -130,15 +130,21 @@ export const DuoWatcher = () => {
     };
   }, [userId, refresh, setRunning, setOutgoing]);
 
-  // The clock: every second while a duo runs or an invitation waits, so its end and the
-  // invitation's expiry show on time.
+  // The clock: every second while a duo runs or an invitation waits (incoming or outgoing),
+  // so its end and the invitation's expiry show on time.
   useEffect(() => {
-    if (!running && !incoming) {
+    if (!running && !incoming && !outgoing) {
       return;
     }
     const interval = window.setInterval(() => setNowMs(Date.now()), 1000);
     return () => window.clearInterval(interval);
-  }, [running, incoming]);
+  }, [running, incoming, outgoing]);
+
+  useEffect(() => {
+    if (outgoing && !isInviteLive(outgoing, nowMs)) {
+      setOutgoing(null);
+    }
+  }, [outgoing, nowMs, setOutgoing]);
 
   // A new invitation rings once.
   const incomingId = incoming ? refKey(incoming) : '';

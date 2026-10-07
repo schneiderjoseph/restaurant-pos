@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Kartenbereiche konnten nicht gespeichert werden"
   },
   "kitchen": {
-    "recallFailed": "Bestellung konnte nicht zurückgerufen werden"
+    "recallFailed": "Bestellung konnte nicht zurückgerufen werden",
+    "readyFailed": "Bestellung konnte nicht als fertig markiert werden",
+    "itemReadyFailed": "Artikel konnte nicht als fertig markiert werden",
+    "reprintFailed": "Küchenbeleg konnte nicht erneut gedruckt werden"
   },
   "closing": {
     "loadFailed": "Tagesabschluss konnte nicht geladen werden",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "Wert für erforderliche Modifier ist ungültig",
     "outletSaved": "Verkaufsstelle {{name}} gespeichert",
     "outletDeleted": "Verkaufsstelle {{name}} gelöscht",
-    "outletSuggestionsApplied": "{{count}} Kategorien klassifiziert"
+    "outletSuggestionsApplied": "{{count}} Kategorien klassifiziert",
+    "dishRelationsLoading": "Bitte warten, bis die Gericht-Beziehungen geladen sind"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} wird verwendet und wurde deaktiviert.",

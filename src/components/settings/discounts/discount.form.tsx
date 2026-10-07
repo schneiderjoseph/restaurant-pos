@@ -47,7 +47,15 @@ const validationSchema = yup.object({
     value: yup.string()
   }).default(undefined).required(i18n.t('validation:required')),
   min_rate: yup.number().required(i18n.t('validation:required')),
-  max_rate: yup.number().required(i18n.t('validation:required')),
+  max_rate: yup.number().required(i18n.t('validation:required')).test(
+    'max-gte-min',
+    i18n.t('admin:forms.maxRateGteMin'),
+    function (max) {
+      const min = this.parent.min_rate;
+      if (typeof min !== 'number' || typeof max !== 'number') return true;
+      return max >= min;
+    }
+  ),
   max_cap: yup.number().nullable(),
   priority: yup.string().required(i18n.t('validation:required')),
 });
@@ -93,7 +101,7 @@ export const DiscountForm = ({
         max_rate: data.max_rate ?? data.max_value,
         max_cap: data.max_cap,
         type: { label: data?.type, value: data?.type },
-        priority: data.priority.toString(),
+        priority: String(data.priority ?? ''),
         category: data.category
           ? categoryOptions.find(o => o.value === data.category) ?? { label: data.category, value: data.category }
           : null,

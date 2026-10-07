@@ -136,3 +136,10 @@ export const buildOrConditions = (
 ): {condition?: string; params: Record<string, any>} => {
   return buildRecordInsideCondition(field, ids, paramPrefix);
 };
+
+/** A LIMIT value that is always a whole number in [1, max]; anything else falls back. */
+export const safeLimit = (value: unknown, fallback = 100, max = 1000): number => {
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return Math.min(n, max);
+};

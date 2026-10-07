@@ -46,9 +46,14 @@ export const calculateItemTax = (
     };
   }
 
+  // Inclusive: `base_price` already holds the taxes, each one is taken from the net part
+  // (115 with 15 % → 15, not 17.25).
+  const totalRate = validTaxes.reduce((sum, tax) => sum + (tax.rate || 0), 0);
+  const taxable = tax_mode === 'inclusive' ? base_price / (1 + totalRate / 100) : base_price;
+
   const tax_amounts: TaxAmount[] = validTaxes.map((tax) => {
     const rate = tax.rate || 0;
-    const amount = (base_price * rate) / 100;
+    const amount = (taxable * rate) / 100;
     return {
       tax,
       amount: Math.round(amount * 100) / 100,
@@ -196,17 +201,7 @@ const getLineItemTaxCalculation = (
     if (!itemTaxes || itemTaxes.length === 0) {
       return calculateItemTax(0, [], 'inclusive');
     }
-    const perUnit = calculateItemTax(unitBase, itemTaxes, 'inclusive');
-    return {
-      ...perUnit,
-      tax_amounts: perUnit.tax_amounts.map((entry) => ({
-        ...entry,
-        amount: roundTax(entry.amount * qty),
-      })),
-      total_tax: roundTax(perUnit.total_tax * qty),
-      net_price: roundTax(perUnit.net_price * qty),
-      gross_price: roundTax(perUnit.gross_price * qty),
-    };
+    return calculateItemTax(unitBase * qty, itemTaxes, 'inclusive');
   }
 
   const exclusiveTaxes = resolveExclusiveLineTaxes(itemTaxes, orderTax, true);
@@ -214,17 +209,9 @@ const getLineItemTaxCalculation = (
     return calculateItemTax(0, [], 'exclusive');
   }
 
-  const perUnit = calculateItemTax(unitBase, exclusiveTaxes, 'exclusive');
-  return {
-    ...perUnit,
-    tax_amounts: perUnit.tax_amounts.map((entry) => ({
-      ...entry,
-      amount: roundTax(entry.amount * qty),
-    })),
-    total_tax: roundTax(perUnit.total_tax * qty),
-    net_price: roundTax(perUnit.net_price * qty),
-    gross_price: roundTax(perUnit.gross_price * qty),
-  };
+  // Taxed on the line amount and rounded once: rounding each unit then multiplying
+  // drifts by a cent or more (3 × 2.75 at 9.975 % is 0.82, not 3 × 0.27).
+  return calculateItemTax(unitBase * qty, exclusiveTaxes, 'exclusive');
 };
 
 /** Order items store inclusive lines as net price + menu taxes (exclusive add). */
@@ -244,17 +231,7 @@ const getOrderLineItemTaxCalculation = (
     if (inclusiveTaxes.length === 0) {
       return calculateItemTax(0, [], 'exclusive');
     }
-    const perUnit = calculateItemTax(unitBase, inclusiveTaxes, 'exclusive');
-    return {
-      ...perUnit,
-      tax_amounts: perUnit.tax_amounts.map((entry) => ({
-        ...entry,
-        amount: roundTax(entry.amount * qty),
-      })),
-      total_tax: roundTax(perUnit.total_tax * qty),
-      net_price: roundTax(perUnit.net_price * qty),
-      gross_price: roundTax(perUnit.gross_price * qty),
-    };
+    return calculateItemTax(unitBase * qty, inclusiveTaxes, 'exclusive');
   }
 
   const exclusiveTaxes = withoutExcluded(
@@ -265,17 +242,9 @@ const getOrderLineItemTaxCalculation = (
     return calculateItemTax(0, [], 'exclusive');
   }
 
-  const perUnit = calculateItemTax(unitBase, exclusiveTaxes, 'exclusive');
-  return {
-    ...perUnit,
-    tax_amounts: perUnit.tax_amounts.map((entry) => ({
-      ...entry,
-      amount: roundTax(entry.amount * qty),
-    })),
-    total_tax: roundTax(perUnit.total_tax * qty),
-    net_price: roundTax(perUnit.net_price * qty),
-    gross_price: roundTax(perUnit.gross_price * qty),
-  };
+  // Taxed on the line amount and rounded once: rounding each unit then multiplying
+  // drifts by a cent or more (3 × 2.75 at 9.975 % is 0.82, not 3 × 0.27).
+  return calculateItemTax(unitBase * qty, exclusiveTaxes, 'exclusive');
 };
 
 /**

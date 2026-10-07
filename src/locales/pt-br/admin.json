@@ -402,7 +402,9 @@
     "extraModifierPrice": "Preço do adicional",
     "extraModifierPriceHint": "Um só preço para cada opção paga. Vazio = o preço de cada opção.",
     "extraModifierPricePlaceholder": "Preço de cada opção",
-    "includedModifiersGroupHint": "Usado quando um prato dá opções deste grupo grátis (\"Incluídos\" no prato): quais são grátis e quanto custam as seguintes."
+    "includedModifiersGroupHint": "Usado quando um prato dá opções deste grupo grátis (\"Incluídos\" no prato): quais são grátis e quanto custam as seguintes.",
+    "maxRateGteMin": "A taxa máxima deve ser maior ou igual à taxa mínima",
+    "weightMustBeNonNegative": "Os pesos devem ser maiores ou iguais a 0"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -951,6 +953,7 @@
       "average": "Ticket médio",
       "lastVisit": "Última visita",
       "favorites": "Pratos favoritos"
-    }
+    },
+    "historyLoadFailed": "Não foi possível carregar o histórico de pedidos do cliente"
   }
 }

@@ -129,7 +129,7 @@ export const SalesSummaryReport = () => {
       {label: "Service charges", value: withDualCurrency(serviceCharges)},
       {label: "Taxes", value: withDualCurrency(taxes)},
       {label: "Non cash payments", value: withDualCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
-      {label: t('metrics.discounts'), value: withDualCurrency(totalDiscounts)},
+      {label: t('metrics.discounts'), value: withDualCurrency(Math.max(0, totalDiscounts - totalCoupons))},
       {label: t('metrics.coupons'), value: withDualCurrency(totalCoupons)},
       {label: t('reports.voids'), value: withDualCurrency(totalVoids)},
     ];

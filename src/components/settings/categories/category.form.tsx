@@ -65,7 +65,7 @@ export const CategoryForm = ({
       reset({
         ...data,
         name: data.name,
-        priority: data.priority.toString(),
+        priority: String(data.priority ?? ''),
         show_in_menu: isCategoryShownInMenu(data),
         outlet: outletId
           ? { label: (data.outlet as Outlet)?.name ?? outletId, value: outletId }

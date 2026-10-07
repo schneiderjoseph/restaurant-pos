@@ -27,11 +27,12 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
 
   const total = useMemo(() => {
     const extrasTotal = order?.extras ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0) : 0;
-    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0);
+    const couponDiscount = order?.coupon ? Number(order.coupon.discount || 0) : 0;
+    return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) - couponDiscount + Number(order.service_charge_amount ?? 0);
   }, [itemsTotal, order]);
 
   // Get address from delivery or customer
-  const address = delivery?.address || customer?.address || "No address";
+  const address = delivery?.place || delivery?.address || customer?.address || t('order.noAddress');
   const secondaryAddress = delivery?.secondary_address || customer?.secondary_address;
 
   // Status colors
@@ -48,21 +49,24 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
     switch (state) {
       case 'accepted':
         return {
-          text: 'Accepted - Waiting for rider',
+          text: t('order.acceptedWaitingRider'),
           icon: faCheck,
           className: 'bg-info-100 text-info-700 border-info-300'
         };
       case 'rider_assigned':
         return {
-          text: delivery?.rider 
-            ? `Rider assigned: ${delivery.rider.first_name} ${delivery.rider.last_name}`
-            : 'Rider assigned',
+          text: delivery?.rider
+            ? t('order.riderAssignedNamed', {
+                firstName: delivery.rider.first_name,
+                lastName: delivery.rider.last_name,
+              })
+            : t('order.riderAssigned'),
           icon: faUser,
           className: 'bg-primary-100 text-primary-700 border-primary-300'
         };
       case 'on_the_way':
         return {
-          text: 'Out for delivery',
+          text: t('order.outForDelivery'),
           icon: faBiking,
           className: 'bg-success-100 text-success-700 border-success-300'
         };
@@ -142,7 +146,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
         <div className="flex items-center gap-2">
           <FontAwesomeIcon icon={faShoppingBag} className="text-neutral-500 text-sm" />
           <span className="text-sm text-neutral-600">
-            {items.length} {items.length === 1 ? "item" : "items"}
+            {items.length} {items.length === 1 ? t('order.item') : t('order.items')}
           </span>
         </div>
         <div className="text-right">

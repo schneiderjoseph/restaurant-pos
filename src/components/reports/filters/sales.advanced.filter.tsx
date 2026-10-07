@@ -53,7 +53,7 @@ export const SalesAdvancedFilter = () => {
       className="flex flex-col gap-4 items-start w-full"
       target="_blank"
     >
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -131,18 +131,18 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Tax Filter</label>
+          <label>{t('filters.taxFilter')}</label>
           <div className="flex flex-col gap-3">
-            <Checkbox name="with_tax" value="1" label="With Tax" />
-            <Checkbox name="without_tax" value="1" label="Without Tax" />
+            <Checkbox name="with_tax" value="1" label={t('filters.withTax')} />
+            <Checkbox name="without_tax" value="1" label={t('filters.withoutTax')} />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-discounts">Discount Filter</label>
+          <label htmlFor="sales-advanced-discounts">{t('filters.discountFilter')}</label>
           <div className="flex flex-col gap-3 mb-2">
-            <Checkbox name="with_discount" value="1" label="With Discount" />
-            <Checkbox name="without_discount" value="1" label="Without Discount" />
+            <Checkbox name="with_discount" value="1" label={t('filters.withDiscount')} />
+            <Checkbox name="without_discount" value="1" label={t('filters.withoutDiscount')} />
           </div>
           <ReactSelect
             id="sales-advanced-discounts"
@@ -150,7 +150,7 @@ export const SalesAdvancedFilter = () => {
             isMulti
             isLoading={loadingDiscounts}
             className="w-full"
-            placeholder="Select specific discounts (optional)"
+            placeholder={t('filters.selectDiscountsOptional')}
             options={(discountsData?.data || [])
               .map(discount => toOption(discount, discount.name))
               .filter(notNull)}
@@ -158,7 +158,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-payment-types">Payment Types</label>
+          <label htmlFor="sales-advanced-payment-types">{t('filters.paymentTypes')}</label>
           <ReactSelect
             id="sales-advanced-payment-types"
             name="payment_types[]"
@@ -232,30 +232,30 @@ export const SalesAdvancedFilter = () => {
 
         <div className="flex flex-row gap-3">
           <div className="flex flex-col flex-1">
-            <label htmlFor="sales-advanced-sort-by">Sort result by</label>
+            <label htmlFor="sales-advanced-sort-by">{t('filters.sortBy')}</label>
             <select
               id="sales-advanced-sort-by"
               name="sortBy"
               className="form-control"
-              defaultValue="any"
+              defaultValue=""
             >
               <option value="">{t('labels.default')}</option>
               {['Invoice', 'Date', 'Status', 'Cashier', 'Order taker', 'Total'].map(item => (
-                <option value={item}>{item}</option>
+                <option key={item} value={item}>{item}</option>
               ))}
             </select>
           </div>
 
           <div className="flex flex-col flex-1">
-            <label htmlFor="sales-advanced-sort-by">Sort result by</label>
+            <label htmlFor="sales-advanced-sort-direction">{t('filters.sortDirection')}</label>
             <select
-              id="sales-advanced-sort-by"
+              id="sales-advanced-sort-direction"
               name="sortDirection"
               className="form-control"
-              defaultValue="any"
+              defaultValue="Ascending"
             >
               {['Ascending', 'Descending'].map(item => (
-                <option value={item}>{item}</option>
+                <option key={item} value={item}>{item}</option>
               ))}
             </select>
           </div>

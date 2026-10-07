@@ -54,10 +54,14 @@ export const DeliveryDensityFilter = () => {
   const {data: paymentTypesData, isLoading: loadingPaymentTypes} = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], ["name asc"], 0, 9999);
   const {data: menuItemsData, isLoading: loadingMenuItems} = useApi<SettingsData<Dish>>(Tables.dishes, [], ["name asc"], 0, 9999);
 
+  const [areasError, setAreasError] = useState<string | null>(null);
+
   useEffect(() => {
+    let isMounted = true;
     const loadAreas = async () => {
       try {
         setLoadingAreas(true);
+        setAreasError(null);
         const [result] = await db.query(
           `SELECT delivery.address as address
            FROM ${Tables.orders}
@@ -75,16 +79,27 @@ export const DeliveryDensityFilter = () => {
           )
         ).sort((a, b) => String(a).localeCompare(String(b))) as string[];
 
-        setAreas(uniqueAreas);
+        if (isMounted) {
+          setAreas(uniqueAreas);
+        }
       } catch (error) {
         console.error("Failed to load delivery areas", error);
+        if (isMounted) {
+          setAreas([]);
+          setAreasError(t('filters.unableToLoadAreas'));
+        }
       } finally {
-        setLoadingAreas(false);
+        if (isMounted) {
+          setLoadingAreas(false);
+        }
       }
     };
 
-    loadAreas();
-  }, [db]);
+    void loadAreas();
+    return () => {
+      isMounted = false;
+    };
+  }, [db, t]);
 
   const areaOptions = useMemo(
     () => areas.map(area => ({label: area, value: area})),
@@ -97,7 +112,7 @@ export const DeliveryDensityFilter = () => {
       className="flex flex-col gap-4 items-start w-full"
       target="_blank"
     >
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
@@ -115,7 +130,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-payment-types">Payment Types</label>
+          <label htmlFor="delivery-density-payment-types">{t('filters.paymentTypes')}</label>
           <ReactSelect
             id="delivery-density-payment-types"
             name="payment_types[]"
@@ -193,7 +208,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-areas">Areas</label>
+          <label htmlFor="delivery-density-areas">{t('filters.areas')}</label>
           <ReactSelect
             id="delivery-density-areas"
             name="areas[]"
@@ -202,6 +217,7 @@ export const DeliveryDensityFilter = () => {
             className="w-full"
             options={areaOptions}
           />
+          {areasError && <p className="text-sm text-danger-600">{areasError}</p>}
         </div>
       </div>
 

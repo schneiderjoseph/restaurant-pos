@@ -21,6 +21,8 @@ import { DateValue } from "react-aria-components";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import { DateTime as LuxonDateTime } from "luxon";
+import { getAppTimezone } from "@/lib/datetime.ts";
 
 interface DistributionRow {
   user: User
@@ -71,15 +73,23 @@ export const TipDistributionScreen = () => {
     const [startHour, startMinute] = String(selectedShift.start_time || "00:00").split(":").map(Number);
     const [endHour, endMinute] = String(selectedShift.end_time || "00:00").split(":").map(Number);
 
-    const fromDate = new Date(year, (month || 1) - 1, day || 1, startHour || 0, startMinute || 0, 0, 0);
-    const toDate = new Date(year, (month || 1) - 1, day || 1, endHour || 0, endMinute || 0, 59, 999);
+    // Shift hours are restaurant hours (app timezone), whatever the tablet's timezone.
+    const zone = getAppTimezone();
+    const from = LuxonDateTime.fromObject(
+      { year, month: month || 1, day: day || 1, hour: startHour || 0, minute: startMinute || 0 },
+      { zone },
+    );
+    let to = LuxonDateTime.fromObject(
+      { year, month: month || 1, day: day || 1, hour: endHour || 0, minute: endMinute || 0, second: 59, millisecond: 999 },
+      { zone },
+    );
 
     const overnight = selectedShift.ends_next_day ?? isOvernightShift(selectedShift.start_time, selectedShift.end_time);
     if (overnight) {
-      toDate.setDate(toDate.getDate() + 1);
+      to = to.plus({ days: 1 });
     }
 
-    return { fromDate, toDate };
+    return { fromDate: from.toJSDate(), toDate: to.toJSDate() };
   };
 
   const calculateDistribution = async () => {
@@ -218,7 +228,12 @@ export const TipDistributionScreen = () => {
           <label>{t("summary:tipDistribution.shift")}</label>
           <ReactSelect
             value={selectedShiftId ? { value: selectedShiftId, label: selectedShift?.name || selectedShiftId } : null}
-            onChange={(option: any) => setSelectedShiftId(option?.value || "")}
+            onChange={(option: any) => {
+              setSelectedShiftId(option?.value || "");
+              // Amounts computed for another shift must not be saved under this one.
+              setRows([]);
+              setTotalTips(0);
+            }}
             options={(shiftsData?.data || []).map((item) => ({
               label: item.name,
               value: normalizeId(item.id),
@@ -231,7 +246,11 @@ export const TipDistributionScreen = () => {
             label={t("summary:tipDistribution.date")}
             maxValue={today(getLocalTimeZone())}
             value={shiftDate}
-            onChange={setShiftDate}
+            onChange={(value: DateValue | null) => {
+              setShiftDate(value);
+              setRows([]);
+              setTotalTips(0);
+            }}
             isClearable
           />
         </div>

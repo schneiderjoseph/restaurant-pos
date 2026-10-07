@@ -166,5 +166,18 @@
       "amount": "Valor"
     },
     "empty": "Nenhuma distribuição calculada ainda."
+  },
+  "print": {
+    "productMixTitle": "MIX DE PRODUTOS ({{date}})",
+    "serverSalesTitle": "VENDAS POR GARÇOM ({{date}})",
+    "item": "Item",
+    "qty": "Qtd",
+    "total": "Tot",
+    "grandTotal": "TOTAL",
+    "name": "Nome",
+    "time": "Tempo",
+    "guests": "Pess",
+    "checks": "Contas",
+    "sale": "Venda"
   }
 }

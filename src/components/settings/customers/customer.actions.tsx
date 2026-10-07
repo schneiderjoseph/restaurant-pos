@@ -107,6 +107,7 @@ export const CustomerMergeModal = ({ customer, onClose, onDone }: MergeProps) =>
       setResults([]);
       return;
     }
+    let cancelled = false;
     const handle = window.setTimeout(() => {
       const digits = /\p{L}/u.test(term) ? '' : phoneDigits(term);
       void db
@@ -120,13 +121,18 @@ export const CustomerMergeModal = ({ customer, onClose, onDone }: MergeProps) =>
            ORDER BY name LIMIT 30`,
           { term, digits: digits.length >= 3 ? digits : '', number: parseCustomerNumber(term) ?? undefined, self: customer.id },
         )
-        .then(([rows]) => setResults(Array.isArray(rows) ? rows : []))
+        .then(([rows]) => {
+          if (!cancelled) setResults(Array.isArray(rows) ? rows : []);
+        })
         .catch((error) => {
           console.error('Merge search failed', error);
-          setResults([]);
+          if (!cancelled) setResults([]);
         });
     }, 200);
-    return () => window.clearTimeout(handle);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- debounce on the typed term
   }, [search, customer?.id]);
 

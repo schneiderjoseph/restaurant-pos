@@ -93,27 +93,16 @@ export const CartActions = () => {
   }
 
   const copySelectedCartItems = () => {
-    const prevItems = [...state.cart];
-    const newItems = [];
-    prevItems.forEach(item => {
-      if( item.isSelected ) {
-        item.isSelected = false;
-        if(item.newOrOld === MenuItemType.new){
-          item.id = nanoid();
-          newItems.push(item);
-        }
-      }
-    });
+    // Copies get a new id; the lines already in the cart keep theirs (no state mutation).
+    const copies = state.cart
+      .filter(item => item.isSelected && item.newOrOld === MenuItemType.new)
+      .map(item => ({...item, isSelected: false, id: nanoid()}));
 
     setState(prev => ({
       ...prev,
       cart: [
-        ...prevItems.map(item => ({
-          ...item,
-          isSelected: false,
-          id: item.newOrOld === MenuItemType.old ? item.id : nanoid()
-        })),
-        ...newItems,
+        ...prev.cart.map(item => ({...item, isSelected: false})),
+        ...copies,
       ]
     }))
   }

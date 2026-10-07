@@ -29,5 +29,6 @@
     "due": "Para",
     "elapsed": "Decorrido",
     "notes": "Observações"
-  }
+  },
+  "markServedFailed": "Não foi possível marcar o pedido como entregue"
 }

@@ -334,11 +334,11 @@ const OrderPaymentReceivingContent = ({
             }
           );
           if (preResult.blocked) {
-            toast.error(preResult.blockedError ?? 'Fiscal submission failed');
+            toast.error(preResult.blockedError ?? t('receiving.fiscalFailed'));
             return;
           }
           if (Object.values(preResult.resultsByProvider).some((row) => row.status === 'failed')) {
-            toast.warning('Some fiscal providers failed; check Integrations queue');
+            toast.warning(t('receiving.fiscalPartialFailure'));
           }
         }
       }
@@ -356,6 +356,21 @@ const OrderPaymentReceivingContent = ({
         total,
       );
       setPayments(syncedPayments);
+
+      // Replace the extras saved so far (autosave may have written newer ones than this
+      // order prop knows): read them back, unlink, delete, then create the final set.
+      const [savedExtraIds] = await db.query<[unknown[] | null]>(
+        'SELECT VALUE extras FROM ONLY $id',
+        {id: toRecordId(order.id)},
+      );
+      await db.merge(toRecordId(order.id), {extras: []});
+      for (const extraId of savedExtraIds ?? []) {
+        try {
+          await db.delete(toRecordId(extraId));
+        } catch {
+          // Already gone after an earlier race — continue.
+        }
+      }
 
       const extraOptions = [];
       for (const extra of Object.keys(extras)) {
@@ -443,7 +458,7 @@ const OrderPaymentReceivingContent = ({
             settledOrder
           );
           if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
-            toast.warning('Some fiscal providers failed; check Integrations queue');
+            toast.warning(t('receiving.fiscalPartialFailure'));
           }
         }
       }
@@ -740,7 +755,9 @@ const OrderPaymentReceivingContent = ({
       <div className="grid grid-cols-3 grid-rows-4 gap-2 flex-1 min-h-[232px]" data-testid="payment-keypad">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" className="!h-full" onClick={() => {
-            setSelectedAmount((prev: string) => prev + item.toString());
+            const key = item.toString();
+            // One decimal point at most, or the amount parses to NaN.
+            setSelectedAmount((prev: string) => (key === '.' && prev.includes('.') ? prev : prev + key));
           }}>
             {item}
           </Button>

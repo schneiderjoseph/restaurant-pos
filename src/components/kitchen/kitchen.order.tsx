@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Kitchen, KitchenOrderBatch } from "@/api/model/kitchen.ts";
 import { Order } from "@/api/model/order.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
@@ -15,6 +15,7 @@ import { dispatchPrint } from "@/lib/print.service.ts";
 import { useAtom } from "jotai";
 import { appPage } from "@/store/jotai.ts";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {
@@ -51,12 +52,13 @@ export const KitchenOrder = ({
 }: Props) => {
   const db = useDB();
   const [page] = useAtom(appPage);
-  const { t } = useTranslation(["kitchen", "payment"]);
+  const { t } = useTranslation(["kitchen", "payment", "toast"]);
   const { protectAction } = useSecurity();
   const isVisible = useActionVisible();
   const canReprintKot = isVisible("orders.print_kot");
   const [printing, setPrinting] = useState(false);
   const [showItems, setShowItems] = useState(false);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const { order, batch, isAddon, showKindLabel, groupColor } = ticket;
   const liveItems = batch.items.filter((item) => !item.order_item?.deleted_at);
@@ -67,8 +69,17 @@ export const KitchenOrder = ({
     stageStart ? toLuxonDateTime(stageStart) : null,
     order?.due_at ? toLuxonDateTime(order.due_at) : null,
   );
+
+  useEffect(() => {
+    if (!timerStart) {
+      return;
+    }
+    const interval = window.setInterval(() => setNowMs(Date.now()), 15_000);
+    return () => window.clearInterval(interval);
+  }, [timerStart]);
+
   const diff = timerStart
-    ? nowInAppTimezone().diff(timerStart).as('minutes')
+    ? (nowMs - timerStart.toMillis()) / 60_000
     : 0;
 
   const guestLabelMode = (page?.menuConfig?.kitchenGuestLabel ?? 'name') as KitchenGuestLabelMode;
@@ -83,14 +94,19 @@ export const KitchenOrder = ({
       await completeStages(db, liveItems.map((item) => item.id.toString()), page?.user?.id);
     } catch (error) {
       console.error('Kitchen ready failed', error);
+      toast.error(t('toast:kitchen.readyFailed'));
     }
   };
 
-  const singleReady = async (item: string) => {
+  const singleReady = async (itemId: string, deletedAt?: unknown) => {
+    if (deletedAt) {
+      return;
+    }
     try {
-      await completeStage(db, item, page?.user?.id);
+      await completeStage(db, itemId, page?.user?.id);
     } catch (error) {
       console.error('Kitchen item ready failed', error);
+      toast.error(t('toast:kitchen.itemReadyFailed'));
     }
   };
 
@@ -129,6 +145,7 @@ export const KitchenOrder = ({
       });
     } catch (error) {
       console.error('Kitchen KOT reprint failed', error);
+      toast.error(t('toast:kitchen.reprintFailed'));
     } finally {
       setPrinting(false);
     }
@@ -282,10 +299,12 @@ export const KitchenOrder = ({
             <div className="rounded-lg bg-white divide-y divide-neutral-100 max-h-[60vh] overflow-auto">
               {batch.items.map(item => (
                 <div
-                  onClick={() => singleReady(item.id.toString())}
+                  onClick={() => singleReady(item.id.toString(), item.order_item?.deleted_at)}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2.5 text-lg cursor-pointer hover:bg-neutral-50",
-                    item.order_item?.deleted_at ? 'text-danger-700 line-through' : ''
+                    "flex items-center gap-2 px-3 py-2.5 text-lg",
+                    item.order_item?.deleted_at
+                      ? 'text-danger-700 line-through cursor-default'
+                      : 'cursor-pointer hover:bg-neutral-50'
                   )}
                   key={item.id}
                 >

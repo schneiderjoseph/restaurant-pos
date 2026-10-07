@@ -447,10 +447,8 @@ export const aggregateProductMixByCategory = (
         item,
         !!filters.showInclusivePrices,
       );
-      const modifierTotal = walkedModifiers
-        .filter(modifier => modifier.depth === 1)
-        .reduce((sum, modifier) => sum + modifier.price, 0);
-      const totalCollected = safeNumber(total + modifierTotal);
+      // `total` comes from calculateOrderItemPrice, which already includes the chosen modifiers.
+      const totalCollected = total;
 
       categories.forEach(category => {
         const key = `${category.id}-${dishId}`;

@@ -92,7 +92,9 @@
     "roomCheckedOut": "Uitgecheckt in ASI: deze gast betaalt direct, zoals een passant",
     "roomSyncStale": "Verblijf niet te controleren (ASI-synchronisatie loopt achter): de gast betaalt direct",
     "roomNotHotelGuest": "Op de kamer zetten kan alleen voor een aanwezige hotelgast",
-    "roomDepartsToday": "Vertrek vandaag gepland"
+    "roomDepartsToday": "Vertrek vandaag gepland",
+    "fiscalFailed": "Fiscale verzending mislukt",
+    "fiscalPartialFailure": "Sommige fiscale providers zijn mislukt; controleer de wachtrij Integraties"
   },
   "remote": {
     "remoteLabel": "{{name}} (Op afstand)",

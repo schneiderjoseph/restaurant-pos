@@ -241,7 +241,27 @@
       "analysis": "Analysis"
     },
     "unnamedUser": "Unnamed user",
-    "location": "Location"
+    "location": "Location",
+    "selectDate": "Select date",
+    "selectWeek": "Select a week",
+    "week": "Week",
+    "users": "Users",
+    "taxFilter": "Tax Filter",
+    "discountFilter": "Discount Filter",
+    "withTax": "With Tax",
+    "withoutTax": "Without Tax",
+    "withDiscount": "With Discount",
+    "withoutDiscount": "Without Discount",
+    "paymentTypes": "Payment Types",
+    "sortBy": "Sort result by",
+    "sortDirection": "Sort direction",
+    "selectDiscountsOptional": "Select specific discounts (optional)",
+    "loadingWeeks": "Loading weeks...",
+    "noWeeksAvailable": "No weeks available",
+    "unableToLoadWeeks": "Unable to load weeks",
+    "unableToLoadAreas": "Unable to load delivery areas",
+    "aiUsageUnavailable": "Unable to verify AI usage. Try again later.",
+    "areas": "Areas"
   },
   "datePresets": {
     "today": "Today",
@@ -385,7 +405,8 @@
     "outlet": "Point of sale",
     "authMethod": "Auth method",
     "details": "Details",
-    "noTable": "No table"
+    "noTable": "No table",
+    "createdAt": "Created at"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -566,7 +587,11 @@
     "saleByEmployees": "Sale by Employees",
     "expandAll": "Expand all",
     "collapseAll": "Collapse all",
-    "unclassifiedOutlet": "Unclassified"
+    "unclassifiedOutlet": "Unclassified",
+    "allShifts": "All shifts",
+    "allDates": "All dates",
+    "selectedShift": "Selected shift",
+    "selectedDay": "Selected day"
   },
   "metrics": {
     "gross": "Gross",
@@ -606,7 +631,9 @@
     "item": "Item",
     "direction": "Direction",
     "quantity": "Quantity",
-    "cost": "Cost"
+    "cost": "Cost",
+    "totalTips": "Total tips",
+    "savedDistributions": "Saved distributions"
   },
   "production": {
     "batchNumber": "Batch #",
@@ -667,12 +694,17 @@
     "noScheduleRoster": "No scheduled shifts for the selected range",
     "noTables": "No table sales for the selected range.",
     "noActivity": "No audit entries for the selected range.",
-    "noProducts": "No products found."
+    "noProducts": "No products found.",
+    "noRows": "No rows found for selected range.",
+    "noTips": "No tips found for selected filters.",
+    "noDataForFilters": "No data available for the selected filters",
+    "noCashClosing": "No cash closing found for selected date."
   },
   "sections": {
     "salesByOutlet": "Sales by point of sale"
   },
   "messages": {
-    "auditTruncated": "Showing the latest {{count}} entries only. Narrow the date range to see older ones."
+    "auditTruncated": "Showing the latest {{count}} entries only. Narrow the date range to see older ones.",
+    "productHourlyDisclaimer": "This report doesn't include taxes, discounts, service charges, extras and tips"
   }
 }

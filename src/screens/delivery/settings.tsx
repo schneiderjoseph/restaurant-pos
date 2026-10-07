@@ -234,7 +234,7 @@ export const DeliverySettings = () => {
 
   const addCustomDate = () => {
     const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     append({
       id: `date-${Date.now()}`,
       day_or_date: dateStr,
@@ -413,14 +413,14 @@ export const DeliverySettings = () => {
                       className="flex items-center gap-2"
                     >
                       <FontAwesomeIcon icon={faPlus} size="sm" />
-                      Add Custom Date
+                      {t('settings.addCustomDate')}
                     </Button>
                   </div>
                   
                   <div className="flex flex-col gap-1">
                     {fields.map((field, index) => {
                       const isDefaultDay = isDayOfWeek(field.day_or_date);
-                      const isDayOff = deliveryTimingValues?.[index]?.enable_delivery ?? false;
+                      const isDayOff = !(deliveryTimingValues?.[index]?.enable_delivery ?? false);
                       return (
                         <div key={field.id} className="border rounded-lg p-1 bg-gray-50">
                           <div className="flex items-end gap-3">
@@ -431,7 +431,7 @@ export const DeliverySettings = () => {
                                 render={({field: dayField}) => (
                                   <Input
                                     type={isDefaultDay ? "text" : "date"}
-                                    label={isDefaultDay ? "Day of Week" : "Date"}
+                                    label={isDefaultDay ? t('settings.dayOfWeek') : t('settings.date')}
                                     value={dayField.value}
                                     onChange={dayField.onChange}
                                     disabled={isDefaultDay}
@@ -518,7 +518,7 @@ export const DeliverySettings = () => {
                     variant="primary"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Saving..." : "Save Settings"}
+                    {isSubmitting ? t('settings.saving') : t('settings.saveSettings')}
                   </Button>
                 </div>
               </div>

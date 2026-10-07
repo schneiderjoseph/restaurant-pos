@@ -166,5 +166,18 @@
       "amount": "المبلغ"
     },
     "empty": "لم يُحسب توزيع بعد."
+  },
+  "print": {
+    "productMixTitle": "مزيج المنتجات ({{date}})",
+    "serverSalesTitle": "مبيعات النُدُل ({{date}})",
+    "item": "الصنف",
+    "qty": "الكمية",
+    "total": "الإجمالي",
+    "grandTotal": "المجموع",
+    "name": "الاسم",
+    "time": "الوقت",
+    "guests": "الضيوف",
+    "checks": "الفواتير",
+    "sale": "المبيعات"
   }
 }

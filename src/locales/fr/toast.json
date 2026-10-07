@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Échec de l'enregistrement des zones de carte"
   },
   "kitchen": {
-    "recallFailed": "Échec du rappel de la commande"
+    "recallFailed": "Échec du rappel de la commande",
+    "readyFailed": "Échec du marquage « prêt »",
+    "itemReadyFailed": "Échec du marquage de l’article comme prêt",
+    "reprintFailed": "Échec de la réimpression du ticket cuisine"
   },
   "closing": {
     "loadFailed": "Échec du chargement de la clôture",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide",
     "outletSaved": "Point de vente {{name}} enregistré",
     "outletDeleted": "Point de vente {{name}} supprimé",
-    "outletSuggestionsApplied": "{{count}} catégories classées"
+    "outletSuggestionsApplied": "{{count}} catégories classées",
+    "dishRelationsLoading": "Veuillez attendre la fin du chargement des relations du plat"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} est utilisé et a été désactivé.",

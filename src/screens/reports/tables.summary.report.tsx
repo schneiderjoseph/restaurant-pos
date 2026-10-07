@@ -35,7 +35,25 @@ export const TablesSummaryReport = () => {
       const orders = await fetchPaidOrders(db, {
         startDate: filters.startDate,
         endDate: filters.endDate,
-        fetches: ['table', 'floor', 'order_type', 'payments', 'payments.payment_type', 'tax', 'discount'],
+        fetches: [
+          'table',
+          'floor',
+          'order_type',
+          'payments',
+          'payments.payment_type',
+          'tax',
+          'discount',
+          'items',
+          'items.taxes',
+          'items.tax_mode',
+          'order_taxes',
+          'order_taxes.tax',
+          'order_discounts',
+          'order_discounts.discount',
+          'coupon',
+          'coupon.coupon',
+          'extras',
+        ],
       });
 
       const map = new Map<string, { orders: number; revenue: number }>();

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
 import type { Customer } from '@/api/model/customer.ts';
@@ -50,6 +51,9 @@ export const CustomerDetail = ({ customer, canViewIdDocument, onClose }: Props) 
         if (!cancelled) setOrders(Array.isArray(rows) ? rows : []);
       } catch (error) {
         console.error('Customer history failed', error);
+        if (!cancelled) {
+          toast.error(t('admin:customers.historyLoadFailed'));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

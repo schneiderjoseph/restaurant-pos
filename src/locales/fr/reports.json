@@ -237,7 +237,27 @@
       "charts": "Graphiques et prévisions",
       "analysis": "Analyse"
     },
-    "location": "Emplacement"
+    "location": "Emplacement",
+    "selectDate": "Sélectionner une date",
+    "selectWeek": "Sélectionner une semaine",
+    "week": "Semaine",
+    "users": "Utilisateurs",
+    "taxFilter": "Filtre taxe",
+    "discountFilter": "Filtre remise",
+    "withTax": "Avec taxe",
+    "withoutTax": "Sans taxe",
+    "withDiscount": "Avec remise",
+    "withoutDiscount": "Sans remise",
+    "paymentTypes": "Types de paiement",
+    "sortBy": "Trier les résultats par",
+    "sortDirection": "Sens du tri",
+    "selectDiscountsOptional": "Sélectionner des remises spécifiques (optionnel)",
+    "loadingWeeks": "Chargement des semaines...",
+    "noWeeksAvailable": "Aucune semaine disponible",
+    "unableToLoadWeeks": "Impossible de charger les semaines",
+    "unableToLoadAreas": "Impossible de charger les zones de livraison",
+    "aiUsageUnavailable": "Impossible de vérifier l'utilisation de l'IA. Réessayez plus tard.",
+    "areas": "Zones"
   },
   "datePresets": {
     "today": "Aujourd'hui",
@@ -381,7 +401,8 @@
     "outlet": "Point de vente",
     "authMethod": "Mode d'auth.",
     "details": "Détails",
-    "noTable": "Sans table"
+    "noTable": "Sans table",
+    "createdAt": "Créé le"
   },
   "labels": {
     "modifiers": "Modificateurs",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Ventes par employés",
     "expandAll": "Tout développer",
     "collapseAll": "Tout réduire",
-    "unclassifiedOutlet": "Non classé"
+    "unclassifiedOutlet": "Non classé",
+    "allShifts": "Tous les shifts",
+    "allDates": "Toutes les dates",
+    "selectedShift": "Shift sélectionné",
+    "selectedDay": "Jour sélectionné"
   },
   "metrics": {
     "gross": "Brut",
@@ -602,7 +627,9 @@
     "item": "Article",
     "direction": "Direction",
     "quantity": "Quantité",
-    "cost": "Coût"
+    "cost": "Coût",
+    "totalTips": "Total des pourboires",
+    "savedDistributions": "Répartitions enregistrées"
   },
   "production": {
     "batchNumber": "Lot n°",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée",
     "noTables": "Aucune vente en table sur la période.",
     "noActivity": "Aucune entrée d'audit sur la période.",
-    "noProducts": "Aucun produit."
+    "noProducts": "Aucun produit.",
+    "noRows": "Aucune ligne pour la plage sélectionnée.",
+    "noTips": "Aucun pourboire pour les filtres sélectionnés.",
+    "noDataForFilters": "Aucune donnée pour les filtres sélectionnés",
+    "noCashClosing": "Aucune clôture de caisse pour la date sélectionnée."
   },
   "sections": {
     "salesByOutlet": "Ventes par point de vente"
   },
   "messages": {
-    "auditTruncated": "Seules les {{count}} dernières entrées sont affichées. Réduisez la période pour voir les plus anciennes."
+    "auditTruncated": "Seules les {{count}} dernières entrées sont affichées. Réduisez la période pour voir les plus anciennes.",
+    "productHourlyDisclaimer": "Ce rapport n'inclut pas les taxes, remises, frais de service, extras et pourboires"
   }
 }

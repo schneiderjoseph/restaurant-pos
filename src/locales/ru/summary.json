@@ -166,5 +166,18 @@
       "amount": "Сумма"
     },
     "empty": "Распределение ещё не рассчитано."
+  },
+  "print": {
+    "productMixTitle": "ПРОДАЖИ ПО ТОВАРАМ ({{date}})",
+    "serverSalesTitle": "ПРОДАЖИ ОФИЦИАНТОВ ({{date}})",
+    "item": "Товар",
+    "qty": "Кол",
+    "total": "Сум",
+    "grandTotal": "ИТОГО",
+    "name": "Имя",
+    "time": "Время",
+    "guests": "Гости",
+    "checks": "Чеки",
+    "sale": "Продажи"
   }
 }

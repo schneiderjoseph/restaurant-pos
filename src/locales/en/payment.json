@@ -102,7 +102,9 @@
     "roomDepartsToday": "Departure planned today",
     "notAllowed": "Your role does not take payment: call a cashier, or switch user.",
     "toPay": "To pay",
-    "tendered": "Received"
+    "tendered": "Received",
+    "fiscalFailed": "Fiscal submission failed",
+    "fiscalPartialFailure": "Some fiscal providers failed; check Integrations queue"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

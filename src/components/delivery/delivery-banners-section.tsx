@@ -166,10 +166,10 @@ export const DeliveryBannersSection = () => {
 
       const finalBanners: DeliveryBanner[] = [...keptExisting, ...uploadedBanners];
 
+      await saveDeliveryBanners(db.query, db.merge, db.create, finalBanners);
       await Promise.all(
         removedDocumentIds.map((documentId) => deleteBannerDocument(db.delete, documentId))
       );
-      await saveDeliveryBanners(db.query, db.merge, db.create, finalBanners);
 
       const nextExisting: ExistingBannerItem[] = [
         ...existingBanners,

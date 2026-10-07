@@ -62,11 +62,13 @@ export const OrderPaymentDiscountEngine = ({
     [discounts]
   )
 
-  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0]
+  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0]
 
   const [draftLines, setDraftLines] = useState<AppliedDiscountLine[]>(discountLines)
   const [draftDiscount, setDraftDiscount] = useState<Discount | undefined>()
   const [draftAmount, setDraftAmount] = useState(0)
+  // What was typed on the keypad, kept as text so "12." can become "12.50".
+  const [entryText, setEntryText] = useState('')
   const [draftRate, setDraftRate] = useState(0)
   const [percentInput, setPercentInput] = useState<number | undefined>()
   const [keyboard, setKeyboard] = useState(false)
@@ -95,6 +97,7 @@ export const OrderPaymentDiscountEngine = ({
 
   const addDiscount = (discount: Discount) => {
     setDraftDiscount(discount)
+    setEntryText('')
     setKeyboard(false)
     const minVal = getDiscountMinValue(discount)
     const maxVal = getDiscountMaxValue(discount)
@@ -125,10 +128,16 @@ export const OrderPaymentDiscountEngine = ({
     const minVal = getDiscountMinValue(draftDiscount)
     const maxVal = getDiscountMaxValue(draftDiscount)
 
+    const typed = String(key)
+    if (typed === '.' && entryText.includes('.')) return
+    const next = typed === '.' && entryText === '' ? '0.' : entryText + typed
+    setEntryText(next)
+    const value = Number(next)
+
     if (valueType === 'percent' && minVal !== maxVal) {
-      setPercentInput(prev => Number((prev?.toString() || '') + key))
+      setPercentInput(value)
     } else {
-      setDraftAmount(prev => Number(prev.toString() + key))
+      setDraftAmount(value)
     }
   }
 
@@ -303,6 +312,7 @@ export const OrderPaymentDiscountEngine = ({
               className="!h-auto min-h-[56px] flex-col !py-1"
               active={item.isPercent ? (percentInput ?? draftRate) === item.value : draftAmount === item.value}
               onClick={() => {
+                setEntryText('')
                 if (item.isPercent) {
                   setPercentInput(item.value)
                 } else {
@@ -332,6 +342,7 @@ export const OrderPaymentDiscountEngine = ({
             </Button>
           ))}
           <Button size="xl" flat variant="primary" onClick={() => {
+            setEntryText('')
             setDraftAmount(0)
             setPercentInput(undefined)
             setDraftRate(0)

@@ -13,7 +13,7 @@ import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
-import {computeRunningBalances, isSupplierAccount, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {computeRunningBalances, isSupplierAccount, POSTED_ENTRY_FILTER, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 
 interface StatementRow {
   id: string;
@@ -85,7 +85,7 @@ export const SupplierStatement = () => {
         `
           SELECT math::sum(debit - credit) as opening
           FROM ${Tables.account_journal_lines}
-          WHERE entry.store = $store
+          WHERE ${POSTED_ENTRY_FILTER}
             AND account = $account
             AND entry.date < <datetime>$date_from
           GROUP ALL
@@ -98,7 +98,7 @@ export const SupplierStatement = () => {
         `
           SELECT *
           FROM ${Tables.account_journal_lines}
-          WHERE entry.store = $store
+          WHERE ${POSTED_ENTRY_FILTER}
             AND account = $account
             AND entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to

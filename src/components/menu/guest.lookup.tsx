@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
@@ -213,11 +213,16 @@ export const GuestLookup = () => {
     }
   };
 
+  const selectedGuestIdRef = useRef<string | undefined>(undefined);
+
   const loadFolio = async (customer: Customer) => {
     if (!customer?.id) {
       setFolio([]);
       return;
     }
+
+    const requestedId = customer.id.toString();
+    selectedGuestIdRef.current = requestedId;
 
     // Its own orders and those of the duplicates merged into it.
     const customers = await customerHistoryIds(db, customer.id);
@@ -229,6 +234,11 @@ export const GuestLookup = () => {
        FETCH floor, order_type, customer, table`,
       { customers }
     );
+
+    // A slower folio for guest A must not overwrite guest B's panel.
+    if (selectedGuestIdRef.current !== requestedId) {
+      return;
+    }
 
     setFolio(Array.isArray(rows) ? rows : []);
   };
@@ -362,7 +372,9 @@ export const GuestLookup = () => {
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError
-          ? t('menu:guest.idDocumentTaken', { name: '' })
+          ? t('menu:guest.idDocumentTaken', {
+              name: error.holder?.name || error.holder?.guest_code || '',
+            })
           : t('menu:guest.idDocumentSaveFailed'),
       );
     } finally {
@@ -492,7 +504,9 @@ export const GuestLookup = () => {
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError
-          ? t('menu:guest.idDocumentTaken', { name: '' })
+          ? t('menu:guest.idDocumentTaken', {
+              name: error.holder?.name || error.holder?.guest_code || '',
+            })
           : t('menu:guest.createFailed'),
       );
     } finally {

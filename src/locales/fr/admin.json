@@ -427,7 +427,9 @@
     "extraModifierPrice": "Prix du supplément",
     "extraModifierPriceHint": "Un seul prix pour chaque choix payant. Vide = le prix de chaque choix.",
     "extraModifierPricePlaceholder": "Prix de chaque choix",
-    "includedModifiersGroupHint": "Utilisé quand un plat offre des choix de ce groupe (« Inclus » sur le plat) : lesquels sont offerts, et combien coûtent les suivants."
+    "includedModifiersGroupHint": "Utilisé quand un plat offre des choix de ce groupe (« Inclus » sur le plat) : lesquels sont offerts, et combien coûtent les suivants.",
+    "maxRateGteMin": "Le taux maximum doit être supérieur ou égal au taux minimum",
+    "weightMustBeNonNegative": "Les poids doivent être supérieurs ou égaux à 0"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -989,6 +991,7 @@
       "average": "Ticket moyen",
       "lastVisit": "Dernière visite",
       "favorites": "Plats préférés"
-    }
+    },
+    "historyLoadFailed": "Impossible de charger l'historique des commandes du client"
   }
 }

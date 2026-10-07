@@ -73,7 +73,8 @@
     "totalWithTax": "{{label}} ile toplam",
     "change": "Para üstü",
     "sc": "SU ({{value}}%)",
-    "extras": "Ekstralar"
+    "extras": "Ekstralar",
+    "payment": "Ödeme"
   },
   "actions": {
     "selectToMerge": "Birleştirmek için seç",

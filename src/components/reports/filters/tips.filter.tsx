@@ -13,7 +13,7 @@ export const TipsFilter = () => {
 
   return (
     <form action={REPORTS_TIPS} className="flex flex-col gap-3 items-start w-full" target="_blank">
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired />
 
       <div className="w-full">
         <label htmlFor="tips-shift">Shift</label>

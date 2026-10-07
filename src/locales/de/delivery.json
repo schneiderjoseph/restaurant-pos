@@ -23,7 +23,8 @@
     "rectangleTooSmall": "Rechteck ist zu klein. Ziehen Sie einen größeren Bereich.",
     "circleTooSmall": "Kreis ist zu klein. Ziehen Sie einen größeren Radius.",
     "polygonTooSmall": "Polygon ist zu klein. Ziehen Sie eine größere Umrandung.",
-    "areasSaved": "Kartenbereiche erfolgreich gespeichert"
+    "areasSaved": "Kartenbereiche erfolgreich gespeichert",
+    "deleteSelected": "Auswahl löschen"
   },
   "settings": {
     "title": "Lieferkonfiguration",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Bestellung {{invoice}} zur Lieferung gesendet",
     "accepted": "Bestellung {{invoice}} angenommen",
     "riderAttached": "Fahrer {{name}} der Bestellung zugewiesen",
-    "rejected": "Bestellung {{invoice}} abgelehnt"
+    "rejected": "Bestellung {{invoice}} abgelehnt",
+    "title": "Lieferauftrag - {{invoice}}",
+    "position": "Auftrag {{current}} von {{total}}",
+    "noDeliveryAddress": "Keine Lieferadresse angegeben",
+    "itemsCount": "Artikel ({{count}})",
+    "loadingRiders": "Fahrer werden geladen...",
+    "noRidersAvailable": "Keine Fahrer verfügbar",
+    "orderedAt": "Bestellt um: {{time}}",
+    "deliveryTimeLabel": "Lieferzeit: {{time}}",
+    "asap": "Schnellstmöglich",
+    "phone": "Telefon",
+    "email": "E-Mail",
+    "coordinates": "Koordinaten",
+    "details": "Auftragsdetails",
+    "status": "Status:",
+    "created": "Erstellt:",
+    "discount": "Rabatt:",
+    "coupon": "Gutschein",
+    "tax": "Steuer:",
+    "serviceCharge": "Servicegebühr:",
+    "extras": "Extras:"
   },
   "days": {
     "monday": "Montag",

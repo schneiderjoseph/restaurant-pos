@@ -44,18 +44,39 @@ export class IntegrationQueueEngine {
     return job;
   }
 
-  async processNext(executor: QueueExecutor) {
-    const ready = await this.store.listByStatus(['Pending', 'Waiting']);
-    const now = Date.now();
-    const candidates = ready
-      .filter((job) => !job.nextRunAt || new Date(job.nextRunAt).getTime() <= now)
-      .sort((a, b) => b.priority - a.priority || a.createdAt.localeCompare(b.createdAt));
-    const job = candidates[0];
-    if (!job) return null;
+  /** Picks the next ready job and marks it Running, one caller at a time. */
+  private async claimNext(): Promise<IntegrationQueueJob | null> {
+    const claim = async () => {
+      const ready = await this.store.listByStatus(['Pending', 'Waiting']);
+      const now = Date.now();
+      const candidates = ready
+        .filter((job) => !job.nextRunAt || new Date(job.nextRunAt).getTime() <= now)
+        .sort((a, b) => b.priority - a.priority || a.createdAt.localeCompare(b.createdAt));
+      const job = candidates[0];
+      if (!job) return null;
 
-    job.status = 'Running';
-    job.updatedAt = new Date().toISOString();
-    await this.store.update(job);
+      job.status = 'Running';
+      job.updatedAt = new Date().toISOString();
+      await this.store.update(job);
+      return job;
+    };
+
+    // Web Locks span every tab of this browser (they share the IndexedDB queue);
+    // without them, chain the claims within this tab.
+    const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+    if (locks?.request) {
+      return locks.request('integration-queue-claim', claim);
+    }
+    const next = this.claimChain.then(claim, claim);
+    this.claimChain = next.catch(() => undefined);
+    return next;
+  }
+
+  private claimChain: Promise<unknown> = Promise.resolve();
+
+  async processNext(executor: QueueExecutor) {
+    const job = await this.claimNext();
+    if (!job) return null;
 
     try {
       await executor(job);

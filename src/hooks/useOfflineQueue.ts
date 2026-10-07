@@ -79,11 +79,21 @@ export function useOfflineQueue(): UseOfflineQueueResult {
     if (isEffectivelyConnected && !wasConnected.current) {
       if (replayTimer.current) clearTimeout(replayTimer.current);
       replayTimer.current = setTimeout(() => {
+        replayTimer.current = null;
         void doReplay();
       }, 2000);
     }
     wasConnected.current = isEffectivelyConnected;
   }, [isEffectivelyConnected, doReplay]);
+
+  useEffect(() => {
+    return () => {
+      if (replayTimer.current) {
+        clearTimeout(replayTimer.current);
+        replayTimer.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handler = () => void doReplay();

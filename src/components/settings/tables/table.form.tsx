@@ -87,7 +87,7 @@ export const TableForm = ({
         ...data,
         name: data.name,
         number: data.number,
-        priority: data.priority.toString(),
+        priority: String(data.priority ?? ''),
         background: data.background,
         color: data.color,
         floor: (data?.floor ? {label: data?.floor?.name, value: data?.floor?.id} : null),

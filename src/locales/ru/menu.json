@@ -33,7 +33,10 @@
     "confirm": "Подтвердить"
   },
   "persons": {
-    "chooseCount": "Выберите количество гостей"
+    "chooseCount": "Выберите количество гостей",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "Не удалось проверить статус закрытия. Попробуйте снова."
   },
   "guest": {
     "title": "Guest",
@@ -111,7 +114,9 @@
     "departureToday": "Checks out today",
     "phoneCountry": "Код страны",
     "phoneCountriesFrequent": "Частые",
-    "phoneCountriesAll": "Все страны"
+    "phoneCountriesAll": "Все страны",
+    "codeUnavailable": "Не удалось создать уникальный код гостя. Попробуйте снова.",
+    "matchLookupFailed": "Не удалось проверить существующих клиентов. Попробуйте снова."
   },
   "outlets": {
     "all": "Все"
@@ -181,6 +186,10 @@
       "passport": "Паспорт",
       "license": "Водительское удостоверение",
       "other": "Другое"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "Слайд {{current}} из {{total}}"
   }
 }

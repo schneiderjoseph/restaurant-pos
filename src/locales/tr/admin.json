@@ -402,7 +402,9 @@
     "extraModifierPrice": "Ek ücret",
     "extraModifierPriceHint": "Her ücretli seçim için tek fiyat. Boş = her seçimin kendi fiyatı.",
     "extraModifierPricePlaceholder": "Her seçimin fiyatı",
-    "includedModifiersGroupHint": "Bir yemek bu gruptan ücretsiz seçim verdiğinde kullanılır (yemekte “Dahil”): hangileri ücretsiz ve sonrakiler ne kadar."
+    "includedModifiersGroupHint": "Bir yemek bu gruptan ücretsiz seçim verdiğinde kullanılır (yemekte “Dahil”): hangileri ücretsiz ve sonrakiler ne kadar.",
+    "maxRateGteMin": "Maksimum oran minimum orana eşit veya daha büyük olmalıdır",
+    "weightMustBeNonNegative": "Ağırlıklar 0 veya daha büyük olmalıdır"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -951,6 +953,7 @@
       "average": "Ortalama fiş",
       "lastVisit": "Son ziyaret",
       "favorites": "Favori yemekler"
-    }
+    },
+    "historyLoadFailed": "Müşteri sipariş geçmişi yüklenemedi"
   }
 }

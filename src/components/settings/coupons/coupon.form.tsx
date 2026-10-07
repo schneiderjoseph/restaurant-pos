@@ -129,7 +129,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
           label: d,
           value: d,
         })),
-        priority: data.priority.toString()
+        priority: String(data.priority ?? '')
       });
     }
   }, [data, reset]);

@@ -19,6 +19,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {Tracking} from "@/api/model/tracking.ts";
 import {orderReceiptUrl} from "@/routes/posr.ts";
+import {recordIdToString, toQueryRecordId} from "@/api/reports/shared/records.ts";
 
 type TimelineType = "start" | "addition" | "deletion" | "kitchen_complete" | "payment" | string;
 
@@ -99,40 +100,42 @@ export const OrderLifecycleReport = () => {
         return;
       }
 
+      const orderId = toQueryRecordId(order.id, Tables.orders);
+
       const [additionRows] = await queryRef.current(
         `
           SELECT * FROM ${Tables.order_items}
-          WHERE order = type::record('${Tables.orders}', $orderSuffix)
+          WHERE order = $orderId
           FETCH item, created_by
         `,
-        {orderSuffix}
+        {orderId}
       );
 
       const [voidRows] = await queryRef.current(
         `
           SELECT * FROM ${Tables.order_voids}
-          WHERE order = type::record('${Tables.orders}', $orderSuffix)
+          WHERE order = $orderId
           FETCH deleted_by, order_item, items
         `,
-        {orderSuffix}
+        {orderId}
       );
 
       const [deletedItemRows] = await queryRef.current(
         `
           SELECT * FROM ${Tables.order_items}
-          WHERE order = type::record('${Tables.orders}', $orderSuffix) AND deleted_at != NONE
+          WHERE order = $orderId AND deleted_at != NONE
           FETCH item, created_by
         `,
-        {orderSuffix}
+        {orderId}
       );
 
       const [kitchenRows] = await queryRef.current(
         `
           SELECT * FROM ${Tables.order_items_kitchen}
-          WHERE order_item.order = type::record('${Tables.orders}', $orderSuffix) AND completed_at != NONE
+          WHERE order_item.order = $orderId AND completed_at != NONE
           FETCH kitchen, order_item, order_item.item
         `,
-        {orderSuffix}
+        {orderId}
       );
 
       const orderStart = toLuxonDateTime(order.created_at as any).toMillis();
@@ -141,9 +144,28 @@ export const OrderLifecycleReport = () => {
         return toLuxonDateTime(item.created_at as any).toMillis() > orderStart;
       });
 
+      const voidList = (voidRows || []) as OrderVoid[];
+      const voidedItemIds = new Set(
+        voidList.flatMap((voidEntry) => {
+          const ids: string[] = [];
+          const orderItemId = recordIdToString(voidEntry.order_item);
+          if (orderItemId) ids.push(orderItemId);
+          (voidEntry.items ?? []).forEach((item) => {
+            const id = recordIdToString(item?.id ?? item);
+            if (id) ids.push(id);
+          });
+          return ids;
+        }),
+      );
+
       const deletions: Array<{source: "void" | "item"; data: OrderVoid | OrderItem}> = [
-        ...((voidRows || []) as OrderVoid[]).map((item) => ({source: "void" as const, data: item})),
-        ...((deletedItemRows || []) as OrderItem[]).map((item) => ({source: "item" as const, data: item})),
+        ...voidList.map((item) => ({source: "void" as const, data: item})),
+        ...((deletedItemRows || []) as OrderItem[])
+          .filter((item) => {
+            const id = recordIdToString(item.id);
+            return !id || !voidedItemIds.has(id);
+          })
+          .map((item) => ({source: "item" as const, data: item})),
       ];
 
       const [tracking] = await queryRef.current(
@@ -246,7 +268,7 @@ export const OrderLifecycleReport = () => {
         type: "payment",
         timestamp: state.order.completed_at,
         title: "Order payment",
-        details: "Order marked as paid",
+        details: paymentBreakdown || "Order marked as paid",
       });
     }
 

@@ -166,5 +166,18 @@
       "amount": "Importe"
     },
     "empty": "Aún no se ha calculado la distribución."
+  },
+  "print": {
+    "productMixTitle": "MIX DE PRODUCTOS ({{date}})",
+    "serverSalesTitle": "VENTAS POR MESERO ({{date}})",
+    "item": "Artículo",
+    "qty": "Cant",
+    "total": "Tot",
+    "grandTotal": "TOTAL",
+    "name": "Nombre",
+    "time": "Tiempo",
+    "guests": "Comens",
+    "checks": "Cuentas",
+    "sale": "Venta"
   }
 }

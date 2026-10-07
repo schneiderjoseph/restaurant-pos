@@ -237,7 +237,27 @@
       "charts": "Графики и прогноз",
       "analysis": "Анализ"
     },
-    "location": "Локация"
+    "location": "Локация",
+    "selectDate": "Выберите дату",
+    "selectWeek": "Выберите неделю",
+    "week": "Неделя",
+    "users": "Пользователи",
+    "taxFilter": "Фильтр налогов",
+    "discountFilter": "Фильтр скидок",
+    "withTax": "С налогом",
+    "withoutTax": "Без налога",
+    "withDiscount": "Со скидкой",
+    "withoutDiscount": "Без скидки",
+    "paymentTypes": "Типы оплаты",
+    "sortBy": "Сортировать по",
+    "sortDirection": "Направление сортировки",
+    "selectDiscountsOptional": "Выбрать конкретные скидки (необязательно)",
+    "loadingWeeks": "Загрузка недель...",
+    "noWeeksAvailable": "Нет доступных недель",
+    "unableToLoadWeeks": "Не удалось загрузить недели",
+    "unableToLoadAreas": "Не удалось загрузить зоны доставки",
+    "aiUsageUnavailable": "Не удалось проверить использование ИИ. Попробуйте позже.",
+    "areas": "Зоны"
   },
   "datePresets": {
     "today": "Сегодня",
@@ -381,7 +401,8 @@
     "outlet": "Точка продаж",
     "authMethod": "Способ входа",
     "details": "Подробности",
-    "noTable": "Без стола"
+    "noTable": "Без стола",
+    "createdAt": "Создано"
   },
   "labels": {
     "modifiers": "Модификаторы",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Продажи по сотрудникам",
     "expandAll": "Развернуть все",
     "collapseAll": "Свернуть все",
-    "unclassifiedOutlet": "Не классифицировано"
+    "unclassifiedOutlet": "Не классифицировано",
+    "allShifts": "Все смены",
+    "allDates": "Все даты",
+    "selectedShift": "Выбранная смена",
+    "selectedDay": "Выбранный день"
   },
   "metrics": {
     "gross": "Валовый",
@@ -602,7 +627,9 @@
     "item": "Товар",
     "direction": "Направление",
     "quantity": "Количество",
-    "cost": "Стоимость"
+    "cost": "Стоимость",
+    "totalTips": "Всего чаевых",
+    "savedDistributions": "Сохранённые распределения"
   },
   "production": {
     "batchNumber": "Партия #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Нет запланированных смен за выбранный период",
     "noTables": "Нет продаж за столами за выбранный период.",
     "noActivity": "Нет записей аудита за выбранный период.",
-    "noProducts": "Товары не найдены."
+    "noProducts": "Товары не найдены.",
+    "noRows": "Нет строк для выбранного диапазона.",
+    "noTips": "Чаевые не найдены для выбранных фильтров.",
+    "noDataForFilters": "Нет данных для выбранных фильтров",
+    "noCashClosing": "Закрытие кассы не найдено для выбранной даты."
   },
   "sections": {
     "salesByOutlet": "Продажи по точкам продаж"
   },
   "messages": {
-    "auditTruncated": "Показаны только последние {{count}} записей. Сузьте период, чтобы увидеть более ранние."
+    "auditTruncated": "Показаны только последние {{count}} записей. Сузьте период, чтобы увидеть более ранние.",
+    "productHourlyDisclaimer": "Этот отчёт не включает налоги, скидки, сервисные сборы, дополнения и чаевые"
   }
 }

@@ -516,7 +516,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
                   <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
                 </div>
                 <p className="text-sm text-neutral-600">
-                  {formatNumber(datum.value)} items • {withDualCurrency(datum.value)}
+                  {withDualCurrency(datum.value)}
                 </p>
               </div>
             )}
@@ -794,11 +794,12 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
   }, []);
 
   useEffect(() => {
-    if(orders.length > 0){
-      setMapCenter({
-        lat: orders[0].delivery.lat,
-        lng: orders[0].delivery.lng,
-      });
+    if (orders.length > 0) {
+      const lat = orders[0].delivery?.lat;
+      const lng = orders[0].delivery?.lng;
+      if (lat != null && lng != null) {
+        setMapCenter({lat, lng});
+      }
     }
   }, [orders]);
 
@@ -1368,7 +1369,7 @@ export const SalesDashboardReport = () => {
         totalRevenue: acc.totalRevenue + figures.totalRevenue,
         grandTotal: acc.grandTotal + figures.grandTotal,
         tax: acc.tax + figures.tax,
-        discount: acc.discount + figures.discounts,
+        discount: acc.discount + Math.max(0, figures.discounts - figures.couponDiscount),
         void: acc.void + figures.voidAmount,
         serviceCharge: acc.serviceCharge + figures.serviceCharge,
         totalCover: acc.totalCover + coverCount,
@@ -1441,7 +1442,7 @@ export const SalesDashboardReport = () => {
 
     paidOrders.forEach(order => {
       const figures = getOrderFigures(order);
-      const dayPart = getDayPartLabel(toJsDate(order.created_at));
+      const dayPart = getDayPartLabel(new Date(2000, 0, 1, toLuxonDateTime(order.created_at).hour));
       const current = map.get(dayPart) || {orders: 0, revenue: 0};
       current.orders += 1;
       current.revenue += figures.totalRevenue;
@@ -1471,7 +1472,7 @@ export const SalesDashboardReport = () => {
     paidOrders.forEach(order => {
       getOrderFilteredItems(order).forEach(item => {
         const category = item.item?.categories?.[0]?.name || item.category || 'Other';
-        map.set(category, (map.get(category) || 0) + safeNumber(item.quantity));
+        map.set(category, (map.get(category) || 0) + safeNumber(calculateOrderItemPrice(item)));
       });
     });
 
@@ -1547,10 +1548,12 @@ export const SalesDashboardReport = () => {
         current.amount += amount;
         map.set(typeName, current);
       });
-      const cashCurrent = map.get('Cash') || {count: 0, amount: 0};
-      cashCurrent.count += 1;
-      cashCurrent.amount += paymentTotals.cashAmount;
-      map.set('Cash', cashCurrent);
+      if (paymentTotals.cashAmount > 0) {
+        const cashCurrent = map.get('Cash') || {count: 0, amount: 0};
+        cashCurrent.count += 1;
+        cashCurrent.amount += paymentTotals.cashAmount;
+        map.set('Cash', cashCurrent);
+      }
     });
 
     return Array.from(map.entries())

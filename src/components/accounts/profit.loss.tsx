@@ -7,7 +7,7 @@ import {Loader} from "@/components/common/loader/loader.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
-import {getAccountHeadType, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {getAccountHeadType, POSTED_ENTRY_FILTER, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 
 interface ProfitLossRow {
   account: {
@@ -45,7 +45,8 @@ export const ProfitLoss = () => {
                  math::sum(debit) as total_debit,
                  math::sum(credit) as total_credit
           FROM ${Tables.account_journal_lines}
-          WHERE entry.date >= <datetime>$date_from
+          WHERE ${POSTED_ENTRY_FILTER}
+            AND entry.date >= <datetime>$date_from
             AND entry.date <= <datetime>$date_to
           GROUP BY account.code, account.name, account.group
           ORDER BY account.code ASC

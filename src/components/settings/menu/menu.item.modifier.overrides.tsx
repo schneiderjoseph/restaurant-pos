@@ -326,12 +326,23 @@ export const MenuItemModifierOverridesEditor = ({
                               type="number"
                               label={t("common:actions.price")}
                               value={draftPrices[modifierId] ?? templatePrice}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw === '') {
+                                  setDraftPrices((prev) => {
+                                    const next = {...prev};
+                                    delete next[modifierId];
+                                    return next;
+                                  });
+                                  return;
+                                }
+                                const n = Number(raw);
+                                if (!Number.isFinite(n)) return;
                                 setDraftPrices((prev) => ({
                                   ...prev,
-                                  [modifierId]: Number(e.target.value) || 0,
-                                }))
-                              }
+                                  [modifierId]: n,
+                                }));
+                              }}
                             />
                             <Button
                               variant="secondary"
@@ -446,12 +457,23 @@ export const MenuItemModifierOverridesEditor = ({
                       type="number"
                       label={t("common:actions.price")}
                       value={nestedDraftPrices[modifierId] ?? Number(mod.price)}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === '') {
+                          setNestedDraftPrices((prev) => {
+                            const next = {...prev};
+                            delete next[modifierId];
+                            return next;
+                          });
+                          return;
+                        }
+                        const n = Number(raw);
+                        if (!Number.isFinite(n)) return;
                         setNestedDraftPrices((prev) => ({
                           ...prev,
-                          [modifierId]: Number(e.target.value) || 0,
-                        }))
-                      }
+                          [modifierId]: n,
+                        }));
+                      }}
                     />
                   </div>
                 );

@@ -23,6 +23,29 @@ import {Tables} from "@/api/db/tables.ts";
 import {isExternalCatalogueMode} from "@/lib/pos-mode.ts";
 
 const dishImageCache = new Map<string, string>();
+const DISH_IMAGE_CACHE_MAX = 64;
+
+const cacheDishImage = (id: string, objectUrl: string) => {
+  if (dishImageCache.has(id)) {
+    const previous = dishImageCache.get(id);
+    if (previous && previous !== objectUrl) {
+      URL.revokeObjectURL(previous);
+    }
+    dishImageCache.delete(id);
+  }
+  while (dishImageCache.size >= DISH_IMAGE_CACHE_MAX) {
+    const oldest = dishImageCache.keys().next().value;
+    if (oldest === undefined) {
+      break;
+    }
+    const evicted = dishImageCache.get(oldest);
+    dishImageCache.delete(oldest);
+    if (evicted) {
+      URL.revokeObjectURL(evicted);
+    }
+  }
+  dishImageCache.set(id, objectUrl);
+};
 
 interface Props {
   onClick: (item: MenuItem, groups?: CartModifierGroup[], price?: number) => void
@@ -122,7 +145,9 @@ export const MenuDish = ({
       return null;
     }
 
-    return state.cart.filter(item => item.dish === dish).reduce((prev, item) => prev + item.quantity, 0)
+    return state.cart
+      .filter(item => item.dish?.id?.toString() === dish.id?.toString())
+      .reduce((prev, item) => prev + item.quantity, 0)
   }, [state.cart]);
 
   const menuTaxFields = useMemo(() => ({
@@ -167,7 +192,7 @@ export const MenuDish = ({
           const mimeType = detectMimeType(photo.content, "image/png");
           const blob = new Blob([photo.content], {type: mimeType});
           const objectUrl = URL.createObjectURL(blob);
-          dishImageCache.set(dishPhotoId, objectUrl);
+          cacheDishImage(dishPhotoId, objectUrl);
 
           if (!cancelled) {
             setImageSrc(objectUrl);
@@ -200,7 +225,9 @@ export const MenuDish = ({
         level: level,
         selectedGroups: [],
         newOrOld: MenuItemType.new,
-        category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
+        category: state.category
+          ? state.category?.name
+          : ((item.categories ?? []).length === 1 ? (item.categories ?? [])[0].name : ''),
         category_id: state.category?.id?.toString(),
         price: price,
         menu_name: item.menu_name,
@@ -300,7 +327,9 @@ export const MenuDish = ({
                 isModifier,
                 level: level,
                 newOrOld: MenuItemType.new,
-                category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
+                category: state.category
+                  ? state.category?.name
+                  : ((item.categories ?? []).length === 1 ? (item.categories ?? [])[0].name : ''),
               category_id: state.category?.id?.toString(),
                 price: price,
                 menu_name: item.menu_name,

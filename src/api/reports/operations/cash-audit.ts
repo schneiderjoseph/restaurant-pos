@@ -51,7 +51,7 @@ export const getCashSettlementAudit = async (
         await db.query(
           `
             SELECT * FROM ${Tables.tracking}
-            WHERE created_at >= $startDate AND created_at <= $endDate
+            ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
             ORDER BY created_at DESC
             LIMIT 500
           `,
@@ -84,7 +84,7 @@ export const getCashSettlementAudit = async (
       ? toJsDate(order.completed_at as Parameters<typeof toJsDate>[0]).getTime()
       : null;
 
-    const deletedItems = (order.items ?? []).filter(item => item?.deleted_at !== undefined);
+    const deletedItems = (order.items ?? []).filter(item => item?.deleted_at != null);
     if (deletedItems.length > 0 && completedAt) {
       deletedItems.forEach(item => {
         const deletedAt = item.deleted_at
@@ -112,10 +112,8 @@ export const getCashSettlementAudit = async (
     trackingEntries.forEach(entry => {
       const payload = entry.payload ?? {};
       const payloadOrderId = recordIdToString(payload.order_id ?? payload.orderId ?? payload.order);
-      if (payloadOrderId !== orderId && !paymentModules.has(entry.module ?? "")) {
-        return;
-      }
-      if (!paymentModules.has(entry.module ?? "")) {
+      // Only events of this order, and only the payment-related ones.
+      if (payloadOrderId !== orderId || !paymentModules.has(entry.module ?? "")) {
         return;
       }
       const createdAt = entry.created_at

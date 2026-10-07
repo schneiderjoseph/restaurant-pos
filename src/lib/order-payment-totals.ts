@@ -6,6 +6,7 @@ import { recalculateCart } from '@/lib/discount-engine/recalculate.ts';
 import { getDiscountCache } from '@/lib/discount-engine/cache.ts';
 import type { AppliedDiscountLine } from '@/lib/discount-engine/types.ts';
 import { calculateOrderPaymentTaxAmount } from '@/lib/tax-calculator.ts';
+import { roundCurrency } from '@/lib/discount-engine/rounding.ts';
 
 export interface OrderPaymentTotalsParams {
   tax?: Tax | null;
@@ -49,10 +50,11 @@ export const computeOrderPaymentTotals = (
   } = params;
 
   const extrasTotal = Object.values(extras).reduce((prev, item) => prev + item, 0);
+  // Percentages are rounded to the cent like taxes, so the stored amounts add up to the total.
   const serviceChargeAmount = serviceCharge
-    ? (serviceChargeType === DiscountType.Percent ? itemsTotal * serviceCharge / 100 : serviceCharge)
+    ? (serviceChargeType === DiscountType.Percent ? roundCurrency(itemsTotal * serviceCharge / 100) : serviceCharge)
     : 0;
-  const tipAmount = tipType === DiscountType.Fixed ? tip : itemsTotal * tip / 100;
+  const tipAmount = tipType === DiscountType.Fixed ? tip : roundCurrency(itemsTotal * tip / 100);
   // `null` = no order-level tax; left out = the order's stored one.
   const resolvedTax = tax === undefined ? order.tax ?? null : tax;
 

@@ -73,7 +73,8 @@
     "totalWithTax": "Gesamt mit {{label}}",
     "change": "Wechselgeld",
     "sc": "SG ({{value}}%)",
-    "extras": "Extras"
+    "extras": "Extras",
+    "payment": "Zahlung"
   },
   "actions": {
     "selectToMerge": "Zum Zusammenführen auswählen",

@@ -64,7 +64,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
   };
 
   useEffect(() => {
-    if (!currentAction) {
+    if (!currentAction || !user?.id) {
       return;
     }
 
@@ -133,7 +133,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
       liveQueryRef.current?.kill().catch(() => undefined);
       liveQueryRef.current = null;
     };
-  }, [currentAction?.id, user.id]);
+  }, [currentAction?.id, user?.id]);
 
   return (
     <div className="space-y-4">

@@ -23,7 +23,8 @@
     "rectangleTooSmall": "Il rettangolo è troppo piccolo. Trascina un'area più grande.",
     "circleTooSmall": "Il cerchio è troppo piccolo. Trascina un raggio più grande.",
     "polygonTooSmall": "Il poligono è troppo piccolo. Trascina un contorno più grande.",
-    "areasSaved": "Aree mappa salvate con successo"
+    "areasSaved": "Aree mappa salvate con successo",
+    "deleteSelected": "Elimina selezione"
   },
   "settings": {
     "title": "Configurazione consegna",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Ordine {{invoice}} inviato in consegna",
     "accepted": "Ordine {{invoice}} accettato",
     "riderAttached": "Rider {{name}} assegnato all'ordine",
-    "rejected": "Ordine {{invoice}} rifiutato"
+    "rejected": "Ordine {{invoice}} rifiutato",
+    "title": "Ordine delivery - {{invoice}}",
+    "position": "Ordine {{current}} di {{total}}",
+    "noDeliveryAddress": "Nessun indirizzo di consegna fornito",
+    "itemsCount": "Articoli ({{count}})",
+    "loadingRiders": "Caricamento rider...",
+    "noRidersAvailable": "Nessun rider disponibile",
+    "orderedAt": "Ordinato alle: {{time}}",
+    "deliveryTimeLabel": "Ora di consegna: {{time}}",
+    "asap": "Il prima possibile",
+    "phone": "Telefono",
+    "email": "E-mail",
+    "coordinates": "Coordinate",
+    "details": "Dettagli ordine",
+    "status": "Stato:",
+    "created": "Creato:",
+    "discount": "Sconto:",
+    "coupon": "Coupon",
+    "tax": "Tassa:",
+    "serviceCharge": "Costo di servizio:",
+    "extras": "Extra:"
   },
   "days": {
     "monday": "Lunedì",

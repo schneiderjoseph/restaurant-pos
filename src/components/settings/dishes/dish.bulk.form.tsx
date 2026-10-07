@@ -54,7 +54,10 @@ const validationSchema = yup.object({
   categories: yup.array(yup.object({
     label: yup.string().required(),
     value: yup.string().required()
-  })).default([]),
+  })).default([]).when('replace_categories', {
+    is: true,
+    then: (schema) => schema.min(1, i18n.t('validation:required')),
+  }),
   replace_modifier_groups: yup.boolean().default(false),
   modifier_groups: yup.array(yup.object({
     modifier_group: yup.object({

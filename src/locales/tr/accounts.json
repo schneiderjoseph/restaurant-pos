@@ -131,7 +131,8 @@
     "ledgerEntries": "Ledger entries",
     "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
     "noLedgerEntries": "No journal entries for this account in the selected date range.",
-    "viewEntry": "View entry"
+    "viewEntry": "View entry",
+    "netIncome": "Net kâr"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -145,7 +146,8 @@
     "mustBeBalanced": "Journal entry must be balanced (debit = credit).",
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
     "reverseSuccess": "Journal entry reversed successfully",
-    "cannotReverse": "Only posted entries can be reversed"
+    "cannotReverse": "Only posted entries can be reversed",
+    "lineBothDebitCredit": "Bir yevmiye satırında hem borç hem alacak olamaz."
   },
   "upload": {
     "attachDocuments": "Attach Documents",

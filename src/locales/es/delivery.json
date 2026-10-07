@@ -23,7 +23,8 @@
     "rectangleTooSmall": "El rectángulo es demasiado pequeño. Dibuje un área más grande.",
     "circleTooSmall": "El círculo es demasiado pequeño. Dibuje un radio más grande.",
     "polygonTooSmall": "El polígono es demasiado pequeño. Dibuje un contorno más grande.",
-    "areasSaved": "Áreas del mapa guardadas correctamente"
+    "areasSaved": "Áreas del mapa guardadas correctamente",
+    "deleteSelected": "Eliminar selección"
   },
   "settings": {
     "title": "Configuración de entrega",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Pedido {{invoice}} enviado para entrega",
     "accepted": "Pedido {{invoice}} aceptado",
     "riderAttached": "Repartidor {{name}} asignado al pedido",
-    "rejected": "Pedido {{invoice}} rechazado"
+    "rejected": "Pedido {{invoice}} rechazado",
+    "title": "Pedido a domicilio - {{invoice}}",
+    "position": "Pedido {{current}} de {{total}}",
+    "noDeliveryAddress": "No se proporcionó dirección de entrega",
+    "itemsCount": "Artículos ({{count}})",
+    "loadingRiders": "Cargando repartidores...",
+    "noRidersAvailable": "No hay repartidores disponibles",
+    "orderedAt": "Pedido a las: {{time}}",
+    "deliveryTimeLabel": "Hora de entrega: {{time}}",
+    "asap": "Lo antes posible",
+    "phone": "Teléfono",
+    "email": "Correo electrónico",
+    "coordinates": "Coordenadas",
+    "details": "Detalles del pedido",
+    "status": "Estado:",
+    "created": "Creado:",
+    "discount": "Descuento:",
+    "coupon": "Cupón",
+    "tax": "Impuesto:",
+    "serviceCharge": "Cargo por servicio:",
+    "extras": "Extras:"
   },
   "days": {
     "monday": "Lunes",

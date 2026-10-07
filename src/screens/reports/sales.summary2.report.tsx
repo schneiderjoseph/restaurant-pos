@@ -12,7 +12,7 @@ import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {aggregateOrderDiscountBreakdown, getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
@@ -300,14 +300,17 @@ export const SalesSummary2Report = () => {
         const statusOrdersResult: any = await queryRef.current(statusOrdersQuery, params);
         const baseStatusOrders = (statusOrdersResult?.[0] ?? []) as Order[];
 
-        // Include carried-over open checks for check status calculations.
+        // Include carried-over checks: still open from before the period, or closed during it.
         let carriedOverOrders: Order[] = [];
         if (filters.startDate) {
           const carriedOverConditions = [
             `time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") < $startDate`,
-            `status = '${OrderStatus["In Progress"]}'`,
+            `(status = '${OrderStatus["In Progress"]}' OR (completed_at != NONE AND time::format(completed_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate${filters.endDate ? ` AND time::format(completed_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate` : ""}))`,
           ];
-          const carriedOverParams = {startDate: filters.startDate};
+          const carriedOverParams: Record<string, string> = {startDate: filters.startDate};
+          if (filters.endDate) {
+            carriedOverParams.endDate = filters.endDate;
+          }
 
           const carriedOverQuery = `
             SELECT * FROM ${Tables.orders}
@@ -445,7 +448,7 @@ export const SalesSummary2Report = () => {
     });
 
     orders.forEach(order => {
-      const dayPart = getDayPartLabel(toJsDate(order.created_at));
+      const dayPart = getDayPartLabel(new Date(2000, 0, 1, toLuxonDateTime(order.created_at).hour));
       accumulateSegmentMetrics(map.get(dayPart)!, order, calculateOrderMetrics(order));
     });
 
@@ -523,8 +526,13 @@ export const SalesSummary2Report = () => {
     const checksCarriedOver = startDate
       ? statusOrders.filter(order => {
           const orderCreatedAt = toJsDate(order.created_at);
-          if (!(orderCreatedAt < startDate) || !order.completed_at) {
+          if (!(orderCreatedAt < startDate)) {
             return false;
+          }
+
+          // Still open from before the period
+          if (order.status === OrderStatus["In Progress"] || !order.completed_at) {
+            return true;
           }
 
           const orderCompletedAt = toJsDate(order.completed_at);
@@ -729,10 +737,12 @@ export const SalesSummary2Report = () => {
         existing.total = safeNumber(existing.total + paymentAmount);
         paymentTypesMap.set(paymentTypeName, existing);
       });
-      const cashExisting = paymentTypesMap.get("Cash") || {quantity: 0, total: 0};
-      cashExisting.quantity = safeNumber(cashExisting.quantity + 1);
-      cashExisting.total = safeNumber(cashExisting.total + paymentTotals.cashAmount);
-      paymentTypesMap.set("Cash", cashExisting);
+      if (paymentTotals.cashAmount > 0) {
+        const cashExisting = paymentTypesMap.get("Cash") || {quantity: 0, total: 0};
+        cashExisting.quantity = safeNumber(cashExisting.quantity + 1);
+        cashExisting.total = safeNumber(cashExisting.total + paymentTotals.cashAmount);
+        paymentTypesMap.set("Cash", cashExisting);
+      }
     });
 
     return {

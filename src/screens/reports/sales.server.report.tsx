@@ -9,7 +9,7 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
 import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {
   buildNestedRecordAnyCondition,
@@ -393,7 +393,7 @@ export const SalesServerReport = () => {
         }
 
         const entry = map.get(userId)!;
-        const dayPart = ensureDayPartEntry(entry.dayPartMap, getDayPartLabel(toJsDate(order.created_at)));
+        const dayPart = ensureDayPartEntry(entry.dayPartMap, getDayPartLabel(new Date(2000, 0, 1, toLuxonDateTime(order.created_at).hour)));
 
         dayPart.netSales += orderNet * share;
         dayPart.guests += covers * share;

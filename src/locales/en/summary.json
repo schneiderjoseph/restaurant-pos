@@ -166,5 +166,18 @@
       "amount": "Amount"
     },
     "empty": "No distribution calculated yet."
+  },
+  "print": {
+    "productMixTitle": "PRODUCT MIX REPORT ({{date}})",
+    "serverSalesTitle": "SERVER SALES ({{date}})",
+    "item": "Item",
+    "qty": "Qty",
+    "total": "Ttl",
+    "grandTotal": "TOTAL",
+    "name": "Name",
+    "time": "Time",
+    "guests": "Gsts",
+    "checks": "Chks",
+    "sale": "Sale"
   }
 }

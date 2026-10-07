@@ -427,7 +427,9 @@
     "extraModifierPrice": "Extra price",
     "extraModifierPriceHint": "One price for every paid choice. Empty = each choice’s own price.",
     "extraModifierPricePlaceholder": "Each choice’s price",
-    "includedModifiersGroupHint": "Used when a dish gives choices of this group free (“Included” on the dish): which ones are free, and what the next ones cost."
+    "includedModifiersGroupHint": "Used when a dish gives choices of this group free (“Included” on the dish): which ones are free, and what the next ones cost.",
+    "maxRateGteMin": "Maximum rate must be greater than or equal to minimum rate",
+    "weightMustBeNonNegative": "Weights must be greater than or equal to 0"
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -990,6 +992,7 @@
       "average": "Average ticket",
       "lastVisit": "Last visit",
       "favorites": "Favourite dishes"
-    }
+    },
+    "historyLoadFailed": "Could not load customer order history"
   }
 }

@@ -27,6 +27,7 @@ import {Tables} from "@/api/db/tables.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {moduleMatchCandidates} from "@/lib/access.rules.ts";
 
 interface DeliveryOrderPopupProps {
   order: Order;
@@ -41,7 +42,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   onClose,
   onOrderUpdate,
 }) => {
-  const { t } = useTranslation('delivery');
+  const { t } = useTranslation(['delivery', 'common']);
   const db = useDB();
   const {deliveryOrders, openOrderPopup, selectedOrder: contextSelectedOrder, isPopupOpen} = useDeliveryOrders();
   const [riders, setRiders] = useState<User[]>([]);
@@ -80,7 +81,12 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         try {
           setLoadingRiders(true);
           const [result] = await db.query<any>(
-            `SELECT * FROM ${Tables.users} WHERE deleted_at = none AND array::find(user_role.roles, 'Riders') != None ORDER BY first_name ASC, last_name ASC`
+            `SELECT id, first_name, last_name FROM ${Tables.users}
+             WHERE deleted_at = none
+               AND array::len(array::intersect(user_role.roles ?? [], $riderModules)) > 0
+             ORDER BY first_name ASC, last_name ASC
+             FETCH user_role`,
+            { riderModules: moduleMatchCandidates('riders') }
           );
 
           setRiders(result as User[]);
@@ -105,8 +111,14 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
     return deliveryOrders.findIndex(o => o.id.toString() === order.id.toString());
   }, [deliveryOrders, order]);
 
-  const hasNext = currentIndex < deliveryOrders.length - 1;
+  const hasNext = currentIndex >= 0 && currentIndex < deliveryOrders.length - 1;
   const hasPrevious = currentIndex > 0;
+
+  useEffect(() => {
+    if (open && deliveryOrders.length > 0 && currentIndex === -1) {
+      onClose();
+    }
+  }, [open, currentIndex, deliveryOrders.length, onClose]);
 
   const handleNext = () => {
     if (hasNext) {
@@ -168,7 +180,11 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
       await db.merge(order.id, {
         delivery: {
           ...order.delivery,
-          rider: selectedRider,
+          rider: {
+            id: selectedRider.id,
+            first_name: selectedRider.first_name,
+            last_name: selectedRider.last_name,
+          },
           state: 'rider_assigned'
         }
       });
@@ -221,7 +237,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
       <Modal
         open={open}
         onClose={onClose}
-        title={`Delivery Order - ${getInvoiceNumber(order)}`}
+        title={t('order.title', { invoice: getInvoiceNumber(order) })}
         size="lg"
         shouldCloseOnOverlayClick={true}
         shouldCloseOnEsc={true}
@@ -236,10 +252,10 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 icon={faChevronLeft}
                 disabled={!hasPrevious}
               >
-                Previous
+                {t('order.previous')}
               </Button>
               <span className="text-sm text-neutral-600">
-              Order {currentIndex + 1} of {deliveryOrders.length}
+              {t('order.position', { current: currentIndex + 1, total: deliveryOrders.length })}
             </span>
               <Button
                 variant="primary"
@@ -247,7 +263,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 rightIcon={faChevronRight}
                 disabled={!hasNext}
               >
-                Next
+                {t('order.next')}
               </Button>
             </div>
           )}
@@ -275,7 +291,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                   icon={faCheck}
                   size="lg"
                 >
-                  Accept
+                  {t('order.accept')}
                 </Button>
               </>
             )}
@@ -287,7 +303,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 icon={faPersonBiking}
                 size="lg"
               >
-                Send for delivery
+                {t('order.sendForDelivery')}
               </Button>
             )}
 
@@ -298,7 +314,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 icon={faCreditCard}
                 size="lg"
               >
-                Payment
+                {t('order.payment')}
               </Button>
             )}
           </div>
@@ -308,12 +324,12 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
             <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                 <FontAwesomeIcon icon={faUser} className="text-blue-600"/>
-                <span>Select Rider</span>
+                <span>{t('order.selectRider')}</span>
               </h3>
               {loadingRiders ? (
-                <p className="text-sm text-neutral-600">Loading riders...</p>
+                <p className="text-sm text-neutral-600">{t('order.loadingRiders')}</p>
               ) : riders.length === 0 ? (
-                <p className="text-sm text-neutral-600">No riders available</p>
+                <p className="text-sm text-neutral-600">{t('order.noRidersAvailable')}</p>
               ) : (
                 <>
                   <div className="grid grid-cols-4 gap-2 mb-4">
@@ -338,7 +354,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                     disabled={!selectedRider}
                     className="w-full"
                   >
-                    Attach Selected Rider
+                    {t('order.attachRider')}
                   </Button>
                 </>
               )}
@@ -368,16 +384,16 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           <div className="bg-danger-200 p-4 rounded-lg border-2 border-danger-300">
             {order?.created_at && (
               <div className="space-y-2">
-                <p className="text-2xl font-medium">Ordered at: {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT)}</p>
+                <p className="text-2xl font-medium">{t('order.orderedAt', { time: toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT) })}</p>
               </div>
             )}
             <div className="space-y-2">
               <p className="text-2xl font-medium">
-                Delivery time: {
-                  !delivery?.deliveryTime || delivery.deliveryTime === 'now' || delivery.deliveryTime === 'asap'
-                    ? 'ASAP'
+                {t('order.deliveryTimeLabel', {
+                  time: !delivery?.deliveryTime || delivery.deliveryTime === 'now' || delivery.deliveryTime === 'asap'
+                    ? t('order.asap')
                     : toLuxonDateTime(delivery.deliveryTime).toFormat(import.meta.env.VITE_TIME_FORMAT)
-                }
+                })}
               </p>
             </div>
           </div>
@@ -395,13 +411,13 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 </div>
                 {customer.phone && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Phone</label>
+                    <label className="text-sm font-medium text-neutral-600">{t('order.phone')}</label>
                     <p className="text-base"><a href={`tel:${customer.phone}`}>{customer.phone}</a></p>
                   </div>
                 )}
                 {customer.email && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Email</label>
+                    <label className="text-sm font-medium text-neutral-600">{t('order.email')}</label>
                     <p className="text-base"><a href={`mailto:${customer.email}`}>{customer.email}</a></p>
                   </div>
                 )}
@@ -423,12 +439,12 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
               ) : customer?.address ? (
                 <p className="text-base font-medium">{customer.address}</p>
               ) : (
-                <p className="text-base text-neutral-500 italic">No delivery address provided</p>
+                <p className="text-base text-neutral-500 italic">{t('order.noDeliveryAddress')}</p>
               )}
               {(delivery?.lat && delivery?.lng) && (
                 <div className="mt-2 pt-2 border-t border-primary-200">
                   <label className="text-sm font-medium text-neutral-600 flex items-center gap-2">
-                    <span>Coordinates</span>
+                    <span>{t('order.coordinates')}</span>
                     <span className="text-xs text-neutral-500">({delivery.lat}, {delivery.lng})</span>
                   </label>
                 </div>
@@ -436,7 +452,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
               {(customer?.lat && customer?.lng && !delivery?.lat) && (
                 <div className="mt-2 pt-2 border-t border-primary-200">
                   <label className="text-sm font-medium text-primary-600 flex items-center gap-2">
-                    <span>Coordinates</span>
+                    <span>{t('order.coordinates')}</span>
                     <span className="text-xs text-neutral-500">({customer.lat}, {customer.lng})</span>
                   </label>
                 </div>
@@ -446,14 +462,14 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
 
           {/* Order Information */}
           <div className="bg-success-100 p-4 rounded-lg border-2 border-success-200">
-            <h3 className="text-lg font-semibold mb-3">Order Details</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('order.details')}</h3>
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-neutral-600">Status:</span>
+                <span className="text-sm font-medium text-neutral-600">{t('order.status')}</span>
                 <span className="text-base font-semibold">{order.status}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-neutral-600">Created:</span>
+                <span className="text-sm font-medium text-neutral-600">{t('order.created')}</span>
                 <span className="text-base">
                 {toLuxonDateTime(order.created_at).toFormat("yyyy-MM-dd hh:mm a")}
               </span>
@@ -462,7 +478,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
 
             {/* Order Items */}
             <div className="mt-4">
-              <h4 className="text-md font-semibold mb-2">Items ({items.length})</h4>
+              <h4 className="text-md font-semibold mb-2">{t('order.itemsCount', { count: items.length })}</h4>
               <div className="space-y-2">
                 {items.map((item, index) => (
                   <OrderItemName item={item} key={index} showGroups={true} showPrice={true} showQuantity={true}/>
@@ -474,45 +490,45 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
             <div className="mt-4 pt-4 border-t border-success-200">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm font-medium">Subtotal:</span>
+                  <span className="text-sm font-medium">{t('common:actions.subtotal')}</span>
                   <span className="text-base">{itemsTotal.toFixed(2)}</span>
                 </div>
                 {order.discount_amount && order.discount_amount > 0 ? (
                   <div className="flex justify-between text-danger-600">
-                    <span className="text-sm font-medium">Discount:</span>
+                    <span className="text-sm font-medium">{t('order.discount')}</span>
                     <span className="text-base">-{order.discount_amount.toFixed(2)}</span>
                   </div>
                 ) : null}
                 {order.coupon && order.coupon.discount > 0 ? (
                   <div className="flex justify-between text-danger-600">
                     <span className="text-sm font-medium">
-                      Coupon{order.coupon.coupon?.code ? ` (${order.coupon.coupon.code})` : ""}:
+                      {t('order.coupon')}{order.coupon.coupon?.code ? ` (${order.coupon.coupon.code})` : ""}:
                     </span>
                     <span className="text-base">-{order.coupon.discount.toFixed(2)}</span>
                   </div>
                 ) : null}
                 {order.tax_amount && order.tax_amount > 0 ? (
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Tax:</span>
+                    <span className="text-sm font-medium">{t('order.tax')}</span>
                     <span className="text-base">{order.tax_amount.toFixed(2)}</span>
                   </div>
                 ) : null}
                 {order.service_charge_amount && order.service_charge_amount > 0 ? (
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Service Charge:</span>
+                    <span className="text-sm font-medium">{t('order.serviceCharge')}</span>
                     <span className="text-base">{order.service_charge_amount.toFixed(2)}</span>
                   </div>
                 ) : null}
                 {order.extras && order.extras.length > 0 ? (
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium">Extras:</span>
+                    <span className="text-sm font-medium">{t('order.extras')}</span>
                     <span className="text-base">
                     {order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0).toFixed(2)}
                   </span>
                   </div>
                 ) : null}
                 <div className="flex justify-between pt-2 border-t border-success-200">
-                  <span className="text-lg font-bold">Total:</span>
+                  <span className="text-lg font-bold">{t('common:actions.total')}</span>
                   <span className="text-lg font-bold">{total.toFixed(2)}</span>
                 </div>
               </div>

@@ -33,7 +33,10 @@
     "confirm": "Bestätigen"
   },
   "persons": {
-    "chooseCount": "Anzahl der Personen wählen"
+    "chooseCount": "Anzahl der Personen wählen",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "Abschlussstatus konnte nicht geprüft werden. Bitte erneut versuchen."
   },
   "guest": {
     "title": "Guest",
@@ -111,7 +114,9 @@
     "departureToday": "Checks out today",
     "phoneCountry": "Ländervorwahl",
     "phoneCountriesFrequent": "Häufig",
-    "phoneCountriesAll": "Alle Länder"
+    "phoneCountriesAll": "Alle Länder",
+    "codeUnavailable": "Es konnte kein eindeutiger Gastcode erzeugt werden. Bitte erneut versuchen.",
+    "matchLookupFailed": "Bestehende Kunden konnten nicht geprüft werden. Bitte erneut versuchen."
   },
   "outlets": {
     "all": "Alle"
@@ -179,6 +184,10 @@
       "passport": "Reisepass",
       "license": "Führerschein",
       "other": "Andere"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "Folie {{current}} von {{total}}"
   }
 }

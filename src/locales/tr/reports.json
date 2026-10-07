@@ -237,7 +237,27 @@
       "charts": "Grafikler ve Tahmin",
       "analysis": "Analiz"
     },
-    "location": "Konum"
+    "location": "Konum",
+    "selectDate": "Tarih seçin",
+    "selectWeek": "Bir hafta seçin",
+    "week": "Hafta",
+    "users": "Kullanıcılar",
+    "taxFilter": "Vergi filtresi",
+    "discountFilter": "İndirim filtresi",
+    "withTax": "Vergili",
+    "withoutTax": "Vergisiz",
+    "withDiscount": "İndirimli",
+    "withoutDiscount": "İndirimsiz",
+    "paymentTypes": "Ödeme türleri",
+    "sortBy": "Sonuçları şuna göre sırala",
+    "sortDirection": "Sıralama yönü",
+    "selectDiscountsOptional": "Belirli indirimleri seçin (isteğe bağlı)",
+    "loadingWeeks": "Haftalar yükleniyor...",
+    "noWeeksAvailable": "Kullanılabilir hafta yok",
+    "unableToLoadWeeks": "Haftalar yüklenemedi",
+    "unableToLoadAreas": "Teslimat bölgeleri yüklenemedi",
+    "aiUsageUnavailable": "YZ kullanımı doğrulanamadı. Daha sonra tekrar deneyin.",
+    "areas": "Bölgeler"
   },
   "datePresets": {
     "today": "Bugün",
@@ -381,7 +401,8 @@
     "outlet": "Satış noktası",
     "authMethod": "Giriş yöntemi",
     "details": "Ayrıntılar",
-    "noTable": "Masasız"
+    "noTable": "Masasız",
+    "createdAt": "Oluşturulma"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Çalışanlara göre satış",
     "expandAll": "Tümünü genişlet",
     "collapseAll": "Tümünü daralt",
-    "unclassifiedOutlet": "Sınıflandırılmamış"
+    "unclassifiedOutlet": "Sınıflandırılmamış",
+    "allShifts": "Tüm vardiyalar",
+    "allDates": "Tüm tarihler",
+    "selectedShift": "Seçilen vardiya",
+    "selectedDay": "Seçilen gün"
   },
   "metrics": {
     "gross": "Brüt",
@@ -602,7 +627,9 @@
     "item": "Ürün",
     "direction": "Yön",
     "quantity": "Miktar",
-    "cost": "Maliyet"
+    "cost": "Maliyet",
+    "totalTips": "Toplam bahşiş",
+    "savedDistributions": "Kaydedilen dağıtımlar"
   },
   "production": {
     "batchNumber": "Parti #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok",
     "noTables": "Seçilen dönemde masa satışı yok.",
     "noActivity": "Seçilen dönemde denetim kaydı yok.",
-    "noProducts": "Ürün bulunamadı."
+    "noProducts": "Ürün bulunamadı.",
+    "noRows": "Seçilen aralık için satır yok.",
+    "noTips": "Seçilen filtreler için bahşiş bulunamadı.",
+    "noDataForFilters": "Seçilen filtreler için veri yok",
+    "noCashClosing": "Seçilen tarih için kasa kapanışı bulunamadı."
   },
   "sections": {
     "salesByOutlet": "Satış noktasına göre satışlar"
   },
   "messages": {
-    "auditTruncated": "Yalnızca son {{count}} kayıt gösteriliyor. Daha eskilerini görmek için dönemi daraltın."
+    "auditTruncated": "Yalnızca son {{count}} kayıt gösteriliyor. Daha eskilerini görmek için dönemi daraltın.",
+    "productHourlyDisclaimer": "Bu rapor vergileri, indirimleri, servis ücretlerini, ekstraları ve bahşişleri içermez"
   }
 }

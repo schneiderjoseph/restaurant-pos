@@ -33,7 +33,10 @@
     "confirm": "Onayla"
   },
   "persons": {
-    "chooseCount": "Kişi sayısını seçin"
+    "chooseCount": "Kişi sayısını seçin",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "Kapanış durumu doğrulanamadı. Tekrar deneyin."
   },
   "guest": {
     "title": "Guest",
@@ -111,7 +114,9 @@
     "departureToday": "Checks out today",
     "phoneCountry": "Ülke kodu",
     "phoneCountriesFrequent": "Sık kullanılan",
-    "phoneCountriesAll": "Tüm ülkeler"
+    "phoneCountriesAll": "Tüm ülkeler",
+    "codeUnavailable": "Benzersiz bir misafir kodu oluşturulamadı. Tekrar deneyin.",
+    "matchLookupFailed": "Mevcut müşteriler kontrol edilemedi. Tekrar deneyin."
   },
   "outlets": {
     "all": "Tümü"
@@ -179,6 +184,10 @@
       "passport": "Pasaport",
       "license": "Ehliyet",
       "other": "Diğer"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "Slayt {{current}} / {{total}}"
   }
 }

@@ -132,7 +132,8 @@
     "balanced": "Balanced",
     "notBalanced": "Not balanced",
     "debitTotal": "Debit total",
-    "creditTotal": "Credit total"
+    "creditTotal": "Credit total",
+    "netIncome": "Net income"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -150,7 +151,8 @@
     "publishSuccess": "Journal entry published",
     "publishFailed": "Failed to publish entry",
     "cannotReverse": "Only posted entries can be reversed",
-    "cannotPublish": "Only draft entries can be published"
+    "cannotPublish": "Only draft entries can be published",
+    "lineBothDebitCredit": "A journal line cannot have both debit and credit."
   },
   "upload": {
     "attachDocuments": "Attach Documents",

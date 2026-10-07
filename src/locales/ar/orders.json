@@ -73,7 +73,8 @@
     "totalWithTax": "الإجمالي مع {{label}}",
     "change": "الباقي",
     "sc": "رسوم الخدمة ({{value}}%)",
-    "extras": "إضافات"
+    "extras": "إضافات",
+    "payment": "الدفع"
   },
   "actions": {
     "selectToMerge": "اختر للدمج",

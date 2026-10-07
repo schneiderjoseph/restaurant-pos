@@ -78,28 +78,40 @@ export const WorkflowForm = ({
   }, [open]);
 
   useEffect(() => {
-    if (data?.id) {
-      loadStages(data.id);
+    if (!data?.id) {
+      return;
     }
-  }, [data]);
+    let cancelled = false;
+    const workflowName = data.name ?? '';
+    const workflowId = data.id;
 
-  const loadStages = async (workflowId: string) => {
-    const [stages]: any = await db.query(
-      `SELECT * FROM ${Tables.workflow_stages} WHERE workflow = $wf ORDER BY sequence ASC FETCH kitchen`,
-      { wf: new StringRecordId(workflowId.toString()) }
-    );
+    const loadStages = async () => {
+      const [stages]: any = await db.query(
+        `SELECT * FROM ${Tables.workflow_stages} WHERE workflow = $wf ORDER BY sequence ASC FETCH kitchen`,
+        { wf: new StringRecordId(workflowId.toString()) }
+      );
 
-    reset({
-      name: data?.name ?? '',
-      stages: (stages ?? []).map((stage: any) => ({
-        name: stage.name,
-        kitchen: stage.kitchen ? {
-          label: stage.kitchen.name,
-          value: stage.kitchen.id.toString()
-        } : null
-      }))
-    });
-  }
+      if (cancelled) {
+        return;
+      }
+
+      reset({
+        name: workflowName,
+        stages: (stages ?? []).map((stage: any) => ({
+          name: stage.name,
+          kitchen: stage.kitchen ? {
+            label: stage.kitchen.name,
+            value: stage.kitchen.id.toString()
+          } : null
+        }))
+      });
+    };
+
+    void loadStages();
+    return () => {
+      cancelled = true;
+    };
+  }, [data, db, reset]);
 
   const onSubmit = async (values: any) => {
     try {

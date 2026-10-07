@@ -8,10 +8,9 @@ import {OrderVoid} from "@/api/model/order_void.ts";
 import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DateTime} from "luxon";
-import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
+import { getAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
-import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount, calculateOrderNetSales as calcNetSales} from "@/lib/order.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -35,12 +34,15 @@ const WEEK_DAYS: string[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 const parseWeekParams = () => {
   const params = new URLSearchParams(window.location.search);
   const weekParam = params.get('week');
+  const zone = getAppTimezone();
 
-  let weekStart = weekParam ? DateTime.fromISO(weekParam) : DateTime.now();
+  let weekStart = weekParam
+    ? DateTime.fromISO(weekParam, {zone})
+    : DateTime.now().setZone(zone);
   if (!weekStart.isValid) {
-    weekStart = DateTime.now();
+    weekStart = DateTime.now().setZone(zone);
   }
-  weekStart = weekStart.startOf('week');
+  weekStart = weekStart.setZone(zone).startOf('week');
   const weekEnd = weekStart.plus({days: 6});
   const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 
@@ -55,12 +57,7 @@ const parseWeekParams = () => {
   };
 };
 
-const calculateOrderNetSales = (order: Order): number => {
-  const paymentTotals = getOrderPaymentTotals(order);
-  const serviceChargeAmount = safeNumber(order.service_charge_amount);
-  const taxAmount = getOrderTaxAmount(order);
-  return safeNumber(paymentTotals.amountCollected - serviceChargeAmount - taxAmount);
-};
+const calculateOrderNetSales = (order: Order): number => calcNetSales(order);
 
 interface DayMetrics {
   netSales: number;
@@ -182,7 +179,7 @@ export const SalesWeeklyReport = () => {
       dayMetric.tips += safeNumber(order.tip_amount);
 
       // Sales by day part
-      const dayPart = getDayPartLabel(toJsDate(order.created_at));
+      const dayPart = getDayPartLabel(new Date(2000, 0, 1, toLuxonDateTime(order.created_at).hour));
       dayMetric.salesByDayPart[dayPart] += netSales;
 
       // Service charges

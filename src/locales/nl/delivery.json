@@ -23,7 +23,8 @@
     "rectangleTooSmall": "Rechthoek is te klein. Sleep een groter gebied.",
     "circleTooSmall": "Cirkel is te klein. Sleep een grotere straal.",
     "polygonTooSmall": "Veelhoek is te klein. Sleep een grotere omtrek.",
-    "areasSaved": "Kaartgebieden succesvol opgeslagen"
+    "areasSaved": "Kaartgebieden succesvol opgeslagen",
+    "deleteSelected": "Selectie verwijderen"
   },
   "settings": {
     "title": "Bezorgconfiguratie",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Bestelling {{invoice}} verzonden voor bezorging",
     "accepted": "Bestelling {{invoice}} geaccepteerd",
     "riderAttached": "Bezorger {{name}} gekoppeld aan bestelling",
-    "rejected": "Bestelling {{invoice}} afgewezen"
+    "rejected": "Bestelling {{invoice}} afgewezen",
+    "title": "Bezorgorder - {{invoice}}",
+    "position": "Order {{current}} van {{total}}",
+    "noDeliveryAddress": "Geen bezorgadres opgegeven",
+    "itemsCount": "Artikelen ({{count}})",
+    "loadingRiders": "Bezorgers laden...",
+    "noRidersAvailable": "Geen bezorgers beschikbaar",
+    "orderedAt": "Besteld om: {{time}}",
+    "deliveryTimeLabel": "Bezorgtijd: {{time}}",
+    "asap": "Zo snel mogelijk",
+    "phone": "Telefoon",
+    "email": "E-mail",
+    "coordinates": "Coördinaten",
+    "details": "Orderdetails",
+    "status": "Status:",
+    "created": "Aangemaakt:",
+    "discount": "Korting:",
+    "coupon": "Coupon",
+    "tax": "Belasting:",
+    "serviceCharge": "Servicekosten:",
+    "extras": "Extra's:"
   },
   "days": {
     "monday": "Maandag",

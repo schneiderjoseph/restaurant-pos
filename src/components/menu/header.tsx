@@ -184,11 +184,13 @@ export const MenuHeader = () => {
     }));
 
     // release table
-    await db.merge(state.table.id, {
-      is_locked: false,
-      locked_at: null,
-      locked_by: null
-    });
+    if (state.table?.id) {
+      await db.merge(state.table.id, {
+        is_locked: false,
+        locked_at: null,
+        locked_by: null
+      });
+    }
   }
 
   const openPersons = async () => {

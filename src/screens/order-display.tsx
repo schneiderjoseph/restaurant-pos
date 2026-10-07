@@ -16,7 +16,7 @@ import { useDuoUserIds } from '@/hooks/useDuoUserIds.ts';
 import { SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor } from '@/api/model/order_visibility.ts';
 import { LabelValue } from '@/api/model/common.ts';
 import { Button } from '@/components/common/input/button.tsx';
-import { toSurrealDateTime, getAppStartOfDaySurreal } from '@/lib/datetime.ts';
+import { getAppStartOfDaySurreal } from '@/lib/datetime.ts';
 import { fetchDueOrderItemIds } from '@/lib/order-due-items.ts';
 import { useTranslation } from 'react-i18next';
 import { formatOrderNumber, translateOrderStatus } from '@/lib/order.ts';
@@ -74,12 +74,16 @@ export const OrderDisplayScreen = () => {
 
   const updateFilter = useCallback(
     (key: keyof AppStateInterface['orderDisplayFilters'], value: LabelValue[]) => {
+      const normalized = (value ?? []).map((entry) => ({
+        label: entry.label,
+        value: String(entry?.value ?? ''),
+      }));
       setState((prev) => ({
         ...prev,
         orderDisplayFilters: {
           statuses: prev?.orderDisplayFilters?.statuses ?? [],
           orderTypes: prev?.orderDisplayFilters?.orderTypes ?? [],
-          [key]: value ?? [],
+          [key]: normalized,
         },
       }));
     },
@@ -94,35 +98,48 @@ export const OrderDisplayScreen = () => {
     99999
   );
 
-  const whereClauses = useMemo(() => {
+  const filterQuery = useMemo(() => {
     const clauses: string[] = [];
+    const params: Record<string, unknown> = {};
 
-    const statusFilters = selectedFilters.statuses.map(
-      (status) => `status = "${status.value}"`
-    );
-    if (statusFilters.length > 0) {
-      clauses.push(`(${statusFilters.join(' or ')})`);
+    const statuses = selectedFilters.statuses
+      .map((status) => String(status?.value ?? ''))
+      .filter(Boolean);
+    if (statuses.length > 0) {
+      clauses.push('status IN $statuses');
+      params.statuses = statuses;
     }
 
-    const orderTypeFilters = selectedFilters.orderTypes.map(
-      (orderType) => `order_type = ${orderType.value}`
-    );
-    if (orderTypeFilters.length > 0) {
-      clauses.push(`(${orderTypeFilters.join(' or ')})`);
+    const orderTypes = selectedFilters.orderTypes
+      .map((orderType) => {
+        const raw = orderType?.value as unknown;
+        if (raw == null || raw === '') {
+          return null;
+        }
+        if (typeof raw === 'object' && raw !== null && 'tb' in raw && 'id' in raw) {
+          const record = raw as { tb: string; id: string | number };
+          return toRecordId(`${record.tb}:${record.id}`);
+        }
+        return toRecordId(String(raw));
+      })
+      .filter((value): value is ReturnType<typeof toRecordId> => value != null);
+    if (orderTypes.length > 0) {
+      clauses.push('order_type IN $orderTypes');
+      params.orderTypes = orderTypes;
     }
 
     if (!seesAllOrders) {
       clauses.push('user IN $visibleUsers');
     }
 
-    return clauses;
+    return { clauses, params };
   }, [selectedFilters, seesAllOrders]);
 
   const fetchOrders = useCallback(async () => {
     const request = ++fetchRequestRef.current;
     const startDate = getAppStartOfDaySurreal();
     const visibleUsers = duoUserKey ? duoUserKey.split("|").map((id) => toRecordId(id)) : [];
-    const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
+    const filterSql = filterQuery.clauses.length > 0 ? `and ${filterQuery.clauses.join(' and ')}` : '';
     // Orders taken an earlier day and wanted today or later stay on the board.
     const dueItems = await fetchDueOrderItemIds(db, startDate);
     const [rows, kitchenRows] = await db.query(
@@ -133,7 +150,7 @@ export const OrderDisplayScreen = () => {
        SELECT * FROM ${Tables.order_items_kitchen}
        WHERE created_at >= $startDate OR order_item IN $dueItems
        FETCH order_item, kitchen`,
-      { startDate, dueItems, visibleUsers }
+      { startDate, dueItems, visibleUsers, ...filterQuery.params }
     );
 
     // Every live event starts a fetch: an older one answering late must not win.
@@ -146,7 +163,7 @@ export const OrderDisplayScreen = () => {
       buildKitchenRowsMap(Array.isArray(kitchenRows) ? (kitchenRows as OrderItemKitchen[]) : [])
     );
     setHydrated(true);
-  }, [whereClauses, duoUserKey]);
+  }, [filterQuery, duoUserKey]);
 
   useEffect(() => {
     // New filters bring orders already ready into view: not announcements.
@@ -215,7 +232,7 @@ export const OrderDisplayScreen = () => {
       });
     } catch (error) {
       console.error('Mark order served failed', error);
-      throw error;
+      toast.error(t('order-display:markServedFailed'));
     }
   }, [setServed, t]);
 

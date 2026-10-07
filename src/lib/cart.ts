@@ -5,7 +5,8 @@ import {OrderItem} from "@/api/model/order_item.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
-import {calculateItemTax} from "@/lib/tax-calculator.ts";
+import {calculateItemTax, calculateOrderPaymentTaxAmount} from "@/lib/tax-calculator.ts";
+import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 
 export const getCartItemTaxableUnitBase = (item: MenuItem): number => {
   const unitPrice = safeNumber(item?.price ?? item?.dish?.price ?? 0);
@@ -35,19 +36,12 @@ export const getOrderItemTaxableUnitBase = (item: OrderItem): number => {
 export const calculateCartItemPrice = (item: MenuItem) => {
   const quantity = safeNumber(item?.quantity || 1);
   const unitBase = getCartItemTaxableUnitBase(item);
-  const unitPrice = safeNumber(item?.price ?? item?.dish?.price ?? 0);
 
-  // Handle tax mode for pricing
-  let finalUnitPrice = unitPrice;
-  if (item?.tax_mode === 'inclusive' && item?.taxes && item.taxes.length > 0) {
-    finalUnitPrice = unitPrice;
-  } else if (item?.tax_mode === 'exclusive' && item?.taxes && item.taxes.length > 0) {
-    const taxCalc = calculateItemTax(unitPrice, item.taxes, 'exclusive');
-    finalUnitPrice = taxCalc.gross_price;
+  // Exclusive taxes apply to the dish and its choices, as at payment.
+  if (item?.tax_mode === 'exclusive' && item?.taxes && item.taxes.length > 0) {
+    return calculateItemTax(unitBase, item.taxes, 'exclusive').gross_price * quantity;
   }
-
-  const modifiersUnitTotal = unitBase - unitPrice;
-  return (finalUnitPrice + modifiersUnitTotal) * quantity;
+  return unitBase * quantity;
 }
 
 /** A cart line's amount before taxes: (dish + its choices) × quantity, as shown in the cart. */
@@ -151,23 +145,35 @@ export const getPendingCartItems = (cart: MenuItem[]) =>
 export const calculatePendingCartTotal = (cart: MenuItem[]) =>
   getPendingCartItems(cart).reduce((sum, item) => sum + calculateCartItemPrice(item), 0);
 
-export const calculateOrderTotalsPreview = (order: Order, cart?: MenuItem[]) => {
-  const pendingTotal = calculatePendingCartTotal(cart ?? []);
-  const pendingCount = getPendingCartItems(cart ?? []).length;
-  const itemsTotal = calculateOrderTotal(order) + pendingTotal;
-  const itemCount = getOrderFilteredItems(order).length + pendingCount;
+/** A pending cart line priced the way it will be saved (net price, menu taxes), as an order line. */
+const toPendingOrderItem = (item: MenuItem): OrderItem => {
+  const pricing = buildOrderItemPayload(item);
+  return {
+    ...pricing,
+    quantity: item.quantity,
+  } as unknown as OrderItem;
+};
 
-  const taxAmount = order?.tax
-    ? itemsTotal * order.tax.rate / 100
-    : Number(order?.tax_amount ?? 0);
+export const calculateOrderTotalsPreview = (order: Order, cart?: MenuItem[]) => {
+  const pendingItems = getPendingCartItems(cart ?? []);
+  // Pending lines join the order as they will be stored, so they are taxed by the
+  // same rules as the saved ones (and never twice).
+  const previewOrder = {
+    ...order,
+    items: [...(order?.items ?? []), ...pendingItems.map(toPendingOrderItem)],
+  } as Order;
+  const itemsTotal = calculateOrderTotal(previewOrder);
+  const itemCount = getOrderFilteredItems(order).length + pendingItems.length;
+
+  const taxAmount = itemsTotal <= 0 ? 0 : calculateOrderPaymentTaxAmount(previewOrder, order?.tax ?? null);
 
   const serviceChargeAmount = getOrderServiceChargeAmount(order, itemsTotal);
 
-  const discountAmount = order?.discount
-    ? order.discount.type === DiscountType.Percent
-      ? itemsTotal * Number(order.discount_rate ?? 0) / 100
-      : Number(order.discount_amount ?? 0)
-    : 0;
+  const discountAmount = order?.discount && order.discount.type === DiscountType.Percent
+    ? itemsTotal * Number(order.discount_rate ?? 0) / 100
+    : Number(order?.discount_amount ?? 0);
+
+  const couponAmount = Number(order?.coupon?.discount ?? 0);
 
   const tipAmount = order?.tip_amount > 0
     ? order.tip_type === DiscountType.Percent
@@ -183,6 +189,7 @@ export const calculateOrderTotalsPreview = (order: Order, cart?: MenuItem[]) => 
     taxAmount,
     discountAmount,
     serviceChargeAmount,
+    couponAmount,
     tipAmount,
   });
 

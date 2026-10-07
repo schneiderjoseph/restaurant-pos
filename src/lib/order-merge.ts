@@ -38,7 +38,9 @@ const mergedCharge = (
   if (charged.length === 0) {
     return {rate: 0, type: DiscountType.Percent, amount: 0};
   }
-  if (charged.some((order) => typeOf(order) === DiscountType.Fixed)) {
+  // Fixed, or percentages that differ (10% + 15%): keep the amounts, as a fixed charge.
+  const rates = new Set(charged.map((order) => Number(rateOf(order))));
+  if (charged.some((order) => typeOf(order) === DiscountType.Fixed) || rates.size > 1) {
     const amount = sum(charged, amountOf);
     return {rate: amount, type: DiscountType.Fixed, amount};
   }

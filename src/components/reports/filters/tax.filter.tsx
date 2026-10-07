@@ -22,7 +22,7 @@ export const TaxFilter = () => {
 
   return (
     <form action={REPORTS_TAX} className="flex flex-col gap-3 items-start w-full" target="_blank">
-      <DateRange isRequired label="Select a range" />
+      <DateRange isRequired />
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="tax-filter-tax">{t('reports.tax')}</label>
         <ReactSelect

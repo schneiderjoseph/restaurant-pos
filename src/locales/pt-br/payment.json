@@ -92,7 +92,9 @@
     "roomCheckedOut": "Check-out feito no ASI: este cliente paga diretamente, como um cliente avulso",
     "roomSyncStale": "Estadia não verificável (sincronização ASI atrasada): o cliente paga diretamente",
     "roomNotHotelGuest": "Cobrança no quarto exige um hóspede hospedado",
-    "roomDepartsToday": "Saída prevista para hoje"
+    "roomDepartsToday": "Saída prevista para hoje",
+    "fiscalFailed": "Falha no envio fiscal",
+    "fiscalPartialFailure": "Alguns provedores fiscais falharam; verifique a fila de Integrações"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

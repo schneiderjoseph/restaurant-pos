@@ -33,7 +33,10 @@
     "confirm": "تأكيد"
   },
   "persons": {
-    "chooseCount": "اختر عدد الأشخاص"
+    "chooseCount": "اختر عدد الأشخاص",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "تعذر التحقق من حالة الإغلاق. حاول مرة أخرى."
   },
   "guest": {
     "title": "Guest",
@@ -111,7 +114,9 @@
     "departureToday": "Checks out today",
     "phoneCountry": "رمز الدولة",
     "phoneCountriesFrequent": "الأكثر استخدامًا",
-    "phoneCountriesAll": "كل الدول"
+    "phoneCountriesAll": "كل الدول",
+    "codeUnavailable": "تعذر إنشاء رمز ضيف فريد. حاول مرة أخرى.",
+    "matchLookupFailed": "تعذر التحقق من العملاء الحاليين. حاول مرة أخرى."
   },
   "outlets": {
     "all": "الكل"
@@ -183,6 +188,10 @@
       "passport": "جواز السفر",
       "license": "رخصة القيادة",
       "other": "أخرى"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "الشريحة {{current}} من {{total}}"
   }
 }

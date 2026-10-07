@@ -302,7 +302,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
       if (!cancelled) {
         reset({
           name: data.name,
-          priority: data.priority.toString(),
+          priority: String(data.priority ?? ''),
           free_modifier_rule: data.free_modifier_rule ?? 'first',
           extra_modifier_price: data.extra_modifier_price ?? null,
           modifiers,

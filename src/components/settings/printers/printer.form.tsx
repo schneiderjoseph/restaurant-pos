@@ -71,6 +71,7 @@ export const PrinterForm = ({
         } : null,
         vid: data.vid ?? '',
         pid: data.pid ?? '',
+        path: data.ip_address ?? '',
       });
     } else {
       reset({

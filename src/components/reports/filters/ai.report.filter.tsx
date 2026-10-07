@@ -21,14 +21,39 @@ export const AiReportFilter = () => {
   const [prompt, setPrompt] = useState("");
   const [format, setFormat] = useState<AiReportFormat>(() => loadAiReportFormat());
   const [usage, setUsage] = useState<AiUsageStatus | null>(null);
+  const [usageLoading, setUsageLoading] = useState(true);
+  const [usageError, setUsageError] = useState(false);
 
-  const refreshUsage = useCallback(async () => {
-    const next = await fetchAiUsage();
-    setUsage(next);
+  const refreshUsage = useCallback(async (cancelled?: () => boolean) => {
+    setUsageLoading(true);
+    setUsageError(false);
+    try {
+      const next = await fetchAiUsage();
+      if (cancelled?.()) return;
+      if (next == null) {
+        setUsage(null);
+        setUsageError(true);
+      } else {
+        setUsage(next);
+      }
+    } catch {
+      if (!cancelled?.()) {
+        setUsage(null);
+        setUsageError(true);
+      }
+    } finally {
+      if (!cancelled?.()) {
+        setUsageLoading(false);
+      }
+    }
   }, []);
 
   useEffect(() => {
-    void refreshUsage();
+    let cancelled = false;
+    void refreshUsage(() => cancelled);
+    return () => {
+      cancelled = true;
+    };
   }, [refreshUsage]);
 
   const usageLabel = useMemo(() => {
@@ -67,8 +92,10 @@ export const AiReportFilter = () => {
     }
   };
 
+  const canRun = Boolean(prompt.trim()) && !usageLoading && !usageError && usage?.enabled === true;
+
   const handleRun = () => {
-    if (!prompt.trim() || usage?.enabled === false) {
+    if (!canRun) {
       return;
     }
 
@@ -91,7 +118,7 @@ export const AiReportFilter = () => {
       </label>
 
       <AiExamplePrompts
-        disabled={usage?.enabled === false}
+        disabled={usage?.enabled === false || usageLoading || usageError}
         onSelect={handleExampleSelect}
       />
 
@@ -104,12 +131,15 @@ export const AiReportFilter = () => {
           variant="primary"
           filled
           onClick={handleRun}
-          disabled={!prompt.trim() || usage?.enabled === false}
+          disabled={!canRun}
         >
           {t("filters.run")}
         </Button>
         {usageLabel && (
           <span className="text-sm text-gray-500">{usageLabel}</span>
+        )}
+        {usageError && (
+          <span className="text-sm text-danger-600">{t("filters.aiUsageUnavailable")}</span>
         )}
         {usage && !usage.enabled && (
           <span className="text-sm text-danger-600">{t("filters.aiDisabled")}</span>

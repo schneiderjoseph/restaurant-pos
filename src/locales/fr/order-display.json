@@ -31,5 +31,6 @@
     "due": "Prévue",
     "elapsed": "Écoulé",
     "notes": "Notes"
-  }
+  },
+  "markServedFailed": "Impossible de marquer la commande comme livrée"
 }

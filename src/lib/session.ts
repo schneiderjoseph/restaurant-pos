@@ -167,6 +167,18 @@ export async function gatewayLogout(): Promise<void> {
   }
 }
 
+/** Revoke a session token this tablet received but will not use (e.g. a refused unlock). */
+export async function revokeGatewayToken(token: string): Promise<void> {
+  try {
+    await fetch(`${getGatewayBaseUrl()}/auth/logout`, {
+      method: 'POST',
+      headers: {Authorization: `Bearer ${token}`},
+    });
+  } catch {
+    // ignore network errors: the token expires on its own
+  }
+}
+
 export type GatewaySessionState = 'valid' | 'replaced' | 'invalid' | 'unknown';
 
 /**

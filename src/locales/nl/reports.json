@@ -237,7 +237,27 @@
       "charts": "Grafieken en prognose",
       "analysis": "Analyse"
     },
-    "location": "Locatie"
+    "location": "Locatie",
+    "selectDate": "Selecteer datum",
+    "selectWeek": "Selecteer een week",
+    "week": "Week",
+    "users": "Gebruikers",
+    "taxFilter": "Belastingfilter",
+    "discountFilter": "Kortingfilter",
+    "withTax": "Met belasting",
+    "withoutTax": "Zonder belasting",
+    "withDiscount": "Met korting",
+    "withoutDiscount": "Zonder korting",
+    "paymentTypes": "Betaalmethoden",
+    "sortBy": "Sorteer resultaten op",
+    "sortDirection": "Sorteerrichting",
+    "selectDiscountsOptional": "Selecteer specifieke kortingen (optioneel)",
+    "loadingWeeks": "Weken laden...",
+    "noWeeksAvailable": "Geen weken beschikbaar",
+    "unableToLoadWeeks": "Kan weken niet laden",
+    "unableToLoadAreas": "Kan bezorggebieden niet laden",
+    "aiUsageUnavailable": "Kan AI-gebruik niet controleren. Probeer later opnieuw.",
+    "areas": "Gebieden"
   },
   "datePresets": {
     "today": "Vandaag",
@@ -381,7 +401,8 @@
     "outlet": "Verkooppunt",
     "authMethod": "Aanmeldmethode",
     "details": "Details",
-    "noTable": "Geen tafel"
+    "noTable": "Geen tafel",
+    "createdAt": "Aangemaakt op"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Verkoop per medewerker",
     "expandAll": "Alles uitvouwen",
     "collapseAll": "Alles invouwen",
-    "unclassifiedOutlet": "Niet geclassificeerd"
+    "unclassifiedOutlet": "Niet geclassificeerd",
+    "allShifts": "Alle diensten",
+    "allDates": "Alle datums",
+    "selectedShift": "Geselecteerde dienst",
+    "selectedDay": "Geselecteerde dag"
   },
   "metrics": {
     "gross": "Bruto",
@@ -602,7 +627,9 @@
     "item": "Artikel",
     "direction": "Richting",
     "quantity": "Hoeveelheid",
-    "cost": "Kosten"
+    "cost": "Kosten",
+    "totalTips": "Totaal fooien",
+    "savedDistributions": "Opgeslagen verdelingen"
   },
   "production": {
     "batchNumber": "Batch #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Geen geplande diensten voor het geselecteerde bereik",
     "noTables": "Geen tafelverkopen in de gekozen periode.",
     "noActivity": "Geen auditregels in de gekozen periode.",
-    "noProducts": "Geen producten gevonden."
+    "noProducts": "Geen producten gevonden.",
+    "noRows": "Geen rijen voor het geselecteerde bereik.",
+    "noTips": "Geen fooien voor de geselecteerde filters.",
+    "noDataForFilters": "Geen gegevens voor de geselecteerde filters",
+    "noCashClosing": "Geen kassasluiting voor de geselecteerde datum."
   },
   "sections": {
     "salesByOutlet": "Verkoop per verkooppunt"
   },
   "messages": {
-    "auditTruncated": "Alleen de laatste {{count}} regels worden getoond. Verklein de periode om oudere te zien."
+    "auditTruncated": "Alleen de laatste {{count}} regels worden getoond. Verklein de periode om oudere te zien.",
+    "productHourlyDisclaimer": "Dit rapport bevat geen belastingen, kortingen, servicekosten, extra's en fooien"
   }
 }

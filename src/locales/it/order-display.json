@@ -29,5 +29,6 @@
     "due": "Per",
     "elapsed": "Trascorso",
     "notes": "Note"
-  }
+  },
+  "markServedFailed": "Impossibile segnare l’ordine come servito"
 }

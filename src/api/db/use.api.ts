@@ -84,7 +84,8 @@ function useApi<T>(
     
     try {
       const [totalQuery] = await db.query<[{ count?: number }[]]>(
-        `Select count() from ${table}${filters.length > 0 ? ` WHERE ${filters.join(' and ')}` : ''} group all`
+        `Select count() from ${table}${filters.length > 0 ? ` WHERE ${filters.join(' and ')}` : ''} group all`,
+        queryBuilder.parameters,
       );
       const [listQuery] = await db.query<[T[]]>(mainQuery, queryBuilder.parameters);
 
@@ -132,9 +133,8 @@ function useApi<T>(
   const handleFilterChange = (newFilters: string[], condition = 'and'): void => {
     setFilters(newFilters);
 
-    newFilters.forEach(c => {
-      queryBuilder.setWhere(c, condition, parameters);
-    });
+    // Replace the whole WHERE: every filter applies, and [] clears them.
+    queryBuilder.setWheres(newFilters.map(c => `${condition} ${c}`));
 
     setPage(0);
     queryBuilder.setOffset(0);

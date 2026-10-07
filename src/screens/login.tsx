@@ -25,6 +25,7 @@ import {
   gatewayLogin,
   getSessionToken,
   isGatewayAuthEnabled,
+  revokeGatewayToken,
   setSessionTokens,
   type GatewayLoginResponse,
 } from "@/lib/session.ts";
@@ -68,9 +69,8 @@ export const Login = () => {
   }
 
   const onKey = (key: string) => {
-    if(code.trim().length <= 3){
-      setCode(code + key);
-    }
+    // Functional update: quick taps must not read a stale code.
+    setCode(prev => (prev.trim().length <= 3 ? prev + key : prev));
   }
 
   const failConnection = () => {
@@ -127,6 +127,14 @@ export const Login = () => {
     const result = await gatewayLogin({ method: 'pin', login: pin, password: pin });
     if (!result.ok || !result.token || !result.surrealToken || !result.user) {
       handleLoginFailure(result);
+      return false;
+    }
+
+    // A locked screen only reopens for the user who locked it: refuse before this
+    // tablet switches to the other user's tokens and database session.
+    if (page.locked && page.lockedBy?.login !== (result.user as User).login) {
+      void revokeGatewayToken(result.token);
+      denyLogin();
       return false;
     }
 
@@ -244,7 +252,8 @@ export const Login = () => {
 
   useEffect(() => {
     if(error){
-      setTimeout(() => setError(false), 400);
+      const timer = setTimeout(() => setError(false), 400);
+      return () => clearTimeout(timer);
     }
   }, [error]);
 

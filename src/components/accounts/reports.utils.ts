@@ -5,6 +5,9 @@ import type {AccountHeadType} from "@/api/model/account.ts";
 
 export const DATETIME_LOCAL_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
+/** Only posted journal entries belong on financial statements / ledgers. */
+export const POSTED_ENTRY_FILTER = "entry.status = 'posted'";
+
 export const toQueryDateTime = (value?: string | Dayjs | Date | null) => {
   if (!value) {
     return undefined;

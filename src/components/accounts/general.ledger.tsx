@@ -14,7 +14,7 @@ import {toRecordId} from "@/lib/utils.ts";
 import {formatMoney} from "@/components/accounts/account.constants.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Account} from "@/api/model/account.ts";
-import {toQueryDateTime} from "@/components/accounts/reports.utils.ts";
+import {POSTED_ENTRY_FILTER, toQueryDateTime} from "@/components/accounts/reports.utils.ts";
 import {LedgerEntriesModal} from "@/components/accounts/ledger.entries.modal.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
@@ -71,8 +71,8 @@ export const GeneralLedger = () => {
         ? toQueryDateTime(filters.date_from)
         : toQueryDateTime(dayjs());
 
-      const periodWhere: string[] = [];
-      const openingWhere: string[] = ["entry.date < <datetime>$start_date"];
+      const periodWhere: string[] = [POSTED_ENTRY_FILTER];
+      const openingWhere: string[] = [POSTED_ENTRY_FILTER, "entry.date < <datetime>$start_date"];
       const parameters: Record<string, any> = {start_date: startDate};
 
       if (filters.date_from) {

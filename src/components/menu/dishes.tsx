@@ -53,7 +53,7 @@ export const MenuDishes = () => {
   const categoryDishes = useMemo(() => {
     if (state.category) {
       return allDishes?.filter(item =>
-        item.categories.filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0
+        (item.categories ?? []).filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0
       ) || [];
     }
 
@@ -208,7 +208,7 @@ export const MenuDishes = () => {
             <button
               key={index}
               type="button"
-              aria-label={`Slide ${index + 1} of ${slides}`}
+              aria-label={t('dishes.slideOf', { current: index + 1, total: slides })}
               aria-current={activeSlide === index ? "true" : undefined}
               onClick={() => swiperRef.current?.slideTo(index)}
               className={cn(

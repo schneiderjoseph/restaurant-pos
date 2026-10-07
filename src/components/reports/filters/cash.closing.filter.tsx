@@ -1,14 +1,14 @@
 import {REPORTS_CASH_CLOSING} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
-import {getLocalTimeZone, today} from "@internationalized/date";
 import {DateValue} from "react-aria-components";
 import {useState} from "react";
 import { useTranslation } from 'react-i18next';
+import {getToday} from "@/utils/date.ts";
 
 export const CashClosingFilter = () => {
   const { t } = useTranslation('reports');
-  const [selectedDate, setSelectedDate] = useState<DateValue | null>(today(getLocalTimeZone()));
+  const [selectedDate, setSelectedDate] = useState<DateValue | null>(getToday());
 
   return (
     <form
@@ -18,11 +18,11 @@ export const CashClosingFilter = () => {
     >
       <div className="w-full">
         <DatePicker
-          label="Select date"
+          label={t('filters.selectDate')}
           name="date"
           value={selectedDate}
           onChange={setSelectedDate}
-          maxValue={today(getLocalTimeZone())}
+          maxValue={getToday()}
           isClearable
         />
       </div>

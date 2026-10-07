@@ -1,6 +1,6 @@
 import {Tables} from "@/api/db/tables.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
-import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {safeLimit, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 
 type ListOptions = {search?: string; limit?: number};
@@ -25,7 +25,7 @@ export const listFloors = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, priority FROM ${Tables.floors}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{id: unknown; name?: string; priority?: number}>(await db.query(query));
   return rows
@@ -45,7 +45,7 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
     SELECT id, name, number, source, floor.name AS floor_name FROM ${Tables.tables}
     WHERE deleted_at = NONE
     ORDER BY number ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
     FETCH floor
   `;
   const rows = unwrapQueryResult<{
@@ -87,7 +87,7 @@ export const listModifierGroups = async (db: DbClient, options: ListOptions = {}
     SELECT id, name, priority, modifiers FROM ${Tables.modifier_groups}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
     FETCH modifiers, modifiers.modifier
   `;
   const rows = unwrapQueryResult<{
@@ -125,7 +125,7 @@ export const listKitchens = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, priority FROM ${Tables.kitchens}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
 };
@@ -182,7 +182,7 @@ export const listTaxes = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, rate, priority FROM ${Tables.taxes}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{id: unknown; name?: string; rate?: number; priority?: number}>(
     await db.query(query),
@@ -206,7 +206,7 @@ export const listDiscounts = async (db: DbClient, options: DiscountListOptions =
     WHERE deleted_at = NONE
     ${activeOnly ? "AND is_active = true" : ""}
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{
     id: unknown;
@@ -240,7 +240,7 @@ export const listOrderTypes = async (db: DbClient, options: ListOptions = {}) =>
     SELECT id, name, priority FROM ${Tables.order_types}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
 };
@@ -252,7 +252,7 @@ export const listPaymentTypes = async (db: DbClient, options: ListOptions = {}) 
     SELECT id, name, type, priority FROM ${Tables.payment_types}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{id: unknown; name?: string; type?: string; priority?: number}>(
     await db.query(query),
@@ -274,7 +274,7 @@ export const listExtras = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, priority FROM ${Tables.extras}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
 };
@@ -286,7 +286,7 @@ export const listCoupons = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, code, description, coupon_type, is_active, priority FROM ${Tables.coupons}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, code ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{
     id: unknown;
@@ -319,7 +319,7 @@ export const listMenus = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, priority FROM ${Tables.menus}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
 };
@@ -340,7 +340,7 @@ export const getMenuItems = async (db: DbClient, options: MenuItemsOptions = {})
       WHERE menu.deleted_at = NONE AND menu_item.deleted_at = NONE
         AND string::lowercase(menu.name) CONTAINS $menuName
       ORDER BY menu_menu_item.priority ASC
-      LIMIT ${limit}
+      LIMIT ${safeLimit(limit)}
       FETCH menu, menu_item
     `;
     const rows = unwrapQueryResult<{
@@ -369,7 +369,7 @@ export const getMenuItems = async (db: DbClient, options: MenuItemsOptions = {})
     SELECT id, name, number FROM ${Tables.dishes}
     WHERE deleted_at = NONE
     ORDER BY name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{id: unknown; name?: string; number?: string | number}>(
     await db.query(query),
@@ -391,7 +391,7 @@ export const listWorkflows = async (db: DbClient, options: ListOptions = {}) => 
     SELECT id, name FROM ${Tables.workflows}
     WHERE deleted_at = NONE
     ORDER BY name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const workflows = mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
   if (workflows.length === 0) return [];
@@ -436,7 +436,7 @@ export const listPrinters = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, type, priority FROM ${Tables.printers}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{id: unknown; name?: string; type?: string; priority?: number}>(
     await db.query(query),
@@ -458,7 +458,7 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, first_name, last_name, login, login_method, user_role.name AS role_name FROM ${Tables.users}
     WHERE deleted_at = NONE
     ORDER BY first_name ASC, last_name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
     FETCH user_role
   `;
   const rows = unwrapQueryResult<{
@@ -496,7 +496,7 @@ export const listRoles = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name FROM ${Tables.user_roles}
     WHERE deleted_at = NONE
     ORDER BY name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
 };
@@ -508,7 +508,7 @@ export const listShifts = async (db: DbClient, options: ListOptions = {}) => {
     SELECT id, name, start_time, end_time FROM ${Tables.shifts}
     WHERE deleted_at = NONE
     ORDER BY name ASC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
   const rows = unwrapQueryResult<{
     id: unknown;

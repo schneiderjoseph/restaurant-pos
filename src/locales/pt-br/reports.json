@@ -237,7 +237,27 @@
       "charts": "Gráficos e Previsão",
       "analysis": "Análise"
     },
-    "location": "Localização"
+    "location": "Localização",
+    "selectDate": "Selecionar data",
+    "selectWeek": "Selecionar uma semana",
+    "week": "Semana",
+    "users": "Usuários",
+    "taxFilter": "Filtro de impostos",
+    "discountFilter": "Filtro de descontos",
+    "withTax": "Com imposto",
+    "withoutTax": "Sem imposto",
+    "withDiscount": "Com desconto",
+    "withoutDiscount": "Sem desconto",
+    "paymentTypes": "Tipos de pagamento",
+    "sortBy": "Ordenar resultados por",
+    "sortDirection": "Direção da ordenação",
+    "selectDiscountsOptional": "Selecionar descontos específicos (opcional)",
+    "loadingWeeks": "Carregando semanas...",
+    "noWeeksAvailable": "Nenhuma semana disponível",
+    "unableToLoadWeeks": "Não foi possível carregar as semanas",
+    "unableToLoadAreas": "Não foi possível carregar as áreas de entrega",
+    "aiUsageUnavailable": "Não foi possível verificar o uso de IA. Tente novamente mais tarde.",
+    "areas": "Áreas"
   },
   "datePresets": {
     "today": "Hoje",
@@ -381,7 +401,8 @@
     "outlet": "Ponto de venda",
     "authMethod": "Método de acesso",
     "details": "Detalhes",
-    "noTable": "Sem mesa"
+    "noTable": "Sem mesa",
+    "createdAt": "Criado em"
   },
   "labels": {
     "modifiers": "Modificadores",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Vendas por funcionários",
     "expandAll": "Expandir tudo",
     "collapseAll": "Recolher tudo",
-    "unclassifiedOutlet": "Não classificado"
+    "unclassifiedOutlet": "Não classificado",
+    "allShifts": "Todos os turnos",
+    "allDates": "Todas as datas",
+    "selectedShift": "Turno selecionado",
+    "selectedDay": "Dia selecionado"
   },
   "metrics": {
     "gross": "Bruto",
@@ -602,7 +627,9 @@
     "item": "Item",
     "direction": "Direção",
     "quantity": "Quantidade",
-    "cost": "Custo"
+    "cost": "Custo",
+    "totalTips": "Total de gorjetas",
+    "savedDistributions": "Distribuições salvas"
   },
   "production": {
     "batchNumber": "Lote #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Nenhum turno agendado para o período selecionado",
     "noTables": "Nenhuma venda em mesa no período selecionado.",
     "noActivity": "Nenhum registro de auditoria no período selecionado.",
-    "noProducts": "Nenhum produto encontrado."
+    "noProducts": "Nenhum produto encontrado.",
+    "noRows": "Nenhuma linha para o intervalo selecionado.",
+    "noTips": "Nenhuma gorjeta para os filtros selecionados.",
+    "noDataForFilters": "Nenhum dado para os filtros selecionados",
+    "noCashClosing": "Nenhum fechamento de caixa para a data selecionada."
   },
   "sections": {
     "salesByOutlet": "Vendas por ponto de venda"
   },
   "messages": {
-    "auditTruncated": "Apenas as últimas {{count}} entradas são exibidas. Reduza o período para ver as mais antigas."
+    "auditTruncated": "Apenas as últimas {{count}} entradas são exibidas. Reduza o período para ver as mais antigas.",
+    "productHourlyDisclaimer": "Este relatório não inclui impostos, descontos, taxas de serviço, extras e gorjetas"
   }
 }

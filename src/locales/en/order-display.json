@@ -31,5 +31,6 @@
     "due": "Due",
     "elapsed": "Elapsed",
     "notes": "Notes"
-  }
+  },
+  "markServedFailed": "Could not mark the order as served"
 }

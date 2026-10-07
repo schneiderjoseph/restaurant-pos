@@ -73,7 +73,8 @@
     "totalWithTax": "Totaal met {{label}}",
     "change": "Wisselgeld",
     "sc": "SK ({{value}}%)",
-    "extras": "Extra's"
+    "extras": "Extra's",
+    "payment": "Betaling"
   },
   "actions": {
     "selectToMerge": "Selecteren om samen te voegen",

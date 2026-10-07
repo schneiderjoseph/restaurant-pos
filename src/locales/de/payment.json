@@ -92,7 +92,9 @@
     "roomCheckedOut": "In ASI ausgecheckt: Dieser Gast zahlt direkt, wie ein Laufkunde",
     "roomSyncStale": "Aufenthalt nicht prüfbar (ASI-Synchronisierung verspätet): Der Gast zahlt direkt",
     "roomNotHotelGuest": "Zimmerbelastung nur für anwesende Hotelgäste",
-    "roomDepartsToday": "Abreise heute geplant"
+    "roomDepartsToday": "Abreise heute geplant",
+    "fiscalFailed": "Fiskalübermittlung fehlgeschlagen",
+    "fiscalPartialFailure": "Einige Fiskalanbieter sind fehlgeschlagen; prüfen Sie die Integrations-Warteschlange"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

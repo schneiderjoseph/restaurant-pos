@@ -208,11 +208,11 @@ export const SalesAdvancedReport = () => {
         }
 
         if (filters.withTax) {
-          orderConditions.push(`tax_amount > 0`);
+          orderConditions.push(`(tax_amount > 0 OR (order_taxes != NONE AND array::len(order_taxes) > 0))`);
         }
 
         if (filters.withoutTax) {
-          orderConditions.push(`(tax_amount = 0 or tax_amount = null or tax_amount = none)`);
+          orderConditions.push(`((tax_amount = 0 OR tax_amount = null OR tax_amount = NONE) AND (order_taxes = NONE OR array::len(order_taxes) = 0))`);
         }
 
         if (filters.paymentTypeIds.length > 0) {
@@ -414,7 +414,9 @@ export const SalesAdvancedReport = () => {
 
   const getOrderPaymentBreakdown = (paymentTotals: OrderPaymentTotals): string => {
     const paymentMap = new Map<string, number>(Object.entries(paymentTotals.nonCashBreakdown));
-    paymentMap.set('Cash', (paymentMap.get('Cash') ?? 0) + paymentTotals.cashAmount);
+    if (paymentTotals.cashAmount > 0) {
+      paymentMap.set('Cash', (paymentMap.get('Cash') ?? 0) + paymentTotals.cashAmount);
+    }
 
     if (paymentMap.size === 0) return '-';
 
@@ -435,7 +437,7 @@ export const SalesAdvancedReport = () => {
     const amountDue = getOrderAmountDueFromPayments(order);
     const changeDue = paymentTotals.change;
     const paymentBreakdown = getOrderPaymentBreakdown(paymentTotals);
-    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
+    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax - figures.tips);
     const rounding = getOrderRounding(order);
 
     return {

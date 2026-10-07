@@ -29,5 +29,6 @@
     "due": "Saat",
     "elapsed": "Geçen",
     "notes": "Notlar"
-  }
+  },
+  "markServedFailed": "Sipariş teslim edildi olarak işaretlenemedi"
 }

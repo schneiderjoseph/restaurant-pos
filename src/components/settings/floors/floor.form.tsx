@@ -47,7 +47,7 @@ export const FloorForm = ({
       reset({
         ...data,
         name: data.name,
-        priority: data.priority.toString(),
+        priority: String(data.priority ?? ''),
         background: data.background,
         color: data.color,
       });

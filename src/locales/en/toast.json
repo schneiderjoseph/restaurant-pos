@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Failed to save map areas"
   },
   "kitchen": {
-    "recallFailed": "Failed to recall order"
+    "recallFailed": "Failed to recall order",
+    "readyFailed": "Failed to mark order ready",
+    "itemReadyFailed": "Failed to mark item ready",
+    "reprintFailed": "Failed to reprint kitchen ticket"
   },
   "closing": {
     "loadFailed": "Failed to load closing",
@@ -140,7 +143,8 @@
     "invalidRequiredModifiers": "Required modifiers value is invalid",
     "outletSaved": "Point of sale {{name}} saved",
     "outletDeleted": "Point of sale {{name}} deleted",
-    "outletSuggestionsApplied": "{{count}} categories classified"
+    "outletSuggestionsApplied": "{{count}} categories classified",
+    "dishRelationsLoading": "Please wait until dish relations finish loading"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in use and was deactivated.",

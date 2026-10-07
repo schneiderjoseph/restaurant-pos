@@ -73,7 +73,8 @@
     "totalWithTax": "Итого с {{label}}",
     "change": "Сдача",
     "sc": "СС ({{value}}%)",
-    "extras": "Дополнения"
+    "extras": "Дополнения",
+    "payment": "Оплата"
   },
   "actions": {
     "selectToMerge": "Выбрать для объединения",

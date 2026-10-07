@@ -90,6 +90,7 @@ export const DishForm = ({
   const [workflowOption, setWorkflowOption] = useState<{ label: string; value: string } | null>(null);
   const [workflowStages, setWorkflowStages] = useState<any[]>([]);
   const [stageOverrides, setStageOverrides] = useState<Record<string, string>>({});
+  const [relationsReady, setRelationsReady] = useState(!data?.id);
 
   const closeModal = () => {
     onClose();
@@ -100,13 +101,18 @@ export const DishForm = ({
     setWorkflowOption(null);
     setWorkflowStages([]);
     setStageOverrides({});
+    setRelationsReady(true);
   }
 
   useEffect(() => {
+    let cancelled = false;
+    let objectUrl: string | null = null;
+
     if (data) {
+      setRelationsReady(false);
       reset({
         ...data,
-        categories: data.categories.map(item => ({
+        categories: (data.categories ?? []).map(item => ({
           label: item.name,
           value: item.id
         })),
@@ -115,15 +121,44 @@ export const DishForm = ({
 
       setPhotoFile(null);
       setPhotoData(null);
-      if (data.photo) {
-        const buffer = data.photo;
-        const mimeType = detectMimeType(buffer, "image/png");
-        const blob = new Blob([buffer], {type: mimeType});
-        setPhotoPreview(URL.createObjectURL(blob));
-      }
+      setPhotoPreview(null);
 
-      getModifierGroups(data.id);
-      loadWorkflowAssignment(data.id);
+      const loadPhoto = async () => {
+        try {
+          if (data.photo) {
+            const buffer = data.photo;
+            const mimeType = detectMimeType(buffer, "image/png");
+            objectUrl = URL.createObjectURL(new Blob([buffer], {type: mimeType}));
+            if (!cancelled) setPhotoPreview(objectUrl);
+            return;
+          }
+          const dishPhotoId = data.dish_photo?.toString();
+          if (!dishPhotoId) return;
+          const [photo] = await db.query(`SELECT * FROM ONLY $id`, {id: new StringRecordId(dishPhotoId)});
+          const content = photo?.content;
+          if (!content || cancelled) return;
+          const bytes = content instanceof ArrayBuffer
+            ? new Uint8Array(content)
+            : ArrayBuffer.isView(content)
+              ? new Uint8Array(content.buffer, content.byteOffset, content.byteLength)
+              : null;
+          if (!bytes) return;
+          const copy = new Uint8Array(bytes);
+          const mimeType = detectMimeType(copy, "image/png");
+          objectUrl = URL.createObjectURL(new Blob([copy.buffer], {type: mimeType}));
+          if (!cancelled) setPhotoPreview(objectUrl);
+        } catch (e) {
+          console.log('Failed to load dish photo', e);
+        }
+      };
+
+      void Promise.all([
+        loadPhoto(),
+        getModifierGroups(data.id),
+        loadWorkflowAssignment(data.id),
+      ]).finally(() => {
+        if (!cancelled) setRelationsReady(true);
+      });
     } else {
       setPhotoFile(null);
       setPhotoPreview(null);
@@ -131,7 +166,13 @@ export const DishForm = ({
       setWorkflowOption(null);
       setWorkflowStages([]);
       setStageOverrides({});
+      setRelationsReady(true);
     }
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
   }, [data]);
 
   const {
@@ -261,6 +302,11 @@ export const DishForm = ({
 
   const onSubmit = async (values: any) => {
     try {
+      if (data?.id && !relationsReady) {
+        toast.error(t('toast:admin.dishRelationsLoading'));
+        return;
+      }
+
       const formData = {
         ...values,
         priority: parseInt(values.priority),
@@ -313,7 +359,7 @@ export const DishForm = ({
         });
       }
 
-      if (formData.modifier_groups) {
+      if (relationsReady && formData.modifier_groups) {
         // delete graph edges and create again
         await db.query(`DELETE ${menuId}->${Tables.dish_modifier_groups} where in = ${menuId}`);
 

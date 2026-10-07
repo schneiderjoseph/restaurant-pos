@@ -7,7 +7,7 @@ import type {OrderVoid} from "@/api/model/order_void.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {safeNumber} from "@/lib/utils.ts";
-import {toJsDate} from "@/lib/datetime.ts";
+import {getAppTimezone, toJsDate} from "@/lib/datetime.ts";
 import {DateTime} from "luxon";
 
 export type TimeSeriesMetric =
@@ -35,7 +35,7 @@ const aggregateOrders = (
   const buckets = new Map<string, number>();
   orders.forEach(order => {
     const jsDate = toJsDate(order.created_at as Parameters<typeof toJsDate>[0]);
-    const key = bucketKey(DateTime.fromJSDate(jsDate), granularity);
+    const key = bucketKey(DateTime.fromJSDate(jsDate, {zone: getAppTimezone()}), granularity);
     buckets.set(key, (buckets.get(key) ?? 0) + valueFn(order));
   });
   return Array.from(buckets.entries())
@@ -81,7 +81,8 @@ export const getTimeSeries = async (
       points: aggregateOrders(orders, granularity, order => {
         const paymentTotals = getOrderPaymentTotals(order);
         return safeNumber(
-          paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
+          // Tips are collected with the bill but are not sales.
+          paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
         );
       }),
     };
@@ -99,7 +100,7 @@ export const getTimeSeries = async (
 
     voids.forEach(voidItem => {
       const jsDate = toJsDate(voidItem.created_at as Parameters<typeof toJsDate>[0]);
-      const key = bucketKey(DateTime.fromJSDate(jsDate), granularity);
+      const key = bucketKey(DateTime.fromJSDate(jsDate, {zone: getAppTimezone()}), granularity);
       const amount = (voidItem.items ?? []).reduce((sum, item) => {
         return sum + safeNumber(
           calculateOrderItemPrice({

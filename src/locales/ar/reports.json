@@ -237,7 +237,27 @@
       "charts": "الرسوم البيانية والتنبؤ",
       "analysis": "التحليل"
     },
-    "location": "الموقع"
+    "location": "الموقع",
+    "selectDate": "اختر التاريخ",
+    "selectWeek": "اختر أسبوعًا",
+    "week": "الأسبوع",
+    "users": "المستخدمون",
+    "taxFilter": "مرشح الضريبة",
+    "discountFilter": "مرشح الخصم",
+    "withTax": "مع ضريبة",
+    "withoutTax": "بدون ضريبة",
+    "withDiscount": "مع خصم",
+    "withoutDiscount": "بدون خصم",
+    "paymentTypes": "أنواع الدفع",
+    "sortBy": "ترتيب النتائج حسب",
+    "sortDirection": "اتجاه الترتيب",
+    "selectDiscountsOptional": "اختر خصومات محددة (اختياري)",
+    "loadingWeeks": "جارٍ تحميل الأسابيع...",
+    "noWeeksAvailable": "لا توجد أسابيع متاحة",
+    "unableToLoadWeeks": "تعذر تحميل الأسابيع",
+    "unableToLoadAreas": "تعذر تحميل مناطق التوصيل",
+    "aiUsageUnavailable": "تعذر التحقق من استخدام الذكاء الاصطناعي. حاول لاحقًا.",
+    "areas": "المناطق"
   },
   "datePresets": {
     "today": "اليوم",
@@ -381,7 +401,8 @@
     "outlet": "نقطة البيع",
     "authMethod": "طريقة الدخول",
     "details": "التفاصيل",
-    "noTable": "بدون طاولة"
+    "noTable": "بدون طاولة",
+    "createdAt": "تاريخ الإنشاء"
   },
   "labels": {
     "modifiers": "الإضافات",
@@ -562,7 +583,11 @@
     "saleByEmployees": "المبيعات حسب الموظفين",
     "expandAll": "توسيع الكل",
     "collapseAll": "طي الكل",
-    "unclassifiedOutlet": "غير مصنف"
+    "unclassifiedOutlet": "غير مصنف",
+    "allShifts": "جميع الورديات",
+    "allDates": "جميع التواريخ",
+    "selectedShift": "الوردية المحددة",
+    "selectedDay": "اليوم المحدد"
   },
   "metrics": {
     "gross": "إجمالي",
@@ -602,7 +627,9 @@
     "item": "الصنف",
     "direction": "الاتجاه",
     "quantity": "الكمية",
-    "cost": "التكلفة"
+    "cost": "التكلفة",
+    "totalTips": "إجمالي الإكراميات",
+    "savedDistributions": "التوزيعات المحفوظة"
   },
   "production": {
     "batchNumber": "الدفعة #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد",
     "noTables": "لا توجد مبيعات على الطاولات في الفترة المحددة.",
     "noActivity": "لا توجد سجلات تدقيق في الفترة المحددة.",
-    "noProducts": "لم يتم العثور على منتجات."
+    "noProducts": "لم يتم العثور على منتجات.",
+    "noRows": "لا توجد صفوف للنطاق المحدد.",
+    "noTips": "لم يتم العثور على إكراميات للمرشحات المحددة.",
+    "noDataForFilters": "لا توجد بيانات للمرشحات المحددة",
+    "noCashClosing": "لم يتم العثور على إغلاق نقدي للتاريخ المحدد."
   },
   "sections": {
     "salesByOutlet": "المبيعات حسب نقطة البيع"
   },
   "messages": {
-    "auditTruncated": "يتم عرض آخر {{count}} سجل فقط. قلّص الفترة لرؤية السجلات الأقدم."
+    "auditTruncated": "يتم عرض آخر {{count}} سجل فقط. قلّص الفترة لرؤية السجلات الأقدم.",
+    "productHourlyDisclaimer": "لا يتضمن هذا التقرير الضرائب والخصومات ورسوم الخدمة والإضافات والإكراميات"
   }
 }

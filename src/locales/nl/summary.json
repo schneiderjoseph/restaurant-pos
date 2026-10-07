@@ -166,5 +166,18 @@
       "amount": "Bedrag"
     },
     "empty": "Nog geen verdeling berekend."
+  },
+  "print": {
+    "productMixTitle": "PRODUCTMIX ({{date}})",
+    "serverSalesTitle": "VERKOOP PER BEDIENING ({{date}})",
+    "item": "Artikel",
+    "qty": "Aant",
+    "total": "Tot",
+    "grandTotal": "TOTAAL",
+    "name": "Naam",
+    "time": "Tijd",
+    "guests": "Gasten",
+    "checks": "Bonnen",
+    "sale": "Verkoop"
   }
 }

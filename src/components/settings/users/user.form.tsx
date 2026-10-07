@@ -102,7 +102,8 @@ export const UserForm = ({
   const onSubmit = async (values: any) => {
     const vals = { ...values };
     const selectedRoleId = values.user_role?.value;
-    const selectedRole = (roleData?.data || []).find((item) => item.id === selectedRoleId);
+    // Compare as strings: the edited user's role id and the option ids are different RecordId instances.
+    const selectedRole = (roleData?.data || []).find((item) => String(item.id) === String(selectedRoleId));
     const selectedRoleModules = [...new Set(selectedRole?.roles || [])];
 
     vals.user_role = selectedRoleId ? new StringRecordId(selectedRoleId) : null;

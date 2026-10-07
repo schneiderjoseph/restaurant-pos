@@ -23,7 +23,8 @@
     "rectangleTooSmall": "O retângulo é muito pequeno. Desenhe uma área maior.",
     "circleTooSmall": "O círculo é muito pequeno. Desenhe um raio maior.",
     "polygonTooSmall": "O polígono é muito pequeno. Desenhe um contorno maior.",
-    "areasSaved": "Áreas do mapa salvas com sucesso"
+    "areasSaved": "Áreas do mapa salvas com sucesso",
+    "deleteSelected": "Excluir seleção"
   },
   "settings": {
     "title": "Configuração de Delivery",
@@ -103,7 +104,27 @@
     "sentForDelivery": "Pedido {{invoice}} enviado para entrega",
     "accepted": "Pedido {{invoice}} aceito",
     "riderAttached": "Entregador {{name}} atribuído ao pedido",
-    "rejected": "Pedido {{invoice}} rejeitado"
+    "rejected": "Pedido {{invoice}} rejeitado",
+    "title": "Pedido de entrega - {{invoice}}",
+    "position": "Pedido {{current}} de {{total}}",
+    "noDeliveryAddress": "Nenhum endereço de entrega informado",
+    "itemsCount": "Itens ({{count}})",
+    "loadingRiders": "Carregando entregadores...",
+    "noRidersAvailable": "Nenhum entregador disponível",
+    "orderedAt": "Pedido às: {{time}}",
+    "deliveryTimeLabel": "Horário de entrega: {{time}}",
+    "asap": "O mais rápido possível",
+    "phone": "Telefone",
+    "email": "E-mail",
+    "coordinates": "Coordenadas",
+    "details": "Detalhes do pedido",
+    "status": "Status:",
+    "created": "Criado:",
+    "discount": "Desconto:",
+    "coupon": "Cupom",
+    "tax": "Imposto:",
+    "serviceCharge": "Taxa de serviço:",
+    "extras": "Extras:"
   },
   "days": {
     "monday": "Segunda-feira",

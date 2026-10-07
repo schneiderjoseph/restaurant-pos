@@ -237,7 +237,27 @@
       "charts": "Grafici e previsioni",
       "analysis": "Analisi"
     },
-    "location": "Posizione"
+    "location": "Posizione",
+    "selectDate": "Seleziona data",
+    "selectWeek": "Seleziona una settimana",
+    "week": "Settimana",
+    "users": "Utenti",
+    "taxFilter": "Filtro tasse",
+    "discountFilter": "Filtro sconti",
+    "withTax": "Con tassa",
+    "withoutTax": "Senza tassa",
+    "withDiscount": "Con sconto",
+    "withoutDiscount": "Senza sconto",
+    "paymentTypes": "Tipi di pagamento",
+    "sortBy": "Ordina risultati per",
+    "sortDirection": "Direzione ordinamento",
+    "selectDiscountsOptional": "Seleziona sconti specifici (opzionale)",
+    "loadingWeeks": "Caricamento settimane...",
+    "noWeeksAvailable": "Nessuna settimana disponibile",
+    "unableToLoadWeeks": "Impossibile caricare le settimane",
+    "unableToLoadAreas": "Impossibile caricare le aree di consegna",
+    "aiUsageUnavailable": "Impossibile verificare l'uso dell'IA. Riprova più tardi.",
+    "areas": "Aree"
   },
   "datePresets": {
     "today": "Oggi",
@@ -381,7 +401,8 @@
     "outlet": "Punto vendita",
     "authMethod": "Metodo di accesso",
     "details": "Dettagli",
-    "noTable": "Senza tavolo"
+    "noTable": "Senza tavolo",
+    "createdAt": "Creato il"
   },
   "labels": {
     "modifiers": "Modificatori",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Vendite per dipendenti",
     "expandAll": "Espandi tutto",
     "collapseAll": "Comprimi tutto",
-    "unclassifiedOutlet": "Non classificato"
+    "unclassifiedOutlet": "Non classificato",
+    "allShifts": "Tutti i turni",
+    "allDates": "Tutte le date",
+    "selectedShift": "Turno selezionato",
+    "selectedDay": "Giorno selezionato"
   },
   "metrics": {
     "gross": "Lordo",
@@ -602,7 +627,9 @@
     "item": "Articolo",
     "direction": "Direzione",
     "quantity": "Quantità",
-    "cost": "Costo"
+    "cost": "Costo",
+    "totalTips": "Totale mance",
+    "savedDistributions": "Distribuzioni salvate"
   },
   "production": {
     "batchNumber": "Lotto #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Nessun turno programmato per l'intervallo selezionato",
     "noTables": "Nessuna vendita al tavolo nel periodo selezionato.",
     "noActivity": "Nessuna voce di audit nel periodo selezionato.",
-    "noProducts": "Nessun prodotto trovato."
+    "noProducts": "Nessun prodotto trovato.",
+    "noRows": "Nessuna riga per l'intervallo selezionato.",
+    "noTips": "Nessuna mancia per i filtri selezionati.",
+    "noDataForFilters": "Nessun dato per i filtri selezionati",
+    "noCashClosing": "Nessuna chiusura di cassa per la data selezionata."
   },
   "sections": {
     "salesByOutlet": "Vendite per punto vendita"
   },
   "messages": {
-    "auditTruncated": "Vengono mostrate solo le ultime {{count}} voci. Restringi il periodo per vedere quelle precedenti."
+    "auditTruncated": "Vengono mostrate solo le ultime {{count}} voci. Restringi il periodo per vedere quelle precedenti.",
+    "productHourlyDisclaimer": "Questo report non include tasse, sconti, spese di servizio, extra e mance"
   }
 }

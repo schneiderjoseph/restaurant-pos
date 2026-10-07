@@ -123,9 +123,19 @@ export const Menu = () => {
       const orders = Array.isArray(rows) ? rows : [];
 
       setState(prev => {
-        const prevIds = prev.orders.map(order => order.id?.toString()).join(',');
-        const nextIds = orders.map(order => order.id?.toString()).join(',');
-        if (prevIds === nextIds) {
+        // Same ids can still mean changed items/totals/status (another till edited).
+        const fingerprint = (list: typeof orders) =>
+          list
+            .map((order) =>
+              [
+                order.id?.toString() ?? '',
+                order.updated_at?.toString?.() ?? String(order.updated_at ?? ''),
+                order.status ?? '',
+                (order.items ?? []).length,
+              ].join(':')
+            )
+            .join(',');
+        if (fingerprint(prev.orders) === fingerprint(orders)) {
           return prev;
         }
 

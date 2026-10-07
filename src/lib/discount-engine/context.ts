@@ -1,7 +1,7 @@
 import type { Order } from '@/api/model/order.ts'
 import type { OrderItem } from '@/api/model/order_item.ts'
 import type { MenuItem } from '@/api/model/cart_item.ts'
-import { calculateOrderItemPrice, calculateCartItemPrice } from '@/lib/cart.ts'
+import { calculateOrderItemPrice, calculateCartItemNetTotal } from '@/lib/cart.ts'
 import { getOrderFilteredItems } from '@/lib/order.ts'
 import type { EvaluationContext, EvaluableLineItem, AppliedDiscountLine } from '@/lib/discount-engine/types.ts'
 import type { OrderDiscount } from '@/api/model/order_discount.ts'
@@ -42,7 +42,7 @@ export const orderItemToEvaluable = (item: OrderItem): EvaluableLineItem => ({
 
 export const cartItemToEvaluable = (item: MenuItem, tempId: string): EvaluableLineItem => ({
   id: tempId,
-  lineTotal: calculateCartItemPrice(item),
+  lineTotal: calculateCartItemNetTotal(item),
   itemId: item.dish?.id?.toString(),
   categoryIds: getCartCategoryIds(item),
   quantity: item.quantity || 1,

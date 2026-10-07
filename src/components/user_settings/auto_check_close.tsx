@@ -108,9 +108,9 @@ export const AutoCheckCloseSettingsCard = () => {
       ...DEFAULT_AUTO_CHECK_CLOSE,
       ...(settings.values as AutoCheckCloseSettings),
     };
-    const selectedPaymentTypeId = String(
-      ((values.payment_type_id as {id?: unknown})?.id ?? values.payment_type_id ?? "")
-    );
+    const selectedPaymentTypeId = values.payment_type_id
+      ? toRecordId(values.payment_type_id).toString()
+      : "";
 
     const paymentOption = paymentTypeOptions.find(
       (opt) => opt.value === selectedPaymentTypeId

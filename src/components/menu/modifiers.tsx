@@ -139,6 +139,7 @@ export const MenuDishModifiers = (props: Props) => {
 
     if (
       group &&
+      (group.selectedModifiers?.length ?? 0) === 0 &&
       visibleModifiers.length === group.required_modifiers &&
       props.editing !== true &&
       group.should_auto_select
@@ -155,8 +156,8 @@ export const MenuDishModifiers = (props: Props) => {
             newOrOld: MenuItemType.new,
             category: state.category
               ? state.category.name
-              : (catalog.dish.categories.length === 1
-                ? catalog.dish.categories[0].name
+              : ((catalog.dish.categories ?? []).length === 1
+                ? (catalog.dish.categories ?? [])[0].name
                 : ''),
             category_id: state.category?.id?.toString(),
           },
@@ -166,7 +167,8 @@ export const MenuDishModifiers = (props: Props) => {
         );
       }
     }
-  }, [props.dish, group, state.seat, props.level, props.editing, visibleModifiers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seat changes must not re-auto-select
+  }, [props.dish, group, props.level, props.editing, visibleModifiers]);
 
   const buildModifiersObj = (
     dish: Dish,
@@ -184,7 +186,9 @@ export const MenuDishModifiers = (props: Props) => {
       level: props.level,
       selectedGroups: nestedGroups,
       newOrOld: MenuItemType.new,
-      category: state.category ? state.category?.name : (dish.categories.length === 1 ? dish.categories[0].name : ''),
+      category: state.category
+        ? state.category?.name
+        : ((dish.categories ?? []).length === 1 ? (dish.categories ?? [])[0].name : ''),
       category_id: state.category?.id?.toString(),
       isModifier: true,
       price: price,

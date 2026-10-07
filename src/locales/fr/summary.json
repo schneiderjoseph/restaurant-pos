@@ -166,5 +166,18 @@
       "amount": "Montant"
     },
     "empty": "Aucune répartition calculée pour le moment."
+  },
+  "print": {
+    "productMixTitle": "MIX PRODUITS ({{date}})",
+    "serverSalesTitle": "VENTES PAR SERVEUR ({{date}})",
+    "item": "Article",
+    "qty": "Qté",
+    "total": "Tot",
+    "grandTotal": "TOTAL",
+    "name": "Nom",
+    "time": "Durée",
+    "guests": "Cvts",
+    "checks": "Add.",
+    "sale": "Vente"
   }
 }

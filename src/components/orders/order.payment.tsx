@@ -43,7 +43,7 @@ import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
-import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
+import {nowInAppTimezone, nowSurrealDateTime, toJsDate, toLuxonDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
@@ -52,6 +52,7 @@ import {syncOrderPayments} from "@/lib/order-payment-sync.ts";
 import {formatTaxLabel} from "@/lib/tax-label.ts";
 import {collectOrderTaxRows, getExcludedTaxIds} from "@/lib/tax-calculator.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
+import {roundCurrency} from "@/lib/discount-engine/rounding.ts";
 
 interface Props {
   order: Order
@@ -274,7 +275,7 @@ export const OrderPayment = ({
     if (tipType === DiscountType.Fixed) {
       setTipAmount(tip);
     } else {
-      setTipAmount(itemsTotal * tip / 100);
+      setTipAmount(roundCurrency(itemsTotal * tip / 100));
     }
   }, [tip, itemsTotal, tipType]);
 
@@ -282,7 +283,7 @@ export const OrderPayment = ({
     if (serviceCharge) {
       setServiceChargeAmount(
         serviceChargeType === DiscountType.Percent ?
-          itemsTotal * serviceCharge / 100 :
+          roundCurrency(itemsTotal * serviceCharge / 100) :
           serviceCharge
       )
     } else {
@@ -425,7 +426,8 @@ export const OrderPayment = ({
 
       const dayMap: WeekDay[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
       if (Array.isArray(couponRecord.valid_days) && couponRecord.valid_days.length > 0) {
-        const today = dayMap[nowJs.getDay()];
+        // Day and time of the restaurant (app timezone), not of the tablet.
+        const today = dayMap[nowInAppTimezone().weekday % 7];
         if (!couponRecord.valid_days.includes(today)) {
           toast.error(t('coupon.errors.notValidToday'));
           return;
@@ -433,8 +435,8 @@ export const OrderPayment = ({
       }
 
       if (couponRecord.start_time || couponRecord.end_time) {
-        const [h, m] = nowJs.toTimeString().split(":").map(Number);
-        const currentMinutes = h * 60 + m;
+        const localNow = nowInAppTimezone();
+        const currentMinutes = localNow.hour * 60 + localNow.minute;
 
         const toMinutesFromField = (value: unknown) => {
           if (!value) return undefined;
@@ -443,9 +445,9 @@ export const OrderPayment = ({
             if (Number.isNaN(hh) || Number.isNaN(mm)) return undefined;
             return hh * 60 + mm;
           }
-          const d = toJsDate(value as any);
-          if (Number.isNaN(d.getTime())) return undefined;
-          return d.getHours() * 60 + d.getMinutes();
+          const d = toLuxonDateTime(value as any);
+          if (!d.isValid) return undefined;
+          return d.hour * 60 + d.minute;
         };
 
         const startMinutes = toMinutesFromField(couponRecord.start_time);

@@ -246,7 +246,7 @@ export const getStaffAccountabilityMetrics = async (
     row.checkCount += 1;
     row.netSales += calculateOrderNetSales(order);
 
-    const deletedItems = (order.items ?? []).filter(item => item?.deleted_at !== undefined);
+    const deletedItems = (order.items ?? []).filter(item => item?.deleted_at != null);
     row.deletedItemCount += deletedItems.length;
   });
 
@@ -267,13 +267,14 @@ export const getStaffAccountabilityMetrics = async (
     row.voidAmount += voidAmount;
   });
 
-  const discountByUser = aggregateOrderDiscountBreakdown(orders, "user");
-  discountByUser.forEach(entry => {
-    const match = Array.from(byUser.values()).find(row => row.userName === entry.name);
-    if (match) {
-      match.discountCount += entry.quantity;
-      match.discountAmount += entry.total;
-    }
+  // Per order, credited to that order's user by id (two staff can share a display name).
+  orders.forEach(order => {
+    const row = byUser.get(getUserId(order.user));
+    if (!row) return;
+    aggregateOrderDiscountBreakdown([order], "user").forEach(entry => {
+      row.discountCount += entry.quantity;
+      row.discountAmount += entry.total;
+    });
   });
 
   const allStaff = Array.from(byUser.values());

@@ -33,7 +33,10 @@
     "confirm": "Confirm"
   },
   "persons": {
-    "chooseCount": "Choose number of persons"
+    "chooseCount": "Choose number of persons",
+    "clear": "C",
+    "ok": "OK",
+    "enforcementCheckFailed": "Could not verify closing status. Try again."
   },
   "guest": {
     "title": "Guest",
@@ -113,7 +116,9 @@
     "closeMatches": "Close matches",
     "phoneCountry": "Country code",
     "phoneCountriesFrequent": "Frequent",
-    "phoneCountriesAll": "All countries"
+    "phoneCountriesAll": "All countries",
+    "codeUnavailable": "Could not generate a unique guest code. Try again.",
+    "matchLookupFailed": "Could not check for existing clients. Try again."
   },
   "outlets": {
     "all": "All"
@@ -181,6 +186,10 @@
       "passport": "Passport",
       "license": "Driving licence",
       "other": "Other"
-    }
+    },
+    "vip": "VIP"
+  },
+  "dishes": {
+    "slideOf": "Slide {{current}} of {{total}}"
   }
 }

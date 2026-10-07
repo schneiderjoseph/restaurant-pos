@@ -103,8 +103,11 @@ const buildBoardTickets = (orders: KitchenOrderModel[]): KitchenBoardTicket[] =>
   return orders.flatMap((group) => {
     const multiPart = isMultiPartGroup(group);
     const groupColor = multiPart ? colorByOrder.get(orderKey(group)) : undefined;
+    const liveBatches = group.batches.filter((batch) =>
+      batch.items.some((item) => !item.order_item?.deleted_at)
+    );
 
-    return group.batches.map((batch) => ({
+    return liveBatches.map((batch) => ({
       order: group.order,
       batch,
       isAddon: batchIsAddon(batch),
@@ -167,6 +170,7 @@ export const KitchenScreen = () => {
   const [recallingOrderKey, setRecallingOrderKey] = useState<string | null>(null);
   const loadOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadRequestRef = useRef(0);
+  const completedRequestRef = useRef(0);
   const activeKitchenIdRef = useRef<string | undefined>(undefined);
 
   const resolveFetchedOrder = (value: unknown): Order | undefined => {
@@ -188,7 +192,10 @@ export const KitchenScreen = () => {
     for (const item of records ?? []) {
       const order = resolveFetchedOrder(item.order_item?.order);
       const orderId = order?.id?.toString() ?? String(item.order_item?.order ?? '');
-      const createdAtKey = (item as any).batch_created_at ?? '';
+      // Milliseconds: same fire shares one stamped created_at; two fires in one second stay apart.
+      const createdAtKey = item.created_at
+        ? String(toLuxonDateTime(item.created_at).toMillis())
+        : String((item as any).batch_created_at ?? '');
       const batchKey = `${orderId}_${createdAtKey}`;
 
       if (!batches.has(batchKey)) {
@@ -259,6 +266,60 @@ export const KitchenScreen = () => {
     return nestBatchesByOrder(groupIntoBatches(records));
   }, [groupIntoBatches, nestBatchesByOrder]);
 
+  const calculateAverageTime = useCallback(async (kitchenId: string) => {
+    const startDate = getAppStartOfDaySurreal();
+    const maxPrepMinutes = 240;
+
+    const [rows]: any = await db.query(
+      `SELECT completed_at, activated_at, created_at
+       FROM ${Tables.order_items_kitchen}
+       WHERE kitchen = $kitchen
+         AND completed_at != None
+         AND created_at >= $startDate`,
+      {
+        kitchen: toRecordId(kitchenId),
+        startDate,
+      }
+    );
+
+    const durations: number[] = [];
+
+    for (const row of rows ?? []) {
+      const start = row.activated_at ?? row.created_at;
+      const end = row.completed_at;
+      if (!start || !end) {
+        continue;
+      }
+
+      const startAt = toLuxonDateTime(start);
+      const endAt = toLuxonDateTime(end);
+      if (!startAt.isValid || !endAt.isValid) {
+        continue;
+      }
+
+      const minutes = endAt.diff(startAt, 'minutes').minutes;
+      if (!Number.isFinite(minutes) || minutes < 0 || minutes > maxPrepMinutes) {
+        continue;
+      }
+
+      durations.push(minutes);
+    }
+
+    if (activeKitchenIdRef.current !== kitchenId) {
+      return;
+    }
+
+    if (durations.length === 0) {
+      setAvgTime('-');
+      return;
+    }
+
+    const averageMinutes = Math.round(
+      durations.reduce((sum, value) => sum + value, 0) / durations.length
+    );
+    setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
+  }, [t]);
+
   const loadOrders = useCallback(async (kitchenId: string) => {
     const request = ++loadRequestRef.current;
     const currentUser = page?.user?.id;
@@ -328,14 +389,14 @@ export const KitchenScreen = () => {
         }
       }
     }
-    if (request === loadRequestRef.current) {
+    if (request === loadRequestRef.current && activeKitchenIdRef.current === kitchenId) {
       setSplitIntoByOrder(splitInto);
+      await calculateAverageTime(kitchenId);
     }
-
-    await calculateAverageTime(kitchenId);
-  }, [groupKitchenOrderItems, page?.user?.id]);
+  }, [groupKitchenOrderItems, page?.user?.id, calculateAverageTime]);
 
   const loadCompletedOrders = useCallback(async (kitchenId: string) => {
+    const request = ++completedRequestRef.current;
     setLoadingCompletedOrders(true);
 
     try {
@@ -359,6 +420,10 @@ export const KitchenScreen = () => {
         dueItems
       });
 
+      if (request !== completedRequestRef.current || activeKitchenIdRef.current !== kitchenId) {
+        return;
+      }
+
       // Keep recall list at batch level (not nested by order).
       const tickets = groupIntoBatches(kitchenOrderItemsRecord ?? []);
       tickets.sort((a, b) => {
@@ -368,7 +433,9 @@ export const KitchenScreen = () => {
       });
       setCompletedOrders(tickets);
     } finally {
-      setLoadingCompletedOrders(false);
+      if (request === completedRequestRef.current) {
+        setLoadingCompletedOrders(false);
+      }
     }
   }, [groupIntoBatches, page?.user?.id]);
 
@@ -468,63 +535,19 @@ export const KitchenScreen = () => {
     };
   }, [kitchenId, loadOrders, scheduleLoadOrders]);
 
-  const calculateAverageTime = useCallback(async (kitchenId: string) => {
-    const startDate = getAppStartOfDaySurreal();
-    const maxPrepMinutes = 240;
-
-    const [rows]: any = await db.query(
-      `SELECT completed_at, activated_at, created_at
-       FROM ${Tables.order_items_kitchen}
-       WHERE kitchen = $kitchen
-         AND completed_at != None
-         AND created_at >= $startDate`,
-      {
-        kitchen: toRecordId(kitchenId),
-        startDate,
-      }
-    );
-
-    const durations: number[] = [];
-
-    for (const row of rows ?? []) {
-      const start = row.activated_at ?? row.created_at;
-      const end = row.completed_at;
-      if (!start || !end) {
-        continue;
-      }
-
-      const startAt = toLuxonDateTime(start);
-      const endAt = toLuxonDateTime(end);
-      if (!startAt.isValid || !endAt.isValid) {
-        continue;
-      }
-
-      const minutes = endAt.diff(startAt, 'minutes').minutes;
-      if (!Number.isFinite(minutes) || minutes < 0 || minutes > maxPrepMinutes) {
-        continue;
-      }
-
-      durations.push(minutes);
-    }
-
-    if (durations.length === 0) {
-      setAvgTime('-');
-      return;
-    }
-
-    const averageMinutes = Math.round(
-      durations.reduce((sum, value) => sum + value, 0) / durations.length
-    );
-    setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
-  }, [t]);
-
   const allDishes = useMemo(() => {
     const itemsMap = new Map();
     orders.forEach(group => {
       group.batches.forEach(batch => {
         batch.items.forEach(orderItem => {
-          const itemName = orderItem.order_item.item.name;
-          itemsMap.set(itemName, (itemsMap.get(itemName) ?? 0) + orderItem.order_item.quantity);
+          if (orderItem.order_item?.deleted_at) {
+            return;
+          }
+          const itemName = orderItem.order_item?.item?.name;
+          if (!itemName) {
+            return;
+          }
+          itemsMap.set(itemName, (itemsMap.get(itemName) ?? 0) + (orderItem.order_item?.quantity ?? 0));
         })
       });
     });

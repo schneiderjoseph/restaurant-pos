@@ -8,11 +8,12 @@ import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {formatNumber, toRecordId, withDualCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderDiscountTotal} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderDiscountTotal, getOrderExtrasTotal} from "@/lib/order.ts";
 import {
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
+import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
@@ -31,7 +32,31 @@ const safeNumber = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const getMetricAmount = (order: Order, metric: MetricKey) => {
+const taxIdsMatch = (left: unknown, right: unknown) => {
+  const a = recordIdToString(left);
+  const b = recordIdToString(right);
+  return Boolean(a && b && a === b);
+};
+
+const getFilteredTaxAmount = (order: Order, taxId: string) => {
+  if (!taxId) {
+    return getOrderTaxAmount(order);
+  }
+
+  const target = toRecordId(taxId.includes(":") ? taxId : `${Tables.taxes}:${taxId}`);
+  const junctionRows = (order.order_taxes ?? []).filter((row) => taxIdsMatch(row.tax, target));
+  if (junctionRows.length > 0) {
+    return junctionRows.reduce((sum, row) => sum + safeNumber(row.amount), 0);
+  }
+
+  if (taxIdsMatch(order.tax, target)) {
+    return getOrderTaxAmount(order);
+  }
+
+  return 0;
+};
+
+const getMetricAmount = (order: Order, metric: MetricKey, taxId = "") => {
   if (metric === "coupon_discount") {
     return safeNumber(order.coupon?.discount);
   }
@@ -39,12 +64,30 @@ const getMetricAmount = (order: Order, metric: MetricKey) => {
     return getOrderDiscountTotal(order);
   }
   if (metric === "tax_amount") {
-    return getOrderTaxAmount(order);
+    return getFilteredTaxAmount(order, taxId);
   }
   return safeNumber((order as any)?.[metric]);
 };
 
-const formatTaxPercent = (order: Order) => {
+const formatTaxPercent = (order: Order, taxId = "") => {
+  if (taxId) {
+    const target = toRecordId(taxId.includes(":") ? taxId : `${Tables.taxes}:${taxId}`);
+    const matchedRows = (order.order_taxes ?? []).filter((row) => taxIdsMatch(row.tax, target));
+    if (matchedRows.length > 0) {
+      return matchedRows.map((row) => {
+        const tax = typeof row.tax === "object" && row.tax !== null ? row.tax : null;
+        const rate = safeNumber(tax?.rate);
+        const name = tax?.name;
+        return name ? `${name} ${rate}%` : `${rate}%`;
+      }).join(", ");
+    }
+    if (taxIdsMatch(order.tax, target)) {
+      const legacyRate = safeNumber((order.tax as any)?.rate);
+      return legacyRate > 0 ? `${legacyRate}%` : "-";
+    }
+    return "-";
+  }
+
   const breakdown = getOrderTaxBreakdown(order);
   if (breakdown.length === 0) {
     const legacyRate = safeNumber((order.tax as any)?.rate);
@@ -57,7 +100,11 @@ const formatTaxPercent = (order: Order) => {
 };
 
 const calculateGross = (order: Order) => {
-  return getOrderFilteredItems(order).reduce((sum, item) => sum + safeNumber(calculateOrderItemPrice(item)), 0);
+  const itemsTotal = getOrderFilteredItems(order).reduce(
+    (sum, item) => sum + safeNumber(calculateOrderItemPrice(item)),
+    0,
+  );
+  return itemsTotal + getOrderExtrasTotal(order);
 };
 
 interface Props {
@@ -81,6 +128,8 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
   }, [db]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -103,12 +152,18 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         } else if (metric === "discount_amount") {
           conditions.push(`(discount != NONE OR (order_discounts != NONE AND array::len(order_discounts) > 0) OR coupon != NONE)`);
         } else {
-          conditions.push(`${metric} > 0`);
+          conditions.push(`(tax_amount > 0 OR (order_taxes != NONE AND array::len(order_taxes) > 0))`);
         }
 
         if (metric === "tax_amount" && filters.taxId) {
-          conditions.push(`tax = $taxId`);
-          params.taxId = toRecordId(filters.taxId.includes(":") ? filters.taxId : `${Tables.taxes}:${filters.taxId}`);
+          const taxIds = [filters.taxId];
+          const legacyTax = buildRecordInsideCondition("tax", taxIds, "taxIds");
+          const junctionTax = buildNestedRecordAnyCondition("order_taxes.tax", taxIds, "orderTax");
+          const parts = [legacyTax.condition, junctionTax.condition].filter(Boolean);
+          Object.assign(params, legacyTax.params, junctionTax.params);
+          if (parts.length > 0) {
+            conditions.push(`(${parts.join(" OR ")})`);
+          }
         }
 
         if (metric === "coupon_discount" && filters.couponId) {
@@ -131,28 +186,37 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.join(" AND ")}
           ORDER BY created_at DESC
-          FETCH user, cashier, coupon, coupon.coupon, tax, discount, items, items.taxes, items.tax_mode, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount
+          FETCH user, cashier, coupon, coupon.coupon, tax, discount, items, items.taxes, items.tax_mode, extras, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount
         `;
 
         const [result] = await queryRef.current(query, params);
-        setOrders((result || []) as Order[]);
+        if (!cancelled) {
+          setOrders((result || []) as Order[]);
+        }
       } catch (err) {
         console.error(`Failed to load ${title}`, err);
-        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     void fetchData();
-  }, [filters.couponId, filters.discountId, filters.endDate, filters.startDate, filters.taxId, metric, title]);
+    return () => {
+      cancelled = true;
+    };
+  }, [filters.couponId, filters.discountId, filters.endDate, filters.startDate, filters.taxId, metric, title, t]);
 
   const totalMetric = useMemo(() => {
-    return orders.reduce((sum, order) => sum + getMetricAmount(order, metric), 0);
-  }, [orders, metric]);
+    return orders.reduce((sum, order) => sum + getMetricAmount(order, metric, filters.taxId), 0);
+  }, [orders, metric, filters.taxId]);
 
   if (loading) {
-    return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading {title.toLowerCase()}...</div></ReportsLayout>;
+    return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.report')}</div></ReportsLayout>;
   }
   if (error) {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
@@ -164,14 +228,14 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         <div className="border rounded-lg p-4 bg-neutral-50">
           <div className="text-sm text-neutral-500">{t('categories.orders')}</div>
           <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
-          <div className="text-sm text-neutral-500 mt-2">Total {metricHeader.toLowerCase()}</div>
+          <div className="text-sm text-neutral-500 mt-2">{t('columns.total')} {metricHeader.toLowerCase()}</div>
           <div className="text-xl font-semibold">{withDualCurrency(totalMetric)}</div>
         </div>
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
             <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Created at</th>
+              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.createdAt')}</th>
               <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
               <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('metrics.cashier')}</th>
               <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('metrics.gross')}</th>
@@ -185,13 +249,13 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
             <tbody className="divide-y divide-neutral-100 bg-white">
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-neutral-500">No rows found for selected range.</td>
+                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-neutral-500">{t('empty.noRows')}</td>
               </tr>
             ) : orders.map((order) => {
               const gross = calculateGross(order);
-              const metricAmount = getMetricAmount(order, metric);
+              const metricAmount = getMetricAmount(order, metric, filters.taxId);
               const net = gross + getOrderTaxAmount(order) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
-                - getOrderDiscountTotal(order) - safeNumber(order.coupon?.discount);
+                - getOrderDiscountTotal(order);
               const cashierName = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim();
 
               return (
@@ -201,7 +265,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
                   <td className="py-3 px-3 text-sm text-neutral-700">{cashierName || "-"}</td>
                   <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(gross)}</td>
                   {metric === "tax_amount" && (
-                    <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order)}</td>
+                    <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order, filters.taxId)}</td>
                   )}
                   <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(metricAmount)}</td>
                   <td className="py-3 pr-6 text-right text-sm text-neutral-700">{withDualCurrency(net)}</td>

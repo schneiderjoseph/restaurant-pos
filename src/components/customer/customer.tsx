@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import { Input } from "@/components/common/input/input.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -63,6 +63,7 @@ export const Customers = ({
   const [page] = useAtom(appPage);
   const { can } = useModuleAccess();
   const [matches, setMatches] = useState<CustomerMatch[] | null>(null);
+  const searchRequestRef = useRef(0);
 
   // A name already listed is not the same person: registering it again is one tap away.
   const [exactCount, setExactCount] = useState(0);
@@ -81,6 +82,15 @@ export const Customers = ({
   }, [search]);
 
   const loadCustomers = async (term: string) => {
+    const request = ++searchRequestRef.current;
+    const apply = (rows: Customer[], exact = 0) => {
+      if (request !== searchRequestRef.current) {
+        return;
+      }
+      setExactCount(exact);
+      setCustomers(rows);
+    };
+
     // Hotel (ASI) mode: the same guests as the Client page — in-house, walk-in, local, or
     // carrying a staff note — listed without typing and filtered the same way, so a
     // checked-out guest never shows up here either.
@@ -99,11 +109,10 @@ export const Customers = ({
         );
         const guests = dropSupersededStays(Array.isArray(list) ? list : []);
         const found = searchGuests(guests, term);
-        setExactCount(found.exact.length);
-        setCustomers([...found.exact, ...found.close]);
+        apply([...found.exact, ...found.close], found.exact.length);
       } catch (error) {
         console.error('Customer list failed', error);
-        setCustomers([]);
+        apply([]);
       }
       return;
     }
@@ -113,10 +122,10 @@ export const Customers = ({
         const [list] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers} WHERE ${ACTIVE_CUSTOMER} ORDER BY name LIMIT 500`
         );
-        setCustomers(Array.isArray(list) ? list : []);
+        apply(Array.isArray(list) ? list : []);
       } catch (error) {
         console.error('Customer list failed', error);
-        setCustomers([]);
+        apply([]);
       }
       return;
     }
@@ -145,10 +154,10 @@ export const Customers = ({
         }
       );
 
-      setCustomers(Array.isArray(list) ? list : []);
+      apply(Array.isArray(list) ? list : []);
     } catch (error) {
       console.error('Customer search failed', error);
-      setCustomers([]);
+      apply([]);
     }
   }
 
@@ -181,46 +190,59 @@ export const Customers = ({
       return;
     }
 
-    // One ID document, one client: that client is attached.
-    if (normalizeIdDocument(newIdDocument)) {
-      // A failed duplicate check must not block the registration.
-      const existing = await findCustomerByIdDocument(db, newIdDocument).catch((error) => {
-        console.error("ID document lookup failed", error);
-        return undefined;
-      });
-      if (existing) {
-        toast.message(t("menu:guest.idDocumentExists", {
-          name: existing.name || existing.guest_code || "",
-        }));
-        await attachCustomer(existing);
-        return;
-      }
+    if (saving) {
+      return;
     }
-
-    // Same phone or same name is not the same person: staff choose.
-    if (!confirmed) {
-      const found = await findWalkInMatches(db, { name, phone: newPhone }).catch((error) => {
-        console.error("Walk-in match lookup failed", error);
-        return [] as CustomerMatch[];
-      });
-      if (found.length > 0) {
-        setMatches(found);
-        return;
-      }
-    }
-
     setSaving(true);
     try {
+      // One ID document, one client: that client is attached.
+      if (normalizeIdDocument(newIdDocument)) {
+        // A failed duplicate check must not block the registration.
+        const existing = await findCustomerByIdDocument(db, newIdDocument).catch((error) => {
+          console.error("ID document lookup failed", error);
+          return undefined;
+        });
+        if (existing) {
+          toast.message(t("menu:guest.idDocumentExists", {
+            name: existing.name || existing.guest_code || "",
+          }));
+          await attachCustomer(existing);
+          return;
+        }
+      }
+
+      // Same phone or same name is not the same person: staff choose.
+      if (!confirmed) {
+        let found: CustomerMatch[];
+        try {
+          found = await findWalkInMatches(db, { name, phone: newPhone });
+        } catch (error) {
+          console.error("Walk-in match lookup failed", error);
+          toast.error(t("menu:guest.matchLookupFailed"));
+          return;
+        }
+        if (found.length > 0) {
+          setMatches(found);
+          return;
+        }
+      }
+
       let guest_code = displayCode.trim().toUpperCase() || generateWalkInGuestCode(name);
+      let codeAvailable = false;
       for (let attempt = 0; attempt < 8; attempt += 1) {
         const [existing] = await db.query<Customer[]>(
           `SELECT * FROM ${Tables.customers} WHERE guest_code = $code LIMIT 1`,
           { code: guest_code }
         );
         if (!Array.isArray(existing) || !existing[0]) {
+          codeAvailable = true;
           break;
         }
         guest_code = generateWalkInGuestCode(name);
+      }
+      if (!codeAvailable) {
+        toast.error(t("menu:guest.codeUnavailable"));
+        return;
       }
 
       const created = await createWalkInCustomer(db, {
@@ -240,7 +262,9 @@ export const Customers = ({
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError
-          ? t("menu:guest.idDocumentTaken", { name: "" })
+          ? t("menu:guest.idDocumentTaken", {
+              name: error.holder?.name || error.holder?.guest_code || "",
+            })
           : t("menu:guest.createFailed"),
       );
     } finally {

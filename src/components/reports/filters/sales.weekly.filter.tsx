@@ -6,6 +6,7 @@ import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
 import {DateTime as SurrealDateTime} from 'surrealdb';
 import {Tables} from "@/api/db/tables.ts";
+import {getAppTimezone} from "@/lib/datetime.ts";
 
 interface WeekOption {
   label: string;
@@ -13,7 +14,8 @@ interface WeekOption {
 }
 
 const formatWeekLabel = (date: DateTime) => {
-  const start = date.startOf('week');
+  const zone = getAppTimezone();
+  const start = date.setZone(zone).startOf('week');
   const end = start.plus({days: 6});
   return `${start.toFormat('yyyy-LL-dd')} → ${end.toFormat('yyyy-LL-dd')}`;
 };
@@ -22,16 +24,17 @@ const parseCreatedAt = (value?: string | Date | null | SurrealDateTime) => {
   if (!value) {
     return null;
   }
+  const zone = getAppTimezone();
   if (typeof value === 'string') {
-    const parsed = DateTime.fromISO(value);
-    return parsed.isValid ? parsed : null;
+    const parsed = DateTime.fromISO(value, {zone});
+    return parsed.isValid ? parsed.setZone(zone) : null;
   }
 
   if(value instanceof SurrealDateTime){
     value = value.toDate();
   }
 
-  const parsed = DateTime.fromJSDate(value);
+  const parsed = DateTime.fromJSDate(value, {zone});
   return parsed.isValid ? parsed : null;
 };
 
@@ -64,8 +67,9 @@ export const SalesWeeklyFilter = () => {
 
         const firstOrderRecord = result?.[0]?.[0];
         const firstOrderDate = parseCreatedAt(firstOrderRecord?.created_at);
-        const start = firstOrderDate?.startOf('week') || DateTime.now().startOf('week');
-        const end = DateTime.now().startOf('week');
+        const zone = getAppTimezone();
+        const start = firstOrderDate?.setZone(zone).startOf('week') || DateTime.now().setZone(zone).startOf('week');
+        const end = DateTime.now().setZone(zone).startOf('week');
 
         const generatedWeeks: WeekOption[] = [];
         let current = start;
@@ -85,7 +89,7 @@ export const SalesWeeklyFilter = () => {
       } catch (err) {
         console.error("Failed to load weeks:", err);
         if (isMounted) {
-          setError("Unable to load weeks");
+          setError(t('filters.unableToLoadWeeks'));
         }
       } finally {
         if (isMounted) {
@@ -101,7 +105,7 @@ export const SalesWeeklyFilter = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [t]);
 
   const weekOptions = useMemo(() => {
     return weeks.map((week) => (
@@ -118,7 +122,7 @@ export const SalesWeeklyFilter = () => {
       target="_blank"
     >
       <div>
-        <label htmlFor="week-select">Select a week</label>
+        <label htmlFor="week-select">{t('filters.selectWeek')}</label>
         <select
           id="week-select"
           name="week"
@@ -129,11 +133,11 @@ export const SalesWeeklyFilter = () => {
           required
         >
           {!loading && !weeks.length && (
-            <option>No weeks available</option>
+            <option>{t('filters.noWeeksAvailable')}</option>
           )}
           {weekOptions}
         </select>
-        {loading && <p className="text-sm text-gray-500">Loading weeks...</p>}
+        {loading && <p className="text-sm text-gray-500">{t('filters.loadingWeeks')}</p>}
         {error && <p className="text-sm text-danger-600">{error}</p>}
       </div>
 

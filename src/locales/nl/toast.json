@@ -48,7 +48,10 @@
     "mapAreasSaveFailed": "Kaartgebieden opslaan mislukt"
   },
   "kitchen": {
-    "recallFailed": "Bestelling terughalen mislukt"
+    "recallFailed": "Bestelling terughalen mislukt",
+    "readyFailed": "Kon bestelling niet als klaar markeren",
+    "itemReadyFailed": "Kon artikel niet als klaar markeren",
+    "reprintFailed": "Kon keukenticket niet opnieuw afdrukken"
   },
   "closing": {
     "loadFailed": "Afsluiting laden mislukt",
@@ -136,7 +139,8 @@
     "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig",
     "outletSaved": "Verkooppunt {{name}} opgeslagen",
     "outletDeleted": "Verkooppunt {{name}} verwijderd",
-    "outletSuggestionsApplied": "{{count}} categorieën geclassificeerd"
+    "outletSuggestionsApplied": "{{count}} categorieën geclassificeerd",
+    "dishRelationsLoading": "Wacht tot de gerechtrelaties klaar zijn met laden"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",

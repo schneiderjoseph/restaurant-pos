@@ -237,7 +237,27 @@
       "charts": "Diagramme & Prognose",
       "analysis": "Analyse"
     },
-    "location": "Standort"
+    "location": "Standort",
+    "selectDate": "Datum auswählen",
+    "selectWeek": "Woche auswählen",
+    "week": "Woche",
+    "users": "Benutzer",
+    "taxFilter": "Steuerfilter",
+    "discountFilter": "Rabattfilter",
+    "withTax": "Mit Steuer",
+    "withoutTax": "Ohne Steuer",
+    "withDiscount": "Mit Rabatt",
+    "withoutDiscount": "Ohne Rabatt",
+    "paymentTypes": "Zahlungsarten",
+    "sortBy": "Ergebnisse sortieren nach",
+    "sortDirection": "Sortierrichtung",
+    "selectDiscountsOptional": "Bestimmte Rabatte auswählen (optional)",
+    "loadingWeeks": "Wochen werden geladen...",
+    "noWeeksAvailable": "Keine Wochen verfügbar",
+    "unableToLoadWeeks": "Wochen konnten nicht geladen werden",
+    "unableToLoadAreas": "Liefergebiete konnten nicht geladen werden",
+    "aiUsageUnavailable": "KI-Nutzung konnte nicht geprüft werden. Später erneut versuchen.",
+    "areas": "Gebiete"
   },
   "datePresets": {
     "today": "Heute",
@@ -381,7 +401,8 @@
     "outlet": "Verkaufsstelle",
     "authMethod": "Anmeldeart",
     "details": "Details",
-    "noTable": "Ohne Tisch"
+    "noTable": "Ohne Tisch",
+    "createdAt": "Erstellt am"
   },
   "labels": {
     "modifiers": "Modifikatoren",
@@ -562,7 +583,11 @@
     "saleByEmployees": "Verkauf nach Mitarbeitern",
     "expandAll": "Alle erweitern",
     "collapseAll": "Alle einklappen",
-    "unclassifiedOutlet": "Nicht klassifiziert"
+    "unclassifiedOutlet": "Nicht klassifiziert",
+    "allShifts": "Alle Schichten",
+    "allDates": "Alle Daten",
+    "selectedShift": "Ausgewählte Schicht",
+    "selectedDay": "Ausgewählter Tag"
   },
   "metrics": {
     "gross": "Brutto",
@@ -602,7 +627,9 @@
     "item": "Artikel",
     "direction": "Richtung",
     "quantity": "Menge",
-    "cost": "Kosten"
+    "cost": "Kosten",
+    "totalTips": "Trinkgeld gesamt",
+    "savedDistributions": "Gespeicherte Verteilungen"
   },
   "production": {
     "batchNumber": "Charge #",
@@ -663,12 +690,17 @@
     "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum",
     "noTables": "Keine Tischverkäufe im gewählten Zeitraum.",
     "noActivity": "Keine Audit-Einträge im gewählten Zeitraum.",
-    "noProducts": "Keine Produkte gefunden."
+    "noProducts": "Keine Produkte gefunden.",
+    "noRows": "Keine Zeilen für den ausgewählten Zeitraum.",
+    "noTips": "Keine Trinkgelder für die ausgewählten Filter.",
+    "noDataForFilters": "Keine Daten für die ausgewählten Filter",
+    "noCashClosing": "Kein Kassenschluss für das ausgewählte Datum."
   },
   "sections": {
     "salesByOutlet": "Verkäufe nach Verkaufsstelle"
   },
   "messages": {
-    "auditTruncated": "Nur die letzten {{count}} Einträge werden angezeigt. Grenzen Sie den Zeitraum ein, um ältere zu sehen."
+    "auditTruncated": "Nur die letzten {{count}} Einträge werden angezeigt. Grenzen Sie den Zeitraum ein, um ältere zu sehen.",
+    "productHourlyDisclaimer": "Dieser Bericht enthält keine Steuern, Rabatte, Servicegebühren, Extras und Trinkgelder"
   }
 }

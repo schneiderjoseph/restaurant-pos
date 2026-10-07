@@ -1,5 +1,5 @@
 import {Tables} from "@/api/db/tables.ts";
-import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {buildCreatedAtDateConditions, safeLimit, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
@@ -75,7 +75,7 @@ export const getActivityLog = async (
     SELECT * FROM ${Tables.tracking}
     ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
     ORDER BY created_at DESC
-    LIMIT ${limit}
+    LIMIT ${safeLimit(limit)}
   `;
 
   const rows = unwrapQueryResult<{

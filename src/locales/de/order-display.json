@@ -29,5 +29,6 @@
     "due": "Fällig",
     "elapsed": "Vergangen",
     "notes": "Notizen"
-  }
+  },
+  "markServedFailed": "Bestellung konnte nicht als serviert markiert werden"
 }

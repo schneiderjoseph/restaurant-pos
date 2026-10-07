@@ -63,14 +63,18 @@ export const CashClosingReport = () => {
     void fetchData();
   }, [selectedDate]);
 
-  const subtitle = selectedDate || "Selected day";
-  const openingBalance = Number(closing?.opening_balance || 0);
-  const totalCash = Number((closing?.terminal_cash || []).reduce((sum, item: any) => sum + Number(item?.cash_amount || 0), 0));
-  const totalOtherPayments = Number((closing?.payments_data || [])
+  const safeNumber = (value: unknown) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const subtitle = selectedDate || t('labels.selectedDay');
+  const openingBalance = safeNumber(closing?.opening_balance);
+  const totalCash = (closing?.terminal_cash || []).reduce((sum, item: any) => sum + safeNumber(item?.cash_amount), 0);
+  const totalOtherPayments = (closing?.payments_data || [])
     .filter((item: any) => String(item?.payment_type?.type || "").toLowerCase() !== "cash")
-    .reduce((sum, item: any) => sum + Number(item?.amount || 0), 0));
-  const totalExpenses = Number(closing?.expenses || 0);
-  const closingBalance = Number(closing?.closing_balance || 0);
+    .reduce((sum, item: any) => sum + safeNumber(item?.amount), 0);
+  const totalExpenses = safeNumber(closing?.expenses);
+  const closingBalance = safeNumber(closing?.closing_balance);
 
   if (loading) {
     return (
@@ -91,7 +95,7 @@ export const CashClosingReport = () => {
   if (!closing) {
     return (
       <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">No cash closing found for selected date.</div>
+        <div className="py-12 text-center text-neutral-500">{t('empty.noCashClosing')}</div>
       </ReportsLayout>
     );
   }

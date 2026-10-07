@@ -99,13 +99,19 @@ export const AdminTipDistribution = () => {
   const saveSettings = async () => {
     setSaving(true);
     try {
+      const hasNegativeWeight = [...roleRows, ...userRows].some((row) => Number(row.weight) < 0);
+      if (hasNegativeWeight) {
+        toast.error(t('forms.weightMustBeNonNegative'));
+        return;
+      }
+
       const payload: TipDistributionValues = {
         roles: roleRows
           .filter((row) => !!row.role_id)
-          .map((row) => ({ role_id: normalizeId(row.role_id), weight: Number(row.weight || 0) })),
+          .map((row) => ({ role_id: normalizeId(row.role_id), weight: Math.max(0, Number(row.weight || 0)) })),
         users: userRows
           .filter((row) => !!row.user_id)
-          .map((row) => ({ user_id: normalizeId(row.user_id), weight: Number(row.weight || 0) })),
+          .map((row) => ({ user_id: normalizeId(row.user_id), weight: Math.max(0, Number(row.weight || 0)) })),
       };
 
       if (settings?.id) {
@@ -189,9 +195,10 @@ export const AdminTipDistribution = () => {
                   onChange={(event) => {
                     setRoleRows(prev => prev.map((item, i) => i === index ? {
                       ...item,
-                      weight: Number(event.target.value || 0),
+                      weight: Math.max(0, Number(event.target.value || 0)),
                     } : item));
                   }}
+                  min={0}
                 />
               </div>
               {canDelete && (
@@ -271,9 +278,10 @@ export const AdminTipDistribution = () => {
                   onChange={(event) => {
                     setUserRows(prev => prev.map((item, i) => i === index ? {
                       ...item,
-                      weight: Number(event.target.value || 0),
+                      weight: Math.max(0, Number(event.target.value || 0)),
                     } : item));
                   }}
+                  min={0}
                 />
               </div>
               

@@ -79,11 +79,12 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
     allergies.some((item) => item.toLowerCase() === label.toLowerCase());
 
   const toggleAllergy = (label: string) => {
-    setAllergies((prev) =>
-      hasAllergy(label)
+    setAllergies((prev) => {
+      const exists = prev.some((item) => item.toLowerCase() === label.toLowerCase());
+      return exists
         ? prev.filter((item) => item.toLowerCase() !== label.toLowerCase())
-        : [...prev, label],
-    );
+        : [...prev, label];
+    });
   };
 
   const addAllergyDraft = () => {

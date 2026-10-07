@@ -29,8 +29,10 @@ export const DiscountPermissionMatrix = () => {
 
   const getPolicy = (roleId: string) =>
     policies.find(p => {
-      const pid = typeof p.user_role === 'string' ? p.user_role : p.user_role?.id
-      return pid === roleId
+      const pid = typeof p.user_role === 'string'
+        ? p.user_role
+        : p.user_role?.id?.toString()
+      return pid === roleId?.toString()
     })
 
   const savePolicy = async (role: UserRole, patch: Partial<RoleDiscountPolicy>) => {

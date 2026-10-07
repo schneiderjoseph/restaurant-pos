@@ -7,6 +7,7 @@ import {
   customerDiets,
   isBirthdayToday,
 } from '@/lib/customer-preferences.ts';
+import { nowInAppTimezone } from '@/lib/datetime.ts';
 import { cn } from '@/lib/utils.ts';
 
 interface Props {
@@ -27,7 +28,11 @@ export const CustomerAlerts = ({ customer, compact, hideNotes, className }: Prop
   const diets = customerDiets(customer);
   const seating = customer.seating_pref?.trim();
   const notes = hideNotes ? '' : customer.notes?.trim();
-  const birthday = isBirthdayToday(customer.birthday);
+  const appToday = nowInAppTimezone();
+  const birthday = isBirthdayToday(
+    customer.birthday,
+    new Date(appToday.year, appToday.month - 1, appToday.day),
+  );
   const vip = Boolean(customer.vip);
 
   if (!allergies.length && !diets.length && !seating && !notes && !birthday && !vip) {
@@ -52,7 +57,7 @@ export const CustomerAlerts = ({ customer, compact, hideNotes, className }: Prop
         ))}
         {vip && (
           <span className="rounded-md bg-warning-100 text-warning-800 px-2 py-0.5 text-sm font-semibold">
-            <FontAwesomeIcon icon={faCrown} className="mr-1" />VIP
+            <FontAwesomeIcon icon={faCrown} className="mr-1" />{t('customer.vip')}
           </span>
         )}
         {birthday && (
@@ -79,7 +84,7 @@ export const CustomerAlerts = ({ customer, compact, hideNotes, className }: Prop
         <div className="flex flex-wrap gap-2">
           {vip && (
             <span className="rounded-lg bg-warning-100 text-warning-800 px-3 py-1.5 font-semibold">
-              <FontAwesomeIcon icon={faCrown} className="mr-1" />VIP
+              <FontAwesomeIcon icon={faCrown} className="mr-1" />{t('customer.vip')}
             </span>
           )}
           {birthday && (

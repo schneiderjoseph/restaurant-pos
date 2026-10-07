@@ -166,5 +166,18 @@
       "amount": "Tutar"
     },
     "empty": "Henüz dağıtım hesaplanmadı."
+  },
+  "print": {
+    "productMixTitle": "ÜRÜN KARMASI ({{date}})",
+    "serverSalesTitle": "GARSON SATIŞLARI ({{date}})",
+    "item": "Ürün",
+    "qty": "Adet",
+    "total": "Top",
+    "grandTotal": "TOPLAM",
+    "name": "Ad",
+    "time": "Süre",
+    "guests": "Misafir",
+    "checks": "Hesap",
+    "sale": "Satış"
   }
 }

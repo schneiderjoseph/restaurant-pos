@@ -63,7 +63,7 @@ const getOrderSale = (order: OrderModel): number => {
   const extrasTotal = (order.extras || []).reduce((sum, extra) => sum + safeNumber(extra?.value), 0);
   const taxAmount = getOrderTaxAmount(order);
   const serviceAmount = safeNumber(order.service_charge_amount);
-  const discountAmount = safeNumber(order.discount_amount);
+  const discountAmount = safeNumber(order.discount_amount) + safeNumber(order.coupon?.discount);
   return safeNumber(itemsTotal + extrasTotal + taxAmount + serviceAmount - discountAmount);
 };
 
@@ -194,13 +194,13 @@ export const Summary = () => {
       }
 
       const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: `PRODUCT MIX REPORT (${date.toString()})`, align: 'CENTER', width: 1, style: 'B'}],
-        [{text: 'Item', align: 'LEFT', width: 0.30, style: 'B'}, {
-          text: 'Qty',
+        [{text: t('summary:print.productMixTitle', {date: date.toString()}), align: 'CENTER', width: 1, style: 'B'}],
+        [{text: t('summary:print.item'), align: 'LEFT', width: 0.30, style: 'B'}, {
+          text: t('summary:print.qty'),
           align: 'RIGHT',
           width: 0.18,
           style: 'B'
-        }, {text: 'Ttl', align: 'RIGHT', width: 0.23, style: 'B'}, {
+        }, {text: t('summary:print.total'), align: 'RIGHT', width: 0.23, style: 'B'}, {
           text: '%',
           align: 'RIGHT',
           width: 0.23,
@@ -216,7 +216,7 @@ export const Summary = () => {
           ];
         }),
         [{
-          text: 'TOTAL',
+          text: t('summary:print.grandTotal'),
           align: 'LEFT',
           width: 0.50,
           style: 'B'
@@ -313,18 +313,18 @@ export const Summary = () => {
       }), {durationMs: 0, guests: 0, checks: 0, sales: 0});
 
       const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: `SERVER SALES (${reportDate})`, align: 'CENTER', width: 1, style: 'B'}],
-        [{text: 'Name', align: 'LEFT', width: 0.22, style: 'B'}, {
-          text: 'Time',
+        [{text: t('summary:print.serverSalesTitle', {date: reportDate}), align: 'CENTER', width: 1, style: 'B'}],
+        [{text: t('summary:print.name'), align: 'LEFT', width: 0.22, style: 'B'}, {
+          text: t('summary:print.time'),
           align: 'RIGHT',
           width: 0.20,
           style: 'B'
-        }, {text: 'Gsts', align: 'RIGHT', width: 0.12, style: 'B'}, {
-          text: 'Chks',
+        }, {text: t('summary:print.guests'), align: 'RIGHT', width: 0.12, style: 'B'}, {
+          text: t('summary:print.checks'),
           align: 'RIGHT',
           width: 0.12,
           style: 'B'
-        }, {text: 'Sale', align: 'RIGHT', width: 0.22, style: 'B'}],
+        }, {text: t('summary:print.sale'), align: 'RIGHT', width: 0.22, style: 'B'}],
         ...rows.map((row) => ([
           {text: row.name, align: 'LEFT', width: 0.22},
           {text: formatDuration(row.durationMs), align: 'RIGHT', width: 0.20},
@@ -332,7 +332,7 @@ export const Summary = () => {
           {text: String(Math.round(row.checks)), align: 'RIGHT', width: 0.12},
           {text: formatNumber(row.sales), align: 'RIGHT', width: 0.22},
         ])),
-        [{text: 'TOTAL', align: 'LEFT', width: 0.22, style: 'B'}, {
+        [{text: t('summary:print.grandTotal'), align: 'LEFT', width: 0.22, style: 'B'}, {
           text: formatDuration(totals.durationMs),
           align: 'RIGHT',
           width: 0.20,

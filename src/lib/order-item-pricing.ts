@@ -104,8 +104,8 @@ const calculateStoredLineTax = (
   }
 
   const qty = safeNumber(quantity || 1);
-  const perUnit = calculateItemTax(netUnitBase, taxes, 'exclusive');
-  return Math.round(perUnit.total_tax * qty * 100) / 100;
+  // Rounded once on the line, like the payment tax (see tax-calculator).
+  return calculateItemTax(netUnitBase * qty, taxes, 'exclusive').total_tax;
 };
 
 /** Build persisted order_item pricing fields from a cart line. */

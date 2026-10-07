@@ -247,7 +247,7 @@ export class SyncOrchestrator {
       try {
         // Re-enqueue for retry — the provider's execute method handles this
         await this.db.merge(row.id, {
-          retry_count: (row.retryCount ?? 0) + 1,
+          retry_count: ((row as { retry_count?: number }).retry_count ?? 0) + 1,
           retriable: false, // Mark non-retriable until re-evaluated on next run
         });
         retried++;
@@ -270,6 +270,6 @@ export class SyncOrchestrator {
        GROUP ALL`,
       { providerId: this.providerId, tenantId }
     );
-    return (rows as any)?.count ?? 0;
+    return (rows as any)?.[0]?.count ?? 0;
   }
 }

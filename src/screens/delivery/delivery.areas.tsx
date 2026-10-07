@@ -313,7 +313,7 @@ interface DeliveryAreasEditorProps {
 }
 
 const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) => {
-  const { t } = useTranslation('delivery');
+  const { t } = useTranslation(['delivery', 'common']);
   const map = useMap();
   const overlaysRef = useRef<Set<EditableOverlay>>(new Set());
   const listenersRef = useRef<google.maps.MapsEventListener[]>([]);
@@ -919,7 +919,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
             }`}
             onClick={() => startDrawing("polygon")}
           >
-            Polygon
+            {t('map.drawPolygon')}
           </button>
           <button
             type="button"
@@ -931,7 +931,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
             }`}
             onClick={() => startDrawing("rectangle")}
           >
-            Rectangle
+            {t('map.drawRectangle')}
           </button>
           <button
             type="button"
@@ -943,21 +943,21 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
             }`}
             onClick={() => startDrawing("circle")}
           >
-            Circle
+            {t('map.drawCircle')}
           </button>
         </div>
 
         {drawingMode && (
           <div className="max-w-xs rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-600 shadow-sm">
             {drawingMode === "rectangle" && <p>{t('map.drawRectangleHint')}</p>}
-            {drawingMode === "circle" && <p>Click and drag from the center to set the radius.</p>}
+            {drawingMode === "circle" && <p>{t('map.drawCircleHint')}</p>}
             {drawingMode === "polygon" && <p>{t('map.drawPolygonHint')}</p>}
             <button
               type="button"
               className="mt-2 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
               onClick={cancelDrawing}
             >
-              Cancel
+              {t('common:actions.cancel')}
             </button>
           </div>
         )}
@@ -973,7 +973,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
         disabled={!hasSelectedOverlay}
         onClick={deleteSelectedOverlay}
       >
-        Delete selected
+        {t('map.deleteSelected')}
       </button>
     </>
   );

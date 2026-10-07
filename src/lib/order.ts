@@ -273,20 +273,38 @@ export const calculateOrderNetSales = (order: OrderModel): number => {
 
 const getTenderedAmount = (payment?: OrderPayment) => safeNumber(payment?.amount);
 
-/** Amount applied to the check (handles over-tender via payable). */
-const getAppliedAmount = (payment?: OrderPayment) => {
-  const amount = safeNumber(payment?.amount);
-  const payable = safeNumber(payment?.payable);
-  if (payable > 0 && amount > payable) {
-    return payable;
-  }
-  return amount;
-};
-
 const isCashPayment = (payment?: OrderPayment) => {
   const normalizedType = payment?.payment_type?.type?.toLowerCase()?.trim() ?? '';
   const normalizedName = payment?.payment_type?.name?.toLowerCase()?.trim() ?? '';
   return normalizedType === 'cash' || normalizedName === 'cash';
+};
+
+/**
+ * Amount each payment applied to the check, in payment order. Every payment row carries
+ * the order's payable; what was handed over beyond it is change, given back from the
+ * cash payments (latest first), so it is never counted as collected — also when the
+ * guest paid with several notes.
+ */
+export const getAppliedPaymentAmounts = (payments: Array<OrderPayment | null | undefined>): number[] => {
+  const applied = payments.map((payment) => safeNumber(payment?.amount));
+  const payable = Math.max(0, ...payments.map((payment) => safeNumber(payment?.payable)));
+  if (payable <= 0) {
+    return applied;
+  }
+  let change = applied.reduce((sum, amount) => sum + amount, 0) - payable;
+  for (let index = applied.length - 1; index >= 0 && change > 0; index -= 1) {
+    if (!isCashPayment(payments[index] ?? undefined)) continue;
+    const taken = Math.min(change, applied[index]);
+    applied[index] -= taken;
+    change -= taken;
+  }
+  // Over-tender with no cash payment (should not happen): cap the last payments instead.
+  for (let index = applied.length - 1; index >= 0 && change > 0; index -= 1) {
+    const taken = Math.min(change, applied[index]);
+    applied[index] -= taken;
+    change -= taken;
+  }
+  return applied.map(safeNumber);
 };
 
 export interface OrderPaymentTotals {
@@ -300,22 +318,22 @@ export interface OrderPaymentTotals {
 
 export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
   const payments = (order.payments ?? []).filter((payment) => payment != null);
+  const appliedAmounts = getAppliedPaymentAmounts(payments);
 
-  const nonCashBreakdown = payments.reduce((acc, payment) => {
+  const nonCashBreakdown = payments.reduce((acc, payment, index) => {
     if (isCashPayment(payment)) {
       return acc;
     }
     const label = payment?.payment_type?.name || 'Other';
-    const applied = getAppliedAmount(payment);
-    acc[label] = (acc[label] ?? 0) + applied;
+    acc[label] = (acc[label] ?? 0) + appliedAmounts[index];
     return acc;
   }, {} as Record<string, number>);
 
-  const cashAmount = payments.reduce((sum, payment) => {
+  const cashAmount = payments.reduce((sum, payment, index) => {
     if (!isCashPayment(payment)) {
       return sum;
     }
-    return sum + getAppliedAmount(payment);
+    return sum + appliedAmounts[index];
   }, 0);
 
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);

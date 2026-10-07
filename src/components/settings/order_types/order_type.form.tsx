@@ -45,7 +45,7 @@ export const OrderTypeForm = ({
     if( data ) {
       reset({
         ...data,
-        priority: data.priority.toString(),
+        priority: String(data.priority ?? ''),
       });
     }
   }, [data]);

@@ -78,7 +78,8 @@
     "totalWithTax": "Total avec {{label}}",
     "change": "Monnaie",
     "sc": "FS ({{value}} %)",
-    "extras": "Suppléments"
+    "extras": "Suppléments",
+    "payment": "Paiement"
   },
   "actions": {
     "selectToMerge": "Sélectionner pour fusionner",

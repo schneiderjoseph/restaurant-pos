@@ -402,7 +402,9 @@
     "extraModifierPrice": "Prezzo supplemento",
     "extraModifierPriceHint": "Un solo prezzo per ogni scelta a pagamento. Vuoto = il prezzo di ogni scelta.",
     "extraModifierPricePlaceholder": "Prezzo di ogni scelta",
-    "includedModifiersGroupHint": "Usato quando un piatto offre scelte di questo gruppo («Inclusi» sul piatto): quali sono offerte e quanto costano le successive."
+    "includedModifiersGroupHint": "Usato quando un piatto offre scelte di questo gruppo («Inclusi» sul piatto): quali sono offerte e quanto costano le successive.",
+    "maxRateGteMin": "La percentuale massima deve essere maggiore o uguale a quella minima",
+    "weightMustBeNonNegative": "I pesi devono essere maggiori o uguali a 0"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -951,6 +953,7 @@
       "average": "Scontrino medio",
       "lastVisit": "Ultima visita",
       "favorites": "Piatti preferiti"
-    }
+    },
+    "historyLoadFailed": "Impossibile caricare lo storico ordini del cliente"
   }
 }

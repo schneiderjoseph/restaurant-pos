@@ -23,7 +23,8 @@
     "rectangleTooSmall": "المستطيل صغير جداً. ارسم منطقة أكبر.",
     "circleTooSmall": "الدائرة صغيرة جداً. ارسم نصف قطراً أكبر.",
     "polygonTooSmall": "المضلع صغير جداً. ارسم محيطاً أكبر.",
-    "areasSaved": "تم حفظ مناطق الخريطة بنجاح"
+    "areasSaved": "تم حفظ مناطق الخريطة بنجاح",
+    "deleteSelected": "حذف المحدد"
   },
   "settings": {
     "title": "إعدادات التوصيل",
@@ -103,7 +104,27 @@
     "sentForDelivery": "تم إرسال الطلب {{invoice}} للتوصيل",
     "accepted": "تم قبول الطلب {{invoice}}",
     "riderAttached": "تم ربط السائق {{name}} بالطلب",
-    "rejected": "تم رفض الطلب {{invoice}}"
+    "rejected": "تم رفض الطلب {{invoice}}",
+    "title": "طلب توصيل - {{invoice}}",
+    "position": "الطلب {{current}} من {{total}}",
+    "noDeliveryAddress": "لم يتم توفير عنوان توصيل",
+    "itemsCount": "العناصر ({{count}})",
+    "loadingRiders": "جاري تحميل السائقين...",
+    "noRidersAvailable": "لا يوجد سائقون متاحون",
+    "orderedAt": "وقت الطلب: {{time}}",
+    "deliveryTimeLabel": "وقت التوصيل: {{time}}",
+    "asap": "في أقرب وقت",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "coordinates": "الإحداثيات",
+    "details": "تفاصيل الطلب",
+    "status": "الحالة:",
+    "created": "تاريخ الإنشاء:",
+    "discount": "الخصم:",
+    "coupon": "قسيمة",
+    "tax": "الضريبة:",
+    "serviceCharge": "رسوم الخدمة:",
+    "extras": "إضافات:"
   },
   "days": {
     "monday": "الاثنين",

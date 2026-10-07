@@ -5,7 +5,7 @@ import {useAtom, useAtomValue} from "jotai";
 import {appDuo, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {resolveOutlet} from "@/lib/outlet.ts";
 import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
-import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {calculateCartItemNetTotal} from "@/lib/cart.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -92,7 +92,7 @@ export const Payment = () => {
   const total = useMemo(() => {
     return state.cart.reduce((prev, item) => {
       if (!item.deleted_at) {
-        return prev + calculateCartItemPrice(item);
+        return prev + calculateCartItemNetTotal(item);
       }
 
       return prev;

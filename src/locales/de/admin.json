@@ -402,7 +402,9 @@
     "extraModifierPrice": "Aufpreis",
     "extraModifierPriceHint": "Ein Preis für jede bezahlte Auswahl. Leer = Preis der jeweiligen Auswahl.",
     "extraModifierPricePlaceholder": "Preis jeder Auswahl",
-    "includedModifiersGroupHint": "Gilt, wenn ein Gericht Auswahlen dieser Gruppe gratis gibt („Inklusive“ am Gericht): welche gratis sind und was weitere kosten."
+    "includedModifiersGroupHint": "Gilt, wenn ein Gericht Auswahlen dieser Gruppe gratis gibt („Inklusive“ am Gericht): welche gratis sind und was weitere kosten.",
+    "maxRateGteMin": "Der Höchstsatz muss größer oder gleich dem Mindestsatz sein",
+    "weightMustBeNonNegative": "Gewichte müssen größer oder gleich 0 sein"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -951,6 +953,7 @@
       "average": "Durchschnittsbon",
       "lastVisit": "Letzter Besuch",
       "favorites": "Lieblingsgerichte"
-    }
+    },
+    "historyLoadFailed": "Bestellverlauf des Kunden konnte nicht geladen werden"
   }
 }
