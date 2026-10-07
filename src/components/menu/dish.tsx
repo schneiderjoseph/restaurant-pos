@@ -241,7 +241,7 @@ export const MenuDish = ({
             '--padding': '0'
           } as any}
         >
-          <span className="absolute top-0 right-0 z-10 bg-neutral-900 text-white rounded-bl-xl rounded-tr-xl px-2.5 py-1 text-sm sm:text-base font-bold leading-none tabular-nums shadow-sm">
+          <span className={`absolute top-0 right-0 z-10 text-white rounded-bl-xl rounded-tr-xl px-2.5 py-1 text-sm sm:text-base font-bold leading-none tabular-nums shadow-sm ${Number(price) === 0 ? 'bg-danger-600' : 'bg-neutral-900'}`}>
             {withCurrency(price)}
           </span>
           {showDishPhotos && (
