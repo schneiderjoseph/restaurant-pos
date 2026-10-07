@@ -10,4 +10,8 @@ export interface DishModifierGroup extends ID{
   has_required_modifiers?: boolean
   should_auto_select?: boolean
   priority?: number
+  /** Choices this dish gives free; the next ones are charged. Unset / 0 = off. */
+  included_modifiers?: number | null
+  /** The most choices allowed when `included_modifiers` is set. Unset / 0 = no limit. */
+  max_modifiers?: number | null
 }

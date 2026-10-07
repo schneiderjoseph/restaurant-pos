@@ -15,6 +15,7 @@ import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
+import {orderSellers} from "@/lib/duo.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
@@ -51,6 +52,9 @@ const getUserDisplayName = (user: unknown, unknownLabel: string): string => {
   const last = (u.last_name || '').trim();
   return [first, last].filter(Boolean).join(' ') || u.name || u.login || unknownLabel;
 };
+
+/** Orders of the day, with the duo that worked each one (its two servers named in Server sales). */
+const SUMMARY_ORDER_FETCHES = [...ORDER_FETCHES, 'duo', 'duo.inviter', 'duo.partner'];
 
 const getOrderSale = (order: OrderModel): number => {
   const itemsTotal = (getOrderFilteredItems(order) || []).reduce((sum, item) => {
@@ -111,7 +115,7 @@ export const Summary = () => {
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), 99999, 0, ['created_at desc'],
-    ORDER_FETCHES
+    SUMMARY_ORDER_FETCHES
   );
 
   useEffect(() => {
@@ -283,12 +287,16 @@ export const Summary = () => {
       });
 
       // Every paid order counts, even when its server never clocked in, so the total matches the day.
+      // A duo's order counts for each of the two by the lines they added.
       (orders || []).forEach((order) => {
-        const row = ensureRow(order.user);
-        if (!row) return;
-        row.checks += 1;
-        row.guests += safeNumber(order.covers);
-        row.sales += getOrderSale(order);
+        const sale = getOrderSale(order);
+        orderSellers(order).forEach(({user, share}) => {
+          const row = ensureRow(user);
+          if (!row) return;
+          row.checks += share;
+          row.guests += safeNumber(order.covers) * share;
+          row.sales += sale * share;
+        });
       });
 
       const rows = Array.from(perUser.values()).sort((a, b) => b.sales - a.sales);

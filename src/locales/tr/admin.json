@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "Satış noktası önerilerini uygula",
     "applyOutletSuggestionsConfirm": "{{count}} kategori sınıflandırılacak",
     "outletColor": "Renk",
-    "noOutlets": "Henüz satış noktası yok"
+    "noOutlets": "Henüz satış noktası yok",
+    "includedModifiers": "Dahil (ücretsiz)",
+    "includedModifiersHint": "Bu yemeğin ücretsiz verdiği seçimler. Sonrakiler ücretlidir. Boş = kapalı.",
+    "maxModifiers": "Maks. seçim",
+    "maxModifiersHint": "Ücretsiz ve ücretli en fazla seçim. Boş = sınırsız.",
+    "maxModifiersTooLow": "En az dahil ve zorunlu sayı kadar olmalı",
+    "freeModifierRule": "Ücretsiz seçimler",
+    "freeModifierRules": {
+      "first": "İlk seçilenler",
+      "cheapest": "En ucuzlar",
+      "most_expensive": "En pahalılar"
+    },
+    "extraModifierPrice": "Ek ücret",
+    "extraModifierPriceHint": "Her ücretli seçim için tek fiyat. Boş = her seçimin kendi fiyatı.",
+    "extraModifierPricePlaceholder": "Her seçimin fiyatı",
+    "includedModifiersGroupHint": "Bir yemek bu gruptan ücretsiz seçim verdiğinde kullanılır (yemekte “Dahil”): hangileri ücretsiz ve sonrakiler ne kadar."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -409,7 +424,8 @@
     "cost": "Maliyet",
     "priceLocked": "Fiyat kilitli",
     "lineTotal": "Satır toplamı",
-    "totalRecipeCost": "Toplam reçete maliyeti: {{amount}}"
+    "totalRecipeCost": "Toplam reçete maliyeti: {{amount}}",
+    "includedCount": "Dahil: {{value}} · maks {{max}}"
   },
   "users": {
     "manageTabs": "Kullanıcı sekmelerini yönet"

@@ -1,4 +1,4 @@
-﻿{
+{
   "removeSelectedConfirm": "¿Quitar los artículos seleccionados de este pedido?",
   "seats": {
     "seat": "Asiento",
@@ -28,5 +28,9 @@
       "allergy": "Alergia",
       "immediate": "Inmediato"
     }
+  },
+  "group": {
+    "unfold": "Ver cada plato",
+    "fold": "Plegar"
   }
 }

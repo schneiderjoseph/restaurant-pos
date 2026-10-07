@@ -412,7 +412,22 @@
     "roleCanReceivePayment": "Peut recevoir le paiement",
     "rolePaymentTypes": "Types de paiement acceptés",
     "rolePaymentTypesHint": "Aucun type coché = tous les types.",
-    "roleCannotReceivePayment": "Ce rôle ne peut pas encaisser : les boutons de paiement sont masqués pour lui."
+    "roleCannotReceivePayment": "Ce rôle ne peut pas encaisser : les boutons de paiement sont masqués pour lui.",
+    "includedModifiers": "Inclus (gratuits)",
+    "includedModifiersHint": "Choix offerts avec ce plat. Les suivants sont payants. Vide = désactivé.",
+    "maxModifiers": "Choix max",
+    "maxModifiersHint": "Le nombre maximum de choix, gratuits et payants. Vide = sans limite.",
+    "maxModifiersTooLow": "Doit être au moins égal aux nombres inclus et obligatoire",
+    "freeModifierRule": "Choix offerts",
+    "freeModifierRules": {
+      "first": "Les premiers choisis",
+      "cheapest": "Les moins chers",
+      "most_expensive": "Les plus chers"
+    },
+    "extraModifierPrice": "Prix du supplément",
+    "extraModifierPriceHint": "Un seul prix pour chaque choix payant. Vide = le prix de chaque choix.",
+    "extraModifierPricePlaceholder": "Prix de chaque choix",
+    "includedModifiersGroupHint": "Utilisé quand un plat offre des choix de ce groupe (« Inclus » sur le plat) : lesquels sont offerts, et combien coûtent les suivants."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -434,7 +449,8 @@
     "cost": "Coût",
     "priceLocked": "Prix verrouillé",
     "lineTotal": "Total ligne",
-    "totalRecipeCost": "Coût total de la recette : {{amount}}"
+    "totalRecipeCost": "Coût total de la recette : {{amount}}",
+    "includedCount": "Inclus : {{value}} · max {{max}}"
   },
   "users": {
     "manageTabs": "Gérer les onglets utilisateurs"

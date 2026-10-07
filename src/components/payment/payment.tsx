@@ -1,8 +1,8 @@
 import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faClock, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {useAtom} from "jotai";
-import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {useAtom, useAtomValue} from "jotai";
+import {appDuo, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {resolveOutlet} from "@/lib/outlet.ts";
 import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
@@ -47,7 +47,8 @@ import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {orderIdToString} from "@/store/order-edit-session.ts";
 import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
-import {createOrderEditRequest, diffSentLines, sentItemsEditMode} from "@/lib/order-edit-request.ts";
+import {createOrderEditRequest, diffSentLines, refKey, sentItemsEditMode} from "@/lib/order-edit-request.ts";
+import {duoMemberIds} from "@/lib/duo.ts";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast", "kitchen", "menu"]);
@@ -57,6 +58,7 @@ export const Payment = () => {
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const duo = useAtomValue(appDuo);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const {can} = useModuleAccess();
 
@@ -401,6 +403,21 @@ export const Payment = () => {
         table: state?.table?.id ? toRecordId(state.table.id) : null,
         user: page?.user?.id ? toRecordId(page.user.id) : null,
       };
+
+      // In a duo, the order is the duo's: its lines count for whichever of the two added them.
+      // An order of the partner stays theirs when this user changes it.
+      if (duo) {
+        const members = duoMemberIds(duo);
+        const [storedOwner] = isNewOrder
+          ? [null]
+          : await db.query(`SELECT VALUE user FROM ONLY $id`, {id: toRecordId(state?.order?.id)});
+        if (isNewOrder || members.includes(refKey(storedOwner))) {
+          data.duo = toRecordId(refKey(duo));
+          if (!isNewOrder) {
+            data.user = storedOwner;
+          }
+        }
+      }
 
       // Required field: on an existing order with no type in state, keep the stored one.
       if (state?.orderType?.id) {

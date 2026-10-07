@@ -27,7 +27,10 @@
   "modifiers": {
     "modifyTitle": "Modifica {{name}}",
     "cancel": "Annulla",
-    "replacedWarning": "L'ultimo modificatore è stato sostituito. Per sostituirne un altro, rimuovilo dalla barra laterale destra e selezionalo di nuovo."
+    "replacedWarning": "L'ultimo modificatore è stato sostituito. Per sostituirne un altro, rimuovilo dalla barra laterale destra e selezionalo di nuovo.",
+    "included": "incl.",
+    "includedCount": "{{count}} · {{included}} incl.",
+    "confirm": "Conferma"
   },
   "persons": {
     "chooseCount": "Scegli il numero di coperti"

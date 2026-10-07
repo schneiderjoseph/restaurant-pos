@@ -40,6 +40,7 @@ import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
 import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {useOrderVisibility} from "@/hooks/useOrderVisibility.ts";
+import {useDuoUserIds} from "@/hooks/useDuoUserIds.ts";
 import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/model/order_visibility.ts";
 import {kitchenReadyOrderIds} from "@/lib/order-display.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
@@ -80,11 +81,11 @@ export const Orders = () => {
   const [, setAlert] = useAtom(appAlert);
   const [app,] = useAtom(appPage);
   // With "own orders only" on (Manage → General settings), a role without this grant sees
-  // only the orders its user opened.
+  // only the orders its user opened, and those of their duo partner.
   const {can} = useModuleAccess();
   const {ownOrdersOnly} = useOrderVisibility();
   const seesAllOrders = seesAllOrdersFor(ownOrdersOnly, can(SEES_ALL_ORDERS_MODULE));
-  const currentUserId = app?.user?.id?.toString();
+  const duoUserKey = useDuoUserIds().join('|');
 
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
@@ -132,8 +133,8 @@ export const Orders = () => {
         f.push(`(${userFilters.join(' or ')})`);
       }
     } else {
-      f.push(`user = $currentUser`);
-      params.currentUser = currentUserId ? toRecordId(currentUserId) : null;
+      f.push(`user IN $visibleUsers`);
+      params.visibleUsers = duoUserKey ? duoUserKey.split("|").map(id => toRecordId(id)) : [];
     }
 
     selectedOrderFilters?.statuses?.forEach(status => {
@@ -175,7 +176,7 @@ export const Orders = () => {
     }
 
     return {orderFilters: f, orderFilterParams: params};
-  }, [selectedOrderFilters, date, seesAllOrders, currentUserId]);
+  }, [selectedOrderFilters, date, seesAllOrders, duoUserKey]);
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), ORDERS_LIST_LIMIT, 0, ['created_at desc'],

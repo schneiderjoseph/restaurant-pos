@@ -27,7 +27,10 @@
   "modifiers": {
     "modifyTitle": "{{name}} aanpassen",
     "cancel": "Annuleren",
-    "replacedWarning": "Laatste modifier is vervangen. Om een andere modifier te vervangen, verwijder deze uit de rechterzijbalk en kies opnieuw."
+    "replacedWarning": "Laatste modifier is vervangen. Om een andere modifier te vervangen, verwijder deze uit de rechterzijbalk en kies opnieuw.",
+    "included": "incl.",
+    "includedCount": "{{count}} · {{included}} incl.",
+    "confirm": "Bevestigen"
   },
   "persons": {
     "chooseCount": "Kies aantal personen"

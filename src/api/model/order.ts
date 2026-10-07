@@ -12,6 +12,7 @@ import { OrderCoupon } from "@/api/model/order_coupon.ts";
 import { OrderDiscount } from "@/api/model/order_discount.ts";
 import { OrderTax } from "@/api/model/order_tax.ts";
 import { DateTime } from "surrealdb";
+import type { Duo } from "@/api/model/duo.ts";
 import { buildModifierFetches, MODIFIER_FETCH_DEPTH } from '@/api/model/order_fetches.ts';
 
 export interface Order extends ID{
@@ -53,6 +54,8 @@ export interface Order extends ID{
 
   user: User
   cashier?: User
+  /** Duo that worked this order: its lines count for whoever added them, its tip is split (src/lib/duo.ts). */
+  duo?: Duo | unknown
   tags?: string[]
 
   delivery?: any

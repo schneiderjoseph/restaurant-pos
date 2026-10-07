@@ -27,7 +27,10 @@
   "modifiers": {
     "modifyTitle": "Modify {{name}}",
     "cancel": "Cancel",
-    "replacedWarning": "Last modifier is replaced, to replace any other modifier remove it from right sidebar and choose again."
+    "replacedWarning": "Last modifier is replaced, to replace any other modifier remove it from right sidebar and choose again.",
+    "included": "incl.",
+    "includedCount": "{{count}} · {{included}} incl.",
+    "confirm": "Confirm"
   },
   "persons": {
     "chooseCount": "Choose number of persons"

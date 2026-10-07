@@ -439,7 +439,7 @@ export function syncSelectedModifierPrices(
     (group.modifiers ?? []).map((m) => [getCatalogModifierKey(m), m])
   );
 
-  return {
+  return applyIncludedModifierPricing({
     ...group,
     catalogCustomized: true,
     selectedModifiers: (group.selectedModifiers ?? []).map((selected) => {
@@ -451,9 +451,10 @@ export function syncSelectedModifierPrices(
       return {
         ...selected,
         price: catalog.price,
+        listPrice: catalog.price,
       };
     }),
-  };
+  });
 }
 
 export function resetCartModifierGroupCatalog(
@@ -494,18 +495,101 @@ export function resolveGroupInList(
   return groups.find((g) => isSameGroupInstance(g, group)) ?? group;
 }
 
-export function isGroupRequirementMet(grp: CartModifierGroup): boolean {
-  if (!grp.has_required_modifiers) {
-    return true;
+const positiveInt = (value: unknown): number => {
+  const n = Math.floor(Number(value));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+/** The dish gives some choices of this group free and charges the next ones. */
+export function hasIncludedModifiers(grp: DishModifierGroup): boolean {
+  return positiveInt(grp.included_modifiers) > 0;
+}
+
+/** The most choices the group takes, or undefined for no limit. */
+export function getGroupMaxModifiers(grp: DishModifierGroup): number | undefined {
+  if (hasIncludedModifiers(grp)) {
+    const max = positiveInt(grp.max_modifiers);
+    return max > 0 ? max : undefined;
   }
 
-  return (grp.selectedModifiers?.length ?? 0) >= (grp.required_modifiers ?? 0);
+  return grp.has_required_modifiers ? (grp.required_modifiers ?? 0) : undefined;
+}
+
+/**
+ * Choices after which the group is done: the picker moves on, and closes once every group is.
+ * A group with included choices is done at its free count (more can still be added, charged).
+ */
+export function getGroupFillTarget(grp: DishModifierGroup): number {
+  const required = grp.has_required_modifiers ? positiveInt(grp.required_modifiers) : 0;
+
+  if (!hasIncludedModifiers(grp)) {
+    return required;
+  }
+
+  const target = Math.max(required, positiveInt(grp.included_modifiers));
+  const max = getGroupMaxModifiers(grp);
+
+  return max !== undefined ? Math.min(target, max) : target;
+}
+
+export function isGroupFilled(grp: CartModifierGroup): boolean {
+  return (grp.selectedModifiers?.length ?? 0) >= getGroupFillTarget(grp);
+}
+
+/** Neither required nor with included choices: never closes the picker by itself. */
+export function isOptionalGroup(grp: DishModifierGroup): boolean {
+  return !grp.has_required_modifiers && !hasIncludedModifiers(grp);
+}
+
+const finiteOrUndefined = (value: unknown): number | undefined => {
+  if (value === null || value === undefined || value === '') {
+    return undefined;
+  }
+  const n = Number(value);
+  return Number.isFinite(n) ? n : undefined;
+};
+
+/**
+ * Prices a group's choices from the dish's included count: the free ones go to 0, the rest
+ * cost the group's extra price, else their own. Which ones are free follows the group's rule.
+ * A group without included choices is returned untouched.
+ */
+export function applyIncludedModifierPricing(grp: CartModifierGroup): CartModifierGroup {
+  if (!hasIncludedModifiers(grp)) {
+    return grp;
+  }
+
+  const selected = grp.selectedModifiers ?? [];
+  const included = positiveInt(grp.included_modifiers);
+  const fixedPrice = finiteOrUndefined(grp.out?.extra_modifier_price);
+  const charges = selected.map((modifier) =>
+    fixedPrice ?? finiteOrUndefined(modifier.listPrice) ?? finiteOrUndefined(modifier.price) ?? 0
+  );
+
+  const order = selected.map((_, index) => index);
+  const rule = grp.out?.free_modifier_rule;
+  if (rule === 'cheapest') {
+    order.sort((a, b) => charges[a] - charges[b] || a - b);
+  } else if (rule === 'most_expensive') {
+    order.sort((a, b) => charges[b] - charges[a] || a - b);
+  }
+  const free = new Set(order.slice(0, included));
+
+  return {
+    ...grp,
+    selectedModifiers: selected.map((modifier, index) => ({
+      ...modifier,
+      listPrice: finiteOrUndefined(modifier.listPrice) ?? finiteOrUndefined(modifier.price) ?? 0,
+      price: free.has(index) ? 0 : charges[index],
+      includedModifier: free.has(index),
+    })),
+  };
 }
 
 export function shouldAdvanceFromGroup(grp: CartModifierGroup): boolean {
   return (
-    isGroupRequirementMet(grp) ||
-    (Boolean(grp.should_auto_open) && !grp.has_required_modifiers)
+    isGroupFilled(grp) ||
+    (Boolean(grp.should_auto_open) && isOptionalGroup(grp))
   );
 }
 
@@ -527,11 +611,19 @@ export function findNextActiveGroup(
     return incompleteRequired;
   }
 
+  const unfilledIncluded = groups.find(
+    (item) => isNotCurrent(item) && hasIncludedModifiers(item) && !isGroupFilled(item)
+  );
+
+  if (unfilledIncluded) {
+    return unfilledIncluded;
+  }
+
   return groups.find(
     (item) =>
       isNotCurrent(item) &&
       Boolean(item.should_auto_open) &&
-      !item.has_required_modifiers
+      isOptionalGroup(item)
   );
 }
 

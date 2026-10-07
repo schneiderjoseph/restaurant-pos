@@ -1,4 +1,4 @@
-﻿{
+{
   "removeSelectedConfirm": "Geselecteerde artikelen uit deze bestelling verwijderen?",
   "seats": {
     "seat": "Stoel",
@@ -28,5 +28,9 @@
       "allergy": "Allergie",
       "immediate": "Direct"
     }
+  },
+  "group": {
+    "unfold": "Elk bord tonen",
+    "fold": "Inklappen"
   }
 }

@@ -29,6 +29,11 @@ import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import {
+  includedModifiersRelateSet,
+  isMaxModifiersValid,
+  optionalCountSchema,
+} from "@/components/settings/dishes/included-modifiers.ts";
 
 interface Props {
   open: boolean
@@ -60,6 +65,14 @@ const validationSchema = yup.object({
     }),
     should_auto_open: yup.boolean(),
     should_auto_select: yup.boolean(),
+    included_modifiers: optionalCountSchema(),
+    max_modifiers: optionalCountSchema().test(
+      'max-covers-included',
+      i18n.t('admin:forms.maxModifiersTooLow'),
+      function (max) {
+        return isMaxModifiersValid(this.parent, max);
+      }
+    ),
     priority: yup.string().required(i18n.t('validation:required')),
   })),
 });
@@ -175,6 +188,8 @@ export const DishForm = ({
       required_modifiers: item.required_modifiers,
       should_auto_select: item.should_auto_select,
       should_auto_open: item.should_auto_open,
+      included_modifiers: item.included_modifiers ?? null,
+      max_modifiers: item.max_modifiers ?? null,
       priority: item.priority
     })));
   }
@@ -303,12 +318,14 @@ export const DishForm = ({
         await db.query(`DELETE ${menuId}->${Tables.dish_modifier_groups} where in = ${menuId}`);
 
         for (const modifierGroup of formData.modifier_groups) {
-          await db.query(`RELATE ${menuId}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value} set has_required_modifiers = $has_required_modifiers, should_auto_open = $should_auto_open, required_modifiers = $required_modifiers, should_auto_select = $should_auto_select, priority = $priority`, {
+          const included = includedModifiersRelateSet(modifierGroup);
+          await db.query(`RELATE ${menuId}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value} set has_required_modifiers = $has_required_modifiers, should_auto_open = $should_auto_open, required_modifiers = $required_modifiers, should_auto_select = $should_auto_select, priority = $priority${included.sql}`, {
             has_required_modifiers: modifierGroup.has_required_modifiers,
             should_auto_open: modifierGroup.should_auto_open,
             required_modifiers: modifierGroup.required_modifiers,
             should_auto_select: modifierGroup.should_auto_select,
-            priority: Number(modifierGroup.priority ?? 0)
+            priority: Number(modifierGroup.priority ?? 0),
+            ...included.bindings,
           });
         }
       }
@@ -627,6 +644,35 @@ export const DishForm = ({
                           label={t('forms.requiredModifiers')}
                           disabled={!toggleRequiredField(index)}
                           error={get(errors, ['modifier_groups', index, 'required_modifiers', 'message'])}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Controller
+                      name={`modifier_groups.${index}.included_modifiers`}
+                      control={control}
+                      render={({field}) => (
+                        <Input
+                          type="number" min={0} value={field.value ?? ''} onChange={field.onChange}
+                          label={t('forms.includedModifiers')}
+                          title={t('forms.includedModifiersHint')}
+                          error={get(errors, ['modifier_groups', index, 'included_modifiers', 'message'])}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Controller
+                      name={`modifier_groups.${index}.max_modifiers`}
+                      control={control}
+                      render={({field}) => (
+                        <Input
+                          type="number" min={0} value={field.value ?? ''} onChange={field.onChange}
+                          label={t('forms.maxModifiers')}
+                          title={t('forms.maxModifiersHint')}
+                          disabled={!Number(watch(`modifier_groups.${index}.included_modifiers`))}
+                          error={get(errors, ['modifier_groups', index, 'max_modifiers', 'message'])}
                         />
                       )}
                     />

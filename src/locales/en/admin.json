@@ -412,7 +412,22 @@
     "roleCanReceivePayment": "Can receive payment",
     "rolePaymentTypes": "Accepted payment types",
     "rolePaymentTypesHint": "No type ticked = every type.",
-    "roleCannotReceivePayment": "This role cannot take payment: the payment buttons are hidden for it."
+    "roleCannotReceivePayment": "This role cannot take payment: the payment buttons are hidden for it.",
+    "includedModifiers": "Included (free)",
+    "includedModifiersHint": "Choices this dish gives free. The next ones are charged. Empty = off.",
+    "maxModifiers": "Max choices",
+    "maxModifiersHint": "The most choices allowed, free and paid. Empty = no limit.",
+    "maxModifiersTooLow": "Must be at least the included and required counts",
+    "freeModifierRule": "Free choices",
+    "freeModifierRules": {
+      "first": "The first ones picked",
+      "cheapest": "The cheapest",
+      "most_expensive": "The most expensive"
+    },
+    "extraModifierPrice": "Extra price",
+    "extraModifierPriceHint": "One price for every paid choice. Empty = each choice’s own price.",
+    "extraModifierPricePlaceholder": "Each choice’s price",
+    "includedModifiersGroupHint": "Used when a dish gives choices of this group free (“Included” on the dish): which ones are free, and what the next ones cost."
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -434,7 +449,8 @@
     "cost": "Cost",
     "priceLocked": "Price locked",
     "lineTotal": "Line total",
-    "totalRecipeCost": "Total recipe cost: {{amount}}"
+    "totalRecipeCost": "Total recipe cost: {{amount}}",
+    "includedCount": "Included: {{value}} · max {{max}}"
   },
   "users": {
     "manageTabs": "Manage users tabs"

@@ -271,5 +271,33 @@
     "splitInto": "Divisée en {{numbers}}",
     "mergedFrom": "Fusion de {{numbers}}",
     "mergedInto": "Fusionnée dans {{numbers}}"
+  },
+  "duo": {
+    "title": "DUO",
+    "withShort": "DUO · {{name}}",
+    "with": "En DUO avec {{name}}",
+    "endsAt": "Se termine à {{time}}",
+    "leave": "Quitter le DUO",
+    "waiting": "Invitation envoyée à {{name}}, en attente de sa réponse…",
+    "cancelInvite": "Annuler l’invitation",
+    "pick": "Choisissez un collègue connecté :",
+    "loading": "Chargement…",
+    "nobody": "Aucun collègue connecté disponible.",
+    "sent": "Invitation envoyée à {{name}}",
+    "failed": "Action DUO impossible, réessayez.",
+    "inviteTitle": "Invitation DUO",
+    "inviteFrom": "{{name}} veut faire un DUO avec vous",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "started": "DUO avec {{name}} commencé",
+    "ended": "Le DUO est terminé",
+    "declined": "Votre invitation DUO a été refusée",
+    "busy": "L’un de vous est déjà en DUO.",
+    "gone": "Cette invitation n’est plus valable.",
+    "endingTitle": "Le DUO va se terminer",
+    "endingWith": "DUO avec {{name}}",
+    "endingSpeech": "Le DUO va se terminer",
+    "extend": "Prolonger 1 h",
+    "endNow": "Terminer ({{seconds}})"
   }
 }

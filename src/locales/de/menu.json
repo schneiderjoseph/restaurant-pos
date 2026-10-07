@@ -27,7 +27,10 @@
   "modifiers": {
     "modifyTitle": "{{name}} ändern",
     "cancel": "Abbrechen",
-    "replacedWarning": "Letzter Modifikator wurde ersetzt. Um einen anderen Modifikator zu ersetzen, entfernen Sie ihn aus der rechten Seitenleiste und wählen Sie erneut."
+    "replacedWarning": "Letzter Modifikator wurde ersetzt. Um einen anderen Modifikator zu ersetzen, entfernen Sie ihn aus der rechten Seitenleiste und wählen Sie erneut.",
+    "included": "inkl.",
+    "includedCount": "{{count}} · {{included}} inkl.",
+    "confirm": "Bestätigen"
   },
   "persons": {
     "chooseCount": "Anzahl der Personen wählen"

@@ -26,6 +26,11 @@ import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
 import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
+import {
+  includedModifiersRelateSet,
+  isMaxModifiersValid,
+  optionalCountSchema,
+} from "@/components/settings/dishes/included-modifiers.ts";
 
 interface Props {
   open: boolean
@@ -66,6 +71,14 @@ const validationSchema = yup.object({
     }),
     should_auto_open: yup.boolean(),
     should_auto_select: yup.boolean(),
+    included_modifiers: optionalCountSchema(),
+    max_modifiers: optionalCountSchema().test(
+      'max-covers-included',
+      i18n.t('admin:forms.maxModifiersTooLow'),
+      function (max) {
+        return isMaxModifiersValid(this.parent, max);
+      }
+    ),
     priority: yup.number().required(i18n.t('validation:required')),
   })).default([]),
 });
@@ -228,19 +241,21 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
           await db.query(`DELETE ${dish.id}->${Tables.dish_modifier_groups} where in = ${dish.id}`);
 
           for (const modifierGroup of values.modifier_groups) {
+            const included = includedModifiersRelateSet(modifierGroup);
             await db.query(
               `RELATE ${dish.id}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value}
                set has_required_modifiers = $has_required_modifiers,
                should_auto_open = $should_auto_open,
                required_modifiers = $required_modifiers,
                should_auto_select = $should_auto_select,
-               priority = $priority`,
+               priority = $priority${included.sql}`,
               {
                 has_required_modifiers: modifierGroup.has_required_modifiers,
                 should_auto_open: modifierGroup.should_auto_open,
                 required_modifiers: modifierGroup.required_modifiers,
                 should_auto_select: modifierGroup.should_auto_select,
-                priority: Number(modifierGroup.priority ?? 0)
+                priority: Number(modifierGroup.priority ?? 0),
+                ...included.bindings,
               }
             );
           }
@@ -505,6 +520,42 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                           label={t('forms.requiredModifiers')}
                           disabled={!replaceModifierGroups || !watch(`modifier_groups.${index}.has_required_modifiers`)}
                           error={get(errors, ["modifier_groups", index, "required_modifiers", "message"])}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Controller
+                      name={`modifier_groups.${index}.included_modifiers`}
+                      control={control}
+                      render={({field}) => (
+                        <Input
+                          type="number"
+                          min={0}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          label={t('forms.includedModifiers')}
+                          title={t('forms.includedModifiersHint')}
+                          disabled={!replaceModifierGroups}
+                          error={get(errors, ["modifier_groups", index, "included_modifiers", "message"])}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Controller
+                      name={`modifier_groups.${index}.max_modifiers`}
+                      control={control}
+                      render={({field}) => (
+                        <Input
+                          type="number"
+                          min={0}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          label={t('forms.maxModifiers')}
+                          title={t('forms.maxModifiersHint')}
+                          disabled={!replaceModifierGroups || !Number(watch(`modifier_groups.${index}.included_modifiers`))}
+                          error={get(errors, ["modifier_groups", index, "max_modifiers", "message"])}
                         />
                       )}
                     />

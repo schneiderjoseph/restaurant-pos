@@ -1,4 +1,4 @@
-﻿{
+{
   "removeSelectedConfirm": "Rimuovere gli articoli selezionati da questo ordine?",
   "seats": {
     "seat": "Coperto",
@@ -28,5 +28,9 @@
       "allergy": "Allergia",
       "immediate": "Immediato"
     }
+  },
+  "group": {
+    "unfold": "Vedi ogni piatto",
+    "fold": "Chiudi"
   }
 }

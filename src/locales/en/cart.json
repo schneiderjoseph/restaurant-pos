@@ -28,5 +28,9 @@
       "allergy": "Allergy",
       "immediate": "Immediate"
     }
+  },
+  "group": {
+    "unfold": "Show each plate",
+    "fold": "Fold"
   }
 }

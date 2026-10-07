@@ -67,6 +67,7 @@ const splitOrderBase = (order: Order, splitCount: number, index: number) => {
     table: linkOf(order.table),
     order_type: linkOf(order.order_type),
     user: linkOf(order.user),
+    duo: linkOf(order.duo),
     customer: linkOf(order.customer),
     // Tax is computed from each split's own lines with the order's tax settings.
     tax: linkOf(order.tax),

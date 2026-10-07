@@ -50,6 +50,10 @@ export const calculateCartItemPrice = (item: MenuItem) => {
   return (finalUnitPrice + modifiersUnitTotal) * quantity;
 }
 
+/** A cart line's amount before taxes: (dish + its choices) × quantity, as shown in the cart. */
+export const calculateCartItemNetTotal = (item: MenuItem) =>
+  getCartItemTaxableUnitBase(item) * safeNumber(item?.quantity || 1);
+
 export const calculateCartTotal = (items: MenuItem[]) => {
   return items.reduce((prev, item) => calculateCartItemPrice(item) + prev, 0);
 }
@@ -199,7 +203,8 @@ const stableGroupsKey = (groups?: CartModifierGroup[]): string => {
     .map((group) => {
       const mods = (group.selectedModifiers ?? [])
         .map((mod) =>
-          `${mod.dish?.id?.toString?.() ?? ''}:${mod.quantity}:${stableGroupsKey(mod.selectedGroups)}`,
+          // Price too: the same sides can be free on one line and charged on another.
+          `${mod.dish?.id?.toString?.() ?? ''}:${mod.quantity}:${safeNumber(mod.price)}:${stableGroupsKey(mod.selectedGroups)}`,
         )
         .sort()
         .join(',');
@@ -220,6 +225,45 @@ export const cartItemMergeKey = (item: MenuItem): string =>
     item.isHold ? '1' : '0',
     stableGroupsKey(item.selectedGroups),
   ].join('\u001f');
+
+/**
+ * Pending lines of the same dish (same seat, comment, menu, hold) shown as one cart row, e.g.
+ * "2 grilled fish" with rice on one and mash on the other. Each stays its own line underneath,
+ * so the kitchen, prices and reports keep which choices go with which plate. Sent and voided
+ * lines are never grouped. Groups keep the position of their first line.
+ */
+export const groupCartLines = (items: MenuItem[]): MenuItem[][] => {
+  const groups: MenuItem[][] = [];
+  const byKey = new Map<string, MenuItem[]>();
+
+  for (const item of items) {
+    if (item.newOrOld !== MenuItemType.new || item.deleted_at) {
+      groups.push([item]);
+      continue;
+    }
+
+    const key = [
+      item.dish?.id?.toString?.() ?? '',
+      item.seat ?? '',
+      item.comments ?? '',
+      item.category_id ?? item.category ?? '',
+      item.menu_name ?? '',
+      item.tax_mode ?? '',
+      item.isHold ? '1' : '0',
+    ].join('\u001f');
+    const group = byKey.get(key);
+
+    if (group) {
+      group.push(item);
+    } else {
+      const created = [item];
+      byKey.set(key, created);
+      groups.push(created);
+    }
+  }
+
+  return groups;
+};
 
 /**
  * Add to cart: increment quantity when an identical pending line exists,

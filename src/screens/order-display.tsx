@@ -8,10 +8,11 @@ import { useDB } from '@/api/db/db.ts';
 import { OrderType } from '@/api/model/order_type.ts';
 import { ReactSelect } from '@/components/common/input/custom.react.select.tsx';
 import { useAtom } from 'jotai';
-import { appPage, appState, AppStateInterface } from '@/store/jotai.ts';
+import { appState, AppStateInterface } from '@/store/jotai.ts';
 import { toRecordId } from '@/lib/utils.ts';
 import { useModuleAccess } from '@/providers/module-access.provider.tsx';
 import { useOrderVisibility } from '@/hooks/useOrderVisibility.ts';
+import { useDuoUserIds } from '@/hooks/useDuoUserIds.ts';
 import { SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor } from '@/api/model/order_visibility.ts';
 import { LabelValue } from '@/api/model/common.ts';
 import { Button } from '@/components/common/input/button.tsx';
@@ -44,12 +45,11 @@ export const OrderDisplayScreen = () => {
   );
   const [showSidebar, setShowSidebar] = useState(false);
   // Same rule as the Orders page: with "own orders only" on, a role without the grant sees
-  // only the orders its user opened.
-  const [app] = useAtom(appPage);
+  // only the orders its user opened, and those of their duo partner.
   const { can } = useModuleAccess();
   const { ownOrdersOnly } = useOrderVisibility();
   const seesAllOrders = seesAllOrdersFor(ownOrdersOnly, can(SEES_ALL_ORDERS_MODULE));
-  const currentUserId = app?.user?.id?.toString();
+  const duoUserKey = useDuoUserIds().join("|");
   const liveOrdersRef = useRef<{ kill: () => Promise<void> } | null>(null);
   const liveKitchenRef = useRef<{ kill: () => Promise<void> } | null>(null);
   const fetchRequestRef = useRef(0);
@@ -112,7 +112,7 @@ export const OrderDisplayScreen = () => {
     }
 
     if (!seesAllOrders) {
-      clauses.push('user = $currentUser');
+      clauses.push('user IN $visibleUsers');
     }
 
     return clauses;
@@ -121,7 +121,7 @@ export const OrderDisplayScreen = () => {
   const fetchOrders = useCallback(async () => {
     const request = ++fetchRequestRef.current;
     const startDate = getAppStartOfDaySurreal();
-    const currentUser = currentUserId ? toRecordId(currentUserId) : null;
+    const visibleUsers = duoUserKey ? duoUserKey.split("|").map((id) => toRecordId(id)) : [];
     const filterSql = whereClauses.length > 0 ? `and ${whereClauses.join(' and ')}` : '';
     // Orders taken an earlier day and wanted today or later stay on the board.
     const dueItems = await fetchDueOrderItemIds(db, startDate);
@@ -133,7 +133,7 @@ export const OrderDisplayScreen = () => {
        SELECT * FROM ${Tables.order_items_kitchen}
        WHERE created_at >= $startDate OR order_item IN $dueItems
        FETCH order_item, kitchen`,
-      { startDate, dueItems, currentUser }
+      { startDate, dueItems, visibleUsers }
     );
 
     // Every live event starts a fetch: an older one answering late must not win.
@@ -146,7 +146,7 @@ export const OrderDisplayScreen = () => {
       buildKitchenRowsMap(Array.isArray(kitchenRows) ? (kitchenRows as OrderItemKitchen[]) : [])
     );
     setHydrated(true);
-  }, [whereClauses, currentUserId]);
+  }, [whereClauses, duoUserKey]);
 
   useEffect(() => {
     // New filters bring orders already ready into view: not announcements.

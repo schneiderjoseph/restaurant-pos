@@ -123,6 +123,7 @@ export const commitMerge = async (
     table: linkOf(table.id),
     order_type: linkOf(lead.order_type),
     user: linkOf(lead.user),
+    ...(lead.duo ? {duo: linkOf(lead.duo)} : {}),
     ...(customers.length === 1 ? {customer: linkOf(customers[0])} : {}),
     ...(dueAt ? {due_at: dueAt} : {}),
     ...(lead.tax ? {tax: linkOf(lead.tax)} : {}),

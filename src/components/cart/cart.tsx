@@ -5,6 +5,8 @@ import {useAtom} from "jotai";
 import {appState} from "@/store/jotai.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {CartItem} from "@/components/cart/cart.item.tsx";
+import {CartItemGroup} from "@/components/cart/cart.item.group.tsx";
+import {groupCartLines} from "@/lib/cart.ts";
 import {Payment} from "@/components/payment/payment.tsx";
 import {Seats} from "@/components/cart/seats.tsx";
 import {CartActions} from "@/components/cart/cart.actions.tsx";
@@ -30,6 +32,8 @@ export const MenuCart = () => {
   const newItems = useMemo(() => {
     return cartItems.filter(item => item.newOrOld === MenuItemType.new);
   }, [cartItems]);
+
+  const newGroups = useMemo(() => groupCartLines(newItems), [newItems]);
 
   const oldItems = useMemo(() => {
     return cartItems.filter(item => item.newOrOld === MenuItemType.old);
@@ -60,14 +64,16 @@ export const MenuCart = () => {
           </div>
         )}
         <ScrollContainer className="h-full gap-1 flex flex-col select-none">
-          {newItems.map((item, index) => (
-            <CartItem item={item} key={item.id} index={index}/>
+          {newGroups.map((group) => group.length > 1 ? (
+            <CartItemGroup items={group} key={group[0].id}/>
+          ) : (
+            <CartItem item={group[0]} key={group[0].id}/>
           ))}
           {newItems.length > 0 && oldItems.length > 0 && (
             <div className="h-[2px] bg-neutral-900 my-1 rounded-full"></div>
           )}
-          {oldItems.map((item, index) => (
-            <CartItem item={item} key={item.id} index={index}/>
+          {oldItems.map((item) => (
+            <CartItem item={item} key={item.id}/>
           ))}
         </ScrollContainer>
       </div>

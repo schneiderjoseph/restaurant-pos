@@ -11,6 +11,7 @@ import {appPage} from "@/store/jotai.ts";
 import {ORDER_DISPLAY} from "@/routes/posr.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {getAppStartOfDaySurreal} from "@/lib/datetime.ts";
+import {useDuoUserIds} from "@/hooks/useDuoUserIds.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {buildKitchenRowsMap} from "@/lib/order-display.ts";
 import {toRecordId} from "@/lib/utils.ts";
@@ -36,7 +37,7 @@ const SPEECH_AFTER_CHIME_MS = 700;
 
 /**
  * Tells the signed-in server, on whatever page this terminal shows (lock screen included),
- * that the kitchen finished one of their orders: chime, vibration, spoken announcement and a popup that
+ * that the kitchen finished one of their orders (or their duo partner's): chime, vibration, spoken announcement and a popup that
  * stays until it is acknowledged. The order display screen announces every order itself.
  */
 export const MyOrderReadyAlert = () => {
@@ -46,6 +47,9 @@ export const MyOrderReadyAlert = () => {
   const userId = page?.user?.id?.toString();
   const {pathname} = useLocation();
   const onOrderDisplay = pathname === ORDER_DISPLAY;
+  // In a duo, the partner's orders are announced here too.
+  const duoUserIds = useDuoUserIds();
+  const duoUserKey = duoUserIds.join('|');
 
   const [alerts, setAlerts] = useState<ReadyAlert[]>([]);
   const columnsRef = useRef<OrderReadyState>(new Map());
@@ -93,11 +97,11 @@ export const MyOrderReadyAlert = () => {
       const startDate = getAppStartOfDaySurreal();
       const [orderRows] = await db.query(
         `SELECT * FROM ${Tables.orders}
-         WHERE user = $user AND (created_at >= $startDate OR due_at >= $startDate)
+         WHERE user IN $users AND (created_at >= $startDate OR due_at >= $startDate)
            AND status NOT IN $closed
          FETCH items, table, customer`,
         {
-          user: toRecordId(userId),
+          users: duoUserKey.split('|').map(id => toRecordId(id)),
           startDate,
           closed: [OrderStatus.Cancelled, OrderStatus.Merged],
         },
@@ -166,7 +170,7 @@ export const MyOrderReadyAlert = () => {
       }
       subscriptions.forEach(subscription => subscription.kill().catch(() => undefined));
     };
-  }, [db, userId, onOrderDisplay, announce]);
+  }, [db, userId, duoUserKey, onOrderDisplay, announce]);
 
   const current = alerts[0];
   if (!current) {

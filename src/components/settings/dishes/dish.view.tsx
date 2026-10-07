@@ -32,6 +32,8 @@ interface DishModifierGroupRow {
   should_auto_open?: boolean
   has_required_modifiers?: boolean
   should_auto_select?: boolean
+  included_modifiers?: number | null
+  max_modifiers?: number | null
   priority?: number
 }
 
@@ -239,6 +241,14 @@ export const DishView = ({
                       <span className="tag">{t('dishView.autoSelect', { value: yesNo(group.should_auto_select) })}</span>
                       <span className="tag">{t('dishView.hasRequired', { value: yesNo(group.has_required_modifiers) })}</span>
                       <span className="tag">{t('dishView.requiredCount', { value: group.required_modifiers ?? 0 })}</span>
+                      {Number(group.included_modifiers) > 0 && (
+                        <span className="tag">
+                          {t('dishView.includedCount', {
+                            value: group.included_modifiers,
+                            max: Number(group.max_modifiers) > 0 ? group.max_modifiers : '∞',
+                          })}
+                        </span>
+                      )}
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       {(group.out?.modifiers ?? []).length > 0 ? (

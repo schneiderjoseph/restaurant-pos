@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "Applica suggerimenti punto vendita",
     "applyOutletSuggestionsConfirm": "{{count}} categorie verranno classificate",
     "outletColor": "Colore",
-    "noOutlets": "Nessun punto vendita"
+    "noOutlets": "Nessun punto vendita",
+    "includedModifiers": "Inclusi (gratis)",
+    "includedModifiersHint": "Scelte offerte con questo piatto. Le successive si pagano. Vuoto = disattivato.",
+    "maxModifiers": "Scelte max",
+    "maxModifiersHint": "Il numero massimo di scelte, gratis e a pagamento. Vuoto = nessun limite.",
+    "maxModifiersTooLow": "Deve essere almeno pari agli inclusi e agli obbligatori",
+    "freeModifierRule": "Scelte offerte",
+    "freeModifierRules": {
+      "first": "Le prime scelte",
+      "cheapest": "Le più economiche",
+      "most_expensive": "Le più care"
+    },
+    "extraModifierPrice": "Prezzo supplemento",
+    "extraModifierPriceHint": "Un solo prezzo per ogni scelta a pagamento. Vuoto = il prezzo di ogni scelta.",
+    "extraModifierPricePlaceholder": "Prezzo di ogni scelta",
+    "includedModifiersGroupHint": "Usato quando un piatto offre scelte di questo gruppo («Inclusi» sul piatto): quali sono offerte e quanto costano le successive."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -409,7 +424,8 @@
     "cost": "Costo",
     "priceLocked": "Prezzo bloccato",
     "lineTotal": "Totale riga",
-    "totalRecipeCost": "Costo totale ricetta: {{amount}}"
+    "totalRecipeCost": "Costo totale ricetta: {{amount}}",
+    "includedCount": "Inclusi: {{value}} · max {{max}}"
   },
   "users": {
     "manageTabs": "Gestisci schede utenti"

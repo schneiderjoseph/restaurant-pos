@@ -5,6 +5,7 @@ import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {safeNumber} from "@/lib/utils.ts";
+import {duoTipParts} from "@/lib/duo.ts";
 
 interface TipDistributionSettings {
   roles?: Array<{role_id: string; weight: number}>;
@@ -196,31 +197,53 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
       `
         SELECT * FROM ${Tables.orders}
         WHERE ${conditions.join(" AND ")}
-        FETCH cashier, cashier.user_role, cashier.user_shift, user
+        FETCH cashier, cashier.user_role, cashier.user_shift, user, items, duo
       `,
       params,
     ),
   );
 
-  const ordersInScope = normalizedShiftId
-    ? orders.filter(order => getShiftId(order.cashier as User) === normalizedShiftId)
-    : orders;
+  // Each tip goes to whoever cashed the order; a duo's tip is split by the two's sales in it.
+  const hasDuoTips = orders.some(order => duoTipParts(order).size > 0);
+  const userById = new Map(
+    (hasDuoTips ? await fetchActiveUsers(db) : []).map(user => [recordIdToString(user.id), user]),
+  );
+  const tipParts = orders.flatMap(order => {
+    const duoParts = duoTipParts(order);
+    if (duoParts.size > 0) {
+      return Array.from(duoParts.entries()).map(([userId, amount]) => ({
+        orderId: recordIdToString(order.id),
+        userId: recordIdToString(userId),
+        user: userById.get(recordIdToString(userId)),
+        amount,
+      }));
+    }
+    const cashier = order.cashier as User | undefined;
+    return [{
+      orderId: recordIdToString(order.id),
+      userId: recordIdToString(cashier?.id ?? order.user),
+      user: cashier,
+      amount: safeNumber(order.tip_amount),
+    }];
+  });
 
-  const tipsCollected = ordersInScope.reduce((sum, order) => sum + safeNumber(order.tip_amount), 0);
+  const partsInScope = normalizedShiftId
+    ? tipParts.filter(part => getShiftId(part.user) === normalizedShiftId)
+    : tipParts;
+
+  const tipsCollected = partsInScope.reduce((sum, part) => sum + part.amount, 0);
 
   const tipsByCashier = new Map<string, TipStaffRow>();
-  ordersInScope.forEach(order => {
-    const cashier = order.cashier as User | undefined;
-    const userId = recordIdToString(cashier?.id ?? order.user);
-    const existing = tipsByCashier.get(userId) || {
-      userId,
-      name: formatUserName(cashier),
-      role: (cashier?.user_role as {name?: string} | undefined)?.name,
-      shift: (cashier?.user_shift as {name?: string} | undefined)?.name,
+  partsInScope.forEach(part => {
+    const existing = tipsByCashier.get(part.userId) || {
+      userId: part.userId,
+      name: formatUserName(part.user),
+      role: (part.user?.user_role as {name?: string} | undefined)?.name,
+      shift: (part.user?.user_shift as {name?: string} | undefined)?.name,
       amount: 0,
     };
-    existing.amount += safeNumber(order.tip_amount);
-    tipsByCashier.set(userId, existing);
+    existing.amount += part.amount;
+    tipsByCashier.set(part.userId, existing);
   });
 
   const savedDistributions = await fetchSavedDistributions(db, {
@@ -249,7 +272,7 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
 
   return {
     tipsCollected,
-    orderCountWithTips: ordersInScope.length,
+    orderCountWithTips: new Set(partsInScope.map(part => part.orderId)).size,
     tipsByCashier: Array.from(tipsByCashier.values()).sort((a, b) => b.amount - a.amount),
     savedDistributions,
     projectedShares,

@@ -271,5 +271,33 @@
     "splitInto": "Split into {{numbers}}",
     "mergedFrom": "Merged from {{numbers}}",
     "mergedInto": "Merged into {{numbers}}"
+  },
+  "duo": {
+    "title": "DUO",
+    "withShort": "DUO · {{name}}",
+    "with": "In a DUO with {{name}}",
+    "endsAt": "Ends at {{time}}",
+    "leave": "Leave the DUO",
+    "waiting": "Invitation sent to {{name}}, waiting for an answer…",
+    "cancelInvite": "Cancel the invitation",
+    "pick": "Pick a signed-in colleague:",
+    "loading": "Loading…",
+    "nobody": "No signed-in colleague available.",
+    "sent": "Invitation sent to {{name}}",
+    "failed": "DUO action failed, try again.",
+    "inviteTitle": "DUO invitation",
+    "inviteFrom": "{{name}} wants to team up in a DUO",
+    "accept": "Accept",
+    "decline": "Decline",
+    "started": "DUO with {{name}} started",
+    "ended": "The DUO has ended",
+    "declined": "Your DUO invitation was declined",
+    "busy": "One of you is already in a DUO.",
+    "gone": "This invitation is no longer valid.",
+    "endingTitle": "The DUO is ending",
+    "endingWith": "DUO with {{name}}",
+    "endingSpeech": "The DUO is ending",
+    "extend": "Extend 1 h",
+    "endNow": "End ({{seconds}})"
   }
 }

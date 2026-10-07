@@ -11,6 +11,7 @@ import {safeNumber} from "@/lib/utils.ts";
 import {getDayPartLabel} from "@/utils/dayParts";
 import {toJsDate} from "@/lib/datetime.ts";
 import {DateTime} from "luxon";
+import {orderSellers} from "@/lib/duo.ts";
 
 const getVoidItems = (voidItem: OrderVoid) => (voidItem.items ?? []).filter(Boolean);
 
@@ -154,29 +155,32 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
   const query = `
     SELECT * FROM ${Tables.orders}
     WHERE ${conditions.join(" AND ")}
-    FETCH user, items, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount
+    FETCH user, items, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount, duo, duo.inviter, duo.partner
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
   const byServer = new Map<string, {userName: string; netSales: number; checks: number; guests: number}>();
 
   orders.forEach(order => {
-    const user = order.user as {id?: unknown; first_name?: string; last_name?: string} | undefined;
-    const userId = recordToString(user?.id ?? user);
-    const userName = user
-      ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
-      : "Unknown";
-
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
       paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order),
     );
 
-    const existing = byServer.get(userId) || {userName, netSales: 0, checks: 0, guests: 0};
-    existing.netSales += netSales;
-    existing.checks += 1;
-    existing.guests += safeNumber(order.covers ?? 1);
-    byServer.set(userId, existing);
+    // A duo's order counts for each of the two by the lines they added.
+    orderSellers(order).forEach(({user: seller, share}) => {
+      const user = seller as {id?: unknown; first_name?: string; last_name?: string} | undefined;
+      const userId = recordToString(user?.id ?? user);
+      const userName = user && typeof user === "object"
+        ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
+        : "Unknown";
+
+      const existing = byServer.get(userId) || {userName, netSales: 0, checks: 0, guests: 0};
+      existing.netSales += netSales * share;
+      existing.checks += share;
+      existing.guests += safeNumber(order.covers ?? 1) * share;
+      byServer.set(userId, existing);
+    });
   });
 
   return {

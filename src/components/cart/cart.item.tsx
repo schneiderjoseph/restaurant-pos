@@ -12,7 +12,7 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {OrderDueModal} from "@/components/menu/order-due.modal.tsx";
-import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {calculateCartItemNetTotal} from "@/lib/cart.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {nowInAppTimezone, nowSurrealDateTime, toLuxonDateTime} from "@/lib/datetime.ts";
 import {
@@ -37,10 +37,10 @@ function itemPourModalValue(pourLabel: string | null): string | null {
 
 interface Props {
   item: MenuItem
-  index: number
+  index?: number
 }
 
-export const CartItem = ({ item, index }: Props) => {
+export const CartItem = ({ item }: Props) => {
   const { t } = useTranslation(['cart', 'common', 'payment', 'receipts']);
   const [state, setState] = useAtom(appState);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
@@ -53,7 +53,8 @@ export const CartItem = ({ item, index }: Props) => {
   const pourPrefix = t('receipts:dueAt');
   const pourLabel = getItemPourLabel(commentText, pourPrefix);
 
-  const lineTotal = useMemo(() => calculateCartItemPrice(item), [item]);
+  // Before taxes, like the dish price beside the name: the taxes show in the total below.
+  const lineTotal = useMemo(() => calculateCartItemNetTotal(item), [item]);
 
   const isNew = item.newOrOld === MenuItemType.new;
   const isEditingExisting =
@@ -190,13 +191,10 @@ export const CartItem = ({ item, index }: Props) => {
             setModifiersOpen(false);
             setState(prev => ({
               ...prev,
-              cart: prev.cart.map((cItem, cIndex) => {
-                if(cIndex === index){
-                  cItem.selectedGroups = groups;
-                }
-
-                return cItem;
-              })
+              // By id: `index` counts within the shown list, not the whole cart.
+              cart: prev.cart.map((cItem) =>
+                cItem.id === item.id ? { ...cItem, selectedGroups: groups } : cItem
+              )
             }))
           }}
         />

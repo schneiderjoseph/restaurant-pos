@@ -3,6 +3,7 @@ import {cn, formatNumber} from "@/lib/utils.ts";
 import React from "react";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
+import {useTranslation} from "react-i18next";
 
 interface Props {
   item: MenuItem
@@ -12,6 +13,7 @@ interface Props {
 
 export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
   const [pageState] = useAtom(appPage);
+  const { t } = useTranslation('menu');
   const { showTotalInCart = false } = pageState.menuConfig ?? {};
 
   return (
@@ -27,7 +29,7 @@ export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
             showTotalInCart ? "grid grid-cols-2 gap-2 w-[70px] text-right" : "grid grid-cols-1 w-[40px] text-right"
           )
         }>
-          <span>{formatNumber(item.price)}</span>
+          <span>{item.includedModifier ? t('modifiers.included') : formatNumber(item.price)}</span>
           {showTotalInCart && (
             <span>{formatNumber(item.price * mainItem.quantity)}</span>
           )}

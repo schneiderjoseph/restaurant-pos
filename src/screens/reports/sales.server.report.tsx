@@ -16,6 +16,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {orderLineSeller, orderSellers} from "@/lib/duo.ts";
 
 interface CategoryAggregate {
   id: string;
@@ -126,13 +127,17 @@ interface TempCategoryTotals {
   coupons: number;
   taxes: number;
   grossSale: number;
+  /** Gross of this category's lines by who sold them (a duo's order has two sellers). */
+  grossBySeller: Map<string, number>;
 }
 
 const collectCategoryTotals = (order: Order): Map<string, TempCategoryTotals> => {
   const map = new Map<string, TempCategoryTotals>();
   const filteredItems = getOrderFilteredItems(order);
+  const sellerOf = orderLineSeller(order);
 
   filteredItems.forEach(item => {
+    const seller = sellerOf(item);
     const grossSale = safeNumber(calculateOrderItemPrice(item));
     const discount = safeNumber(item?.discount);
     const netSales = grossSale - discount;
@@ -151,9 +156,11 @@ const collectCategoryTotals = (order: Order): Map<string, TempCategoryTotals> =>
         coupons: 0,
         taxes: 0,
         grossSale: 0,
+        grossBySeller: new Map<string, number>(),
       };
 
       existing.grossSale += grossSale * share;
+      existing.grossBySeller.set(seller, (existing.grossBySeller.get(seller) ?? 0) + grossSale * share);
       existing.discounts += discount * share;
       existing.netSales += netSales * share;
       existing.taxes += taxes * share;
@@ -278,9 +285,10 @@ export const SalesServerReport = () => {
           params.endDate = filters.endDate;
         }
 
+        // A duo's order also counts for the partner who added lines to it.
         const userFilter = buildRecordInsideCondition('user', filters.userIds, 'userIds');
         if (userFilter.condition) {
-          conditions.push(userFilter.condition);
+          conditions.push(`(${userFilter.condition} OR duo.inviter INSIDE $userIds OR duo.partner INSIDE $userIds)`);
           Object.assign(params, userFilter.params);
         }
 
@@ -332,7 +340,10 @@ export const SalesServerReport = () => {
                 coupon,
                 coupon.coupon,
                 order_discounts,
-                order_discounts.discount
+                order_discounts.discount,
+                duo,
+                duo.inviter,
+                duo.partner
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -356,47 +367,63 @@ export const SalesServerReport = () => {
 
     const map = new Map<string, { userName: string; categoryMap: Map<string, CategoryAggregate>; dayPartMap: Record<DayPartLabel, DayPartAggregate>; }>();
 
+    const shownUsers = new Set(filters.userIds.map(id => recordToString(id)));
     filteredOrders.forEach(order => {
-      const userId = recordToString(order.user?.id ?? order.user) || 'unknown';
-      const userName = order.user
-        ? `${order.user.first_name ?? ''} ${order.user.last_name ?? ''}`.trim() || order.user.login || 'Unknown user'
-        : 'Unknown user';
-
-      if (!map.has(userId)) {
-        map.set(userId, {
-          userName,
-          categoryMap: new Map<string, CategoryAggregate>(),
-          dayPartMap: {} as Record<DayPartLabel, DayPartAggregate>,
-        });
-      }
-
-      const entry = map.get(userId)!;
       const categoryTotals = collectCategoryTotals(order);
       const orderNet = Array.from(categoryTotals.values()).reduce((sum, row) => sum + row.netSales, 0);
       const covers = safeNumber(order.covers);
-      const dayPart = ensureDayPartEntry(entry.dayPartMap, getDayPartLabel(toJsDate(order.created_at)));
 
-      dayPart.netSales += orderNet;
-      dayPart.guests += covers;
-      dayPart.checks += 1;
-      dayPart.taxes += getOrderTaxAmount(order);
-      dayPart.payments += sumPayments(order);
-      dayPart.serviceCharges += safeNumber(order.service_charge_amount);
-      dayPart.coupons += safeNumber(order.coupon?.discount);
-
-      categoryTotals.forEach(catTotals => {
-        const category = ensureCategoryAggregate(entry.categoryMap, catTotals);
-        category.amountDue += catTotals.amountDue;
-        category.netSales += catTotals.netSales;
-        category.discounts += catTotals.discounts;
-        category.coupons += catTotals.coupons;
-        category.taxes += catTotals.taxes;
-        category.grossSale += catTotals.grossSale;
-        category.checks += 1;
-
-        if (orderNet > 0 && covers > 0) {
-          category.guests += (catTotals.netSales / orderNet) * covers;
+      // A duo's order counts for each of the two by the lines they added.
+      orderSellers(order).forEach(({userId: sellerId, user: seller, share}) => {
+        const sellerUser = (seller && typeof seller === 'object' ? seller : undefined) as Order['user'] | undefined;
+        const userId = recordToString(sellerUser?.id ?? sellerId) || 'unknown';
+        if (shownUsers.size > 0 && !shownUsers.has(userId)) {
+          return;
         }
+        const userName = sellerUser
+          ? `${sellerUser.first_name ?? ''} ${sellerUser.last_name ?? ''}`.trim() || sellerUser.login || 'Unknown user'
+          : 'Unknown user';
+
+        if (!map.has(userId)) {
+          map.set(userId, {
+            userName,
+            categoryMap: new Map<string, CategoryAggregate>(),
+            dayPartMap: {} as Record<DayPartLabel, DayPartAggregate>,
+          });
+        }
+
+        const entry = map.get(userId)!;
+        const dayPart = ensureDayPartEntry(entry.dayPartMap, getDayPartLabel(toJsDate(order.created_at)));
+
+        dayPart.netSales += orderNet * share;
+        dayPart.guests += covers * share;
+        dayPart.checks += share;
+        dayPart.taxes += getOrderTaxAmount(order) * share;
+        dayPart.payments += sumPayments(order) * share;
+        dayPart.serviceCharges += safeNumber(order.service_charge_amount) * share;
+        dayPart.coupons += safeNumber(order.coupon?.discount) * share;
+
+        categoryTotals.forEach(catTotals => {
+          // This seller's part of the category: the lines they sold in it.
+          const part = catTotals.grossSale > 0
+            ? (catTotals.grossBySeller.get(sellerId) ?? 0) / catTotals.grossSale
+            : share;
+          if (part <= 0) {
+            return;
+          }
+          const category = ensureCategoryAggregate(entry.categoryMap, catTotals);
+          category.amountDue += catTotals.amountDue * part;
+          category.netSales += catTotals.netSales * part;
+          category.discounts += catTotals.discounts * part;
+          category.coupons += catTotals.coupons * part;
+          category.taxes += catTotals.taxes * part;
+          category.grossSale += catTotals.grossSale * part;
+          category.checks += part;
+
+          if (orderNet > 0 && covers > 0) {
+            category.guests += ((catTotals.netSales * part) / orderNet) * covers;
+          }
+        });
       });
     });
 
@@ -415,7 +442,7 @@ export const SalesServerReport = () => {
         coupons: 0,
       }),
     }));
-  }, [filteredOrders]);
+  }, [filteredOrders, filters.userIds]);
 
   const subtitle = filters.startDate && filters.endDate
     ? `${filters.startDate} to ${filters.endDate}`

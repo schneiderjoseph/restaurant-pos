@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "Применить предложения точек продаж",
     "applyOutletSuggestionsConfirm": "{{count}} категорий будут классифицированы",
     "outletColor": "Цвет",
-    "noOutlets": "Точек продаж пока нет"
+    "noOutlets": "Точек продаж пока нет",
+    "includedModifiers": "Включено (бесплатно)",
+    "includedModifiersHint": "Сколько вариантов блюдо даёт бесплатно. Следующие платные. Пусто = выкл.",
+    "maxModifiers": "Макс. вариантов",
+    "maxModifiersHint": "Максимум вариантов, бесплатных и платных. Пусто = без ограничения.",
+    "maxModifiersTooLow": "Не меньше включённого и обязательного количества",
+    "freeModifierRule": "Бесплатные варианты",
+    "freeModifierRules": {
+      "first": "Выбранные первыми",
+      "cheapest": "Самые дешёвые",
+      "most_expensive": "Самые дорогие"
+    },
+    "extraModifierPrice": "Цена доплаты",
+    "extraModifierPriceHint": "Одна цена для каждого платного варианта. Пусто = цена каждого варианта.",
+    "extraModifierPricePlaceholder": "Цена каждого варианта",
+    "includedModifiersGroupHint": "Используется, когда блюдо даёт варианты этой группы бесплатно («Включено» у блюда): какие бесплатны и сколько стоят следующие."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -409,7 +424,8 @@
     "cost": "Себестоимость",
     "priceLocked": "Цена заблокирована",
     "lineTotal": "Итого по строке",
-    "totalRecipeCost": "Общая себестоимость рецепта: {{amount}}"
+    "totalRecipeCost": "Общая себестоимость рецепта: {{amount}}",
+    "includedCount": "Включено: {{value}} · макс {{max}}"
   },
   "users": {
     "manageTabs": "Управление вкладками пользователей"

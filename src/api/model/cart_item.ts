@@ -52,6 +52,12 @@ export interface MenuItem {
   /** Template price at clone time; used to reset instance overrides. */
   basePrice?: number
 
+  /** Modifier line: its price when charged, before a dish's included choices make it free. */
+  listPrice?: number
+
+  /** Modifier line: one of the choices the dish gives free (price 0). */
+  includedModifier?: boolean
+
   /** Tax mode for this item (exclusive or inclusive) */
   tax_mode?: TaxMode
 

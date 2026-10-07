@@ -1,6 +1,6 @@
 import {withCurrency} from "@/lib/utils.ts";
 import {Dish} from "@/api/model/dish.ts";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {ReactNode, useCallback, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {appSettings, appState, appPage} from "@/store/jotai.ts";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
@@ -13,6 +13,7 @@ import {
   buildCartModifierGroups,
   buildNestedGroupsForModifier,
   cloneCartModifierGroups,
+  hasIncludedModifiers,
 } from "@/lib/modifier-groups.ts";
 import {Modifier} from "@/api/model/modifier.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
@@ -33,6 +34,10 @@ interface Props {
   parentModifier?: Modifier
   /** Root dish menu overrides (needed when item is a nested modifier dish) */
   menuModifierOverrides?: MenuModifierOverrides | null
+  /** 'option': a compact choice button for the modifier picker, instead of a menu card. */
+  variant?: 'tile' | 'option'
+  /** Option variant: what picking it costs now ("incl.", "+229"); defaults to the price. */
+  priceLabel?: ReactNode
 }
 
 export const MenuDish = ({
@@ -44,6 +49,8 @@ export const MenuDish = ({
   allowedNextGroupIds,
   parentModifier,
   menuModifierOverrides,
+  variant = 'tile',
+  priceLabel,
 }: Props) => {
   const [state] = useAtom(appState);
   const [{groups_dishes}] = useAtom(appSettings);
@@ -106,7 +113,7 @@ export const MenuDish = ({
   ]);
 
   const hasAutoOpen = useMemo(() => {
-    return modifierGroups.filter(m => m.has_required_modifiers || m.should_auto_open).length > 0;
+    return modifierGroups.filter(m => m.has_required_modifiers || m.should_auto_open || hasIncludedModifiers(m)).length > 0;
   }, [modifierGroups]);
 
 
@@ -181,34 +188,52 @@ export const MenuDish = ({
     };
   }, [item?.dish_photo, showDishPhotos]);
 
+  const handleClick = () => {
+    if (modifierGroups.length > 0 && hasAutoOpen) {
+      setModifiersModal(true)
+    } else {
+      onClick({
+        quantity: 1,
+        dish: item,
+        seat: state.seat,
+        id: nanoid(),
+        level: level,
+        selectedGroups: [],
+        newOrOld: MenuItemType.new,
+        category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
+        category_id: state.category?.id?.toString(),
+        price: price,
+        menu_name: item.menu_name,
+        ...menuTaxFields,
+      }, undefined, price)
+    }
+  };
+
   return (
     <>
+      {variant === 'option' ? (
+        <button
+          type="button"
+          className="flex min-h-[64px] w-full flex-col justify-between gap-1 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-left shadow-sm select-none active:bg-warning-50 active:shadow-none"
+          data-testid="modifier-option"
+          data-dish-name={item.name}
+          onClick={handleClick}
+        >
+          <span className="line-clamp-2 break-words font-semibold leading-snug text-neutral-900">
+            {item.name || item.number || '—'}
+          </span>
+          <span className="text-sm font-bold tabular-nums text-neutral-600">
+            {priceLabel ?? withCurrency(price)}
+          </span>
+        </button>
+      ) : (
       <div
         className="flex justify-center p-1 relative select-none min-w-0 min-h-0 overflow-hidden"
         role="button"
         tabIndex={0}
         data-testid="menu-dish"
         data-dish-name={item.name}
-        onClick={() => {
-          if (modifierGroups.length > 0 && hasAutoOpen) {
-            setModifiersModal(true)
-          } else {
-            onClick({
-              quantity: 1,
-              dish: item,
-              seat: state.seat,
-              id: nanoid(),
-              level: level,
-              selectedGroups: [],
-              newOrOld: MenuItemType.new,
-              category: state.category ? state.category?.name : (item.categories.length === 1 ? item.categories[0].name : ''),
-              category_id: state.category?.id?.toString(),
-              price: price,
-              menu_name: item.menu_name,
-              ...menuTaxFields,
-            }, undefined, price)
-          }
-        }}
+        onClick={handleClick}
       >
         <div
           className="flex-1 bg-white min-w-0 min-h-0 overflow-hidden rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-neutral-900 active:text-warning-500 relative"
@@ -253,6 +278,7 @@ export const MenuDish = ({
           <span className="absolute bottom-2 right-2 text-primary-500 text-xs font-bold">{dishCount(item)}</span>
         )}
       </div>
+      )}
 
       {modifierGroups.length > 0 && modifiersModal && (
         <MenuDishModifiers

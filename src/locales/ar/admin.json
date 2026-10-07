@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "تطبيق اقتراحات نقاط البيع",
     "applyOutletSuggestionsConfirm": "سيتم تصنيف {{count}} فئات",
     "outletColor": "اللون",
-    "noOutlets": "لا توجد نقاط بيع بعد"
+    "noOutlets": "لا توجد نقاط بيع بعد",
+    "includedModifiers": "مشمول (مجاني)",
+    "includedModifiersHint": "الخيارات المجانية مع هذا الطبق. ما بعدها مدفوع. فارغ = معطّل.",
+    "maxModifiers": "الحد الأقصى للخيارات",
+    "maxModifiersHint": "أقصى عدد من الخيارات، مجانية ومدفوعة. فارغ = بلا حد.",
+    "maxModifiersTooLow": "يجب ألا يقل عن العدد المشمول والإلزامي",
+    "freeModifierRule": "الخيارات المجانية",
+    "freeModifierRules": {
+      "first": "أول ما يُختار",
+      "cheapest": "الأرخص",
+      "most_expensive": "الأغلى"
+    },
+    "extraModifierPrice": "سعر الإضافة",
+    "extraModifierPriceHint": "سعر واحد لكل خيار مدفوع. فارغ = سعر كل خيار.",
+    "extraModifierPricePlaceholder": "سعر كل خيار",
+    "includedModifiersGroupHint": "يُستخدم عندما يقدّم طبق خيارات من هذه المجموعة مجانًا («مشمول» في الطبق): أيها مجاني وكم تكلف التالية."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -409,7 +424,8 @@
     "cost": "التكلفة",
     "priceLocked": "السعر مقفل",
     "lineTotal": "إجمالي السطر",
-    "totalRecipeCost": "إجمالي تكلفة الوصفة: {{amount}}"
+    "totalRecipeCost": "إجمالي تكلفة الوصفة: {{amount}}",
+    "includedCount": "مشمول: {{value}} · الحد {{max}}"
   },
   "users": {
     "manageTabs": "إدارة علامات تبويب المستخدمين"

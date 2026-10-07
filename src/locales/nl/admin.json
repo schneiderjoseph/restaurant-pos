@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "Suggesties voor verkooppunten toepassen",
     "applyOutletSuggestionsConfirm": "{{count}} categorieën worden geclassificeerd",
     "outletColor": "Kleur",
-    "noOutlets": "Nog geen verkooppunten"
+    "noOutlets": "Nog geen verkooppunten",
+    "includedModifiers": "Inbegrepen (gratis)",
+    "includedModifiersHint": "Keuzes die dit gerecht gratis geeft. De volgende worden aangerekend. Leeg = uit.",
+    "maxModifiers": "Max. keuzes",
+    "maxModifiersHint": "Het maximum aantal keuzes, gratis en betaald. Leeg = geen limiet.",
+    "maxModifiersTooLow": "Moet minstens het inbegrepen en verplichte aantal zijn",
+    "freeModifierRule": "Gratis keuzes",
+    "freeModifierRules": {
+      "first": "De eerst gekozen",
+      "cheapest": "De goedkoopste",
+      "most_expensive": "De duurste"
+    },
+    "extraModifierPrice": "Toeslagprijs",
+    "extraModifierPriceHint": "Eén prijs voor elke betaalde keuze. Leeg = de prijs van elke keuze.",
+    "extraModifierPricePlaceholder": "Prijs van elke keuze",
+    "includedModifiersGroupHint": "Gebruikt wanneer een gerecht keuzes uit deze groep gratis geeft („Inbegrepen” bij het gerecht): welke gratis zijn en wat de volgende kosten."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -409,7 +424,8 @@
     "cost": "Kosten",
     "priceLocked": "Prijs vergrendeld",
     "lineTotal": "Regeltotaal",
-    "totalRecipeCost": "Totale receptkosten: {{amount}}"
+    "totalRecipeCost": "Totale receptkosten: {{amount}}",
+    "includedCount": "Inbegrepen: {{value}} · max {{max}}"
   },
   "users": {
     "manageTabs": "Gebruikerstabbladen beheren"

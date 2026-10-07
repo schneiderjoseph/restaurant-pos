@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "Aplicar sugestões de ponto de venda",
     "applyOutletSuggestionsConfirm": "{{count}} categorias serão classificadas",
     "outletColor": "Cor",
-    "noOutlets": "Nenhum ponto de venda ainda"
+    "noOutlets": "Nenhum ponto de venda ainda",
+    "includedModifiers": "Incluídos (grátis)",
+    "includedModifiersHint": "Opções que este prato dá grátis. As seguintes são cobradas. Vazio = desativado.",
+    "maxModifiers": "Máx. opções",
+    "maxModifiersHint": "O máximo de opções, grátis e pagas. Vazio = sem limite.",
+    "maxModifiersTooLow": "Deve ser pelo menos igual aos incluídos e obrigatórios",
+    "freeModifierRule": "Opções grátis",
+    "freeModifierRules": {
+      "first": "As primeiras escolhidas",
+      "cheapest": "As mais baratas",
+      "most_expensive": "As mais caras"
+    },
+    "extraModifierPrice": "Preço do adicional",
+    "extraModifierPriceHint": "Um só preço para cada opção paga. Vazio = o preço de cada opção.",
+    "extraModifierPricePlaceholder": "Preço de cada opção",
+    "includedModifiersGroupHint": "Usado quando um prato dá opções deste grupo grátis (\"Incluídos\" no prato): quais são grátis e quanto custam as seguintes."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -409,7 +424,8 @@
     "cost": "Custo",
     "priceLocked": "Preço bloqueado",
     "lineTotal": "Total da linha",
-    "totalRecipeCost": "Custo total da receita: {{amount}}"
+    "totalRecipeCost": "Custo total da receita: {{amount}}",
+    "includedCount": "Incluídos: {{value}} · máx {{max}}"
   },
   "users": {
     "manageTabs": "Gerenciar abas de usuários"

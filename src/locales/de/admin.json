@@ -387,7 +387,22 @@
     "applyOutletSuggestionsTitle": "Verkaufsstellen-Vorschläge anwenden",
     "applyOutletSuggestionsConfirm": "{{count}} Kategorien werden klassifiziert",
     "outletColor": "Farbe",
-    "noOutlets": "Noch keine Verkaufsstellen"
+    "noOutlets": "Noch keine Verkaufsstellen",
+    "includedModifiers": "Inklusive (gratis)",
+    "includedModifiersHint": "Auswahlen, die dieses Gericht gratis gibt. Weitere kosten extra. Leer = aus.",
+    "maxModifiers": "Max. Auswahlen",
+    "maxModifiersHint": "Höchstzahl der Auswahlen, gratis und bezahlt. Leer = unbegrenzt.",
+    "maxModifiersTooLow": "Muss mindestens der inklusiven und der Pflichtanzahl entsprechen",
+    "freeModifierRule": "Gratis-Auswahlen",
+    "freeModifierRules": {
+      "first": "Die zuerst gewählten",
+      "cheapest": "Die günstigsten",
+      "most_expensive": "Die teuersten"
+    },
+    "extraModifierPrice": "Aufpreis",
+    "extraModifierPriceHint": "Ein Preis für jede bezahlte Auswahl. Leer = Preis der jeweiligen Auswahl.",
+    "extraModifierPricePlaceholder": "Preis jeder Auswahl",
+    "includedModifiersGroupHint": "Gilt, wenn ein Gericht Auswahlen dieser Gruppe gratis gibt („Inklusive“ am Gericht): welche gratis sind und was weitere kosten."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -409,7 +424,8 @@
     "cost": "Kosten",
     "priceLocked": "Preis gesperrt",
     "lineTotal": "Zeilensumme",
-    "totalRecipeCost": "Rezeptkosten gesamt: {{amount}}"
+    "totalRecipeCost": "Rezeptkosten gesamt: {{amount}}",
+    "includedCount": "Inklusive: {{value}} · max {{max}}"
   },
   "users": {
     "manageTabs": "Benutzerregisterkarten verwalten"

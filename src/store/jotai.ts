@@ -1,5 +1,5 @@
 import {atomWithStorage, createJSONStorage, unwrap} from "jotai/utils";
-import {atom} from 'jotai';
+import {atom, type PrimitiveAtom} from 'jotai';
 import {Dish} from "@/api/model/dish.ts";
 import {Table} from "@/api/model/table.ts";
 import {Category} from "@/api/model/category.ts";
@@ -17,6 +17,7 @@ import {PaymentType} from "@/api/model/payment_type.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {Tax} from "@/api/model/tax.ts";
+import type {Duo} from "@/api/model/duo.ts";
 import {DEFAULT_LANGUAGE, DEFAULT_TEXT_DIRECTION, type AppTextDirection} from "@/lib/languages.ts";
 import {keepOrderGraphInMemory} from "@/store/app-state-storage.ts";
 
@@ -332,3 +333,10 @@ export const closingEnforcementAtom = atom<ClosingEnforcementAtomState>(defaultC
 
 /** In-memory global dish search on the order-taking top bar (not persisted). */
 export const menuSearchAtom = atom('');
+/**
+ * The signed-in user's running duo (src/lib/duo.ts), kept by `DuoWatcher`; null outside one.
+ * In memory only: a duo lives in the database and is read again after a reload.
+ */
+export const appDuo = atom(null as Duo | null) as PrimitiveAtom<Duo | null>;
+/** The invitation this user sent and nobody answered yet, kept by `DuoWatcher`. */
+export const appDuoInvite = atom(null as Duo | null) as PrimitiveAtom<Duo | null>;

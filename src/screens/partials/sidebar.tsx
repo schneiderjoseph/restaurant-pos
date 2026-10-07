@@ -47,6 +47,7 @@ import {
   isIntegrationsModuleEnabled,
 } from "@/lib/feature-modules.ts";
 import { SecurityAlertsBadge } from "@/components/admin/security-alerts/alert-badge.tsx";
+import { DuoButton } from "@/components/duo/duo-button.tsx";
 import { useModuleAccess } from "@/providers/module-access.provider.tsx";
 import {
   isSidebarEntryFeatureEnabled,
@@ -152,7 +153,7 @@ export const Sidebar = () => {
       <div className="w-full">
         {/* Gutter reserved on both sides: the buttons stay centered whether the scrollbar shows or not. */}
         <ScrollContainer
-          className="h-[calc(100vh_-_150px)] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]"
+          className="h-[calc(100vh_-_215px)] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]"
           hideScrollbars={false}
         >
           <div className="p-2 flex flex-col">
@@ -181,6 +182,8 @@ export const Sidebar = () => {
         </ScrollContainer>
       </div>
       <div className="flex flex-col gap-2 w-full p-2">
+        {/* Duo: for whoever takes orders. */}
+        {ready && can('orders') && <DuoButton/>}
         <div className="input-group">
           {showSettings && (
             <button

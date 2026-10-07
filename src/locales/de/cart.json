@@ -1,4 +1,4 @@
-﻿{
+{
   "removeSelectedConfirm": "Ausgewählte Artikel aus dieser Bestellung entfernen?",
   "seats": {
     "seat": "Platz",
@@ -28,5 +28,9 @@
       "allergy": "Allergie",
       "immediate": "Sofort"
     }
+  },
+  "group": {
+    "unfold": "Jeden Teller zeigen",
+    "fold": "Einklappen"
   }
 }

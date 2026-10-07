@@ -80,6 +80,9 @@ function getOrderItemModifierLines(orderItem) {
     if (depth > MODIFIER_WALK_MAX_DEPTH) return;
     (Array.isArray(groups) ? groups : []).forEach((group) => {
       if (!group || !Array.isArray(group.selectedModifiers)) return;
+      // The same choice picked twice in one group is two portions (e.g. 2x fries, one free
+      // and one charged): counted, not dropped by the path dedup.
+      const pickedInGroup = new Map();
       group.selectedModifiers.forEach((sel) => {
         if (!sel) return;
         const modDish = sel.dish || sel.item;
@@ -89,15 +92,24 @@ function getOrderItemModifierLines(orderItem) {
         if (!modifierName) return;
 
         const currentPath = parentPath ? `${parentPath}>${modifierName}` : modifierName;
+        const picked = pickedInGroup.get(currentPath);
+        if (picked) {
+          picked.count += 1;
+          if (picked.line) picked.line.name = `${picked.count}x ${modifierName}`;
+          return;
+        }
         if (seen.has(currentPath)) return;
         seen.add(currentPath);
 
         // Skip echo of the parent dish name (common when modifier tree mirrors the line).
+        let line = null;
         if (parentName && modifierName.toLowerCase() === parentName && depth === 0) {
           // still walk nested groups under this node
         } else {
-          lines.push({ depth, name: modifierName });
+          line = { depth, name: modifierName };
+          lines.push(line);
         }
+        pickedInGroup.set(currentPath, { count: 1, line });
 
         const nested = sel.selectedGroups;
         if (Array.isArray(nested) && nested.length > 0) {

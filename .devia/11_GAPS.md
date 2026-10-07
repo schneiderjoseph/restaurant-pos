@@ -16,6 +16,9 @@ Add one with `npx devia gap add "question"`.
 | G4 | A user holding order_edit.sent_items changes a sent line directly: the change is saved but no kitchen ticket prints (only an approved request prints one, and a removed line only cancels its kitchen rows). Should the direct change print the same tickets? | | | open |
 | G5 | A server who reopens an order with a change request still pending sees the order as sent, with no sign that a request is waiting, and can send a second one. Show the pending request in the cart, or replace the earlier one? | | | open |
 | G6 | Order change requests never time out: with no user holding order_edit.approve signed in, a request stays pending until the order is paid (then it expires when someone opens it). Is a timeout or an alert to the server wanted? | | | open |
+| G7 | DUO candidates are the users with a live `user_session`; sessions are not deleted at logout, so a colleague who signed out may still be listed until their token expires (the invitation then just expires after 2 min). Is that acceptable, or should logout end the session row? | | Listed; invitation expires unanswered | open |
+| G8 | A DUO formed outside every service (Manage → Services, ±2 h) ends at midnight; with the per-user `user_shift` unset the services running now are used. Confirm these fallbacks | | Midnight / services running now | open |
+| G9 | Outside a DUO, saving a changed order still sets `order.user` to whoever saved it (existing behaviour), so the order and its sales move to that user. Inside a DUO the order keeps its server. Should every edit keep the original server? | | Unchanged outside a DUO | open |
 
 ## Closed
 

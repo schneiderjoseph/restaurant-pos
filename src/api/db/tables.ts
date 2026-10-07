@@ -124,6 +124,7 @@ export enum Tables {
 
   auth_permission = 'auth_permission',
   order_edit_requests = 'order_edit_request',
+  duos = 'duo',
   tracking = 'tracking',
 
   accounts = 'account',

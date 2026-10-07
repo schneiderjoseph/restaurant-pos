@@ -1,4 +1,4 @@
-﻿{
+{
   "removeSelectedConfirm": "Seçili ürünler bu siparişten kaldırılsın mı?",
   "seats": {
     "seat": "Koltuk",
@@ -28,5 +28,9 @@
       "allergy": "Alerji",
       "immediate": "Hemen"
     }
+  },
+  "group": {
+    "unfold": "Her tabağı göster",
+    "fold": "Daralt"
   }
 }

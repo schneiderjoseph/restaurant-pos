@@ -27,7 +27,10 @@
   "modifiers": {
     "modifyTitle": "{{name}} değiştir",
     "cancel": "İptal",
-    "replacedWarning": "Son değiştirici değiştirildi; başka bir değiştiriciyi değiştirmek için sağ kenar çubuğundan kaldırın ve tekrar seçin."
+    "replacedWarning": "Son değiştirici değiştirildi; başka bir değiştiriciyi değiştirmek için sağ kenar çubuğundan kaldırın ve tekrar seçin.",
+    "included": "dahil",
+    "includedCount": "{{count}} · {{included}} dahil",
+    "confirm": "Onayla"
   },
   "persons": {
     "chooseCount": "Kişi sayısını seçin"

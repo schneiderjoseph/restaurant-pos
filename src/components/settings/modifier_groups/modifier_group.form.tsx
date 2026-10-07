@@ -41,9 +41,19 @@ interface Props {
   data?: ModifierGroup
 }
 
+const FREE_MODIFIER_RULES = ['first', 'cheapest', 'most_expensive'] as const;
+
 const validationSchema = yup.object({
   name: yup.string().required(i18n.t('validation:required')),
   priority: yup.string().required(i18n.t('validation:required')),
+  free_modifier_rule: yup.string().oneOf([...FREE_MODIFIER_RULES]).default('first'),
+  extra_modifier_price: yup.number()
+    .transform((value, original) =>
+      original === '' || original === null || original === undefined ? null : value
+    )
+    .nullable()
+    .min(0, i18n.t('validation:mustBeNumber'))
+    .typeError(i18n.t('validation:mustBeNumber')),
   modifiers: yup.array(yup.object({
     modifier: yup.object({
       label: yup.string(),
@@ -259,6 +269,8 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
       reset({
         name: '',
         priority: '0',
+        free_modifier_rule: 'first',
+        extra_modifier_price: null,
         modifiers: []
       });
       return;
@@ -291,6 +303,8 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
         reset({
           name: data.name,
           priority: data.priority.toString(),
+          free_modifier_rule: data.free_modifier_rule ?? 'first',
+          extra_modifier_price: data.extra_modifier_price ?? null,
           modifiers,
         });
       }
@@ -328,6 +342,19 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
     const vals = { ...values };
 
     vals.priority = Number(vals.priority);
+
+    // Left off a group that never used them, so it saves the same as before; cleared to NULL once set.
+    const extraPrice = vals.extra_modifier_price;
+    if (extraPrice !== null && extraPrice !== undefined && Number.isFinite(Number(extraPrice))) {
+      vals.extra_modifier_price = Number(extraPrice);
+    } else if (data?.extra_modifier_price != null) {
+      vals.extra_modifier_price = null;
+    } else {
+      delete vals.extra_modifier_price;
+    }
+    if (vals.free_modifier_rule === 'first' && !data?.free_modifier_rule) {
+      delete vals.free_modifier_rule;
+    }
     const modifiers = [];
     if (vals.modifiers) {
       for (const m of vals.modifiers) {
@@ -416,6 +443,47 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                 control={control}
               />
             </div>
+          </div>
+
+          <div className="mb-3 flex flex-wrap gap-3">
+            <div className="min-w-[220px]">
+              <label className="block mb-1" htmlFor="free_modifier_rule">{t('forms.freeModifierRule')}</label>
+              <Controller
+                name="free_modifier_rule"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    id="free_modifier_rule"
+                    className="form-control"
+                    value={field.value ?? 'first'}
+                    onChange={(e) => field.onChange(e.target.value)}
+                  >
+                    {FREE_MODIFIER_RULES.map((rule) => (
+                      <option key={rule} value={rule}>{t(`forms.freeModifierRules.${rule}`)}</option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+            <div className="min-w-[180px]">
+              <Controller
+                name="extra_modifier_price"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    min={0}
+                    label={t('forms.extraModifierPrice')}
+                    title={t('forms.extraModifierPriceHint')}
+                    placeholder={t('forms.extraModifierPricePlaceholder')}
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    error={errors?.extra_modifier_price?.message}
+                  />
+                )}
+              />
+            </div>
+            <p className="w-full text-sm text-neutral-500">{t('forms.includedModifiersGroupHint')}</p>
           </div>
 
           <div className="mb-3">
