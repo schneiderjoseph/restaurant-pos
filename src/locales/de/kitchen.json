@@ -5,7 +5,8 @@
     "viewAllDishes": "Alle Gerichte anzeigen",
     "recall": "Zurückrufen",
     "ready": "Fertig",
-    "reprint": "Neu drucken"
+    "reprint": "Neu drucken",
+    "viewItems": "Artikel anzeigen"
   },
   "labels": {
     "avgTime": "Ø Zeit: {{time}}",
@@ -13,8 +14,7 @@
     "addon": "ZUSATZ",
     "original": "ORIGINAL",
     "completed": "Abgeschlossen: {{time}}",
-    "items": "Artikel: {{count}}",
-    "continued": "FORTSETZUNG"
+    "items": "Artikel: {{count}}"
   },
   "announcements": {
     "newOrder": "Neue Bestellung. {{context}}. {{number}}.",

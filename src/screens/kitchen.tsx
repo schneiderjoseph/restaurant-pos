@@ -37,12 +37,6 @@ import {unlockSpeech} from "@/lib/order-ready-announcement.ts";
 import {stationKitchenId} from "@/lib/kitchen/station-account.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
-/** Approximate vertical budget (px) for chrome around item rows on a ticket. */
-const CARD_CHROME_PX = 168;
-/** Approximate height of one dish row on the ticket. */
-const ITEM_ROW_PX = 44;
-const MIN_ITEMS_PER_CARD = 3;
-
 /** Bright borders for multi-part orders (original + addons / continued). */
 const ORDER_GROUP_COLORS = [
   '#ff1744', // vivid red
@@ -94,76 +88,30 @@ const assignOrderGroupColors = (
 const batchIsAddon = (batch: KitchenOrderBatch) =>
   batch.items.some((item) => item.order_item?.is_addition);
 
-const isMultiPartGroup = (
-  group: KitchenOrderModel,
-  maxItemsPerCard: number
-) => {
-  const multiBatch = group.batches.length > 1;
-  const hasAddon = group.batches.some(batchIsAddon);
-  const totalChunks = group.batches.reduce(
-    (sum, batch) => sum + Math.max(1, Math.ceil(batch.items.length / maxItemsPerCard)),
-    0
-  );
-  return multiBatch || hasAddon || totalChunks > 1;
-};
+const isMultiPartGroup = (group: KitchenOrderModel) =>
+  group.batches.length > 1 || group.batches.some(batchIsAddon);
 
-const buildBoardTickets = (
-  orders: KitchenOrderModel[],
-  maxItemsPerCard: number
-): KitchenBoardTicket[] => {
-  const tickets: KitchenBoardTicket[] = [];
+const buildBoardTickets = (orders: KitchenOrderModel[]): KitchenBoardTicket[] => {
+  const orderKey = (group: KitchenOrderModel) =>
+    group.order?.id?.toString() ?? group.batches[0]?.batchKey ?? '';
 
-  const multiPartOrderIds: string[] = [];
-  for (const group of orders) {
-    if (!isMultiPartGroup(group, maxItemsPerCard)) {
-      continue;
-    }
-    const orderId = group.order?.id?.toString()
-      ?? group.batches[0]?.batchKey
-      ?? '';
-    if (orderId && !multiPartOrderIds.includes(orderId)) {
-      multiPartOrderIds.push(orderId);
-    }
-  }
+  const multiPartOrderIds = [...new Set(
+    orders.filter(isMultiPartGroup).map(orderKey).filter(Boolean)
+  )];
   const colorByOrder = assignOrderGroupColors(multiPartOrderIds);
 
-  for (const group of orders) {
-    const multiBatch = group.batches.length > 1;
-    const orderId = group.order?.id?.toString()
-      ?? group.batches[0]?.batchKey
-      ?? '';
-    const groupColor = isMultiPartGroup(group, maxItemsPerCard)
-      ? colorByOrder.get(orderId)
-      : undefined;
+  return orders.flatMap((group) => {
+    const multiPart = isMultiPartGroup(group);
+    const groupColor = multiPart ? colorByOrder.get(orderKey(group)) : undefined;
 
-    for (const batch of group.batches) {
-      const isAddon = batchIsAddon(batch);
-      const items = batch.items;
-      const chunkTotal = Math.max(1, Math.ceil(items.length / maxItemsPerCard));
-
-      for (let chunkIndex = 0; chunkIndex < chunkTotal; chunkIndex++) {
-        const start = chunkIndex * maxItemsPerCard;
-        const slice = items.slice(start, start + maxItemsPerCard);
-
-        tickets.push({
-          order: group.order,
-          batch: {
-            ...batch,
-            items: slice,
-          },
-          reprintItems: items,
-          isAddon,
-          isContinued: chunkIndex > 0,
-          chunkIndex,
-          chunkTotal,
-          showKindLabel: multiBatch || isAddon || chunkTotal > 1,
-          groupColor,
-        });
-      }
-    }
-  }
-
-  return tickets;
+    return group.batches.map((batch) => ({
+      order: group.order,
+      batch,
+      isAddon: batchIsAddon(batch),
+      showKindLabel: multiPart,
+      groupColor,
+    }));
+  });
 };
 
 
@@ -207,29 +155,9 @@ export const KitchenScreen = () => {
     ordersHydrated
   );
 
-  const boardAreaRef = useRef<HTMLDivElement | null>(null);
-  const [maxItemsPerCard, setMaxItemsPerCard] = useState(12);
-
-  useEffect(() => {
-    const el = boardAreaRef.current;
-    if (!el) {
-      return;
-    }
-
-    const update = () => {
-      const available = Math.max(120, el.clientHeight - CARD_CHROME_PX);
-      setMaxItemsPerCard(Math.max(MIN_ITEMS_PER_CARD, Math.floor(available / ITEM_ROW_PX)));
-    };
-
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [kitchen?.id]);
-
   const boardTickets = useMemo(
-    () => buildBoardTickets(orders, maxItemsPerCard),
-    [orders, maxItemsPerCard]
+    () => buildBoardTickets(orders),
+    [orders]
   );
 
   const [avgTime, setAvgTime] = useState('-');
@@ -668,28 +596,23 @@ export const KitchenScreen = () => {
         <div className="grid grid-cols-5 gap-5">
           <ScrollContainer
             className={cn(
-              'h-[calc(100vh_-_110px)] select-none overflow-y-hidden',
+              'h-[calc(100vh_-_110px)] select-none overflow-x-hidden',
               dishesModal ? 'col-span-4' : 'col-span-5'
             )}
           >
             <div
-              ref={boardAreaRef}
-              className="flex flex-col flex-wrap gap-3 h-full content-start items-start"
+              className="grid grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-3 content-start pb-3"
               data-testid="kitchen-board"
             >
-              {boardTickets.map((ticket) => {
-                const ticketKey = `${ticket.batch.batchKey}_${ticket.chunkIndex}`;
-                return (
-                  <div key={ticketKey} className="w-[280px] max-h-full shrink-0">
-                    <KitchenOrder
-                      ticket={ticket}
-                      kitchen={kitchen}
-                      isNew={highlightedBatchKeys.has(ticket.batch.batchKey)}
-                      splitInto={splitIntoByOrder[String(ticket.order?.id)]}
-                    />
-                  </div>
-                );
-              })}
+              {boardTickets.map((ticket) => (
+                <KitchenOrder
+                  key={ticket.batch.batchKey}
+                  ticket={ticket}
+                  kitchen={kitchen}
+                  isNew={highlightedBatchKeys.has(ticket.batch.batchKey)}
+                  splitInto={splitIntoByOrder[String(ticket.order?.id)]}
+                />
+              ))}
             </div>
           </ScrollContainer>
 

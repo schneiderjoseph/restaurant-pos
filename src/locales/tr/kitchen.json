@@ -5,7 +5,8 @@
     "viewAllDishes": "Tüm yemekleri görüntüle",
     "recall": "Geri çağır",
     "ready": "Hazır",
-    "reprint": "Yeniden yazdır"
+    "reprint": "Yeniden yazdır",
+    "viewItems": "Ürünleri gör"
   },
   "labels": {
     "avgTime": "Ort. süre: {{time}}",
@@ -13,8 +14,7 @@
     "addon": "EK",
     "original": "ASIL",
     "completed": "Tamamlandı: {{time}}",
-    "items": "Ürünler: {{count}}",
-    "continued": "DEVAMI"
+    "items": "Ürünler: {{count}}"
   },
   "announcements": {
     "newOrder": "Yeni sipariş. {{context}}. {{number}}.",

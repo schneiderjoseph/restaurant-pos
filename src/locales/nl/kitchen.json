@@ -5,7 +5,8 @@
     "viewAllDishes": "Alle gerechten bekijken",
     "recall": "Terughalen",
     "ready": "Klaar",
-    "reprint": "Opnieuw afdrukken"
+    "reprint": "Opnieuw afdrukken",
+    "viewItems": "Artikelen bekijken"
   },
   "labels": {
     "avgTime": "Gem. tijd: {{time}}",
@@ -13,8 +14,7 @@
     "addon": "EXTRA",
     "original": "ORIGINEEL",
     "completed": "Voltooid: {{time}}",
-    "items": "Artikelen: {{count}}",
-    "continued": "VERDER"
+    "items": "Artikelen: {{count}}"
   },
   "announcements": {
     "newOrder": "Nieuwe bestelling. {{context}}. {{number}}.",

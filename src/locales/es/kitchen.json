@@ -5,7 +5,8 @@
     "viewAllDishes": "Ver todos los platos",
     "recall": "Recuperar",
     "ready": "Listo",
-    "reprint": "Reimprimir"
+    "reprint": "Reimprimir",
+    "viewItems": "Ver artículos"
   },
   "labels": {
     "avgTime": "Tiempo prom.: {{time}}",
@@ -13,8 +14,7 @@
     "addon": "COMPLEMENTO",
     "original": "ORIGINAL",
     "completed": "Completado: {{time}}",
-    "items": "Artículos: {{count}}",
-    "continued": "CONTINUACIÓN"
+    "items": "Artículos: {{count}}"
   },
   "announcements": {
     "newOrder": "Nuevo pedido. {{context}}. {{number}}.",

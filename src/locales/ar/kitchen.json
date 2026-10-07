@@ -5,7 +5,8 @@
     "viewAllDishes": "عرض جميع الأطباق",
     "recall": "استرجاع",
     "ready": "جاهز",
-    "reprint": "إعادة طباعة"
+    "reprint": "إعادة طباعة",
+    "viewItems": "عرض الأصناف"
   },
   "labels": {
     "avgTime": "متوسط الوقت: {{time}}",
@@ -13,8 +14,7 @@
     "addon": "إضافة",
     "original": "أصلي",
     "completed": "مكتمل: {{time}}",
-    "items": "الأصناف: {{count}}",
-    "continued": "متابعة"
+    "items": "الأصناف: {{count}}"
   },
   "announcements": {
     "newOrder": "طلب جديد. {{context}}. {{number}}.",

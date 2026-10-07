@@ -5,7 +5,8 @@
     "viewAllDishes": "Показать все блюда",
     "recall": "Вернуть",
     "ready": "Готово",
-    "reprint": "Перепечатать"
+    "reprint": "Перепечатать",
+    "viewItems": "Показать позиции"
   },
   "labels": {
     "avgTime": "Среднее время: {{time}}",
@@ -13,8 +14,7 @@
     "addon": "ДОПОЛНЕНИЕ",
     "original": "ОСНОВНОЙ",
     "completed": "Завершено: {{time}}",
-    "items": "Позиций: {{count}}",
-    "continued": "ПРОДОЛЖЕНИЕ"
+    "items": "Позиций: {{count}}"
   },
   "announcements": {
     "newOrder": "Новый заказ. {{context}}. {{number}}.",

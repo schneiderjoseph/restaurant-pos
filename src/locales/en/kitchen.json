@@ -5,7 +5,8 @@
     "viewAllDishes": "View all dishes",
     "recall": "Recall",
     "ready": "Ready",
-    "reprint": "Re-print"
+    "reprint": "Re-print",
+    "viewItems": "View items"
   },
   "labels": {
     "avgTime": "Avg time: {{time}}",
@@ -14,7 +15,6 @@
     "original": "ORIGINAL",
     "completed": "Completed: {{time}}",
     "items": "Items: {{count}}",
-    "continued": "CONTINUED",
     "room": "Room",
     "table": "Table",
     "guest": "Guest"

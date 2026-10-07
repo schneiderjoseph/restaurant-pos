@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Kitchen, KitchenOrderBatch } from "@/api/model/kitchen.ts";
 import { Order } from "@/api/model/order.ts";
-import { OrderItemKitchen } from "@/api/model/order_item_kitchen.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
+import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { OrderItemName } from "@/components/common/order/order.item.tsx";
 import { formatOrderNumber } from "@/lib/order.ts";
@@ -26,12 +26,7 @@ import {
 export type KitchenBoardTicket = {
   order: Order
   batch: KitchenOrderBatch
-  /** Full batch items for full-batch reprint (when card is a chunk). */
-  reprintItems: OrderItemKitchen[]
   isAddon: boolean
-  isContinued: boolean
-  chunkIndex: number
-  chunkTotal: number
   showKindLabel: boolean
   /** Shared border color for multi-part tickets of the same order. */
   groupColor?: string
@@ -61,8 +56,11 @@ export const KitchenOrder = ({
   const isVisible = useActionVisible();
   const canReprintKot = isVisible("orders.print_kot");
   const [printing, setPrinting] = useState(false);
+  const [showItems, setShowItems] = useState(false);
 
-  const { order, batch, reprintItems, isAddon, isContinued, showKindLabel, groupColor } = ticket;
+  const { order, batch, isAddon, showKindLabel, groupColor } = ticket;
+  const liveItems = batch.items.filter((item) => !item.order_item?.deleted_at);
+  const itemCount = liveItems.reduce((sum, item) => sum + (item.order_item?.quantity ?? 1), 0);
   const stageStart = batchStart(batch);
   // An order wanted later is timed from its due time, not from when it was sent.
   const timerStart = timerStartWithDue(
@@ -82,12 +80,7 @@ export const KitchenOrder = ({
 
   const ready = async () => {
     try {
-      // Long sends are split into SUITE cards for display only — Prêt must clear
-      // the whole batch (reprintItems), not just this chunk's slice.
-      const ids = reprintItems
-        .filter((item) => !item.order_item?.deleted_at)
-        .map((item) => item.id.toString());
-      await completeStages(db, ids, page?.user?.id);
+      await completeStages(db, liveItems.map((item) => item.id.toString()), page?.user?.id);
     } catch (error) {
       console.error('Kitchen ready failed', error);
     }
@@ -106,8 +99,8 @@ export const KitchenOrder = ({
       return;
     }
 
-    const items = reprintItems
-      .filter((item) => !item.order_item?.deleted_at && item.order_item)
+    const items = liveItems
+      .filter((item) => item.order_item)
       .map((item) => ({
         ...item.order_item,
         item: item.order_item.item,
@@ -153,121 +146,158 @@ export const KitchenOrder = ({
     });
   };
 
-  return (
-    <div
-      className={cn(
-        "bg-white rounded-xl shadow flex flex-col w-full border-[3px]",
-        isNew && "ring-2 ring-primary-500 kitchen-new-order",
-        !groupColor && "border-transparent",
+  const dueLabel = order?.due_at
+    ? t('due.forTime', {
+      time: formatDueLabel(toLuxonDateTime(order.due_at), nowInAppTimezone(), t('due.tomorrowShort')),
+    })
+    : null;
+  const subtitle = [order?.order_type?.name, placeLabel].filter(Boolean).join(' · ');
+
+  const kindLabel = showKindLabel ? (
+    <span className={cn(
+      "text-xs font-bold uppercase px-2 py-0.5 rounded-full shrink-0",
+      isAddon ? "bg-primary-500 text-white" : "bg-neutral-200 text-neutral-700"
+    )}>
+      {isAddon ? t("labels.addon") : t("labels.original")}
+    </span>
+  ) : null;
+
+  const actions = (
+    <div className="flex gap-1.5">
+      {canReprintKot && (
+        <Button
+          variant="neutral"
+          className="flex-1"
+          size="lg"
+          isLoading={printing}
+          disabled={!kitchen?.printers?.length}
+          onClick={reprint}
+        >
+          {t("actions.reprint")}
+        </Button>
       )}
-      style={groupColor ? { borderColor: groupColor } : undefined}
-    >
-      <div className={
-        cn(
-          "flex justify-between p-2 rounded-t-lg border-b-2 border-neutral-300",
-          !(diff >= 30) && !isNew && 'bg-neutral-100',
-          diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700 kitchen-late-order',
-          diff >= 60 && 'bg-danger-200 text-danger-700 kitchen-delayed-order',
-          !(diff >= 30) && isNew && 'bg-primary-100 text-primary-800',
-        )
-      }>
-        <div className="flex gap-2 min-w-0">
-          <div className="flex flex-col items-start gap-0.5 min-w-0">
+      <Button
+        variant="success"
+        filled
+        className="flex-1 w-full"
+        size="lg"
+        onClick={ready}
+      >
+        {t("actions.ready")}
+      </Button>
+    </div>
+  );
+
+  return (
+    <>
+      <div
+        className={cn(
+          "bg-white rounded-xl shadow-sm flex flex-col w-full h-full border-[3px] overflow-hidden",
+          "animate-in fade-in zoom-in-95 duration-300",
+          isNew && "ring-2 ring-primary-500 kitchen-new-order",
+          !groupColor && "border-transparent",
+        )}
+        style={groupColor ? { borderColor: groupColor } : undefined}
+        data-testid="kitchen-ticket"
+      >
+        <button
+          type="button"
+          onClick={() => setShowItems(true)}
+          title={t("actions.viewItems")}
+          className={cn(
+            "flex-1 flex flex-col gap-1 p-3 text-left cursor-pointer transition-colors",
+            !(diff >= 30) && !isNew && 'bg-neutral-50 hover:bg-neutral-100',
+            diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700 kitchen-late-order',
+            diff >= 60 && 'bg-danger-200 text-danger-700 kitchen-delayed-order',
+            !(diff >= 30) && isNew && 'bg-primary-100 text-primary-800 kitchen-new-order-batch',
+          )}
+        >
+          <div className="flex items-start justify-between gap-2 w-full">
             {/* The order number, not the guest name, heads the ticket on screen (prints keep the guest). */}
-            <span className="font-black text-xl truncate max-w-full" data-testid="kitchen-order-number">
+            <span className="font-black text-2xl leading-none truncate" data-testid="kitchen-order-number">
               {formatOrderNumber(order)}
             </span>
-            {splitInto && (
-              <span className="font-bold text-base truncate max-w-full" data-testid="kitchen-split-into">
-                → {splitInto}
-              </span>
-            )}
-            {order?.order_type?.name && (
-              <span className="font-bold text-lg truncate max-w-full">
-                {order.order_type.name}
-              </span>
-            )}
-            {order?.due_at && (
-              <span className="font-black text-lg" data-testid="kitchen-due-at">
-                {t('due.forTime', {
-                  time: formatDueLabel(toLuxonDateTime(order.due_at), nowInAppTimezone(), t('due.tomorrowShort')),
-                })}
-              </span>
-            )}
             {timerStart && (
-              <span className="text-lg font-bold">
+              <span className="text-lg font-bold tabular-nums leading-none shrink-0">
                 <Countdown time={timerStart} hideUntilStarted />
               </span>
             )}
           </div>
-        </div>
-        <div className="flex flex-col shrink-0 items-end">
-          <span className="text-base font-bold px-1 rounded text-right">{order?.user?.first_name}</span>
-          {placeLabel && (
-            <span className="text-xs font-medium px-1 text-right opacity-70" data-testid="kitchen-place-label">
-              {placeLabel}
+          {/* Every line keeps its slot, even empty, so all tickets share one height. */}
+          <span className="h-5 text-sm font-semibold uppercase truncate max-w-full opacity-80" data-testid="kitchen-place-label">
+            {subtitle}
+          </span>
+          <div className="h-6 flex items-center justify-between gap-2 w-full">
+            <span className="font-black text-base truncate" data-testid="kitchen-due-at">
+              {dueLabel}
             </span>
-          )}
-          {(showKindLabel || isContinued) && (
-            <span className={cn(
-              "text-sm font-bold uppercase text-right",
-              isAddon || isContinued ? "text-primary-500" : "text-neutral-500"
-            )}>
-              {isContinued
-                ? t("labels.continued")
-                : isAddon
-                  ? t("labels.addon")
-                  : t("labels.original")}
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className={cn(
-        "p-2",
-        isNew && "bg-primary-50 kitchen-new-order-batch",
-      )}>
-        {batch.items.map(item => (
-          <div
-            onClick={() => singleReady(item.id.toString())}
-            className={
-              cn(
-                "flex flex-col cursor-pointer",
-                item.order_item?.deleted_at ? 'text-danger-700 line-through' : ''
-              )
-            }
-            key={item.id}
-          >
-            <div className="flex items-center gap-2">
-              <OrderItemName item={item.order_item} showQuantity />
-            </div>
+            {splitInto && (
+              <span className="font-bold text-sm truncate" data-testid="kitchen-split-into">
+                → {splitInto}
+              </span>
+            )}
           </div>
-        ))}
+          <div className="h-6 flex items-center justify-between gap-2 mt-1 w-full">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-neutral-900 text-white shrink-0">
+                {t("labels.items", { count: itemCount })}
+              </span>
+              {kindLabel}
+            </div>
+            <span className="text-sm font-semibold truncate opacity-70">{order?.user?.first_name}</span>
+          </div>
+        </button>
+
+        <div className="p-1.5">
+          {actions}
+        </div>
       </div>
 
-      <div className="p-1.5 flex gap-1.5">
-        {canReprintKot && (
-          <Button
-            variant="neutral"
-            className="flex-1"
-            size="lg"
-            isLoading={printing}
-            disabled={!kitchen?.printers?.length}
-            onClick={reprint}
-          >
-            {t("actions.reprint")}
-          </Button>
-        )}
-        <Button
-          variant="success"
-          filled
-          className={canReprintKot ? "flex-1" : "flex-1 w-full"}
-          size="lg"
-          onClick={ready}
+      {showItems && (
+        <Modal
+          open
+          onClose={() => setShowItems(false)}
+          size="md"
+          testId="kitchen-ticket-items"
+          title={
+            <div className="flex items-center gap-3">
+              <span className="font-black">{formatOrderNumber(order)}</span>
+              {kindLabel}
+            </div>
+          }
         >
-          {t("actions.ready")}
-        </Button>
-      </div>
-    </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-white p-3">
+              {subtitle && <span className="font-semibold uppercase">{subtitle}</span>}
+              {order?.user?.first_name && <span className="text-neutral-600">{order.user.first_name}</span>}
+              {dueLabel && <span className="font-black text-danger-600">{dueLabel}</span>}
+              {timerStart && (
+                <span className="ml-auto font-bold tabular-nums">
+                  <Countdown time={timerStart} hideUntilStarted />
+                </span>
+              )}
+            </div>
+
+            {/* Tap a line to mark that dish ready on its own. */}
+            <div className="rounded-lg bg-white divide-y divide-neutral-100 max-h-[60vh] overflow-auto">
+              {batch.items.map(item => (
+                <div
+                  onClick={() => singleReady(item.id.toString())}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2.5 text-lg cursor-pointer hover:bg-neutral-50",
+                    item.order_item?.deleted_at ? 'text-danger-700 line-through' : ''
+                  )}
+                  key={item.id}
+                >
+                  <OrderItemName item={item.order_item} showQuantity />
+                </div>
+              ))}
+            </div>
+
+            {actions}
+          </div>
+        </Modal>
+      )}
+    </>
   );
 };
