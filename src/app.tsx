@@ -23,6 +23,7 @@ import {I18nProvider} from "@/providers/i18n.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {ForceFullscreenProvider} from "@/providers/force-fullscreen.provider.tsx";
+import {VisualViewportProvider} from "@/providers/visual-viewport.provider.tsx";
 import {
   isClosingModuleEnabled,
   isDeliveryModuleEnabled,
@@ -84,6 +85,7 @@ function App() {
   }, []);
 
   return (
+    <VisualViewportProvider>
     <ForceFullscreenProvider>
     <QueryClientProvider client={queryClient}>
       <ConfigProvider theme={appAntdTheme}>
@@ -123,6 +125,7 @@ function App() {
       </ConfigProvider>
     </QueryClientProvider>
     </ForceFullscreenProvider>
+    </VisualViewportProvider>
   );
 }
 

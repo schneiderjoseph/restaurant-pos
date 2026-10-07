@@ -112,7 +112,7 @@ export const MenuPersons = () => {
         cn("text-4xl", error && 'login-error')
       }>{t('persons.chooseCount')}</h3>
       <div
-        className="w-[380px] h-[75px] flex items-center justify-center text-3xl font-bold">{state.persons}</div>
+                className="w-full max-w-[380px] h-[75px] flex items-center justify-center text-3xl font-bold">{state.persons}</div>
       <div className="grid grid-cols-3 gap-3">
         <button type="button" onClick={() => onKey('1')}
                 className={btnClasses}>1

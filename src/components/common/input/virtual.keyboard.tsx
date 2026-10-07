@@ -142,7 +142,7 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
       shouldCenter
       bottomSheet
     >
-      <div className="container p-4">
+      <div className={cn("p-3 sm:p-4", isNumeric && "mx-auto w-full max-w-md")}>
         <div className="mb-4">
           <input
             type={type}
@@ -155,7 +155,13 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
         {extras ? <div className="mb-4">{extras}</div> : null}
         <div className="flex gap-y-2 flex-col">
           {keyboardLayout.map((row: string[], rowIndex: number) => (
-            <div key={rowIndex} className="flex gap-2 flex-row justify-center">
+            <div
+              key={rowIndex}
+              className={cn(
+                "flex gap-1 sm:gap-2 flex-row justify-center",
+                !isNumeric && "flex-wrap"
+              )}
+            >
               {row.map((key, keyIndex) => (
                 isNumeric ? (
                   <Button
@@ -165,7 +171,7 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
                         "btn btn-primary btn-flat xl btn-square",
                         key === '*clear' && '!bg-danger-500 text-white',
                         key === '*bs' && '!bg-danger-500 text-white',
-                        key === '*space' && '!w-[250px]'
+                        key === '*space' && '!w-[min(250px,60vw)]'
                       )
                     }
                     onClick={() => handleKeyPress(key)}
@@ -177,9 +183,9 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
                   <button
                     className={
                       cn(
-                        "btn btn-primary btn-flat xl btn-square !normal-case",
+                        "btn btn-primary btn-flat btn-square !normal-case min-w-[2rem] sm:min-w-[2.75rem] h-11 sm:h-[54px] text-base sm:text-xl px-1",
                         key === '*clear' && '!bg-danger-500 text-white',
-                        key === '*space' && '!w-[250px]',
+                        key === '*space' && '!w-[min(250px,70vw)] min-w-[8rem]',
                         key === '*bs' && '!bg-danger-500 text-white',
                       )
                     }

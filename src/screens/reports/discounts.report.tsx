@@ -296,7 +296,7 @@ export const DiscountsReport = () => {
   return (
     <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
       <div className="space-y-8">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t("categories.orders")}</div>
             <div className="text-xl font-semibold">{formatNumber(orderCount)}</div>
@@ -311,7 +311,7 @@ export const DiscountsReport = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="overflow-hidden rounded-lg border border-neutral-200">
             <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
               {t("labels.discountTypes")}

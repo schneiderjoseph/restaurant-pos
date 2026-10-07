@@ -118,7 +118,7 @@ export const DeleteConfirm = ({
           >
             <Dialog
               role="alertdialog"
-              className="max-w-md max-h-full overflow-hidden rounded-2xl bg-white p-6 box-border text-left shadow-xl relative min-w-[350px]"
+              className="w-full max-w-md max-h-full overflow-hidden rounded-2xl bg-white p-6 box-border text-left shadow-xl relative min-w-0 mx-auto"
             >
               <Heading
                 slot="title"

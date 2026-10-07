@@ -1,7 +1,7 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import {MenuDishes} from "@/components/menu/dishes.tsx";
 import {MenuCart} from "@/components/cart/cart.tsx";
-import {useEffect, useMemo, useRef} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {FloorLayout} from "@/components/floor/floor.layout.tsx";
 import {MenuHeader} from "@/components/menu/header.tsx";
 import {GuestLookup} from "@/components/menu/guest.lookup.tsx";
@@ -10,7 +10,7 @@ import {appAlert, appSettings, appState, closingEnforcementAtom} from "@/store/j
 import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {MenuPersons} from "@/components/menu/persons.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {toRecordId} from "@/lib/utils.ts";
+import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import 'swiper/css';
@@ -20,9 +20,16 @@ import {useSearchParams} from "react-router";
 import {useResortFb} from "@/hooks/useResortFb.ts";
 import {useEnsureAsiMenuCache} from "@/hooks/useEnsureAsiMenuCache.ts";
 import {useEnsureLoyverseMenuCache} from "@/hooks/useEnsureLoyverseMenuCache.ts";
+import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
+import {Modal} from "@/components/common/react-aria/modal.tsx";
+import {calculateCartItemNetTotal} from "@/lib/cart.ts";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faShoppingCart} from "@fortawesome/free-solid-svg-icons";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
+  const isNarrow = useIsNarrow();
+  const [cartSheetOpen, setCartSheetOpen] = useState(false);
   const [state, setState] = useAtom(appState);
   const [editSession] = useAtom(orderEditSessionAtom);
   const [settings] = useAtom(appSettings);
@@ -279,23 +286,56 @@ export const Menu = () => {
     (!resortFb || resortFloorMode);
   const showPersonsLayout = !docsTableless && !showGuestLookup && state.showPersons === true;
 
-  const screen = useMemo(() => {
-    if (showGuestLookup) {
-      return <GuestLookup/>;
-    }
+  const cartItemCount = useMemo(
+    () => state.cart.filter(item => !item.deleted_at).length,
+    [state.cart]
+  );
+  const cartTotal = useMemo(
+    () => state.cart.reduce((sum, item) => item.deleted_at ? sum : sum + calculateCartItemNetTotal(item), 0),
+    [state.cart]
+  );
 
-    if (showFloorLayout) {
-      return <FloorLayout/>;
-    }
+  const isMenuOrderingScreen = !showFloorLayout && !showPersonsLayout && !showGuestLookup;
+  // On phones, hide sidebar during ordering even in tableless mode (nav via drawer on other steps).
+  const showSidebar = isNarrow
+    ? (showFloorLayout || showPersonsLayout || showGuestLookup)
+    : (showFloorLayout || showPersonsLayout || showGuestLookup || tablelessMode || docsTableless);
 
-    if (showPersonsLayout) {
-      return <MenuPersons/>;
-    }
-
-    return (
-      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-[100vh] overflow-hidden" data-testid="menu-page">
+  let screen: React.ReactNode;
+  if (showGuestLookup) {
+    screen = <GuestLookup/>;
+  } else if (showFloorLayout) {
+    screen = <FloorLayout/>;
+  } else if (showPersonsLayout) {
+    screen = <MenuPersons/>;
+  } else if (isNarrow) {
+    screen = (
+      <div className="flex flex-col h-full min-h-0 overflow-hidden pl-2 pr-2" data-testid="menu-page">
+        <div className="mb-2 flex min-h-[70px] shrink-0 items-center gap-3">
+          <MenuHeader/>
+        </div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden pb-[4.5rem]" data-testid="menu-dishes">
+          <MenuDishes/>
+        </div>
+        <button
+          type="button"
+          data-testid="menu-cart-open"
+          className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-3 bg-neutral-900 text-white px-4 py-3 safe-area-bottom shadow-2xl"
+          onClick={() => setCartSheetOpen(true)}
+        >
+          <span className="inline-flex items-center gap-2 font-bold">
+            <FontAwesomeIcon icon={faShoppingCart}/>
+            {cartItemCount}
+          </span>
+          <span className="font-bold tabular-nums">{withCurrency(cartTotal)}</span>
+        </button>
+      </div>
+    );
+  } else {
+    screen = (
+      <div className="grid grid-cols-[minmax(0,1fr)_440px] gap-3 pl-3 h-full min-h-0 overflow-hidden" data-testid="menu-page">
         <div className="flex min-h-0 flex-col overflow-hidden">
-          <div className="mb-3 flex h-[70px] shrink-0 items-center gap-3">
+          <div className="mb-3 flex min-h-[70px] shrink-0 items-center gap-3">
             <MenuHeader/>
           </div>
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden" data-testid="menu-dishes">
@@ -306,20 +346,31 @@ export const Menu = () => {
           <MenuCart/>
         </div>
       </div>
-    )
-
-  }, [showFloorLayout, showPersonsLayout, showGuestLookup]);
-
-  const isMenuOrderingScreen = !showFloorLayout && !showPersonsLayout && !showGuestLookup;
+    );
+  }
 
   return (
     <Layout
       overflowHidden={isMenuOrderingScreen}
-      containerClassName={isMenuOrderingScreen ? "overflow-hidden" : undefined}
-      showSidebar={showFloorLayout || showPersonsLayout || showGuestLookup || tablelessMode || docsTableless}
+      containerClassName={cn(isMenuOrderingScreen && "overflow-hidden")}
+      showSidebar={showSidebar}
     >
       <DocumentTitle parts={[tNav('sidebar.menu')]} />
       {screen}
+      {isNarrow && isMenuOrderingScreen && (
+        <Modal
+          open={cartSheetOpen}
+          onClose={() => setCartSheetOpen(false)}
+          title={`${cartItemCount}`}
+          bottomSheet
+          size="lg"
+          testId="menu-cart-sheet"
+        >
+          <div className="h-[min(70dvh,70vh)] min-h-[280px]" data-testid="menu-cart">
+            <MenuCart/>
+          </div>
+        </Modal>
+      )}
     </Layout>
   );
 }

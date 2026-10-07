@@ -14,6 +14,7 @@ import {
   resolveVisibleSelection,
 } from "@/lib/module-access.ts";
 import { NoAccessibleTabs } from "@/components/common/no-accessible-tabs.tsx";
+import ScrollContainer from "react-indiana-drag-scroll";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const DELIVERY_TAB_MODULES: Record<string, string> = {
@@ -71,13 +72,15 @@ export const Index = () => {
           });
         }}
       >
-        <TabList aria-label="Tabs"
-                 className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
-                 data-testid="delivery-tabs">
-          {visibleKeys.map(key => (
-            <Tab id={key} key={key} data-testid={`delivery-tab-${key}`}>{pages[key].title}</Tab>
-          ))}
-        </TabList>
+        <ScrollContainer mouseScroll hideScrollbars={false} className="flex-grow-0 flex-shrink">
+          <TabList aria-label="Tabs"
+                   className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
+                   data-testid="delivery-tabs">
+            {visibleKeys.map(key => (
+              <Tab id={key} key={key} data-testid={`delivery-tab-${key}`}>{pages[key].title}</Tab>
+            ))}
+          </TabList>
+        </ScrollContainer>
         {visibleKeys.map((key) => (
           <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
             <div>

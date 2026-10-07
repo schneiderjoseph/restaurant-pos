@@ -225,16 +225,16 @@ export const TableComponent: FC<TableComponentProps> = ({
 
   return (
     <>
-      <div className="my-5 flex justify-between">
-        <div className="inline-flex justify-start">
+      <div className="my-5 flex flex-wrap justify-between gap-2">
+        <div className="inline-flex flex-wrap justify-start">
           {(customSearch || enableSearch !== false) && (
             <form
-              className="flex gap-3"
+              className="flex flex-wrap gap-3"
               onSubmit={handleSubmit(customSearch ? handleCustomSearch : handleColumnFilter)}>
               {customSearch ? (
                 <Controller
                   render={({ field }) => (
-                    <div className="relative w-72">
+                    <div className="relative w-full sm:w-72">
                       <Input
                         value={field.value}
                         onChange={field.onChange}
@@ -268,7 +268,7 @@ export const TableComponent: FC<TableComponentProps> = ({
                       <ReactSelect
                         onChange={field.onChange}
                         options={filterOptions}
-                        className="w-72"
+                        className="w-full sm:w-72"
                         value={field.value}
                       />
                     )}
@@ -282,7 +282,7 @@ export const TableComponent: FC<TableComponentProps> = ({
                         <ReactSelect
                           onChange={field.onChange}
                           options={item.options}
-                          className="w-72"
+                          className="w-full sm:w-72"
                           value={field.value}
                         />
                       )}

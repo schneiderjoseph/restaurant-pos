@@ -575,8 +575,8 @@ export const KitchenScreen = () => {
         onPointerDown={unlockKitchenSpeech}
         onClick={unlockKitchenSpeech}
       >
-        <div className="h-[60px] flex-0 flex items-center gap-3 justify-between" data-testid="kitchen-toolbar">
-          <div className="input-group flex-1">
+        <div className="min-h-[60px] flex-0 flex flex-wrap items-center gap-3 justify-between" data-testid="kitchen-toolbar">
+          <div className="input-group flex-1 flex flex-wrap min-w-0">
             {kitchens.map(item => (
               <Button
                 size="lg"
@@ -584,7 +584,7 @@ export const KitchenScreen = () => {
                 onClick={() => setKitchen(item)}
                 active={item.id.toString() === kitchen?.id?.toString()}
                 key={item.id}
-                className="min-w-[200px]"
+                className="w-full min-w-0 sm:min-w-[200px] sm:w-auto"
               >
                 {item.name}
                 {item.shows_all ? (
@@ -616,11 +616,11 @@ export const KitchenScreen = () => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           <ScrollContainer
             className={cn(
               'h-[calc(100vh_-_110px)] select-none overflow-x-hidden',
-              dishesModal ? 'col-span-4' : 'col-span-5'
+              dishesModal ? 'col-span-1 lg:col-span-4' : 'col-span-1 lg:col-span-5'
             )}
           >
             <div

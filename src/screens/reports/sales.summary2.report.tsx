@@ -796,7 +796,7 @@ export const SalesSummary2Report = () => {
         {/* First section: Financial calculations with 4 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.financialCalculations')}</h3>
-          <div className="grid grid-cols-4 divide-x divide-neutral-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-neutral-200">
             {/* 1st subsection: Financial calculations */}
             <div className="p-4">
               <h4 className="mb-3 font-semibold text-neutral-600">{t('labels.financialSummary')}</h4>
@@ -1327,7 +1327,7 @@ export const SalesSummary2Report = () => {
         {/* Fourth section: Breakdowns with 3 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.breakdowns')}</h3>
-          <div className="grid grid-cols-3 divide-x divide-neutral-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-neutral-200">
             {/* 1st subsection: Categories with dishes and modifiers */}
             <div className="p-4">
               <div className="mb-3 flex items-center justify-between gap-2">

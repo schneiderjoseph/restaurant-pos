@@ -307,7 +307,7 @@ export const Login = () => {
           <FontAwesomeIcon size="lg" icon={code.trim().length >= 3 ? faCircle : circleRegular} />
           <FontAwesomeIcon size="lg" icon={code.trim().length === 4 ? faCircle : circleRegular} />
         </div>
-        <div className="wrapper w-[400px]" data-testid="login-pin-pad">
+        <div className="wrapper w-full max-w-[400px] px-3" data-testid="login-pin-pad">
           <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
             <button type="button" onClick={() => onKey('1')} className="btn-login">1</button>
             <button type="button" onClick={() => onKey('2')} className="btn-login">2</button>

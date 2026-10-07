@@ -53,6 +53,7 @@ import {formatTaxLabel} from "@/lib/tax-label.ts";
 import {collectOrderTaxRows, getExcludedTaxIds} from "@/lib/tax-calculator.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {roundCurrency} from "@/lib/discount-engine/rounding.ts";
+import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
 interface Props {
   order: Order
@@ -73,6 +74,7 @@ export const OrderPayment = ({
   order, onClose
 }: Props) => {
   const {t} = useTranslation('payment');
+  const isNarrow = useIsNarrow();
   const db = useDB();
   const {protectAction} = useSecurity();
   const isVisible = useActionVisible();
@@ -833,10 +835,21 @@ export const OrderPayment = ({
       size="full"
     >
       <div
-        className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)] gap-4 mb-0 select-none"
+        className={cn(
+          "grid gap-4 mb-0 select-none min-h-0",
+          isNarrow
+            ? "grid-cols-1"
+            : "grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)]",
+        )}
         data-testid="payment-screen"
       >
-        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]" data-testid="payment-order-summary">
+        <div
+          className={cn(
+            "bg-white rounded-xl flex flex-col overflow-auto min-h-0",
+            isNarrow ? "max-h-[45vh]" : "h-[calc(100vh_-_120px)]",
+          )}
+          data-testid="payment-order-summary"
+        >
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
@@ -1049,7 +1062,13 @@ export const OrderPayment = ({
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)] overflow-auto" data-testid="payment-adjust-panel">
+        <div
+          className={cn(
+            "bg-white rounded-xl flex flex-col p-3 overflow-auto min-h-0",
+            isNarrow ? "max-h-[45vh]" : "h-[calc(100vh_-_120px)]",
+          )}
+          data-testid="payment-adjust-panel"
+        >
           {mode === PaymentOptions.Tax && (
             <OrderPaymentTax
               tax={tax}

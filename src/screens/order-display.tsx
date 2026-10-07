@@ -270,8 +270,8 @@ export const OrderDisplayScreen = () => {
         />
       )}
       <div className="flex flex-col gap-3 p-3 h-full" data-testid="order-display-page">
-        <div className="h-[60px] flex-shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="order-display-filters">
-          <div className="min-w-[200px]">
+        <div className="min-h-[60px] flex-shrink-0 rounded-xl bg-white flex flex-wrap items-center px-3 gap-3" data-testid="order-display-filters">
+          <div className="w-full min-w-0 sm:min-w-[200px]">
             <ReactSelect
               options={[
                 OrderStatus['In Progress'],
@@ -290,7 +290,7 @@ export const OrderDisplayScreen = () => {
               onChange={(value: LabelValue[]) => updateFilter('statuses', value)}
             />
           </div>
-          <div className="min-w-[200px]">
+          <div className="w-full min-w-0 sm:min-w-[200px]">
             <ReactSelect
               options={orderTypes?.data.map((item) => ({
                 label: item.name,
@@ -314,7 +314,7 @@ export const OrderDisplayScreen = () => {
           </div>
         </div>
 
-        <div className="flex flex-1 gap-3 min-h-0" data-testid="order-display-boards">
+        <div className="flex flex-1 flex-col lg:flex-row gap-3 min-h-0" data-testid="order-display-boards">
           <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
             <div className="flex-shrink-0 px-4 py-3 bg-warning-500 text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">

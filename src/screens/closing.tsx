@@ -597,7 +597,7 @@ export const Closing = () => {
                 {t("closing:terminal.add")}
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {terminalCash.map((terminal) => (
                 <div key={terminal.terminal_id} className="border rounded-lg p-4">
                   <div className="flex justify-between items-center mb-4">

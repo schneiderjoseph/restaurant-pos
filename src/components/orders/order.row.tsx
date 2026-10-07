@@ -17,10 +17,15 @@ import {RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {OrderLineageLabel} from "@/components/orders/order.lineage.tsx";
 import type {OrderLineage} from "@/lib/order-lineage.ts";
+import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
-/** Shared by the sticky header and every row so columns line up. */
+/** Shared by the sticky header and every row so columns line up (desktop / tablet). */
 export const ORDERS_LIST_GRID_CLASS =
   "grid grid-cols-[minmax(4.5rem,5.5rem)_minmax(7rem,1.5fr)_minmax(5rem,0.85fr)_minmax(6.5rem,1fr)_minmax(5.5rem,0.95fr)_minmax(4rem,0.55fr)_minmax(5.5rem,1fr)] gap-x-2 items-center px-3";
+
+/** Compact card row for narrow / phone list view. */
+export const ORDERS_LIST_CARD_CLASS =
+  "flex flex-col gap-2 px-3 py-3";
 
 interface Props {
   order: OrderModel
@@ -34,6 +39,7 @@ export const OrderRow = ({
   lineage,
 }: Props) => {
   const {t} = useTranslation('orders');
+  const isNarrow = useIsNarrow();
   const db = useDB();
   const {rootRef, displayOrder: order, cardReady, isHydrating, retryHydrate} = useOrderCardHydrate(snapshot);
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
@@ -87,6 +93,18 @@ export const OrderRow = ({
     }
   };
 
+  const statusBadge = (
+    <span
+      data-testid="order-status-badge"
+      className={cn(
+        "uppercase p-1 px-3 rounded-lg text-sm font-bold inline-block",
+        showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
+      )}
+    >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
+  );
+
+  const itemCount = cardReady ? getOrderDisplayItems(order).length : (isHydrating ? '…' : '—');
+
   return (
     <>
       <div
@@ -95,55 +113,78 @@ export const OrderRow = ({
           void openPayment();
         }}
         className={cn(
-          ORDERS_LIST_GRID_CLASS,
+          isNarrow ? ORDERS_LIST_CARD_CLASS : ORDERS_LIST_GRID_CLASS,
           "min-h-[56px] select-none border-b border-neutral-200 odd:bg-white even:bg-neutral-100",
           isActionable && "cursor-pointer active:bg-neutral-300",
           !isActionable && "cursor-default",
         )}
       >
-        <div className="py-2">
-          <div className="font-semibold">{formatOrderNumber(order)}</div>
-          <OrderLineageLabel lineage={lineage}/>
-        </div>
+        {isNarrow ? (
+          <>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-semibold">{formatOrderNumber(order)}</div>
+                <OrderLineageLabel lineage={lineage}/>
+                <div className="mt-1 text-sm text-neutral-700 truncate">
+                  {[order?.table ? formatTableLabel(order.table) : null, order?.customer ? formatGuestLabel(order.customer) : null]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </div>
+              </div>
+              <div className="text-right font-bold text-lg text-danger-700 shrink-0">
+                {cardReady ? <DualCurrency amount={total} primaryClassName="text-lg font-bold" /> : '…'}
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              {statusBadge}
+              <span className="text-neutral-600">{order?.user?.first_name}</span>
+              <OrderElapsed order={order} />
+              <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-neutral-900 text-white justify-center items-center text-sm ml-auto">
+                {itemCount}
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="py-2">
+              <div className="font-semibold">{formatOrderNumber(order)}</div>
+              <OrderLineageLabel lineage={lineage}/>
+            </div>
 
-        <div className="flex flex-col justify-center gap-1 py-2 min-w-0">
-          {order?.table && (
-            <span className="text-sm font-medium text-neutral-900">
-              {formatTableLabel(order.table)}
-            </span>
-          )}
-          {order?.customer && (
-            <span className="text-sm text-neutral-700 truncate">
-              {formatGuestLabel(order.customer)}
-            </span>
-          )}
-        </div>
+            <div className="flex flex-col justify-center gap-1 py-2 min-w-0">
+              {order?.table && (
+                <span className="text-sm font-medium text-neutral-900">
+                  {formatTableLabel(order.table)}
+                </span>
+              )}
+              {order?.customer && (
+                <span className="text-sm text-neutral-700 truncate">
+                  {formatGuestLabel(order.customer)}
+                </span>
+              )}
+            </div>
 
-        <div className="py-2 truncate">{order?.user?.first_name}</div>
+            <div className="py-2 truncate">{order?.user?.first_name}</div>
 
-        <div className="py-2">
-          <span
-            data-testid="order-status-badge"
-            className={cn(
-              "uppercase p-1 px-3 rounded-lg text-sm font-bold inline-block",
-              showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
-            )}
-          >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
-        </div>
+            <div className="py-2">
+              {statusBadge}
+            </div>
 
-        <div className="py-2 min-h-[2.5rem] flex flex-col justify-center">
-          <OrderElapsed order={order} />
-        </div>
+            <div className="py-2 min-h-[2.5rem] flex flex-col justify-center">
+              <OrderElapsed order={order} />
+            </div>
 
-        <div className="py-2 flex items-center">
-          <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-neutral-900 text-white justify-center items-center text-sm">
-            {cardReady ? getOrderDisplayItems(order).length : (isHydrating ? '…' : '—')}
-          </span>
-        </div>
+            <div className="py-2 flex items-center">
+              <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-neutral-900 text-white justify-center items-center text-sm">
+                {itemCount}
+              </span>
+            </div>
 
-        <div className="py-2 text-right font-bold text-lg text-danger-700">
-          {cardReady ? <DualCurrency amount={total} primaryClassName="text-lg font-bold" /> : '…'}
-        </div>
+            <div className="py-2 text-right font-bold text-lg text-danger-700">
+              {cardReady ? <DualCurrency amount={total} primaryClassName="text-lg font-bold" /> : '…'}
+            </div>
+          </>
+        )}
       </div>
 
       {paymentOrder && (

@@ -138,6 +138,7 @@ export const TipsReport = () => {
       </div>
 
       <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
@@ -160,6 +161,7 @@ export const TipsReport = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </ReportsLayout>
   );

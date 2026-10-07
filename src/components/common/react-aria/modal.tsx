@@ -83,7 +83,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
             // onOpenChange={close}
             className={cn(
               'react-aria-Modal',
-              props.bottomSheet ? 'mb-12' : ''
+              props.bottomSheet ? 'w-full' : ''
             )}
           >
             <Dialog
@@ -95,13 +95,14 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 size === 'lg' && 'modal-lg',
                 size === 'xl' && 'modal-xl',
                 size === "md" && 'modal-md',
+                props.bottomSheet && 'modal-bottom-sheet',
                 !props.backdrop && 'no-backdrop'
               )}
             >
               <div style={{
                 backgroundColor: props.backgroundColor ?? 'rgb(255, 255, 255)',
                 backdropFilter: 'blur(10px)'
-              }} className="rounded-lg">
+              }} className={cn(props.bottomSheet ? 'rounded-t-2xl' : 'rounded-lg')}>
                 {hideCloseButton !== true && (
                   <TooltipTrigger delay={0} closeDelay={0}>
                     <button

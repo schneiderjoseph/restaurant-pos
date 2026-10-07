@@ -492,7 +492,7 @@ export const FloorLayout = () => {
       <div className="flex flex-col h-full transition-all delay-75" data-testid="menu-floor" style={{
         background: state.floor?.background
       }}>
-        <div className="min-h-[72px] bg-white/95 backdrop-blur border-b border-neutral-200 px-4 py-2 flex items-center gap-4">
+        <div className="min-h-[72px] bg-white/95 backdrop-blur border-b border-neutral-200 px-4 py-2 flex flex-wrap items-center gap-4">
           {resortFb && state.resortEntry === 'floor' && (
             <Button
               variant="primary"
@@ -528,10 +528,10 @@ export const FloorLayout = () => {
             </div>
           ) : (
             <>
-              <div className="min-w-[120px]">
+              <div className="min-w-0">
                 <div className="text-2xl font-black leading-none">{state.floor?.name}</div>
               </div>
-              <div className="flex items-center gap-2 text-sm font-semibold">
+              <div className="flex flex-wrap items-center gap-2 text-sm font-semibold">
                 <span className="rounded-full bg-success-100 text-success-800 px-3 py-1">{t('floor.free', {count: floorStats.free})}</span>
                 <span className="rounded-full bg-warning-100 text-warning-800 px-3 py-1">{t('floor.occupied', {count: floorStats.occupied})}</span>
               </div>

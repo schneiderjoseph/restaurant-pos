@@ -343,7 +343,7 @@ export const OrderBox = ({
 
   return (
     <>
-      <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none h-[540px]" data-testid="order-card">
+      <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none min-h-[280px] h-auto max-h-[min(540px,70dvh)]" data-testid="order-card">
         <OrderHeader order={order} tempPrinted={tempPrinted} kitchenReady={kitchenReady} lineage={lineage}/>
         <OrderElapsed order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>

@@ -169,6 +169,7 @@ export const SalesSummaryReport = () => {
     <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
             <tr>
@@ -210,9 +211,11 @@ export const SalesSummaryReport = () => {
             )}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
             <tr>
@@ -249,6 +252,7 @@ export const SalesSummaryReport = () => {
             )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {outletSales.length > 0 && (
@@ -256,6 +260,7 @@ export const SalesSummaryReport = () => {
             <div className="bg-neutral-50 px-6 py-3 border-b border-neutral-200">
               <h2 className="text-sm font-semibold text-neutral-700">{t('sections.salesByOutlet')}</h2>
             </div>
+            <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
               <tr>
@@ -298,6 +303,7 @@ export const SalesSummaryReport = () => {
               ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

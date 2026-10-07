@@ -26,6 +26,7 @@ import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {narrowToTableList} from "@/lib/menu-categories.ts";
+import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -43,6 +44,7 @@ export const MenuHeader = () => {
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const hideTableSelection = state.hideTableSelection === true;
   const {enabled: resortFb} = useResortFb();
+  const isNarrow = useIsNarrow();
   const skipTableUi = hideTableSelection || (resortFb && state.resortEntry !== 'floor');
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
@@ -215,8 +217,8 @@ export const MenuHeader = () => {
 
   return (
     <>
-      <div className="flex items-center justify-between gap-2 w-full min-w-0 overflow-hidden" data-testid="menu-header">
-        <div className="flex items-center gap-2 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 w-full min-w-0 overflow-hidden min-h-[56px]" data-testid="menu-header">
+        <div className="flex flex-wrap items-center gap-2 min-w-0">
           {!skipTableUi && !resortFb && (
             <Button
               variant="primary"
@@ -325,7 +327,7 @@ export const MenuHeader = () => {
           </div>
         </div>
 
-        <div className="flex input-group rounded-full shrink-0" data-testid="menu-order-types">
+        <div className="flex input-group rounded-full shrink-0 w-full sm:w-auto basis-full sm:basis-auto" data-testid="menu-order-types">
           {orderTypes.map((item, index) => (
             <Button
               variant="primary"
@@ -401,7 +403,7 @@ export const MenuHeader = () => {
             setConfirmCartAction(false)
           }}
           title={t('header.confirmTitle')}
-          size="sm"
+          size={isNarrow ? 'lg' : 'sm'}
         >
           <div className="alert alert-danger">
             {t('header.confirmCartMessage', { count: newCartItems })}

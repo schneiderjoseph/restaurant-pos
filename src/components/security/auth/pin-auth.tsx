@@ -185,7 +185,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
 
       {/* Numeric Keypad */}
       <div className="flex justify-center ">
-        <div className="wrapper w-[300px]" data-testid="security-pin-pad">
+        <div className="wrapper w-full max-w-[300px] px-2" data-testid="security-pin-pad">
           <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((num) => (
               <button

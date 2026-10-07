@@ -66,8 +66,8 @@ export const DiscountPermissionMatrix = () => {
       {(roles?.data || []).map(role => {
         const policy = getPolicy(role.id)
         return (
-          <div key={role.id} className="border rounded-lg p-4 grid grid-cols-4 gap-3 items-end">
-            <div className="font-semibold col-span-4">{role.name}</div>
+          <div key={role.id} className="border rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+            <div className="font-semibold col-span-full">{role.name}</div>
             {canUpdate ? (
               <>
                 <Input

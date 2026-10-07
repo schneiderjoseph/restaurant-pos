@@ -367,9 +367,9 @@ export const Summary = () => {
     <Layout overflowHidden>
       <DocumentTitle parts={[tNav('sidebar.summary')]} />
       <div className="flex gap-5 p-3 flex-col" data-testid="summary-page">
-        <div className="bg-white rounded-xl flex gap-10 justify-center px-5">
-          <div className="flex justify-center items-center flex-col flex-1">
-            <div className="w-[450px]" data-testid="summary-calendar">
+        <div className="bg-white rounded-xl flex flex-col lg:flex-row gap-10 justify-center px-5">
+          <div className="flex justify-center items-center flex-col flex-1 min-w-0">
+            <div className="w-full max-w-[450px]" data-testid="summary-calendar">
               <Calendar
                 onChange={setDate}
                 value={date}

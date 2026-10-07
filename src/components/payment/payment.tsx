@@ -690,13 +690,13 @@ export const Payment = () => {
                 })
               : t("payment:due.asapButton")}
           </Button>
-          <div className="flex gap-2 mt-3">
-            <Button variant="success" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Button variant="success" className="flex-1 min-w-[5.5rem] btn-wrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
                     disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
-            <Button variant="danger" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCancel} onClick={cancel}
+            <Button variant="danger" className="flex-1 min-w-[5.5rem] btn-wrap" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
-            <Button variant="warning" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faTimes} onClick={clear}
+            <Button variant="warning" className="flex-1 min-w-[5.5rem] btn-wrap" size="lg" icon={faTimes} onClick={clear}
                     disabled={isLoading || !hasNewLines} data-testid="menu-clear-cart">{t("menu:header.clear")}</Button>
           </div>
         </div>

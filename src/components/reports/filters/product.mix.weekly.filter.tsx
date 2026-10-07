@@ -157,7 +157,7 @@ export const ProductMixWeeklyReportFilter = () => {
         <select
           id="product-mix-weekly-week"
           name="week"
-          className="input bg-white min-w-[260px]"
+          className="input bg-white w-full min-w-0 sm:min-w-[260px]"
           disabled={loading || !!error}
           value={selectedWeek}
           onChange={(event) => setSelectedWeek(event.target.value)}

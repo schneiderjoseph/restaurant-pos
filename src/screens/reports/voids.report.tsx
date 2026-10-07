@@ -286,7 +286,7 @@ export const VoidsReport = () => {
     >
       <div className="space-y-8">
         {/* Summary sections */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Voids by Reason */}
           <div className="overflow-hidden rounded-lg border border-neutral-200">
             <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Reason</h3>

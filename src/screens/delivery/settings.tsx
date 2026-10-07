@@ -361,8 +361,8 @@ export const DeliverySettings = () => {
 
                 <div className="border-t pt-4 mt-2">
                   <h3 className="text-lg font-semibold mb-4">{t('settings.mapCenter')}</h3>
-                  <div className="flex gap-3">
-                    <div className="flex-1">
+                  <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex-1 min-w-0">
                       <Controller
                         name="map_center.lat"
                         control={control}
@@ -381,7 +381,7 @@ export const DeliverySettings = () => {
                         )}
                       />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <Controller
                         name="map_center.lng"
                         control={control}
@@ -423,8 +423,8 @@ export const DeliverySettings = () => {
                       const isDayOff = !(deliveryTimingValues?.[index]?.enable_delivery ?? false);
                       return (
                         <div key={field.id} className="border rounded-lg p-1 bg-gray-50">
-                          <div className="flex items-end gap-3">
-                            <div className="flex-1 min-w-[150px]">
+                          <div className="flex flex-col md:flex-row md:flex-wrap md:items-end gap-3">
+                            <div className="flex-1 min-w-0 md:min-w-[150px]">
                               <Controller
                                 name={`delivery_timing.${index}.day_or_date`}
                                 control={control}
@@ -440,7 +440,7 @@ export const DeliverySettings = () => {
                                 )}
                               />
                             </div>
-                            <div className="flex-1 min-w-[120px]">
+                            <div className="flex-1 min-w-0 md:min-w-[120px]">
                               <Controller
                                 name={`delivery_timing.${index}.start_time`}
                                 control={control}
@@ -453,7 +453,7 @@ export const DeliverySettings = () => {
                                 )}
                               />
                             </div>
-                            <div className="flex-1 min-w-[120px]">
+                            <div className="flex-1 min-w-0 md:min-w-[120px]">
                               <Controller
                                 name={`delivery_timing.${index}.end_time`}
                                 control={control}
