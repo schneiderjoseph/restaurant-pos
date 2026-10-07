@@ -262,5 +262,11 @@
     "answerApproved": "Your order change was approved",
     "answerRejected": "Your order change was refused",
     "answerExpired": "Your order change was dropped: the order is no longer open"
+  },
+  "lineage": {
+    "splitFrom": "Split from {{numbers}}",
+    "splitInto": "Split into {{numbers}}",
+    "mergedFrom": "Merged from {{numbers}}",
+    "mergedInto": "Merged into {{numbers}}"
   }
 }

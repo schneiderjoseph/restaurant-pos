@@ -27,6 +27,7 @@ import {LabelValue} from "@/api/model/common.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {commitMerge, MergeConflictError} from "@/lib/order-merge.ts";
+import {loadOrderLineage, OrderLineage} from "@/lib/order-lineage.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {translateOrderStatus} from "@/lib/order.ts";
@@ -88,6 +89,8 @@ export const Orders = () => {
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
   const [kitchenReadyIds, setKitchenReadyIds] = useState<Set<string>>(new Set());
+  /** Split / merge history of the listed orders, keyed by "order:id". */
+  const [lineageByOrder, setLineageByOrder] = useState<Record<string, OrderLineage>>({});
 
   const updateOrderFilter = useCallback((key: keyof AppStateInterface['ordersFilters'], value: LabelValue[]) => {
     setState(prev => ({
@@ -191,6 +194,11 @@ export const Orders = () => {
     const ids = list.map((o) => o.id.toString());
     const printed = await batchOrdersWithTempPrint(db, ids);
     setTempPrintedOrderIds(printed);
+    // Shown on the cards: which order a split / merged order comes from, or went into.
+    setLineageByOrder(await loadOrderLineage(db, list.map((o) => o.id)).catch((error) => {
+      console.error('Orders lineage query failed', error);
+      return {};
+    }));
 
     // Looked up by order item (indexed), so the query does not scan every kitchen row ever made.
     const inProgressItems = list
@@ -475,6 +483,7 @@ export const Orders = () => {
                         taxes={settings.taxes}
                         tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
                         kitchenReady={kitchenReadyIds.has(item.id.toString())}
+                        lineage={lineageByOrder[item.id.toString()]}
                         onMergeSelect={(order, status) => {
                           if (status) {
                             setMerging(true);
@@ -522,6 +531,7 @@ export const Orders = () => {
                       order={item}
                       key={item.id}
                       kitchenReady={kitchenReadyIds.has(item.id.toString())}
+                      lineage={lineageByOrder[item.id.toString()]}
                     />
                   ))}
                 </div>

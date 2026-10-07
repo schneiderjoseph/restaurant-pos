@@ -209,5 +209,11 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "lineage": {
+    "splitFrom": "Gesplitst uit {{numbers}}",
+    "splitInto": "Gesplitst in {{numbers}}",
+    "mergedFrom": "Samengevoegd uit {{numbers}}",
+    "mergedInto": "Samengevoegd in {{numbers}}"
   }
 }

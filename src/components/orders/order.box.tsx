@@ -9,6 +9,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {OrderHeader} from "@/components/orders/order.header.tsx";
+import type {OrderLineage} from "@/lib/order-lineage.ts";
 import {OrderElapsed} from "@/components/orders/order.elapsed.tsx";
 import {
   faAnglesDown,
@@ -70,6 +71,7 @@ interface Props {
   tempPrinted?: boolean;
   taxes?: Tax[];
   kitchenReady?: boolean;
+  lineage?: OrderLineage;
 }
 
 export const OrderBox = ({
@@ -81,6 +83,7 @@ export const OrderBox = ({
   tempPrinted: tempPrintedProp,
   taxes: taxesProp,
   kitchenReady = false,
+  lineage,
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
@@ -341,7 +344,7 @@ export const OrderBox = ({
   return (
     <>
       <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none h-[540px]" data-testid="order-card">
-        <OrderHeader order={order} tempPrinted={tempPrinted} kitchenReady={kitchenReady}/>
+        <OrderHeader order={order} tempPrinted={tempPrinted} kitchenReady={kitchenReady} lineage={lineage}/>
         <OrderElapsed order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <div className="relative flex-1 min-h-0 overflow-hidden">

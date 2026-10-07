@@ -15,6 +15,8 @@ import {OrderElapsed} from "@/components/orders/order.elapsed.tsx";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
+import {OrderLineageLabel} from "@/components/orders/order.lineage.tsx";
+import type {OrderLineage} from "@/lib/order-lineage.ts";
 
 /** Shared by the sticky header and every row so columns line up. */
 export const ORDERS_LIST_GRID_CLASS =
@@ -23,11 +25,13 @@ export const ORDERS_LIST_GRID_CLASS =
 interface Props {
   order: OrderModel
   kitchenReady?: boolean
+  lineage?: OrderLineage
 }
 
 export const OrderRow = ({
   order: snapshot,
   kitchenReady = false,
+  lineage,
 }: Props) => {
   const {t} = useTranslation('orders');
   const db = useDB();
@@ -96,7 +100,10 @@ export const OrderRow = ({
           !isActionable && "cursor-default",
         )}
       >
-        <div className="font-semibold py-2">{formatOrderNumber(order)}</div>
+        <div className="py-2">
+          <div className="font-semibold">{formatOrderNumber(order)}</div>
+          <OrderLineageLabel lineage={lineage}/>
+        </div>
 
         <div className="flex flex-col justify-center gap-1 py-2 min-w-0">
           {order?.table && (

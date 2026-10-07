@@ -6,17 +6,21 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPrint} from "@fortawesome/free-solid-svg-icons";
 import {formatGuestContact, formatGuestLabel} from "@/lib/guest-label.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
+import {OrderLineageLabel} from "@/components/orders/order.lineage.tsx";
+import type {OrderLineage} from "@/lib/order-lineage.ts";
 
 interface Props {
   order: Order
   tempPrinted?: boolean
   kitchenReady?: boolean
+  lineage?: OrderLineage
 }
 
 export const OrderHeader = ({
   order,
   tempPrinted = false,
   kitchenReady = false,
+  lineage,
 }: Props) => {
   const {t} = useTranslation('orders');
   const guestContact = order?.customer ? formatGuestContact(order.customer) : '';
@@ -50,6 +54,7 @@ export const OrderHeader = ({
               showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
             )}
           >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
+          <OrderLineageLabel lineage={lineage}/>
 
         </div>
       </div>

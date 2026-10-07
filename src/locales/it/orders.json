@@ -209,5 +209,11 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "lineage": {
+    "splitFrom": "Divisa da {{numbers}}",
+    "splitInto": "Divisa in {{numbers}}",
+    "mergedFrom": "Unione di {{numbers}}",
+    "mergedInto": "Unita in {{numbers}}"
   }
 }

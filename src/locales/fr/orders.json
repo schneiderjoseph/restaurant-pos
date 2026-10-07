@@ -262,5 +262,11 @@
     "answerApproved": "Votre modification de commande a été approuvée",
     "answerRejected": "Votre modification de commande a été refusée",
     "answerExpired": "Votre modification de commande est abandonnée : la commande n'est plus ouverte"
+  },
+  "lineage": {
+    "splitFrom": "Divisée de {{numbers}}",
+    "splitInto": "Divisée en {{numbers}}",
+    "mergedFrom": "Fusion de {{numbers}}",
+    "mergedInto": "Fusionnée dans {{numbers}}"
   }
 }
