@@ -9,11 +9,9 @@ export interface ExternalAccountingConfig {
   saleDocumentType: 'sales_receipt' | 'invoice';
   enableClasses: boolean;
   enableDepartments: boolean;
-  enableInventoryJournals: boolean;
   defaultCustomerId?: string;
   defaultRevenueAccount?: string;
   defaultTaxAccount?: string;
-  defaultInventoryAccount?: string;
   defaultExpenseAccount?: string;
   /** Logical account codes → external account IDs */
   accounts: Record<LogicalAccountCode, string>;

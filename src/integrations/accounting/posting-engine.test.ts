@@ -5,8 +5,6 @@ import { findMatchingPostingRule } from '@/integrations/accounting/rules/default
 import { parseInternalAccountingConfig } from '@/integrations/accounting/mapping/account-mapping.ts';
 import { buildAccountingIdempotencyKey } from '@/integrations/accounting/idempotency.ts';
 import {
-  PayrollPostedPayload,
-  PurchaseReceivedPayload,
   SaleCompletedPayload,
   SaleRefundedPayload,
 } from '@/integrations/accounting/events/payloads.ts';
@@ -19,13 +17,6 @@ const fullMapping = {
   CARD_RECEIVABLE: 'account:card',
   DISCOUNT: 'account:discount',
   TIPS: 'account:tips',
-  INVENTORY: 'account:inventory',
-  COGS: 'account:cogs',
-  ACCOUNTS_PAYABLE: 'account:ap',
-  WASTE_EXPENSE: 'account:waste',
-  INVENTORY_ADJUSTMENT: 'account:adj',
-  PAYROLL_EXPENSE: 'account:payroll-exp',
-  PAYROLL_LIABILITY: 'account:payroll-liab',
 };
 
 const salePayload: SaleCompletedPayload = {
@@ -116,62 +107,6 @@ describe('Accounting posting engine', () => {
     expect(cashLine?.debit).toBe(0);
     const revenueLine = result.draft!.lines.find((line) => line.logicalAccount === 'SALES_REVENUE');
     expect(revenueLine?.debit).toBe(100);
-  });
-
-  it('posts payroll expense and liability', async () => {
-    const engine = new AccountingPostingEngine();
-    const payload: PayrollPostedPayload = {
-      payrollRunId: 'payroll_run:1',
-      totals: { grossPay: 1000, netPay: 800, deductions: 200 },
-    };
-    const event = createPosEvent('PayrollPosted', payload, 'hr-core', 'PayrollPosted:payroll_run:1');
-    const sink = vi.fn(async () => undefined);
-
-    const result = await engine.process(
-      event,
-      { autoPublish: false, postingMode: 'draft', accounts: fullMapping },
-      'provider:internal-accounting',
-      sink
-    );
-
-    expect(result.handled).toBe(true);
-    expect(result.draft?.lines).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          logicalAccount: 'PAYROLL_EXPENSE',
-          debit: 1000,
-        }),
-        expect.objectContaining({
-          logicalAccount: 'PAYROLL_LIABILITY',
-          credit: 1000,
-        }),
-      ])
-    );
-  });
-
-  it('posts purchase received inventory vs AP', async () => {
-    const engine = new AccountingPostingEngine();
-    const payload: PurchaseReceivedPayload = {
-      documentId: 'inventory_purchase:1',
-      inventoryValue: 250,
-    };
-    const event = createPosEvent(
-      'PurchaseReceived',
-      payload,
-      'inventory-core',
-      'PurchaseReceived:inventory_purchase:1'
-    );
-    const sink = vi.fn(async () => undefined);
-
-    const result = await engine.process(
-      event,
-      { autoPublish: false, postingMode: 'draft', accounts: fullMapping },
-      'provider:internal-accounting',
-      sink
-    );
-
-    expect(result.handled).toBe(true);
-    expect(result.draft?.lines).toHaveLength(2);
   });
 
   it('marks draft posted when autoPublish is enabled', async () => {

@@ -13,7 +13,6 @@ import { EntityMappingRepository } from '@/integrations/accounting/external/enti
 import { routeExternalAccountingEvent } from '@/integrations/accounting/external/event-router.ts';
 import { SyncOrchestrator } from '@/integrations/accounting/external/sync-orchestration.ts';
 import { categorizeExternalError, isRetriableExternalError } from '@/integrations/accounting/external/errors.ts';
-import { accountingPostingEngine } from '@/integrations/accounting/posting-engine.ts';
 import {
   AccountingRemoteAdapter,
   MasterDataImport,
@@ -229,15 +228,7 @@ export class QuickBooksProvider implements IntegrationProvider {
       await sink({ action, payload, idempotencyKey });
     };
 
-    const result = await routeExternalAccountingEvent(
-      event,
-      QBO_MANIFEST.id,
-      this.adapter,
-      config,
-      this.mappingRepo,
-      accountingPostingEngine,
-      enqueueFn
-    );
+    const result = await routeExternalAccountingEvent(event, enqueueFn);
 
     if (result.error) {
       console.warn(`[QuickBooksProvider] Failed routing ${event.name}:`, result.error);

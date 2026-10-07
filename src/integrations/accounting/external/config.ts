@@ -9,13 +9,6 @@ const ACCOUNT_KEYS: LogicalAccountCode[] = [
   'CASH_MAIN',
   'CARD_RECEIVABLE',
   'OTHER_RECEIVABLE',
-  'INVENTORY',
-  'COGS',
-  'PAYROLL_EXPENSE',
-  'PAYROLL_LIABILITY',
-  'ACCOUNTS_PAYABLE',
-  'WASTE_EXPENSE',
-  'INVENTORY_ADJUSTMENT',
 ];
 
 export const parseExternalAccountingConfig = (raw: Record<string, unknown>): ExternalAccountingConfig => {
@@ -51,11 +44,9 @@ export const parseExternalAccountingConfig = (raw: Record<string, unknown>): Ext
     saleDocumentType: (raw.saleDocumentType as ExternalAccountingConfig['saleDocumentType']) ?? 'sales_receipt',
     enableClasses: Boolean(raw.enableClasses),
     enableDepartments: Boolean(raw.enableDepartments),
-    enableInventoryJournals: Boolean(raw.enableInventoryJournals ?? true),
     defaultCustomerId: typeof raw.defaultCustomerId === 'string' ? raw.defaultCustomerId : undefined,
     defaultRevenueAccount: typeof raw.defaultRevenueAccount === 'string' ? raw.defaultRevenueAccount : undefined,
     defaultTaxAccount: typeof raw.defaultTaxAccount === 'string' ? raw.defaultTaxAccount : undefined,
-    defaultInventoryAccount: typeof raw.defaultInventoryAccount === 'string' ? raw.defaultInventoryAccount : undefined,
     defaultExpenseAccount: typeof raw.defaultExpenseAccount === 'string' ? raw.defaultExpenseAccount : undefined,
     accounts,
     paymentMappings,
@@ -71,8 +62,6 @@ export const validateExternalAccountMapping = (
     'SALES_REVENUE',
     'CASH_MAIN',
     'CARD_RECEIVABLE',
-    'INVENTORY',
-    'COGS',
   ];
   for (const code of required) {
     if (!mapping[code]) {

@@ -8,17 +8,7 @@ export type DayClosedPayload = {
   totals?: Record<string, number>;
 };
 
-export type StockCountCompletedPayload = {
-  countId: string;
-  locationId?: string;
-  kitchenId?: string;
-  lineCount?: number;
-  completedBy?: string;
-};
-
 export const dayClosedEventId = (closingId: string) => `DayClosed:${closingId}`;
-export const stockCountCompletedEventId = (countId: string) =>
-  `StockCountCompleted:${countId}`;
 
 export const publishDayClosed = async (
   manager: ManagerLike,
@@ -37,25 +27,5 @@ export const publishDayClosed = async (
       );
     },
     'DayClosed'
-  );
-};
-
-export const publishStockCountCompleted = async (
-  manager: ManagerLike,
-  payload: StockCountCompletedPayload
-): Promise<void> => {
-  await safePublish(
-    manager,
-    async (m) => {
-      await m.publish(
-        createPosEvent(
-          'StockCountCompleted',
-          payload,
-          'inventory-core',
-          stockCountCompletedEventId(payload.countId)
-        )
-      );
-    },
-    'StockCountCompleted'
   );
 };

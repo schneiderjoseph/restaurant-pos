@@ -12,17 +12,4 @@ export * from '@/integrations/events/publish/customers.ts';
 export * from '@/integrations/events/publish/ops.ts';
 export * from '@/integrations/events/publish/lifecycle.ts';
 export * from '@/integrations/events/publish/accounts.ts';
-export * from '@/integrations/events/publish/hr.ts';
-export * from '@/integrations/events/publish/inventory-accounting.ts';
-export {
-  type InventoryPostedPayload,
-  type InventoryReversedPayload,
-  type InventoryDocumentAdjustedPayload,
-  inventoryPostedEventId,
-  inventoryReversedEventId,
-  inventoryDocumentAdjustedEventId,
-  publishInventoryPosted,
-  publishInventoryReversed,
-  publishInventoryDocumentAdjusted,
-} from '@/integrations/events/publish/inventory-lifecycle.ts';
 export * from '@/integrations/events/entity-write.ts';

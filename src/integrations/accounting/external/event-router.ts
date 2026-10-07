@@ -1,10 +1,5 @@
 import { IntegrationEvent } from '@/integrations/core/types.ts';
-import { AccountingRemoteAdapter, ExternalAccountingConfig } from '@/integrations/accounting/external/types.ts';
-import { EntityMappingRepository } from '@/integrations/accounting/external/entity-mapping-repository.ts';
-import { categorizeExternalError, formatSyncFailure, isRetriableExternalError } from '@/integrations/accounting/external/errors.ts';
-import { parseExternalAccountingConfig } from '@/integrations/accounting/external/config.ts';
-import { AccountingPostingEngine } from '@/integrations/accounting/posting-engine.ts';
-import { InternalAccountingConfig } from '@/integrations/accounting/types.ts';
+import { categorizeExternalError, isRetriableExternalError } from '@/integrations/accounting/external/errors.ts';
 
 export type ExternalEventRoutingResult = {
   handled: boolean;
@@ -17,15 +12,9 @@ export type ExternalEventRoutingResult = {
 /**
  * Routes a POS business event to the correct outbound path:
  *   sale/refund/customer → entity sync (via adapter)
- *   inventory/payroll/waste/purchase/production → posting engine → postExternalJournal
  */
 export const routeExternalAccountingEvent = async (
   event: IntegrationEvent<any>,
-  providerId: string,
-  _adapter: AccountingRemoteAdapter,
-  config: ExternalAccountingConfig,
-  _mappingRepo: EntityMappingRepository,
-  postingEngine: AccountingPostingEngine,
   enqueueJob: (action: string, payload: Record<string, unknown>, idempotencyKey?: string) => Promise<void>
 ): Promise<ExternalEventRoutingResult> => {
   try {
@@ -56,33 +45,6 @@ export const routeExternalAccountingEvent = async (
       if (!customerId) return { handled: false, error: 'CustomerCreated missing customer id' };
       await enqueueJob('syncCustomer', { eventPayload: event.payload }, `syncCustomer:${customerId}`);
       return { handled: true, action: 'syncCustomer' };
-    }
-
-    // Inventory, payroll, waste, purchase, and production events → posting engine → journal
-    const journalEvents = [
-      'PurchaseReceived', 'PurchaseReturned', 'PayrollPosted',
-      'WasteRecorded', 'InventoryAdjusted', 'InventoryIssued',
-      'IssueReturned', 'InventoryTransferred', 'ProductionCompleted',
-    ];
-
-    if (journalEvents.includes(event.name)) {
-      // Convert external config to internal for the posting engine
-      const internalConfig: InternalAccountingConfig = {
-        autoPublish: false, // External providers always post via adapter
-        postingMode: 'draft',
-        accounts: config.accounts,
-      };
-
-      const result = await postingEngine.process(event, internalConfig, providerId, async (request) => {
-        if (request.action === 'postJournal' && request.payload) {
-          await enqueueJob('postExternalJournal', request.payload as Record<string, unknown>, request.idempotencyKey);
-        }
-      });
-
-      if (result.draft) {
-        return { handled: true, action: 'postExternalJournal' };
-      }
-      return { handled: false, skippedReason: result.skippedReason ?? result.error };
     }
 
     return { handled: false, skippedReason: `No handler for event ${event.name}` };

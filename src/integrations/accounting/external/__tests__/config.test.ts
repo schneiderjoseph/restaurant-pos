@@ -10,7 +10,6 @@ describe('parseExternalAccountingConfig', () => {
       saleDocumentType: 'invoice',
       enableClasses: true,
       enableDepartments: false,
-      enableInventoryJournals: true,
       defaultCustomerId: 'CUST-1',
       defaultRevenueAccount: 'ACC-REV',
       SALES_REVENUE: 'ACC-SALES-123',
@@ -26,7 +25,6 @@ describe('parseExternalAccountingConfig', () => {
     expect(config.saleDocumentType).toBe('invoice');
     expect(config.enableClasses).toBe(true);
     expect(config.enableDepartments).toBe(false);
-    expect(config.enableInventoryJournals).toBe(true);
     expect(config.defaultCustomerId).toBe('CUST-1');
     expect(config.defaultRevenueAccount).toBe('ACC-REV');
     expect(config.accounts.SALES_REVENUE).toBe('ACC-SALES-123');
@@ -43,7 +41,6 @@ describe('parseExternalAccountingConfig', () => {
     expect(config.saleDocumentType).toBe('sales_receipt');
     expect(config.enableClasses).toBe(false);
     expect(config.enableDepartments).toBe(false);
-    expect(config.enableInventoryJournals).toBe(true);
   });
 
   it('supports realmId as fallback for tenantId', () => {
@@ -96,8 +93,6 @@ describe('validateExternalAccountMapping', () => {
       SALES_REVENUE: 'ACC-1',
       CASH_MAIN: 'ACC-2',
       CARD_RECEIVABLE: 'ACC-3',
-      INVENTORY: 'ACC-4',
-      COGS: 'ACC-5',
     } as any;
 
     const result = validateExternalAccountMapping(mapping);
@@ -109,8 +104,6 @@ describe('validateExternalAccountMapping', () => {
     const mapping = {
       CASH_MAIN: 'ACC-2',
       CARD_RECEIVABLE: 'ACC-3',
-      INVENTORY: 'ACC-4',
-      COGS: 'ACC-5',
     } as any;
 
     const result = validateExternalAccountMapping(mapping);
@@ -121,6 +114,6 @@ describe('validateExternalAccountMapping', () => {
   it('fails when multiple required accounts are missing', () => {
     const result = validateExternalAccountMapping({} as any);
     expect(result.valid).toBe(false);
-    expect(result.errors.length).toBe(5);
+    expect(result.errors.length).toBe(3);
   });
 });

@@ -8,14 +8,7 @@ export type LogicalAccountCode =
   | 'TIPS'
   | 'CASH_MAIN'
   | 'CARD_RECEIVABLE'
-  | 'OTHER_RECEIVABLE'
-  | 'INVENTORY'
-  | 'COGS'
-  | 'PAYROLL_EXPENSE'
-  | 'PAYROLL_LIABILITY'
-  | 'ACCOUNTS_PAYABLE'
-  | 'WASTE_EXPENSE'
-  | 'INVENTORY_ADJUSTMENT';
+  | 'OTHER_RECEIVABLE';
 
 export type JournalLineSide = 'debit' | 'credit';
 
