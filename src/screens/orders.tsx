@@ -44,7 +44,6 @@ import {useDuoUserIds} from "@/hooks/useDuoUserIds.ts";
 import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/model/order_visibility.ts";
 import {kitchenReadyOrderIds} from "@/lib/order-display.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
-import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -66,14 +65,7 @@ export const Orders = () => {
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
-  const narrow = useIsNarrow();
   const [view, setView] = useState<'row' | 'column'>('column');
-
-  useEffect(() => {
-    if (narrow && view === 'column') {
-      setView('row');
-    }
-  }, [narrow, view]);
   const selectedOrderFilters = useMemo(() => ({
     users: state?.ordersFilters?.users ?? [],
     floors: state?.ordersFilters?.floors ?? [],
@@ -191,12 +183,10 @@ export const Orders = () => {
     ORDER_LIST_FETCHES
   );
 
-  // The builder object is new each render; its setters are plain useState setters.
-  const {setWheres: setOrderWheres, setParameters: setOrderParameters} = ordersQb;
   useEffect(() => {
-    setOrderWheres(orderFilters.map(item => `and ${item}`));
-    setOrderParameters(orderFilterParams);
-  }, [orderFilters, orderFilterParams, setOrderWheres, setOrderParameters]);
+    ordersQb.setWheres(orderFilters.map(item => `and ${item}`));
+    ordersQb.setParameters(orderFilterParams);
+  }, [orderFilters, orderFilterParams]);
 
   const fetchOrders = useCallback(async () => {
     const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
@@ -244,7 +234,7 @@ export const Orders = () => {
       console.error('Orders kitchen ready query failed', error);
       setKitchenReadyIds(new Set());
     }
-  }, [ordersQb.queryString, ordersQb.parameters, db]);
+  }, [ordersQb.queryString, ordersQb.parameters]);
 
   fetchOrdersRef.current = fetchOrders;
 
@@ -258,10 +248,9 @@ export const Orders = () => {
     }, ORDERS_LIVE_DEBOUNCE_MS);
   }, []);
 
-  // fetchOrders changes with the query string and its parameters.
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders]);
+  }, [ordersQb.queryString, ordersQb.parameters]);
 
   const {
     data: users,
@@ -308,7 +297,7 @@ export const Orders = () => {
       liveQueryRef.current = null;
       liveKitchenQueryRef.current = null;
     };
-  }, [scheduleFetchOrders, db]);
+  }, [scheduleFetchOrders]);
 
   const selectedTable = useMemo(() => {
     return settings.tables.find(item => item.id.toString() === mergingTable);
@@ -370,7 +359,7 @@ export const Orders = () => {
       <DocumentTitle parts={[tNav('sidebar.orders')]} />
       <div className="flex gap-3 p-3 flex-col h-[100vh]" data-testid="orders-page">
         <div
-          className="min-h-[60px] flex-0 rounded-xl bg-white flex flex-wrap items-center px-3 py-2 gap-3 w-full"
+          className="min-h-[60px] flex-0 rounded-xl bg-white flex flex-wrap items-center px-3 py-2 gap-3"
           data-testid="orders-filters"
         >
           <div className="min-w-[120px] flex-1 basis-[120px]">
@@ -439,7 +428,7 @@ export const Orders = () => {
           <div className="shrink-0">
             <DatePicker value={date} onChange={setDate} maxValue={today(getLocalTimeZone())} isClearable/>
           </div>
-          <div className="input-group flex shrink-0 flex-wrap gap-2 w-full lg:w-auto lg:ml-auto" data-testid="orders-toolbar">
+          <div className="input-group flex shrink-0 ml-auto" data-testid="orders-toolbar">
             {SHOW_OPEN_CASH_DRAWER && canOpenCashDrawer && (
               <Button
                 icon={faMoneyBillWave}
@@ -527,19 +516,17 @@ export const Orders = () => {
                 </div>
               ) : (
                 <div className="flex-1 rounded-xl flex flex-col bg-white">
-                  {!narrow && (
-                    <div
-                      className={`${ORDERS_LIST_GRID_CLASS} sticky top-0 z-10 min-h-[44px] bg-neutral-200 text-sm font-semibold text-neutral-700 border-b border-neutral-300`}
-                    >
-                      <div>{t('list.columns.number')}</div>
-                      <div>{t('list.columns.tableGuest')}</div>
-                      <div>{t('list.columns.server')}</div>
-                      <div>{t('list.columns.status')}</div>
-                      <div>{t('list.columns.time')}</div>
-                      <div>{t('list.columns.items')}</div>
-                      <div className="text-right">{t('list.columns.total')}</div>
-                    </div>
-                  )}
+                  <div
+                    className={`${ORDERS_LIST_GRID_CLASS} sticky top-0 z-10 min-h-[44px] bg-neutral-200 text-sm font-semibold text-neutral-700 border-b border-neutral-300`}
+                  >
+                    <div>{t('list.columns.number')}</div>
+                    <div>{t('list.columns.tableGuest')}</div>
+                    <div>{t('list.columns.server')}</div>
+                    <div>{t('list.columns.status')}</div>
+                    <div>{t('list.columns.time')}</div>
+                    <div>{t('list.columns.items')}</div>
+                    <div className="text-right">{t('list.columns.total')}</div>
+                  </div>
                   {orders.map(item => (
                     <OrderRow
                       order={item}

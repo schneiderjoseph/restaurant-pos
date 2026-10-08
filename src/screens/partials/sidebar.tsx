@@ -100,17 +100,10 @@ const SIDEBAR_TITLE_KEYS: Record<string, string> = {
   integrations: 'sidebar.integrations',
 };
 
-interface SidebarProps {
-  /** Wider drawer layout on phones; default is the 130px rail. */
-  variant?: 'rail' | 'drawer'
-  onNavigate?: () => void
-}
-
-export const Sidebar = ({variant = 'rail', onNavigate}: SidebarProps = {}) => {
+export const Sidebar = () => {
   const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation(['navigation', 'common']);
   const { ready, can } = useModuleAccess();
-  const isDrawer = variant === 'drawer';
 
   const pathInfo = location.pathname;
 
@@ -123,10 +116,7 @@ export const Sidebar = ({variant = 'rail', onNavigate}: SidebarProps = {}) => {
   }
 
   const protectedNavigate = async (to: string, module?: string, description?: string) => {
-    await protectAction(() => {
-      onNavigate?.();
-      navigation(to);
-    }, {
+    await protectAction(() => navigation(to), {
       description: description || t('authenticateToAccess', { module }),
       module,
     });
@@ -159,17 +149,11 @@ export const Sidebar = ({variant = 'rail', onNavigate}: SidebarProps = {}) => {
   const showSettings = ready && can('settings');
 
   return (
-    <div className={cn(
-      "flex flex-col justify-between items-center sidebar border border-y-0 border-white bg-white/50 backdrop-blur h-full min-h-0",
-      isDrawer ? "h-full w-full" : "h-[100dvh] h-screen"
-    )}>
-      <div className="w-full min-h-0 flex-1 overflow-hidden">
+    <div className="flex flex-col justify-between h-screen items-center sidebar border border-y-0 border-white bg-white/50 backdrop-blur">
+      <div className="w-full">
         {/* Gutter reserved on both sides: the buttons stay centered whether the scrollbar shows or not. */}
         <ScrollContainer
-          className={cn(
-            "[scrollbar-gutter:stable_both-edges] [scrollbar-width:thin] h-full",
-            !isDrawer && "max-h-[calc(100dvh_-_215px)] max-h-[calc(100vh_-_215px)]"
-          )}
+          className="h-[calc(100vh_-_215px)] [scrollbar-gutter:stable_both-edges] [scrollbar-width:thin]"
           hideScrollbars={false}
         >
           <div className="p-2 flex flex-col">
@@ -181,8 +165,7 @@ export const Sidebar = ({variant = 'rail', onNavigate}: SidebarProps = {}) => {
                   protectedNavigate(item.link, item.role);
                 }}
                 className={cn(
-                  'relative flex items-center cursor-pointer p-[0.4rem] gap-2 rounded-xl pressable no-underline w-full border-[3px] border-transparent',
-                  isDrawer ? 'flex-row text-left' : 'flex-col text-center',
+                  'relative flex flex-col items-center text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full border-[3px] border-transparent',
                   pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900'
                 )}
                 key={item.title}
@@ -191,7 +174,7 @@ export const Sidebar = ({variant = 'rail', onNavigate}: SidebarProps = {}) => {
                 } as CSSProperties}
               >
                 <span className="icon">{item.icon}</span>
-                <span className={cn("label", isDrawer ? "text-sm" : "text-[12px]")}>{item.title}</span>
+                <span className="label text-[12px]">{item.title}</span>
                 {item.link === ADMIN && <SecurityAlertsBadge />}
               </button>
             ))}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from '@/screens/partials/reports.layout.tsx';
 import { useDB } from '@/api/db/db.ts';
@@ -28,7 +28,7 @@ export const TablesSummaryReport = () => {
       ? `${filters.startDate} to ${filters.endDate}`
       : undefined;
 
-  const fetchData = useCallback(async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -85,11 +85,11 @@ export const TablesSummaryReport = () => {
     } finally {
       setLoading(false);
     }
-  }, [db, filters.endDate, filters.startDate, i18n.language, t]);
+  };
 
   useEffect(() => {
     void fetchData();
-  }, [fetchData]);
+  }, [filters.startDate, filters.endDate]);
 
   const totals = useMemo(
     () =>
@@ -125,7 +125,6 @@ export const TablesSummaryReport = () => {
   return (
     <ReportsLayout title={t('titles.tablesSummary')} subtitle={subtitle} onRefresh={fetchData}>
       <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
@@ -182,7 +181,6 @@ export const TablesSummaryReport = () => {
             )}
           </tbody>
         </table>
-        </div>
       </div>
     </ReportsLayout>
   );

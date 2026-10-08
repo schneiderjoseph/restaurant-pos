@@ -243,8 +243,8 @@ export const OrderRefundModal = ({
       title={t('refund.title')}
       size="full"
     >
-      <div className="flex flex-col gap-4 h-[calc(100vh-200px)] max-h-[85dvh] min-h-0">
-        <div className="flex flex-row max-sm:flex-col gap-6 flex-1 min-h-0">
+      <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
+        <div className="flex gap-6 flex-1 min-h-0">
           {/* Left side - Order items */}
           <div className="flex-1 flex flex-col min-w-0">
             <label className="block text-sm font-semibold mb-2">{t('refund.selectItems')}</label>
@@ -329,7 +329,8 @@ export const OrderRefundModal = ({
                 rows={12}
                 placeholder={t('refund.reasonPlaceholder')}
                 enableKeyboard
-                className="w-full h-full min-h-[120px] lg:min-h-[280px]"
+                className="w-full h-full"
+                style={{ minHeight: '400px' }}
               />
             </div>
           </div>

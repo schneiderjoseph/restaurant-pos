@@ -107,7 +107,7 @@ export const OrderPaymentServiceCharges = ({
           {t('serviceCharges.defaultFromSettings')} <span className="font-semibold ">{defaultFromSettings.label}</span>
         </div>
         <Button
-          className="min-w-0 w-full sm:min-w-[150px] sm:w-auto"
+          className="min-w-[150px]"
           variant="danger"
           active={draftServiceCharge === 0}
           onClick={() => pickCharge(0)}
@@ -120,14 +120,14 @@ export const OrderPaymentServiceCharges = ({
           <Button
             size="lg" variant="primary" active={draftServiceChargeType === DiscountType.Percent}
             onClick={() => setDraftServiceChargeType(DiscountType.Percent)}
-            className="min-w-0 flex-1"
+            className="min-w-[150px] flex-1"
           >
             {t('discountType.percent')}
           </Button>
           <Button
             size="lg" variant="primary" active={draftServiceChargeType === DiscountType.Fixed}
             onClick={() => setDraftServiceChargeType(DiscountType.Fixed)}
-            className="min-w-0 flex-1"
+            className="min-w-[150px] flex-1"
           >
             {t('discountType.fixed')}
           </Button>
@@ -139,7 +139,7 @@ export const OrderPaymentServiceCharges = ({
           <Button
             size="lg" variant="primary" flat active={draftServiceCharge === quickOption}
             onClick={() => pickCharge(quickOption)}
-            className="min-w-0 flex-1 sm:min-w-[100px] sm:flex-none"
+            className="min-w-[100px]"
             key={quickOption}
           >
             {quickOption}{draftServiceChargeType === DiscountType.Percent && '%'}
@@ -154,7 +154,7 @@ export const OrderPaymentServiceCharges = ({
         {entry || draftServiceCharge}{draftServiceChargeType === DiscountType.Percent && '%'}
       </div>
 
-      <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-3 mb-3">
+      <div className="grid grid-cols-3 gap-3 mb-3">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" onClick={() => typeKey(item)}>
             {item}

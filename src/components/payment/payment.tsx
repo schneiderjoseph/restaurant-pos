@@ -1,6 +1,6 @@
 import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faClock, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useAtom, useAtomValue} from "jotai";
 import {appDuo, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {resolveOutlet} from "@/lib/outlet.ts";
@@ -103,7 +103,7 @@ export const Payment = () => {
     return state.cart.filter(item => !item.deleted_at).length;
   }, [state.cart]);
 
-  const fetchOrderForPayment = useCallback(async (orderId: unknown): Promise<Order | undefined> => {
+  const fetchOrderForPayment = async (orderId: unknown): Promise<Order | undefined> => {
     const id = toRecordId(orderId);
     const runQuery = async (fetches: string[]) => {
       const onlyResult = await db.query(
@@ -130,7 +130,7 @@ export const Payment = () => {
     }
 
     return runQuery(ORDER_PAYMENT_FETCHES);
-  }, [db]);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -149,7 +149,7 @@ export const Payment = () => {
     return () => {
       cancelled = true;
     };
-  }, [state?.order?.id, fetchOrderForPayment]);
+  }, [state?.order?.id]);
 
   const hasNewCartItems = () =>
     state.cart.some((item) => item.newOrOld === MenuItemType.new && !item.deleted_at);
@@ -690,13 +690,13 @@ export const Payment = () => {
                 })
               : t("payment:due.asapButton")}
           </Button>
-          <div className="flex flex-wrap gap-2 mt-3">
-            <Button variant="success" className="flex-1 min-w-[5.5rem] btn-wrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
+          <div className="flex gap-2 mt-3">
+            <Button variant="success" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
                     disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
-            <Button variant="danger" className="flex-1 min-w-[5.5rem] btn-wrap" size="lg" icon={faCancel} onClick={cancel}
+            <Button variant="danger" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
-            <Button variant="warning" className="flex-1 min-w-[5.5rem] btn-wrap" size="lg" icon={faTimes} onClick={clear}
+            <Button variant="warning" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faTimes} onClick={clear}
                     disabled={isLoading || !hasNewLines} data-testid="menu-clear-cart">{t("menu:header.clear")}</Button>
           </div>
         </div>

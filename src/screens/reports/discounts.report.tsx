@@ -15,7 +15,6 @@ import {
 } from "@/lib/order.ts";
 import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
-import i18n from "@/lib/i18n.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -143,7 +142,7 @@ const buildDetailRows = (lines: OrderDiscount[]): DiscountDetailRow[] => {
     const discountName = line.name
       || (typeof discountRef === "object" && discountRef !== null && "name" in discountRef
         ? String((discountRef as {name?: string}).name ?? "")
-        : typeof discountRef === "string" ? discountRef : i18n.t('reports:columns.discount'));
+        : typeof discountRef === "string" ? discountRef : "Discount");
 
     return {
       key: line.id?.toString?.() ?? `line-${index}`,
@@ -151,7 +150,7 @@ const buildDetailRows = (lines: OrderDiscount[]): DiscountDetailRow[] => {
       createdAt: order?.created_at ?? line.created_at,
       invoiceLabel,
       cashierName: getCashierName(order),
-      discountName: discountName || i18n.t('reports:columns.discount'),
+      discountName: discountName || "Discount",
       scope: line.scope || "-",
       valueTypeLabel: formatValueType(line),
       amount: safeNumber(line.applied_amount),
@@ -249,7 +248,7 @@ export const DiscountsReport = () => {
     };
 
     void fetchData();
-  }, [filters.discountId, filters.endDate, filters.startDate, t]);
+  }, [filters.discountId, filters.endDate, filters.startDate]);
 
   const detailRows = useMemo(() => buildDetailRows(orderDiscounts), [orderDiscounts]);
 
@@ -297,7 +296,7 @@ export const DiscountsReport = () => {
   return (
     <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
       <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t("categories.orders")}</div>
             <div className="text-xl font-semibold">{formatNumber(orderCount)}</div>
@@ -312,7 +311,7 @@ export const DiscountsReport = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="overflow-hidden rounded-lg border border-neutral-200">
             <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
               {t("labels.discountTypes")}

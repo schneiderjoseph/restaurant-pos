@@ -164,7 +164,7 @@ export const OrderDisplayScreen = () => {
       buildKitchenRowsMap(Array.isArray(kitchenRows) ? (kitchenRows as OrderItemKitchen[]) : [])
     );
     setHydrated(true);
-  }, [filterQuery, duoUserKey, db]);
+  }, [filterQuery, duoUserKey]);
 
   useEffect(() => {
     // New filters bring orders already ready into view: not announcements.
@@ -202,7 +202,7 @@ export const OrderDisplayScreen = () => {
       liveOrdersRef.current = null;
       liveKitchenRef.current = null;
     };
-  }, [fetchOrders, db]);
+  }, [fetchOrders]);
 
   // Announcements look at every order: the columns only show the first few, and an
   // older ready order sliding back into view must not be announced again.
@@ -220,7 +220,7 @@ export const OrderDisplayScreen = () => {
       { order: toRecordId(order.id.toString()) }
     );
     await fetchOrders();
-  }, [fetchOrders, db]);
+  }, [fetchOrders]);
 
   const markServed = useCallback(async (order: OrderModel) => {
     try {
@@ -272,7 +272,7 @@ export const OrderDisplayScreen = () => {
       )}
       <div className="flex flex-col gap-3 p-3 h-full" data-testid="order-display-page">
         <div className="h-[60px] flex-shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="order-display-filters">
-          <div className="min-w-[200px] flex-1 max-w-sm">
+          <div className="min-w-[200px]">
             <ReactSelect
               options={[
                 OrderStatus['In Progress'],
@@ -291,7 +291,7 @@ export const OrderDisplayScreen = () => {
               onChange={(value: LabelValue[]) => updateFilter('statuses', value)}
             />
           </div>
-          <div className="min-w-[200px] flex-1 max-w-sm">
+          <div className="min-w-[200px]">
             <ReactSelect
               options={orderTypes?.data.map((item) => ({
                 label: item.name,
@@ -303,7 +303,7 @@ export const OrderDisplayScreen = () => {
               onChange={(value: LabelValue[]) => updateFilter('orderTypes', value)}
             />
           </div>
-          <div className="ml-auto flex-shrink-0">
+          <div className="flex-1 flex justify-end">
             <Button
               icon={faBars}
               variant="neutral"
@@ -315,7 +315,7 @@ export const OrderDisplayScreen = () => {
           </div>
         </div>
 
-        <div className="flex flex-1 flex-row max-sm:flex-col gap-3 min-h-0" data-testid="order-display-boards">
+        <div className="flex flex-1 gap-3 min-h-0" data-testid="order-display-boards">
           <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
             <div className="flex-shrink-0 px-4 py-3 bg-warning-500 text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">

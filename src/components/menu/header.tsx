@@ -26,7 +26,6 @@ import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {narrowToTableList} from "@/lib/menu-categories.ts";
-import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -44,7 +43,6 @@ export const MenuHeader = () => {
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const hideTableSelection = state.hideTableSelection === true;
   const {enabled: resortFb} = useResortFb();
-  const isNarrow = useIsNarrow();
   const skipTableUi = hideTableSelection || (resortFb && state.resortEntry !== 'floor');
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
@@ -63,7 +61,7 @@ export const MenuHeader = () => {
         orderType: orderTypes[0]
       }))
     }
-  }, [orderTypes, state.orderType, setState]);
+  }, [orderTypes, state.orderType]);
 
   useEffect(() => {
     // load old items into cart — skip when edit session already hydrated the cart
@@ -74,7 +72,6 @@ export const MenuHeader = () => {
       return;
     }
     onOrderClick(state?.order?.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- load an order's items when the order changes, not each time the cart grows
   }, [state.orders, state?.order?.id, editSession?.orderId]);
 
   useEffect(() => {
@@ -96,7 +93,7 @@ export const MenuHeader = () => {
     const timer = setInterval(heartBeat, 10000);
 
     return () => clearInterval(timer);
-  }, [state.table?.id, db])
+  }, [state.table?.id])
 
   const reset = async () => {
     // check if cart has any new items
@@ -218,8 +215,8 @@ export const MenuHeader = () => {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-2 w-full min-w-0 overflow-hidden min-h-[56px]" data-testid="menu-header">
-        <div className="flex flex-wrap items-center gap-2 min-w-0">
+      <div className="flex items-center justify-between gap-2 w-full min-w-0 overflow-hidden" data-testid="menu-header">
+        <div className="flex items-center gap-2 shrink-0">
           {!skipTableUi && !resortFb && (
             <Button
               variant="primary"
@@ -328,7 +325,7 @@ export const MenuHeader = () => {
           </div>
         </div>
 
-        <div className="flex input-group rounded-full shrink-0 w-full sm:w-auto basis-full sm:basis-auto" data-testid="menu-order-types">
+        <div className="flex input-group rounded-full shrink-0" data-testid="menu-order-types">
           {orderTypes.map((item, index) => (
             <Button
               variant="primary"
@@ -404,7 +401,7 @@ export const MenuHeader = () => {
             setConfirmCartAction(false)
           }}
           title={t('header.confirmTitle')}
-          size={isNarrow ? 'lg' : 'sm'}
+          size="sm"
         >
           <div className="alert alert-danger">
             {t('header.confirmCartMessage', { count: newCartItems })}

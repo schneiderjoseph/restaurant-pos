@@ -227,7 +227,7 @@ export const SplitBySeats = ({
         size="full"
         onClose={onClose}
       >
-        <div className="flex flex-row max-sm:flex-col h-full gap-6 p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-white select-none">
+        <div className="flex h-full gap-6 p-6 bg-gradient-to-br from-gray-50 to-white select-none">
           {/* Right Side - Other Splits (Scrollable) */}
           <div className="flex-1 flex flex-col min-w-0">
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
@@ -246,12 +246,12 @@ export const SplitBySeats = ({
             {/* Scrollable Splits Container */}
             <div className="flex-1 min-h-0">
               {actualSplits.length > 0 ? (
-                <ScrollContainer className="h-full overflow-x-auto overflow-y-auto lg:overflow-y-hidden">
-                  <div className="flex flex-row max-sm:flex-col gap-5 pb-4 h-full">
+                <ScrollContainer className="h-full overflow-x-auto overflow-y-hidden">
+                  <div className="flex flex-row gap-5 pb-4 h-full">
                     {actualSplits.map((split, index) => (
                       <div
                         key={split.id}
-                        className={`bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 w-full max-w-[400px] min-w-0 shrink-0 lg:h-full flex flex-col ${
+                        className={`bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 flex-shrink-0 w-[400px] h-full flex flex-col ${
                           dragOverSplit === split.id ? 'border-green-400 bg-green-50 scale-105' : ''
                         }`}
                         onDragOver={(e) => handleDragOver(e, split.id)}

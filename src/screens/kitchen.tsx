@@ -318,7 +318,7 @@ export const KitchenScreen = () => {
       durations.reduce((sum, value) => sum + value, 0) / durations.length
     );
     setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
-  }, [t, db]);
+  }, [t]);
 
   const loadOrders = useCallback(async (kitchenId: string) => {
     const request = ++loadRequestRef.current;
@@ -393,7 +393,7 @@ export const KitchenScreen = () => {
       setSplitIntoByOrder(splitInto);
       await calculateAverageTime(kitchenId);
     }
-  }, [groupKitchenOrderItems, page?.user?.id, calculateAverageTime, db]);
+  }, [groupKitchenOrderItems, page?.user?.id, calculateAverageTime]);
 
   const loadCompletedOrders = useCallback(async (kitchenId: string) => {
     const request = ++completedRequestRef.current;
@@ -437,7 +437,7 @@ export const KitchenScreen = () => {
         setLoadingCompletedOrders(false);
       }
     }
-  }, [groupIntoBatches, page?.user?.id, db]);
+  }, [groupIntoBatches, page?.user?.id]);
 
   const openCompletedOrdersModal = async () => {
     if (!kitchen?.id) {
@@ -533,7 +533,7 @@ export const KitchenScreen = () => {
       }
       subscriptions.forEach((subscription) => subscription.kill().catch(() => undefined));
     };
-  }, [kitchenId, loadOrders, scheduleLoadOrders, db]);
+  }, [kitchenId, loadOrders, scheduleLoadOrders]);
 
   const allDishes = useMemo(() => {
     const itemsMap = new Map();
@@ -575,8 +575,8 @@ export const KitchenScreen = () => {
         onPointerDown={unlockKitchenSpeech}
         onClick={unlockKitchenSpeech}
       >
-        <div className="min-h-[60px] flex-0 flex flex-wrap items-center gap-3 justify-between" data-testid="kitchen-toolbar">
-          <div className="input-group flex-1 flex flex-wrap min-w-0">
+        <div className="h-[60px] flex-0 flex items-center gap-3 justify-between" data-testid="kitchen-toolbar">
+          <div className="input-group flex-1">
             {kitchens.map(item => (
               <Button
                 size="lg"
@@ -584,7 +584,7 @@ export const KitchenScreen = () => {
                 onClick={() => setKitchen(item)}
                 active={item.id.toString() === kitchen?.id?.toString()}
                 key={item.id}
-                className="w-full min-w-0 sm:min-w-[200px] sm:w-auto"
+                className="min-w-[200px]"
               >
                 {item.name}
                 {item.shows_all ? (
@@ -616,11 +616,11 @@ export const KitchenScreen = () => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-5 max-sm:grid-cols-1 gap-5">
+        <div className="grid grid-cols-5 gap-5">
           <ScrollContainer
             className={cn(
               'h-[calc(100vh_-_110px)] select-none overflow-x-hidden',
-              dishesModal ? 'col-span-4 max-sm:col-span-1' : 'col-span-5 max-sm:col-span-1'
+              dishesModal ? 'col-span-4' : 'col-span-5'
             )}
           >
             <div

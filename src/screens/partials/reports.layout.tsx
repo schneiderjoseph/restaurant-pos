@@ -167,8 +167,8 @@ export const ReportsLayout = ({
   return (
     <div className={cn("flex flex-col h-full", className)}>
       <DocumentTitle parts={[title, tNav('sidebar.reports')]} />
-      <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white shadow-sm border-b print:hidden">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center justify-between gap-3 p-4 bg-white shadow-sm border-b print:hidden">
+        <div className="flex items-center gap-2">
           <Button variant="primary" onClick={handlePrint} icon={faPrint} size="sm">
             Print
           </Button>

@@ -53,7 +53,6 @@ import {formatTaxLabel} from "@/lib/tax-label.ts";
 import {collectOrderTaxRows, getExcludedTaxIds} from "@/lib/tax-calculator.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {roundCurrency} from "@/lib/discount-engine/rounding.ts";
-import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
 interface Props {
   order: Order
@@ -74,7 +73,6 @@ export const OrderPayment = ({
   order, onClose
 }: Props) => {
   const {t} = useTranslation('payment');
-  const isNarrow = useIsNarrow();
   const db = useDB();
   const {protectAction} = useSecurity();
   const isVisible = useActionVisible();
@@ -245,8 +243,8 @@ export const OrderPayment = ({
 
   // Every tax the order carries, removed ones included, for the Tax panel.
   const taxRows = useMemo(
-    () => collectOrderTaxRows({...order, excluded_taxes: []}, paymentTotalsParams.tax, paymentTotals.taxableShare),
-    [order, paymentTotalsParams.tax, paymentTotals.taxableShare],
+    () => collectOrderTaxRows({...order, excluded_taxes: []}, paymentTotalsParams.tax),
+    [order, paymentTotalsParams.tax],
   );
   const itemsCarryTaxes = useMemo(
     () => collectOrderTaxRows({...order, excluded_taxes: []}, null).length > 0,
@@ -372,7 +370,7 @@ export const OrderPayment = ({
       });
       return next;
     });
-  }, [order, isInitialized, db]);
+  }, [order, isInitialized]);
 
   const total = paymentTotals.total;
 
@@ -714,11 +712,9 @@ export const OrderPayment = ({
     await db.merge(order.id, progressMerge);
 
     // Tax rows follow the taxes chosen here, so the Orders screen and the bills match.
-    // The taxable share moves with discounts taxed after them: resync when it changes too.
-    const taxSyncKey = `${taxKey}|${paymentTotals.taxableShare}`;
-    if (syncedTaxKeyRef.current !== taxSyncKey) {
-      await syncOrderTaxes(db, taxedOrder, tax ?? null, paymentTotals.taxableShare);
-      syncedTaxKeyRef.current = taxSyncKey;
+    if (syncedTaxKeyRef.current !== taxKey) {
+      await syncOrderTaxes(db, taxedOrder, tax ?? null);
+      syncedTaxKeyRef.current = taxKey;
     }
 
     postOrderTracking({
@@ -741,10 +737,11 @@ export const OrderPayment = ({
     total,
     extras,
     tax,
+    taxAmount,
     taxedOrder,
     taxKey,
-    paymentTotals.taxableShare,
     cartTotals,
+    discountLines,
     tip,
     tipAmount,
     tipType,
@@ -756,10 +753,7 @@ export const OrderPayment = ({
     couponAmount,
     isInitialized,
     page?.page,
-    page?.user,
-    db,
-    excludedTaxIds,
-    orderDiscountIds,
+    page?.user
   ])
 
   const saveOrderProgressRef = useRef(saveOrderProgress);
@@ -839,21 +833,10 @@ export const OrderPayment = ({
       size="full"
     >
       <div
-        className={cn(
-          "grid gap-4 mb-0 select-none min-h-0",
-          isNarrow
-            ? "grid-cols-1"
-            : "grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)]",
-        )}
+        className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.5fr)] gap-4 mb-0 select-none"
         data-testid="payment-screen"
       >
-        <div
-          className={cn(
-            "bg-white rounded-xl flex flex-col overflow-auto min-h-0",
-            isNarrow ? "max-h-[45vh]" : "h-[calc(100vh_-_120px)]",
-          )}
-          data-testid="payment-order-summary"
-        >
+        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px)]" data-testid="payment-order-summary">
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
@@ -1066,13 +1049,7 @@ export const OrderPayment = ({
             </div>
           </div>
         </div>
-        <div
-          className={cn(
-            "bg-white rounded-xl flex flex-col p-3 overflow-auto min-h-0",
-            isNarrow ? "max-h-[45vh]" : "h-[calc(100vh_-_120px)]",
-          )}
-          data-testid="payment-adjust-panel"
-        >
+        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px)] overflow-auto" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
             <OrderPaymentTax
               tax={tax}
@@ -1135,7 +1112,6 @@ export const OrderPayment = ({
             }}
             tax={tax}
             taxAmount={taxAmount}
-            taxableShare={paymentTotals.taxableShare}
             tip={tip}
             tipAmount={tipAmount}
             tipType={tipType}

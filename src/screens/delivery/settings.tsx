@@ -18,7 +18,6 @@ import {StringRecordId} from "surrealdb";
 import {TimePicker} from "@/components/common/antd/time.picker.tsx";
 import {DeliveryBannersSection} from "@/components/delivery/delivery-banners-section.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import i18n from "@/lib/i18n.ts";
 
 interface DeliveryTimingEntry {
   id: string;
@@ -53,17 +52,7 @@ const DAYS_OF_WEEK = [
   "Friday",
   "Saturday",
   "Sunday"
-] as const;
-
-const DAY_I18N_KEYS: Record<(typeof DAYS_OF_WEEK)[number], string> = {
-  Monday: "monday",
-  Tuesday: "tuesday",
-  Wednesday: "wednesday",
-  Thursday: "thursday",
-  Friday: "friday",
-  Saturday: "saturday",
-  Sunday: "sunday",
-};
+];
 
 const getDefaultDeliveryTiming = (): DeliveryTimingEntry[] => {
   return DAYS_OF_WEEK.map((day, index) => ({
@@ -81,20 +70,20 @@ const validationSchema = yup.object({
   delivery_menu: yup.object({
     label: yup.string(),
     value: yup.string()
-  }).required(i18n.t('validation:required')),
-  delivery_charges: yup.number().min(0, () => i18n.t('delivery:settings.deliveryChargesPositive')).required(i18n.t('validation:required')),
-  delivery_time: yup.number().min(0, () => i18n.t('delivery:settings.deliveryTimePositive')).required(i18n.t('validation:required')),
-  minimum_order: yup.number().min(0, () => i18n.t('delivery:settings.minimumOrderPositive')).required(i18n.t('validation:required')),
+  }).required('This is required'),
+  delivery_charges: yup.number().min(0, "Delivery charges must be positive").required("This is required"),
+  delivery_time: yup.number().min(0, "Delivery time must be positive").required("This is required"),
+  minimum_order: yup.number().min(0, "Minimum order must be positive").required("This is required"),
   map_center: yup.object({
-    lat: yup.number().required(() => i18n.t('delivery:settings.latitudeRequired')),
-    lng: yup.number().required(() => i18n.t('delivery:settings.longitudeRequired'))
-  }).required(() => i18n.t('delivery:settings.mapCenterRequired')),
+    lat: yup.number().required("Latitude is required"),
+    lng: yup.number().required("Longitude is required")
+  }).required("Map center is required"),
   delivery_timing: yup.array().of(
     yup.object({
       id: yup.string().required(),
-      day_or_date: yup.string().required(() => i18n.t('delivery:settings.dayOrDateRequired')),
-      start_time: yup.string().required(() => i18n.t('delivery:settings.startTimeRequired')),
-      end_time: yup.string().required(() => i18n.t('delivery:settings.endTimeRequired')),
+      day_or_date: yup.string().required("Day or date is required"),
+      start_time: yup.string().required("Start time is required"),
+      end_time: yup.string().required("End time is required"),
       is_end_time_next_day: yup.boolean(),
       enable_delivery: yup.boolean()
     })
@@ -197,8 +186,7 @@ export const DeliverySettings = () => {
     };
 
     loadDeliverySettings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- omit t: language change must not reset in-progress form edits
-  }, [db, reset]);
+  }, []);
 
   // Save delivery settings
   const onSubmit = async (values: DeliverySettingsForm) => {
@@ -258,14 +246,7 @@ export const DeliverySettings = () => {
   };
 
   const isDayOfWeek = (dayOrDate: string): boolean => {
-    return (DAYS_OF_WEEK as readonly string[]).includes(dayOrDate);
-  };
-
-  const formatDayOrDate = (dayOrDate: string): string => {
-    if (isDayOfWeek(dayOrDate)) {
-      return t(`days.${DAY_I18N_KEYS[dayOrDate as (typeof DAYS_OF_WEEK)[number]]}`);
-    }
-    return dayOrDate;
+    return DAYS_OF_WEEK.includes(dayOrDate);
   };
 
   return (
@@ -380,8 +361,8 @@ export const DeliverySettings = () => {
 
                 <div className="border-t pt-4 mt-2">
                   <h3 className="text-lg font-semibold mb-4">{t('settings.mapCenter')}</h3>
-                  <div className="flex flex-col md:flex-row gap-3">
-                    <div className="flex-1 min-w-0">
+                  <div className="flex gap-3">
+                    <div className="flex-1">
                       <Controller
                         name="map_center.lat"
                         control={control}
@@ -400,7 +381,7 @@ export const DeliverySettings = () => {
                         )}
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1">
                       <Controller
                         name="map_center.lng"
                         control={control}
@@ -442,8 +423,8 @@ export const DeliverySettings = () => {
                       const isDayOff = !(deliveryTimingValues?.[index]?.enable_delivery ?? false);
                       return (
                         <div key={field.id} className="border rounded-lg p-1 bg-gray-50">
-                          <div className="flex flex-col md:flex-row md:flex-wrap md:items-end gap-3">
-                            <div className="flex-1 min-w-0 md:min-w-[150px]">
+                          <div className="flex items-end gap-3">
+                            <div className="flex-1 min-w-[150px]">
                               <Controller
                                 name={`delivery_timing.${index}.day_or_date`}
                                 control={control}
@@ -451,7 +432,7 @@ export const DeliverySettings = () => {
                                   <Input
                                     type={isDefaultDay ? "text" : "date"}
                                     label={isDefaultDay ? t('settings.dayOfWeek') : t('settings.date')}
-                                    value={isDefaultDay ? formatDayOrDate(dayField.value) : dayField.value}
+                                    value={dayField.value}
                                     onChange={dayField.onChange}
                                     disabled={isDefaultDay}
                                     error={errors.delivery_timing?.[index]?.day_or_date?.message}
@@ -459,7 +440,7 @@ export const DeliverySettings = () => {
                                 )}
                               />
                             </div>
-                            <div className="flex-1 min-w-0 md:min-w-[120px]">
+                            <div className="flex-1 min-w-[120px]">
                               <Controller
                                 name={`delivery_timing.${index}.start_time`}
                                 control={control}
@@ -472,7 +453,7 @@ export const DeliverySettings = () => {
                                 )}
                               />
                             </div>
-                            <div className="flex-1 min-w-0 md:min-w-[120px]">
+                            <div className="flex-1 min-w-[120px]">
                               <Controller
                                 name={`delivery_timing.${index}.end_time`}
                                 control={control}

@@ -10,7 +10,6 @@ import {
 } from "@/store/jotai.ts";
 import {useEffect, useMemo, useRef, useState, type ReactNode} from "react";
 import {useMediaQuery} from "react-responsive";
-import {useIsPhone} from "@/hooks/useBreakpoint.ts";
 import {MenuDish} from "@/components/menu/dish.tsx";
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
@@ -27,7 +26,6 @@ import ScrollContainer from "react-indiana-drag-scroll";
 
 export const MenuDishes = () => {
   const {t} = useTranslation('menu');
-  const isPhone = useIsPhone();
   const isTablet = useMediaQuery({maxWidth: 1024});
   const [activeSlide, setActiveSlide] = useState(0);
   const swiperRef = useRef<SwiperInstance | null>(null);
@@ -41,10 +39,8 @@ export const MenuDishes = () => {
   const hasHeaderSearch = headerQuery.length > 0;
 
   const ITEMS_PER_SLIDE = useMemo(() => {
-    if (isPhone) return 8;
-    if (isTablet) return 15;
-    return 20;
-  }, [isPhone, isTablet]);
+    return isTablet ? 15 : 20;
+  }, [isTablet]);
 
   const {dishes: allDishes} = useMemo(() => (
     resolveMenuAwareData({
@@ -165,7 +161,7 @@ export const MenuDishes = () => {
         category: undefined
       }));
     };
-  }, [setMenuSearch, setState]);
+  }, []);
 
   const dishGrid = (
     <div className="relative min-h-0 h-full">
@@ -186,7 +182,7 @@ export const MenuDishes = () => {
         {Array.from({length: slides}, (_, i) => i).map(rowId => (
           <SwiperSlide
             key={rowId}
-            className="!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4 max-sm:grid-cols-2 max-sm:grid-rows-4"
+            className="!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4"
           >
             {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item) => (
               <MenuDish

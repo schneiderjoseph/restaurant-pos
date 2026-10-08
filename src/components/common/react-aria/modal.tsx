@@ -31,7 +31,7 @@ interface ModalProps extends PropsWithChildren {
 export const Modal: FunctionComponent<ModalProps> = ({
   hideCloseButton = false,
   size = 'md',
-  shouldCloseOnInteractOutside: shouldCloseOnInteractOutsideProp,
+
   ...props
 }) => {
   const { t } = useTranslation('common');
@@ -55,9 +55,9 @@ export const Modal: FunctionComponent<ModalProps> = ({
       if (isReactAriaTopLayer(element)) {
         return false;
       }
-      return shouldCloseOnInteractOutsideProp?.(element) ?? true;
+      return props.shouldCloseOnInteractOutside?.(element) ?? true;
     },
-    [shouldCloseOnInteractOutsideProp]
+    [props.shouldCloseOnInteractOutside]
   );
 
   return (
@@ -83,7 +83,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
             // onOpenChange={close}
             className={cn(
               'react-aria-Modal',
-              props.bottomSheet ? 'w-full' : ''
+              props.bottomSheet ? 'mb-12' : ''
             )}
           >
             <Dialog
@@ -95,14 +95,13 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 size === 'lg' && 'modal-lg',
                 size === 'xl' && 'modal-xl',
                 size === "md" && 'modal-md',
-                props.bottomSheet && 'modal-bottom-sheet',
                 !props.backdrop && 'no-backdrop'
               )}
             >
               <div style={{
                 backgroundColor: props.backgroundColor ?? 'rgb(255, 255, 255)',
                 backdropFilter: 'blur(10px)'
-              }} className={cn(props.bottomSheet ? 'rounded-t-2xl' : 'rounded-lg')}>
+              }} className="rounded-lg">
                 {hideCloseButton !== true && (
                   <TooltipTrigger delay={0} closeDelay={0}>
                     <button

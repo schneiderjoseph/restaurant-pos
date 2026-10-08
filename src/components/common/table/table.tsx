@@ -9,7 +9,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import React, {FC, ReactNode, useEffect, useMemo, useState,} from "react";
+import React, {FC, ReactNode, useEffect, useState,} from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faRefresh, faSearch, } from "@fortawesome/free-solid-svg-icons";
@@ -75,7 +75,6 @@ export const TableComponent: FC<TableComponentProps> = ({
     } else {
       handleSortChange!([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSortChange from loaderHook is recreated each render
   }, [sorting]);
 
   const [{ pageIndex, pageSize }, setPagination] =
@@ -87,7 +86,6 @@ export const TableComponent: FC<TableComponentProps> = ({
   useEffect(() => {
     handlePageChange!(pageIndex * pageSize);
     handleLimitChange!(pageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- page handlers from loaderHook are recreated each render
   }, [pageIndex, pageSize]);
 
   const pagination = React.useMemo(
@@ -178,16 +176,10 @@ export const TableComponent: FC<TableComponentProps> = ({
     setValue
   } = useForm();
 
-  const filterOptions = useMemo(
-    () =>
-      table
-        .getAllColumns()
-        .filter((column) => column.getCanFilter())
-        .map((column) => ({ label: column.columnDef.header, value: column.id })),
-    // table instance is recreated often; columns prop is the stable source of filterable fields
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns]
-  );
+  const filterOptions = table
+    .getAllColumns()
+    .filter((column) => column.getCanFilter())
+    .map((column) => ({ label: column.columnDef.header, value: column.id }));
 
   const [loaded, setLoaded] = useState(false);
 
@@ -196,7 +188,7 @@ export const TableComponent: FC<TableComponentProps> = ({
       setValue("column", filterOptions[0]); // set first column as default
       setLoaded(true);
     }
-  }, [loaded, filterOptions, setValue]);
+  }, [table.getAllColumns()]);
 
   const handleColumnFilter = (values: any) => {
     if( values.value && values.value.trim() !== '' ) {
@@ -233,16 +225,16 @@ export const TableComponent: FC<TableComponentProps> = ({
 
   return (
     <>
-      <div className="my-5 flex flex-wrap justify-between gap-2">
-        <div className="inline-flex flex-wrap justify-start">
+      <div className="my-5 flex justify-between">
+        <div className="inline-flex justify-start">
           {(customSearch || enableSearch !== false) && (
             <form
-              className="flex flex-wrap gap-3"
+              className="flex gap-3"
               onSubmit={handleSubmit(customSearch ? handleCustomSearch : handleColumnFilter)}>
               {customSearch ? (
                 <Controller
                   render={({ field }) => (
-                    <div className="relative w-full sm:w-72">
+                    <div className="relative w-72">
                       <Input
                         value={field.value}
                         onChange={field.onChange}
@@ -276,7 +268,7 @@ export const TableComponent: FC<TableComponentProps> = ({
                       <ReactSelect
                         onChange={field.onChange}
                         options={filterOptions}
-                        className="w-full sm:w-72"
+                        className="w-72"
                         value={field.value}
                       />
                     )}
@@ -290,7 +282,7 @@ export const TableComponent: FC<TableComponentProps> = ({
                         <ReactSelect
                           onChange={field.onChange}
                           options={item.options}
-                          className="w-full sm:w-72"
+                          className="w-72"
                           value={field.value}
                         />
                       )}

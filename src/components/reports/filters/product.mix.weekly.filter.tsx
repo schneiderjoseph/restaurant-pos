@@ -157,7 +157,7 @@ export const ProductMixWeeklyReportFilter = () => {
         <select
           id="product-mix-weekly-week"
           name="week"
-          className="input bg-white w-full min-w-0 sm:min-w-[260px]"
+          className="input bg-white min-w-[260px]"
           disabled={loading || !!error}
           value={selectedWeek}
           onChange={(event) => setSelectedWeek(event.target.value)}
@@ -183,7 +183,7 @@ export const ProductMixWeeklyReportFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
               )
               .filter(notNull)}
           />

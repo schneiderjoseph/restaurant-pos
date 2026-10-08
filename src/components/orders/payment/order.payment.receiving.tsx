@@ -68,7 +68,6 @@ import {
   publishPaymentCompleted,
 } from "@/integrations/events/publish/payments.ts";
 import {toast} from "sonner";
-import {useIsNarrow} from "@/hooks/useBreakpoint.ts";
 
 interface Props {
   order: Order
@@ -81,8 +80,6 @@ interface Props {
   setTax?: (tax?: Tax) => void;
   tax?: Tax
   taxAmount?: number
-  /** Taxed share of the line amounts (computeOrderPaymentTotals), stored with the tax rows. */
-  taxableShare?: number
 
   discountAmount?: number
   /** Notify parent of selected tender so payment-gated discounts can evaluate */
@@ -111,19 +108,6 @@ type ContentProps = Props & {
   selectedAmount: string
   setSelectedAmount: React.Dispatch<React.SetStateAction<string>>
 };
-
-const isTaxObject = (value: unknown): value is Tax => {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    typeof (value as Tax).rate === 'number' &&
-    typeof (value as Tax).name === 'string'
-  );
-}
-
-const getPaymentTypeTax = (paymentType?: PaymentType): Tax | undefined => {
-  return isTaxObject(paymentType?.tax) ? paymentType?.tax : undefined;
-}
 
 export const OrderPaymentReceiving = (props: Props) => {
   const [page] = useAtom(appPage);
@@ -155,7 +139,6 @@ const OrderPaymentReceivingContent = ({
   setTax,
   tax,
   taxAmount,
-  taxableShare,
   discountAmount,
   onPaymentTypeSelected,
   tipType,
@@ -174,7 +157,6 @@ const OrderPaymentReceivingContent = ({
   setSelectedAmount,
 }: ContentProps) => {
   const {t} = useTranslation('payment');
-  const isNarrow = useIsNarrow();
   useCurrencyDisplay();
   const remote = useRemotePayment();
   const db = useDB();
@@ -311,7 +293,18 @@ const OrderPaymentReceivingContent = ({
 
   const toPrimary = (amountInPay: number) => convertPayToPrimary(amountInPay, payCurrency);
 
+  const isTaxObject = (value: unknown): value is Tax => {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      typeof (value as Tax).rate === 'number' &&
+      typeof (value as Tax).name === 'string'
+    );
+  }
 
+  const getPaymentTypeTax = (paymentType?: PaymentType): Tax | undefined => {
+    return isTaxObject(paymentType?.tax) ? paymentType?.tax : undefined;
+  }
 
   const closeOrder = async () => {
     setClosing(true);
@@ -444,7 +437,7 @@ const OrderPaymentReceivingContent = ({
       }
 
       await db.merge(order.id, mergePayload);
-      await syncOrderTaxes(db, order, tax ?? null, taxableShare);
+      await syncOrderTaxes(db, order, tax ?? null);
 
       if (hasCoupon) {
         await db.create(Tables.coupon_redemptions, {
@@ -545,7 +538,7 @@ const OrderPaymentReceivingContent = ({
         });
 
         if (highest) {
-          setTax?.(highest);
+          setTax && setTax(highest);
         }
       }
     }
@@ -632,7 +625,7 @@ const OrderPaymentReceivingContent = ({
     const hasTax = !!candidateTax;
     const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
     if (hasTax) {
-      setTax?.(highestTax);
+      setTax && setTax(highestTax);
     }
     return resolvePayable(hasTax ? highestTax : undefined, paymentTypeId);
   }
@@ -643,10 +636,7 @@ const OrderPaymentReceivingContent = ({
 
   return (
     <div
-      className={cn(
-        "flex flex-col gap-3 bg-white rounded-xl p-3 overflow-y-auto min-h-0",
-        isNarrow ? "max-h-none" : "h-[calc(100vh_-_120px)]",
-      )}
+      className="flex flex-col gap-3 bg-white rounded-xl p-3 h-[calc(100vh_-_120px)] overflow-y-auto"
       data-testid="payment-receiving"
     >
       <div className="flex flex-col gap-3" data-testid="payment-tender-panel">
@@ -657,7 +647,7 @@ const OrderPaymentReceivingContent = ({
             setSelectedAmount('');
           }}
         />
-        <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <div className="rounded-xl bg-neutral-100 px-3 py-2 text-center">
             <div className="text-sm text-neutral-500">{t('receiving.toPay')}</div>
             <div className="text-2xl font-bold tabular-nums" data-testid="payment-total">
@@ -762,7 +752,7 @@ const OrderPaymentReceivingContent = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 max-sm:grid-cols-2 grid-rows-4 max-sm:grid-rows-6 gap-2 flex-1 min-h-[232px]" data-testid="payment-keypad">
+      <div className="grid grid-cols-3 grid-rows-4 gap-2 flex-1 min-h-[232px]" data-testid="payment-keypad">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" className="!h-full" onClick={() => {
             const key = item.toString();

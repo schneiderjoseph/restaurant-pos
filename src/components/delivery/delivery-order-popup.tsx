@@ -15,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {calculateOrderTotal} from "@/lib/cart.ts";
-import {getInvoiceNumber, getOrderFilteredItems, translateOrderStatus} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import {useDB} from "@/api/db/db.ts";
 import {toast} from "sonner";
 import {DateTime} from "luxon";
@@ -43,7 +43,6 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   onOrderUpdate,
 }) => {
   const { t } = useTranslation(['delivery', 'common']);
-  const { t: tOrders } = useTranslation('orders');
   const db = useDB();
   const {deliveryOrders, openOrderPopup, selectedOrder: contextSelectedOrder, isPopupOpen} = useDeliveryOrders();
   const [riders, setRiders] = useState<User[]>([]);
@@ -105,7 +104,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
     if (open) {
       fetchRiders();
     }
-  }, [order.status, delivery?.rider, open, db, t]);
+  }, [order.status, delivery?.rider, open]);
 
   // Find current order index and get next/previous orders
   const currentIndex = useMemo(() => {
@@ -333,7 +332,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 <p className="text-sm text-neutral-600">{t('order.noRidersAvailable')}</p>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                  <div className="grid grid-cols-4 gap-2 mb-4">
                     {riders.map((rider) => (
                       <Button
                         key={rider.id.toString()}
@@ -467,11 +466,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-neutral-600">{t('order.status')}</span>
-                <span className="text-base font-semibold">
-                  {order.status === OrderStatus.Pending
-                    ? tOrders('status.pending')
-                    : translateOrderStatus(tOrders, order.status)}
-                </span>
+                <span className="text-base font-semibold">{order.status}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-neutral-600">{t('order.created')}</span>

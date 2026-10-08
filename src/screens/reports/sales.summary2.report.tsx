@@ -142,13 +142,13 @@ const emptySegmentMetrics = (name: string): SegmentMetrics => ({
   turnTimeSamples: 0,
 });
 
-const getOrderEmployeeName = (order: Order, unknownLabel: string): string => {
+const getOrderEmployeeName = (order: Order): string => {
   const user = order.user as {first_name?: string; last_name?: string; login?: string} | string | undefined;
   if (!user || typeof user === "string") {
-    return (user as string | undefined)?.trim() || unknownLabel;
+    return (user as string | undefined)?.trim() || "Unknown";
   }
   const name = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
-  return name || user.login || unknownLabel;
+  return name || user.login || "Unknown";
 };
 
 const getOrderEmployeeKey = (order: Order): string => {
@@ -244,7 +244,6 @@ function calculateOrderMetrics(order: Order) {
 
 export const SalesSummary2Report = () => {
   const { t } = useTranslation('reports');
-  const unknownLabel = t('common:actions.unknown');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -356,7 +355,7 @@ export const SalesSummary2Report = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, t]);
+  }, [filters.startDate, filters.endDate]);
 
   // First section: Financial calculations
   const financialMetrics = useMemo(() => {
@@ -425,7 +424,7 @@ export const SalesSummary2Report = () => {
 
     orders.forEach(order => {
       const orderTypeName =
-        order.order_type?.name || (typeof order.order_type === "string" ? order.order_type : unknownLabel);
+        order.order_type?.name || (typeof order.order_type === "string" ? order.order_type : "Unknown");
 
       if (!map.has(orderTypeName)) {
         map.set(orderTypeName, emptySegmentMetrics(orderTypeName));
@@ -437,7 +436,7 @@ export const SalesSummary2Report = () => {
     map.forEach(metrics => finalizeSegmentMetrics(metrics, totalNet));
 
     return Array.from(map.values()).sort((a, b) => b.net - a.net);
-  }, [orders, financialMetrics.net, unknownLabel]);
+  }, [orders, financialMetrics.net]);
 
   // Third section: Sale by day part
   const dayPartMetrics = useMemo(() => {
@@ -466,7 +465,7 @@ export const SalesSummary2Report = () => {
     orders.forEach(order => {
       const key = getOrderEmployeeKey(order);
       if (!map.has(key)) {
-        map.set(key, emptySegmentMetrics(getOrderEmployeeName(order, unknownLabel)));
+        map.set(key, emptySegmentMetrics(getOrderEmployeeName(order)));
       }
       accumulateSegmentMetrics(map.get(key)!, order, calculateOrderMetrics(order));
     });
@@ -476,7 +475,7 @@ export const SalesSummary2Report = () => {
     return Array.from(map.entries())
       .map(([id, metrics]) => ({id, ...metrics}))
       .sort((a, b) => b.net - a.net);
-  }, [orders, financialMetrics.net, unknownLabel]);
+  }, [orders, financialMetrics.net]);
 
   // Additional metrics for first section subsections
   const deletionMetrics = useMemo(() => {
@@ -500,7 +499,7 @@ export const SalesSummary2Report = () => {
     );
     const cancelledOrders = statusOrders.filter(order => order.status === OrderStatus.Cancelled).length;
     const voidsByReason = orderVoids.reduce((acc, voidEntry) => {
-      const reason = voidEntry.reason || unknownLabel;
+      const reason = voidEntry.reason || "Unknown";
       const voidItems = (voidEntry.items ?? []).filter(Boolean);
       const amount = calculateVoidEntryAmount(voidEntry);
 
@@ -519,7 +518,7 @@ export const SalesSummary2Report = () => {
       voidsByReason,
       totalDeletion,
     };
-  }, [statusOrders, orderVoids, unknownLabel]);
+  }, [statusOrders, orderVoids]);
 
   const checkStatusMetrics = useMemo(() => {
     const startDate = filters.startDate ? toJsDate(filters.startDate) : null;
@@ -581,7 +580,7 @@ export const SalesSummary2Report = () => {
       if (couponAmount > 0) {
         const couponName =
           order.coupon?.coupon?.code ||
-          t('labels.unnamedCoupon');
+          "Unnamed coupon";
         const existing = couponTypes.get(couponName) || {quantity: 0, total: 0};
         existing.quantity += 1;
         existing.total += couponAmount;
@@ -592,7 +591,7 @@ export const SalesSummary2Report = () => {
     const serviceChargesBreakdown = orders.reduce((acc, order) => {
       const amount = safeNumber(order.service_charge_amount);
       if (amount > 0) {
-        const type = order.service_charge_type || t('labels.standardType');
+        const type = order.service_charge_type || "Standard";
         acc[type] = (acc[type] || 0) + amount;
       }
       return acc;
@@ -612,7 +611,7 @@ export const SalesSummary2Report = () => {
       if (amount <= 0) {
         return;
       }
-      const key = order.tip_type ?? t('labels.standardType');
+      const key = order.tip_type ?? "Standard";
       const existing = tipsByType.get(key) || {quantity: 0, total: 0, rates: new Set<number>()};
       existing.quantity += 1;
       existing.total += amount;
@@ -638,7 +637,7 @@ export const SalesSummary2Report = () => {
         if (!extra) {
           return;
         }
-        const name = extra.name || t('labels.extraDefault');
+        const name = extra.name || "Extra";
         const value = safeNumber(extra.value);
         acc[name] = (acc[name] || 0) + value;
       });
@@ -659,15 +658,15 @@ export const SalesSummary2Report = () => {
       tipsBreakdown,
       extrasBreakdown,
     };
-  }, [orders, t]);
+  }, [orders]);
 
   // Fourth section: Breakdowns
   const breakdownMetrics = useMemo(() => {
     const categoryMixMap: Record<string, CategoryMixAggregate> = {};
     orders.forEach(order => {
       getOrderFilteredItems(order).forEach(item => {
-        const categoryName = String(item?.category || t('labels.uncategorized'));
-        const dishName = String(item?.item?.name || t('labels.unknownItem'));
+        const categoryName = String(item?.category || "Uncategorized");
+        const dishName = String(item?.item?.name || "Unknown item");
         const itemTotal = safeNumber(calculateOrderItemPrice(item));
         const itemQuantity = safeNumber(item?.quantity);
         const modifiers = getModifierRows(item?.modifiers ?? []);
@@ -753,7 +752,7 @@ export const SalesSummary2Report = () => {
         .map(([name, data]) => ({name, ...data}))
         .sort((a, b) => b.total - a.total),
     };
-  }, [orders, t]);
+  }, [orders]);
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategories(prev => {
@@ -797,128 +796,128 @@ export const SalesSummary2Report = () => {
         {/* First section: Financial calculations with 4 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.financialCalculations')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-neutral-200">
+          <div className="grid grid-cols-4 divide-x divide-neutral-200">
             {/* 1st subsection: Financial calculations */}
             <div className="p-4">
               <h4 className="mb-3 font-semibold text-neutral-600">{t('labels.financialSummary')}</h4>
               <table className="min-w-full ">
                 <tbody className="divide-y divide-neutral-100">
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.salePriceWoTaxPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Sale price w/o tax</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.salePriceWithoutTax)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.taxCollectedPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Tax collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.taxCollected)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.serviceChargesPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Service charges</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.serviceCharges)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.tipsPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Tips</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.tips)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.itemDiscountMinus')}</td>
+                    <td className="py-1.5 text-neutral-700">- Item discount</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
                       {withDualCurrency(-financialMetrics.itemDiscounts)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.subtotalDiscountMinus')}</td>
+                    <td className="py-1.5 text-neutral-700">- Subtotal discount</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
                       {withDualCurrency(-financialMetrics.subtotalDiscounts)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.couponDiscountMinus')}</td>
+                    <td className="py-1.5 text-neutral-700">- Coupon discount</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
                       {withDualCurrency(-financialMetrics.couponDiscounts)}
                     </td>
                   </tr>
                   <tr className="border-t border-neutral-300">
-                    <td className="py-1.5 font-semibold text-neutral-900">{t('financial.amountDueEquals')}</td>
+                    <td className="py-1.5 font-semibold text-neutral-900">= Amount due</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountDue)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.amountCollectedPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Amount collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.amountDueMinus')}</td>
+                    <td className="py-1.5 text-neutral-700">- Amount due</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
                       {withDualCurrency(-financialMetrics.amountDue)}
                     </td>
                   </tr>
                   <tr className="border-t border-neutral-300">
-                    <td className="py-1.5 font-semibold text-neutral-900">{t('financial.roundingEquals')}</td>
+                    <td className="py-1.5 font-semibold text-neutral-900">= Rounding</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
                       {withDualCurrency(financialMetrics.rounding)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.amountCollectedPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Amount collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.serviceChargesMinus')}</td>
+                    <td className="py-1.5 text-neutral-700">- Service charges</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
                       {withDualCurrency(-financialMetrics.serviceCharges)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.taxCollectedMinus')}</td>
+                    <td className="py-1.5 text-neutral-700">- Tax collected</td>
                     <td className="py-1.5 text-right font-semibold text-red-600">
                       {withDualCurrency(-financialMetrics.taxCollected)}
                     </td>
                   </tr>
                   <tr className="border-t border-neutral-300">
-                    <td className="py-1.5 font-semibold text-neutral-900">{t('financial.netEquals')}</td>
+                    <td className="py-1.5 font-semibold text-neutral-900">= Net</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
                       {withDualCurrency(financialMetrics.net)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.amountCollected')}</td>
+                    <td className="py-1.5 text-neutral-700">Amount collected</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.refundsPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Refunds</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.refunds)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.discountsPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Discounts</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.itemDiscounts + financialMetrics.subtotalDiscounts)}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.couponsPlus')}</td>
+                    <td className="py-1.5 text-neutral-700">+ Coupons</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.couponDiscounts)}
                     </td>
                   </tr>
                   <tr className="border-t-2 border-neutral-300">
-                    <td className="py-1.5 font-semibold text-neutral-900">{t('financial.grossEquals')}</td>
+                    <td className="py-1.5 font-semibold text-neutral-900">= Gross</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
                       {withDualCurrency(financialMetrics.gross)}
                     </td>
@@ -933,7 +932,7 @@ export const SalesSummary2Report = () => {
               <table className="min-w-full ">
                 <tbody className="divide-y divide-neutral-100">
                   <tr>
-                    <td className="py-1.5 text-neutral-700">{t('financial.refunds')}</td>
+                    <td className="py-1.5 text-neutral-700">Refunds</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(deletionMetrics.refunds)}
                     </td>
@@ -953,7 +952,7 @@ export const SalesSummary2Report = () => {
                     </tr>
                   ))}
                   <tr className="border-t-2 border-neutral-300">
-                    <td className="py-1.5 font-semibold text-neutral-900">{t('financial.totalDeletion')}</td>
+                    <td className="py-1.5 font-semibold text-neutral-900">Total deletion</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
                       {withDualCurrency(deletionMetrics.totalDeletion)}
                     </td>
@@ -1004,7 +1003,7 @@ export const SalesSummary2Report = () => {
                     </td>
                   </tr>
                   <tr className="border-t-2 border-neutral-300">
-                    <td className="py-1.5 font-semibold text-neutral-900">{t('financial.outstandingChecks')}</td>
+                    <td className="py-1.5 font-semibold text-neutral-900">= Outstanding checks</td>
                     <td className="py-1.5 text-right font-bold text-neutral-900">
                       {formatNumber(checkStatusMetrics.outstandingChecks)}
                     </td>
@@ -1058,7 +1057,7 @@ export const SalesSummary2Report = () => {
                 )}
                 {Object.keys(discountTypesBreakdown.serviceChargesBreakdown).length > 0 && (
                   <div>
-                    <h5 className="mb-2  font-semibold text-neutral-600">{t('financial.serviceChargesSection')}</h5>
+                    <h5 className="mb-2  font-semibold text-neutral-600">Service Charges</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {Object.entries(discountTypesBreakdown.serviceChargesBreakdown).map(([type, amount]) => (
@@ -1073,7 +1072,7 @@ export const SalesSummary2Report = () => {
                 )}
                 {Object.keys(discountTypesBreakdown.taxesBreakdown).length > 0 && (
                   <div>
-                    <h5 className="mb-2  font-semibold text-neutral-600">{t('financial.taxesSection')}</h5>
+                    <h5 className="mb-2  font-semibold text-neutral-600">Taxes</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {Object.entries(discountTypesBreakdown.taxesBreakdown).map(([type, amount]) => (
@@ -1111,7 +1110,7 @@ export const SalesSummary2Report = () => {
                 )}
                 {Object.keys(discountTypesBreakdown.extrasBreakdown).length > 0 && (
                   <div>
-                    <h5 className="mb-2  font-semibold text-neutral-600">{t('financial.orderExtrasSection')}</h5>
+                    <h5 className="mb-2  font-semibold text-neutral-600">Order Extras</h5>
                     <table className="min-w-full ">
                       <tbody className="divide-y divide-neutral-100">
                         {Object.entries(discountTypesBreakdown.extrasBreakdown).map(([name, amount]) => (
@@ -1137,15 +1136,15 @@ export const SalesSummary2Report = () => {
               <thead className="bg-neutral-50">
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">{t('filters.orderType')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.salePriceWithoutTax')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tax')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Sale Price w/o Tax</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('labels.amountDue')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('financial.serviceChargesSection')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tips')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.discounts')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.coupons')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.net')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.percentOfTotal')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">% of Total</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.guests')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
@@ -1186,7 +1185,7 @@ export const SalesSummary2Report = () => {
                 {orderTypeMetrics.length === 0 && (
                   <tr>
                     <td colSpan={15} className="py-6 text-center text-neutral-500">
-                      {t('empty.noOrderTypeData')}
+                      No order type data available
                     </td>
                   </tr>
                 )}
@@ -1203,15 +1202,15 @@ export const SalesSummary2Report = () => {
               <thead className="bg-neutral-50">
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">{t('columns.dayPart')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.salePriceWithoutTax')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tax')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Sale Price w/o Tax</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('labels.amountDue')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('financial.serviceChargesSection')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tips')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.discounts')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.coupons')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.net')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.percentOfTotal')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">% of Total</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.guests')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
@@ -1267,15 +1266,15 @@ export const SalesSummary2Report = () => {
               <thead className="bg-neutral-50">
                 <tr>
                   <th className="py-3 pl-6 pr-3 text-left  font-semibold text-neutral-700">{t('columns.employee')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.salePriceWithoutTax')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tax')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Sale Price w/o Tax</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Taxes</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('labels.amountDue')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('financial.serviceChargesSection')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">Service Charges</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('reports.tips')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.discounts')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.coupons')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('metrics.net')}</th>
-                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.percentOfTotal')}</th>
+                  <th className="py-3 px-3 text-right  font-semibold text-neutral-700">% of Total</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.guests')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.avgGuest')}</th>
                   <th className="py-3 px-3 text-right  font-semibold text-neutral-700">{t('columns.checks')}</th>
@@ -1328,7 +1327,7 @@ export const SalesSummary2Report = () => {
         {/* Fourth section: Breakdowns with 3 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <h3 className="bg-neutral-100 px-6 py-3 font-semibold text-neutral-700">{t('labels.breakdowns')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-neutral-200">
+          <div className="grid grid-cols-3 divide-x divide-neutral-200">
             {/* 1st subsection: Categories with dishes and modifiers */}
             <div className="p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
@@ -1358,9 +1357,9 @@ export const SalesSummary2Report = () => {
                   <div className="border-b border-neutral-300 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">
                     <div className="flex">
                       <span className="w-1/2">{t('filters.item')}</span>
-                      <span className="w-1/6 text-right">{t('columns.quantity')}</span>
+                      <span className="w-1/6 text-right">Qty</span>
                       <span className="w-1/6 text-right">{t('columns.total')}</span>
-                      <span className="w-1/6 text-right">{t('columns.share')}</span>
+                      <span className="w-1/6 text-right">Share</span>
                     </div>
                   </div>
                   {breakdownMetrics.categoryMix.map(category => {
@@ -1435,7 +1434,7 @@ export const SalesSummary2Report = () => {
                   })}
                 </div>
               ) : (
-                <div className=" text-neutral-500">{t('empty.noCategoriesData')}</div>
+                <div className=" text-neutral-500">No categories data</div>
               )}
             </div>
 
@@ -1447,8 +1446,8 @@ export const SalesSummary2Report = () => {
                   <thead>
                     <tr>
                       <th className="py-1.5 text-left  font-semibold text-neutral-600">{t('filters.user')}</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.rate')}</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.quantity')}</th>
+                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Rate</th>
+                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Qty</th>
                       <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.total')}</th>
                     </tr>
                   </thead>
@@ -1470,19 +1469,19 @@ export const SalesSummary2Report = () => {
                   </tbody>
                 </table>
               ) : (
-                <div className=" text-neutral-500">{t('empty.noUserDiscountsData')}</div>
+                <div className=" text-neutral-500">No user discounts data</div>
               )}
             </div>
 
             {/* 3rd subsection: Payment types */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">{t('filters.paymentTypes')}</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">Payment Types</h4>
               {breakdownMetrics.paymentTypes.length > 0 ? (
                 <table className="min-w-full ">
                   <thead>
                     <tr>
                       <th className="py-1.5 text-left  font-semibold text-neutral-600">{t('filters.paymentType')}</th>
-                      <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.quantity')}</th>
+                      <th className="py-1.5 text-right  font-semibold text-neutral-600">Qty</th>
                       <th className="py-1.5 text-right  font-semibold text-neutral-600">{t('columns.total')}</th>
                     </tr>
                   </thead>
@@ -1501,7 +1500,7 @@ export const SalesSummary2Report = () => {
                   </tbody>
                 </table>
               ) : (
-                <div className=" text-neutral-500">{t('empty.noPaymentTypesData')}</div>
+                <div className=" text-neutral-500">No payment types data</div>
               )}
             </div>
           </div>

@@ -238,7 +238,7 @@ export const SplitByClients = ({
     return (
       <div
         key={split.id}
-        className={`bg-white rounded-xl shadow-lg border border-gray-200 w-full max-w-[400px] min-w-0 ${
+        className={`bg-white rounded-xl shadow-lg border border-gray-200 min-w-[320px] ${
           dragOverSplit === split.id ? 'border-primary-400 bg-primary-50' : ''
         }`}
         onDragOver={(e) => handleDragOver(e, split.id)}
@@ -319,7 +319,7 @@ export const SplitByClients = ({
         <p className="text-sm text-neutral-600">{t('split.byClients.hint')}</p>
         <p className="text-xs text-primary-600">{t('split.tapHint')}</p>
         <ScrollContainer className="flex-1">
-          <div className="flex flex-row max-sm:flex-col gap-4 min-h-[420px] pb-4">
+          <div className="flex gap-4 min-h-[420px] pb-4">
             {splits.map((split, index) => renderSplitCard(split, index))}
             <div className="min-w-[180px] flex items-start">
               <Button variant="primary" flat icon={faPlus} onClick={addSplit}>

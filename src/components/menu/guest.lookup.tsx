@@ -819,7 +819,7 @@ export const GuestLookup = () => {
                 </p>
               </div>
               <div className="flex flex-wrap items-end gap-3">
-                <div className="w-full min-w-0 flex-[1_1_100%] sm:flex-[2] sm:min-w-0">
+                <div className="flex-[2] min-w-[260px]">
                   <PhoneInput
                     label={t('menu:guest.phone')}
                     value={newPhone}
@@ -827,7 +827,7 @@ export const GuestLookup = () => {
                     testId="guest-walkin-phone"
                   />
                 </div>
-                <div className="w-full min-w-0 flex-1 sm:min-w-[120px]">
+                <div className="min-w-[120px]">
                   <label htmlFor="guest-walkin-id-type">{t('menu:customer.idDocumentType')}</label>
                   <select
                     id="guest-walkin-id-type"
@@ -842,7 +842,7 @@ export const GuestLookup = () => {
                     ))}
                   </select>
                 </div>
-                <div className="w-full min-w-0 flex-1 sm:min-w-[140px]">
+                <div className="flex-1 min-w-[140px]">
                   <Input
                     label={t('menu:guest.idDocument')}
                     placeholder={t('menu:guest.idDocumentPlaceholder')}

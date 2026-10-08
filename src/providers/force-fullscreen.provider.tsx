@@ -1,10 +1,8 @@
 import {type PropsWithChildren, useEffect} from 'react'
 import {enterFullscreen, isFullscreenActive, lockLandscape} from '@/lib/fullscreen.ts'
-import {isNarrowViewport, NARROW_MAX} from '@/lib/breakpoints.ts'
 
 /**
- * Force the POS into browser fullscreen on tablet/desktop (≥ lg).
- * Skipped on narrow/portrait phones so users are not landscape-locked.
+ * Force the POS into browser fullscreen on tablet.
  * Fullscreen API requires a user gesture — we enter on first pointer/key
  * and re-enter whenever the user interacts while not fullscreen.
  */
@@ -12,19 +10,14 @@ export function ForceFullscreenProvider({children}: PropsWithChildren) {
   useEffect(() => {
     let pending = false
 
-    const shouldForce = () => !isNarrowViewport()
-
     const ensure = () => {
-      if (!shouldForce()) {
-        return
-      }
       if (pending || isFullscreenActive()) {
         return
       }
       pending = true
       void enterFullscreen()
         .then((ok) => {
-          if (ok && shouldForce()) {
+          if (ok) {
             void lockLandscape()
           }
         })
@@ -43,21 +36,13 @@ export function ForceFullscreenProvider({children}: PropsWithChildren) {
 
     const onFsChange = () => {
       if (!isFullscreenActive()) {
-        // Next tap will re-enter (tablet only).
-      } else if (shouldForce()) {
+        // Next tap will re-enter.
+      } else {
         void lockLandscape()
       }
     }
     document.addEventListener('fullscreenchange', onFsChange)
     document.addEventListener('webkitfullscreenchange', onFsChange)
-
-    const onResize = () => {
-      // Crossing into narrow: stop forcing landscape; leave fullscreen alone.
-      if (window.innerWidth <= NARROW_MAX) {
-        return
-      }
-    }
-    window.addEventListener('resize', onResize)
 
     return () => {
       document.removeEventListener('pointerdown', onInteract, true)
@@ -65,7 +50,6 @@ export function ForceFullscreenProvider({children}: PropsWithChildren) {
       document.removeEventListener('touchstart', onInteract, true)
       document.removeEventListener('fullscreenchange', onFsChange)
       document.removeEventListener('webkitfullscreenchange', onFsChange)
-      window.removeEventListener('resize', onResize)
     }
   }, [])
 

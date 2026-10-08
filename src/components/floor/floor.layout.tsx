@@ -211,7 +211,6 @@ export const FloorLayout = () => {
       liveSubscriptions.current.forEach(subscription => subscription.kill().catch(() => undefined));
       liveSubscriptions.current = [];
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- subscribe once per mount; the callbacks refetch fresh data
   }, []);
 
   useEffect(() => {
@@ -285,7 +284,7 @@ export const FloorLayout = () => {
         floor: salle,
       }));
     }
-  }, [floors, state.floor, setState]);
+  }, [floors, state.floor]);
 
   const tableOrders = (tableId: string) => {
     return orders?.data?.filter(item => item?.table?.id?.toString() === tableId.toString())
@@ -331,7 +330,6 @@ export const FloorLayout = () => {
     }
 
     return {occupied, locked, free, total: visible.length};
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- isTableBusy is rebuilt each render from orders and occupiedRooms, already listed
   }, [tables, orders?.data, occupiedRooms]);
 
   const occupiedOnFloor = (floorId: string) => {
@@ -374,7 +372,7 @@ export const FloorLayout = () => {
     }
 
     if (!item.is_block && !item.is_locked) {
-      const ordersData = orders?.data ?? [];
+      let ordersData = orders?.data ?? [];
       let ordersForTable = ordersData.filter(orderItem => orderItem?.table?.id?.toString() === item.id.toString());
       let order = ordersForTable[0];
       let cart = state.cart;
@@ -494,7 +492,7 @@ export const FloorLayout = () => {
       <div className="flex flex-col h-full transition-all delay-75" data-testid="menu-floor" style={{
         background: state.floor?.background
       }}>
-        <div className="min-h-[72px] bg-white/95 backdrop-blur border-b border-neutral-200 px-4 py-2 flex flex-wrap items-center gap-4">
+        <div className="min-h-[72px] bg-white/95 backdrop-blur border-b border-neutral-200 px-4 py-2 flex items-center gap-4">
           {resortFb && state.resortEntry === 'floor' && (
             <Button
               variant="primary"
@@ -530,10 +528,10 @@ export const FloorLayout = () => {
             </div>
           ) : (
             <>
-              <div className="min-w-0">
+              <div className="min-w-[120px]">
                 <div className="text-2xl font-black leading-none">{state.floor?.name}</div>
               </div>
-              <div className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+              <div className="flex items-center gap-2 text-sm font-semibold">
                 <span className="rounded-full bg-success-100 text-success-800 px-3 py-1">{t('floor.free', {count: floorStats.free})}</span>
                 <span className="rounded-full bg-warning-100 text-warning-800 px-3 py-1">{t('floor.occupied', {count: floorStats.occupied})}</span>
               </div>

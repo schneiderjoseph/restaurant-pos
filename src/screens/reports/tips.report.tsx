@@ -38,7 +38,7 @@ export const TipsReport = () => {
 
   const subtitle = useMemo(() => {
     const datePart = filters.startDate && filters.endDate
-      ? t('labels.dateRangeTo', {start: filters.startDate, end: filters.endDate})
+      ? `${filters.startDate} to ${filters.endDate}`
       : t('labels.allDates');
     const shiftPart = shiftName || t('labels.allShifts');
     return `${datePart} | ${shiftPart}`;
@@ -94,7 +94,7 @@ export const TipsReport = () => {
     };
 
     void fetchData();
-  }, [filters.startDate, filters.endDate, filters.shiftId, t]);
+  }, [filters.startDate, filters.endDate, filters.shiftId]);
 
   const totalTips = useMemo(
     () => distributions.reduce((sum, distribution) => sum + safeNumber(distribution.total_tips), 0),
@@ -108,13 +108,13 @@ export const TipsReport = () => {
       (distribution.users || []).forEach((share: any) => {
         const user = share?.user;
         const userName = user
-          ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || t('common:actions.unknown')
-          : normalizeId(share?.user) || t('common:actions.unknown');
+          ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
+          : normalizeId(share?.user) || "Unknown";
         map.set(userName, (map.get(userName) || 0) + safeNumber(share?.amount));
       });
     });
     return Array.from(map.entries()).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
-  }, [distributions, t]);
+  }, [distributions]);
 
   if (loading) {
     return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.tips')}</div></ReportsLayout>;
@@ -138,7 +138,6 @@ export const TipsReport = () => {
       </div>
 
       <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
@@ -161,7 +160,6 @@ export const TipsReport = () => {
             )}
           </tbody>
         </table>
-        </div>
       </div>
     </ReportsLayout>
   );

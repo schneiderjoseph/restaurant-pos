@@ -241,8 +241,8 @@ export const Reports = () => {
       {!ready ? null : visibleCategories.length === 0 ? (
         <NoAccessibleTabs />
       ) : (
-      <div className="grid grid-cols-9 max-sm:grid-cols-1 gap-5" data-testid="reports-page">
-        <div className="col-span-2 max-sm:col-span-1">
+      <div className="grid grid-cols-9 gap-5" data-testid="reports-page">
+        <div className="col-span-2">
           <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-categories">
             <h1 className="text-xl text-gray-600 px-5">{t('page.title')}</h1>
             <div className="py-5">
@@ -270,7 +270,7 @@ export const Reports = () => {
           </div>
         </div>
         {visibleSubReports.length > 0 && (
-        <div className="col-span-2 max-sm:col-span-1">
+        <div className="col-span-2">
           <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-subreports">
             <h1 className="text-xl text-gray-600 px-5">{t('page.subReports')}</h1>
             <div className="py-5">
@@ -301,7 +301,7 @@ export const Reports = () => {
           </div>
         </div>
         )}
-        <div className="col-span-5 max-sm:col-span-1">
+        <div className="col-span-5">
           <div className="bg-white shadow p-5 rounded-lg" data-testid="reports-filters">
             <h1 className="text-xl">
               {selectedCategoryId && selectedReportKey ? (

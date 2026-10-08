@@ -60,7 +60,7 @@ export const SalesSummaryReport = () => {
     };
 
     void fetchData();
-  }, [db, filters, t]);
+  }, [filters.startDate, filters.endDate]);
 
   const {
     totalNetSales,
@@ -119,16 +119,16 @@ export const SalesSummaryReport = () => {
     }));
 
     return [
-      {label: t('labels.netSales'), value: withDualCurrency(totalNetSales)},
-      {label: t('labels.amountCollected'), value: withDualCurrency(paymentSummary.amountCollected)},
+      {label: "Net sales", value: withDualCurrency(totalNetSales)},
+      {label: "Amount collected", value: withDualCurrency(paymentSummary.amountCollected)},
       {label: t('labels.cashPaymentsNet'), value: withDualCurrency(paymentSummary.cashPayments)},
-      {label: t('labels.roundingBenefit'), value: withDualCurrency(roundingBenefit)},
+      {label: "Rounding benefit", value: withDualCurrency(roundingBenefit)},
       {label: t('metrics.checkCountByDayPart'), breakdown: checkBreakdown},
-      {label: t('labels.saleByDayPartRow'), breakdown: saleBreakdown},
-      {label: t('labels.netSalesByOrderType'), breakdown: orderTypeItems},
-      {label: t('columns.serviceCharges'), value: withDualCurrency(serviceCharges)},
-      {label: t('reports.tax'), value: withDualCurrency(taxes)},
-      {label: t('labels.nonCashPayments'), value: withDualCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
+      {label: "Sale by day part", breakdown: saleBreakdown},
+      {label: "Net sales by order type", breakdown: orderTypeItems},
+      {label: "Service charges", value: withDualCurrency(serviceCharges)},
+      {label: "Taxes", value: withDualCurrency(taxes)},
+      {label: "Non cash payments", value: withDualCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
       {label: t('metrics.discounts'), value: withDualCurrency(Math.max(0, totalDiscounts - totalCoupons))},
       {label: t('metrics.coupons'), value: withDualCurrency(totalCoupons)},
       {label: t('reports.voids'), value: withDualCurrency(totalVoids)},
@@ -147,7 +147,6 @@ export const SalesSummaryReport = () => {
     totalCoupons,
     totalNetSales,
     totalVoids,
-    t,
   ]);
 
   if (loading) {
@@ -170,15 +169,14 @@ export const SalesSummaryReport = () => {
     <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
             <tr>
               <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
-                {t('labels.metric')}
+                Metric
               </th>
               <th scope="col" className="py-3.5 px-6 text-left text-sm font-semibold text-neutral-700">
-                {t('labels.value')}
+                Value
               </th>
             </tr>
             </thead>
@@ -206,28 +204,26 @@ export const SalesSummaryReport = () => {
             {summaryRows.length === 0 && (
               <tr>
                 <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noSalesActivity')}
+                  No sales activity for the selected period.
                 </td>
               </tr>
             )}
             </tbody>
           </table>
-          </div>
         </div>
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
             <tr>
               <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
-                {t('labels.discountType')}
+                Discount type
               </th>
               <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
-                {t('columns.quantity')}
+                Quantity
               </th>
               <th scope="col" className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">
-                {t('columns.amount')}
+                Amount
               </th>
             </tr>
             </thead>
@@ -247,13 +243,12 @@ export const SalesSummaryReport = () => {
             ) : (
               <tr>
                 <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noDiscountsApplied')}
+                  No discounts applied for the selected period.
                 </td>
               </tr>
             )}
             </tbody>
           </table>
-          </div>
         </div>
 
         {outletSales.length > 0 && (
@@ -261,7 +256,6 @@ export const SalesSummaryReport = () => {
             <div className="bg-neutral-50 px-6 py-3 border-b border-neutral-200">
               <h2 className="text-sm font-semibold text-neutral-700">{t('sections.salesByOutlet')}</h2>
             </div>
-            <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
               <tr>
@@ -304,7 +298,6 @@ export const SalesSummaryReport = () => {
               ))}
               </tbody>
             </table>
-            </div>
           </div>
         )}
       </div>
