@@ -190,6 +190,8 @@
     "vip": "VIP"
   },
   "dishes": {
-    "slideOf": "Slide {{current}} of {{total}}"
+    "slideOf": "Slide {{current}} of {{total}}",
+    "noDescription": "No description for this dish yet.",
+    "descriptionLanguage": "Description language"
   }
 }

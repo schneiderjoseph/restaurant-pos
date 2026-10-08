@@ -451,7 +451,10 @@
     "gatewayMode": "Ağ geçidi modu",
     "gatewayKeys": "Ağ geçidi anahtarları",
     "updateSelectedTables": "Seçili masaları güncelle",
-    "applyToSelected": "Seçime uygula"
+    "applyToSelected": "Seçime uygula",
+    "dishDescription": "Açıklama",
+    "dishDescriptionHint": "Menüde yemeğe uzun basıldığında garsona gösterilir. Misafirlerinizin dillerini doldurun.",
+    "addDescriptionLanguage": "Dil ekle…"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

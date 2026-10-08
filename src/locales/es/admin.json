@@ -451,7 +451,10 @@
     "gatewayMode": "Modo de pasarela",
     "gatewayKeys": "Claves de pasarela",
     "updateSelectedTables": "Actualizar mesas seleccionadas",
-    "applyToSelected": "Aplicar a la selección"
+    "applyToSelected": "Aplicar a la selección",
+    "dishDescription": "Descripción",
+    "dishDescriptionHint": "Se muestra al mesero con una pulsación larga sobre el plato en el menú. Complete los idiomas de sus clientes.",
+    "addDescriptionLanguage": "Agregar un idioma…"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

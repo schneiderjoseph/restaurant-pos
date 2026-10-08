@@ -188,6 +188,8 @@
     "vip": "VIP"
   },
   "dishes": {
-    "slideOf": "Dia {{current}} van {{total}}"
+    "slideOf": "Dia {{current}} van {{total}}",
+    "noDescription": "Nog geen beschrijving voor dit gerecht.",
+    "descriptionLanguage": "Taal van de beschrijving"
   }
 }

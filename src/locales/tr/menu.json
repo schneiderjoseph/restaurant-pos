@@ -188,6 +188,8 @@
     "vip": "VIP"
   },
   "dishes": {
-    "slideOf": "Slayt {{current}} / {{total}}"
+    "slideOf": "Slayt {{current}} / {{total}}",
+    "noDescription": "Bu yemek için henüz açıklama yok.",
+    "descriptionLanguage": "Açıklama dili"
   }
 }

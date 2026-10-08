@@ -451,7 +451,10 @@
     "gatewayMode": "Gatewaymodus",
     "gatewayKeys": "Gatewaysleutels",
     "updateSelectedTables": "Geselecteerde tafels bijwerken",
-    "applyToSelected": "Toepassen op selectie"
+    "applyToSelected": "Toepassen op selectie",
+    "dishDescription": "Beschrijving",
+    "dishDescriptionHint": "Getoond aan de bediening bij lang drukken op het gerecht in het menu. Vul de talen van uw gasten in.",
+    "addDescriptionLanguage": "Taal toevoegen…"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

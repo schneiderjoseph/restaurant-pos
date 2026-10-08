@@ -451,7 +451,10 @@
     "gatewayMode": "Gateway-Modus",
     "gatewayKeys": "Gateway-Schlüssel",
     "updateSelectedTables": "Ausgewählte Tische aktualisieren",
-    "applyToSelected": "Auf Auswahl anwenden"
+    "applyToSelected": "Auf Auswahl anwenden",
+    "dishDescription": "Beschreibung",
+    "dishDescriptionHint": "Wird dem Service bei langem Drücken auf das Gericht im Menü angezeigt. Füllen Sie die Sprachen Ihrer Gäste aus.",
+    "addDescriptionLanguage": "Sprache hinzufügen…"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

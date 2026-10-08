@@ -451,7 +451,10 @@
     "gatewayMode": "وضع بوابة الدفع",
     "gatewayKeys": "مفاتيح بوابة الدفع",
     "updateSelectedTables": "تحديث الطاولات المحددة",
-    "applyToSelected": "تطبيق على المحدد"
+    "applyToSelected": "تطبيق على المحدد",
+    "dishDescription": "الوصف",
+    "dishDescriptionHint": "يظهر للنادل عند الضغط المطوّل على الطبق في القائمة. املأ لغات ضيوفك.",
+    "addDescriptionLanguage": "إضافة لغة…"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

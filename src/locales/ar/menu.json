@@ -192,6 +192,8 @@
     "vip": "VIP"
   },
   "dishes": {
-    "slideOf": "الشريحة {{current}} من {{total}}"
+    "slideOf": "الشريحة {{current}} من {{total}}",
+    "noDescription": "لا يوجد وصف لهذا الطبق بعد.",
+    "descriptionLanguage": "لغة الوصف"
   }
 }

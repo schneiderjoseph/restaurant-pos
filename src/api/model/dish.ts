@@ -7,12 +7,17 @@ import { DateTime } from "surrealdb";
 import {Document} from '@/api/model/document.ts'
 import {Workflow} from "@/api/model/workflow.ts";
 
+/** Dish description per app language code, e.g. { fr: "...", en: "..." }. */
+export type DishDescription = Record<string, string>;
+
 export interface Dish extends ID, Name, Priority {
   allow_half?: boolean
   categories?: Category[]
   /** Legacy DB field; POS pur keeps sell price only — treat as unused. */
   cost?: number
   number: string
+  /** Shown on a long press of the dish in the POS menu. */
+  description?: DishDescription | null
   position?: number
   price: number
   photo?: ArrayBuffer

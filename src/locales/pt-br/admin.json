@@ -451,7 +451,10 @@
     "gatewayMode": "Modo do gateway",
     "gatewayKeys": "Chaves do gateway",
     "updateSelectedTables": "Atualizar mesas selecionadas",
-    "applyToSelected": "Aplicar à seleção"
+    "applyToSelected": "Aplicar à seleção",
+    "dishDescription": "Descrição",
+    "dishDescriptionHint": "Exibida ao garçom com um toque longo no prato no cardápio. Preencha os idiomas dos seus clientes.",
+    "addDescriptionLanguage": "Adicionar um idioma…"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

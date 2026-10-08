@@ -21,6 +21,8 @@ import {MenuModifierOverrides} from "@/api/model/menu.ts";
 import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
 import {isExternalCatalogueMode} from "@/lib/pos-mode.ts";
+import {useLongPress} from "@/hooks/useLongPress.ts";
+import {DishDescriptionModal} from "@/components/menu/dish-description.modal.tsx";
 
 const dishImageCache = new Map<string, string>();
 const DISH_IMAGE_CACHE_MAX = 64;
@@ -84,6 +86,9 @@ export const MenuDish = ({
   const showDishPhotos = page.menuConfig?.showDishPhotos === true;
 
   const [modifiersModal, setModifiersModal] = useState(false);
+  const [descriptionModal, setDescriptionModal] = useState(false);
+  // Long press shows the description instead of adding the dish.
+  const longPress = useLongPress(() => setDescriptionModal(true));
   const [imageSrc, setImageSrc] = useState(defaultImage);
 
   const resolvedMenuOverrides = menuModifierOverrides ?? item.menu_modifier_overrides ?? null;
@@ -244,7 +249,8 @@ export const MenuDish = ({
           className="flex min-h-[64px] w-full flex-col justify-between gap-1 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-left shadow-sm select-none active:bg-warning-50 active:shadow-none"
           data-testid="modifier-option"
           data-dish-name={item.name}
-          onClick={handleClick}
+          {...longPress.handlers}
+          onClick={longPress.wrapClick(handleClick)}
         >
           <span className="line-clamp-2 break-words font-semibold leading-snug text-neutral-900">
             {item.name || item.number || '—'}
@@ -260,7 +266,8 @@ export const MenuDish = ({
         tabIndex={0}
         data-testid="menu-dish"
         data-dish-name={item.name}
-        onClick={handleClick}
+        {...longPress.handlers}
+        onClick={longPress.wrapClick(handleClick)}
       >
         <div
           className="flex-1 bg-white min-w-0 min-h-0 overflow-hidden rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-neutral-900 active:text-warning-500 relative"
@@ -305,6 +312,10 @@ export const MenuDish = ({
           <span className="absolute bottom-2 right-2 text-primary-500 text-xs font-bold">{dishCount(item)}</span>
         )}
       </div>
+      )}
+
+      {descriptionModal && (
+        <DishDescriptionModal dish={item} price={price} onClose={() => setDescriptionModal(false)}/>
       )}
 
       {modifierGroups.length > 0 && modifiersModal && (

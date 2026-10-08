@@ -476,7 +476,10 @@
     "gatewayMode": "Mode de passerelle",
     "gatewayKeys": "Clés de passerelle",
     "updateSelectedTables": "Mettre à jour les tables sélectionnées",
-    "applyToSelected": "Appliquer à la sélection"
+    "applyToSelected": "Appliquer à la sélection",
+    "dishDescription": "Description",
+    "dishDescriptionHint": "Affichée au serveur par un appui long sur le plat dans le menu. Remplissez les langues de vos clients.",
+    "addDescriptionLanguage": "Ajouter une langue…"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

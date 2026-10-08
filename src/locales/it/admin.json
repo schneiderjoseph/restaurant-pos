@@ -451,7 +451,10 @@
     "gatewayMode": "Modalità gateway",
     "gatewayKeys": "Chiavi gateway",
     "updateSelectedTables": "Aggiorna tavoli selezionati",
-    "applyToSelected": "Applica alla selezione"
+    "applyToSelected": "Applica alla selezione",
+    "dishDescription": "Descrizione",
+    "dishDescriptionHint": "Mostrata al cameriere con una pressione prolungata sul piatto nel menu. Compila le lingue dei tuoi ospiti.",
+    "addDescriptionLanguage": "Aggiungi una lingua…"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

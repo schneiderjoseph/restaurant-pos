@@ -188,6 +188,8 @@
     "vip": "VIP"
   },
   "dishes": {
-    "slideOf": "Diapositiva {{current}} de {{total}}"
+    "slideOf": "Diapositiva {{current}} de {{total}}",
+    "noDescription": "Este plato aún no tiene descripción.",
+    "descriptionLanguage": "Idioma de la descripción"
   }
 }

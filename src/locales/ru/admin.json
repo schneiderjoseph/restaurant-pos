@@ -451,7 +451,10 @@
     "gatewayMode": "Режим шлюза",
     "gatewayKeys": "Ключи шлюза",
     "updateSelectedTables": "Обновить выбранные столы",
-    "applyToSelected": "Применить к выбранным"
+    "applyToSelected": "Применить к выбранным",
+    "dishDescription": "Описание",
+    "dishDescriptionHint": "Показывается официанту при долгом нажатии на блюдо в меню. Заполните языки ваших гостей.",
+    "addDescriptionLanguage": "Добавить язык…"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

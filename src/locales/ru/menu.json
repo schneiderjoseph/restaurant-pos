@@ -190,6 +190,8 @@
     "vip": "VIP"
   },
   "dishes": {
-    "slideOf": "Слайд {{current}} из {{total}}"
+    "slideOf": "Слайд {{current}} из {{total}}",
+    "noDescription": "У этого блюда пока нет описания.",
+    "descriptionLanguage": "Язык описания"
   }
 }

@@ -476,7 +476,10 @@
     "gatewayMode": "Gateway Mode",
     "gatewayKeys": "Gateway Keys",
     "updateSelectedTables": "Update selected tables",
-    "applyToSelected": "Apply to Selected"
+    "applyToSelected": "Apply to Selected",
+    "dishDescription": "Description",
+    "dishDescriptionHint": "Shown to the server on a long press of the dish in the menu. Fill the languages your guests read.",
+    "addDescriptionLanguage": "Add a language…"
   },
   "dishView": {
     "detailsTitle": "Dish details",

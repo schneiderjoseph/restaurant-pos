@@ -34,6 +34,8 @@ import {
   isMaxModifiersValid,
   optionalCountSchema,
 } from "@/components/settings/dishes/included-modifiers.ts";
+import {DishDescriptionFields} from "@/components/settings/dishes/dish-description.fields.tsx";
+import {cleanDishDescription} from "@/lib/dish-description.ts";
 
 interface Props {
   open: boolean
@@ -46,6 +48,7 @@ const validationSchema = yup.object({
   number: yup.string().required(i18n.t('validation:required')),
   priority: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   price: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
+  description: yup.mixed<Record<string, string>>().nullable().optional(),
   categories: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
@@ -332,6 +335,8 @@ export const DishForm = ({
         priority: formData.priority,
         price: formData.price,
         cost: 0,
+        // null clears the field when every language was emptied.
+        description: cleanDishDescription(values.description),
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
@@ -487,6 +492,18 @@ export const DishForm = ({
               />
             </div>
           </div>
+
+          <Controller
+            name="description"
+            control={control}
+            render={({field}) => (
+              <DishDescriptionFields
+                key={data?.id?.toString() ?? 'new'}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
