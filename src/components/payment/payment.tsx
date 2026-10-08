@@ -49,6 +49,7 @@ import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {createOrderEditRequest, diffSentLines, refKey, sentItemsEditMode} from "@/lib/order-edit-request.ts";
 import {duoMemberIds} from "@/lib/duo.ts";
+import {getCustomerTaxExemptionIds} from "@/lib/tax-calculator.ts";
 
 export const Payment = () => {
   const {t} = useTranslation(["payment", "toast", "kitchen", "menu"]);
@@ -67,6 +68,12 @@ export const Payment = () => {
   const createInFlightRef = useRef(false);
   const [order, setOrder] = useState<Order>();
   const [dueOpen, setDueOpen] = useState(false);
+
+  // An exempt customer's order starts without those taxes, from the cart on.
+  const customerExemptTaxIds = useMemo(
+    () => getCustomerTaxExemptionIds(state?.customer),
+    [state?.customer],
+  );
 
   // When the order is wanted: the server's choice, else what an existing order already holds.
   const storedDueAt = order?.due_at ?? state?.order?.order?.due_at;
@@ -440,6 +447,7 @@ export const Payment = () => {
         data.service_charge = 0;
         data.service_charge_amount = 0;
         data.service_charge_type = DiscountType.Percent;
+        data.excluded_taxes = customerExemptTaxIds.map((id) => toRecordId(id));
       }
 
       if (isNewOrder && state?.orderType?.allow_service_charges) {
@@ -663,7 +671,7 @@ export const Payment = () => {
         )}
         {!order && (
           <div className="p-3">
-            <CartTotals itemCount={cartItemCount} cart={state.cart} allowServiceCharges={state?.orderType?.allow_service_charges} />
+            <CartTotals itemCount={cartItemCount} cart={state.cart} allowServiceCharges={state?.orderType?.allow_service_charges} excludedTaxIds={customerExemptTaxIds} />
           </div>
         )}
 

@@ -131,6 +131,8 @@
     "nameSaveFailed": "Could not save the name",
     "preferences": "Preferences",
     "preferencesTitle": "Preferences of {{name}}",
+    "taxExemptTitle": "Tax exemption",
+    "taxExemptHint": "New orders for this customer start without the selected taxes.",
     "preferencesSaved": "Preferences saved",
     "preferencesSaveFailed": "Could not save the preferences",
     "allergies": "Allergies",

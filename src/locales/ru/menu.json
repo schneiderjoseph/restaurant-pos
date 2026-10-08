@@ -129,6 +129,8 @@
     "nameSaveFailed": "Не удалось сохранить имя",
     "preferences": "Предпочтения",
     "preferencesTitle": "Предпочтения: {{name}}",
+    "taxExemptTitle": "Освобождение от налогов",
+    "taxExemptHint": "Новые заказы этого клиента создаются без выбранных налогов.",
     "preferencesSaved": "Предпочтения сохранены",
     "preferencesSaveFailed": "Не удалось сохранить предпочтения",
     "allergies": "Аллергии",

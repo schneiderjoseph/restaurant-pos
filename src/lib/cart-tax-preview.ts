@@ -37,8 +37,12 @@ const cartAsOrder = (cart: MenuItem[]): Order => ({
  * Totals shown before a new order is saved. Same rules as the saved order, so the amount the
  * guest sees in the cart is the amount on the Orders screen.
  */
-export const previewCartTotals = (cart: MenuItem[]): CartTotalsPreview => {
-  const order = cartAsOrder(cart);
+export const previewCartTotals = (
+  cart: MenuItem[],
+  /** Taxes the new order starts without (the customer's exemptions). */
+  excludedTaxIds: string[] = [],
+): CartTotalsPreview => {
+  const order = { ...cartAsOrder(cart), excluded_taxes: excludedTaxIds } as Order;
   const taxes = collectOrderTaxRows(order, null).filter((row) => row.amount > 0);
 
   return {

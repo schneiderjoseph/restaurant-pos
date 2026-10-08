@@ -162,6 +162,11 @@ const taxIdOf = (value: unknown): string => {
 export const getExcludedTaxIds = (order?: Pick<Order, 'excluded_taxes'> | null): Set<string> =>
   new Set((order?.excluded_taxes ?? []).map(taxIdOf).filter(Boolean));
 
+/** Ids of the taxes a customer is exempt from (`customer.tax_exemptions`). */
+export const getCustomerTaxExemptionIds = (
+  customer?: { tax_exemptions?: unknown[] | null } | null,
+): string[] => [...getExcludedTaxIds({ excluded_taxes: customer?.tax_exemptions ?? [] })];
+
 const withoutExcluded = (taxes: Tax[], excluded?: ReadonlySet<string>): Tax[] =>
   excluded && excluded.size > 0 ? taxes.filter((tax) => !excluded.has(taxIdOf(tax))) : taxes;
 

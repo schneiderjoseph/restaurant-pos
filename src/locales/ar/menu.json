@@ -129,6 +129,8 @@
     "nameSaveFailed": "تعذّر حفظ الاسم",
     "preferences": "التفضيلات",
     "preferencesTitle": "تفضيلات {{name}}",
+    "taxExemptTitle": "الإعفاء من الضرائب",
+    "taxExemptHint": "الطلبات الجديدة لهذا العميل تبدأ بدون الضرائب المحددة.",
     "preferencesSaved": "تم حفظ التفضيلات",
     "preferencesSaveFailed": "تعذّر حفظ التفضيلات",
     "allergies": "الحساسية",

@@ -129,6 +129,8 @@
     "nameSaveFailed": "Name konnte nicht gespeichert werden",
     "preferences": "Vorlieben",
     "preferencesTitle": "Vorlieben von {{name}}",
+    "taxExemptTitle": "Steuerbefreiung",
+    "taxExemptHint": "Neue Bestellungen dieses Kunden starten ohne die ausgewählten Steuern.",
     "preferencesSaved": "Vorlieben gespeichert",
     "preferencesSaveFailed": "Vorlieben konnten nicht gespeichert werden",
     "allergies": "Allergien",

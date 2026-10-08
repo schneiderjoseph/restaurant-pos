@@ -186,6 +186,31 @@ export async function updateCustomer(
   }
 }
 
+/**
+ * Taxes this customer does not pay. Kept out of updateCustomer: only a role that may
+ * remove taxes (orders.apply_tax) sets them, the form checks it.
+ */
+export async function setCustomerTaxExemptions(
+  db: AnyDb,
+  id: unknown,
+  taxIds: string[],
+  user?: Pick<User, 'id'> | null,
+): Promise<Customer> {
+  const result = await db.query(
+    `UPDATE ONLY $id SET tax_exemptions = $taxes, updated_at = time::now(), updated_by = $user RETURN AFTER`,
+    {
+      id: toRecordId(idOf(id)),
+      taxes: [...new Set(taxIds)].map((taxId) => toRecordId(taxId)),
+      user: userRef(user),
+    },
+  );
+  const updated = Array.isArray(result) ? (result[0] as Customer | undefined) : undefined;
+  if (!updated) {
+    throw new Error('Customer not updated');
+  }
+  return updated;
+}
+
 /** Soft delete: the customer leaves every list; its orders keep pointing at it. */
 export async function softDeleteCustomer(
   db: AnyDb,

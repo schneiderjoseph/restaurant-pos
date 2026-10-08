@@ -129,6 +129,8 @@
     "nameSaveFailed": "Ad kaydedilemedi",
     "preferences": "Tercihler",
     "preferencesTitle": "{{name}} tercihleri",
+    "taxExemptTitle": "Vergi muafiyeti",
+    "taxExemptHint": "Bu müşterinin yeni siparişleri seçilen vergiler olmadan başlar.",
     "preferencesSaved": "Tercihler kaydedildi",
     "preferencesSaveFailed": "Tercihler kaydedilemedi",
     "allergies": "Alerjiler",

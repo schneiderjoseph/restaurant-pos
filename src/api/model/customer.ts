@@ -51,6 +51,8 @@ export interface Customer extends ID, Name{
   birthday?: string | null
   vip?: boolean | null
   marketing_consent?: boolean | null
+  /** Taxes this customer does not pay: copied to `order.excluded_taxes` of a new order. */
+  tax_exemptions?: unknown[] | null
   /** Soft delete: a customer is never removed from the database. */
   deleted_at?: string | Date | null
   deleted_by?: unknown

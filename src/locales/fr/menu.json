@@ -131,6 +131,8 @@
     "nameSaveFailed": "Impossible d'enregistrer le nom",
     "preferences": "Préférences",
     "preferencesTitle": "Préférences de {{name}}",
+    "taxExemptTitle": "Exonération de taxes",
+    "taxExemptHint": "Les nouvelles commandes de ce client partent sans les taxes sélectionnées.",
     "preferencesSaved": "Préférences enregistrées",
     "preferencesSaveFailed": "Impossible d'enregistrer les préférences",
     "allergies": "Allergies",

@@ -129,6 +129,8 @@
     "nameSaveFailed": "Impossibile salvare il nome",
     "preferences": "Preferenze",
     "preferencesTitle": "Preferenze di {{name}}",
+    "taxExemptTitle": "Esenzione fiscale",
+    "taxExemptHint": "I nuovi ordini di questo cliente partono senza le tasse selezionate.",
     "preferencesSaved": "Preferenze salvate",
     "preferencesSaveFailed": "Impossibile salvare le preferenze",
     "allergies": "Allergie",

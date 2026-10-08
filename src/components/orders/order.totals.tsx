@@ -20,11 +20,13 @@ interface CartTotalsProps {
   itemCount: number
   className?: string
   allowServiceCharges?: boolean
+  /** Taxes the order will start without (the customer's exemptions). */
+  excludedTaxIds?: string[]
 }
 
-export const CartTotals = ({cart, itemCount, className, allowServiceCharges}: CartTotalsProps) => {
+export const CartTotals = ({cart, itemCount, className, allowServiceCharges, excludedTaxIds}: CartTotalsProps) => {
   const {t} = useTranslation('orders');
-  const preview = useMemo(() => previewCartTotals(cart), [cart]);
+  const preview = useMemo(() => previewCartTotals(cart, excludedTaxIds), [cart, excludedTaxIds]);
   const itemsBase = preview.itemsBase;
 
   const {data: serviceChargeSettings} = useApi<SettingsData<any>>(

@@ -129,6 +129,8 @@
     "nameSaveFailed": "Naam kon niet worden opgeslagen",
     "preferences": "Voorkeuren",
     "preferencesTitle": "Voorkeuren van {{name}}",
+    "taxExemptTitle": "Belastingvrijstelling",
+    "taxExemptHint": "Nieuwe bestellingen van deze klant starten zonder de gekozen belastingen.",
     "preferencesSaved": "Voorkeuren opgeslagen",
     "preferencesSaveFailed": "Voorkeuren konden niet worden opgeslagen",
     "allergies": "Allergieën",

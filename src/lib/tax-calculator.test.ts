@@ -8,6 +8,7 @@ import { previewCartTotals } from '@/lib/cart-tax-preview.ts';
 import {
   calculateOrderPaymentTaxAmount,
   collectOrderTaxRows,
+  getCustomerTaxExemptionIds,
   getOrderTaxAmount,
 } from '@/lib/tax-calculator.ts';
 
@@ -147,5 +148,28 @@ describe('taxes removed at payment', () => {
 
     expect(collectOrderTaxRows(stored).map((row) => row.tax.name)).toEqual(['Card']);
     expect(collectOrderTaxRows(stored, null).map((row) => row.tax.name)).toEqual(['TCA', 'Services Charges']);
+  });
+});
+
+describe('getCustomerTaxExemptionIds', () => {
+  it('reads record ids and fetched taxes alike', () => {
+    expect(getCustomerTaxExemptionIds({tax_exemptions: ['tax:asi_10', {id: 'tax:asi_5', rate: 5}]}))
+      .toEqual(['tax:asi_10', 'tax:asi_5']);
+  });
+
+  it('is empty for a customer without exemptions', () => {
+    expect(getCustomerTaxExemptionIds({})).toEqual([]);
+    expect(getCustomerTaxExemptionIds(null)).toEqual([]);
+  });
+});
+
+describe('exempt customer', () => {
+  it('starts the cart without the taxes the customer is exempt from, as the saved order', () => {
+    const cart = [cartLine({ quantity: 2 })];
+    const exempt = [String(TCA.id)];
+    const preview = previewCartTotals(cart, exempt);
+
+    expect(preview.taxes.map((row) => row.tax.name)).toEqual(['Services Charges']);
+    expect(getOrderTaxAmount(savedOrder(cart, { excluded_taxes: exempt }))).toBe(preview.taxTotal);
   });
 });

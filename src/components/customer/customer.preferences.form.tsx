@@ -11,8 +11,11 @@ import { Input } from '@/components/common/input/input.tsx';
 import { Textarea } from '@/components/common/input/textarea.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { Switch } from '@/components/common/input/switch.tsx';
-import { appPage } from '@/store/jotai.ts';
-import { cleanList, updateCustomer } from '@/lib/customer.service.ts';
+import { appPage, appSettings } from '@/store/jotai.ts';
+import { cleanList, setCustomerTaxExemptions, updateCustomer } from '@/lib/customer.service.ts';
+import { getCustomerTaxExemptionIds } from '@/lib/tax-calculator.ts';
+import { formatTaxLabel } from '@/lib/tax-label.ts';
+import { useModuleAccess } from '@/providers/module-access.provider.tsx';
 import { COMMON_ALLERGENS, DIETS } from '@/lib/customer-preferences.ts';
 import { cn } from '@/lib/utils.ts';
 
@@ -60,6 +63,11 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
   const [consent, setConsent] = useState(false);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [{ taxes }] = useAtom(appSettings);
+  const { can } = useModuleAccess();
+  // Exempting a customer removes taxes on every order: same right as removing them by hand.
+  const canExempt = can('orders.apply_tax');
+  const [exemptTaxIds, setExemptTaxIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) return;
@@ -72,7 +80,12 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
     setVip(Boolean(customer.vip));
     setConsent(Boolean(customer.marketing_consent));
     setNotes(customer.notes ?? '');
+    setExemptTaxIds(getCustomerTaxExemptionIds(customer));
   }, [open, customer]);
+
+  const toggleExemptTax = (taxId: string) => {
+    setExemptTaxIds((prev) => (prev.includes(taxId) ? prev.filter((id) => id !== taxId) : [...prev, taxId]));
+  };
 
   const allergenLabel = (key: string) => t(`menu:customer.allergen.${key}`);
   const hasAllergy = (label: string) =>
@@ -104,7 +117,7 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
       const pendingAllergies = allergyDraft.trim()
         ? cleanList([...allergies, ...allergyDraft.split(/[,;]/)])
         : allergies;
-      const updated = await updateCustomer(
+      let updated = await updateCustomer(
         db,
         customer.id,
         {
@@ -119,6 +132,12 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
         },
         page?.user,
       );
+      const storedExempt = getCustomerTaxExemptionIds(customer);
+      const exemptChanged = storedExempt.length !== exemptTaxIds.length
+        || exemptTaxIds.some((id) => !storedExempt.includes(id));
+      if (canExempt && exemptChanged) {
+        updated = await setCustomerTaxExemptions(db, customer.id, exemptTaxIds, page?.user);
+      }
       toast.success(t('menu:customer.preferencesSaved'));
       onSaved({ ...customer, ...updated });
       onClose();
@@ -232,6 +251,28 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
             {t('menu:customer.marketingConsent')}
           </Switch>
         </section>
+
+        {canExempt && (taxes ?? []).length > 0 && (
+          <section>
+            <h3 className="font-bold mb-1">{t('menu:customer.taxExemptTitle')}</h3>
+            <p className="text-sm text-neutral-500 mb-2">{t('menu:customer.taxExemptHint')}</p>
+            <div className="flex flex-wrap gap-2">
+              {(taxes ?? []).map((tax) => {
+                const taxId = String(tax.id);
+                return (
+                  <Chip
+                    key={taxId}
+                    active={exemptTaxIds.includes(taxId)}
+                    onClick={() => toggleExemptTax(taxId)}
+                    testId={`customer-tax-exempt-${taxId}`}
+                  >
+                    {formatTaxLabel(tax.name, tax.rate)}
+                  </Chip>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section>
           <label>{t('menu:guest.notes')}</label>
