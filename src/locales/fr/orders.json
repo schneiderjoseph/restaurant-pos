@@ -11,6 +11,8 @@
     "transferred": "Commande déplacée vers {{name}}",
     "transferFailed": "Impossible de déplacer la commande",
     "transferSame": "Choisissez un autre client que celui déjà lié",
+    "transferChanged": "La commande a changé entre-temps (payée, annulée ou déjà déplacée). Rien n'a été modifié.",
+    "transferTracking": "Transfert vers un autre client",
     "columns": {
       "select": "Sélectionner",
       "name": "Nom",

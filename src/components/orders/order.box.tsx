@@ -61,6 +61,7 @@ import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {flushSync} from "react-dom";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
+import {transferOrderToCustomer} from "@/lib/order-transfer.ts";
 
 interface Props {
   order: OrderModel
@@ -737,17 +738,26 @@ export const OrderBox = ({
         >
           <p className="text-sm text-neutral-600 mb-3">{t('customer.transferHint')}</p>
           <Customers
+            attachToCart={false}
             onCustomerChosen={async (customer: Customer) => {
               if (!customer?.id) return;
-              const currentId = modalOrder.customer?.id?.toString();
-              if (currentId && currentId === customer.id.toString()) {
-                toast.error(t('customer.transferSame'));
-                return;
-              }
               try {
-                await db.merge(toRecordId(modalOrder.id), {
-                  customer: toRecordId(customer.id),
+                const result = await transferOrderToCustomer(db, modalOrder.id, customer, {
+                  module: t('customer.transferTracking'),
+                  page: page?.page,
+                  user: page?.user,
                 });
+                if (result === 'same') {
+                  toast.error(t('customer.transferSame'));
+                  return;
+                }
+                if (result === 'changed') {
+                  toast.error(t('customer.transferChanged'));
+                  setTransferCustomerOpen(false);
+                  setActionOrder(null);
+                  onAction?.();
+                  return;
+                }
                 toast.success(t('customer.transferred', {
                   name: customer.name || customer.guest_code || '',
                 }));

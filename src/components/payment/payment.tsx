@@ -6,6 +6,7 @@ import {appDuo, appPage, appSettings, appState, closingEnforcementAtom} from "@/
 import {resolveOutlet} from "@/lib/outlet.ts";
 import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {calculateCartItemNetTotal} from "@/lib/cart.ts";
+import {sameCustomer} from "@/lib/customer.service.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {orderAutoExtras, syncOrderAutoExtras} from "@/lib/order-auto-extras.ts";
@@ -422,6 +423,13 @@ export const Payment = () => {
         table: state?.table?.id ? toRecordId(state.table.id) : null,
         user: page?.user?.id ? toRecordId(page.user.id) : null,
       };
+
+      // A customer left as loaded is not written back: the order may have been moved to
+      // another client file meanwhile (lib/order-transfer.ts), and that move must stand.
+      const loadedOrder = isNewOrder ? undefined : (editSession?.order ?? state?.order?.order);
+      if (loadedOrder && (sameCustomer(loadedOrder.customer, customer) || (!loadedOrder.customer && !customer))) {
+        delete data.customer;
+      }
 
       // In a duo, the order is the duo's: its lines count for whichever of the two added them.
       // An order of the partner stays theirs when this user changes it.

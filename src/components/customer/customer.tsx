@@ -43,12 +43,15 @@ import { usesAsiPmsRooms } from "@/lib/pos-mode.ts";
 
 export interface Props {
   onAttach?: () => void;
-  /** When set, called with the chosen customer (create or pick). Still updates appState. */
+  /** When set, called with the chosen customer (create or pick). */
   onCustomerChosen?: (customer: Customer) => void | Promise<void>;
+  /** False when picking for something else (moving an order): the cart's customer stays. */
+  attachToCart?: boolean;
 }
 export const Customers = ({
   onAttach,
   onCustomerChosen,
+  attachToCart = true,
 }: Props) => {
   const [state, setState] = useAtom(appState);
   const db = useDB();
@@ -170,10 +173,12 @@ export const Customers = ({
   }, [search]);
 
   const attachCustomer = async (customer: Customer) => {
-    setState(prev => ({
-      ...prev,
-      customer,
-    }));
+    if (attachToCart) {
+      setState(prev => ({
+        ...prev,
+        customer,
+      }));
+    }
     await onCustomerChosen?.(customer);
     onAttach?.();
   };

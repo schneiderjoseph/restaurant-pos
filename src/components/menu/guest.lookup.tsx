@@ -44,6 +44,9 @@ import { CustomerAlerts } from '@/components/customer/customer.alerts.tsx';
 import { CustomerPreferencesForm } from '@/components/customer/customer.preferences.form.tsx';
 import { CustomerMatchesModal } from '@/components/customer/customer.matches.modal.tsx';
 import { useModuleAccess } from '@/providers/module-access.provider.tsx';
+import { useSecurity } from '@/hooks/useSecurity.ts';
+import { useActionVisible } from '@/hooks/useActionVisible.ts';
+import { transferOrderToCustomer } from '@/lib/order-transfer.ts';
 import { toLuxonDateTime, nowSurrealDateTime } from '@/lib/datetime.ts';
 import { getGuestDeparture } from '@/lib/guest-departure.ts';
 import {
@@ -86,6 +89,8 @@ export const GuestLookup = () => {
   const preferInHouse = usesAsiPmsRooms();
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const { can } = useModuleAccess();
+  const { protectAction } = useSecurity();
+  const isVisible = useActionVisible();
   const canCreateCustomer = can('customers.create');
   const canEditPreferences = can('customers.preferences');
   const canViewIdDocument = can('customers.view_id_document');
@@ -1224,15 +1229,21 @@ export const GuestLookup = () => {
                               >
                                 {t('orders:actions.editOrder')}
                               </Button>
-                              <Button
-                                variant="primary"
-                                flat
-                                className="min-h-[44px]"
-                                data-testid="guest-folio-transfer"
-                                onClick={() => setTransferOrder(order)}
-                              >
-                                {t('orders:actions.transferToClient')}
-                              </Button>
+                              {isVisible('orders') && (
+                                <Button
+                                  variant="primary"
+                                  flat
+                                  className="min-h-[44px]"
+                                  data-testid="guest-folio-transfer"
+                                  onClick={() => protectAction(() => setTransferOrder(order), {
+                                    module: 'orders',
+                                    description: 'Transfer order to another client file',
+                                    payload: { order: order.id?.toString() },
+                                  })}
+                                >
+                                  {t('orders:actions.transferToClient')}
+                                </Button>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1293,19 +1304,26 @@ export const GuestLookup = () => {
         >
           <p className="text-sm text-neutral-600 mb-3">{t('orders:customer.transferHint')}</p>
           <Customers
+            attachToCart={false}
             onCustomerChosen={async (customer) => {
               if (!customer?.id || !transferOrder?.id) return;
-              if (selected?.id?.toString() === customer.id.toString()) {
-                toast.error(t('orders:customer.transferSame'));
-                return;
-              }
               try {
-                await db.merge(toRecordId(transferOrder.id), {
-                  customer: toRecordId(customer.id),
+                const result = await transferOrderToCustomer(db, transferOrder.id, customer, {
+                  module: t('orders:customer.transferTracking'),
+                  page: page?.page,
+                  user: page?.user,
                 });
-                toast.success(t('orders:customer.transferred', {
-                  name: customer.name || customer.guest_code || '',
-                }));
+                if (result === 'same') {
+                  toast.error(t('orders:customer.transferSame'));
+                  return;
+                }
+                if (result === 'changed') {
+                  toast.error(t('orders:customer.transferChanged'));
+                } else {
+                  toast.success(t('orders:customer.transferred', {
+                    name: customer.name || customer.guest_code || '',
+                  }));
+                }
                 setTransferOrder(undefined);
                 if (selected?.id) {
                   void loadFolio(selected);

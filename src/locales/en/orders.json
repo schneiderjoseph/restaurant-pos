@@ -19,7 +19,9 @@
     "transferHint": "Pick the destination client file. The order will leave the current client.",
     "transferred": "Order moved to {{name}}",
     "transferFailed": "Could not move the order",
-    "transferSame": "Pick a different client than the one already linked"
+    "transferSame": "Pick a different client than the one already linked",
+    "transferChanged": "The order changed meanwhile (paid, cancelled or already moved). Nothing was changed.",
+    "transferTracking": "Transfer to another client"
   },
   "filters": {
     "status": "Status",
