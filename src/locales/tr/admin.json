@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "YZ ile menü yapısı içe aktar",
     "manageOutlets": "Satış noktalarını yönet",
     "applyOutletSuggestions": "Önerileri uygula",
-    "outlet": "Satış noktası"
+    "outlet": "Satış noktası",
+    "bulkEditWithCount": "Toplu düzenleme ({{count}})"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Her seçimin fiyatı",
     "includedModifiersGroupHint": "Bir yemek bu gruptan ücretsiz seçim verdiğinde kullanılır (yemekte “Dahil”): hangileri ücretsiz ve sonrakiler ne kadar.",
     "maxRateGteMin": "Maksimum oran minimum orana eşit veya daha büyük olmalıdır",
-    "weightMustBeNonNegative": "Ağırlıklar 0 veya daha büyük olmalıdır"
+    "weightMustBeNonNegative": "Ağırlıklar 0 veya daha büyük olmalıdır",
+    "couponType": "Kupon türü",
+    "validDays": "Geçerli günler",
+    "couponTypes": {
+      "order": "Sipariş",
+      "product": "Ürün",
+      "shipping": "Teslimat"
+    },
+    "productionWorkflow": "Üretim iş akışı",
+    "workflowLegacyHint": "İş akışı (eski mutfak yönlendirmesi için boş bırakın)",
+    "workflowStagesHint": "Aşamalar sırayla çalışır. Gerekirse bu ürün için bir aşamanın mutfağını geçersiz kılın.",
+    "kitchenStation": "Mutfak / İstasyon",
+    "setWorkflowForSelected": "Seçili yemekler için iş akışı ayarla",
+    "workflowClearLegacyHint": "İş akışı (iş akışını kaldırmak / eski yönlendirmeyi kullanmak için seçimi temizleyin)",
+    "replaceCategoriesForSelected": "Seçili yemeklerin kategorilerini değiştir",
+    "replaceModifierGroupsForSelected": "Seçili yemeklerin değiştirici gruplarını değiştir",
+    "autoSelectModifiers": "Değiştiriciler otomatik seçilsin mi?",
+    "autoOpenModifiers": "Değiştiriciler otomatik açılsın mı?",
+    "productionStages": "Üretim aşamaları (sırayla)",
+    "addStage": "Aşama ekle",
+    "modifier": "Değiştirici",
+    "newModifier": "Yeni değiştirici",
+    "nestedOverrideHelp": "Değişiklikler yalnızca bu değiştirici satırına uygulanır. Temel grup \"{{groupName}}\" değişmez.",
+    "resetToMenu": "Menüye sıfırla",
+    "loadingDishes": "Yemekler yükleniyor...",
+    "taxMode": "Vergi modu",
+    "taxExclusive": "Hariç",
+    "taxInclusive": "Dahil",
+    "toggleAll": "Tümünü değiştir",
+    "printerTypes": {
+      "network": "Ağ",
+      "usb": "USB",
+      "serial": "Seri",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Nakit",
+      "card": "Kart",
+      "points": "Puan",
+      "remote": "Uzaktan",
+      "room": "Oda"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Canlı"
+    },
+    "gatewayProvider": "Ağ geçidi sağlayıcısı",
+    "gatewayMode": "Ağ geçidi modu",
+    "gatewayKeys": "Ağ geçidi anahtarları",
+    "updateSelectedTables": "Seçili masaları güncelle",
+    "applyToSelected": "Seçime uygula"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -858,7 +909,8 @@
     "acknowledge": "Kabul et",
     "hideDetails": "▼ Detayları gizle",
     "showDetails": "▶ Detayları göster",
-    "badgeTooltip": "{{count}} açık kritik uyarı"
+    "badgeTooltip": "{{count}} açık kritik uyarı",
+    "acknowledgeFailed": "Uyarı onaylanamadı"
   },
   "customers": {
     "email": "E-posta",

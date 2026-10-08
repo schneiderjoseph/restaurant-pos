@@ -37,7 +37,11 @@ export const AdminPrinters = () => {
       header: t('columns.name')
     }),
     columnHelper.accessor("type", {
-      header: t('columns.type')
+      header: t('columns.type'),
+      cell: info => {
+        const value = info.getValue();
+        return value ? t(`forms.printerTypes.${String(value).toLowerCase()}`) : value;
+      }
     }),
     columnHelper.accessor("ip_address", {
       header: t('columns.path')

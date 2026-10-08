@@ -270,14 +270,14 @@ export const KitchenForm = ({
                       const groupedDishes = filteredDishes.reduce((acc, dish) => {
                         const categories = dish.categories?.length
                           ? dish.categories
-                          : [{ id: "__uncategorized__", name: "Uncategorized" }];
+                          : [{ id: "__uncategorized__", name: t('forms.uncategorized') }];
 
                         categories.forEach((category) => {
                           const key = category.id?.toString?.() ?? "__uncategorized__";
                           if (!acc[key]) {
                             acc[key] = {
                               id: key,
-                              name: category.name ?? "Uncategorized",
+                              name: category.name ?? t('forms.uncategorized'),
                               dishes: []
                             };
                           }
@@ -397,7 +397,7 @@ export const KitchenForm = ({
 
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label htmlFor="">Printers</label>
+                <label htmlFor="">{t('columns.printers')}</label>
                 <Controller
                   render={({ field }) => (
                     <ReactSelect

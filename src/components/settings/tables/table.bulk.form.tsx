@@ -40,7 +40,7 @@ const validationSchema = yup.object({
   floor: yup.object({
     label: yup.string().required(),
     value: yup.string().required(),
-  }).default(undefined).required('This is required'),
+  }).default(undefined).required(i18n.t('validation:required')),
   categories: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()

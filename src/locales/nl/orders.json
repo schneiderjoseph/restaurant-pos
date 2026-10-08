@@ -59,7 +59,8 @@
     "cancelled": "Geannuleerd",
     "spilt": "Gesplitst",
     "merged": "Samengevoegd",
-    "refunded": "Terugbetaald"
+    "refunded": "Terugbetaald",
+    "pending": "In afwachting"
   },
   "totals": {
     "items": "Artikelen ({{count}})",

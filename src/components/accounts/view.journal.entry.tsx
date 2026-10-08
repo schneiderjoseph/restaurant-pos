@@ -17,7 +17,7 @@ interface Props {
 }
 
 export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
-  const {t} = useTranslation('accounts');
+  const {t} = useTranslation(['accounts', 'common']);
   const db = useDB();
   const [viewEntry, setViewEntry] = useState<AccountJournalEntry | null>(null);
   const [loading, setLoading] = useState(false);
@@ -153,7 +153,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
               </div>
             ) : (
               <div className="p-4 text-sm text-neutral-500">
-                No lines found for this journal entry.
+                {t('messages.noLinesFound')}
               </div>
             )}
           </div>
@@ -178,10 +178,10 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-medium text-neutral-800 truncate">
-                          {doc.name ?? `Document ${index + 1}`}
+                          {doc.name ?? t('upload.documentN', {n: index + 1})}
                         </span>
                         <span className="text-xs text-neutral-500">
-                          {doc.mimeType ?? "File"}
+                          {doc.mimeType ?? t('upload.file')}
                         </span>
                       </div>
                     </div>
@@ -197,7 +197,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                       }
                     >
                       <FontAwesomeIcon icon={faDownload} className="mr-1"/>
-                      Download
+                      {t('common:actions.download')}
                     </Button>
                   </div>
                 ))}

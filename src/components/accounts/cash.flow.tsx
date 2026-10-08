@@ -131,10 +131,15 @@ export const CashFlow = () => {
                 <tbody>
                 {rows.map((row, index) => {
                   const net = Number(row.total_debit || 0) - Number(row.total_credit || 0);
+                  const bucket = classifyCashFlowBucket(row.source_module);
+                  const bucketKey = bucket.toLowerCase() as 'operating' | 'investing' | 'financing';
+                  const sourceLabel = !row.source_module || row.source_module === "unclassified"
+                    ? t('reports.unclassified')
+                    : row.source_module;
                   return (
                     <tr key={`${row.source_module || "source"}-${index}`}>
-                      <td>{row.source_module || "unclassified"}</td>
-                      <td>{classifyCashFlowBucket(row.source_module)}</td>
+                      <td>{sourceLabel}</td>
+                      <td>{t(`reports.${bucketKey}`)}</td>
                       <td className="text-right">{formatMoney(net)}</td>
                     </tr>
                   );

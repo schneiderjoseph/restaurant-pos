@@ -5,7 +5,8 @@ import { calculateOrderGrandTotal } from '@/lib/cart.ts';
 import { recalculateCart } from '@/lib/discount-engine/recalculate.ts';
 import { getDiscountCache } from '@/lib/discount-engine/cache.ts';
 import type { AppliedDiscountLine } from '@/lib/discount-engine/types.ts';
-import { calculateOrderPaymentTaxAmount } from '@/lib/tax-calculator.ts';
+import { calculateOrderPaymentTaxAmount, getTaxableShare } from '@/lib/tax-calculator.ts';
+import { pickOrderTaxTreatment } from '@/lib/discount-engine/tax.ts';
 import { roundCurrency } from '@/lib/discount-engine/rounding.ts';
 
 export interface OrderPaymentTotalsParams {
@@ -30,6 +31,8 @@ export interface OrderPaymentTotalsResult {
   tipAmount: number;
   grandTotal: number;
   total: number;
+  /** Share of the line amounts that is taxed (1 unless a discount is taxed after it). */
+  taxableShare: number;
 }
 
 export const computeOrderPaymentTotals = (
@@ -70,7 +73,10 @@ export const computeOrderPaymentTotals = (
     paymentTypeId,
   });
 
-  const resolvedTaxAmount = calculateOrderPaymentTaxAmount(order, resolvedTax);
+  // Discounts taxed after them shrink the taxable amount; the same share is stored with
+  // the tax rows (syncOrderTaxes) so the bill, order_taxes and reports agree.
+  const taxableShare = getTaxableShare(itemsTotal, base.discountTotal, pickOrderTaxTreatment(base.discountLines));
+  const resolvedTaxAmount = calculateOrderPaymentTaxAmount(order, resolvedTax, undefined, taxableShare);
   const taxDelta = resolvedTaxAmount - base.taxAmount;
   const grandTotal = base.grandTotal + taxDelta;
 
@@ -92,5 +98,6 @@ export const computeOrderPaymentTotals = (
     tipAmount,
     grandTotal,
     total,
+    taxableShare,
   };
 };

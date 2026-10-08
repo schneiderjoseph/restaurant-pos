@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "Importar estrutura do cardápio com IA",
     "manageOutlets": "Gerenciar pontos de venda",
     "applyOutletSuggestions": "Aplicar sugestões",
-    "outlet": "Ponto de venda"
+    "outlet": "Ponto de venda",
+    "bulkEditWithCount": "Edição em massa ({{count}})"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Preço de cada opção",
     "includedModifiersGroupHint": "Usado quando um prato dá opções deste grupo grátis (\"Incluídos\" no prato): quais são grátis e quanto custam as seguintes.",
     "maxRateGteMin": "A taxa máxima deve ser maior ou igual à taxa mínima",
-    "weightMustBeNonNegative": "Os pesos devem ser maiores ou iguais a 0"
+    "weightMustBeNonNegative": "Os pesos devem ser maiores ou iguais a 0",
+    "couponType": "Tipo de cupom",
+    "validDays": "Dias válidos",
+    "couponTypes": {
+      "order": "Pedido",
+      "product": "Produto",
+      "shipping": "Entrega"
+    },
+    "productionWorkflow": "Fluxo de produção",
+    "workflowLegacyHint": "Fluxo (deixe vazio para o roteamento legado da cozinha)",
+    "workflowStagesHint": "As etapas são executadas em ordem. Substitua a cozinha de uma etapa para este produto, se necessário.",
+    "kitchenStation": "Cozinha / Estação",
+    "setWorkflowForSelected": "Definir fluxo para os pratos selecionados",
+    "workflowClearLegacyHint": "Fluxo (limpe a seleção para remover o fluxo / usar roteamento legado)",
+    "replaceCategoriesForSelected": "Substituir categorias dos pratos selecionados",
+    "replaceModifierGroupsForSelected": "Substituir grupos de modificadores dos pratos selecionados",
+    "autoSelectModifiers": "Selecionar modificadores automaticamente?",
+    "autoOpenModifiers": "Abrir modificadores automaticamente?",
+    "productionStages": "Etapas de produção (em ordem)",
+    "addStage": "Adicionar etapa",
+    "modifier": "Modificador",
+    "newModifier": "Novo modificador",
+    "nestedOverrideHelp": "As alterações se aplicam apenas a esta linha de modificador. O grupo base \"{{groupName}}\" permanece inalterado.",
+    "resetToMenu": "Redefinir para o cardápio",
+    "loadingDishes": "Carregando pratos...",
+    "taxMode": "Modo de imposto",
+    "taxExclusive": "Exclusivo",
+    "taxInclusive": "Inclusivo",
+    "toggleAll": "Alternar tudo",
+    "printerTypes": {
+      "network": "Rede",
+      "usb": "USB",
+      "serial": "Serial",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Dinheiro",
+      "card": "Cartão",
+      "points": "Pontos",
+      "remote": "Remoto",
+      "room": "Quarto"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Produção"
+    },
+    "gatewayProvider": "Provedor do gateway",
+    "gatewayMode": "Modo do gateway",
+    "gatewayKeys": "Chaves do gateway",
+    "updateSelectedTables": "Atualizar mesas selecionadas",
+    "applyToSelected": "Aplicar à seleção"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -858,7 +909,8 @@
     "acknowledge": "Reconhecer",
     "hideDetails": "▼ Ocultar detalhes",
     "showDetails": "▶ Mostrar detalhes",
-    "badgeTooltip": "{{count}} alerta(s) crítico(s) aberto(s)"
+    "badgeTooltip": "{{count}} alerta(s) crítico(s) aberto(s)",
+    "acknowledgeFailed": "Falha ao reconhecer o alerta"
   },
   "customers": {
     "email": "E-mail",

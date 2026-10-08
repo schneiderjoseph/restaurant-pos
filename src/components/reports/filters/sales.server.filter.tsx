@@ -61,7 +61,7 @@ export const SalesServerFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />
@@ -124,7 +124,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-tables">Tables</label>
+          <label htmlFor="sales-server-tables">{t('filters.tables')}</label>
           <ReactSelect
             id="sales-server-tables"
             name="tables[]"
@@ -132,7 +132,7 @@ export const SalesServerFilter = () => {
             isLoading={loadingTables}
             className="w-full"
             options={(tablesData?.data || [])
-              .map(table => toOption(table, table.name || table.source === 'asi-room' ? formatTableLabel(table) : `Table ${table.number ?? ''}`))
+              .map(table => toOption(table, table.name || table.source === 'asi-room' ? formatTableLabel(table) : t('filters.tableNumber', {number: table.number ?? ''})))
               .filter(notNull)}
           />
         </div>

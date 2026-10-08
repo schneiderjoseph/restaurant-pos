@@ -64,7 +64,8 @@
     "cancelled": "Cancelled",
     "spilt": "Spilt",
     "merged": "Merged",
-    "refunded": "Refunded"
+    "refunded": "Refunded",
+    "pending": "Pending"
   },
   "totals": {
     "items": "Items ({{count}})",

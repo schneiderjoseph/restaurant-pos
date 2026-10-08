@@ -60,7 +60,7 @@ export const OrderLifecycleReport = () => {
   const [error, setError] = useState<string | null>(null);
   const filters = useMemo(parseFilters, []);
   const orderSuffix = useMemo(() => Number(filters.orderIdParam), [filters.orderIdParam]);
-  const subtitle = filters.orderIdParam ? `Order: ${filters.orderIdParam}` : undefined;
+  const subtitle = filters.orderIdParam ? t('lifecycle.orderSubtitle', {id: filters.orderIdParam}) : undefined;
 
   useEffect(() => {
     queryRef.current = db.query;
@@ -68,7 +68,7 @@ export const OrderLifecycleReport = () => {
 
   const fetchData = async () => {
     if (!orderSuffix) {
-      setError("Order ID is required.");
+      setError(t('errors.orderIdRequired'));
       setLoading(false);
       return;
     }
@@ -203,8 +203,8 @@ export const OrderLifecycleReport = () => {
       key: `start-${state.order.id}`,
       type: "start",
       timestamp: state.order.created_at,
-      title: "Order started",
-      details: state.order.invoice_number ? `Invoice #${state.order.invoice_number}` : undefined,
+      title: t('labels.orderStarted'),
+      details: state.order.invoice_number ? t('lifecycle.invoiceDetails', {number: state.order.invoice_number}) : undefined,
     });
 
     state.additions.forEach((item) => {
@@ -212,8 +212,8 @@ export const OrderLifecycleReport = () => {
         key: `addition-${item.id}`,
         type: "addition",
         timestamp: item.created_at,
-        title: "Item added",
-        details: `${item.item?.name || "Item"} x${item.quantity || 1}`,
+        title: t('labels.itemAdded'),
+        details: `${item.item?.name || t('lifecycle.itemFallback')} x${item.quantity || 1}`,
       });
     });
 
@@ -234,8 +234,8 @@ export const OrderLifecycleReport = () => {
           key: `deletion-void-${row.id}-${index}`,
           type: "deletion",
           timestamp: row.created_at,
-          title: "Item deleted/voided",
-          details: `${row.reason || "Reason not provided"}${row.comments ? ` - ${row.comments}` : ""}`,
+          title: t('labels.itemDeletedVoided'),
+          details: `${row.reason || t('lifecycle.reasonNotProvided')}${row.comments ? ` - ${row.comments}` : ""}`,
         });
       } else {
         const row = entry.data as OrderItem;
@@ -243,8 +243,8 @@ export const OrderLifecycleReport = () => {
           key: `deletion-item-${row.id}-${index}`,
           type: "deletion",
           timestamp: row.deleted_at || row.updated_at || row.created_at,
-          title: "Item deleted",
-          details: `${row.item?.name || "Item"} x${row.quantity || 1}`,
+          title: t('labels.itemDeleted'),
+          details: `${row.item?.name || t('lifecycle.itemFallback')} x${row.quantity || 1}`,
         });
       }
     });
@@ -254,26 +254,26 @@ export const OrderLifecycleReport = () => {
         key: `kitchen-${row.id}`,
         type: "kitchen_complete",
         timestamp: row.completed_at || row.created_at,
-        title: "Kitchen completion",
-        details: `${row.kitchen?.name || "Kitchen"} - ${row.order_item?.item?.name || "Item"}`,
+        title: t('labels.kitchenCompletion'),
+        details: `${row.kitchen?.name || t('columns.kitchen')} - ${row.order_item?.item?.name || t('lifecycle.itemFallback')}`,
       });
     });
 
     if (state.order.completed_at) {
       const paymentBreakdown = (state.order.payments || [])
-        .map((payment) => `${payment.payment_type?.name || "Payment"} ${Number(payment.amount || 0)}`)
+        .map((payment) => `${payment.payment_type?.name || t('lifecycle.paymentFallback')} ${Number(payment.amount || 0)}`)
         .join(", ");
       timeline.push({
         key: `payment-${state.order.id}`,
         type: "payment",
         timestamp: state.order.completed_at,
-        title: "Order payment",
-        details: paymentBreakdown || "Order marked as paid",
+        title: t('labels.orderPayment'),
+        details: paymentBreakdown || t('lifecycle.orderMarkedPaid'),
       });
     }
 
     return timeline.sort((a, b) => toLuxonDateTime(a.timestamp as any).toMillis() - toLuxonDateTime(b.timestamp as any).toMillis());
-  }, [state]);
+  }, [state, t]);
 
   const iconByType = (type: string) => {
     switch(type){
@@ -292,7 +292,7 @@ export const OrderLifecycleReport = () => {
     }
   }
 
-  const reportTitle = 'Order lifecycle report';
+  const reportTitle = t('titles.orderLifecycle');
 
   if (loading) {
     return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.orderLifecycle')}</div></ReportsLayout>;
@@ -314,7 +314,7 @@ export const OrderLifecycleReport = () => {
         <div className="border rounded-lg p-4 bg-neutral-50">
           <div className="text-sm text-neutral-500">{t('columns.order')}</div>
           <div className="text-xl font-semibold">{state.order.invoice_number ? `#${state.order.invoice_number}` : state.order.id.toString()}</div>
-          <div className="text-sm text-neutral-600 mt-1">Status: {state.order.status}</div>
+          <div className="text-sm text-neutral-600 mt-1">{t('lifecycle.statusLabel')} {state.order.status}</div>
           <a
             href={orderReceiptUrl({
               id: state.order.id.toString(),
@@ -331,7 +331,7 @@ export const OrderLifecycleReport = () => {
 
         <div className="space-y-3">
           {events.length === 0 ? (
-            <div className="py-6 text-center text-sm text-neutral-500 border rounded-lg">No lifecycle events found for this order.</div>
+            <div className="py-6 text-center text-sm text-neutral-500 border rounded-lg">{t('lifecycle.noEvents')}</div>
           ) : events.map((event) => (
             <div key={event.key} className="border rounded-lg p-4 flex items-start gap-3">
               <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center">

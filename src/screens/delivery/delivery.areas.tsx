@@ -1051,7 +1051,7 @@ export const DeliveryAreas = () => {
     <>
       <div className="p-4">
         <p className="text-xl text-neutral-600 mb-4">
-          Draw delivery zones on the map. Choose a tool on the left, then click and drag to draw. Click a shape to select it, drag to move it, or use the handles to resize.
+          {t('map.drawInstructions')}
         </p>
         {loading ? (
           <div className="flex items-center justify-center h-[calc(100vh_-_70px)]">

@@ -3,9 +3,12 @@ import { TaxMode } from "@/api/model/menu.ts";
 import { OrderItem } from "@/api/model/order_item.ts";
 import { Order } from "@/api/model/order.ts";
 import { MenuItem } from "@/api/model/cart_item.ts";
-import { getOrderFilteredItems } from "@/lib/order.ts";
-import { getCartItemTaxableUnitBase, getOrderItemTaxableUnitBase } from "@/lib/cart.ts";
+import { getOrderCartDiscountAmount, getOrderFilteredItems, getOrderLineDiscountTotal } from "@/lib/order.ts";
+import { calculateOrderTotal, getCartItemTaxableUnitBase, getOrderItemTaxableUnitBase } from "@/lib/cart.ts";
 import { safeNumber } from "@/lib/utils.ts";
+import type { TaxTreatment } from "@/api/model/discount.ts";
+import { pickOrderTaxTreatment } from "@/lib/discount-engine/tax.ts";
+import type { AppliedDiscountLine } from "@/lib/discount-engine/types.ts";
 
 export interface TaxAmount {
   tax: Tax;
@@ -248,6 +251,37 @@ const getOrderLineItemTaxCalculation = (
 };
 
 /**
+ * Part of each line's amount that is taxed. 1 when taxes apply before the discounts (the
+ * default); when a discount is taxed after it, the discounts come off the taxable amount,
+ * spread over the lines in proportion: (items − discounts) / items. Coupons are not discount
+ * lines and stay outside, as before.
+ */
+export const getTaxableShare = (
+  itemsTotal: number,
+  discountTotal: number,
+  treatment: TaxTreatment | undefined,
+): number => {
+  if (!treatment || treatment === 'tax_before_discount' || itemsTotal <= 0) {
+    return 1;
+  }
+  return Math.max(0, itemsTotal - discountTotal) / itemsTotal;
+};
+
+/** Taxable share of a saved order, from its discount rows (`order_discounts`). */
+export const getOrderTaxableShare = (order: Order): number => {
+  const lines = (order.order_discounts ?? [])
+    .filter((row): row is NonNullable<typeof row> => Boolean(row && typeof row === 'object'))
+    .map((row) => ({ taxTreatment: row.tax_treatment }) as Pick<AppliedDiscountLine, 'taxTreatment'>);
+  const treatment = pickOrderTaxTreatment(lines as AppliedDiscountLine[]);
+  if (treatment === 'tax_before_discount') {
+    return 1;
+  }
+  const lineDiscounts = getOrderLineDiscountTotal(order);
+  const discounts = lineDiscounts + Math.max(0, getOrderCartDiscountAmount(order) - lineDiscounts);
+  return getTaxableShare(calculateOrderTotal(order), discounts, treatment);
+};
+
+/**
  * Per-line payment tax: inclusive embedded tax from menu taxes; exclusive lines take the order tax
  * when one is chosen, else their own menu taxes (see `orderItemCarriesOwnTaxes`).
  */
@@ -255,9 +289,10 @@ export const calculateOrderItemPaymentTax = (
   item: OrderItem,
   orderTax?: Tax | null,
   excluded?: ReadonlySet<string>,
+  taxableShare = 1,
 ): number => {
   const taxMode = item.tax_mode ?? 'exclusive';
-  const unitBase = getOrderItemTaxableUnitBase(item);
+  const unitBase = getOrderItemTaxableUnitBase(item) * taxableShare;
   const quantity = safeNumber(item.quantity || 1);
   const calculation = getOrderLineItemTaxCalculation(
     unitBase,
@@ -328,11 +363,12 @@ export const calculateOrderPaymentTaxAmount = (
   order: Order,
   orderTax?: Tax | null,
   pendingCart?: MenuItem[],
+  taxableShare: number = getOrderTaxableShare(order),
 ): number => {
   const orderItems = getOrderFilteredItems(order) ?? [];
   const excluded = getExcludedTaxIds(order);
   let total = orderItems.reduce(
-    (sum, item) => sum + calculateOrderItemPaymentTax(item, orderTax, excluded),
+    (sum, item) => sum + calculateOrderItemPaymentTax(item, orderTax, excluded, taxableShare),
     0,
   );
 
@@ -362,16 +398,17 @@ export const getOrderTaxAmount = (order: Order): number => {
  * Per-line tax amount using the same rules as payment.
  */
 export const getOrderItemTaxAmount = (item: OrderItem, order: Order): number => {
-  return calculateOrderItemPaymentTax(item, order.tax ?? null, getExcludedTaxIds(order));
+  return calculateOrderItemPaymentTax(item, order.tax ?? null, getExcludedTaxIds(order), getOrderTaxableShare(order));
 };
 
 const getOrderItemPaymentTaxBreakdown = (
   item: OrderItem,
   orderTax?: Tax | null,
   excluded?: ReadonlySet<string>,
+  taxableShare = 1,
 ): TaxAmount[] => {
   const taxMode = item.tax_mode ?? 'exclusive';
-  const unitBase = getOrderItemTaxableUnitBase(item);
+  const unitBase = getOrderItemTaxableUnitBase(item) * taxableShare;
   const quantity = safeNumber(item.quantity || 1);
   return getOrderLineItemTaxCalculation(
     unitBase,
@@ -438,9 +475,10 @@ export const getOrderTaxBreakdown = (order: Order): OrderTaxBreakdownEntry[] => 
   const breakdownMap = new Map<string, OrderTaxBreakdownEntry>();
   const orderTax = order.tax ?? null;
   const excluded = getExcludedTaxIds(order);
+  const taxableShare = getOrderTaxableShare(order);
 
   (getOrderFilteredItems(order) ?? []).forEach((item) => {
-    getOrderItemPaymentTaxBreakdown(item, orderTax, excluded).forEach(({tax, amount}) => {
+    getOrderItemPaymentTaxBreakdown(item, orderTax, excluded, taxableShare).forEach(({tax, amount}) => {
       const key = `${tax.name} ${tax.rate}%`;
       const existing = breakdownMap.get(key) ?? {name: tax.name, rate: tax.rate || 0, amount: 0};
       existing.amount += amount;
@@ -463,13 +501,14 @@ export const getOrderTaxBreakdown = (order: Order): OrderTaxBreakdownEntry[] => 
 export const collectOrderTaxRows = (
   order: Order,
   orderTax?: Tax | null,
+  taxableShare: number = getOrderTaxableShare(order),
 ): Array<{ tax: Tax; amount: number }> => {
   const breakdownMap = new Map<string, { tax: Tax; amount: number }>();
   const resolvedOrderTax = orderTax === undefined ? order.tax ?? null : orderTax;
   const excluded = getExcludedTaxIds(order);
 
   (getOrderFilteredItems(order) ?? []).forEach((item) => {
-    getOrderItemPaymentTaxBreakdown(item, resolvedOrderTax, excluded).forEach(({ tax, amount }) => {
+    getOrderItemPaymentTaxBreakdown(item, resolvedOrderTax, excluded, taxableShare).forEach(({ tax, amount }) => {
       const key = tax.id?.toString() ?? `${tax.name}-${tax.rate}`;
       const existing = breakdownMap.get(key) ?? { tax, amount: 0 };
       existing.amount += amount;

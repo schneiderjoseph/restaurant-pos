@@ -59,7 +59,8 @@
     "cancelled": "ملغى",
     "spilt": "مقسّم",
     "merged": "مدمج",
-    "refunded": "مسترد"
+    "refunded": "مسترد",
+    "pending": "قيد الانتظار"
   },
   "totals": {
     "items": "الأصناف ({{count}})",

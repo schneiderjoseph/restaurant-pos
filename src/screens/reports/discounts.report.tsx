@@ -15,6 +15,7 @@ import {
 } from "@/lib/order.ts";
 import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import i18n from "@/lib/i18n.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -142,7 +143,7 @@ const buildDetailRows = (lines: OrderDiscount[]): DiscountDetailRow[] => {
     const discountName = line.name
       || (typeof discountRef === "object" && discountRef !== null && "name" in discountRef
         ? String((discountRef as {name?: string}).name ?? "")
-        : typeof discountRef === "string" ? discountRef : "Discount");
+        : typeof discountRef === "string" ? discountRef : i18n.t('reports:columns.discount'));
 
     return {
       key: line.id?.toString?.() ?? `line-${index}`,
@@ -150,7 +151,7 @@ const buildDetailRows = (lines: OrderDiscount[]): DiscountDetailRow[] => {
       createdAt: order?.created_at ?? line.created_at,
       invoiceLabel,
       cashierName: getCashierName(order),
-      discountName: discountName || "Discount",
+      discountName: discountName || i18n.t('reports:columns.discount'),
       scope: line.scope || "-",
       valueTypeLabel: formatValueType(line),
       amount: safeNumber(line.applied_amount),

@@ -91,9 +91,9 @@ export const SplitOrdersReport = () => {
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
           <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Created at</th>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.createdAt')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Split #</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.splitNumber')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.status')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.table')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
@@ -102,7 +102,7 @@ export const SplitOrdersReport = () => {
           <tbody className="divide-y divide-neutral-100 bg-white">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">No split orders for selected range.</td>
+              <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">{t('empty.noSplitOrders')}</td>
             </tr>
           ) : rows.map((row) => (
             <tr key={row.id}>

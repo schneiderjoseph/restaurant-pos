@@ -112,7 +112,7 @@ export const AccountGroups = () => {
         }}
         title={t('confirm.title')}
         message={activateConfirm
-          ? t('confirm.activateGroup', {action: activateConfirm.is_active ? 'de-' : ''})
+          ? t(activateConfirm.is_active ? 'confirm.deactivateGroup' : 'confirm.activateGroup')
           : undefined}
         onConfirm={async () => {
           if (!activateConfirm) return;

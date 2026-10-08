@@ -76,8 +76,10 @@
     "title": "Confirmation",
     "yes": "Yes, please",
     "no": "No, wait",
-    "activateGroup": "Are you sure to {{action}}activate this group?",
-    "activateAccount": "Are you sure to {{action}}activate this account?"
+    "activateGroup": "Möchten Sie diese Gruppe wirklich aktivieren?",
+    "activateAccount": "Möchten Sie dieses Konto wirklich aktivieren?",
+    "deactivateGroup": "Möchten Sie diese Gruppe wirklich deaktivieren?",
+    "deactivateAccount": "Möchten Sie dieses Konto wirklich deaktivieren?"
   },
   "reports": {
     "allLedgers": "All ledgers",
@@ -132,7 +134,8 @@
     "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
     "noLedgerEntries": "No journal entries for this account in the selected date range.",
     "viewEntry": "View entry",
-    "netIncome": "Jahresüberschuss"
+    "netIncome": "Jahresüberschuss",
+    "unclassified": "Nicht klassifiziert"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -147,10 +150,20 @@
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
     "reverseSuccess": "Journal entry reversed successfully",
     "cannotReverse": "Only posted entries can be reversed",
-    "lineBothDebitCredit": "Eine Buchungszeile darf nicht gleichzeitig Soll und Haben haben."
+    "lineBothDebitCredit": "Eine Buchungszeile darf nicht gleichzeitig Soll und Haben haben.",
+    "noLinesFound": "Keine Zeilen für diesen Buchungssatz gefunden."
   },
   "upload": {
     "attachDocuments": "Attach Documents",
-    "documents": "Documents"
+    "documents": "Documents",
+    "documentN": "Dokument {{n}}",
+    "file": "Datei"
+  },
+  "headTypes": {
+    "asset": "Aktiva",
+    "liability": "Passiva",
+    "equity": "Eigenkapital",
+    "income": "Ertrag",
+    "expense": "Aufwand"
   }
 }

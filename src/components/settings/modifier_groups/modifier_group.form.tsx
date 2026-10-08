@@ -488,7 +488,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
 
           <div className="mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-              <legend>Modifiers</legend>
+              <legend>{t('columns.modifiers')}</legend>
 
               <div className="flex gap-3 mb-3">
                 <Button onClick={() => {
@@ -498,17 +498,17 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                     allowed_next_groups: [],
                     next_group_overrides: [],
                   })
-                }} variant="primary" type="button" icon={faPlus}>modifier</Button>
+                }} variant="primary" type="button" icon={faPlus}>{t('forms.modifier')}</Button>
 
                 <Button onClick={() => {
                   setDishModal(true)
-                }} variant="primary" type="button" icon={faPlus} flat>New modifier</Button>
+                }} variant="primary" type="button" icon={faPlus} flat>{t('forms.newModifier')}</Button>
               </div>
 
               {fields.map((item, index) => (
                 <div className="flex flex-wrap gap-3 mb-3 pb-3 border-b border-neutral-100 last:border-0" key={item.id}>
                   <div className="shrink grow-0 min-w-[250px]">
-                    <label htmlFor="modifier">Modifier</label>
+                    <label htmlFor="modifier">{t('forms.modifier')}</label>
                     <Controller
                       control={control}
                       name={`modifiers.${index}.modifier`}

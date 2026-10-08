@@ -1,4 +1,5 @@
 import { Tables } from '@/api/db/tables.ts';
+import { getNextJournalEntryNumber } from '@/lib/invoice.ts';
 import { JournalDraftRequest } from '@/integrations/accounting/types.ts';
 import { nowSurrealDateTime } from '@/lib/datetime.ts';
 import { toRecordId } from '@/lib/utils.ts';
@@ -54,15 +55,7 @@ export const findJournalByIdempotencyKey = async (
   };
 };
 
-const nextEntryNumber = async (db: JournalDbClient): Promise<number> => {
-  const [rows] = await db.query<Array<{ max_value?: number }>>(
-    `SELECT math::max(<int>entry_number) as max_value
-     FROM ${Tables.account_journal_entries}
-     GROUP ALL`
-  );
-  const num = Number(rows?.[0]?.max_value || 0);
-  return Number.isFinite(num) ? num + 1 : 1;
-};
+const nextEntryNumber = (db: JournalDbClient): Promise<number> => getNextJournalEntryNumber(db);
 
 export const createJournalFromDraft = async (
   db: JournalDbClient,

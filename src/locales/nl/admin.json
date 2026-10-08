@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "AI-import menustructuur",
     "manageOutlets": "Verkooppunten beheren",
     "applyOutletSuggestions": "Suggesties toepassen",
-    "outlet": "Verkooppunt"
+    "outlet": "Verkooppunt",
+    "bulkEditWithCount": "Bulkbewerking ({{count}})"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Prijs van elke keuze",
     "includedModifiersGroupHint": "Gebruikt wanneer een gerecht keuzes uit deze groep gratis geeft („Inbegrepen” bij het gerecht): welke gratis zijn en wat de volgende kosten.",
     "maxRateGteMin": "Het maximumtarief moet groter of gelijk zijn aan het minimumtarief",
-    "weightMustBeNonNegative": "Gewichten moeten groter of gelijk aan 0 zijn"
+    "weightMustBeNonNegative": "Gewichten moeten groter of gelijk aan 0 zijn",
+    "couponType": "Coupontype",
+    "validDays": "Geldige dagen",
+    "couponTypes": {
+      "order": "Bestelling",
+      "product": "Product",
+      "shipping": "Bezorging"
+    },
+    "productionWorkflow": "Productieworkflow",
+    "workflowLegacyHint": "Workflow (leeg laten voor legacy keukenrouting)",
+    "workflowStagesHint": "Stappen lopen op volgorde. Overschrijf indien nodig de keuken van een stap voor dit product.",
+    "kitchenStation": "Keuken / Station",
+    "setWorkflowForSelected": "Workflow instellen voor geselecteerde gerechten",
+    "workflowClearLegacyHint": "Workflow (selectie wissen om workflow te verwijderen / legacy routing te gebruiken)",
+    "replaceCategoriesForSelected": "Categorieën van geselecteerde gerechten vervangen",
+    "replaceModifierGroupsForSelected": "Modifiergroepen van geselecteerde gerechten vervangen",
+    "autoSelectModifiers": "Modifiers automatisch selecteren?",
+    "autoOpenModifiers": "Modifiers automatisch openen?",
+    "productionStages": "Productiestappen (op volgorde)",
+    "addStage": "Stap toevoegen",
+    "modifier": "Modifier",
+    "newModifier": "Nieuwe modifier",
+    "nestedOverrideHelp": "Wijzigingen gelden alleen voor deze modifierregel. De basissgroep \"{{groupName}}\" blijft ongewijzigd.",
+    "resetToMenu": "Terugzetten naar menu",
+    "loadingDishes": "Gerechten laden...",
+    "taxMode": "Belastingmodus",
+    "taxExclusive": "Exclusief",
+    "taxInclusive": "Inclusief",
+    "toggleAll": "Alles schakelen",
+    "printerTypes": {
+      "network": "Netwerk",
+      "usb": "USB",
+      "serial": "Serieel",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Contant",
+      "card": "Kaart",
+      "points": "Punten",
+      "remote": "Extern",
+      "room": "Kamer"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Live"
+    },
+    "gatewayProvider": "Gatewayprovider",
+    "gatewayMode": "Gatewaymodus",
+    "gatewayKeys": "Gatewaysleutels",
+    "updateSelectedTables": "Geselecteerde tafels bijwerken",
+    "applyToSelected": "Toepassen op selectie"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -858,7 +909,8 @@
     "acknowledge": "Erkennen",
     "hideDetails": "▼ Details verbergen",
     "showDetails": "▶ Details tonen",
-    "badgeTooltip": "{{count}} open kritieke melding(en)"
+    "badgeTooltip": "{{count}} open kritieke melding(en)",
+    "acknowledgeFailed": "Bevestigen van waarschuwing mislukt"
   },
   "customers": {
     "email": "E-mail",

@@ -46,7 +46,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
       await acknowledge(alert.id, notes.trim() || undefined);
       onClose();
     } catch (err: any) {
-      setError(err?.message || "Failed to acknowledge alert");
+      setError(err?.message || t("admin:securityAlerts.acknowledgeFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -66,7 +66,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
         {/* Header: severity + rule name */}
         <div className="flex items-center gap-3">
           <span className={`px-3 py-1 rounded text-sm font-medium border ${SEVERITY_BADGE_CLASSES[alert.severity]}`}>
-            {alert.severity.toUpperCase()}
+            {t(`admin:securityAlerts.${alert.severity}`)}
           </span>
           <h3 className="text-lg font-semibold flex-1">{alert.rule_name}</h3>
         </div>

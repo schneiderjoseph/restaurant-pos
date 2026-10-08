@@ -9,6 +9,7 @@ import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {APIProvider, Map as GoogleMap, useMap} from "@vis.gl/react-google-maps";
 import {MarkerClusterer, type Cluster, type ClusterStats, type Renderer} from "@googlemaps/markerclusterer";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import i18n from '@/lib/i18n.ts';
 
 interface ReportFilters {
   startDate?: string | null;
@@ -31,7 +32,7 @@ interface ReportFilters {
 }
 
 const getAddressArea = (address?: string | null): string => {
-  if (!address) return "Unknown";
+  if (!address) return i18n.t('common:actions.unknown');
   const parts = address
     .split(",")
     .map(item => item.trim())
@@ -41,7 +42,7 @@ const getAddressArea = (address?: string | null): string => {
     return parts[parts.length - 2];
   }
 
-  return parts[0] || "Unknown";
+  return parts[0] || i18n.t('common:actions.unknown');
 };
 
 const parseFilters = (): ReportFilters => {
@@ -329,9 +330,9 @@ export const DeliveryDensityReport = () => {
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-neutral-200">
           <div className="bg-neutral-100 px-6 py-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-neutral-700">Order Density Map</h3>
+            <h3 className="text-sm font-semibold text-neutral-700">{t('labels.orderDensityMap')}</h3>
             <span className="text-xs text-neutral-600">
-              {formatNumber(filteredOrders.length)} orders • {formatNumber(locationCount)} locations
+              {t('labels.ordersAndLocations', {orders: formatNumber(filteredOrders.length), locations: formatNumber(locationCount)})}
             </span>
           </div>
           <div className="h-[420px] w-full">
@@ -360,15 +361,15 @@ export const DeliveryDensityReport = () => {
                 <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.status')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Area</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Address</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.area')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.address')}</th>
                 {filters.showMenuItems && (
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.menuItems')}</th>
                 )}
                 {filters.showDetails && (
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
                 )}
-                <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Paid Amount</th>
+                <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.paidAmount')}</th>
               </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
@@ -401,7 +402,7 @@ export const DeliveryDensityReport = () => {
               {filteredOrders.length === 0 && (
                 <tr>
                   <td colSpan={filters.showMenuItems ? (filters.showDetails ? 8 : 7) : (filters.showDetails ? 7 : 6)} className="py-6 text-center text-sm text-neutral-500">
-                    No delivery orders found for the selected filters.
+                    {t('empty.noDeliveryOrders')}
                   </td>
                 </tr>
               )}

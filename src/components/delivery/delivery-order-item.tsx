@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useTranslation } from 'react-i18next';
 import { Order, OrderStatus } from "@/api/model/order.ts";
-import { getInvoiceNumber, getOrderFilteredItems } from "@/lib/order.ts";
+import { getInvoiceNumber, getOrderFilteredItems, translateOrderStatus } from "@/lib/order.ts";
 import { calculateOrderTotal } from "@/lib/cart.ts";
 import { withCurrency } from "@/lib/utils.ts";
 import { cn } from "@/lib/utils.ts";
@@ -19,6 +19,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
   onClick,
 }) => {
   const { t } = useTranslation('delivery');
+  const { t: tOrders } = useTranslation('orders');
   const customer = order.customer;
   const delivery = order.delivery as any;
 
@@ -107,7 +108,9 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
             statusColors[order.status] || "bg-neutral-100 text-neutral-700 border-neutral-300"
           )}
         >
-          {order.status}
+          {order.status === OrderStatus.Pending
+            ? tOrders('status.pending')
+            : translateOrderStatus(tOrders, order.status)}
         </span>
       </div>
 

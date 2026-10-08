@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "Importa struttura menu con IA",
     "manageOutlets": "Gestisci punti vendita",
     "applyOutletSuggestions": "Applica suggerimenti",
-    "outlet": "Punto vendita"
+    "outlet": "Punto vendita",
+    "bulkEditWithCount": "Modifica multipla ({{count}})"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Prezzo di ogni scelta",
     "includedModifiersGroupHint": "Usato quando un piatto offre scelte di questo gruppo («Inclusi» sul piatto): quali sono offerte e quanto costano le successive.",
     "maxRateGteMin": "La percentuale massima deve essere maggiore o uguale a quella minima",
-    "weightMustBeNonNegative": "I pesi devono essere maggiori o uguali a 0"
+    "weightMustBeNonNegative": "I pesi devono essere maggiori o uguali a 0",
+    "couponType": "Tipo di coupon",
+    "validDays": "Giorni validi",
+    "couponTypes": {
+      "order": "Ordine",
+      "product": "Prodotto",
+      "shipping": "Spedizione"
+    },
+    "productionWorkflow": "Flusso di produzione",
+    "workflowLegacyHint": "Flusso (lasciare vuoto per il routing cucina legacy)",
+    "workflowStagesHint": "Le fasi vengono eseguite in ordine. Sovrascrivi la cucina di una fase per questo prodotto se necessario.",
+    "kitchenStation": "Cucina / Stazione",
+    "setWorkflowForSelected": "Imposta il flusso per i piatti selezionati",
+    "workflowClearLegacyHint": "Flusso (cancella la selezione per rimuovere il flusso / usare il routing legacy)",
+    "replaceCategoriesForSelected": "Sostituisci le categorie dei piatti selezionati",
+    "replaceModifierGroupsForSelected": "Sostituisci i gruppi modificatori dei piatti selezionati",
+    "autoSelectModifiers": "Selezionare automaticamente i modificatori?",
+    "autoOpenModifiers": "Aprire automaticamente i modificatori?",
+    "productionStages": "Fasi di produzione (in ordine)",
+    "addStage": "Aggiungi fase",
+    "modifier": "Modificatore",
+    "newModifier": "Nuovo modificatore",
+    "nestedOverrideHelp": "Le modifiche si applicano solo a questa riga modificatore. Il gruppo base «{{groupName}}» resta invariato.",
+    "resetToMenu": "Reimposta al menu",
+    "loadingDishes": "Caricamento piatti...",
+    "taxMode": "Modalità imposta",
+    "taxExclusive": "Esclusiva",
+    "taxInclusive": "Inclusiva",
+    "toggleAll": "Attiva/disattiva tutto",
+    "printerTypes": {
+      "network": "Rete",
+      "usb": "USB",
+      "serial": "Seriale",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Contanti",
+      "card": "Carta",
+      "points": "Punti",
+      "remote": "Remoto",
+      "room": "Camera"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Produzione"
+    },
+    "gatewayProvider": "Fornitore gateway",
+    "gatewayMode": "Modalità gateway",
+    "gatewayKeys": "Chiavi gateway",
+    "updateSelectedTables": "Aggiorna tavoli selezionati",
+    "applyToSelected": "Applica alla selezione"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -858,7 +909,8 @@
     "acknowledge": "Riconosci",
     "hideDetails": "▼ Nascondi dettagli",
     "showDetails": "▶ Mostra dettagli",
-    "badgeTooltip": "{{count}} avviso/i critico/i aperto/i"
+    "badgeTooltip": "{{count}} avviso/i critico/i aperto/i",
+    "acknowledgeFailed": "Impossibile confermare l'avviso"
   },
   "customers": {
     "email": "E-mail",

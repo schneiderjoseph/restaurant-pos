@@ -55,11 +55,11 @@ export const AdminExtras = () => {
       cell: info => withCurrency(Number(info.getValue() || 0)),
     }),
     columnHelper.accessor("payment_types", {
-      header: "Payment types",
+      header: t('columns.paymentTypes'),
       cell: info => info.getValue()?.length || "-",
     }),
     columnHelper.accessor("order_types", {
-      header: "Order types",
+      header: t('columns.orderTypes'),
       cell: info => info.getValue()?.length || "-",
     }),
     columnHelper.accessor("tables", {

@@ -66,7 +66,7 @@ export const PrinterForm = ({
         ip_address: data.ip_address ?? '',
         port: data.port ?? 9100,
         type: data.type ? {
-          label: data.type,
+          label: t(`forms.printerTypes.${String(data.type).toLowerCase()}`),
           value: data.type,
         } : null,
         vid: data.vid ?? '',
@@ -84,7 +84,7 @@ export const PrinterForm = ({
         path: '',
       });
     }
-  }, [data, reset]);
+  }, [data, reset, t]);
 
   const db = useDB();
 
@@ -163,7 +163,7 @@ export const PrinterForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     options={['Network', 'USB', 'Serial', 'Bluetooth'].map(item => ({
-                      label: item,
+                      label: t(`forms.printerTypes.${item.toLowerCase()}`),
                       value: item
                     }))}
                   />

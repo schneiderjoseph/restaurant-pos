@@ -24,7 +24,8 @@
     "circleTooSmall": "O círculo é muito pequeno. Desenhe um raio maior.",
     "polygonTooSmall": "O polígono é muito pequeno. Desenhe um contorno maior.",
     "areasSaved": "Áreas do mapa salvas com sucesso",
-    "deleteSelected": "Excluir seleção"
+    "deleteSelected": "Excluir seleção",
+    "drawInstructions": "Desenhe zonas de entrega no mapa. Escolha uma ferramenta à esquerda e clique e arraste para desenhar. Clique em uma forma para selecioná-la, arraste para movê-la ou use as alças para redimensionar."
   },
   "settings": {
     "title": "Configuração de Delivery",

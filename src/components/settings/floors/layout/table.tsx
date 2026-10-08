@@ -178,7 +178,7 @@ export const FloorTable = ({
       floor: null
     });
 
-    onRemove && onRemove();
+    onRemove?.();
   }
 
   const total = order ? getOrderSettlementFigures(order).grandTotalDue : 0;
@@ -228,7 +228,7 @@ export const FloorTable = ({
         if (suppressClick?.current) {
           return;
         }
-        onClick && onClick();
+        onClick?.();
       }}
     >
       {isSelected && (
@@ -357,7 +357,7 @@ export const FloorTable = ({
                 </div>
                 <div className="mb-3 flex flex-col gap-3">
                   <div>
-                    <label htmlFor="color">Color</label>
+                    <label htmlFor="color">{t('forms.color')}</label>
                     <Input type="color" value={settings.color} id="color" onChange={(e) => {
                       setSettings(prev => ({
                         ...prev,
@@ -366,7 +366,7 @@ export const FloorTable = ({
                     }}/>
                   </div>
                   <div>
-                    <label htmlFor="background">Background</label>
+                    <label htmlFor="background">{t('forms.background')}</label>
                     <Input type="color" value={settings.background} id="background" onChange={(e) => {
                       setSettings(prev => ({
                         ...prev,

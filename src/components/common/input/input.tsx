@@ -62,12 +62,8 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
     hideKeyboardTitle,
     ...inputProps
   } = props;
-  let formContext: ReturnType<typeof useFormContext> | null = null;
-  try {
-    formContext = useFormContext();
-  } catch (e) {
-    formContext = null;
-  }
+  // Null outside a FormProvider (react-hook-form reads it with useContext).
+  const formContext: ReturnType<typeof useFormContext> | null = useFormContext();
   const hasValueProp = Object.prototype.hasOwnProperty.call(props, 'value');
   const isControlled = hasValueProp;
   // Number + NumericFormat without a value prop: do not default the POS keyboard on.

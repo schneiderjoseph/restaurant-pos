@@ -47,7 +47,7 @@ export const ProductMixSummaryFilter = () => {
       }
       const dishId = typeof dish.id === "string" ? dish.id : String(dish.id);
       if (!map.has(dishId)) {
-        map.set(dishId, toOption(dish, dish.name || "Unknown"));
+        map.set(dishId, toOption(dish, dish.name || t('common:actions.unknown')));
       }
       return map;
     }, new Map<string, {label: string; value: string} | null>())
@@ -73,7 +73,7 @@ export const ProductMixSummaryFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />
@@ -139,7 +139,7 @@ export const ProductMixSummaryFilter = () => {
         filled
         type="submit"
       >
-        Generate
+        {t('filters.generate')}
       </Button>
     </form>
   );

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import {getNextJournalEntryNumber} from "@/lib/invoice.ts";
 import { createColumnHelper } from "@tanstack/react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faEye, faPlus, faUndo } from "@fortawesome/free-solid-svg-icons";
@@ -74,11 +75,7 @@ export const JournalEntries = () => {
         return;
       }
 
-      const [rows] = await db.query(`SELECT math::max(<int>entry_number) as max_value
-                                     FROM ${Tables.account_journal_entries}
-                                     GROUP ALL`);
-      const num = Number(rows?.[0]?.max_value || 0);
-      const nextEntryNumber = isFinite(num) ? num + 1 : 1;
+      const nextEntryNumber = await getNextJournalEntryNumber(db);
 
       const [newEntry] = await db.insert(Tables.account_journal_entries, {
         entry_number: nextEntryNumber,

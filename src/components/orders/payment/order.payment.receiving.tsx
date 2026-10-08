@@ -81,6 +81,8 @@ interface Props {
   setTax?: (tax?: Tax) => void;
   tax?: Tax
   taxAmount?: number
+  /** Taxed share of the line amounts (computeOrderPaymentTotals), stored with the tax rows. */
+  taxableShare?: number
 
   discountAmount?: number
   /** Notify parent of selected tender so payment-gated discounts can evaluate */
@@ -140,6 +142,7 @@ const OrderPaymentReceivingContent = ({
   setTax,
   tax,
   taxAmount,
+  taxableShare,
   discountAmount,
   onPaymentTypeSelected,
   tipType,
@@ -439,7 +442,7 @@ const OrderPaymentReceivingContent = ({
       }
 
       await db.merge(order.id, mergePayload);
-      await syncOrderTaxes(db, order, tax ?? null);
+      await syncOrderTaxes(db, order, tax ?? null, taxableShare);
 
       if (hasCoupon) {
         await db.create(Tables.coupon_redemptions, {
@@ -540,7 +543,7 @@ const OrderPaymentReceivingContent = ({
         });
 
         if (highest) {
-          setTax && setTax(highest);
+          setTax?.(highest);
         }
       }
     }
@@ -627,7 +630,7 @@ const OrderPaymentReceivingContent = ({
     const hasTax = !!candidateTax;
     const highestTax = hasTax ? getHighestTaxObject(candidateTax) : getHighestTaxObject(undefined);
     if (hasTax) {
-      setTax && setTax(highestTax);
+      setTax?.(highestTax);
     }
     return resolvePayable(hasTax ? highestTax : undefined, paymentTypeId);
   }

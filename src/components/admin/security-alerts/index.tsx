@@ -134,7 +134,7 @@ function AlertRow({ alert, onSelect }: { alert: SecurityAlert; onSelect: () => v
       data-testid={`security-alert-row-${alert.id}`}
     >
       <span className={`px-2 py-1 rounded text-xs font-medium border whitespace-nowrap ${SEVERITY_BADGE_CLASSES[alert.severity]}`}>
-        {alert.severity}
+        {t(`admin:securityAlerts.${alert.severity}`)}
       </span>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ function AlertRow({ alert, onSelect }: { alert: SecurityAlert; onSelect: () => v
             </span>
           )}
           {alert.source_ip && (
-            <span>IP: <strong>{alert.source_ip}</strong></span>
+            <span>{t("admin:securityAlerts.sourceIp")}: <strong>{alert.source_ip}</strong></span>
           )}
           <span>{time}</span>
         </div>

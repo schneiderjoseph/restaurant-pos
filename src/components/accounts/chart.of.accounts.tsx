@@ -189,7 +189,7 @@ export const ChartOfAccounts = () => {
         }}
         title={t('confirm.title')}
         message={activateConfirm
-          ? t('confirm.activateAccount', {action: activateConfirm.is_active ? 'de-' : ''})
+          ? t(activateConfirm.is_active ? 'confirm.deactivateAccount' : 'confirm.activateAccount')
           : undefined}
         onConfirm={async () => {
           if (!activateConfirm) return;

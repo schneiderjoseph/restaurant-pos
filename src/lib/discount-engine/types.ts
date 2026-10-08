@@ -81,7 +81,7 @@ export interface EvaluationResult {
   errors: string[]
 }
 
-export interface ApplyDiscountRequest extends ManualDiscountRequest {}
+export type ApplyDiscountRequest = ManualDiscountRequest;
 
 export interface CartTotals {
   itemsTotal: number

@@ -10,7 +10,7 @@ import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
-import {useEffect} from "react";
+import {useEffect, useMemo} from "react";
 import {Coupon, CouponType, WeekDay} from "@/api/model/coupon.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {DateTime} from "luxon";
@@ -31,15 +31,7 @@ interface Props {
   data?: Coupon;
 }
 
-const weekDayOptions: { label: string; value: WeekDay }[] = [
-  {label: "Mon", value: "mon"},
-  {label: "Tue", value: "tue"},
-  {label: "Wed", value: "wed"},
-  {label: "Thu", value: "thu"},
-  {label: "Fri", value: "fri"},
-  {label: "Sat", value: "sat"},
-  {label: "Sun", value: "sun"},
-];
+const WEEK_DAY_VALUES: WeekDay[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 const validationSchema = yup.object({
   code: yup.string().required(i18n.t('validation:required')),
@@ -92,8 +84,32 @@ const validationSchema = yup.object({
 });
 
 export const CouponForm = ({ open, onClose, data }: Props) => {
-  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast', 'payment']);
   const db = useDB();
+
+  const weekDayOptions = useMemo(
+    () => WEEK_DAY_VALUES.map((value) => ({
+      label: t(`discountEngine.days.${value}`),
+      value,
+    })),
+    [t]
+  );
+
+  const couponTypeOptions = useMemo(
+    () => (["order", "product", "shipping"] as CouponType[]).map((item) => ({
+      label: t(`forms.couponTypes.${item}`),
+      value: item,
+    })),
+    [t]
+  );
+
+  const discountTypeOptions = useMemo(
+    () => (["fixed", "percent"] as const).map((item) => ({
+      label: t(`payment:discountType.${item}`),
+      value: item,
+    })),
+    [t]
+  );
 
   const {
     control,
@@ -120,19 +136,19 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
         start_time: startTimeString,
         end_time: endTimeString,
         coupon_type: data.coupon_type
-          ? {label: data.coupon_type, value: data.coupon_type}
+          ? {label: t(`forms.couponTypes.${data.coupon_type}`), value: data.coupon_type}
           : undefined,
         discount_type: data.discount_type
-          ? {label: data.discount_type, value: data.discount_type}
+          ? {label: t(`payment:discountType.${data.discount_type}`), value: data.discount_type}
           : undefined,
         valid_days: (data.valid_days || []).map((d) => ({
-          label: d,
+          label: t(`discountEngine.days.${d}`),
           value: d,
         })),
         priority: String(data.priority ?? '')
       });
     }
-  }, [data, reset]);
+  }, [data, reset, t]);
 
   const onSubmit = async (values: any) => {
     const vals = {...values};
@@ -193,7 +209,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
       toast.success(t('toast:admin.couponSaved', { code: values.code }));
     } catch (e) {
       toast.error(e);
-      // eslint-disable-next-line no-console
+       
       console.log(e);
     }
   };
@@ -238,7 +254,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               )}
             />
             <div>
-              <label>Coupon type</label>
+              <label>{t('forms.couponType')}</label>
               <Controller
                 name="coupon_type"
                 control={control}
@@ -246,19 +262,14 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
-                    options={(["order", "product", "shipping"] as CouponType[]).map(
-                      (item) => ({
-                        label: item,
-                        value: item,
-                      })
-                    )}
+                    options={couponTypeOptions}
                   />
                 )}
               />
               <InputError error={errors?.coupon_type?.message as string}/>
             </div>
             <div>
-              <label>Discount type</label>
+              <label>{t('columns.discountType')}</label>
               <Controller
                 name="discount_type"
                 control={control}
@@ -266,10 +277,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
-                    options={["fixed", "percent"].map((item) => ({
-                      label: item,
-                      value: item,
-                    }))}
+                    options={discountTypeOptions}
                   />
                 )}
               />
@@ -368,7 +376,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               )}
             />
             <div>
-              <label>Valid days</label>
+              <label>{t('forms.validDays')}</label>
               <Controller
                 name="valid_days"
                 control={control}
@@ -511,7 +519,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
         </div>
         <div>
           <Button type="submit" variant="primary">
-            Save
+            {t('common:actions.save')}
           </Button>
         </div>
       </form>

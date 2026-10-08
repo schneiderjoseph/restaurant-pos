@@ -114,7 +114,7 @@ export const ExpenseReport = () => {
         <div className="border rounded-lg p-4 bg-neutral-50">
           <div className="text-sm text-neutral-500">{t('labels.expenseRows')}</div>
           <div className="text-xl font-semibold">{formatNumber(rows.length)}</div>
-          <div className="text-sm text-neutral-500 mt-2">Total expenses</div>
+          <div className="text-sm text-neutral-500 mt-2">{t('labels.totalExpenses')}</div>
           <div className="text-xl font-semibold">{withDualCurrency(totalExpenses)}</div>
         </div>
         <div className="overflow-hidden rounded-lg border border-neutral-200">
@@ -130,7 +130,7 @@ export const ExpenseReport = () => {
             <tbody className="divide-y divide-neutral-100 bg-white">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">No expenses found for selected range.</td>
+                <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">{t('empty.noExpenses')}</td>
               </tr>
             ) : rows.map((row, index) => (
               <tr key={`${row.closingId}-${index}`}>

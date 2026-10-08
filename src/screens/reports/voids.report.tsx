@@ -19,6 +19,7 @@ import {
   buildStringInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import i18n from "@/lib/i18n.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -62,7 +63,7 @@ const getVoidItemModifiers = (
   const walkGroups = (groups: any[] = [], depth = 1) => {
     groups.forEach(group => {
       (group?.selectedModifiers ?? []).forEach((selected: any) => {
-        const name = selected?.dish?.name || selected?.name || 'Modifier';
+        const name = selected?.dish?.name || selected?.name || i18n.t('reports:columns.modifier');
         const quantity = safeNumber(selected?.quantity || 1) * parentQuantity;
         const price = getOrderItemModifierDisplayPrice(
           safeNumber(selected?.price),
@@ -117,6 +118,7 @@ const parseFilters = (): ReportFilters => {
 
 export const VoidsReport = () => {
   const { t } = useTranslation('reports');
+  const unknownLabel = t('common:actions.unknown');
   const db = useDB();
   const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
@@ -199,7 +201,7 @@ export const VoidsReport = () => {
     const map = new Map<string, {count: number; quantity: number; amount: number}>();
     
     orderVoids.forEach(voidItem => {
-      const reason = voidItem.reason || 'Unknown';
+      const reason = voidItem.reason || unknownLabel;
       const voidItems = getVoidItems(voidItem);
       const quantity = safeNumber(voidItem.quantity ?? 1);
       const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
@@ -222,8 +224,8 @@ export const VoidsReport = () => {
     
     orderVoids.forEach(voidItem => {
       const managerName = voidItem.deleted_by 
-        ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || 'Unknown'
-        : 'Unknown';
+        ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || unknownLabel
+        : unknownLabel;
       const voidItems = getVoidItems(voidItem);
       const quantity = safeNumber(voidItem.quantity ?? 1);
       const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
@@ -246,7 +248,7 @@ export const VoidsReport = () => {
     
     orderVoids.forEach(voidItem => {
       getVoidItems(voidItem).forEach(item => {
-        const menuItemName = item?.item?.name || 'Unknown';
+        const menuItemName = item?.item?.name || unknownLabel;
         const quantity = safeNumber(voidItem.quantity ?? 1);
         const amount = getVoidLineAmount(voidItem, item);
 
@@ -289,7 +291,7 @@ export const VoidsReport = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Voids by Reason */}
           <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Reason</h3>
+            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('sections.voidsByReason')}</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
                 <thead className="bg-neutral-50">
@@ -304,7 +306,7 @@ export const VoidsReport = () => {
                   {voidsByReason.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        No voids by reason
+                        {t('empty.noVoidsByReason')}
                       </td>
                     </tr>
                   ) : (
@@ -326,12 +328,12 @@ export const VoidsReport = () => {
 
           {/* Voids by Managers */}
           <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Managers</h3>
+            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('sections.voidsByManagers')}</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
                 <thead className="bg-neutral-50">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('filters.managers')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
                     <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
@@ -341,7 +343,7 @@ export const VoidsReport = () => {
                   {voidsByManager.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        No voids by manager
+                        {t('empty.noVoidsByManager')}
                       </td>
                     </tr>
                   ) : (
@@ -363,12 +365,12 @@ export const VoidsReport = () => {
 
           {/* Voids by Menu Items */}
           <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Menu Items</h3>
+            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('sections.voidsByMenuItem')}</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
                 <thead className="bg-neutral-50">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.menuItem')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
                     <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
@@ -378,7 +380,7 @@ export const VoidsReport = () => {
                   {voidsByMenuItem.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        No voids by menu item
+                        {t('empty.noVoidsByMenuItem')}
                       </td>
                     </tr>
                   ) : (
@@ -401,7 +403,7 @@ export const VoidsReport = () => {
 
         {/* Detailed voids table */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids Detail</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('sections.voidsDetail')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
@@ -409,12 +411,12 @@ export const VoidsReport = () => {
                   <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('common:actions.time')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.menuItem')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.managers')}</th>
                   <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Order #</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.orderNumber')}</th>
                   <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
                 </tr>
               </thead>
@@ -422,7 +424,7 @@ export const VoidsReport = () => {
                 {orderVoids.length === 0 ? (
                   <tr>
                     <td colSpan={10} className="py-6 text-center text-sm text-neutral-500">
-                      No voids found for the selected filters
+                      {t('empty.noVoidsFound')}
                     </td>
                   </tr>
                 ) : (
@@ -431,14 +433,14 @@ export const VoidsReport = () => {
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
                     const timeStr = date.toFormat(import.meta.env.VITE_TIME_FORMAT);
                     const managerName = voidItem.deleted_by 
-                      ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || 'Unknown'
-                      : 'Unknown';
+                      ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || unknownLabel
+                      : unknownLabel;
                     const cashierName = voidItem.order?.cashier
-                      ? `${voidItem.order.cashier.first_name ?? ''} ${voidItem.order.cashier.last_name ?? ''}`.trim() || voidItem.order.cashier.login || 'Unknown'
-                      : 'N/A';
+                      ? `${voidItem.order.cashier.first_name ?? ''} ${voidItem.order.cashier.last_name ?? ''}`.trim() || voidItem.order.cashier.login || unknownLabel
+                      : t('orderFiscal.notAvailable');
                     const voidItems = getVoidItems(voidItem);
                     const lineTotal = getVoidItems(voidItem).reduce((sum, item) => sum + getVoidLineAmount(voidItem, item, showInclusive), 0);
-                    const orderNumber = voidItem.order?.invoice_number || 'N/A';
+                    const orderNumber = voidItem.order?.invoice_number || t('orderFiscal.notAvailable');
 
                     return (
                       <tr key={voidItem.id}>
@@ -457,7 +459,7 @@ export const VoidsReport = () => {
                                     key={`${recordToString(voidItem.id)}-item-${itemIndex}`}
                                     className="rounded-md border border-neutral-200 bg-neutral-50/60 px-2.5 py-2"
                                   >
-                                    <div className="font-semibold text-neutral-900">{item?.item?.name || 'Unknown'}</div>
+                                    <div className="font-semibold text-neutral-900">{item?.item?.name || unknownLabel}</div>
                                     {modifiers.length > 0 ? (
                                       <div className="mt-1.5 space-y-1">
                                         {modifiers.map((modifier, modifierIndex) => (
@@ -468,14 +470,14 @@ export const VoidsReport = () => {
                                           >
                                             <span className="font-medium text-neutral-800">{modifier.name}</span>
                                             <span className="inline-flex items-center gap-2 text-neutral-600">
-                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">Qty {formatNumber(modifier.quantity)}</span>
+                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">{t('labels.qtyLabel', {count: Number(modifier.quantity)})}</span>
                                               <span className="rounded bg-neutral-100 px-1.5 py-0.5">{withDualCurrency(modifier.price)}</span>
                                             </span>
                                           </div>
                                         ))}
                                       </div>
                                     ) : (
-                                      <div className="mt-1 text-xs text-neutral-500">No modifiers</div>
+                                      <div className="mt-1 text-xs text-neutral-500">{t('labels.noModifiers')}</div>
                                     )}
                                   </div>
                                 );

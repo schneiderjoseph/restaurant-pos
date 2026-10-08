@@ -128,7 +128,7 @@ export const AdminCustomers = () => {
         return (
           <span className="font-semibold">
             {customer.name || customer.guest_code}
-            {customer.vip ? <FontAwesomeIcon icon={faCrown} className="ml-2 text-warning-500" title="VIP" /> : null}
+            {customer.vip ? <FontAwesomeIcon icon={faCrown} className="ml-2 text-warning-500" title={t('menu:customer.vip')} /> : null}
             {customer.allergies?.length ? (
               <FontAwesomeIcon
                 icon={faTriangleExclamation}

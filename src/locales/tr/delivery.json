@@ -24,7 +24,8 @@
     "circleTooSmall": "Daire çok küçük. Daha büyük bir yarıçap çizin.",
     "polygonTooSmall": "Çokgen çok küçük. Daha büyük bir çerçeve çizin.",
     "areasSaved": "Harita alanları başarıyla kaydedildi",
-    "deleteSelected": "Seçimi sil"
+    "deleteSelected": "Seçimi sil",
+    "drawInstructions": "Haritada teslimat bölgelerini çizin. Soldan bir araç seçin, ardından çizmek için tıklayıp sürükleyin. Seçmek için bir şekle tıklayın, taşımak için sürükleyin veya yeniden boyutlandırmak için tutamaçları kullanın."
   },
   "settings": {
     "title": "Teslimat Yapılandırması",

@@ -17,14 +17,19 @@ export const ServiceChargesSettings = () => {
   const {protectFormSubmit} = useSecurity();
   const isVisible = useActionVisible();
   const canSave = isVisible('settings.service_charges');
-  const { t } = useTranslation(['settings', 'common', 'toast']);
+  const { t } = useTranslation(['settings', 'common', 'toast', 'payment']);
 
 
   const {control, handleSubmit, reset} = useForm();
 
+  const typeLabel = (type: string) =>
+    type === DiscountType.Fixed
+      ? t('payment:discountType.fixed')
+      : t('payment:discountType.percent');
+
   const normalizeType = (rawType: any): string => {
     if (rawType && typeof rawType === "object") {
-      return rawType.value || rawType.label || DiscountType.Percent;
+      return rawType.value || DiscountType.Percent;
     }
     if (typeof rawType === "string") {
       return rawType;
@@ -78,13 +83,13 @@ export const ServiceChargesSettings = () => {
       const serviceChargeType = normalizeType(settings.values?.type);
       reset({
         type: {
-          label: serviceChargeType,
+          label: typeLabel(serviceChargeType),
           value: serviceChargeType
         },
         value: normalizeValue(settings.values?.value)
       });
     }
-  }, [reset, settings]);
+  }, [reset, settings, t]);
 
   return (
     <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-service-charges">
@@ -101,7 +106,7 @@ export const ServiceChargesSettings = () => {
                 <ReactSelect
                   options={[DiscountType.Fixed, DiscountType.Percent].map(a => {
                     return {
-                      label: a,
+                      label: typeLabel(a),
                       value: a
                     }
                   })}

@@ -76,8 +76,10 @@
     "title": "Confirmation",
     "yes": "Yes, please",
     "no": "No, wait",
-    "activateGroup": "Are you sure to {{action}}activate this group?",
-    "activateAccount": "Are you sure to {{action}}activate this account?"
+    "activateGroup": "هل أنت متأكد من تفعيل هذه المجموعة؟",
+    "activateAccount": "هل أنت متأكد من تفعيل هذا الحساب؟",
+    "deactivateGroup": "هل أنت متأكد من إلغاء تفعيل هذه المجموعة؟",
+    "deactivateAccount": "هل أنت متأكد من إلغاء تفعيل هذا الحساب؟"
   },
   "reports": {
     "allLedgers": "All ledgers",
@@ -132,7 +134,8 @@
     "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
     "noLedgerEntries": "No journal entries for this account in the selected date range.",
     "viewEntry": "View entry",
-    "netIncome": "صافي الدخل"
+    "netIncome": "صافي الدخل",
+    "unclassified": "غير مصنّف"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -147,10 +150,20 @@
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
     "reverseSuccess": "Journal entry reversed successfully",
     "cannotReverse": "Only posted entries can be reversed",
-    "lineBothDebitCredit": "لا يمكن أن يحتوي سطر القيد على مدين ودائن معاً."
+    "lineBothDebitCredit": "لا يمكن أن يحتوي سطر القيد على مدين ودائن معاً.",
+    "noLinesFound": "لم يتم العثور على بنود لهذه القيد المحاسبي."
   },
   "upload": {
     "attachDocuments": "Attach Documents",
-    "documents": "Documents"
+    "documents": "Documents",
+    "documentN": "مستند {{n}}",
+    "file": "ملف"
+  },
+  "headTypes": {
+    "asset": "أصل",
+    "liability": "التزام",
+    "equity": "حقوق ملكية",
+    "income": "إيراد",
+    "expense": "مصروف"
   }
 }

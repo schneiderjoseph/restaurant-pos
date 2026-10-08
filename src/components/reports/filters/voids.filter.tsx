@@ -49,7 +49,7 @@ export const VoidsFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-reasons">Reasons</label>
+          <label htmlFor="voids-reasons">{t('filters.reasons')}</label>
           <ReactSelect
             id="voids-reasons"
             name="reasons[]"
@@ -60,7 +60,7 @@ export const VoidsFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-managers">Managers</label>
+          <label htmlFor="voids-managers">{t('filters.managers')}</label>
           <ReactSelect
             id="voids-managers"
             name="managers[]"
@@ -69,7 +69,7 @@ export const VoidsFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />
@@ -85,7 +85,7 @@ export const VoidsFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />

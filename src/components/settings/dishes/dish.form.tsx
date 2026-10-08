@@ -489,7 +489,7 @@ export const DishForm = ({
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label>Categories</label>
+              <label>{t('columns.categories')}</label>
               <Controller
                 name="categories"
                 render={({field}) => (
@@ -515,10 +515,10 @@ export const DishForm = ({
 
           <div className="flex mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend>Production workflow</legend>
+              <legend>{t('forms.productionWorkflow')}</legend>
               <div className="flex gap-2 items-end mb-3">
                 <div className="flex-1">
-                  <label>Workflow (leave empty to use legacy kitchen routing)</label>
+                  <label>{t('forms.workflowLegacyHint')}</label>
                   <ReactSelect
                     isClearable
                     value={workflowOption}
@@ -535,7 +535,7 @@ export const DishForm = ({
               {workflowOption && workflowStages.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm text-neutral-600">
-                    Stages run in order. Override a stage's kitchen for this product if needed.
+                    {t('forms.workflowStagesHint')}
                   </p>
                   {workflowStages.map((stage, index) => {
                     const stageId = stage.id.toString();
@@ -551,7 +551,7 @@ export const DishForm = ({
                           <Input label={t('forms.stage')} value={stage.name} disabled readOnly/>
                         </div>
                         <div className="flex-1">
-                          <label>Kitchen / Station</label>
+                          <label>{t('forms.kitchenStation')}</label>
                           <ReactSelect
                             value={selectedKitchen ? {
                               label: selectedKitchen.name,
@@ -606,7 +606,7 @@ export const DishForm = ({
 
           <div className="flex mb-3">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
-              <legend>Modifier groups</legend>
+              <legend>{t('columns.modifierGroups')}</legend>
               <div className="mb-3 flex gap-3">
                 <Button type="button" icon={faPlus} variant="primary" onClick={() => {
                   append({
@@ -615,20 +615,20 @@ export const DishForm = ({
                     required_modifiers: 0
                   })
                 }}>
-                  Modifier group
+                  {t('entities.modifierGroup')}
                 </Button>
 
                 <Button type="button" icon={faPlus} variant="primary" flat onClick={() => {
                   setModifierGroupsModal(true)
                 }}>
-                  Create modifier group
+                  {t('forms.createModifierGroup')}
                 </Button>
               </div>
 
               {modifierGroupFields.map((item, index) => (
                 <div className="flex gap-3 mb-3" key={item.id}>
                   <div className="flex-1">
-                    <label htmlFor="group">Modifier group</label>
+                    <label htmlFor="group">{t('entities.modifierGroup')}</label>
                     <Controller
                       name={`modifier_groups.${index}.modifier_group`}
                       control={control}
@@ -653,7 +653,7 @@ export const DishForm = ({
                       control={control}
                       render={({field}) => (
                         <Switch checked={field.value} onChange={field.onChange}>
-                          Auto select modifiers?
+                          {t('forms.autoSelectModifiers')}
                         </Switch>
                       )}
                     />
@@ -664,7 +664,7 @@ export const DishForm = ({
                       control={control}
                       render={({field}) => (
                         <Switch checked={field.value} onChange={field.onChange}>
-                          Auto open modifiers?
+                          {t('forms.autoOpenModifiers')}
                         </Switch>
                       )}
                     />
@@ -675,7 +675,7 @@ export const DishForm = ({
                       control={control}
                       render={({field}) => (
                         <Switch checked={field.value} onChange={field.onChange}>
-                          Has required modifiers
+                          {t('columns.hasRequiredModifiers')}
                         </Switch>
                       )}
                     />

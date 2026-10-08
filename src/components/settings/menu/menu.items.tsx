@@ -122,7 +122,7 @@ const validationSchema = yup.object({
 export const MenuItems = ({
   open, onClose, menu
 }: Props) => {
-  const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { t } = useTranslation(['admin', 'common', 'validation', 'toast', 'payment']);
 
   const db = useDB();
   const [loading, setLoading] = useState(false);
@@ -470,13 +470,13 @@ export const MenuItems = ({
     // Add uncategorized items at the end if any
     if (uncategorizedItems.length > 0) {
       groups.push({
-        category: {id: 'uncategorized', name: 'Uncategorized', priority: 9999} as Category,
+        category: {id: 'uncategorized', name: t('forms.uncategorized'), priority: 9999} as Category,
         items: uncategorizedItems
       });
     }
 
     return groups;
-  }, [items, dishes?.data, categories?.data]);
+  }, [items, dishes?.data, categories?.data, t]);
 
   // Create a map to get item index from dish_id
   const itemIndexMap = useMemo(() => {
@@ -534,13 +534,13 @@ export const MenuItems = ({
 
           {loadingDishes && (
             <div className="text-center text-neutral-500 py-8">
-              Loading dishes...
+              {t('forms.loadingDishes')}
             </div>
           )}
 
           {!loadingDishes && items.length === 0 && (
             <div className="text-center text-neutral-500 py-8">
-              No dishes found.
+              {t('forms.noDishesFound')}
             </div>
           )}
 
@@ -584,18 +584,18 @@ export const MenuItems = ({
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex-1 min-w-[140px]">
-                      <label className="block mb-1">Tax Mode</label>
+                      <label className="block mb-1">{t('forms.taxMode')}</label>
                       <select
                         className="form-control"
                         value={bulkSettings.tax_mode}
                         onChange={(e) => updateBulkSettings({tax_mode: e.target.value as TaxMode})}
                       >
-                        <option value="exclusive">Exclusive</option>
-                        <option value="inclusive">Inclusive</option>
+                        <option value="exclusive">{t('forms.taxExclusive')}</option>
+                        <option value="inclusive">{t('forms.taxInclusive')}</option>
                       </select>
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                      <label className="block mb-1">Taxes</label>
+                      <label className="block mb-1">{t('tabs.taxes')}</label>
                       <ReactSelect
                         value={bulkSettings.taxes}
                         onChange={(value) => updateBulkSettings({
@@ -625,8 +625,8 @@ export const MenuItems = ({
                           priceMode: e.target.value as PriceAdjustmentMode,
                         })}
                       >
-                        <option value="percent">Percent</option>
-                        <option value="fixed">Fixed</option>
+                        <option value="percent">{t('payment:discountType.percent')}</option>
+                        <option value="fixed">{t('payment:discountType.fixed')}</option>
                       </select>
                     </div>
                     <div>
@@ -650,7 +650,7 @@ export const MenuItems = ({
                         checked={allActive}
                         onChange={(event) => handleCategoryToggle(categoryId, event.currentTarget.checked)}
                       >
-                        Toggle All
+                        {t('forms.toggleAll')}
                       </Switch>
                     </div>
                     <div className="flex flex-col gap-3">
@@ -707,7 +707,7 @@ export const MenuItems = ({
 
                               </div>
                               <div className="flex-1">
-                                <label>Tax Mode</label>
+                                <label>{t('forms.taxMode')}</label>
                                 <Controller
                                   name={`items.${index}.tax_mode`}
                                   control={control}
@@ -717,14 +717,14 @@ export const MenuItems = ({
                                       value={field.value || 'exclusive'}
                                       onChange={field.onChange}
                                     >
-                                      <option value="exclusive">Exclusive</option>
-                                      <option value="inclusive">Inclusive</option>
+                                      <option value="exclusive">{t('forms.taxExclusive')}</option>
+                                      <option value="inclusive">{t('forms.taxInclusive')}</option>
                                     </select>
                                   )}
                                 />
                               </div>
                               <div className="flex-1">
-                                <label>Taxes</label>
+                                <label>{t('tabs.taxes')}</label>
                                 <Controller
                                   name={`items.${index}.taxes`}
                                   control={control}
@@ -750,7 +750,7 @@ export const MenuItems = ({
                                         checked={field.value !== undefined ? Boolean(field.value) : true}
                                         onChange={(checked) => field.onChange(checked)}
                                       >
-                                        Active
+                                        {t('columns.active')}
                                       </Switch>
                                     </div>
                                   )}
@@ -786,7 +786,7 @@ export const MenuItems = ({
 
           <div>
             <Button type="submit" variant="primary" disabled={loading || items.length === 0}>
-              Save
+              {t('common:actions.save')}
             </Button>
           </div>
         </form>

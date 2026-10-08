@@ -24,7 +24,8 @@
     "circleTooSmall": "Circle is too small. Drag a larger radius.",
     "polygonTooSmall": "Polygon is too small. Drag a larger outline.",
     "areasSaved": "Map areas saved successfully",
-    "deleteSelected": "Delete selected"
+    "deleteSelected": "Delete selected",
+    "drawInstructions": "Draw delivery zones on the map. Choose a tool on the left, then click and drag to draw. Click a shape to select it, drag to move it, or use the handles to resize."
   },
   "settings": {
     "title": "Delivery Configuration",
