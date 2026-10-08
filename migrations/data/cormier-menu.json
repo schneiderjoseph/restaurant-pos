@@ -1228,6 +1228,11 @@
           "name": "Jus de cranberry",
           "price": 500,
           "number": "1854"
+        },
+        {
+          "name": "Jus de canne",
+          "price": 500,
+          "number": "1855"
         }
       ]
     },
