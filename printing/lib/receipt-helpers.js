@@ -840,7 +840,9 @@ function printModifierLines(printer, modifierLines) {
     if (!line || line.name == null) return;
     const depth = typeof line.depth === 'number' ? line.depth : 0;
     const indent = '  '.repeat(1 + Math.max(0, depth));
-    printFixedLine(printer, `${indent}-> ${String(line.name).trim()}`, { align: 'left' });
+    // The variant (format or measure) belongs to the item itself: no arrow.
+    const text = line.variant ? `(${String(line.name).trim()})` : `-> ${String(line.name).trim()}`;
+    printFixedLine(printer, indent + text, { align: 'left' });
   });
 }
 

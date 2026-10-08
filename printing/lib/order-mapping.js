@@ -60,15 +60,36 @@ function calculateOrderItemPricePrint(item) {
 }
 
 /**
- * Line name as printed: the dish name, then the variant picked at the sale ("Shot", "3,5 once").
+ * The dish name alone; receipts print the variant on its own line (getOrderItemPrintLines).
+ * @param {Object} orderItem
+ * @returns {string}
+ */
+function getOrderItemDishName(orderItem) {
+  const dish = (orderItem && (orderItem.item || orderItem.dish)) || {};
+  return dish.name || dish.title || '';
+}
+
+/**
+ * Line name as printed on one line: the dish name, then the variant picked at the sale ("Shot", "3,5 once").
  * @param {Object} orderItem
  * @returns {string}
  */
 function getOrderItemName(orderItem) {
-  const dish = (orderItem && (orderItem.item || orderItem.dish)) || {};
-  const name = dish.name || dish.title || '';
+  const name = getOrderItemDishName(orderItem);
   const variant = String((orderItem && orderItem.variant) || '').trim();
   return variant ? `${name} — ${variant}` : name;
+}
+
+/**
+ * Sub-lines printed under an item: its variant on a line of its own ("(Bouteille 750 ml)",
+ * "(3,5 oz)"), so a long name cut to the item column never drops it, then the sides.
+ * @param {Object} orderItem
+ * @returns {Array<{ depth: number, name: string, variant?: boolean }>}
+ */
+function getOrderItemPrintLines(orderItem) {
+  const variant = String((orderItem && orderItem.variant) || '').trim();
+  const lines = getOrderItemModifierLines(orderItem);
+  return variant ? [{ depth: 0, name: variant, variant: true }, ...lines] : lines;
 }
 
 const MODIFIER_WALK_MAX_DEPTH = 32;
@@ -174,7 +195,7 @@ function getOrderItems(order, showInclusivePrices) {
   return order.items
     .filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true)
     .map((it) => {
-      const name = getOrderItemName(it);
+      const name = getOrderItemDishName(it);
       const qty = it.quantity != null ? it.quantity : 1;
       const netLineTotal = calculateOrderItemPricePrint(it);
       let lineTotal = netLineTotal;
@@ -187,7 +208,7 @@ function getOrderItems(order, showInclusivePrices) {
       const price = qty > 0 ? lineTotal / qty : 0;
       const total = lineTotal;
       const notes = it.comments || '';
-      const modifierLines = getOrderItemModifierLines(it);
+      const modifierLines = getOrderItemPrintLines(it);
       return { name, qty, price, total, notes, modifierLines };
     });
 }
@@ -810,8 +831,7 @@ function mapOrderToKitchen(order, options) {
 function getRefundOrderItems(order, showInclusivePrices) {
   if (!order || !Array.isArray(order.items)) return [];
   return order.items.map((it) => {
-    const dish = it.item || it.dish;
-    const name = (dish && (dish.name || dish.title)) || '';
+    const name = getOrderItemName(it);
     const qty = it.quantity != null ? it.quantity : 1;
     const netLineTotal = calculateOrderItemPricePrint(it);
     let lineTotal = netLineTotal;
@@ -881,6 +901,8 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
 }
 
 module.exports = {
+  getOrderItemDishName,
+  getOrderItemPrintLines,
   getOrderItemName,
   formatBillLineage,
   getOrderId,

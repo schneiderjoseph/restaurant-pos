@@ -16,8 +16,8 @@ const { printKotHeader } = require('../lib/kot-layout');
 const {
   getOrderId,
   getOrderCreatedAt,
-  getOrderItemModifierLines,
-  getOrderItemName,
+  getOrderItemDishName,
+  getOrderItemPrintLines,
   getOrderUserName,
   getOrderType,
   getOrderPlaceKind,
@@ -27,12 +27,12 @@ const {
 function mapPrintItems(items) {
   return items.map((it) => {
     return {
-      name: getOrderItemName(it),
+      name: getOrderItemDishName(it),
       qty: it.quantity != null ? it.quantity : 1,
       price: Number(it.price || 0),
       total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
       notes: it.comments || '',
-      modifierLines: getOrderItemModifierLines(it),
+      modifierLines: getOrderItemPrintLines(it),
     };
   });
 }
