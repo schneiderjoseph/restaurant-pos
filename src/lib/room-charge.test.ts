@@ -6,6 +6,7 @@ import {
   isRoomPaymentType,
   loadCustomerForRoomCharge,
   ROOM_SYNC_MAX_AGE_MS,
+  stayIdOf,
 } from '@/lib/room-charge.ts';
 
 const now = DateTime.fromISO('2026-10-02T14:00:00', { zone: 'America/Port-au-Prince' });
@@ -49,6 +50,18 @@ describe('checkRoomCharge', () => {
         { stayDateOut: '2026-10-02' },
       ),
     ).toEqual({ ok: true, departsToday: true, stayId: 'stay:abc' });
+  });
+
+  it('keeps the stay RecordId whole, as the database returns it (not its bare key)', () => {
+    const stay = new RecordId('stay', 'abc');
+    const check = checkRoomCharge(
+      { source: 'walk-in', in_house: true, current_stay: stay, asi_checkin_id: null, asi_guest_id: null },
+      now,
+    );
+    expect(check.ok).toBe(true);
+    expect(check.stayId).toBe(stay);
+    expect(String(check.stayId)).toBe('stay:abc');
+    expect(String(stayIdOf({ id: stay }))).toBe('stay:abc');
   });
 
   it('refuses a closed manual stay with a distinct reason', () => {

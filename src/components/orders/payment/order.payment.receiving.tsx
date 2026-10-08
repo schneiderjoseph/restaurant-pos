@@ -50,6 +50,7 @@ import {
   isRoomPaymentType,
   loadCustomerForRoomCharge,
   loadStayDateOutForRoomCharge,
+  stayIdOf,
   type RoomChargeCheck,
   type RoomChargeRefusal,
 } from "@/lib/room-charge.ts";
@@ -192,11 +193,7 @@ const OrderPaymentReceivingContent = ({
   /** Reads the stay again right now: the guest may have checked out since the order was taken. */
   const verifyRoomCharge = async (): Promise<RoomChargeCheck> => {
     const customer = await loadCustomerForRoomCharge(db, order?.customer);
-    const stayId = customer?.current_stay
-      ? (typeof customer.current_stay === 'object' && customer.current_stay && 'id' in customer.current_stay
-        ? (customer.current_stay as { id: unknown }).id
-        : customer.current_stay)
-      : undefined;
+    const stayId = stayIdOf(customer?.current_stay);
     const stayDateOut = stayId != null
       ? await loadStayDateOutForRoomCharge(db, stayId).catch(() => null)
       : null;
@@ -232,11 +229,7 @@ const OrderPaymentReceivingContent = ({
     let cancelled = false;
     void loadCustomerForRoomCharge(db, order?.customer)
       .then(async (customer) => {
-        const stayId = customer?.current_stay
-          ? (typeof customer.current_stay === 'object' && customer.current_stay && 'id' in customer.current_stay
-            ? (customer.current_stay as { id: unknown }).id
-            : customer.current_stay)
-          : undefined;
+        const stayId = stayIdOf(customer?.current_stay);
         const stayDateOut = stayId != null
           ? await loadStayDateOutForRoomCharge(db, stayId).catch(() => null)
           : null;

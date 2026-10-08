@@ -42,10 +42,16 @@ export function isRoomPaymentType(paymentType?: { type?: PaymentType['type'] } |
   return String(paymentType?.type ?? '').toLowerCase() === ROOM_PAYMENT_TYPE.toLowerCase();
 }
 
-const stayIdOf = (value: unknown): unknown => {
+/**
+ * The stay reference held by customer.current_stay: a RecordId / StringRecordId as is, or the
+ * id of a fetched stay. Never `.id` of a RecordId: that is the key without its table
+ * ("abc" instead of stay:abc), which order_payment.stay (record<stay>) refuses.
+ */
+export const stayIdOf = (value: unknown): unknown => {
   if (value == null || value === '') return undefined;
-  if (typeof value === 'object' && value !== null && 'id' in value) {
-    return (value as { id: unknown }).id ?? value;
+  if (value instanceof RecordId || value instanceof StringRecordId) return value;
+  if (typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype && 'id' in value) {
+    return stayIdOf((value as { id: unknown }).id);
   }
   return value;
 };
