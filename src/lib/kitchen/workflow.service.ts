@@ -395,9 +395,8 @@ const advanceFrom = async (
 /**
  * Complete multiple stage rows in a fixed number of DB round trips.
  *
- * Completion is tracked per-user via `completed_by`, so one user clearing a dish
- * does not remove it from another user's KDS. The first user to complete a row
- * also advances the dish through the workflow (global status / completed_at).
+ * The first completion closes the row for every screen and advances the dish
+ * through the workflow; `completed_by` only records who cleared it.
  */
 export const completeStages = async (
   db: AnyDb,
@@ -558,50 +557,34 @@ export const skipStage = async (
 };
 
 /**
- * Recall a completed stage for a specific user: remove that user from
- * `completed_by` so the row reappears on their KDS.
- *
- * If nobody else still has the row cleared, also reopen the global stage
- * (`status` / `completed_at`) so Orders and the order display stop showing
- * "Prête" while the kitchen board shows the ticket again. When a later stage
- * was activated by this completion, put it back to `waiting`.
+ * Recall a completed stage: reopen it for every screen, so the kitchen board,
+ * Orders and the order display all show it in progress again. A ready dish is
+ * ready for everyone (the board hides `completed` rows whoever cleared them).
+ * When a later stage was activated by this completion, put it back to `waiting`.
  */
 export const recallStage = async (
   db: AnyDb,
   oikId: string,
-  userId?: string | null
+  _userId?: string | null
 ): Promise<void> => {
-  if (!userId) return;
-
   const oik = toRecordId(oikId);
-  const user = toRecordId(userId);
-
-  await db.query(
-    `UPDATE $oik SET completed_by = array::complement(completed_by ?? [], [$user])`,
-    { oik, user }
-  );
 
   const row = firstRow<{
     id: any;
     status?: string | null;
-    completed_by?: unknown[] | null;
     order_item: any;
     sequence?: number;
     workflow?: any;
   }>(await db.query(`SELECT * FROM $oik`, { oik }));
   if (!row) return;
 
-  const stillCleared = Array.isArray(row.completed_by) ? row.completed_by.length : 0;
-  if (stillCleared > 0) return;
-
   const closed =
     row.status === OrderItemKitchenStatus.Completed ||
     row.status === OrderItemKitchenStatus.Skipped;
   if (!closed) return;
 
-  // Last clearer recalled — reopen so Commandes / Affichage match the KDS.
   await db.query(
-    `UPDATE $oik SET status = $pending, completed_at = NONE, user = NONE`,
+    `UPDATE $oik SET status = $pending, completed_at = NONE, user = NONE, completed_by = []`,
     { oik, pending: OrderItemKitchenStatus.Pending }
   );
 

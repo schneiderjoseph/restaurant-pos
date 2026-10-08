@@ -68,60 +68,16 @@ describe("kitchen fire time", () => {
 });
 
 describe("recallStage", () => {
-  it("reopens the global status when the last user recalls", async () => {
-    const updates: { sql: string; params: Record<string, unknown> }[] = [];
-    let completedBy: unknown[] = [{ toString: () => "user:chef" }];
-
-    const db = {
-      merge: vi.fn(),
-      query: vi.fn(async (sql: string, params: Record<string, unknown> = {}) => {
-        if (sql.includes("array::complement")) {
-          completedBy = [];
-          updates.push({ sql, params });
-          return [[]];
-        }
-        if (sql.startsWith("SELECT * FROM $oik")) {
-          return [[{
-            id: id("order_item_kitchen:1"),
-            status: OrderItemKitchenStatus.Completed,
-            completed_by: completedBy,
-            order_item: id("order_item:1"),
-            sequence: 0,
-          }]];
-        }
-        if (sql.includes("SET status = $pending")) {
-          updates.push({ sql, params });
-          return [[]];
-        }
-        if (sql.includes("sequence > $seq")) {
-          return [[]];
-        }
-        return [[]];
-      }),
-    };
-
-    await recallStage(db, "order_item_kitchen:1", "user:chef");
-
-    expect(updates.some((u) => u.sql.includes("array::complement"))).toBe(true);
-    expect(updates.some((u) => u.sql.includes("SET status = $pending"))).toBe(true);
-  });
-
-  it("keeps global status completed when another user still has it cleared", async () => {
+  const recallDb = (status: string) => {
     const updates: string[] = [];
-    const other = { toString: () => "user:other" };
-
     const db = {
       merge: vi.fn(),
       query: vi.fn(async (sql: string) => {
-        if (sql.includes("array::complement")) {
-          updates.push(sql);
-          return [[]];
-        }
         if (sql.startsWith("SELECT * FROM $oik")) {
           return [[{
             id: id("order_item_kitchen:1"),
-            status: OrderItemKitchenStatus.Completed,
-            completed_by: [other],
+            status,
+            completed_by: [{ toString: () => "user:other" }],
             order_item: id("order_item:1"),
             sequence: 0,
           }]];
@@ -130,6 +86,20 @@ describe("recallStage", () => {
         return [[]];
       }),
     };
+    return { db, updates };
+  };
+
+  it("reopens a completed stage for everyone, whoever cleared it", async () => {
+    const { db, updates } = recallDb(OrderItemKitchenStatus.Completed);
+
+    await recallStage(db, "order_item_kitchen:1", "user:chef");
+
+    const reopen = updates.find((sql) => sql.includes("SET status = $pending"));
+    expect(reopen).toContain("completed_by = []");
+  });
+
+  it("leaves a stage that is not closed alone", async () => {
+    const { db, updates } = recallDb(OrderItemKitchenStatus.Pending);
 
     await recallStage(db, "order_item_kitchen:1", "user:chef");
 

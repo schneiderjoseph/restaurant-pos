@@ -322,9 +322,6 @@ export const KitchenScreen = () => {
 
   const loadOrders = useCallback(async (kitchenId: string) => {
     const request = ++loadRequestRef.current;
-    const currentUser = page?.user?.id;
-    const userClause = currentUser ? `and completed_by CONTAINSNOT $currentUser` : '';
-
     const startDate = getAppStartOfDaySurreal();
     // Orders taken an earlier day and wanted today or later stay on the board.
     const dueItems = await fetchDueOrderItemIds(db, startDate);
@@ -335,14 +332,13 @@ export const KitchenScreen = () => {
         from ${Tables.order_items_kitchen}
         where kitchen = $kitchen
           and activated_at != None
-        and status in ['pending', 'in_progress', 'completed'] ${userClause}
+        and status in ['pending', 'in_progress']
           and (created_at >= $startDate or order_item in $dueItems)
           and order_item.is_suspended != true
         order by created_at desc
             fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.customer, order_item.order.user, order_item.order.order_type
     `, {
       kitchen: toRecordId(kitchenId),
-      currentUser: toRecordId(currentUser),
       startDate,
       dueItems
     });
@@ -393,7 +389,7 @@ export const KitchenScreen = () => {
       setSplitIntoByOrder(splitInto);
       await calculateAverageTime(kitchenId);
     }
-  }, [groupKitchenOrderItems, page?.user?.id, calculateAverageTime]);
+  }, [groupKitchenOrderItems, calculateAverageTime]);
 
   const loadCompletedOrders = useCallback(async (kitchenId: string) => {
     const request = ++completedRequestRef.current;
@@ -408,14 +404,13 @@ export const KitchenScreen = () => {
                  time ::format(created_at, '%F %T') as batch_created_at
           from ${Tables.order_items_kitchen}
           where kitchen = $kitchen
-            and completed_by CONTAINS $currentUser
+            and status = 'completed'
             and (created_at >= $startDate or order_item in $dueItems)
             and order_item.is_suspended != true
           order by completed_at desc
               fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.customer, order_item.order.user, order_item.order.order_type
       `, {
         kitchen: toRecordId(kitchenId),
-        currentUser: toRecordId(page?.user?.id),
         startDate,
         dueItems
       });
@@ -437,7 +432,7 @@ export const KitchenScreen = () => {
         setLoadingCompletedOrders(false);
       }
     }
-  }, [groupIntoBatches, page?.user?.id]);
+  }, [groupIntoBatches]);
 
   const openCompletedOrdersModal = async () => {
     if (!kitchen?.id) {
