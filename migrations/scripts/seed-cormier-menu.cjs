@@ -17,7 +17,8 @@
  *                                read from the live dishes they replace, so Manage edits stay.
  *                                Needs migrations/2026_10_08_dish_variants_measure.surql.
  *   ... --add --apply          # create the outlets, categories and dishes the DB lacks (e.g. the
- *                                Plage passes). Changes nothing existing, keeps orders.
+ *                                Plage passes), put back JSON dishes retired before and retire
+ *                                the JSON's `retired` numbers. Keeps orders.
  *   ... --sides --apply        # side choices on their own short-named dishes ("Frites"), the
  *                                Supplements plates keep their names. Keeps orders.
  *
@@ -65,7 +66,7 @@ const MENU_ID = 'menu:cormier_plage';
 const q = (v) => JSON.stringify(v);
 
 const categorySet = (c, ci) =>
-  `category:${c.key} SET name = ${q(c.name)}, priority = ${(ci + 1) * 10}, ` +
+  `category:${c.key} SET name = ${q(c.name)}, priority = ${c.priority ?? (ci + 1) * 10}, ` +
   `show_in_menu = ${c.hidden ? 'false' : 'true'}, outlet = outlet:${c.outlet}, source = 'manual', deleted_at = NONE`;
 
 /**
@@ -221,12 +222,15 @@ const KITCHEN_OUTLETS = ['restaurant', 'bar'];
  * lacks are created and put on the menu. Nothing existing is changed; orders stay.
  */
 async function buildAddSql(data) {
-  const [catRows, dishRows, maxRows] = await sql(
-    'SELECT VALUE id FROM category; SELECT VALUE id FROM menu_item; ' +
-      'SELECT VALUE priority FROM menu_item ORDER BY priority DESC LIMIT 1;',
+  const [catRows, dishRows, maxRows, retiredRows] = await sql(
+    'SELECT VALUE id FROM category; SELECT id, deleted_at FROM menu_item; ' +
+      'SELECT VALUE priority FROM menu_item ORDER BY priority DESC LIMIT 1; ' +
+      'SELECT VALUE id FROM menu_item WHERE deleted_at = NONE;',
   ).then((r) => r.map((x) => x.result));
   const cats = new Set((catRows ?? []).map(String));
-  const existing = new Set((dishRows ?? []).map(String));
+  const existing = new Set((dishRows ?? []).map((r) => String(r.id)));
+  const deleted = new Set((dishRows ?? []).filter((r) => r.deleted_at != null).map((r) => String(r.id)));
+  const live = new Set((retiredRows ?? []).map(String));
   let pos = Number(maxRows?.[0] ?? 0);
 
   const lines = ['BEGIN TRANSACTION;', ...outletsSql(data)];
@@ -236,13 +240,46 @@ async function buildAddSql(data) {
     lines.push(`CREATE ${categorySet(c, ci)};`);
     notes.push(`catégorie ${c.name} (${c.outlet})`);
   });
+  // Back on the menu: a dish of the JSON retired before (Fruit Punch), with the JSON's
+  // category and price. Its id is kept, so past orders stay with it.
+  const restored = [...collectDishes(data).values()].filter((d) => deleted.has(d.id));
+  // Restored and new dishes take the next priorities in the JSON's order.
+  const order = [...collectDishes(data).values()].filter((d) => deleted.has(d.id) || !existing.has(d.id));
+  const priorityOf = new Map(order.map((d, i) => [d.id, pos + i + 1]));
+  pos += order.length;
+  for (const d of restored) {
+    const n = d.item.number;
+    lines.push(
+      `UPDATE ${d.id} SET deleted_at = NONE, name = ${q(d.item.name)}, price = ${d.item.price.toFixed(2)}f, ` +
+        `priority = ${priorityOf.get(d.id)}, ` +
+        `categories = [${d.cats.map((k) => `category:${k}`).join(', ')}]${sellingSet(d.item)};`,
+    );
+    lines.push(`UPSERT ${menuItemSet(n, d)};`);
+    lines.push(`UPDATE ${MENU_ID} SET items = array::union(items, [menu_menu_item:m${n}]);`);
+    if (KITCHEN_OUTLETS.includes(d.outlet)) {
+      lines.push(
+        `UPDATE kitchen SET items = array::union(items ?? [], [${d.id}]) ` +
+          `WHERE outlet = outlet:${d.outlet} AND deleted_at = NONE;`,
+      );
+    }
+    notes.push(`rétabli ${d.item.name} ${d.item.price}`);
+  }
+  // Off the menu: the JSON's `retired` dishes (Jus Naturel, now one dish per juice).
+  for (const n of data.retired ?? []) {
+    if (!live.has(`menu_item:m${n}`)) continue;
+    lines.push(`UPDATE menu_item:m${n} SET deleted_at = time::now();`);
+    lines.push(`UPDATE menu_menu_item:m${n} SET active = false;`);
+    lines.push(`UPDATE ${MENU_ID} SET items -= menu_menu_item:m${n};`);
+    lines.push(`UPDATE kitchen SET items -= menu_item:m${n} WHERE items CONTAINS menu_item:m${n};`);
+    notes.push(`retiré menu_item:m${n}`);
+  }
+
   const dishes = [...collectDishes(data).values()].filter((d) => !existing.has(d.id));
   for (const d of dishes) {
-    pos += 1;
     const n = d.item.number;
     lines.push(
       `CREATE ${d.id} SET name = ${q(d.item.name)}, number = ${q(n)}, price = ${d.item.price.toFixed(2)}f, ` +
-        `cost = 0f, priority = ${pos}, source = 'manual', deleted_at = NONE, ` +
+        `cost = 0f, priority = ${priorityOf.get(d.id)}, source = 'manual', deleted_at = NONE, ` +
         `categories = [${d.cats.map((k) => `category:${k}`).join(', ')}]` +
         (descriptionOf(d.item) ? `, description = ${descriptionOf(d.item)}` : '') +
         sellingSet(d.item) + ';',

@@ -11,6 +11,9 @@
       "priority": 3
     }
   ],
+  "retired": [
+    "1805"
+  ],
   "categories": [
     {
       "key": "petit_dejeuner",
@@ -1192,41 +1195,39 @@
           "name": "Perrier 16.09 oz",
           "price": 735,
           "number": "1804"
+        }
+      ]
+    },
+    {
+      "key": "jus_naturels",
+      "name": "Jus naturels",
+      "outlet": "bar",
+      "priority": 245,
+      "items": [
+        {
+          "name": "Jus de citron",
+          "price": 500,
+          "number": "1851"
         },
         {
-          "name": "Jus Naturel / Natural Juice",
+          "name": "Fruit Punch",
+          "price": 700,
+          "number": "1806"
+        },
+        {
+          "name": "Jus de papaye",
           "price": 500,
-          "number": "1805",
-          "variants": [
-            {
-              "name": "Citron",
-              "price": 500,
-              "from": "1805"
-            },
-            {
-              "name": "Fruit Punch",
-              "price": 500,
-              "from": "1805"
-            },
-            {
-              "name": "Papaye",
-              "price": 500,
-              "from": "1805"
-            },
-            {
-              "name": "Grenadia",
-              "price": 500,
-              "from": "1805"
-            },
-            {
-              "name": "Cranberry",
-              "price": 500,
-              "from": "1805"
-            }
-          ],
-          "absorbs": [
-            "1806"
-          ]
+          "number": "1852"
+        },
+        {
+          "name": "Jus de grenadia",
+          "price": 500,
+          "number": "1853"
+        },
+        {
+          "name": "Jus de cranberry",
+          "price": 500,
+          "number": "1854"
         }
       ]
     },
