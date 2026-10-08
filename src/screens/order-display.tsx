@@ -35,7 +35,8 @@ import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { DocumentTitle } from '@/components/common/document-title.tsx';
 
 export const OrderDisplayScreen = () => {
-  const { t } = useTranslation(['order-display', 'orders']);
+  const { t } = useTranslation('order-display');
+  const { t: tOrders } = useTranslation('orders');
   const { t: tNav } = useTranslation('navigation');
   const db = useDB();
   const [state, setState] = useAtom(appState);
@@ -224,15 +225,15 @@ export const OrderDisplayScreen = () => {
   const markServed = useCallback(async (order: OrderModel) => {
     try {
       await setServed(order, true);
-      toast.success(t('order-display:served', { number: formatOrderNumber(order) }), {
+      toast.success(t('served', { number: formatOrderNumber(order) }), {
         action: {
-          label: t('order-display:undo'),
+          label: t('undo'),
           onClick: () => void setServed(order, false).catch(() => undefined),
         },
       });
     } catch (error) {
       console.error('Mark order served failed', error);
-      toast.error(t('order-display:markServedFailed'));
+      toast.error(t('markServedFailed'));
     }
   }, [setServed, t]);
 
@@ -270,8 +271,8 @@ export const OrderDisplayScreen = () => {
         />
       )}
       <div className="flex flex-col gap-3 p-3 h-full" data-testid="order-display-page">
-        <div className="min-h-[60px] flex-shrink-0 rounded-xl bg-white flex flex-wrap items-center px-3 gap-3" data-testid="order-display-filters">
-          <div className="w-full min-w-0 sm:min-w-[200px]">
+        <div className="h-[60px] flex-shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="order-display-filters">
+          <div className="min-w-[200px] flex-1 max-w-sm">
             <ReactSelect
               options={[
                 OrderStatus['In Progress'],
@@ -281,35 +282,35 @@ export const OrderDisplayScreen = () => {
                 OrderStatus.Spilt,
                 OrderStatus.Merged,
               ].map((item) => ({
-                label: translateOrderStatus(t, item),
+                label: translateOrderStatus(tOrders, item),
                 value: item,
               }))}
               isMulti
-              placeholder={t('order-display:filters.status')}
+              placeholder={t('filters.status')}
               value={selectedFilters.statuses}
               onChange={(value: LabelValue[]) => updateFilter('statuses', value)}
             />
           </div>
-          <div className="w-full min-w-0 sm:min-w-[200px]">
+          <div className="min-w-[200px] flex-1 max-w-sm">
             <ReactSelect
               options={orderTypes?.data.map((item) => ({
                 label: item.name,
                 value: item.id,
               }))}
               isMulti
-              placeholder={t('order-display:filters.orderTypes')}
+              placeholder={t('filters.orderTypes')}
               value={selectedFilters.orderTypes}
               onChange={(value: LabelValue[]) => updateFilter('orderTypes', value)}
             />
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="ml-auto flex-shrink-0">
             <Button
               icon={faBars}
               variant="neutral"
               active={showSidebar}
               onClick={() => setShowSidebar((prev) => !prev)}
             >
-              {t('order-display:toggleSidebar')}
+              {t('toggleSidebar')}
             </Button>
           </div>
         </div>
@@ -318,7 +319,7 @@ export const OrderDisplayScreen = () => {
           <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
             <div className="flex-shrink-0 px-4 py-3 bg-warning-500 text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">
-                {t('order-display:preparing')}
+                {t('preparing')}
               </h2>
             </div>
             <div className="flex-1 overflow-auto p-4">
@@ -339,7 +340,7 @@ export const OrderDisplayScreen = () => {
           <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
             <div className="flex-shrink-0 px-4 py-3 bg-success-600 text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">
-                {t('order-display:readyForPickup')}
+                {t('readyForPickup')}
               </h2>
             </div>
             <div className="flex-1 overflow-auto p-4">
