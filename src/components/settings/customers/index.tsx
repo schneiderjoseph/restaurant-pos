@@ -9,6 +9,7 @@ import {
   faCrown,
   faEye,
   faPencil,
+  faPlus,
   faRotateLeft,
   faSliders,
   faTrash,
@@ -21,6 +22,7 @@ import type { Customer } from '@/api/model/customer.ts';
 import { TableComponent } from '@/components/common/table/table.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { IconTooltipButton } from '@/components/common/input/icon.tooltip.button.tsx';
+import { QuickCreateCustomerModal } from '@/components/customer/quick.create.modal.tsx';
 import { CustomerPreferencesForm } from '@/components/customer/customer.preferences.form.tsx';
 import { CustomerDetail } from '@/components/settings/customers/customer.detail.tsx';
 import { CustomerForm } from '@/components/settings/customers/customer.form.tsx';
@@ -72,6 +74,7 @@ export const AdminCustomers = () => {
   const canMerge = isVisible('admin.customers.merge');
   const canEditPreferences = isVisible('customers.preferences') || canUpdate;
   const canViewIdDocument = isVisible('customers.view_id_document');
+  const canCreate = isVisible('customers.create') || canUpdate;
 
   const [scope, setScope] = useState<Scope>('active');
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,6 +85,7 @@ export const AdminCustomers = () => {
   const [preferences, setPreferences] = useState<Customer>();
   const [deleting, setDeleting] = useState<Customer>();
   const [merging, setMerging] = useState<Customer>();
+  const [creating, setCreating] = useState(false);
 
   const applyFilters = (nextScope: Scope, term: string) => {
     const text = term.trim().toLowerCase();
@@ -238,6 +242,17 @@ export const AdminCustomers = () => {
           applyFilters(scope, value ?? '');
         }}
         buttons={[
+          canCreate ? (
+            <Button
+              key="add"
+              variant="primary"
+              icon={faPlus}
+              onClick={() => setCreating(true)}
+              data-testid="customers-add"
+            >
+              {t('common:actions.add')}
+            </Button>
+          ) : null,
           <div key="scope" className="input-group" data-testid="customers-scope">
             {(['active', 'deleted'] as Scope[]).map((item) => (
               <Button
@@ -256,9 +271,14 @@ export const AdminCustomers = () => {
               </Button>
             ))}
           </div>,
-        ]}
+        ].filter(Boolean)}
       />
 
+      <QuickCreateCustomerModal
+        open={creating}
+        onClose={() => setCreating(false)}
+        onCreated={() => loadHook.fetchData()}
+      />
       <CustomerDetail customer={detail} canViewIdDocument={canViewIdDocument} onClose={() => setDetail(undefined)} />
       <CustomerForm
         customer={editing}

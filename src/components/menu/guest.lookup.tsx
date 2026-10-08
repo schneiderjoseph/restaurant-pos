@@ -714,86 +714,12 @@ export const GuestLookup = () => {
               data-testid="guest-search"
             />
           </div>
-          <div
-            className="divide-y rounded-lg border border-neutral-200 flex-1 min-h-0 overflow-auto"
-            data-testid="guest-search-results"
-          >
-            {loadingGuests && results.length === 0 && (
-              <div className="p-4 text-neutral-500">{t('menu:guest.searching')}</div>
-            )}
-            {!loadingGuests && results.length === 0 && !canRegisterFromSearch && (
-              <div className="p-4 text-neutral-500">{t('menu:guest.noResults')}</div>
-            )}
-            {results.map((guest) => {
-              const note = guest.notes?.trim();
-              const hasAllergies = (guest.allergies?.length ?? 0) > 0;
-              const metaParts: string[] = [];
-              if (guest.phone != null && String(guest.phone).trim()) {
-                metaParts.push(displayPhone(guest.phone));
-              }
-
-              return (
-                <React.Fragment key={guest.id?.toString()}>
-                {firstCloseId && firstCloseId === guest.id?.toString() && (
-                  <div
-                    className="px-3 py-1 text-sm font-medium text-neutral-500 bg-neutral-100"
-                    data-testid="guest-close-matches"
-                  >
-                    {t('menu:guest.closeMatches')}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  className={cn(
-                    'w-full text-left px-3 py-2 min-h-[64px] flex items-center gap-3 hover:bg-primary-50 active:bg-primary-100',
-                    selected?.id?.toString() === guest.id?.toString() && 'bg-primary-100'
-                  )}
-                  onClick={() => selectGuest(guest)}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-xl leading-tight">
-                      {formatGuestLabel(guest)}
-                      {hasAllergies ? (
-                        <FontAwesomeIcon
-                          icon={faTriangleExclamation}
-                          className="ml-2 text-danger-600"
-                          title={guest.allergies?.join(', ')}
-                        />
-                      ) : null}
-                      {note ? (
-                        <FontAwesomeIcon
-                          icon={faNoteSticky}
-                          className="ml-2 text-warning-500"
-                          title={note}
-                        />
-                      ) : null}
-                    </div>
-                    {metaParts.length > 0 && (
-                      <div className="text-base text-neutral-600 mt-0.5">
-                        {metaParts.join(' · ')}
-                      </div>
-                    )}
-                  </div>
-                  {guest.room ? (
-                    <span className="shrink-0 rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
-                      {t('menu:guest.room')} {guest.room}
-                    </span>
-                  ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
-                    <span className="shrink-0 rounded-lg bg-neutral-200 text-neutral-700 px-3 py-2 text-sm font-medium">
-                      {t('menu:guest.walkInBadge')}
-                    </span>
-                  ) : null}
-                </button>
-                </React.Fragment>
-              );
-            })}
-          </div>
 
           {canRegisterFromSearch && !showRegisterPanel && (
             <Button
               variant="primary"
               flat
-              className="mt-3 min-h-[48px] shrink-0"
+              className="mb-3 min-h-[48px] shrink-0"
               icon={faPlus}
               data-testid="guest-register-new-homonym"
               onClick={() => setRegisterOpen(true)}
@@ -804,7 +730,7 @@ export const GuestLookup = () => {
 
           {showRegisterPanel && (
             <div
-              className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3 mt-3 shrink-0 max-h-[40%] overflow-auto"
+              className="rounded-xl border border-primary-200 bg-primary-50/60 p-4 space-y-3 mb-3 shrink-0"
               data-testid="guest-register-from-search"
             >
               <div>
@@ -879,6 +805,81 @@ export const GuestLookup = () => {
               </div>
             </div>
           )}
+
+          <div
+            className="divide-y rounded-lg border border-neutral-200 flex-1 min-h-0 overflow-auto"
+            data-testid="guest-search-results"
+          >
+            {loadingGuests && results.length === 0 && (
+              <div className="p-4 text-neutral-500">{t('menu:guest.searching')}</div>
+            )}
+            {!loadingGuests && results.length === 0 && !canRegisterFromSearch && (
+              <div className="p-4 text-neutral-500">{t('menu:guest.noResults')}</div>
+            )}
+            {results.map((guest) => {
+              const note = guest.notes?.trim();
+              const hasAllergies = (guest.allergies?.length ?? 0) > 0;
+              const metaParts: string[] = [];
+              if (guest.phone != null && String(guest.phone).trim()) {
+                metaParts.push(displayPhone(guest.phone));
+              }
+
+              return (
+                <React.Fragment key={guest.id?.toString()}>
+                {firstCloseId && firstCloseId === guest.id?.toString() && (
+                  <div
+                    className="px-3 py-1 text-sm font-medium text-neutral-500 bg-neutral-100"
+                    data-testid="guest-close-matches"
+                  >
+                    {t('menu:guest.closeMatches')}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className={cn(
+                    'w-full text-left px-3 py-2 min-h-[64px] flex items-center gap-3 hover:bg-primary-50 active:bg-primary-100',
+                    selected?.id?.toString() === guest.id?.toString() && 'bg-primary-100'
+                  )}
+                  onClick={() => selectGuest(guest)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-xl leading-tight">
+                      {formatGuestLabel(guest)}
+                      {hasAllergies ? (
+                        <FontAwesomeIcon
+                          icon={faTriangleExclamation}
+                          className="ml-2 text-danger-600"
+                          title={guest.allergies?.join(', ')}
+                        />
+                      ) : null}
+                      {note ? (
+                        <FontAwesomeIcon
+                          icon={faNoteSticky}
+                          className="ml-2 text-warning-500"
+                          title={note}
+                        />
+                      ) : null}
+                    </div>
+                    {metaParts.length > 0 && (
+                      <div className="text-base text-neutral-600 mt-0.5">
+                        {metaParts.join(' · ')}
+                      </div>
+                    )}
+                  </div>
+                  {guest.room ? (
+                    <span className="shrink-0 rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
+                      {t('menu:guest.room')} {guest.room}
+                    </span>
+                  ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
+                    <span className="shrink-0 rounded-lg bg-neutral-200 text-neutral-700 px-3 py-2 text-sm font-medium">
+                      {t('menu:guest.walkInBadge')}
+                    </span>
+                  ) : null}
+                </button>
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow flex flex-col min-h-0 overflow-hidden">
