@@ -28,6 +28,26 @@ export const measureStep = (dish?: Pick<Dish, 'measure_step'> | null): number =>
   return Number.isFinite(step) && step > 0 ? step : DEFAULT_MEASURE_STEP;
 };
 
+const positiveOrNull = (value: unknown): number | null => {
+  const n = Number(value);
+  return value != null && value !== '' && Number.isFinite(n) && n > 0 ? n : null;
+};
+
+/** Quantity the pad opens with (12 oz), or null to open empty. */
+export const measureDefault = (dish?: Pick<Dish, 'measure_default'> | null): number | null =>
+  positiveOrNull(dish?.measure_default);
+
+/** What + / − add or take (4 oz). Unset = the smallest step. */
+export const measureBump = (dish?: Pick<Dish, 'measure_bump' | 'measure_step'> | null): number =>
+  positiveOrNull(dish?.measure_bump) ?? measureStep(dish);
+
+/** + / − from `quantity`: never below one bump, nothing when it would reach 0. */
+export const bumpMeasure = (quantity: number, bump: number, direction: 1 | -1): number => {
+  const next = Math.round((quantity + direction * bump) * 1000) / 1000;
+  if (direction === 1 && quantity <= 0) return bump;
+  return next > 0 ? next : quantity;
+};
+
 /** True when `quantity` is a positive multiple of `step` (float-safe). */
 export const isValidMeasure = (quantity: number, step: number): boolean => {
   if (!Number.isFinite(quantity) || quantity <= 0) {
@@ -73,6 +93,10 @@ export interface DishSellingValue {
   variants: { name: string; price: string }[];
   measure_unit: string;
   measure_step: string;
+  /** Quantity the pad opens with; '' = empty. */
+  measure_default: string;
+  /** What + / − add or take; '' = the smallest step. */
+  measure_bump: string;
 }
 
 export const dishSellingFormValue = (dish?: Dish | null): DishSellingValue => ({
@@ -80,7 +104,12 @@ export const dishSellingFormValue = (dish?: Dish | null): DishSellingValue => ({
   variants: (dish?.variants ?? []).map((variant) => ({ name: variant.name, price: String(variant.price) })),
   measure_unit: dish?.measure_unit ?? '',
   measure_step: String(dish?.measure_step ?? DEFAULT_MEASURE_STEP),
+  measure_default: dish?.measure_default != null ? String(dish.measure_default) : '',
+  measure_bump: dish?.measure_bump != null ? String(dish.measure_bump) : '',
 });
+
+const parseQuantity = (text?: string | null): number | null =>
+  positiveOrNull(String(text ?? '').trim().replace(',', '.'));
 
 /** The dish fields to save: only the chosen mode keeps its settings, the others are cleared. */
 export const dishSellingPayload = (value?: DishSellingValue | null) => {
@@ -95,6 +124,8 @@ export const dishSellingPayload = (value?: DishSellingValue | null) => {
       : null,
     measure_unit: mode === 'measure' ? (value?.measure_unit ?? '').trim() || null : null,
     measure_step: mode === 'measure' && Number.isFinite(step) && step > 0 ? step : null,
+    measure_default: mode === 'measure' ? parseQuantity(value?.measure_default) : null,
+    measure_bump: mode === 'measure' ? parseQuantity(value?.measure_bump) : null,
   };
 };
 
@@ -109,6 +140,14 @@ export const dishSellingError = (value: DishSellingValue | undefined, t: (key: s
   }
   if (value.mode === 'measure' && (!payload.measure_unit || payload.measure_step == null)) {
     return t('forms.sellingMeasureRequired');
+  }
+  if (value.mode === 'measure') {
+    const step = payload.measure_step as number;
+    const typed = [value.measure_default, value.measure_bump].filter((text) => String(text ?? '').trim() !== '');
+    const presets = [payload.measure_default, payload.measure_bump].filter((n): n is number => n != null);
+    if (presets.length !== typed.length || presets.some((n) => !isValidMeasure(n, step))) {
+      return t('forms.measurePresetsInvalid');
+    }
   }
   return null;
 };

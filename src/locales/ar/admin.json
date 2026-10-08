@@ -485,7 +485,12 @@
       "tenth": "أعشار (0.1، 0.2…)"
     },
     "sellingVariantsRequired": "أضف خيارًا واحدًا على الأقل باسم وسعر.",
-    "sellingMeasureRequired": "أدخل وحدة القياس."
+    "sellingMeasureRequired": "أدخل وحدة القياس.",
+    "measureDefault": "الكمية الافتراضية",
+    "measureDefaultPlaceholder": "مثل 12 (فارغ = لوحة فارغة)",
+    "measureBump": "خطوة الزرين + / −",
+    "measureBumpPlaceholder": "مثل 4 (فارغ = أصغر كمية)",
+    "measurePresetsInvalid": "يجب أن تكون الكمية الافتراضية والخطوة من مضاعفات أصغر كمية."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

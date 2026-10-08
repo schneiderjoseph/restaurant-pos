@@ -510,7 +510,12 @@
       "tenth": "Tenths (0.1, 0.2…)"
     },
     "sellingVariantsRequired": "Add at least one variant with a name and a price.",
-    "sellingMeasureRequired": "Enter the unit of measure."
+    "sellingMeasureRequired": "Enter the unit of measure.",
+    "measureDefault": "Default quantity",
+    "measureDefaultPlaceholder": "e.g. 12 (empty = blank pad)",
+    "measureBump": "+ / − buttons step",
+    "measureBumpPlaceholder": "e.g. 4 (empty = smallest quantity)",
+    "measurePresetsInvalid": "The default quantity and the step must be multiples of the smallest quantity."
   },
   "dishView": {
     "detailsTitle": "Dish details",

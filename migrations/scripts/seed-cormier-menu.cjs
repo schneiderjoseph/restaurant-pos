@@ -142,7 +142,10 @@ const variantsOf = (variants) =>
 const sellingSet = (item) => {
   if (item.variants) return `, variants = ${variantsOf(item.variants)}`;
   if (item.measure_unit) {
-    return `, measure_unit = ${q(item.measure_unit)}, measure_step = ${Number(item.measure_step ?? 0.5)}f`;
+    // Pad presets: opens on measure_default (12 oz), + / − move by measure_bump (4 oz).
+    const preset = (field) => (item[field] != null ? `, ${field} = ${Number(item[field])}f` : '');
+    return `, measure_unit = ${q(item.measure_unit)}, measure_step = ${Number(item.measure_step ?? 0.5)}f` +
+      preset('measure_default') + preset('measure_bump');
   }
   return '';
 };

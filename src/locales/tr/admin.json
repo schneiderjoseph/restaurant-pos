@@ -485,7 +485,12 @@
       "tenth": "Onda birler (0,1, 0,2…)"
     },
     "sellingVariantsRequired": "Adı ve fiyatı olan en az bir varyant ekleyin.",
-    "sellingMeasureRequired": "Ölçü birimini girin."
+    "sellingMeasureRequired": "Ölçü birimini girin.",
+    "measureDefault": "Varsayılan miktar",
+    "measureDefaultPlaceholder": "ör. 12 (boş = boş tuş takımı)",
+    "measureBump": "+ / − düğmelerinin adımı",
+    "measureBumpPlaceholder": "ör. 4 (boş = en küçük miktar)",
+    "measurePresetsInvalid": "Varsayılan miktar ve adım, en küçük miktarın katları olmalıdır."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

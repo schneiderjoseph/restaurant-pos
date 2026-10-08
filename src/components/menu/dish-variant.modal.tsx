@@ -6,11 +6,14 @@ import { Button } from '@/components/common/input/button.tsx';
 import { Dish } from '@/api/model/dish.ts';
 import { withCurrency } from '@/lib/utils.ts';
 import {
+  bumpMeasure,
   dishSellingMode,
   dishVariants,
   formatMeasureQuantity,
   isValidMeasure,
   measureLabel,
+  measureBump,
+  measureDefault,
   measurePrice,
   measureStep,
 } from '@/lib/dish-selling.ts';
@@ -80,14 +83,21 @@ const MeasurePicker = ({
   const unit = String(dish.measure_unit ?? '').trim();
   const step = measureStep(dish);
   const decimals = !Number.isInteger(step);
-  // Typed text, '.' as the decimal mark; empty until the server enters something.
-  const [entry, setEntry] = useState('');
+  const bump = measureBump(dish);
+  const preset = measureDefault(dish);
+  // Typed text, '.' as the decimal mark. Opens on the dish's default quantity (12 oz).
+  const [entry, setEntry] = useState(preset != null ? String(preset) : '');
+  // The first key typed replaces the default instead of appending to it ("12" + 5 = 5, not 125).
+  const [fresh, setFresh] = useState(preset != null);
   const quantity = entry === '' || entry === '.' ? 0 : Number(entry);
   const valid = isValidMeasure(quantity, step);
   const total = useMemo(() => measurePrice(quantity, unitPrice), [quantity, unitPrice]);
 
   const press = (key: string) => {
-    setEntry((prev) => {
+    const wasFresh = fresh;
+    setFresh(false);
+    setEntry((current) => {
+      const prev = wasFresh ? '' : current;
       if (key === '.') {
         return prev.includes('.') ? prev : (prev === '' ? '0.' : `${prev}.`);
       }
@@ -97,10 +107,9 @@ const MeasurePicker = ({
     });
   };
 
-  const bump = (direction: 1 | -1) => {
-    const base = Math.round(quantity / step) * step;
-    const next = Math.max(0, base + direction * step);
-    setEntry(next === 0 ? '' : String(Math.round(next * 1000) / 1000));
+  const bumpBy = (direction: 1 | -1) => {
+    setFresh(false);
+    setEntry(String(bumpMeasure(quantity, bump, direction)));
   };
 
   return (
@@ -117,7 +126,7 @@ const MeasurePicker = ({
           icon={faMinus}
           aria-label={t('variants.less')}
           data-testid="dish-measure-minus"
-          onClick={() => bump(-1)}
+          onClick={() => bumpBy(-1)}
         />
         <div
           className="flex-1 rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-center"
@@ -135,7 +144,7 @@ const MeasurePicker = ({
           icon={faPlus}
           aria-label={t('variants.more')}
           data-testid="dish-measure-plus"
-          onClick={() => bump(1)}
+          onClick={() => bumpBy(1)}
         />
       </div>
 
@@ -165,7 +174,10 @@ const MeasurePicker = ({
           icon={faDeleteLeft}
           aria-label={t('variants.erase')}
           data-testid="dish-measure-key-back"
-          onClick={() => setEntry((prev) => prev.slice(0, -1))}
+          onClick={() => {
+            setFresh(false);
+            setEntry((prev) => prev.slice(0, -1));
+          }}
         />
       </div>
 

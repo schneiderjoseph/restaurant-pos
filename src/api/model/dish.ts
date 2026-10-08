@@ -43,6 +43,10 @@ export interface Dish extends ID, Name, Priority {
   measure_unit?: string | null
   /** Smallest quantity the server can enter (0.5 = halves). Unset = 0.5. */
   measure_step?: number | null
+  /** Quantity the pad opens with (12 oz). Unset = empty. */
+  measure_default?: number | null
+  /** What the + / − buttons add or take (4 oz). Unset = measure_step. */
+  measure_bump?: number | null
 
   workflow?: Workflow
   stage_overrides?: Record<string, string>

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bumpMeasure,
   cleanDishVariants,
+  dishSellingError,
+  measureBump,
+  measureDefault,
   dishSellingPayload,
   dishSellingMode,
   isValidMeasure,
@@ -63,17 +67,19 @@ describe('dish form payload', () => {
       variants: [{ name: ' Bouteille ', price: '3500' }, { name: 'Shot', price: '250' }, { name: '', price: '' }],
       measure_unit: 'once',
       measure_step: '0.5',
-    })).toEqual({
+      measure_default: '',
+      measure_bump: '',
+    })).toMatchObject({
       variants: [{ name: 'Bouteille', price: 3500 }, { name: 'Shot', price: 250 }],
       measure_unit: null,
       measure_step: null,
     });
 
-    expect(dishSellingPayload({ mode: 'measure', variants: [], measure_unit: ' once ', measure_step: '0.5' }))
-      .toEqual({ variants: null, measure_unit: 'once', measure_step: 0.5 });
+    expect(dishSellingPayload({ mode: 'measure', variants: [], measure_unit: ' once ', measure_step: '0.5', measure_default: '', measure_bump: '' }))
+      .toMatchObject({ variants: null, measure_unit: 'once', measure_step: 0.5 });
 
-    expect(dishSellingPayload({ mode: 'single', variants: [{ name: 'Shot', price: '250' }], measure_unit: 'once', measure_step: '1' }))
-      .toEqual({ variants: null, measure_unit: null, measure_step: null });
+    expect(dishSellingPayload({ mode: 'single', variants: [{ name: 'Shot', price: '250' }], measure_unit: 'once', measure_step: '1', measure_default: '', measure_bump: '' }))
+      .toMatchObject({ variants: null, measure_unit: null, measure_step: null });
   });
 
   it('drops variants without a usable price', () => {
@@ -94,5 +100,28 @@ describe('cart lines', () => {
   it('never merges two variants of the same dish', () => {
     expect(cartItemMergeKey(line('Shot'))).not.toBe(cartItemMergeKey(line('Bouteille')));
     expect(cartItemMergeKey(line('Shot'))).toBe(cartItemMergeKey(line('Shot')));
+  });
+});
+
+describe('measure presets', () => {
+  it('opens on the default and bumps by the set amount', () => {
+    expect(measureDefault({ measure_default: 12 })).toBe(12);
+    expect(measureDefault({})).toBeNull();
+    expect(measureBump({ measure_bump: 4, measure_step: 0.5 })).toBe(4);
+    expect(measureBump({ measure_step: 0.5 })).toBe(0.5);
+    expect(bumpMeasure(12, 4, 1)).toBe(16);
+    expect(bumpMeasure(16, 4, -1)).toBe(12);
+    expect(bumpMeasure(4, 4, -1)).toBe(4);
+    expect(bumpMeasure(0, 4, 1)).toBe(4);
+  });
+
+  it('saves presets only for measure dishes, and checks them against the step', () => {
+    const value = { mode: 'measure' as const, variants: [], measure_unit: 'oz', measure_step: '0.5', measure_default: '12', measure_bump: '4' };
+    expect(dishSellingPayload(value)).toMatchObject({ measure_default: 12, measure_bump: 4 });
+    expect(dishSellingPayload({ ...value, mode: 'single' })).toMatchObject({ measure_default: null, measure_bump: null });
+    const t = (key: string) => key;
+    expect(dishSellingError(value, t)).toBeNull();
+    expect(dishSellingError({ ...value, measure_bump: '4.3' }, t)).toBe('forms.measurePresetsInvalid');
+    expect(dishSellingError({ ...value, measure_default: 'abc' }, t)).toBe('forms.measurePresetsInvalid');
   });
 });

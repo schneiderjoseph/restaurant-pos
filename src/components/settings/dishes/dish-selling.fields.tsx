@@ -122,6 +122,31 @@ export const DishSellingFields = ({ value, onChange, error }: Props) => {
         </div>
       )}
 
+      {current.mode === 'measure' && (
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <Input
+              label={t('forms.measureDefault')}
+              type="number"
+              value={current.measure_default}
+              placeholder={t('forms.measureDefaultPlaceholder')}
+              data-testid="dish-measure-default"
+              onChange={(event) => set({ measure_default: (event.target as HTMLInputElement).value })}
+            />
+          </div>
+          <div className="flex-1">
+            <Input
+              label={t('forms.measureBump')}
+              type="number"
+              value={current.measure_bump}
+              placeholder={t('forms.measureBumpPlaceholder')}
+              data-testid="dish-measure-bump"
+              onChange={(event) => set({ measure_bump: (event.target as HTMLInputElement).value })}
+            />
+          </div>
+        </div>
+      )}
+
       {error && <p className="text-danger-600 text-sm" data-testid="dish-selling-error">{error}</p>}
     </div>
   );

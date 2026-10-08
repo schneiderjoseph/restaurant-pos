@@ -485,7 +485,12 @@
       "tenth": "Décimos (0,1, 0,2…)"
     },
     "sellingVariantsRequired": "Adicione pelo menos uma variante com nome e preço.",
-    "sellingMeasureRequired": "Informe a unidade de medida."
+    "sellingMeasureRequired": "Informe a unidade de medida.",
+    "measureDefault": "Quantidade padrão",
+    "measureDefaultPlaceholder": "ex. 12 (vazio = teclado vazio)",
+    "measureBump": "Passo dos botões + / −",
+    "measureBumpPlaceholder": "ex. 4 (vazio = quantidade mínima)",
+    "measurePresetsInvalid": "A quantidade padrão e o passo devem ser múltiplos da quantidade mínima."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

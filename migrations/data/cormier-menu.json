@@ -395,7 +395,9 @@
             "en": "Whole Grilled Fish — Key lime and spicy Ti-Malice sauce."
           },
           "measure_unit": "oz",
-          "measure_step": 0.5
+          "measure_step": 0.5,
+          "measure_default": 12,
+          "measure_bump": 4
         },
         {
           "name": "Poisson entier créole",
@@ -406,7 +408,9 @@
             "en": "Whole Creole Fish — Island-style herb and spice sauce."
           },
           "measure_unit": "oz",
-          "measure_step": 0.5
+          "measure_step": 0.5,
+          "measure_default": 12,
+          "measure_bump": 4
         },
         {
           "name": "Poisson entier « gros sel »",
@@ -417,7 +421,9 @@
             "en": "Whole « Gros Sel » Fish — Poached in a traditional seasoned broth."
           },
           "measure_unit": "oz",
-          "measure_step": 0.5
+          "measure_step": 0.5,
+          "measure_default": 12,
+          "measure_bump": 4
         },
         {
           "name": "Poisson entier frit",
@@ -428,7 +434,9 @@
             "en": "Whole Fried Fish — Crispy fish, served with Ti-Malice sauce."
           },
           "measure_unit": "oz",
-          "measure_step": 0.5
+          "measure_step": 0.5,
+          "measure_default": 12,
+          "measure_bump": 4
         }
       ],
       "sides": true
@@ -491,7 +499,9 @@
             "en": "Grilled Lobster — By weight, served with lemon butter."
           },
           "measure_unit": "oz",
-          "measure_step": 0.5
+          "measure_step": 0.5,
+          "measure_default": 12,
+          "measure_bump": 4
         },
         {
           "name": "Langouste créole",

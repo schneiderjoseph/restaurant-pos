@@ -485,7 +485,12 @@
       "tenth": "Tienden (0,1, 0,2…)"
     },
     "sellingVariantsRequired": "Voeg minstens één variant toe met naam en prijs.",
-    "sellingMeasureRequired": "Geef de maateenheid op."
+    "sellingMeasureRequired": "Geef de maateenheid op.",
+    "measureDefault": "Standaardhoeveelheid",
+    "measureDefaultPlaceholder": "bv. 12 (leeg = leeg toetsenblok)",
+    "measureBump": "Stap van de knoppen + / −",
+    "measureBumpPlaceholder": "bv. 4 (leeg = kleinste hoeveelheid)",
+    "measurePresetsInvalid": "De standaardhoeveelheid en de stap moeten veelvouden zijn van de kleinste hoeveelheid."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

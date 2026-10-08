@@ -485,7 +485,12 @@
       "tenth": "Десятые (0,1, 0,2…)"
     },
     "sellingVariantsRequired": "Добавьте хотя бы один вариант с названием и ценой.",
-    "sellingMeasureRequired": "Укажите единицу измерения."
+    "sellingMeasureRequired": "Укажите единицу измерения.",
+    "measureDefault": "Количество по умолчанию",
+    "measureDefaultPlaceholder": "напр. 12 (пусто = пустое поле)",
+    "measureBump": "Шаг кнопок + / −",
+    "measureBumpPlaceholder": "напр. 4 (пусто = минимальное количество)",
+    "measurePresetsInvalid": "Количество по умолчанию и шаг должны быть кратны минимальному количеству."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

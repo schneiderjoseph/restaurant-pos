@@ -485,7 +485,12 @@
       "tenth": "Zehntel (0,1, 0,2…)"
     },
     "sellingVariantsRequired": "Mindestens eine Variante mit Name und Preis hinzufügen.",
-    "sellingMeasureRequired": "Maßeinheit angeben."
+    "sellingMeasureRequired": "Maßeinheit angeben.",
+    "measureDefault": "Standardmenge",
+    "measureDefaultPlaceholder": "z. B. 12 (leer = leeres Feld)",
+    "measureBump": "Schritt der Tasten + / −",
+    "measureBumpPlaceholder": "z. B. 4 (leer = kleinste Menge)",
+    "measurePresetsInvalid": "Standardmenge und Schritt müssen Vielfache der kleinsten Menge sein."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

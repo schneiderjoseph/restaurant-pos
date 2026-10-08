@@ -510,7 +510,12 @@
       "tenth": "Dixièmes (0,1, 0,2…)"
     },
     "sellingVariantsRequired": "Ajoutez au moins une variante avec un nom et un prix.",
-    "sellingMeasureRequired": "Indiquez l'unité de mesure."
+    "sellingMeasureRequired": "Indiquez l'unité de mesure.",
+    "measureDefault": "Quantité par défaut",
+    "measureDefaultPlaceholder": "ex. 12 (vide = clavier vide)",
+    "measureBump": "Pas des boutons + / −",
+    "measureBumpPlaceholder": "ex. 4 (vide = quantité minimale)",
+    "measurePresetsInvalid": "La quantité par défaut et le pas doivent être des multiples de la quantité minimale."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
