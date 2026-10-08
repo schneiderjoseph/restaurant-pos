@@ -173,6 +173,8 @@ export const CartActions = () => {
             seat: item.seat,
             price: item.price,
             modifiers: item.selectedGroups,
+            // Station tickets print it under the dish: "(Bouteille 750 ml)", "(12 oz)".
+            variant: item.variant,
           },
           dish: item.dish,
           kitchenItems,
