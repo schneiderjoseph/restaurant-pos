@@ -458,7 +458,34 @@
     "applyToSelected": "Aplicar à seleção",
     "dishDescription": "Descrição",
     "dishDescriptionHint": "Exibida ao garçom com um toque longo no prato no cardápio. Preencha os idiomas dos seus clientes.",
-    "addDescriptionLanguage": "Adicionar um idioma…"
+    "addDescriptionLanguage": "Adicionar um idioma…",
+    "sellingMode": "Modo de venda",
+    "sellingModes": {
+      "single": "Preço único",
+      "variants": "Variantes",
+      "measure": "Por medida"
+    },
+    "sellingHints": {
+      "single": "O prato é adicionado direto pelo preço de venda.",
+      "variants": "O garçom escolhe uma variante (ex. Garrafa, Dose), cada uma com seu preço. O preço de venda acima não é usado.",
+      "measure": "O garçom informa a quantidade (ex. 3,5 onças). O preço de venda acima é o preço por unidade: a linha custa quantidade × preço."
+    },
+    "variantName": "Variante",
+    "variantNamePlaceholder": "ex. Garrafa, Dose",
+    "variantPrice": "Preço",
+    "addVariant": "Adicionar variante",
+    "removeVariant": "Remover variante",
+    "measureUnit": "Unidade",
+    "measureUnitPlaceholder": "ex. onça, libra, kg",
+    "measureStep": "Quantidade mínima",
+    "measureSteps": {
+      "whole": "Unidades inteiras (1, 2, 3…)",
+      "half": "Meias unidades (0,5, 1, 1,5…)",
+      "quarter": "Quartos (0,25, 0,5…)",
+      "tenth": "Décimos (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Adicione pelo menos uma variante com nome e preço.",
+    "sellingMeasureRequired": "Informe a unidade de medida."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

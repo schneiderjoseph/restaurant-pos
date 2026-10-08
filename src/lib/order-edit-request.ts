@@ -9,6 +9,7 @@ import {
   SentLineChange,
 } from '@/api/model/order_edit_request.ts';
 import { buildOrderItemPayload } from '@/lib/order-item-pricing.ts';
+import { lineDisplayName } from '@/lib/dish-selling.ts';
 import { syncOrderTaxes } from '@/lib/order-tax.service.ts';
 import { cancelItemStages } from '@/lib/kitchen/workflow.service.ts';
 import { recordKey } from '@/lib/kitchen/routing.ts';
@@ -67,7 +68,7 @@ export const diffSentLines = (
     const cur = byId.get(id);
     const base = {
       order_item: id,
-      name: orig.item?.name ?? '',
+      name: lineDisplayName(orig.item?.name, orig.variant),
       from_quantity: Number(orig.quantity),
     };
 

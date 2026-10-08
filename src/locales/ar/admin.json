@@ -458,7 +458,34 @@
     "applyToSelected": "تطبيق على المحدد",
     "dishDescription": "الوصف",
     "dishDescriptionHint": "يظهر للنادل عند الضغط المطوّل على الطبق في القائمة. املأ لغات ضيوفك.",
-    "addDescriptionLanguage": "إضافة لغة…"
+    "addDescriptionLanguage": "إضافة لغة…",
+    "sellingMode": "طريقة البيع",
+    "sellingModes": {
+      "single": "سعر واحد",
+      "variants": "خيارات",
+      "measure": "بالقياس"
+    },
+    "sellingHints": {
+      "single": "يُضاف الطبق مباشرة بسعر البيع.",
+      "variants": "يختار النادل خيارًا (مثل زجاجة، شوت)، ولكل خيار سعره. سعر البيع أعلاه غير مستخدم.",
+      "measure": "يُدخل النادل الكمية (مثل 3.5 أونصة). سعر البيع أعلاه هو سعر الوحدة: السطر يكلف الكمية × السعر."
+    },
+    "variantName": "الخيار",
+    "variantNamePlaceholder": "مثل زجاجة، شوت",
+    "variantPrice": "السعر",
+    "addVariant": "إضافة خيار",
+    "removeVariant": "إزالة الخيار",
+    "measureUnit": "الوحدة",
+    "measureUnitPlaceholder": "مثل أونصة، رطل، كغ",
+    "measureStep": "أصغر كمية",
+    "measureSteps": {
+      "whole": "وحدات كاملة (1، 2، 3…)",
+      "half": "أنصاف (0.5، 1، 1.5…)",
+      "quarter": "أرباع (0.25، 0.5…)",
+      "tenth": "أعشار (0.1، 0.2…)"
+    },
+    "sellingVariantsRequired": "أضف خيارًا واحدًا على الأقل باسم وسعر.",
+    "sellingMeasureRequired": "أدخل وحدة القياس."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

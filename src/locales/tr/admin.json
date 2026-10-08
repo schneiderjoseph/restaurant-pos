@@ -458,7 +458,34 @@
     "applyToSelected": "Seçime uygula",
     "dishDescription": "Açıklama",
     "dishDescriptionHint": "Menüde yemeğe uzun basıldığında garsona gösterilir. Misafirlerinizin dillerini doldurun.",
-    "addDescriptionLanguage": "Dil ekle…"
+    "addDescriptionLanguage": "Dil ekle…",
+    "sellingMode": "Satış şekli",
+    "sellingModes": {
+      "single": "Tek fiyat",
+      "variants": "Varyantlar",
+      "measure": "Ölçüyle"
+    },
+    "sellingHints": {
+      "single": "Yemek doğrudan satış fiyatıyla eklenir.",
+      "variants": "Garson bir varyant seçer (ör. Şişe, Shot), her birinin kendi fiyatı vardır. Yukarıdaki satış fiyatı kullanılmaz.",
+      "measure": "Garson miktarı girer (ör. 3,5 ons). Yukarıdaki satış fiyatı birim fiyattır: satır miktar × fiyat tutar."
+    },
+    "variantName": "Varyant",
+    "variantNamePlaceholder": "ör. Şişe, Shot",
+    "variantPrice": "Fiyat",
+    "addVariant": "Varyant ekle",
+    "removeVariant": "Varyantı kaldır",
+    "measureUnit": "Birim",
+    "measureUnitPlaceholder": "ör. ons, libre, kg",
+    "measureStep": "En küçük miktar",
+    "measureSteps": {
+      "whole": "Tam birimler (1, 2, 3…)",
+      "half": "Yarım birimler (0,5, 1, 1,5…)",
+      "quarter": "Çeyrekler (0,25, 0,5…)",
+      "tenth": "Onda birler (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Adı ve fiyatı olan en az bir varyant ekleyin.",
+    "sellingMeasureRequired": "Ölçü birimini girin."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -538,7 +539,8 @@ export const KitchenScreen = () => {
           if (orderItem.order_item?.deleted_at) {
             return;
           }
-          const itemName = orderItem.order_item?.item?.name;
+          const itemName = orderItem.order_item?.item?.name
+            && lineDisplayName(orderItem.order_item.item.name, orderItem.order_item.variant);
           if (!itemName) {
             return;
           }

@@ -193,5 +193,14 @@
     "slideOf": "Folie {{current}} von {{total}}",
     "noDescription": "Für dieses Gericht gibt es noch keine Beschreibung.",
     "descriptionLanguage": "Sprache der Beschreibung"
+  },
+  "variants": {
+    "pickVariant": "Variante wählen:",
+    "howMuch": "Wie viel {{unit}}? ({{price}} pro {{unit}})",
+    "less": "Weniger",
+    "more": "Mehr",
+    "erase": "Löschen",
+    "invalidStep": "Ein Vielfaches von {{step}} {{unit}} eingeben.",
+    "add": "Hinzufügen"
   }
 }

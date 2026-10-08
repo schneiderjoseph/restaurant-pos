@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KitchenOrder } from '@/api/model/kitchen.ts';
@@ -61,7 +62,7 @@ const snapshotFromOrders = (orders: KitchenOrder[], labels: KitchenPlaceLabels) 
         items.set(id, {
           id,
           deleted: Boolean(orderItem?.deleted_at),
-          name: orderItem?.item?.name ?? '',
+          name: lineDisplayName(orderItem?.item?.name, orderItem?.variant),
           orderNumber,
           context,
           batchKey: batch.batchKey,

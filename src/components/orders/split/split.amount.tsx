@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import {Order as OrderModel} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -210,6 +211,8 @@ export const SplitAmount = ({
               sourceId: originalItem.id,
               data: {
                 item: linkOf(originalItem.item),
+                variant: originalItem.variant || undefined,
+                measure_quantity: originalItem.measure_quantity ?? undefined,
                 price: basePrice * splitRatio,
                 quantity: originalItem.quantity,
                 position: originalItem.position,
@@ -386,7 +389,7 @@ export const SplitAmount = ({
                                   className="p-2 border border-gray-100 rounded-lg bg-gradient-to-r from-gray-50 to-transparent text-sm"
                                 >
                                   <div className="flex justify-between items-center mb-1">
-                                    <span className="flex-1 truncate">{item.item?.name || t('split.byAmount.itemFallback')}</span>
+                                    <span className="flex-1 truncate">{item.item?.name ? lineDisplayName(item.item.name, item.variant) : t('split.byAmount.itemFallback')}</span>
                                     <span className="text-gray-400 text-xs line-through ml-2">
                                       {formatNumber(originalPrice)}
                                     </span>

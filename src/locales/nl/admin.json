@@ -458,7 +458,34 @@
     "applyToSelected": "Toepassen op selectie",
     "dishDescription": "Beschrijving",
     "dishDescriptionHint": "Getoond aan de bediening bij lang drukken op het gerecht in het menu. Vul de talen van uw gasten in.",
-    "addDescriptionLanguage": "Taal toevoegen…"
+    "addDescriptionLanguage": "Taal toevoegen…",
+    "sellingMode": "Verkoopwijze",
+    "sellingModes": {
+      "single": "Eén prijs",
+      "variants": "Varianten",
+      "measure": "Per hoeveelheid"
+    },
+    "sellingHints": {
+      "single": "Het gerecht wordt direct toegevoegd tegen de verkoopprijs.",
+      "variants": "De ober kiest een variant (bv. Fles, Shot), elk met een eigen prijs. De verkoopprijs hierboven wordt niet gebruikt.",
+      "measure": "De ober voert de hoeveelheid in (bv. 3,5 ons). De verkoopprijs hierboven is de prijs per eenheid: de regel kost hoeveelheid × prijs."
+    },
+    "variantName": "Variant",
+    "variantNamePlaceholder": "bv. Fles, Shot",
+    "variantPrice": "Prijs",
+    "addVariant": "Variant toevoegen",
+    "removeVariant": "Variant verwijderen",
+    "measureUnit": "Eenheid",
+    "measureUnitPlaceholder": "bv. ons, pond, kg",
+    "measureStep": "Kleinste hoeveelheid",
+    "measureSteps": {
+      "whole": "Hele eenheden (1, 2, 3…)",
+      "half": "Halve eenheden (0,5, 1, 1,5…)",
+      "quarter": "Kwarten (0,25, 0,5…)",
+      "tenth": "Tienden (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Voeg minstens één variant toe met naam en prijs.",
+    "sellingMeasureRequired": "Geef de maateenheid op."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

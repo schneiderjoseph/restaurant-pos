@@ -195,5 +195,14 @@
     "slideOf": "Slide {{current}} of {{total}}",
     "noDescription": "No description for this dish yet.",
     "descriptionLanguage": "Description language"
+  },
+  "variants": {
+    "pickVariant": "Pick the variant:",
+    "howMuch": "How many {{unit}}? ({{price}} per {{unit}})",
+    "less": "Less",
+    "more": "More",
+    "erase": "Erase",
+    "invalidStep": "Enter a multiple of {{step}} {{unit}}.",
+    "add": "Add"
   }
 }

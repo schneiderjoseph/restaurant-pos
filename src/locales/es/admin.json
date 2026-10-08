@@ -458,7 +458,34 @@
     "applyToSelected": "Aplicar a la selección",
     "dishDescription": "Descripción",
     "dishDescriptionHint": "Se muestra al mesero con una pulsación larga sobre el plato en el menú. Complete los idiomas de sus clientes.",
-    "addDescriptionLanguage": "Agregar un idioma…"
+    "addDescriptionLanguage": "Agregar un idioma…",
+    "sellingMode": "Modo de venta",
+    "sellingModes": {
+      "single": "Precio único",
+      "variants": "Variantes",
+      "measure": "Por medida"
+    },
+    "sellingHints": {
+      "single": "El plato se añade directamente a su precio de venta.",
+      "variants": "El mesero elige una variante (ej. Botella, Shot), cada una con su propio precio. El precio de venta de arriba no se usa.",
+      "measure": "El mesero ingresa la cantidad (ej. 3,5 onzas). El precio de venta de arriba es el precio por unidad: la línea cuesta cantidad × precio."
+    },
+    "variantName": "Variante",
+    "variantNamePlaceholder": "ej. Botella, Shot",
+    "variantPrice": "Precio",
+    "addVariant": "Añadir una variante",
+    "removeVariant": "Quitar la variante",
+    "measureUnit": "Unidad",
+    "measureUnitPlaceholder": "ej. onza, libra, kg",
+    "measureStep": "Cantidad mínima",
+    "measureSteps": {
+      "whole": "Unidades enteras (1, 2, 3…)",
+      "half": "Medias unidades (0,5, 1, 1,5…)",
+      "quarter": "Cuartos (0,25, 0,5…)",
+      "tenth": "Décimas (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Añada al menos una variante con nombre y precio.",
+    "sellingMeasureRequired": "Indique la unidad de medida."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

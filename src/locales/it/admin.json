@@ -458,7 +458,34 @@
     "applyToSelected": "Applica alla selezione",
     "dishDescription": "Descrizione",
     "dishDescriptionHint": "Mostrata al cameriere con una pressione prolungata sul piatto nel menu. Compila le lingue dei tuoi ospiti.",
-    "addDescriptionLanguage": "Aggiungi una lingua…"
+    "addDescriptionLanguage": "Aggiungi una lingua…",
+    "sellingMode": "Modalità di vendita",
+    "sellingModes": {
+      "single": "Prezzo unico",
+      "variants": "Varianti",
+      "measure": "A misura"
+    },
+    "sellingHints": {
+      "single": "Il piatto viene aggiunto subito al suo prezzo di vendita.",
+      "variants": "Il cameriere sceglie una variante (es. Bottiglia, Shot), ognuna con il proprio prezzo. Il prezzo di vendita sopra non è usato.",
+      "measure": "Il cameriere inserisce la quantità (es. 3,5 once). Il prezzo di vendita sopra è il prezzo per unità: la riga costa quantità × prezzo."
+    },
+    "variantName": "Variante",
+    "variantNamePlaceholder": "es. Bottiglia, Shot",
+    "variantPrice": "Prezzo",
+    "addVariant": "Aggiungi una variante",
+    "removeVariant": "Rimuovi la variante",
+    "measureUnit": "Unità",
+    "measureUnitPlaceholder": "es. oncia, libbra, kg",
+    "measureStep": "Quantità minima",
+    "measureSteps": {
+      "whole": "Unità intere (1, 2, 3…)",
+      "half": "Mezze unità (0,5, 1, 1,5…)",
+      "quarter": "Quarti (0,25, 0,5…)",
+      "tenth": "Decimi (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Aggiungi almeno una variante con nome e prezzo.",
+    "sellingMeasureRequired": "Indica l'unità di misura."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

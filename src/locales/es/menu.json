@@ -193,5 +193,14 @@
     "slideOf": "Diapositiva {{current}} de {{total}}",
     "noDescription": "Este plato aún no tiene descripción.",
     "descriptionLanguage": "Idioma de la descripción"
+  },
+  "variants": {
+    "pickVariant": "Elija la variante:",
+    "howMuch": "¿Cuántas {{unit}}? ({{price}} por {{unit}})",
+    "less": "Menos",
+    "more": "Más",
+    "erase": "Borrar",
+    "invalidStep": "Ingrese un múltiplo de {{step}} {{unit}}.",
+    "add": "Añadir"
   }
 }

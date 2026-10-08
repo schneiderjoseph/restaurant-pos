@@ -458,7 +458,34 @@
     "applyToSelected": "Auf Auswahl anwenden",
     "dishDescription": "Beschreibung",
     "dishDescriptionHint": "Wird dem Service bei langem Drücken auf das Gericht im Menü angezeigt. Füllen Sie die Sprachen Ihrer Gäste aus.",
-    "addDescriptionLanguage": "Sprache hinzufügen…"
+    "addDescriptionLanguage": "Sprache hinzufügen…",
+    "sellingMode": "Verkaufsart",
+    "sellingModes": {
+      "single": "Einzelpreis",
+      "variants": "Varianten",
+      "measure": "Nach Menge"
+    },
+    "sellingHints": {
+      "single": "Das Gericht wird direkt zum Verkaufspreis hinzugefügt.",
+      "variants": "Die Bedienung wählt eine Variante (z. B. Flasche, Shot), jede mit eigenem Preis. Der Verkaufspreis oben wird nicht verwendet.",
+      "measure": "Die Bedienung gibt die Menge ein (z. B. 3,5 Unzen). Der Verkaufspreis oben ist der Preis pro Einheit: die Zeile kostet Menge × Preis."
+    },
+    "variantName": "Variante",
+    "variantNamePlaceholder": "z. B. Flasche, Shot",
+    "variantPrice": "Preis",
+    "addVariant": "Variante hinzufügen",
+    "removeVariant": "Variante entfernen",
+    "measureUnit": "Einheit",
+    "measureUnitPlaceholder": "z. B. Unze, Pfund, kg",
+    "measureStep": "Kleinste Menge",
+    "measureSteps": {
+      "whole": "Ganze Einheiten (1, 2, 3…)",
+      "half": "Halbe Einheiten (0,5, 1, 1,5…)",
+      "quarter": "Viertel (0,25, 0,5…)",
+      "tenth": "Zehntel (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Mindestens eine Variante mit Name und Preis hinzufügen.",
+    "sellingMeasureRequired": "Maßeinheit angeben."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

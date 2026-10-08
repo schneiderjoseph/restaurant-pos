@@ -10,6 +10,12 @@ import {Workflow} from "@/api/model/workflow.ts";
 /** Dish description per app language code, e.g. { fr: "...", en: "..." }. */
 export type DishDescription = Record<string, string>;
 
+/** One format a dish is sold in, with its own price (Bottle, Shot). */
+export interface DishVariant {
+  name: string
+  price: number
+}
+
 export interface Dish extends ID, Name, Priority {
   allow_half?: boolean
   categories?: Category[]
@@ -31,6 +37,12 @@ export interface Dish extends ID, Name, Priority {
   menu_name?: string
   /** Per-menu modifier price overrides from the active menu_menu_item */
   menu_modifier_overrides?: MenuModifierOverrides | null
+  /** Formats the server picks from when adding the dish; each has its own price. */
+  variants?: DishVariant[] | null
+  /** Sold by measure in this unit ("once"): the POS asks how much, price = quantity × price. */
+  measure_unit?: string | null
+  /** Smallest quantity the server can enter (0.5 = halves). Unset = 0.5. */
+  measure_step?: number | null
 
   workflow?: Workflow
   stage_overrides?: Record<string, string>

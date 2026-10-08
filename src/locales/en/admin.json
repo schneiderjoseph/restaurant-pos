@@ -483,7 +483,34 @@
     "applyToSelected": "Apply to Selected",
     "dishDescription": "Description",
     "dishDescriptionHint": "Shown to the server on a long press of the dish in the menu. Fill the languages your guests read.",
-    "addDescriptionLanguage": "Add a language…"
+    "addDescriptionLanguage": "Add a language…",
+    "sellingMode": "Selling mode",
+    "sellingModes": {
+      "single": "Single price",
+      "variants": "Variants",
+      "measure": "By measure"
+    },
+    "sellingHints": {
+      "single": "The dish is added straight away at its sale price.",
+      "variants": "The server picks a variant (e.g. Bottle, Shot), each with its own price. The sale price above is not used.",
+      "measure": "The server enters the quantity (e.g. 3.5 ounces). The sale price above is the price per unit: the line costs quantity × price."
+    },
+    "variantName": "Variant",
+    "variantNamePlaceholder": "e.g. Bottle, Shot",
+    "variantPrice": "Price",
+    "addVariant": "Add a variant",
+    "removeVariant": "Remove variant",
+    "measureUnit": "Unit",
+    "measureUnitPlaceholder": "e.g. oz, lb, kg",
+    "measureStep": "Smallest quantity",
+    "measureSteps": {
+      "whole": "Whole units (1, 2, 3…)",
+      "half": "Half units (0.5, 1, 1.5…)",
+      "quarter": "Quarters (0.25, 0.5…)",
+      "tenth": "Tenths (0.1, 0.2…)"
+    },
+    "sellingVariantsRequired": "Add at least one variant with a name and a price.",
+    "sellingMeasureRequired": "Enter the unit of measure."
   },
   "dishView": {
     "detailsTitle": "Dish details",

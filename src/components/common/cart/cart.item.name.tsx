@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import {cn, formatNumber} from "@/lib/utils.ts";
 import React from "react";
@@ -23,7 +24,7 @@ export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
       } style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>
-        <span className="text-ellipsis line-clamp-1">{item.dish.name}</span>
+        <span className="text-ellipsis line-clamp-1">{lineDisplayName(item.dish.name, item.variant)}</span>
         <div className={
           cn(
             showTotalInCart ? "grid grid-cols-2 gap-2 w-[70px] text-right" : "grid grid-cols-1 w-[40px] text-right"

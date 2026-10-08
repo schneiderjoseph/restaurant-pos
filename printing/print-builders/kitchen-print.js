@@ -20,15 +20,15 @@ const {
   getOrderCreatedAt,
   getOrderDueAt,
   getOrderItemModifierLines,
+  getOrderItemName,
   getOrderUserName,
   getOrderType,
 } = require('../lib/order-mapping');
 
 function mapPrintItems(items) {
   return items.map((it) => {
-    const dish = it.item || it.dish || {};
     return {
-      name: dish.name || dish.title || '',
+      name: getOrderItemName(it),
       qty: it.quantity != null ? it.quantity : 1,
       price: Number(it.price || 0),
       total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),

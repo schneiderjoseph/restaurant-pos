@@ -195,5 +195,14 @@
     "slideOf": "Diapositive {{current}} sur {{total}}",
     "noDescription": "Pas encore de description pour ce plat.",
     "descriptionLanguage": "Langue de la description"
+  },
+  "variants": {
+    "pickVariant": "Choisissez la variante :",
+    "howMuch": "Combien de {{unit}} ? ({{price}} par {{unit}})",
+    "less": "Moins",
+    "more": "Plus",
+    "erase": "Effacer",
+    "invalidStep": "Saisissez un multiple de {{step}} {{unit}}.",
+    "add": "Ajouter"
   }
 }

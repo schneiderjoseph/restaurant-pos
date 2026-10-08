@@ -193,5 +193,14 @@
     "slideOf": "Slayt {{current}} / {{total}}",
     "noDescription": "Bu yemek için henüz açıklama yok.",
     "descriptionLanguage": "Açıklama dili"
+  },
+  "variants": {
+    "pickVariant": "Varyantı seçin:",
+    "howMuch": "Kaç {{unit}}? ({{unit}} başına {{price}})",
+    "less": "Azalt",
+    "more": "Arttır",
+    "erase": "Sil",
+    "invalidStep": "{{step}} {{unit}} katı bir miktar girin.",
+    "add": "Ekle"
   }
 }

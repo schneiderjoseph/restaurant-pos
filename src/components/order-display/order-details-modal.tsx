@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -141,7 +142,7 @@ export const OrderDetailsModal = ({
               <div key={item.id.toString()} className="flex items-start gap-3 px-3 py-2">
                 <span className="font-black w-8 shrink-0">{item.quantity}×</span>
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold">{item.item?.name}</div>
+                  <div className="font-semibold">{lineDisplayName(item.item?.name, item.variant)}</div>
                   {item.comments && (
                     <div className="text-sm italic text-neutral-500">{item.comments}</div>
                   )}

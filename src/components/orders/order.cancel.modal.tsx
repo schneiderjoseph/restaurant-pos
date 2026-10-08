@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import {useEffect, useMemo, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Order as OrderModel, OrderStatus} from "@/api/model/order.ts";
@@ -334,7 +335,7 @@ export const OrderCancelModal = ({
                       )}
                     </div>
                     <span className="flex-1 font-medium truncate">
-                    {item.item?.name ?? t('cancel.unknownItem')}
+                    {item.item?.name ? lineDisplayName(item.item.name, item.variant) : t('cancel.unknownItem')}
                   </span>
                     <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <button

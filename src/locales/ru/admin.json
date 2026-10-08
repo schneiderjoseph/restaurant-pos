@@ -458,7 +458,34 @@
     "applyToSelected": "Применить к выбранным",
     "dishDescription": "Описание",
     "dishDescriptionHint": "Показывается официанту при долгом нажатии на блюдо в меню. Заполните языки ваших гостей.",
-    "addDescriptionLanguage": "Добавить язык…"
+    "addDescriptionLanguage": "Добавить язык…",
+    "sellingMode": "Способ продажи",
+    "sellingModes": {
+      "single": "Одна цена",
+      "variants": "Варианты",
+      "measure": "На вес / объём"
+    },
+    "sellingHints": {
+      "single": "Блюдо добавляется сразу по цене продажи.",
+      "variants": "Официант выбирает вариант (напр. Бутылка, Шот), у каждого своя цена. Цена продажи выше не используется.",
+      "measure": "Официант вводит количество (напр. 3,5 унции). Цена продажи выше — цена за единицу: строка стоит количество × цена."
+    },
+    "variantName": "Вариант",
+    "variantNamePlaceholder": "напр. Бутылка, Шот",
+    "variantPrice": "Цена",
+    "addVariant": "Добавить вариант",
+    "removeVariant": "Удалить вариант",
+    "measureUnit": "Единица",
+    "measureUnitPlaceholder": "напр. унция, фунт, кг",
+    "measureStep": "Минимальное количество",
+    "measureSteps": {
+      "whole": "Целые единицы (1, 2, 3…)",
+      "half": "Половины (0,5, 1, 1,5…)",
+      "quarter": "Четверти (0,25, 0,5…)",
+      "tenth": "Десятые (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Добавьте хотя бы один вариант с названием и ценой.",
+    "sellingMeasureRequired": "Укажите единицу измерения."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

@@ -193,5 +193,14 @@
     "slideOf": "Diapositiva {{current}} di {{total}}",
     "noDescription": "Nessuna descrizione per questo piatto.",
     "descriptionLanguage": "Lingua della descrizione"
+  },
+  "variants": {
+    "pickVariant": "Scegli la variante:",
+    "howMuch": "Quante {{unit}}? ({{price}} per {{unit}})",
+    "less": "Meno",
+    "more": "Più",
+    "erase": "Cancella",
+    "invalidStep": "Inserisci un multiplo di {{step}} {{unit}}.",
+    "add": "Aggiungi"
   }
 }

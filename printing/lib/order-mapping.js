@@ -59,6 +59,18 @@ function calculateOrderItemPricePrint(item) {
   return price;
 }
 
+/**
+ * Line name as printed: the dish name, then the variant picked at the sale ("Shot", "3,5 once").
+ * @param {Object} orderItem
+ * @returns {string}
+ */
+function getOrderItemName(orderItem) {
+  const dish = (orderItem && (orderItem.item || orderItem.dish)) || {};
+  const name = dish.name || dish.title || '';
+  const variant = String((orderItem && orderItem.variant) || '').trim();
+  return variant ? `${name} — ${variant}` : name;
+}
+
 const MODIFIER_WALK_MAX_DEPTH = 32;
 
 /**
@@ -162,8 +174,7 @@ function getOrderItems(order, showInclusivePrices) {
   return order.items
     .filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true)
     .map((it) => {
-      const dish = it.item || it.dish;
-      const name = (dish && (dish.name || dish.title)) || '';
+      const name = getOrderItemName(it);
       const qty = it.quantity != null ? it.quantity : 1;
       const netLineTotal = calculateOrderItemPricePrint(it);
       let lineTotal = netLineTotal;
@@ -870,6 +881,7 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
 }
 
 module.exports = {
+  getOrderItemName,
   formatBillLineage,
   getOrderId,
   getOrderItems,

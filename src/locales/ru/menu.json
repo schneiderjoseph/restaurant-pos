@@ -195,5 +195,14 @@
     "slideOf": "Слайд {{current}} из {{total}}",
     "noDescription": "У этого блюда пока нет описания.",
     "descriptionLanguage": "Язык описания"
+  },
+  "variants": {
+    "pickVariant": "Выберите вариант:",
+    "howMuch": "Сколько ({{unit}})? ({{price}} за {{unit}})",
+    "less": "Меньше",
+    "more": "Больше",
+    "erase": "Стереть",
+    "invalidStep": "Введите число, кратное {{step}} {{unit}}.",
+    "add": "Добавить"
   }
 }

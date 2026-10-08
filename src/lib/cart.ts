@@ -224,6 +224,7 @@ const stableGroupsKey = (groups?: CartModifierGroup[]): string => {
 export const cartItemMergeKey = (item: MenuItem): string =>
   [
     item.dish?.id?.toString?.() ?? '',
+    item.variant ?? '',
     item.seat ?? '',
     item.comments ?? '',
     item.category_id ?? item.category ?? '',
@@ -251,6 +252,7 @@ export const groupCartLines = (items: MenuItem[]): MenuItem[][] => {
 
     const key = [
       item.dish?.id?.toString?.() ?? '',
+      item.variant ?? '',
       item.seat ?? '',
       item.comments ?? '',
       item.category_id ?? item.category ?? '',

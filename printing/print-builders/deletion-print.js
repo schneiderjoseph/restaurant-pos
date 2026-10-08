@@ -17,6 +17,7 @@ const {
   getOrderId,
   getOrderCreatedAt,
   getOrderItemModifierLines,
+  getOrderItemName,
   getOrderUserName,
   getOrderType,
   getOrderPlaceKind,
@@ -25,9 +26,8 @@ const {
 
 function mapPrintItems(items) {
   return items.map((it) => {
-    const dish = it.item || it.dish || {};
     return {
-      name: dish.name || dish.title || '',
+      name: getOrderItemName(it),
       qty: it.quantity != null ? it.quantity : 1,
       price: Number(it.price || 0),
       total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),

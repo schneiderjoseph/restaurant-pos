@@ -23,6 +23,8 @@ import {Tables} from "@/api/db/tables.ts";
 import {isExternalCatalogueMode} from "@/lib/pos-mode.ts";
 import {useLongPress} from "@/hooks/useLongPress.ts";
 import {DishDescriptionModal} from "@/components/menu/dish-description.modal.tsx";
+import {DishVariantModal, DishVariantPick} from "@/components/menu/dish-variant.modal.tsx";
+import {dishSellingMode, dishVariants} from "@/lib/dish-selling.ts";
 
 const dishImageCache = new Map<string, string>();
 const DISH_IMAGE_CACHE_MAX = 64;
@@ -87,6 +89,11 @@ export const MenuDish = ({
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [descriptionModal, setDescriptionModal] = useState(false);
+  const [variantModal, setVariantModal] = useState(false);
+  // Variant or measure picked first, carried into the modifiers modal when one follows.
+  const [pick, setPick] = useState<DishVariantPick | null>(null);
+  // Modifier choices never ask for a variant: only dishes added from the menu do.
+  const sellingMode = isModifier ? 'single' : dishSellingMode(item);
   // Long press shows the description instead of adding the dish.
   const longPress = useLongPress(() => setDescriptionModal(true));
   const [imageSrc, setImageSrc] = useState(defaultImage);
@@ -218,7 +225,20 @@ export const MenuDish = ({
     };
   }, [item?.dish_photo, showDishPhotos]);
 
+  const pickFields = (picked: DishVariantPick | null) => picked
+    ? {variant: picked.variant, measureQuantity: picked.measureQuantity, price: picked.price}
+    : {price: price};
+
   const handleClick = () => {
+    if (sellingMode !== 'single') {
+      setVariantModal(true);
+      return;
+    }
+    addToCart(null);
+  };
+
+  const addToCart = (picked: DishVariantPick | null) => {
+    setPick(picked);
     if (modifierGroups.length > 0 && hasAutoOpen) {
       setModifiersModal(true)
     } else {
@@ -234,12 +254,19 @@ export const MenuDish = ({
           ? state.category?.name
           : ((item.categories ?? []).length === 1 ? (item.categories ?? [])[0].name : ''),
         category_id: state.category?.id?.toString(),
-        price: price,
+        ...pickFields(picked),
         menu_name: item.menu_name,
         ...menuTaxFields,
-      }, undefined, price)
+      }, undefined, picked ? picked.price : price)
     }
   };
+
+  // On the tile: the price per unit, or the lowest variant price.
+  const variantPrices = dishVariants(item).map(variant => Number(variant.price));
+  const tilePrice = sellingMode === 'variants' && variantPrices.length > 0 ? Math.min(...variantPrices) : price;
+  const tilePriceLabel = sellingMode === 'measure'
+    ? `${withCurrency(price)}/${String(item.measure_unit).trim()}`
+    : withCurrency(tilePrice);
 
   return (
     <>
@@ -275,8 +302,8 @@ export const MenuDish = ({
             '--padding': '0'
           } as any}
         >
-          <span className={`absolute top-0 right-0 z-10 text-white rounded-bl-xl rounded-tr-xl px-2.5 py-1 text-sm sm:text-base font-bold leading-none tabular-nums shadow-sm ${Number(price) === 0 ? 'bg-danger-600' : 'bg-neutral-900'}`}>
-            {withCurrency(price)}
+          <span className={`absolute top-0 right-0 z-10 text-white rounded-bl-xl rounded-tr-xl px-2.5 py-1 text-sm sm:text-base font-bold leading-none tabular-nums shadow-sm ${Number(tilePrice) === 0 ? 'bg-danger-600' : 'bg-neutral-900'}`}>
+            {tilePriceLabel}
           </span>
           {showDishPhotos && (
             <div className="flex-shrink-0 flex justify-start">
@@ -318,6 +345,18 @@ export const MenuDish = ({
         <DishDescriptionModal dish={item} price={price} onClose={() => setDescriptionModal(false)}/>
       )}
 
+      {variantModal && (
+        <DishVariantModal
+          dish={item}
+          unitPrice={price}
+          onClose={() => setVariantModal(false)}
+          onPick={(picked) => {
+            setVariantModal(false);
+            addToCart(picked);
+          }}
+        />
+      )}
+
       {modifierGroups.length > 0 && modifiersModal && (
         <MenuDishModifiers
           dish={{
@@ -342,10 +381,10 @@ export const MenuDish = ({
                   ? state.category?.name
                   : ((item.categories ?? []).length === 1 ? (item.categories ?? [])[0].name : ''),
               category_id: state.category?.id?.toString(),
-                price: price,
+                ...pickFields(pick),
                 menu_name: item.menu_name,
                 ...menuTaxFields,
-              }, clonedGroups, price);
+              }, clonedGroups, pick ? pick.price : price);
             }
             setModifiersModal(false);
           }}

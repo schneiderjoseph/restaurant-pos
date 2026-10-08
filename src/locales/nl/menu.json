@@ -193,5 +193,14 @@
     "slideOf": "Dia {{current}} van {{total}}",
     "noDescription": "Nog geen beschrijving voor dit gerecht.",
     "descriptionLanguage": "Taal van de beschrijving"
+  },
+  "variants": {
+    "pickVariant": "Kies de variant:",
+    "howMuch": "Hoeveel {{unit}}? ({{price}} per {{unit}})",
+    "less": "Minder",
+    "more": "Meer",
+    "erase": "Wissen",
+    "invalidStep": "Voer een veelvoud van {{step}} {{unit}} in.",
+    "add": "Toevoegen"
   }
 }

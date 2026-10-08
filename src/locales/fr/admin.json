@@ -483,7 +483,34 @@
     "applyToSelected": "Appliquer à la sélection",
     "dishDescription": "Description",
     "dishDescriptionHint": "Affichée au serveur par un appui long sur le plat dans le menu. Remplissez les langues de vos clients.",
-    "addDescriptionLanguage": "Ajouter une langue…"
+    "addDescriptionLanguage": "Ajouter une langue…",
+    "sellingMode": "Mode de vente",
+    "sellingModes": {
+      "single": "Prix unique",
+      "variants": "Variantes",
+      "measure": "À la mesure"
+    },
+    "sellingHints": {
+      "single": "Le plat est ajouté directement au prix de vente.",
+      "variants": "Le serveur choisit une variante (ex. Bouteille, Shot), chacune avec son propre prix. Le prix de vente ci-dessus n'est pas utilisé.",
+      "measure": "Le serveur saisit la quantité (ex. 3,5 onces). Le prix de vente ci-dessus est le prix par unité : la ligne coûte quantité × prix."
+    },
+    "variantName": "Variante",
+    "variantNamePlaceholder": "ex. Bouteille, Shot",
+    "variantPrice": "Prix",
+    "addVariant": "Ajouter une variante",
+    "removeVariant": "Retirer la variante",
+    "measureUnit": "Unité",
+    "measureUnitPlaceholder": "ex. once, livre, kg",
+    "measureStep": "Quantité minimale",
+    "measureSteps": {
+      "whole": "Unités entières (1, 2, 3…)",
+      "half": "Demi-unités (0,5, 1, 1,5…)",
+      "quarter": "Quarts (0,25, 0,5…)",
+      "tenth": "Dixièmes (0,1, 0,2…)"
+    },
+    "sellingVariantsRequired": "Ajoutez au moins une variante avec un nom et un prix.",
+    "sellingMeasureRequired": "Indiquez l'unité de mesure."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

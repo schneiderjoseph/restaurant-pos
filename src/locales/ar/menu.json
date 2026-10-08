@@ -197,5 +197,14 @@
     "slideOf": "الشريحة {{current}} من {{total}}",
     "noDescription": "لا يوجد وصف لهذا الطبق بعد.",
     "descriptionLanguage": "لغة الوصف"
+  },
+  "variants": {
+    "pickVariant": "اختر الخيار:",
+    "howMuch": "كم {{unit}}؟ ({{price}} لكل {{unit}})",
+    "less": "أقل",
+    "more": "أكثر",
+    "erase": "مسح",
+    "invalidStep": "أدخل مضاعفًا لـ {{step}} {{unit}}.",
+    "add": "إضافة"
   }
 }

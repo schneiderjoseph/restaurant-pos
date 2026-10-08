@@ -17,6 +17,10 @@ export interface OrderItem extends ID {
   deleted_at?: DateTime
   discount?: number
   item: Dish
+  /** Variant picked or measure entered at the sale ("Shot", "3,5 once"). */
+  variant?: string | null
+  /** Sold by measure: the quantity entered (3.5). */
+  measure_quantity?: number | null
   modifiers: OrderItemModifier[]
   position: number
   price: number

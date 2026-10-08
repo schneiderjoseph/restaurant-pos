@@ -1,3 +1,4 @@
+import {lineDisplayName} from "@/lib/dish-selling.ts";
 import React, {useMemo, useState} from "react";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import {useAtom} from "jotai";
@@ -95,7 +96,7 @@ export const CartItemGroup = ({ items }: Props) => {
 
         <div className="flex-1 min-w-0 text-sm leading-snug">
           <div className="flex justify-between">
-            <span className="text-ellipsis line-clamp-1">{first.dish.name}</span>
+            <span className="text-ellipsis line-clamp-1">{lineDisplayName(first.dish.name, first.variant)}</span>
             <span className="w-[40px] text-right">{formatNumber(first.price)}</span>
           </div>
           {first.comments && (

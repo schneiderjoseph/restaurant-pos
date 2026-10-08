@@ -16,6 +16,8 @@ export function orderToCartItems(order?: Order | null): MenuItem[] {
     .filter((item) => !item.deleted_at)
     .map((item) => ({
       dish: item.item,
+      variant: item.variant ?? undefined,
+      measureQuantity: item.measure_quantity ?? undefined,
       level: item.level,
       quantity: item.quantity,
       seat: item.seat != null && item.seat !== '' ? String(item.seat) : undefined,

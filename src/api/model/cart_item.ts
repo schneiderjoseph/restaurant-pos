@@ -20,6 +20,10 @@ export interface MenuItem {
   serviceCharges?: number
 
   dish: Dish
+  /** Variant picked or measure entered at the sale, shown after the dish name ("Shot", "3,5 once"). */
+  variant?: string
+  /** Sold by measure: the quantity entered (3.5); the line price already covers it. */
+  measureQuantity?: number
   category?: string
   category_id?: string
   menu_name?: string

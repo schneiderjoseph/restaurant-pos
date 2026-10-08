@@ -311,6 +311,15 @@ export const Payment = () => {
           itemData.original_price = pricing.original_price;
         }
 
+        // Only set when picked, so a plain dish still saves on a DB without
+        // migrations/2026_10_08_dish_variants_measure.surql.
+        if (item.variant) {
+          itemData.variant = item.variant;
+        }
+        if (item.measureQuantity != null) {
+          itemData.measure_quantity = item.measureQuantity;
+        }
+
         // Point of sale copied at the time of sale; left out when unclassified, which also
         // keeps this insert valid on a DB without migrations/2026_10_02_outlets.surql.
         const outlet = resolveOutlet(item, settings.categories ?? []);

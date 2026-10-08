@@ -36,6 +36,8 @@ import {
 } from "@/components/settings/dishes/included-modifiers.ts";
 import {DishDescriptionFields} from "@/components/settings/dishes/dish-description.fields.tsx";
 import {cleanDishDescription} from "@/lib/dish-description.ts";
+import {DishSellingFields} from "@/components/settings/dishes/dish-selling.fields.tsx";
+import {dishSellingError, dishSellingFormValue, dishSellingPayload} from "@/lib/dish-selling.ts";
 
 interface Props {
   open: boolean
@@ -49,6 +51,10 @@ const validationSchema = yup.object({
   priority: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   price: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   description: yup.mixed<Record<string, string>>().nullable().optional(),
+  selling: yup.mixed().test('selling', '', function (value: any) {
+    const message = dishSellingError(value, (key) => i18n.t(`admin:${key}`));
+    return message ? this.createError({message}) : true;
+  }),
   categories: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
@@ -119,6 +125,7 @@ export const DishForm = ({
           label: item.name,
           value: item.id
         })),
+        selling: dishSellingFormValue(data),
         modifier_groups: []
       });
 
@@ -337,6 +344,11 @@ export const DishForm = ({
         cost: 0,
         // null clears the field when every language was emptied.
         description: cleanDishDescription(values.description),
+        // Left out for a plain dish that never had variants, so it still saves on a DB
+        // without migrations/2026_10_08_dish_variants_measure.surql.
+        ...((values.selling?.mode ?? 'single') !== 'single' || data?.variants || data?.measure_unit
+          ? dishSellingPayload(values.selling)
+          : {}),
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
@@ -492,6 +504,18 @@ export const DishForm = ({
               />
             </div>
           </div>
+
+          <Controller
+            name="selling"
+            control={control}
+            render={({field}) => (
+              <DishSellingFields
+                value={field.value as any}
+                onChange={field.onChange}
+                error={(errors as any)?.selling?.message}
+              />
+            )}
+          />
 
           <Controller
             name="description"
