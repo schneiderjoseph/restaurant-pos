@@ -828,7 +828,9 @@ function buildItemHeaderString(config) {
 }
 
 /**
- * Print modifier sub-lines under an item (depth 0 = two spaces, +2 spaces per nesting level).
+ * Print modifier sub-lines under an item (depth 0 = two spaces, +2 spaces per nesting level),
+ * each led by an arrow tying the side to its dish: "  -> Frites". Plain ASCII: thermal
+ * printer code pages have no arrow glyph.
  * @param {Object} printer - escpos Printer
  * @param {Array<{ depth?: number, name: string }>} modifierLines
  */
@@ -838,7 +840,7 @@ function printModifierLines(printer, modifierLines) {
     if (!line || line.name == null) return;
     const depth = typeof line.depth === 'number' ? line.depth : 0;
     const indent = '  '.repeat(1 + Math.max(0, depth));
-    printFixedLine(printer, indent + String(line.name).trim(), { align: 'left' });
+    printFixedLine(printer, `${indent}-> ${String(line.name).trim()}`, { align: 'left' });
   });
 }
 

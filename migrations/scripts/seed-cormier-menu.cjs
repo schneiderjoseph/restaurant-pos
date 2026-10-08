@@ -18,6 +18,8 @@
  *                                Needs migrations/2026_10_08_dish_variants_measure.surql.
  *   ... --add --apply          # create the outlets, categories and dishes the DB lacks (e.g. the
  *                                Plage passes). Changes nothing existing, keeps orders.
+ *   ... --sides --apply        # side choices on their own short-named dishes ("Frites"), the
+ *                                Supplements plates keep their names. Keeps orders.
  *
  * Plage (beach passes, from the ASI PLAGE group, POS BAR prices): own outlet, untaxed like in
  * ASI, and on no station, so they print on bills and pre-bills only, never on a KDS / KOT.
@@ -43,6 +45,7 @@ const APPLY = args.includes('--apply');
 const CATEGORIES_ONLY = args.includes('--categories');
 const VARIANTS_ONLY = args.includes('--variants');
 const ADD_ONLY = args.includes('--add');
+const SIDES_ONLY = args.includes('--sides');
 const URL = opt('url', 'http://127.0.0.1:8000');
 const NS = opt('ns', process.env.SURREAL_NS || 'posr');
 const DB = opt('db', process.env.SURREAL_DB || 'posr');
@@ -63,7 +66,33 @@ const q = (v) => JSON.stringify(v);
 
 const categorySet = (c, ci) =>
   `category:${c.key} SET name = ${q(c.name)}, priority = ${(ci + 1) * 10}, ` +
-  `show_in_menu = true, outlet = outlet:${c.outlet}, source = 'manual', deleted_at = NONE`;
+  `show_in_menu = ${c.hidden ? 'false' : 'true'}, outlet = outlet:${c.outlet}, source = 'manual', deleted_at = NONE`;
+
+/**
+ * Side choices: their own dishes ("Frites"), off the menu, filed under the hidden
+ * Accompagnements category, so renaming them never renames the Supplements plate
+ * ("Plat de frites") sold on its own.
+ */
+const SIDES_CATEGORY = 'category:accompagnements';
+const sideItems = (data) => data.categories.find((c) => c.key === 'supplements').items.filter((it) => it.side_name);
+const sideDishSet = (it, priority) =>
+  `menu_item:s${it.number} SET name = ${q(it.side_name)}, number = ${q(`S${it.number}`)}, price = 0f, ` +
+  `cost = 0f, priority = ${priority}, source = 'manual', deleted_at = NONE, categories = [${SIDES_CATEGORY}]`;
+
+/** Sides only, on a live menu: creates the side dishes and points the side choices at them. */
+function buildSidesSql(data) {
+  const lines = ['BEGIN TRANSACTION;'];
+  const ci = data.categories.findIndex((c) => c.key === 'accompagnements');
+  lines.push(`UPSERT ${categorySet(data.categories[ci], ci)};`);
+  const notes = [];
+  sideItems(data).forEach((it, i) => {
+    lines.push(`UPSERT ${sideDishSet(it, 9000 + i)};`);
+    lines.push(`UPDATE modifier:side_${it.number} SET modifier = menu_item:s${it.number};`);
+    notes.push(`${it.name} → ${it.side_name}`);
+  });
+  lines.push('COMMIT TRANSACTION;');
+  return { sql: lines.join('\n'), dishCount: notes.length, notes };
+}
 
 /** Outlets beyond Bar and Restaurant (the outlets migration creates those two). */
 const outletsSql = (data) =>
@@ -285,9 +314,9 @@ function buildSql(data) {
   }
 
   // Side choice: one required, first one free, on mains (categories flagged sides).
-  const sides = data.categories.find((c) => c.key === 'supplements');
-  const modIds = sides.items.filter((it) => !/acras/i.test(it.name)).map((it) => {
-    lines.push(`CREATE modifier:side_${it.number} SET modifier = menu_item:m${it.number}, price = 0f;`);
+  const modIds = sideItems(data).map((it, i) => {
+    lines.push(`CREATE ${sideDishSet(it, 9000 + i)};`);
+    lines.push(`CREATE modifier:side_${it.number} SET modifier = menu_item:s${it.number}, price = 0f;`);
     return `modifier:side_${it.number}`;
   });
   lines.push(
@@ -334,7 +363,9 @@ async function backup() {
 
 async function main() {
   const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'migrations', 'data', 'cormier-menu.json'), 'utf8'));
-  const { sql: script, dishCount, notes } = ADD_ONLY
+  const { sql: script, dishCount, notes } = SIDES_ONLY
+    ? buildSidesSql(data)
+    : ADD_ONLY
     ? await buildAddSql(data)
     : VARIANTS_ONLY
       ? await buildVariantsSql(data)

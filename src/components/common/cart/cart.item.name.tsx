@@ -24,7 +24,10 @@ export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
       } style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>
-        <span className="text-ellipsis line-clamp-1">{lineDisplayName(item.dish.name, item.variant)}</span>
+        <span className="text-ellipsis line-clamp-1">
+          {item.isModifier && <span aria-hidden className="mr-1 text-warning-600">↳</span>}
+          {lineDisplayName(item.dish.name, item.variant)}
+        </span>
         <div className={
           cn(
             showTotalInCart ? "grid grid-cols-2 gap-2 w-[70px] text-right" : "grid grid-cols-1 w-[40px] text-right"

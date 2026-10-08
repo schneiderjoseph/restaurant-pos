@@ -641,7 +641,8 @@
           "description": {
             "fr": "Plat de banane pesée. (8 pièces)",
             "en": "Fried Plantains — Fried plantains platter. (8 pièces)"
-          }
+          },
+          "side_name": "Banane pesée"
         },
         {
           "name": "Plat de frites",
@@ -650,7 +651,8 @@
           "description": {
             "fr": "Plat de frites. (6 oz)",
             "en": "French Fries — French fries platter. (6 oz)"
-          }
+          },
+          "side_name": "Frites"
         },
         {
           "name": "Plat de pomme de terre sautées",
@@ -659,7 +661,8 @@
           "description": {
             "fr": "Plat de pomme de terre sautées. (6 oz)",
             "en": "Sautéed Potatoes — Sautéed potatoes platter. (6 oz)"
-          }
+          },
+          "side_name": "Pommes de terre sautées"
         },
         {
           "name": "Plat acras",
@@ -677,7 +680,8 @@
           "description": {
             "fr": "Plat de vivres bouillis. (6 oz)",
             "en": "Boiled Root Vegetables — Boiled root vegetables platter. (6 oz)"
-          }
+          },
+          "side_name": "Vivres"
         },
         {
           "name": "Plat purée de pomme de terre",
@@ -686,7 +690,8 @@
           "description": {
             "fr": "Plat de purée de pomme de terre. (6 oz)",
             "en": "Mashed Potatoes — Mashed potatoes platter. (6 oz)"
-          }
+          },
+          "side_name": "Purée de pomme de terre"
         },
         {
           "name": "Plat de patate douce sautées",
@@ -695,7 +700,8 @@
           "description": {
             "fr": "Plat de patate douce sautées. (6 oz)",
             "en": "Sautéed Sweet Potatoes — Sautéed sweet potatoes platter. (6 oz)"
-          }
+          },
+          "side_name": "Patates douces sautées"
         },
         {
           "name": "Plat de riz",
@@ -704,9 +710,17 @@
           "description": {
             "fr": "Plat de riz. (6 oz)",
             "en": "Rice Platter — Rice platter. (6 oz)"
-          }
+          },
+          "side_name": "Riz"
         }
       ]
+    },
+    {
+      "key": "accompagnements",
+      "name": "Accompagnements",
+      "outlet": "restaurant",
+      "hidden": true,
+      "items": []
     },
     {
       "key": "desserts",

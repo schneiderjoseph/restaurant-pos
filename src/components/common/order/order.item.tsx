@@ -80,7 +80,10 @@ export const OrderItemModifiers = ({
         return (
           <div key={selectedModifier.id} className="pl-3 text-sm">
             <div className="flex">
-              <span className="flex-1">{selectedModifier.dish.name}</span>
+              <span className="flex-1">
+                <span aria-hidden className="mr-1 text-warning-600">↳</span>
+                {selectedModifier.dish.name}
+              </span>
               {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(price)}</span>}
             </div>
 
