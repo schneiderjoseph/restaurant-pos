@@ -380,6 +380,16 @@
             "fr": "Croustillant, servi avec sauce Ti-Malice. (10 oz)",
             "en": "Fried Chicken — Crispy golden chicken with Ti-Malice sauce. (10 oz)"
           }
+        },
+        {
+          "name": "Poulet grillé enfant",
+          "price": 1000,
+          "number": "705",
+          "asi_item_id": 557,
+          "description": {
+            "fr": "Portion enfant, avec frites ou purée.",
+            "en": "Kids' Grilled Chicken — Kids' portion, with fries or mashed potatoes."
+          }
         }
       ],
       "sides": true

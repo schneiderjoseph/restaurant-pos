@@ -81,6 +81,12 @@ const sideItems = (data) => [
   ...data.categories.find((c) => c.key === 'supplements').items.filter((it) => it.side_name),
   ...(data.categories.find((c) => c.key === 'accompagnements')?.side_only ?? []),
 ];
+/** Mains ask for their side: one required, the first one free, more can be added. */
+const sidesRelation = (dishId) =>
+  `RELATE ${dishId}->menu_item_modifier_group->${SIDES_GROUP} SET ` +
+  'has_required_modifiers = true, required_modifiers = 1, included_modifiers = 1, ' +
+  'should_auto_open = true, should_auto_select = false, priority = 0;';
+
 const sideDishSet = (it, priority) =>
   `menu_item:s${it.number} SET name = ${q(it.side_name)}, number = ${q(`S${it.number}`)}, price = 0f, ` +
   `cost = 0f, priority = ${priority}, source = 'manual', deleted_at = NONE, categories = [${SIDES_CATEGORY}]`;
@@ -307,7 +313,10 @@ async function buildAddSql(data) {
     if (KITCHEN_OUTLETS.includes(d.outlet)) {
       lines.push(`UPDATE kitchen SET items += ${d.id} WHERE outlet = outlet:${d.outlet} AND deleted_at = NONE;`);
     }
-    notes.push(`plat ${d.item.name} ${d.item.price} (${d.taxes.length ? 'taxé' : 'sans taxe'})`);
+    // A new main of a sides category (Le poulet) asks for its side like the others.
+    const withSides = d.cats.some((key) => data.categories.find((c) => c.key === key)?.sides);
+    if (withSides) lines.push(sidesRelation(d.id));
+    notes.push(`plat ${d.item.name} ${d.item.price} (${d.taxes.length ? 'taxé' : 'sans taxe'})${withSides ? ', avec accompagnement' : ''}`);
   }
   lines.push('COMMIT TRANSACTION;');
   return { sql: lines.join('\n'), dishCount: dishes.length, notes };
@@ -390,11 +399,7 @@ function buildSql(data) {
   for (const c of data.categories.filter((x) => x.sides)) {
     for (const it of c.items) {
       if (it.ref) continue;
-      lines.push(
-        `RELATE menu_item:m${it.number}->menu_item_modifier_group->${SIDES_GROUP} SET ` +
-          'has_required_modifiers = true, required_modifiers = 1, included_modifiers = 1, ' +
-          'should_auto_open = true, should_auto_select = false, priority = 0;',
-      );
+      lines.push(sidesRelation(`menu_item:m${it.number}`));
     }
   }
   lines.push('COMMIT TRANSACTION;');
