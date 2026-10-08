@@ -459,6 +459,21 @@ export const normalizeModules = (modules: string[] | undefined | null): string[]
   return [...next];
 };
 
+/**
+ * Actions that change what the guest pays: granted only when the role lists them,
+ * never through a parent (`orders`, which every role that opens the Orders page holds).
+ * Without the grant, a holder of it approves on the spot.
+ */
+export const EXACT_GRANT_MODULES: ReadonlySet<string> = new Set([
+  "orders.apply_tax",
+  "orders.apply_discount",
+  "orders.apply_coupon",
+  "orders.apply_service_charges",
+  "orders.change_extras",
+  "orders.cancel",
+  "orders.refund",
+]);
+
 /** Candidates for DB `IN` / includes checks during legacy→new transition.
  * Parent group ids also match (e.g. `settings` grants `settings.restaurant_profile`),
  * so roles saved before a new child module was added still work for admins with the group.
@@ -475,6 +490,7 @@ export const moduleMatchCandidates = (module?: string): string[] => {
 
   const parents: string[] = [];
   for (const id of [module, ...normalized]) {
+    if (EXACT_GRANT_MODULES.has(id)) continue;
     const parts = id.split('.');
     for (let i = 1; i < parts.length; i++) {
       parents.push(parts.slice(0, i).join('.'));

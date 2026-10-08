@@ -146,8 +146,11 @@ export const filterKeysByModuleAccess = <T extends string>(
 /** In-service actions a manager approves on the spot: shown even without the grant. */
 export const MANAGER_APPROVAL_MODULES: ReadonlySet<string> = new Set([
   'orders.cancel',
+  'orders.apply_tax',
   'orders.apply_discount',
   'orders.apply_coupon',
+  'orders.apply_service_charges',
+  'orders.change_extras',
   'orders.refund',
   'orders.open_cash_drawer',
   'orders.print_kot',

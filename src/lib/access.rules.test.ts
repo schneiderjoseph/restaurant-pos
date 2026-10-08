@@ -26,3 +26,19 @@ describe('userModulesGrant', () => {
     expect(userModulesGrant(['settings.printers'], 'settings.restaurant_profile')).toBe(false);
   });
 });
+
+describe('exact-grant order actions', () => {
+  it('does not grant a discount or a tax change through the orders parent', () => {
+    expect(userModulesGrant(['orders'], 'orders.apply_discount')).toBe(false);
+    expect(userModulesGrant(['orders'], 'orders.apply_tax')).toBe(false);
+    expect(moduleMatchCandidates('orders.apply_tax')).not.toContain('orders');
+  });
+
+  it('grants them when the role lists them', () => {
+    expect(userModulesGrant(['orders', 'orders.apply_discount'], 'orders.apply_discount')).toBe(true);
+  });
+
+  it('still grants other order actions through the parent', () => {
+    expect(userModulesGrant(['orders'], 'orders.print_final')).toBe(true);
+  });
+});
