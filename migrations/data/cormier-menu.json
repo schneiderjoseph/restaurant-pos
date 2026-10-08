@@ -813,6 +813,12 @@
           "name": "Ceviche + chips banane",
           "price": 2000,
           "number": "1405"
+        },
+        {
+          "name": "Kibby",
+          "price": 1170,
+          "number": "1406",
+          "asi_item_id": 6724
         }
       ]
     },
