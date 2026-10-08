@@ -75,7 +75,7 @@ export const WorkflowForm = ({
     if (open) {
       fetchKitchens();
     }
-  }, [open]);
+  }, [open, fetchKitchens]);
 
   useEffect(() => {
     if (!data?.id) {

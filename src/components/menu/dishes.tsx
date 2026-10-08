@@ -165,7 +165,7 @@ export const MenuDishes = () => {
         category: undefined
       }));
     };
-  }, []);
+  }, [setMenuSearch, setState]);
 
   const dishGrid = (
     <div className="relative min-h-0 h-full">

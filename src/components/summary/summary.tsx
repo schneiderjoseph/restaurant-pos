@@ -229,7 +229,7 @@ export const Summary = ({
       }
     });
     return list;
-  }, [orders]);
+  }, [orders, t]);
 
   const taxes = taxCollected;
 

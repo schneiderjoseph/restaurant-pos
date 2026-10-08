@@ -54,9 +54,11 @@ export function useRemotePayments({
   }, []);
 
   useEffect(() => {
+    // The map itself is never replaced: stop the polls it holds at unmount.
+    const stops = pollStopRefs.current;
     return () => {
-      pollStopRefs.current.forEach((stop) => stop());
-      pollStopRefs.current.clear();
+      stops.forEach((stop) => stop());
+      stops.clear();
     };
   }, []);
 

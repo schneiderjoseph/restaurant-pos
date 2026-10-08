@@ -82,7 +82,7 @@ export const DishView = ({
     return () => {
       cancelled = true;
     };
-  }, [open, data?.id]);
+  }, [open, data?.id, db]);
 
   useEffect(() => {
     if (!open) {
@@ -137,7 +137,7 @@ export const DishView = ({
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [open, data]);
+  }, [open, data, db]);
 
   const yesNo = (value?: boolean) => value ? t('columns.yes') : t('columns.no');
 

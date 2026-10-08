@@ -175,7 +175,11 @@ export const MenuItems = ({
     }
   });
 
-  const formItems = useWatch({control, name: "items"}) || [];
+  const watchedItems = useWatch({control, name: "items"});
+  const formItems = useMemo(
+    () => watchedItems || [],
+    [watchedItems],
+  );
 
   useEffect(() => {
     if (open) {
@@ -183,7 +187,7 @@ export const MenuItems = ({
       fetchTaxes();
       fetchCategories();
     }
-  }, [open]);
+  }, [open, fetchDishes, fetchTaxes, fetchCategories]);
 
   useEffect(() => {
     if (dishes?.data && dishes.data.length > 0) {
@@ -424,7 +428,10 @@ export const MenuItems = ({
     }
   }
 
-  const items = formItems.length > 0 ? formItems : [];
+  const items = useMemo(
+    () => (formItems.length > 0 ? formItems : []),
+    [formItems],
+  );
 
   // Group items by category
   const groupedItems = useMemo(() => {

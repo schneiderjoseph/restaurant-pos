@@ -148,7 +148,7 @@ export const MenuDish = ({
     return state.cart
       .filter(item => item.dish?.id?.toString() === dish.id?.toString())
       .reduce((prev, item) => prev + item.quantity, 0)
-  }, [state.cart]);
+  }, [state.cart, isModifier]);
 
   const menuTaxFields = useMemo(() => ({
     tax_mode: item.tax_mode ?? 'exclusive',

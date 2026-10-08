@@ -14,7 +14,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export const timeStringToDayjs = (value?: string | null): Dayjs | null => {
+const timeStringToDayjs = (value?: string | null): Dayjs | null => {
   if (!value) return null;
   const parsed = dayjs(value, "HH:mm", true);
   return parsed.isValid() ? parsed : null;

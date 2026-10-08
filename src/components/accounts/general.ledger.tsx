@@ -174,6 +174,7 @@ export const GeneralLedger = () => {
 
   useEffect(() => {
     loadLedger();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initial load; filters applied via Load button
   }, []);
 
   const totals = useMemo(() => {

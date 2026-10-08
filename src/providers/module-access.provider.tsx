@@ -113,4 +113,5 @@ export const ModuleAccessProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- context file exports its hook
 export const useModuleAccess = (): ModuleAccessValue => useContext(ModuleAccessContext);

@@ -372,7 +372,7 @@ export const OrderPayment = ({
       });
       return next;
     });
-  }, [order, isInitialized]);
+  }, [order, isInitialized, db]);
 
   const total = paymentTotals.total;
 
@@ -741,12 +741,10 @@ export const OrderPayment = ({
     total,
     extras,
     tax,
-    taxAmount,
     taxedOrder,
     taxKey,
     paymentTotals.taxableShare,
     cartTotals,
-    discountLines,
     tip,
     tipAmount,
     tipType,
@@ -758,7 +756,10 @@ export const OrderPayment = ({
     couponAmount,
     isInitialized,
     page?.page,
-    page?.user
+    page?.user,
+    db,
+    excludedTaxIds,
+    orderDiscountIds,
   ])
 
   const saveOrderProgressRef = useRef(saveOrderProgress);

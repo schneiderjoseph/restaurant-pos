@@ -122,7 +122,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
     [db, t, append, update, getValues]
   );
 
-  const fetchNextEntryNumber = useCallback(() => getNextJournalEntryNumber(db), []);
+  const fetchNextEntryNumber = useCallback(() => getNextJournalEntryNumber(db), [db]);
 
   useEffect(() => {
     setModal(addModal);

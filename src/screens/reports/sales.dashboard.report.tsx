@@ -33,7 +33,7 @@ import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
-import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
+import {detectBrowser, displayValue} from "@/screens/reports/activity.utils.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 
 const faIcon = (icon: IconDefinition) =>
@@ -723,7 +723,7 @@ const ActivitySection = () => {
     };
 
     void loadLatestActivity();
-  }, []);
+  }, [db]);
 
   return (
     <div className="bg-white p-5 shadow-xl xl:col-span-1 rounded-lg border border-neutral-200">
@@ -792,7 +792,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
     };
 
     loadMapCenter();
-  }, []);
+  }, [db]);
 
   useEffect(() => {
     if (orders.length > 0) {
@@ -1047,7 +1047,7 @@ const UserSessionsWidget = () => {
     };
 
     loadSessions();
-  }, [t]);
+  }, [db, t]);
 
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
@@ -1351,7 +1351,7 @@ export const SalesDashboardReport = () => {
     };
 
     fetchData();
-  }, [filters]);
+  }, [db, filters, t]);
 
   // ==================== Data Processing ====================
   const paidOrders = useMemo(() => orders.filter(order => order.status === OrderStatus.Paid), [orders]);

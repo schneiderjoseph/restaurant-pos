@@ -30,6 +30,11 @@ export const TaxForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const db = useDB();
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
+    resolver: yupResolver(validationSchema)
+  });
 
   const closeModal = () => {
     onClose();
@@ -49,13 +54,7 @@ export const TaxForm = ({
         priority: String(data.priority ?? '')
       });
     }
-  }, [data]);
-
-  const db = useDB();
-
-  const { control, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: yupResolver(validationSchema)
-  });
+  }, [data, reset]);
 
   const onSubmit = async (values: any) => {
     const vals = { ...values };

@@ -64,7 +64,7 @@ export const useHydrateCurrencySymbol = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [db]);
 };
 
 export const useCurrencySymbol = () => {
@@ -103,7 +103,7 @@ export const useCurrencySymbol = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [db]);
 
   return { settings, loading };
 };

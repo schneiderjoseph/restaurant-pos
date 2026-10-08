@@ -36,7 +36,7 @@ export const useOrderVisibility = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [db]);
 
   return { ownOrdersOnly };
 };

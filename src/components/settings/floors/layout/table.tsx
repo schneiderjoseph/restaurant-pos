@@ -152,11 +152,11 @@ export const FloorTable = ({
     }
   });
 
-  const saveTableInfo = async () => {
+  const saveTableInfo = useCallback(async () => {
     await db.merge(table.id, {
       ...settings
     });
-  }
+  }, [db, table.id, settings]);
 
   const wasGroupMovingRef = useRef(false);
   useEffect(() => {
@@ -168,7 +168,7 @@ export const FloorTable = ({
     if (isEditing && !isGroupMoving) {
       saveTableInfo();
     }
-  }, [settings, isEditing, isGroupMoving]);
+  }, [settings, isEditing, isGroupMoving, saveTableInfo]);
 
   const displayX = positionOverride?.x ?? settings.x;
   const displayY = positionOverride?.y ?? settings.y;

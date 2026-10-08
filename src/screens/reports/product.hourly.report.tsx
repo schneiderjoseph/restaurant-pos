@@ -117,7 +117,7 @@ export const ProductHourlyReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.menuItemIds]);
+  }, [filters.startDate, filters.endDate, filters.menuItemIds, t]);
 
   // Calculate metrics grouped by menu item and hour
   const menuItemMetrics = useMemo(() => {

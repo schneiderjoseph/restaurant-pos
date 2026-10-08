@@ -70,7 +70,7 @@ export const MergeOrdersReport = () => {
     };
 
     void fetchData();
-  }, [filters.endDate, filters.startDate]);
+  }, [filters.endDate, filters.startDate, t]);
 
   if (loading) {
     return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.mergeOrders')}</div></ReportsLayout>;

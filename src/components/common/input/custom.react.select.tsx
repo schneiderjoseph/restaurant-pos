@@ -19,7 +19,7 @@ type Theme = ExtractThemeArg<ThemeConfig>;
 const primaryColor = "23 23 23";
 const focusRingColor = "152 189 254";
 
-export const themeConfig = (theme: Theme) => ({
+const themeConfig = (theme: Theme) => ({
   ...theme,
   borderRadius: 8,
   colors: {
@@ -31,7 +31,7 @@ export const themeConfig = (theme: Theme) => ({
   },
 });
 
-export const styleConfig = {
+const styleConfig = {
   control: (base: any, props: any) => {
     return {
       ...base,
@@ -47,7 +47,7 @@ export const styleConfig = {
   },
 };
 
-export const classNamePrefix = "rs-";
+const classNamePrefix = "rs-";
 
 const LoadingIndicator = () => {
   return <img alt="loading..." src={Spinner} className="w-[18px] mr-2"/>;

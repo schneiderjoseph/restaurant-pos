@@ -273,7 +273,7 @@ export const DeliveryDensityReport = () => {
     };
 
     fetchData();
-  }, [filters]);
+  }, [filters, t]);
 
   const filteredOrders = useMemo(() => {
     let next = [...orders];

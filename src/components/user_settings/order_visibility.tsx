@@ -1,4 +1,4 @@
-import {FormEvent, useEffect, useState} from "react";
+import {FormEvent, useCallback, useEffect, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Setting} from "@/api/model/setting.ts";
@@ -33,7 +33,7 @@ export const OrderVisibilitySettingsCard = () => {
   const [ownOrdersOnly, setOwnOrdersOnly] = useState(DEFAULT_ORDER_VISIBILITY.own_orders_only);
   const [seesAll, setSeesAll] = useState<Record<string, boolean>>({});
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const [settingRows, roleRows] = await db.query<[Setting[], UserRole[]]>(
       `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1;
        SELECT * FROM ${Tables.user_roles} WHERE deleted_at = NONE ORDER BY name`,
@@ -47,7 +47,7 @@ export const OrderVisibilitySettingsCard = () => {
     setSeesAll(Object.fromEntries(
       (roleRows ?? []).map(role => [role.id.toString(), (role.roles ?? []).includes(SEES_ALL_ORDERS_MODULE)]),
     ));
-  };
+  }, [db]);
 
   const save = async () => {
     const payload: OrderVisibilitySettings = {own_orders_only: ownOrdersOnly};
@@ -70,7 +70,7 @@ export const OrderVisibilitySettingsCard = () => {
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   return (
     <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-order-visibility">

@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -66,7 +66,7 @@ export const OrderLifecycleReport = () => {
     queryRef.current = db.query;
   }, [db]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!orderSuffix) {
       setError(t('errors.orderIdRequired'));
       setLoading(false);
@@ -188,12 +188,11 @@ export const OrderLifecycleReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderSuffix, t]);
 
   useEffect(() => {
-  
     void fetchData();
-  }, [orderSuffix]);
+  }, [fetchData]);
 
   const events = useMemo(() => {
     const timeline: TimelineEvent[] = [];

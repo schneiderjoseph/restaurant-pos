@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -49,7 +49,7 @@ export const AsiOutletsSettingsCard = () => {
     }));
   }, [outlets, t]);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     const [rows] = await db.query<[Setting[]]>(
       `SELECT * FROM ${Tables.settings} WHERE key INSIDE $keys AND is_global = true`,
       { keys: [ASI_OUTLETS_KEY, ASI_POS_IDS_KEY] }
@@ -57,7 +57,7 @@ export const AsiOutletsSettingsCard = () => {
     const list = rows?.find((row) => row.key === ASI_OUTLETS_KEY)?.values;
     setOutlets(Array.isArray(list) ? list : []);
     setSettings(rows?.find((row) => row.key === ASI_POS_IDS_KEY));
-  };
+  }, [db]);
 
   const saveSettings = async (values: FormValues) => {
     const payload = (values.outlets ?? []).map((option) => option.value);
@@ -78,7 +78,7 @@ export const AsiOutletsSettingsCard = () => {
 
   useEffect(() => {
     void loadSettings();
-  }, []);
+  }, [loadSettings]);
 
   useEffect(() => {
     const selected: number[] = Array.isArray(settings?.values) ? settings.values.map(Number) : [];

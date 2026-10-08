@@ -204,7 +204,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
   const { data: paymentTypes } = useApi<SettingsData<PaymentType>>(
     Tables.payment_types, ["deleted_at = none"], ["priority asc"], 0, 99999
   );
-  const { t, i18n } = useTranslation(["admin", "common", "validation", "toast"]);
+  const { t } = useTranslation(["admin", "common", "validation", "toast"]);
 
   const validationSchema = useMemo(
     () =>
@@ -230,11 +230,14 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     },
   });
 
-  const language = i18n.language;
-  const moduleCatalog = useMemo(
-    () => (open ? buildModuleCatalog() : []),
-    [open, language]
-  );
+  const moduleCatalog = useMemo(() => {
+    if (!open) {
+      return [];
+    }
+    // Touch t so catalog labels refresh when the language changes (buildModuleCatalog reads i18n).
+    void t;
+    return buildModuleCatalog();
+  }, [open, t]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

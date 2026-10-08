@@ -52,8 +52,41 @@ export const KitchenForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-
+  const db = useDB();
   const [dishSearch, setDishSearch] = useState("");
+
+  const {
+    data: printers,
+    fetchData: fetchPrinters
+  } = useApi<SettingsData<Printer>>(Tables.printers, [], ['priority asc'], 0, 99999, [], {
+    enabled: false
+  });
+
+  const {
+    data: dishes,
+    fetchData: fetchDishes
+  } = useApi<SettingsData<Dish>>(Tables.dishes, [], ['priority asc'], 0, 99999, ['categories'], {
+    enabled: false
+  });
+
+  const {
+    data: outlets,
+    fetchData: fetchOutlets
+  } = useApi<SettingsData<Outlet>>(Tables.outlets, ['deleted_at = none'], ['priority asc'], 0, 99999, [], {
+    enabled: false
+  });
+
+  const { control, handleSubmit, formState: {errors}, reset } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: {
+      name: "",
+      printers: [],
+      items: [],
+      priority: undefined,
+      shows_all: false,
+      outlet: null,
+    }
+  });
 
   const closeModal = () => {
     onClose();
@@ -93,42 +126,7 @@ export const KitchenForm = ({
           : { label: t('forms.outletNone'), value: '' },
       });
     }
-  }, [data]);
-
-  const db = useDB();
-
-  const {
-    data: printers,
-    fetchData: fetchPrinters
-  } = useApi<SettingsData<Printer>>(Tables.printers, [], ['priority asc'], 0, 99999, [], {
-    enabled: false
-  });
-
-  const {
-    data: dishes,
-    fetchData: fetchDishes
-  } = useApi<SettingsData<Dish>>(Tables.dishes, [], ['priority asc'], 0, 99999, ['categories'], {
-    enabled: false
-  });
-
-  const {
-    data: outlets,
-    fetchData: fetchOutlets
-  } = useApi<SettingsData<Outlet>>(Tables.outlets, ['deleted_at = none'], ['priority asc'], 0, 99999, [], {
-    enabled: false
-  });
-
-  const { control, handleSubmit, formState: {errors}, reset } = useForm({
-    resolver: yupResolver(validationSchema),
-    defaultValues: {
-      name: "",
-      printers: [],
-      items: [],
-      priority: undefined,
-      shows_all: false,
-      outlet: null,
-    }
-  });
+  }, [data, reset, t]);
 
   const outletOptions = useMemo(() => [
     { label: t('forms.outletNone'), value: '' },
@@ -210,7 +208,7 @@ export const KitchenForm = ({
       fetchDishes();
       fetchOutlets();
     }
-  }, [open]);
+  }, [open, fetchPrinters, fetchDishes, fetchOutlets]);
 
   const [printersModal, setPrintersModal] = useState(false);
 

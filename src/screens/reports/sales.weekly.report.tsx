@@ -128,7 +128,7 @@ export const SalesWeeklyReport = () => {
     };
 
     fetchData();
-  }, [queryStart, queryEnd]);
+  }, [queryStart, queryEnd, t]);
 
   const dayMetrics = useMemo(() => {
     const metrics: Record<string, DayMetrics> = {};

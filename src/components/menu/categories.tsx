@@ -62,7 +62,7 @@ export const MenuCategories = () => {
         category: undefined
       }));
     }
-  }, [categories, state.category]);
+  }, [categories, state.category, setState]);
 
   // Each point of sale toggles on its own; several can be on at once.
   const toggleOutletTab = (outletId: string) => {

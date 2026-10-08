@@ -1,4 +1,4 @@
-import {Fragment, useEffect, useMemo, useRef, useState} from "react";
+import {Fragment, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -370,7 +370,8 @@ export const SalesAdvancedReport = () => {
     filters.menuItemIds,
     filters.menuItemsMatch,
     filters.withTax, filters.withoutTax,
-    filters.sortBy, filters.sortDirection
+    filters.sortBy, filters.sortDirection,
+    t,
   ]);
 
   const filteredOrders = orders;
@@ -413,7 +414,7 @@ export const SalesAdvancedReport = () => {
     });
   };
 
-  const getOrderPaymentBreakdown = (paymentTotals: OrderPaymentTotals): string => {
+  const getOrderPaymentBreakdown = useCallback((paymentTotals: OrderPaymentTotals): string => {
     const paymentMap = new Map<string, number>(Object.entries(paymentTotals.nonCashBreakdown));
     if (paymentTotals.cashAmount > 0) {
       paymentMap.set('Cash', (paymentMap.get('Cash') ?? 0) + paymentTotals.cashAmount);
@@ -424,9 +425,9 @@ export const SalesAdvancedReport = () => {
     return Array.from(paymentMap.entries())
       .map(([name, amount]) => `${name}: ${withDualCurrency(amount)}`)
       .join(', ');
-  };
+  }, []);
 
-  const calculateOrderTotals = (order: Order) => {
+  const calculateOrderTotals = useCallback((order: Order) => {
     const figures = getOrderSettlementFigures(order);
     const filteredItems = getOrderFilteredItems(order);
     const itemsCount = safeNumber(
@@ -458,7 +459,7 @@ export const SalesAdvancedReport = () => {
       changeDue,
       paymentBreakdown,
     };
-  };
+  }, [getOrderPaymentBreakdown]);
 
   const totals = useMemo(() => {
     return filteredOrders.reduce(
@@ -491,7 +492,7 @@ export const SalesAdvancedReport = () => {
         ordersCount: 0,
       }
     );
-  }, [filteredOrders]);
+  }, [calculateOrderTotals, filteredOrders]);
   const totalVoids = useMemo(
     () => safeNumber(orderVoids.reduce((sum, voidEntry) => sum + calculateVoidEntryAmount(voidEntry), 0)),
     [orderVoids],

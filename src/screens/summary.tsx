@@ -118,10 +118,12 @@ export const Summary = () => {
     SUMMARY_ORDER_FETCHES
   );
 
+  // The builder object is new each render; its setters are plain useState setters.
+  const {setWheres: setOrderWheres, setParameters: setOrderParameters} = ordersQb;
   useEffect(() => {
-    ordersQb.setWheres(orderFilters.map(item => `and ${item}`));
-    ordersQb.setParameters(orderFilterParams);
-  }, [orderFilters, orderFilterParams]);
+    setOrderWheres(orderFilters.map(item => `and ${item}`));
+    setOrderParameters(orderFilterParams);
+  }, [orderFilters, orderFilterParams, setOrderWheres, setOrderParameters]);
 
   const fetchOrders = useCallback(async () => {
     // The query builder picks up new params one render after a date change; only query
@@ -147,7 +149,7 @@ export const Summary = () => {
       if (seq === fetchSeq.current) setLoading(false);
     }
     // `db` is left out on purpose: useDB() returns a new object every render.
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [ordersQb.queryString, ordersQb.parameters, db, t]);
 
   useEffect(() => {
     void fetchOrders();

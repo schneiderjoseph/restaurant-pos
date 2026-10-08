@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {Controller, useForm} from "react-hook-form";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -35,13 +35,13 @@ export const ClosingCycleSettingsCard = () => {
     defaultValues: DEFAULT_VALUES,
   });
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     const [rows] = await db.query(
       `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true`,
       {key: CLOSING_CYCLE_KEY}
     ) as [Setting[] | undefined];
     setSettings(rows?.[0]);
-  };
+  }, [db]);
 
   const saveSettings = async (values: ClosingCycleValues) => {
     const payload: ClosingCycleValues = {
@@ -66,7 +66,7 @@ export const ClosingCycleSettingsCard = () => {
 
   useEffect(() => {
     void loadSettings();
-  }, []);
+  }, [loadSettings]);
 
   useEffect(() => {
     if (!settings?.values) {

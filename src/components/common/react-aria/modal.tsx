@@ -31,7 +31,7 @@ interface ModalProps extends PropsWithChildren {
 export const Modal: FunctionComponent<ModalProps> = ({
   hideCloseButton = false,
   size = 'md',
-
+  shouldCloseOnInteractOutside: shouldCloseOnInteractOutsideProp,
   ...props
 }) => {
   const { t } = useTranslation('common');
@@ -55,9 +55,9 @@ export const Modal: FunctionComponent<ModalProps> = ({
       if (isReactAriaTopLayer(element)) {
         return false;
       }
-      return props.shouldCloseOnInteractOutside?.(element) ?? true;
+      return shouldCloseOnInteractOutsideProp?.(element) ?? true;
     },
-    [props.shouldCloseOnInteractOutside]
+    [shouldCloseOnInteractOutsideProp]
   );
 
   return (

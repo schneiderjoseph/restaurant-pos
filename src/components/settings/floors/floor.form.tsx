@@ -31,6 +31,11 @@ export const FloorForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const db = useDB();
+
+  const { control, handleSubmit, formState: { errors }, reset } = useForm({
+    resolver: yupResolver(validationSchema)
+  });
 
   const closeModal = () => {
     onClose();
@@ -52,13 +57,7 @@ export const FloorForm = ({
         color: data.color,
       });
     }
-  }, [data]);
-
-  const db = useDB();
-
-  const { control, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: yupResolver(validationSchema)
-  });
+  }, [data, reset]);
 
   const onSubmit = async (values: any) => {
     const vals = {...values};

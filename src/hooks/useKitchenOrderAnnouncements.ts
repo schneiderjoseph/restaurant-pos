@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KitchenOrder } from '@/api/model/kitchen.ts';
 import { getInvoiceNumber } from '@/lib/order.ts';
@@ -89,9 +89,9 @@ export const useKitchenOrderAnnouncements = (
   const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [highlightedBatchKeys, setHighlightedBatchKeys] = useState<Set<string>>(new Set());
 
-  const speak = (text: string) => {
+  const speak = useCallback((text: string) => {
     speakOrderReady(text, i18n.language);
-  };
+  }, [i18n.language]);
 
   const highlightBatch = (batchKey: string) => {
     setHighlightedBatchKeys((prev) => {
@@ -224,15 +224,17 @@ export const useKitchenOrderAnnouncements = (
 
     knownBatchesRef.current = batches;
     knownItemsRef.current = items;
-  }, [orders, kitchenId, hydrated, t, i18n.language]);
+  }, [orders, kitchenId, hydrated, t, i18n.language, speak]);
 
   useEffect(() => {
+    // The timer map is never replaced: clear what it holds at unmount.
+    const timers = highlightTimersRef.current;
     return () => {
       cancelOrderReadySpeech();
-      for (const timer of highlightTimersRef.current.values()) {
+      for (const timer of timers.values()) {
         clearTimeout(timer);
       }
-      highlightTimersRef.current.clear();
+      timers.clear();
     };
   }, []);
 

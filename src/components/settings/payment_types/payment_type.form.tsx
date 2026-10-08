@@ -9,7 +9,7 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PaymentType, PaymentTypeGatewayConfig } from "@/api/model/payment_type.ts";
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -134,11 +134,27 @@ export const PaymentTypeForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const db = useDB();
 
-  const paymentTypeLabel = (value: string) =>
-    t(`forms.paymentTypes.${String(value).toLowerCase()}`);
-  const gatewayModeLabel = (value: string) =>
-    t(`forms.gatewayModes.${String(value).toLowerCase()}`);
+  const {
+    data: taxes,
+    fetch: fetchTaxes
+  } = useApi<SettingsData<Tax>>(Tables.taxes, [], ['priority asc'], 0, 99999, [], {
+    enabled: false
+  });
+
+  const { control, handleSubmit, formState: {errors}, reset, watch } = useForm({
+    resolver: yupResolver(validationSchema)
+  });
+
+  const paymentTypeLabel = useCallback(
+    (value: string) => t(`forms.paymentTypes.${String(value).toLowerCase()}`),
+    [t],
+  );
+  const gatewayModeLabel = useCallback(
+    (value: string) => t(`forms.gatewayModes.${String(value).toLowerCase()}`),
+    [t],
+  );
 
   const closeModal = () => {
     onClose();
@@ -177,20 +193,7 @@ export const PaymentTypeForm = ({
         } : null),
       });
     }
-  }, [data, t]);
-
-  const db = useDB();
-
-  const {
-    data: taxes,
-    fetch: fetchTaxes
-  } = useApi<SettingsData<Tax>>(Tables.taxes, [], ['priority asc'], 0, 99999, [], {
-    enabled: false
-  });
-
-  const { control, handleSubmit, formState: {errors}, reset, watch } = useForm({
-    resolver: yupResolver(validationSchema)
-  });
+  }, [data, t, reset, paymentTypeLabel, gatewayModeLabel]);
 
   const types = [
     // Room: charge to the guest's FrontDesk stay, allowed only while it is open (room-charge.ts).
@@ -288,6 +291,7 @@ export const PaymentTypeForm = ({
     if(open){
       fetchTaxes();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch (manualFetch) is recreated each render; refetch on open only
   }, [open]);
 
   const [taxModal, setTaxModal] = useState(false);

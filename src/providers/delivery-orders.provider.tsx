@@ -20,6 +20,7 @@ export interface DeliveryOrdersProviderState {
   refetchDeliveryOrders: () => Promise<void>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- context file exports its context
 export const DeliveryOrdersContext = createContext<DeliveryOrdersProviderState | undefined>(undefined);
 
 export interface DeliveryOrdersProviderProps {
@@ -166,7 +167,7 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
       isMounted = false;
       querySubscription?.kill().catch(console.error);
     };
-  }, [canUseDeliveryOrders, fetchDeliveryOrders, user?.id, openOrderPopup]);
+  }, [canUseDeliveryOrders, fetchDeliveryOrders, user?.id, openOrderPopup, db]);
 
   const value: DeliveryOrdersProviderState = useMemo(
     () => ({

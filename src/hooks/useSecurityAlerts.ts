@@ -49,10 +49,11 @@ export interface UseSecurityAlertsResult {
   acknowledge: (alertId: string, notes?: string) => Promise<void>;
 }
 
+const queryKey = ["security-alerts"];
+
 export function useSecurityAlerts(): UseSecurityAlertsResult {
   const isAdmin = useHasSecurityAlertsAccess();
   const queryClient = useQueryClient();
-  const queryKey = ["security-alerts"];
 
   const { data, isLoading, error, refetch } = useQuery<SecurityAlert[], Error>({
     queryKey,
@@ -89,7 +90,7 @@ export function useSecurityAlerts(): UseSecurityAlertsResult {
         throw err;
       }
     },
-    [queryClient, queryKey]
+    [queryClient]
   );
 
   return {

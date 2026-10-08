@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {getNextJournalEntryNumber} from "@/lib/invoice.ts";
 import { createColumnHelper } from "@tanstack/react-table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -49,7 +49,9 @@ export const JournalEntries = () => {
     ["lines", "lines.account", "lines.account.group", "created_by"],
   );
 
-  const handlePublish = async (entry: AccountJournalEntry) => {
+  const fetchJournal = journalHook.fetchData;
+
+  const handlePublish = useCallback(async (entry: AccountJournalEntry) => {
     try {
       if (entry.status !== 'draft') {
         toast.error(t('messages.cannotPublish', 'Only draft entries can be published'));
@@ -57,13 +59,13 @@ export const JournalEntries = () => {
       }
       await publishJournalEntry(db, String(entry.id));
       toast.success(t('messages.publishSuccess', 'Journal entry published'));
-      await journalHook.fetchData();
+      await fetchJournal();
     } catch (e: any) {
       toast.error(e.message || t('messages.publishFailed', 'Failed to publish entry'));
     }
-  };
+  }, [db, t, fetchJournal]);
 
-  const handleReverse = async (entry: AccountJournalEntry) => {
+  const handleReverse = useCallback(async (entry: AccountJournalEntry) => {
     try {
       const [fullEntry] = await db.query(`SELECT * FROM ONLY ${entry.id} FETCH lines`);
       if (!fullEntry) {
@@ -110,11 +112,11 @@ export const JournalEntries = () => {
       await emitJournalReversed(String(entry.id), String(newEntry.id));
 
       toast.success(t('messages.reverseSuccess', 'Journal entry reversed successfully'));
-      await journalHook.fetchData();
+      await fetchJournal();
     } catch (e: any) {
       toast.error(e.message || 'Failed to reverse entry');
     }
-  };
+  }, [db, t, user, fetchJournal]);
 
   const columnHelper = createColumnHelper<AccountJournalEntry>();
   const columns = useMemo(() => [
@@ -220,7 +222,7 @@ export const JournalEntries = () => {
         </div>
       ),
     }),
-  ], [columnHelper, t, db, user, journalHook]);
+  ], [columnHelper, t, handlePublish, handleReverse]);
 
   return (
     <>

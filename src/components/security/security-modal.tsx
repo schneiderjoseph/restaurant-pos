@@ -19,8 +19,8 @@ export const SecurityModal = () => {
   const [selectedAuthType, setSelectedAuthType] = useState<AuthType>('pin');
 
   useEffect(() => {
-    if (isModalOpen && currentAction) {
-      setSelectedAuthType(currentAction.authType ?? 'pin');
+    if (isModalOpen) {
+      setSelectedAuthType(currentAction?.authType ?? 'pin');
     }
   }, [isModalOpen, currentAction?.id, currentAction?.authType]);
 

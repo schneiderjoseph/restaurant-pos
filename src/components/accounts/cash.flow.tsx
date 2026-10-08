@@ -71,6 +71,7 @@ export const CashFlow = () => {
 
   useEffect(() => {
     loadCashFlow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initial load; filters applied via Load button
   }, []);
 
   const buckets = useMemo(() => {

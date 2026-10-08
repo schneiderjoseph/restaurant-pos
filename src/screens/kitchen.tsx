@@ -318,7 +318,7 @@ export const KitchenScreen = () => {
       durations.reduce((sum, value) => sum + value, 0) / durations.length
     );
     setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
-  }, [t]);
+  }, [t, db]);
 
   const loadOrders = useCallback(async (kitchenId: string) => {
     const request = ++loadRequestRef.current;
@@ -393,7 +393,7 @@ export const KitchenScreen = () => {
       setSplitIntoByOrder(splitInto);
       await calculateAverageTime(kitchenId);
     }
-  }, [groupKitchenOrderItems, page?.user?.id, calculateAverageTime]);
+  }, [groupKitchenOrderItems, page?.user?.id, calculateAverageTime, db]);
 
   const loadCompletedOrders = useCallback(async (kitchenId: string) => {
     const request = ++completedRequestRef.current;
@@ -437,7 +437,7 @@ export const KitchenScreen = () => {
         setLoadingCompletedOrders(false);
       }
     }
-  }, [groupIntoBatches, page?.user?.id]);
+  }, [groupIntoBatches, page?.user?.id, db]);
 
   const openCompletedOrdersModal = async () => {
     if (!kitchen?.id) {
@@ -533,7 +533,7 @@ export const KitchenScreen = () => {
       }
       subscriptions.forEach((subscription) => subscription.kill().catch(() => undefined));
     };
-  }, [kitchenId, loadOrders, scheduleLoadOrders]);
+  }, [kitchenId, loadOrders, scheduleLoadOrders, db]);
 
   const allDishes = useMemo(() => {
     const itemsMap = new Map();

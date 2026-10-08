@@ -54,7 +54,7 @@ export const useFetchDeliveryOrders = (options: UseFetchDeliveryOrdersOptions = 
       setLoading(false);
       setLoaded(true);
     }
-  }, [enabled]);
+  }, [enabled, db]);
 
   useEffect(() => {
     if (!enabled) {

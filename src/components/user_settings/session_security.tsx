@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDB } from '@/api/db/db.ts';
@@ -48,14 +48,14 @@ export const SessionSecuritySettingsCard = () => {
   const idleAction = watch('idle_action');
 
   /** One establishment-wide row: the admin sets it for every user. */
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     const [raw] = await db.query(
       `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1`,
       { key: SESSION_SECURITY_KEY }
     );
     const rows = (Array.isArray(raw) ? raw : []) as Setting[];
     setSettings(rows[0]);
-  };
+  }, [db]);
 
   const saveSettings = async (values: FormValues) => {
     const payload: SessionSecuritySettings = {
@@ -81,7 +81,7 @@ export const SessionSecuritySettingsCard = () => {
 
   useEffect(() => {
     void loadSettings();
-  }, []);
+  }, [loadSettings]);
 
   useEffect(() => {
     const values = normalizeSessionSecurity(

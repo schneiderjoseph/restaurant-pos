@@ -44,7 +44,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
     };
 
     fetchDetails();
-  }, [open, entry?.id]);
+  }, [open, entry?.id, db]);
 
   if (!open) {
     return null;

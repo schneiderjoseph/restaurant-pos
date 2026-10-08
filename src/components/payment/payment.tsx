@@ -1,6 +1,6 @@
 import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faClock, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useAtom, useAtomValue} from "jotai";
 import {appDuo, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {resolveOutlet} from "@/lib/outlet.ts";
@@ -103,7 +103,7 @@ export const Payment = () => {
     return state.cart.filter(item => !item.deleted_at).length;
   }, [state.cart]);
 
-  const fetchOrderForPayment = async (orderId: unknown): Promise<Order | undefined> => {
+  const fetchOrderForPayment = useCallback(async (orderId: unknown): Promise<Order | undefined> => {
     const id = toRecordId(orderId);
     const runQuery = async (fetches: string[]) => {
       const onlyResult = await db.query(
@@ -130,7 +130,7 @@ export const Payment = () => {
     }
 
     return runQuery(ORDER_PAYMENT_FETCHES);
-  };
+  }, [db]);
 
   useEffect(() => {
     let cancelled = false;
@@ -149,7 +149,7 @@ export const Payment = () => {
     return () => {
       cancelled = true;
     };
-  }, [state?.order?.id]);
+  }, [state?.order?.id, fetchOrderForPayment]);
 
   const hasNewCartItems = () =>
     state.cart.some((item) => item.newOrOld === MenuItemType.new && !item.deleted_at);

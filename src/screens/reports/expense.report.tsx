@@ -97,7 +97,7 @@ export const ExpenseReport = () => {
     };
 
     void fetchData();
-  }, [filters.endDate, filters.startDate]);
+  }, [filters.endDate, filters.startDate, t]);
 
   const totalExpenses = useMemo(() => rows.reduce((sum, row) => sum + row.amount, 0), [rows]);
 

@@ -105,7 +105,7 @@ export const ClosingCycleEnforcementProvider: React.FC<ClosingCycleEnforcementPr
         clearTimeout(timeoutId);
       }
     };
-  }, [page?.user?.id, setEnforcement]);
+  }, [page?.user?.id, setEnforcement, t]);
 
   return <>{children}</>;
 };

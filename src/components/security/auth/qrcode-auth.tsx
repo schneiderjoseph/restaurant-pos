@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {SecurityAction, SecurityManager} from '@/providers/security.provider';
 import {ReactQrCode} from '@/lib/react-qr-code.tsx';
 import {useDB} from "@/api/db/db.ts";
@@ -34,7 +34,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
   onSuccessRef.current = onSuccess;
   currentActionRef.current = currentAction;
 
-  const resolveApprover = async (
+  const resolveApprover = useCallback(async (
     approvedBy: AuthPermission['approved_by']
   ): Promise<SecurityManager | undefined> => {
     if (!approvedBy) {
@@ -61,7 +61,7 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
     );
 
     return approver as SecurityManager | undefined;
-  };
+  }, [db]);
 
   useEffect(() => {
     if (!currentAction || !user?.id) {
@@ -133,7 +133,8 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
       liveQueryRef.current?.kill().catch(() => undefined);
       liveQueryRef.current = null;
     };
-  }, [currentAction?.id, user?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-subscribe only on action/user identity; other currentAction fields read via ref
+  }, [currentAction?.id, user?.id, db, t, resolveApprover]);
 
   return (
     <div className="space-y-4">

@@ -50,7 +50,7 @@ export const useSecurity = () => {
       payload: withOrderTrackingPayload(options.payload, options.orderId),
       ...getTrackingUserFields(user),
     });
-  }, [getManagerId, page, user?.id, user?.role?.name, user?.user_role?.name, user?.user_shift?.name]);
+  }, [getManagerId, page, user]);
 
   const protectAction = useCallback(async (
     action: () => void,

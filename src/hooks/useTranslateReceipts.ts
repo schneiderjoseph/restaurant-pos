@@ -53,7 +53,7 @@ export const useTranslateReceipts = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [db]);
 
   return { enabled, loading };
 };

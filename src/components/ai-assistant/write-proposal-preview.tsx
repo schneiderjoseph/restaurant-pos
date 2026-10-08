@@ -112,7 +112,7 @@ export function WriteProposalPreview({proposal}: WriteProposalPreviewProps) {
       .filter((f): f is ImportField => f !== undefined);
   }, [config, proposal.fieldNames]);
 
-  const matchFields = config?.matchFields ?? [];
+  const matchFields = useMemo(() => config?.matchFields ?? [], [config]);
   const useCardLayout = shouldUseCardPreviewLayout(columns.length);
 
   const rowHasError = (record: ImportRecord) => record.issues.some(i => i.severity === "error");

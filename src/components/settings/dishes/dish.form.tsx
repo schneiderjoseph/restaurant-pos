@@ -173,6 +173,7 @@ export const DishForm = ({
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on data only; helpers/db/reset would re-run every render or overwrite in-progress edits
   }, [data]);
 
   const {
@@ -212,7 +213,7 @@ export const DishForm = ({
       fetchWorkflows();
       fetchKitchens();
     }
-  }, [open]);
+  }, [open, fetchCategories, fetchModifierGroups, fetchWorkflows, fetchKitchens]);
 
   const getModifierGroups = async (id) => {
     const [record]: any = await db.query(`SELECT *

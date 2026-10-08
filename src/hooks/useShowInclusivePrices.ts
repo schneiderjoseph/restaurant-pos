@@ -53,7 +53,7 @@ export const useShowInclusivePrices = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [db]);
 
   return { enabled, loading };
 };

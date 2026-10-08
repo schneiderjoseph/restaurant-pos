@@ -211,6 +211,7 @@ export const FloorLayout = () => {
       liveSubscriptions.current.forEach(subscription => subscription.kill().catch(() => undefined));
       liveSubscriptions.current = [];
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- subscribe once per mount; the callbacks refetch fresh data
   }, []);
 
   useEffect(() => {
@@ -284,7 +285,7 @@ export const FloorLayout = () => {
         floor: salle,
       }));
     }
-  }, [floors, state.floor]);
+  }, [floors, state.floor, setState]);
 
   const tableOrders = (tableId: string) => {
     return orders?.data?.filter(item => item?.table?.id?.toString() === tableId.toString())
@@ -330,6 +331,7 @@ export const FloorLayout = () => {
     }
 
     return {occupied, locked, free, total: visible.length};
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isTableBusy is rebuilt each render from orders and occupiedRooms, already listed
   }, [tables, orders?.data, occupiedRooms]);
 
   const occupiedOnFloor = (floorId: string) => {

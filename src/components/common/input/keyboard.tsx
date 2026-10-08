@@ -31,129 +31,130 @@ export interface KeyboardProps extends InputHTMLAttributes<HTMLInputElement> {
 
 }
 
+const letters: {
+  [index: string]: { normal: string | ReactNode, shift: string | ReactNode }
+} = {
+  'a': { normal: 'a', shift: 'A' },
+  'b': { normal: 'b', shift: 'B' },
+  'c': { normal: 'c', shift: 'C' },
+  'd': { normal: 'd', shift: 'D' },
+  'e': { normal: 'e', shift: 'E' },
+  'f': { normal: 'f', shift: 'F' },
+  'g': { normal: 'g', shift: 'G' },
+  'h': { normal: 'h', shift: 'H' },
+  'i': { normal: 'i', shift: 'I' },
+  'j': { normal: 'j', shift: 'J' },
+  'k': { normal: 'k', shift: 'K' },
+  'l': { normal: 'l', shift: 'L' },
+  'm': { normal: 'm', shift: 'M' },
+  'n': { normal: 'n', shift: 'N' },
+  'o': { normal: 'o', shift: 'O' },
+  'p': { normal: 'p', shift: 'P' },
+  'q': { normal: 'q', shift: 'Q' },
+  'r': { normal: 'r', shift: 'R' },
+  's': { normal: 's', shift: 'S' },
+  't': { normal: 't', shift: 'T' },
+  'u': { normal: 'u', shift: 'U' },
+  'v': { normal: 'v', shift: 'V' },
+  'w': { normal: 'w', shift: 'W' },
+  'x': { normal: 'x', shift: 'X' },
+  'y': { normal: 'y', shift: 'Y' },
+  'z': { normal: 'z', shift: 'Z' },
+  '`': { normal: '`', shift: '~' },
+  '1': { normal: '1', shift: '!' },
+  '2': { normal: '2', shift: '@' },
+  '3': { normal: '3', shift: '#' },
+  '4': { normal: '4', shift: '$' },
+  '5': { normal: '5', shift: '%' },
+  '6': { normal: '6', shift: '^' },
+  '7': { normal: '7', shift: '&' },
+  '8': { normal: '8', shift: '*' },
+  '9': { normal: '9', shift: '(' },
+  '0': { normal: '0', shift: ')' },
+  '-': { normal: '-', shift: '_' },
+  '=': { normal: '=', shift: '+' },
+  '[': { normal: '[', shift: '{' },
+  ']': { normal: ']', shift: '}' },
+  ';': { normal: ';', shift: ':' },
+  "'": { normal: "'", shift: '"' },
+  ',': { normal: ',', shift: '<' },
+  '.': { normal: '.', shift: '>' },
+  '/': { normal: '/', shift: '?' },
+  "\\": { normal: "\\", shift: '|' },
+  '*bs': { normal: <i className="fa fa-backspace"/>, shift: <i className="fa fa-backspace"/> },
+  '*en': { normal: 'Enter', shift: 'Enter' },
+  '*sh': { normal: 'caps', shift: 'CAPS' },
+  '*c': { normal: 'C', shift: 'C' },
+  '*space': { normal: 'Space', shift: 'Space' },
+  '*ok': { normal: 'OK', shift: 'OK' },
+  '*cancel': { normal: 'Cancel', shift: 'Cancel' }
+};
+
+const numericTopLayout = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '*bs', '*c'];
+const alphaLayout = [
+  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', "\\"],
+  ['*sh', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
+  ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+  ['*space', '*ok', '*cancel']
+];
+
+const defaultLayout = [
+  [...numericTopLayout],
+  ...alphaLayout
+];
+
+const defaultAlphaLayout = [
+  ...alphaLayout
+];
+
+const defaultNumericLayout = [
+  ['7', '8', '9'],
+  ['4', '5', '6'],
+  ['1', '2', '3'],
+  ['0', '.', '*c'],
+  ['*ok', '*cancel']
+];
+
+const layouts = {
+  'default': defaultLayout,
+  'numeric': defaultNumericLayout,
+  'alpha': defaultAlphaLayout,
+};
+
 export const Keyboard = (props: KeyboardProps) => {
-
-  const letters: {
-    [index: string]: { normal: string | ReactNode, shift: string | ReactNode }
-  } = {
-    'a': { normal: 'a', shift: 'A' },
-    'b': { normal: 'b', shift: 'B' },
-    'c': { normal: 'c', shift: 'C' },
-    'd': { normal: 'd', shift: 'D' },
-    'e': { normal: 'e', shift: 'E' },
-    'f': { normal: 'f', shift: 'F' },
-    'g': { normal: 'g', shift: 'G' },
-    'h': { normal: 'h', shift: 'H' },
-    'i': { normal: 'i', shift: 'I' },
-    'j': { normal: 'j', shift: 'J' },
-    'k': { normal: 'k', shift: 'K' },
-    'l': { normal: 'l', shift: 'L' },
-    'm': { normal: 'm', shift: 'M' },
-    'n': { normal: 'n', shift: 'N' },
-    'o': { normal: 'o', shift: 'O' },
-    'p': { normal: 'p', shift: 'P' },
-    'q': { normal: 'q', shift: 'Q' },
-    'r': { normal: 'r', shift: 'R' },
-    's': { normal: 's', shift: 'S' },
-    't': { normal: 't', shift: 'T' },
-    'u': { normal: 'u', shift: 'U' },
-    'v': { normal: 'v', shift: 'V' },
-    'w': { normal: 'w', shift: 'W' },
-    'x': { normal: 'x', shift: 'X' },
-    'y': { normal: 'y', shift: 'Y' },
-    'z': { normal: 'z', shift: 'Z' },
-    '`': { normal: '`', shift: '~' },
-    '1': { normal: '1', shift: '!' },
-    '2': { normal: '2', shift: '@' },
-    '3': { normal: '3', shift: '#' },
-    '4': { normal: '4', shift: '$' },
-    '5': { normal: '5', shift: '%' },
-    '6': { normal: '6', shift: '^' },
-    '7': { normal: '7', shift: '&' },
-    '8': { normal: '8', shift: '*' },
-    '9': { normal: '9', shift: '(' },
-    '0': { normal: '0', shift: ')' },
-    '-': { normal: '-', shift: '_' },
-    '=': { normal: '=', shift: '+' },
-    '[': { normal: '[', shift: '{' },
-    ']': { normal: ']', shift: '}' },
-    ';': { normal: ';', shift: ':' },
-    "'": { normal: "'", shift: '"' },
-    ',': { normal: ',', shift: '<' },
-    '.': { normal: '.', shift: '>' },
-    '/': { normal: '/', shift: '?' },
-    "\\": { normal: "\\", shift: '|' },
-    '*bs': { normal: <i className="fa fa-backspace"/>, shift: <i className="fa fa-backspace"/> },
-    '*en': { normal: 'Enter', shift: 'Enter' },
-    '*sh': { normal: 'caps', shift: 'CAPS' },
-    '*c': { normal: 'C', shift: 'C' },
-    '*space': { normal: 'Space', shift: 'Space' },
-    '*ok': { normal: 'OK', shift: 'OK' },
-    '*cancel': { normal: 'Cancel', shift: 'Cancel' }
-  };
-
-  const numericTopLayout = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '*bs', '*c'];
-  const alphaLayout = [
-    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', "\\"],
-    ['*sh', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
-    ['*space', '*ok', '*cancel']
-  ];
-
-  const defaultLayout = [
-    [...numericTopLayout],
-    ...alphaLayout
-  ];
-
-  const defaultAlphaLayout = [
-    ...alphaLayout
-  ];
-
-  const defaultNumericLayout = [
-    ['7', '8', '9'],
-    ['4', '5', '6'],
-    ['1', '2', '3'],
-    ['0', '.', '*c'],
-    ['*ok', '*cancel']
-  ];
-
-  const layouts = {
-    'default': defaultLayout,
-    'numeric': defaultNumericLayout,
-    'alpha': defaultAlphaLayout,
-  };
+  const { show: showProp, value: valueProp, type, layout: layoutProp, onchange } = props;
 
   const [isCaps, setCaps] = useState(props.caps);
 
   const layout: any = useMemo(() => {
-    if( props.type === 'number' ) {
+    if( type === 'number' ) {
       return layouts["numeric"];
     }
 
-    return layouts[props.layout || 'default'];
-  }, [props.layout, props.type]);
+    return layouts[layoutProp || 'default'];
+  }, [layoutProp, type]);
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const [value, setValue] = useState('');
 
   useEffect(() => {
-    if( typeof props.show !== 'undefined' ) {
-      setShow(props.show);
+    if( typeof showProp !== 'undefined' ) {
+      setShow(showProp);
     }
-  }, [props.show]);
+  }, [showProp]);
 
   useEffect(() => {
-    if( props.value !== undefined ) {
-      setValue(props.value.toString());
+    if( valueProp !== undefined ) {
+      setValue(valueProp.toString());
     }
-  }, [props.value, props.type]);
+  }, [valueProp, type]);
 
   useEffect(() => {
-    if( props.onchange ) {
-      props.onchange(value);
+    if( onchange ) {
+      onchange(value);
     }
-  }, [value, props.onchange]);
+  }, [value, onchange]);
 
   const isActionBtn = (key: string) => {
     return key.indexOf('*') !== -1;

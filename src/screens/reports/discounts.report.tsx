@@ -249,7 +249,7 @@ export const DiscountsReport = () => {
     };
 
     void fetchData();
-  }, [filters.discountId, filters.endDate, filters.startDate]);
+  }, [filters.discountId, filters.endDate, filters.startDate, t]);
 
   const detailRows = useMemo(() => buildDetailRows(orderDiscounts), [orderDiscounts]);
 

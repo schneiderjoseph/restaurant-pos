@@ -96,8 +96,8 @@ const PanToSelectedOrder = ({center}: {center: {lat: number; lng: number} | null
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !center) return;
-    map.panTo(center);
+    if (!map || center?.lat == null || center?.lng == null) return;
+    map.panTo({lat: center.lat, lng: center.lng});
   }, [map, center?.lat, center?.lng]);
 
   return null;
@@ -244,7 +244,7 @@ export const Delivery = () => {
     };
 
     loadMapAreas();
-  }, []);
+  }, [db]);
 
   const selectedOrderCenter = useMemo(() => {
     if (!selectedOrder) return null;

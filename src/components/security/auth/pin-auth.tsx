@@ -1,5 +1,5 @@
 import { Button } from '@/components/common/input/button';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { SecurityAction, SecurityManager } from '@/providers/security.provider';
 import {cn} from "@/lib/utils.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -26,6 +26,12 @@ export const PinAuth: React.FC<PinAuthProps> = ({
   const submittingRef = useRef(false);
   const pinRef = useRef(pin);
   pinRef.current = pin;
+  const onSuccessRef = useRef(onSuccess);
+  const onCancelRef = useRef(onCancel);
+  const currentActionRef = useRef(currentAction);
+  onSuccessRef.current = onSuccess;
+  onCancelRef.current = onCancel;
+  currentActionRef.current = currentAction;
 
   const handleNumberClick = (num: string) => {
     if (pin.length < 4) {
@@ -44,7 +50,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     setError('');
   };
 
-  const validatePIN = async () => {
+  const validatePIN = useCallback(async () => {
     if (submittingRef.current) return;
     const currentPin = pinRef.current;
     if (currentPin.length !== 4) return;
@@ -52,10 +58,11 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     submittingRef.current = true;
     setError('');
 
-    const module = currentAction?.module;
-    const alternateModule = currentAction?.alternateModule;
-    const excludeUserId = currentAction?.excludeUserId
-      ? toRecordId(currentAction.excludeUserId)
+    const action = currentActionRef.current;
+    const module = action?.module;
+    const alternateModule = action?.alternateModule;
+    const excludeUserId = action?.excludeUserId
+      ? toRecordId(action.excludeUserId)
       : null;
     const moduleCandidates = moduleMatchCandidates(module);
     const alternateCandidates = moduleMatchCandidates(alternateModule);
@@ -101,15 +108,15 @@ export const PinAuth: React.FC<PinAuthProps> = ({
           );
 
       if (userWithModules.length > 0) {
-        onSuccess(userWithModules[0] as SecurityManager);
+        onSuccessRef.current(userWithModules[0] as SecurityManager);
       } else {
-        setError(t('security.invalidPin', { module: currentAction?.module }));
+        setError(t('security.invalidPin', { module: action?.module }));
       }
     } finally {
       setPin('');
       submittingRef.current = false;
     }
-  };
+  }, [db, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,7 +130,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
           void validatePIN();
           break;
         case 'Escape':
-          onCancel();
+          onCancelRef.current();
           break;
         case 'Backspace':
           setPin(prev => prev.slice(0, -1));
@@ -143,13 +150,13 @@ export const PinAuth: React.FC<PinAuthProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [currentAction, onCancel, onSuccess, t]);
+  }, [validatePIN]);
 
   useEffect(() => {
     if (pin.length === 4) {
       void validatePIN();
     }
-  }, [pin]);
+  }, [pin, validatePIN]);
 
   const btnClasses = 'size-[60px] sm:size-[60px] md:size-[90px] p-0 text-neutral-900 transition-all duration-75 bg-neutral-100 rounded-full text-3xl';
 

@@ -61,7 +61,7 @@ export const CashClosingReport = () => {
     };
 
     void fetchData();
-  }, [selectedDate]);
+  }, [selectedDate, t]);
 
   const safeNumber = (value: unknown) => {
     const parsed = Number(value);

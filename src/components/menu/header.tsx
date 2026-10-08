@@ -63,7 +63,7 @@ export const MenuHeader = () => {
         orderType: orderTypes[0]
       }))
     }
-  }, [orderTypes, state.orderType]);
+  }, [orderTypes, state.orderType, setState]);
 
   useEffect(() => {
     // load old items into cart — skip when edit session already hydrated the cart
@@ -74,6 +74,7 @@ export const MenuHeader = () => {
       return;
     }
     onOrderClick(state?.order?.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load an order's items when the order changes, not each time the cart grows
   }, [state.orders, state?.order?.id, editSession?.orderId]);
 
   useEffect(() => {
@@ -95,7 +96,7 @@ export const MenuHeader = () => {
     const timer = setInterval(heartBeat, 10000);
 
     return () => clearInterval(timer);
-  }, [state.table?.id])
+  }, [state.table?.id, db])
 
   const reset = async () => {
     // check if cart has any new items

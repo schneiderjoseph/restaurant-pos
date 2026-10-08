@@ -179,6 +179,7 @@ export const SessionIdleProvider: React.FC<SessionIdleProviderProps> = ({ childr
       clearInterval(intervalId);
       window.removeEventListener(SESSION_SECURITY_CHANGED_EVENT, onSettingsChanged);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reload settings per user/lock change only; re-running each render would reset the idle countdown
   }, [page?.user?.id, page?.locked]);
 
   // Activity + deadline ticker
@@ -231,6 +232,7 @@ export const SessionIdleProvider: React.FC<SessionIdleProviderProps> = ({ childr
       clearInterval(tickId);
       clearDeadline();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- listeners and deadline are armed per user/lock change; re-arming each render would never let the session expire
   }, [page?.user?.id, page?.locked]);
 
   return <>{children}</>;

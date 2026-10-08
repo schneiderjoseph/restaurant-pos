@@ -248,6 +248,7 @@ export const Login = () => {
       setIsAuthenticating(false);
       denyLogin();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- try the PIN once per change of the typed code, never again on a re-render
   }, [code]);
 
   useEffect(() => {

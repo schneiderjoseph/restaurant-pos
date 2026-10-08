@@ -60,7 +60,7 @@ export const SalesSummaryReport = () => {
     };
 
     void fetchData();
-  }, [filters.startDate, filters.endDate]);
+  }, [db, filters, t]);
 
   const {
     totalNetSales,

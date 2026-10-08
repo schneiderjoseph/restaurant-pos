@@ -47,7 +47,7 @@ const getFocusable = (cell: Element): HTMLElement | null => {
 };
 
 /** Focus (and select when possible) the control inside a navigable cell. */
-export const focusKeyboardGridCell = (
+const focusKeyboardGridCell = (
   root: ParentNode | null | undefined,
   row: number,
   col: number

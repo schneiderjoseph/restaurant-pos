@@ -5,6 +5,7 @@ import type { BuyXGetYCondition } from '@/api/model/discount.ts'
 import { translatedSelectOptions } from '@/lib/discount-engine/i18n-options.ts'
 import { useDiscountEntityOptions } from '@/hooks/useDiscountEntityOptions.ts'
 import { idsFromOptions, optionsFromIds } from '@/lib/discount-engine/target-ids.ts'
+import { normalizeBxgyConditions } from '@/components/settings/discounts/conditions.utils.ts'
 
 interface Props {
   open?: boolean
@@ -13,43 +14,6 @@ interface Props {
 }
 
 const GET_VALUE_TYPES = ['free', 'percent', 'fixed_amount'] as const
-
-export const DEFAULT_BXGY_CONDITIONS: BuyXGetYCondition = {
-  buy_quantity: 2,
-  get_quantity: 1,
-  buy_targets: {},
-  get_targets: {},
-  get_value_type: 'free',
-  get_value: 100,
-}
-
-export const normalizeBxgyConditions = (
-  value?: BuyXGetYCondition | null
-): BuyXGetYCondition => {
-  const base = value || DEFAULT_BXGY_CONDITIONS
-  const getValueType = base.get_value_type || 'free'
-  const rawValue = Number(base.get_value)
-  const getValue = Number.isFinite(rawValue)
-    ? rawValue
-    : getValueType === 'fixed_amount'
-      ? 0
-      : 100
-
-  return {
-    buy_quantity: Math.max(1, Number(base.buy_quantity) || 1),
-    get_quantity: Math.max(1, Number(base.get_quantity) || 1),
-    buy_targets: {
-      item_ids: base.buy_targets?.item_ids || [],
-      category_ids: base.buy_targets?.category_ids || [],
-    },
-    get_targets: {
-      item_ids: base.get_targets?.item_ids || [],
-      category_ids: base.get_targets?.category_ids || [],
-    },
-    get_value_type: getValueType,
-    get_value: getValue,
-  }
-}
 
 const defaultGetValueForType = (
   type: BuyXGetYCondition['get_value_type'],

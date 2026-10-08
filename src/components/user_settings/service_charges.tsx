@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -22,10 +22,11 @@ export const ServiceChargesSettings = () => {
 
   const {control, handleSubmit, reset} = useForm();
 
-  const typeLabel = (type: string) =>
+  const typeLabel = useCallback((type: string) =>
     type === DiscountType.Fixed
       ? t('payment:discountType.fixed')
-      : t('payment:discountType.percent');
+      : t('payment:discountType.percent'),
+  [t]);
 
   const normalizeType = (rawType: any): string => {
     if (rawType && typeof rawType === "object") {
@@ -44,13 +45,13 @@ export const ServiceChargesSettings = () => {
     return Number(rawValue ?? 0);
   };
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     const [s] = await db.query(`SELECT * FROM ${Tables.settings} where key = $key and is_global = true FETCH values`, {
       key: 'service_charges'
     });
 
     setSettings(s![0]);
-  }
+  }, [db]);
 
   const saveSettings = async (values: any) => {
     const payload = {
@@ -76,7 +77,7 @@ export const ServiceChargesSettings = () => {
 
   useEffect(() => {
     loadSettings();
-  }, []);
+  }, [loadSettings]);
 
   useEffect(() => {
     if(settings){
@@ -89,7 +90,7 @@ export const ServiceChargesSettings = () => {
         value: normalizeValue(settings.values?.value)
       });
     }
-  }, [reset, settings, t]);
+  }, [reset, settings, t, typeLabel]);
 
   return (
     <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-service-charges">

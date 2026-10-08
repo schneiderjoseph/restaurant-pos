@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
@@ -32,13 +32,13 @@ export const TranslateReceiptsSettingsCard = () => {
     },
   });
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     const [rows] = await db.query<Setting[]>(
       `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true`,
       { key: TRANSLATE_RECEIPTS_KEY }
     );
     setSettings(rows?.[0]);
-  };
+  }, [db]);
 
   const saveSettings = async (values: FormValues) => {
     const payload: TranslateReceiptsSettings = {
@@ -61,7 +61,7 @@ export const TranslateReceiptsSettingsCard = () => {
 
   useEffect(() => {
     void loadSettings();
-  }, []);
+  }, [loadSettings]);
 
   useEffect(() => {
     if (!settings) {

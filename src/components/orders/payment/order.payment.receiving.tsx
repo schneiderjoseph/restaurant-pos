@@ -112,6 +112,19 @@ type ContentProps = Props & {
   setSelectedAmount: React.Dispatch<React.SetStateAction<string>>
 };
 
+const isTaxObject = (value: unknown): value is Tax => {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as Tax).rate === 'number' &&
+    typeof (value as Tax).name === 'string'
+  );
+}
+
+const getPaymentTypeTax = (paymentType?: PaymentType): Tax | undefined => {
+  return isTaxObject(paymentType?.tax) ? paymentType?.tax : undefined;
+}
+
 export const OrderPaymentReceiving = (props: Props) => {
   const [page] = useAtom(appPage);
   const [selectedAmount, setSelectedAmount] = useState("");
@@ -298,18 +311,7 @@ const OrderPaymentReceivingContent = ({
 
   const toPrimary = (amountInPay: number) => convertPayToPrimary(amountInPay, payCurrency);
 
-  const isTaxObject = (value: unknown): value is Tax => {
-    return (
-      typeof value === 'object' &&
-      value !== null &&
-      typeof (value as Tax).rate === 'number' &&
-      typeof (value as Tax).name === 'string'
-    );
-  }
 
-  const getPaymentTypeTax = (paymentType?: PaymentType): Tax | undefined => {
-    return isTaxObject(paymentType?.tax) ? paymentType?.tax : undefined;
-  }
 
   const closeOrder = async () => {
     setClosing(true);

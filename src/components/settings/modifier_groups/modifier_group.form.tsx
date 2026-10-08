@@ -86,10 +86,14 @@ const ModifierNextGroups = ({
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const modifier = useWatch({ control, name: `modifiers.${index}.modifier` });
   const allowedNextGroups: string[] = useWatch({ control, name: `modifiers.${index}.allowed_next_groups` }) ?? [];
-  const nextGroupOverrides: ModifierNextGroupOverride[] = useWatch({
+  const watchedNextGroupOverrides = useWatch({
     control,
     name: `modifiers.${index}.next_group_overrides`,
-  }) ?? [];
+  });
+  const nextGroupOverrides: ModifierNextGroupOverride[] = useMemo(
+    () => watchedNextGroupOverrides ?? [],
+    [watchedNextGroupOverrides],
+  );
   const [attachableGroups, setAttachableGroups] = useState<DishModifierGroup[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingGroup, setEditingGroup] = useState<{
@@ -123,7 +127,7 @@ const ModifierNextGroups = ({
     return () => {
       cancelled = true;
     };
-  }, [modifier?.value]);
+  }, [modifier?.value, db]);
 
   const isGroupModified = useCallback((groupId) => {
     return nextGroupOverrides.filter(item => {
@@ -315,13 +319,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
     return () => {
       cancelled = true;
     };
-  }, [data, open, reset]);
-
-  useEffect(() => {
-    if (open) {
-      fetchDishes();
-    }
-  }, [open]);
+  }, [data, open, reset, db]);
 
   const {
     fields, append, remove
@@ -337,6 +335,12 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
   } = useApi<SettingsData<Dish>>(Tables.dishes, [], ['priority asc'], 0, 99999, [], {
     'enabled': false
   });
+
+  useEffect(() => {
+    if (open) {
+      fetchDishes();
+    }
+  }, [open, fetchDishes]);
 
   const onSubmit = async (values: any) => {
     const vals = { ...values };

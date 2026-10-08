@@ -6,6 +6,7 @@ import { getGatewayDescriptor } from "@/lib/payment/gateway-catalog.ts";
 import { toast } from "sonner";
 import i18n from "@/lib/i18n.ts";
 
+// eslint-disable-next-line react-refresh/only-export-components -- adapter module: the lazy panel is not a component export
 const StripePaymentForm = lazy(() =>
   import("@/components/orders/payment/remote/gateways/stripe/stripe-payment-form.tsx").then(
     (m) => ({default: m.StripePaymentForm})

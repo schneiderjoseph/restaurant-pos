@@ -144,7 +144,7 @@ export const OrderReceiptReport = () => {
     return () => {
       cancelled = true;
     };
-  }, [lookup, t]);
+  }, [db, lookup, t]);
 
   const baseName = `order-receipt-${invoiceLabel || "order"}`;
 

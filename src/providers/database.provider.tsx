@@ -78,6 +78,7 @@ export interface DatabaseProviderState {
   hasSession: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- context file exports its context
 export const DatabaseContext = createContext<DatabaseProviderState | undefined>(undefined);
 
 export interface DatabaseProviderProps {

@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {UserRole} from "@/api/model/user_role.ts";
@@ -27,7 +27,7 @@ export const OrderDisplayAccessSettingsCard = () => {
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [hasAccess, setHasAccess] = useState<Record<string, boolean>>({});
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const [roleRows] = await db.query<[UserRole[]]>(
       `SELECT * FROM ${Tables.user_roles} WHERE deleted_at = NONE ORDER BY name`,
     );
@@ -35,7 +35,7 @@ export const OrderDisplayAccessSettingsCard = () => {
     setHasAccess(Object.fromEntries(
       (roleRows ?? []).map(role => [role.id.toString(), (role.roles ?? []).includes(ORDER_DISPLAY_MODULE)]),
     ));
-  };
+  }, [db]);
 
   const save = async () => {
     for (const role of roles) {
@@ -52,7 +52,7 @@ export const OrderDisplayAccessSettingsCard = () => {
 
   useEffect(() => {
     void load();
-  }, []);
+  }, [load]);
 
   return (
     <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-order-display-access">

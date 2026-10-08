@@ -197,7 +197,8 @@ export const DeliverySettings = () => {
     };
 
     loadDeliverySettings();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- omit t: language change must not reset in-progress form edits
+  }, [db, reset]);
 
   // Save delivery settings
   const onSubmit = async (values: DeliverySettingsForm) => {

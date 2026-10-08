@@ -9,7 +9,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import React, {FC, ReactNode, useEffect, useState,} from "react";
+import React, {FC, ReactNode, useEffect, useMemo, useState,} from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faRefresh, faSearch, } from "@fortawesome/free-solid-svg-icons";
@@ -75,6 +75,7 @@ export const TableComponent: FC<TableComponentProps> = ({
     } else {
       handleSortChange!([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSortChange from loaderHook is recreated each render
   }, [sorting]);
 
   const [{ pageIndex, pageSize }, setPagination] =
@@ -86,6 +87,7 @@ export const TableComponent: FC<TableComponentProps> = ({
   useEffect(() => {
     handlePageChange!(pageIndex * pageSize);
     handleLimitChange!(pageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- page handlers from loaderHook are recreated each render
   }, [pageIndex, pageSize]);
 
   const pagination = React.useMemo(
@@ -176,10 +178,16 @@ export const TableComponent: FC<TableComponentProps> = ({
     setValue
   } = useForm();
 
-  const filterOptions = table
-    .getAllColumns()
-    .filter((column) => column.getCanFilter())
-    .map((column) => ({ label: column.columnDef.header, value: column.id }));
+  const filterOptions = useMemo(
+    () =>
+      table
+        .getAllColumns()
+        .filter((column) => column.getCanFilter())
+        .map((column) => ({ label: column.columnDef.header, value: column.id })),
+    // table instance is recreated often; columns prop is the stable source of filterable fields
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columns]
+  );
 
   const [loaded, setLoaded] = useState(false);
 
@@ -188,7 +196,7 @@ export const TableComponent: FC<TableComponentProps> = ({
       setValue("column", filterOptions[0]); // set first column as default
       setLoaded(true);
     }
-  }, [table.getAllColumns()]);
+  }, [loaded, filterOptions, setValue]);
 
   const handleColumnFilter = (values: any) => {
     if( values.value && values.value.trim() !== '' ) {

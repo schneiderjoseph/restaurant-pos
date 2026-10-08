@@ -90,7 +90,7 @@ export const AdminTipDistribution = () => {
       user_id: normalizeId(item.user_id),
       weight: Number(item.weight || 0),
     })));
-  }, []);
+  }, [db]);
 
   useEffect(() => {
     void loadSettings();

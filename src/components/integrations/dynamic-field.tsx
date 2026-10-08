@@ -65,7 +65,7 @@ const AccountField = ({
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [db]);
 
   const selected = useMemo(
     () => options.find((option) => String(option.value) === String(value)) ?? null,
@@ -127,7 +127,7 @@ const ExternalEntityField = ({
     };
     void load();
     return () => { mounted = false; };
-  }, [providerId, field.entityType]);
+  }, [providerId, field.entityType, db]);
 
   const selected = useMemo(
     () => options.find((option) => String(option.value) === String(value)) ?? null,

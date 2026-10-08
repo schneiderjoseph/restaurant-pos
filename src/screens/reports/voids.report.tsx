@@ -194,7 +194,7 @@ export const VoidsReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.reasonIds, filters.managerIds, filters.cashierIds, filters.menuItemIds]);
+  }, [filters.startDate, filters.endDate, filters.reasonIds, filters.managerIds, filters.cashierIds, filters.menuItemIds, t]);
 
   // Summary: Voids by reason
   const voidsByReason = useMemo(() => {
@@ -216,7 +216,7 @@ export const VoidsReport = () => {
     return Array.from(map.entries())
       .map(([reason, data]) => ({reason, ...data}))
       .sort((a, b) => b.count - a.count);
-  }, [orderVoids]);
+  }, [orderVoids, unknownLabel]);
 
   // Summary: Voids by managers
   const voidsByManager = useMemo(() => {
@@ -240,7 +240,7 @@ export const VoidsReport = () => {
     return Array.from(map.entries())
       .map(([manager, data]) => ({manager, ...data}))
       .sort((a, b) => b.count - a.count);
-  }, [orderVoids]);
+  }, [orderVoids, unknownLabel]);
 
   // Summary: Voids by menu items
   const voidsByMenuItem = useMemo(() => {
@@ -263,7 +263,7 @@ export const VoidsReport = () => {
     return Array.from(map.entries())
       .map(([menuItem, data]) => ({menuItem, ...data}))
       .sort((a, b) => b.count - a.count);
-  }, [orderVoids]);
+  }, [orderVoids, unknownLabel]);
 
   if (loading) {
     return (

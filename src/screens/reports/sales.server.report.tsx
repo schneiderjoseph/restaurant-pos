@@ -357,7 +357,7 @@ export const SalesServerReport = () => {
     };
 
     fetchOrders();
-  }, [filters.startDate, filters.endDate, filters.userIds, filters.orderTypeIds, filters.floorIds, filters.tableIds, filters.dishIds, filters.categoryIds]);
+  }, [filters.startDate, filters.endDate, filters.userIds, filters.orderTypeIds, filters.floorIds, filters.tableIds, filters.dishIds, filters.categoryIds, t]);
 
   const filteredOrders = orders;
   const sections: UserReportSection[] = useMemo(() => {
@@ -442,7 +442,7 @@ export const SalesServerReport = () => {
         coupons: 0,
       }),
     }));
-  }, [filteredOrders, filters.userIds]);
+  }, [filteredOrders, filters.userIds, t]);
 
   const subtitle = filters.startDate && filters.endDate
     ? `${filters.startDate} to ${filters.endDate}`

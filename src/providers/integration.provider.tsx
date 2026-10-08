@@ -171,7 +171,7 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       });
       bootstrappedRef.current = false;
     };
-  }, [manager, isConnected, sessionReady]);
+  }, [manager, isConnected, sessionReady, repositories]);
 
   const refreshProviderStates = async () => {
     let enabledIds: string[] = [];
@@ -215,6 +215,7 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- context file exports its hook
 export const useIntegrationManager = () => {
   const context = useContext(IntegrationContext);
   if (!context) {

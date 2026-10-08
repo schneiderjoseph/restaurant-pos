@@ -1,5 +1,5 @@
 import {DateTime as LuxonDateTime, ToHumanDurationOptions} from "luxon";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DateInput, nowInAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 
 interface Props{
@@ -13,7 +13,7 @@ export const Countdown = ({time, showAll, hideUntilStarted}: Props) => {
   const [diff, setDiff] = useState('-, -, -');
 
 
-  const calculateDiff = () => {
+  const calculateDiff = useCallback(() => {
     const humanFormatSettings: ToHumanDurationOptions = {
       unitDisplay: 'narrow',
       maximumFractionDigits: 0
@@ -36,7 +36,7 @@ export const Countdown = ({time, showAll, hideUntilStarted}: Props) => {
         setDiff(now.diff(startedAt).shiftTo('hours', 'minutes').toHuman(humanFormatSettings));
       }
     }
-  }
+  }, [time, showAll, hideUntilStarted]);
 
   useEffect(() => {
     calculateDiff();
@@ -45,7 +45,7 @@ export const Countdown = ({time, showAll, hideUntilStarted}: Props) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [time, showAll, hideUntilStarted]);
+  }, [calculateDiff]);
 
   return (
     <span className="tabular-nums">{diff}</span>

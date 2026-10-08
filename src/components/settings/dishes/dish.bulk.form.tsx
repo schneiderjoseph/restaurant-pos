@@ -86,17 +86,19 @@ const validationSchema = yup.object({
   })).default([]),
 });
 
+const DISH_BULK_DEFAULT_VALUES = {
+  price: undefined,
+  replace_workflow: false,
+  workflow: null,
+  replace_categories: false,
+  categories: [],
+  replace_modifier_groups: false,
+  modifier_groups: [],
+};
+
 export const DishBulkForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const defaultValues = {
-    price: undefined,
-    replace_workflow: false,
-    workflow: null,
-    replace_categories: false,
-    categories: [],
-    replace_modifier_groups: false,
-    modifier_groups: [],
-  };
+  const defaultValues = DISH_BULK_DEFAULT_VALUES;
   const [categoriesModal, setCategoriesModal] = useState(false);
   const [modifierGroupsModal, setModifierGroupsModal] = useState(false);
   const [workflowModal, setWorkflowModal] = useState(false);
@@ -149,7 +151,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
       fetchWorkflows();
       reset(defaultValues);
     }
-  }, [open]);
+  }, [open, fetchCategories, fetchModifierGroups, fetchWorkflows, reset, defaultValues]);
 
   const {
     fields: modifierGroupFields,

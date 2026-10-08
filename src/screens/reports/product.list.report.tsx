@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from '@/screens/partials/reports.layout.tsx';
 import { useDB } from '@/api/db/db.ts';
@@ -12,7 +12,7 @@ export const ProductListReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -24,11 +24,11 @@ export const ProductListReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [db, t]);
 
   useEffect(() => {
     void fetchData();
-  }, []);
+  }, [fetchData]);
 
   if (loading) {
     return (

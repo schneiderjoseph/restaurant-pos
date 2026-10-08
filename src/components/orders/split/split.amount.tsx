@@ -5,7 +5,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {Input} from "@/components/common/input/input.tsx";
 import {calculateOrderItemPrice, calculateOrderTotal} from "@/lib/cart.ts";
 import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
-import React, {useMemo, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import {faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {calculateOrderPaymentTaxAmount} from "@/lib/tax-calculator.ts";
@@ -83,11 +83,11 @@ export const SplitAmount = ({
   }, [splits, assignedTotal, orderTotal, firstSplitCoversExtras]);
 
   // Share of the order (lines, tax, discounts, charges) a split carries, extras set aside
-  const getSplitRatio = (splitAmount: number, index: number) => {
+  const getSplitRatio = useCallback((splitAmount: number, index: number) => {
     const shareable = orderTotal - extrasTotal;
     if (shareable <= 0) return 1 / Math.max(1, splits.length);
     return Math.max(0, splitAmount - (index === 0 ? extrasTotal : 0)) / shareable;
-  };
+  }, [orderTotal, extrasTotal, splits.length]);
 
   // Calculate adjusted item price for a split
   const getAdjustedItemPrice = (item: OrderItem, ratio: number) => {
@@ -102,7 +102,7 @@ export const SplitAmount = ({
         return total + getAdjustedItemPrice(item, ratio);
       }, 0);
     });
-  }, [splits, allItems, orderTotal, extrasTotal]);
+  }, [splits, allItems, getSplitRatio]);
 
   const updateSplitAmount = (splitId: string, amount: number) => {
     const newAmount = Math.max(0, Math.min(amount, orderTotal));

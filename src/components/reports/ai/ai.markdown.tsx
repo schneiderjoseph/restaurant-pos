@@ -3,7 +3,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {cn} from "@/lib/utils.ts";
 import type {AiOrderRef} from "@/lib/ai/order-refs.ts";
-import {linkifyOrderChildren, ReceiptMarkdownLink} from "@/lib/ai/order-receipt-links.tsx";
+import {ReceiptMarkdownLink} from "@/lib/ai/order-receipt-links.tsx";
+import {linkifyOrderChildren} from "@/lib/ai/order-receipt-linkify.tsx";
 
 type AiMarkdownProps = {
   children: string;

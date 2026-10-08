@@ -1,5 +1,5 @@
 import AntDatePicker from "antd/es/date-picker";
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 import { antPickerPopupProps, usePickerTouchProps } from "@/components/common/antd/picker.shared.ts";
 
 interface Props {
@@ -46,6 +46,3 @@ export const DateTimePicker = ({
     </div>
   );
 };
-
-export const jsDateToDayjs = (date?: Date | null): Dayjs | null =>
-  date ? dayjs(date) : null;

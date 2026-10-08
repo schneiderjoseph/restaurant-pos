@@ -132,7 +132,7 @@ export const LedgerEntriesModal = ({
     return () => {
       cancelled = true;
     };
-  }, [open, accountId, dateFrom, dateTo, openingBalance]);
+  }, [open, accountId, dateFrom, dateTo, openingBalance, db]);
 
   const closingBalance = useMemo(() => {
     if (rows.length === 0) {

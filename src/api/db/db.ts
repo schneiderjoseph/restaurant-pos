@@ -10,7 +10,7 @@ import {
   Table,
   Values
 } from "surrealdb";
-import {useRef} from "react";
+import {useMemo, useRef} from "react";
 import {toast} from "sonner";
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {getSessionToken, isGatewayAuthEnabled} from "@/lib/session.ts";
@@ -97,6 +97,8 @@ export const useDB = () => {
   // effect) must not keep queueing writes once the connection is back.
   const offlineRef = useRef(isOfflineCapable);
   offlineRef.current = isOfflineCapable;
+  const onlineRef = useRef(isBrowserOnline);
+  onlineRef.current = isBrowserOnline;
 
   if (!liveConnected && !allowDisconnected && !isOfflineCapable) {
     throw new Error('Database is not connected. Please ensure DatabaseProvider is wrapping your app and connection is established.');
@@ -107,7 +109,7 @@ export const useDB = () => {
       throw new DbNotReadyError('no_session', 'No POS session — login required');
     }
 
-    if (!isBrowserOnline) {
+    if (!onlineRef.current) {
       throw new DbNotReadyError('not_connected', 'Database is not connected');
     }
 
@@ -337,7 +339,9 @@ export const useDB = () => {
     }, 'live query');
   }
 
-  return {
+  // Same object for the same client: `db` can sit in effect dependencies without re-running
+  // them on every render. The methods read the connection state through refs.
+  return useMemo(() => ({
     query,
     db: client, // Expose the client for direct access if needed
     select,
@@ -348,5 +352,6 @@ export const useDB = () => {
     merge,
     upsert,
     live
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- every method only uses `client` and refs
+  }), [client]);
 }

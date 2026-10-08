@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from '@/screens/partials/reports.layout.tsx';
 import { useDB } from '@/api/db/db.ts';
 import { getActivityLog } from '@/api/reports/operations/index.ts';
 import { parseDateRangeFromParams } from '@/api/reports/shared/filters.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
-import { detectBrowser, detectOS, displayValue } from '@/screens/reports/activity.report.tsx';
+import { detectBrowser, detectOS, displayValue } from '@/screens/reports/activity.utils.ts';
 
 type AuditRow = Awaited<ReturnType<typeof getActivityLog>>['entries'][number];
 
@@ -26,7 +26,7 @@ export const AuditReport = () => {
       ? `${filters.startDate} to ${filters.endDate}`
       : undefined;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -42,11 +42,11 @@ export const AuditReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [db, filters.endDate, filters.startDate, t]);
 
   useEffect(() => {
     void fetchData();
-  }, [filters.startDate, filters.endDate]);
+  }, [fetchData]);
 
   if (loading) {
     return (

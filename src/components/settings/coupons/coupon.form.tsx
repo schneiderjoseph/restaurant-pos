@@ -17,7 +17,8 @@ import {DateTime} from "luxon";
 import type {Dayjs} from "dayjs";
 import {nowSurrealDateTime, toJsDate, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {TimePicker} from "@/components/common/antd/time.picker.tsx";
-import {DateTimePicker, jsDateToDayjs} from "@/components/common/antd/datetime.picker.tsx";
+import {DateTimePicker} from "@/components/common/antd/datetime.picker.tsx";
+import {jsDateToDayjs} from "@/components/common/antd/datetime.utils.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 

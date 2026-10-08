@@ -94,7 +94,7 @@ export const Closing = () => {
     ['deleted_at = none'],
     ["priority asc"]
   );
-  const paymentTypes = paymentTypesData?.data || [];
+  const paymentTypes = useMemo(() => paymentTypesData?.data || [], [paymentTypesData?.data]);
   const [closingWindow, setClosingWindow] = useState<ClosingCycleWindow>(DEFAULT_CLOSING_WINDOW);
   const [cycleEnabled, setCycleEnabled] = useState(true);
 
@@ -171,7 +171,7 @@ export const Closing = () => {
       console.error("Error fetching closing-window payments:", error);
       throw error;
     }
-  }, [closingWindow.date_from, closingWindow.date_to]);
+  }, [closingWindow.date_from, closingWindow.date_to, db]);
 
   const hydrateTerminals = useCallback((source: ClosingModel | null) => {
     const sourceTerminals = source?.terminal_cash && source.terminal_cash.length > 0
@@ -233,22 +233,23 @@ export const Closing = () => {
     } finally {
       setLoading(false);
     }
-  }, [hydratePayments, hydrateTerminals, paymentTypes.length]);
+  }, [hydratePayments, hydrateTerminals, paymentTypes.length, db, t]);
 
   const refreshClosingWindow = useCallback(async () => {
     const resolved = await resolveClosingWindow(db, new Date());
     setClosingWindow(resolved.window);
     setCycleEnabled(resolved.cycleEnabled);
     return resolved;
-  }, []);
+  }, [db]);
 
   useEffect(() => {
     void refreshClosingWindow();
   }, [refreshClosingWindow]);
 
+  // loadClosingData changes with the closing window and the payment types: reload then.
   useEffect(() => {
     void loadClosingData();
-  }, [paymentTypes.length, closingWindow.date_from.getTime(), closingWindow.date_to.getTime()]);
+  }, [loadClosingData]);
 
   const totalCash = useMemo(() => {
     return computedTerminalCash.reduce((sum, terminal) => sum + terminal.cash_amount, 0);

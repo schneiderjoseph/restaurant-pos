@@ -127,7 +127,7 @@ export const OrderFiscalReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.providerIds, filters.statuses]);
+  }, [filters.startDate, filters.endDate, filters.providerIds, filters.statuses, t]);
 
   const statusLabel = (status: string): string => {
     switch (status) {

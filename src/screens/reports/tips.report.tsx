@@ -94,7 +94,7 @@ export const TipsReport = () => {
     };
 
     void fetchData();
-  }, [filters.startDate, filters.endDate, filters.shiftId]);
+  }, [filters.startDate, filters.endDate, filters.shiftId, t]);
 
   const totalTips = useMemo(
     () => distributions.reduce((sum, distribution) => sum + safeNumber(distribution.total_tips), 0),
@@ -114,7 +114,7 @@ export const TipsReport = () => {
       });
     });
     return Array.from(map.entries()).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
-  }, [distributions]);
+  }, [distributions, t]);
 
   if (loading) {
     return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.tips')}</div></ReportsLayout>;

@@ -61,6 +61,7 @@ export const BalanceSheet = () => {
 
   useEffect(() => {
     loadBalanceSheet();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initial load; filters applied via Load button
   }, []);
 
   const summary = useMemo(() => {

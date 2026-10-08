@@ -65,6 +65,7 @@ export const ProfitLoss = () => {
 
   useEffect(() => {
     loadProfitLoss();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initial load; filters applied via Load button
   }, []);
 
   const {incomeRows, expenseRows, totalIncome, totalExpense, netProfit} = useMemo(() => {

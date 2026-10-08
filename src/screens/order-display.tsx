@@ -163,7 +163,7 @@ export const OrderDisplayScreen = () => {
       buildKitchenRowsMap(Array.isArray(kitchenRows) ? (kitchenRows as OrderItemKitchen[]) : [])
     );
     setHydrated(true);
-  }, [filterQuery, duoUserKey]);
+  }, [filterQuery, duoUserKey, db]);
 
   useEffect(() => {
     // New filters bring orders already ready into view: not announcements.
@@ -201,7 +201,7 @@ export const OrderDisplayScreen = () => {
       liveOrdersRef.current = null;
       liveKitchenRef.current = null;
     };
-  }, [fetchOrders]);
+  }, [fetchOrders, db]);
 
   // Announcements look at every order: the columns only show the first few, and an
   // older ready order sliding back into view must not be announced again.
@@ -219,7 +219,7 @@ export const OrderDisplayScreen = () => {
       { order: toRecordId(order.id.toString()) }
     );
     await fetchOrders();
-  }, [fetchOrders]);
+  }, [fetchOrders, db]);
 
   const markServed = useCallback(async (order: OrderModel) => {
     try {

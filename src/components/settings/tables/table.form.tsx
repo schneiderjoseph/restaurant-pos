@@ -64,6 +64,43 @@ export const TableForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const db = useDB();
+
+  const { control, handleSubmit, formState: {errors}, reset } = useForm({
+    resolver: yupResolver(validationSchema)
+  });
+
+  const {
+    data: categories,
+    fetchData: fetchCategories,
+    isFetching: loadingCategories
+  } = useApi<SettingsData<Category>>(Tables.categories, [], [], 0, 99999, [], {
+    enabled: false
+  });
+
+  const {
+    data: paymentTypes,
+    fetchData: fetchPaymentTypes,
+    isFetching: loadingPaymentTypes
+  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], [], 0, 99999, [], {
+    enabled: false
+  });
+
+  const {
+    data: orderTypes,
+    fetchData: fetchOrderTypes,
+    isFetching: loadingOrderTypes
+  } = useApi<SettingsData<OrderType>>(Tables.order_types, [], [], 0, 99999, [], {
+    enabled: false
+  });
+
+  const {
+    data: floors,
+    fetchData: fetchFloors,
+    isFetching: loadingFloors
+  } = useApi<SettingsData<Floor>>(Tables.floors, [], [], 0, 99999, [], {
+    enabled: false
+  });
 
   const closeModal = () => {
     onClose();
@@ -105,45 +142,7 @@ export const TableForm = ({
         })),
       });
     }
-  }, [data]);
-
-  const db = useDB();
-
-  const { control, handleSubmit, formState: {errors}, reset } = useForm({
-    resolver: yupResolver(validationSchema)
-  });
-
-  const {
-    data: categories,
-    fetchData: fetchCategories,
-    isFetching: loadingCategories
-  } = useApi<SettingsData<Category>>(Tables.categories, [], [], 0, 99999, [], {
-    enabled: false
-  });
-
-  const {
-    data: paymentTypes,
-    fetchData: fetchPaymentTypes,
-    isFetching: loadingPaymentTypes
-  } = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], [], 0, 99999, [], {
-    enabled: false
-  });
-
-  const {
-    data: orderTypes,
-    fetchData: fetchOrderTypes,
-    isFetching: loadingOrderTypes
-  } = useApi<SettingsData<OrderType>>(Tables.order_types, [], [], 0, 99999, [], {
-    enabled: false
-  });
-
-  const {
-    data: floors,
-    fetchData: fetchFloors,
-    isFetching: loadingFloors
-  } = useApi<SettingsData<Floor>>(Tables.floors, [], [], 0, 99999, [], {
-    enabled: false
-  });
+  }, [data, reset]);
 
   const onSubmit = async (values: any) => {
     const val = {...values};
@@ -202,7 +201,7 @@ export const TableForm = ({
       fetchPaymentTypes();
       fetchOrderTypes();
     }
-  }, [open]);
+  }, [open, fetchFloors, fetchCategories, fetchPaymentTypes, fetchOrderTypes]);
 
   return (
     <>

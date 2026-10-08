@@ -162,7 +162,8 @@ export const Printersettings = () => {
     };
 
     load();
-  }, [printers.length, userId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- printers array identity changes often; length gates load without resetting the form
+  }, [printers.length, userId, db, reset, t]);
 
   // Upgrade bare system printer ids (e.g. "abc") to full "printer:abc" once printers load.
   useEffect(() => {
@@ -182,7 +183,8 @@ export const Printersettings = () => {
       }
       return changed ? next : prev;
     });
-  }, [printers.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- printers array identity changes often; length gates upgrade without loops
+  }, [printers.length, setSystemSettings]);
 
   const onSubmit = async (values: PrinterSettingsForm) => {
     if (!userId) {

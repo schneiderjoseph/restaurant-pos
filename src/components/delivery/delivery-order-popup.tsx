@@ -105,7 +105,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
     if (open) {
       fetchRiders();
     }
-  }, [order.status, delivery?.rider, open]);
+  }, [order.status, delivery?.rider, open, db, t]);
 
   // Find current order index and get next/previous orders
   const currentIndex = useMemo(() => {

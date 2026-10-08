@@ -48,6 +48,12 @@ export const CategoryForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const db = useDB();
+
+  const { control, handleSubmit, formState: {errors}, reset, setValue } = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues: { show_in_menu: true },
+  });
 
   const closeModal = () => {
     onClose();
@@ -72,9 +78,7 @@ export const CategoryForm = ({
           : { label: t('forms.outletNone'), value: '' },
       });
     }
-  }, [data]);
-
-  const db = useDB();
+  }, [data, reset, t]);
 
   const { data: outlets } = useApi<SettingsData<Outlet>>(
     Tables.outlets,
@@ -115,11 +119,6 @@ export const CategoryForm = ({
     [...KITCHEN_FETCHES],
     { enabled: open },
   );
-
-  const { control, handleSubmit, formState: {errors}, reset, setValue } = useForm({
-    resolver: yupResolver(validationSchema),
-    defaultValues: { show_in_menu: true },
-  });
 
   const selectedOutlet = useWatch({ control, name: 'outlet' });
 

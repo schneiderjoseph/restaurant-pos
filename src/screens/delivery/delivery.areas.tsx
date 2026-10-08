@@ -397,7 +397,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
         toast.error(t('toast:delivery.mapAreasSaveFailed'));
       });
     }, 300);
-  }, [serializeAndSave]);
+  }, [serializeAndSave, t]);
 
   const setMapDrawingActive = useCallback(
     (active: boolean) => {
@@ -547,7 +547,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
       });
       addOverlay(polygon);
     },
-    [addOverlay, map]
+    [addOverlay, map, t]
   );
 
   const startDrawing = useCallback(
@@ -709,7 +709,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
       scheduleSave();
       clearActiveDraw();
     },
-    [addOverlay, clearActiveDraw, createOverlayFromPath, map, scheduleSave]
+    [addOverlay, clearActiveDraw, createOverlayFromPath, map, scheduleSave, t]
   );
 
   useEffect(() => {
@@ -866,11 +866,12 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
   }, [clearListeners, map, mapAreas, mapsReady, setSelectedOverlay]);
 
   useEffect(() => {
+    const overlays = overlaysRef.current;
     return () => {
       clearListeners();
       clearDrawingPreview();
-      overlaysRef.current.forEach((overlay) => overlay.setMap(null));
-      overlaysRef.current.clear();
+      overlays.forEach((overlay) => overlay.setMap(null));
+      overlays.clear();
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
   }, [clearDrawingPreview, clearListeners]);
@@ -1019,7 +1020,7 @@ export const DeliveryAreas = () => {
     };
 
     loadMapAreas();
-  }, []);
+  }, [db, t]);
 
   const saveMapAreas = useCallback(async (areas: MapArea[]) => {
     try {
@@ -1045,7 +1046,7 @@ export const DeliveryAreas = () => {
       console.error("Error saving map areas:", error);
       toast.error(t('toast:delivery.mapAreasSaveFailed'));
     }
-  }, [db]);
+  }, [db, t]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import {Fragment, useEffect, useMemo, useState} from "react";
+import {Fragment, useCallback, useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -123,7 +123,7 @@ export const ProductMixSummaryReport = () => {
     ? `${filters.startDate} to ${filters.endDate}`
     : undefined;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -152,20 +152,22 @@ export const ProductMixSummaryReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    db,
+    filters.categoryIds,
+    filters.endDate,
+    filters.menuItemIds,
+    filters.modifierIds,
+    filters.orderTakerIds,
+    filters.orderTypeIds,
+    filters.startDate,
+    showInclusive,
+    t,
+  ]);
 
   useEffect(() => {
     void fetchData();
-  }, [
-    filters.startDate,
-    filters.endDate,
-    filters.orderTakerIds.join(','),
-    filters.orderTypeIds.join(','),
-    filters.categoryIds.join(','),
-    filters.menuItemIds.join(','),
-    filters.modifierIds.join(','),
-    showInclusive,
-  ]);
+  }, [fetchData]);
 
   const toggleExpand = (dishKey: string) => {
     setExpandedDishes(prev => {

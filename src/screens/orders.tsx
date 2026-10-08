@@ -191,10 +191,12 @@ export const Orders = () => {
     ORDER_LIST_FETCHES
   );
 
+  // The builder object is new each render; its setters are plain useState setters.
+  const {setWheres: setOrderWheres, setParameters: setOrderParameters} = ordersQb;
   useEffect(() => {
-    ordersQb.setWheres(orderFilters.map(item => `and ${item}`));
-    ordersQb.setParameters(orderFilterParams);
-  }, [orderFilters, orderFilterParams]);
+    setOrderWheres(orderFilters.map(item => `and ${item}`));
+    setOrderParameters(orderFilterParams);
+  }, [orderFilters, orderFilterParams, setOrderWheres, setOrderParameters]);
 
   const fetchOrders = useCallback(async () => {
     const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
@@ -242,7 +244,7 @@ export const Orders = () => {
       console.error('Orders kitchen ready query failed', error);
       setKitchenReadyIds(new Set());
     }
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [ordersQb.queryString, ordersQb.parameters, db]);
 
   fetchOrdersRef.current = fetchOrders;
 
@@ -256,9 +258,10 @@ export const Orders = () => {
     }, ORDERS_LIVE_DEBOUNCE_MS);
   }, []);
 
+  // fetchOrders changes with the query string and its parameters.
   useEffect(() => {
     fetchOrders();
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [fetchOrders]);
 
   const {
     data: users,
@@ -305,7 +308,7 @@ export const Orders = () => {
       liveQueryRef.current = null;
       liveKitchenQueryRef.current = null;
     };
-  }, [scheduleFetchOrders]);
+  }, [scheduleFetchOrders, db]);
 
   const selectedTable = useMemo(() => {
     return settings.tables.find(item => item.id.toString() === mergingTable);

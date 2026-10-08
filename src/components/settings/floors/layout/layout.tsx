@@ -170,7 +170,7 @@ export const AdminFloorLayout = ({
     if (arrangedCount > 0) {
       toast.success(t('toast:admin.tablesArranged', { count: arrangedCount }));
     }
-  }, [db, effectiveGridWidth, fetchTables, layoutGap, tables?.data]);
+  }, [db, effectiveGridWidth, fetchTables, layoutGap, t, tables?.data]);
 
   const toggleTableSelection = useCallback((tableId: string) => {
     setSelectedTableIds((prev) => {
@@ -292,7 +292,7 @@ export const AdminFloorLayout = ({
 
     await fetchTables();
     toast.success(t('toast:admin.tablesUpdated', { count: selectedTableIds.length }));
-  }, [bulkSettings.background, bulkSettings.color, bulkSettings.height, bulkSettings.rounded, bulkSettings.width, db, fetchTables, selectedTableIds]);
+  }, [bulkSettings.background, bulkSettings.color, bulkSettings.height, bulkSettings.rounded, bulkSettings.width, db, fetchTables, selectedTableIds, t]);
 
   return (
     <div className="flex justify-center items-center">

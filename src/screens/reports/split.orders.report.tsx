@@ -76,7 +76,7 @@ export const SplitOrdersReport = () => {
     };
 
     void fetchData();
-  }, [filters.endDate, filters.startDate]);
+  }, [filters.endDate, filters.startDate, t]);
 
   if (loading) {
     return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.splitOrders')}</div></ReportsLayout>;

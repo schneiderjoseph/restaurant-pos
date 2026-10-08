@@ -113,12 +113,13 @@ export const DeliveryBannersSection = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
+    const previewUrls = previewUrlsRef.current;
     return () => {
-      previewUrlsRef.current.forEach((url) => revokeUrl(url));
-      previewUrlsRef.current.clear();
+      previewUrls.forEach((url) => revokeUrl(url));
+      previewUrls.clear();
     };
   }, []);
 

@@ -160,7 +160,7 @@ export const TableBulkForm = ({
       fetchPaymentTypes();
       fetchOrderTypes();
     }
-  }, [open]);
+  }, [open, fetchFloors, fetchCategories, fetchPaymentTypes, fetchOrderTypes]);
 
   return (
     <>

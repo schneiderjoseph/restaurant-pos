@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from '@/screens/partials/reports.layout.tsx';
 import { useDB } from '@/api/db/db.ts';
@@ -28,7 +28,7 @@ export const TablesSummaryReport = () => {
       ? `${filters.startDate} to ${filters.endDate}`
       : undefined;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -85,11 +85,11 @@ export const TablesSummaryReport = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [db, filters.endDate, filters.startDate, i18n.language, t]);
 
   useEffect(() => {
     void fetchData();
-  }, [filters.startDate, filters.endDate]);
+  }, [fetchData]);
 
   const totals = useMemo(
     () =>

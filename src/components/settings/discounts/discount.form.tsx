@@ -9,16 +9,14 @@ import { Tables } from "@/api/db/tables.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Discount, DiscountTargets, DiscountType } from "@/api/model/discount.ts";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import { DiscountScheduleEditor } from "@/components/settings/discounts/schedule.editor.tsx";
-import {
-  DiscountConditionsEditor,
-  normalizeBxgyConditions,
-} from "@/components/settings/discounts/conditions.editor.tsx";
+import { DiscountConditionsEditor } from "@/components/settings/discounts/conditions.editor.tsx";
+import { normalizeBxgyConditions } from "@/components/settings/discounts/conditions.utils.ts";
 import { DiscountTargetsEditor } from "@/components/settings/discounts/targets.editor.tsx";
 import { refreshDiscountCache } from "@/hooks/useDiscountCache.ts";
 import {
@@ -71,11 +69,32 @@ export const DiscountForm = ({
   const [conditions, setConditions] = useState(data?.conditions);
   const [targets, setTargets] = useState<DiscountTargets>({});
 
-  const categoryOptions = translatedSelectOptions(DISCOUNT_CATEGORIES, t, 'discountEngine.categories');
-  const scopeOptions = translatedSelectOptions([...SCOPES], t, 'discountEngine.scopes');
-  const applicationModeOptions = translatedSelectOptions([...APPLICATION_MODES], t, 'discountEngine.applicationModes');
-  const stackingModeOptions = translatedSelectOptions([...STACKING_MODES], t, 'discountEngine.stackingModes');
-  const taxTreatmentOptions = translatedSelectOptions([...TAX_TREATMENTS], t, 'discountEngine.taxTreatments');
+  const categoryOptions = useMemo(
+    () => translatedSelectOptions(DISCOUNT_CATEGORIES, t, 'discountEngine.categories'),
+    [t],
+  );
+  const scopeOptions = useMemo(
+    () => translatedSelectOptions([...SCOPES], t, 'discountEngine.scopes'),
+    [t],
+  );
+  const applicationModeOptions = useMemo(
+    () => translatedSelectOptions([...APPLICATION_MODES], t, 'discountEngine.applicationModes'),
+    [t],
+  );
+  const stackingModeOptions = useMemo(
+    () => translatedSelectOptions([...STACKING_MODES], t, 'discountEngine.stackingModes'),
+    [t],
+  );
+  const taxTreatmentOptions = useMemo(
+    () => translatedSelectOptions([...TAX_TREATMENTS], t, 'discountEngine.taxTreatments'),
+    [t],
+  );
+
+  const db = useDB();
+
+  const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<any>({
+    resolver: yupResolver(validationSchema)
+  });
 
   const closeModal = () => {
     onClose();
@@ -128,13 +147,7 @@ export const DiscountForm = ({
       setConditions(data.conditions ? normalizeBxgyConditions(data.conditions) : undefined);
       setTargets(mergeTargetsFromRecord(data));
     }
-  }, [data]);
-
-  const db = useDB();
-
-  const { control, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<any>({
-    resolver: yupResolver(validationSchema)
-  });
+  }, [data, reset, categoryOptions, scopeOptions, applicationModeOptions, stackingModeOptions, taxTreatmentOptions]);
 
   const isPercent = watch('type')?.value === DiscountType.Percent;
 

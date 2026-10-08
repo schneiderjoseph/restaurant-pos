@@ -125,7 +125,7 @@ export const MenuItemModifierOverridesEditor = ({
     return () => {
       cancelled = true;
     };
-  }, [open, dishId, value]);
+  }, [open, dishId, value, db]);
 
   const templatePriceById = new Map<string, number>();
   groups.forEach((grp) => {

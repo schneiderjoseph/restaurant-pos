@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -157,12 +157,12 @@ export const ProductMixWeeklyReport = () => {
     };
 
     fetchData();
-  }, [queryStart, queryEnd, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds]);
+  }, [queryStart, queryEnd, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds, t]);
 
   // Orders already filtered in SurrealQL; keep item-level filtering for aggregation
   const filteredOrders = orders;
   // Filter items within orders by category and menu item
-  const getFilteredOrderItems = (order: Order) => {
+  const getFilteredOrderItems = useCallback((order: Order) => {
     const validItems = getOrderFilteredItems(order);
     return validItems.filter(item => {
       if (filters.categoryIds.length > 0) {
@@ -187,7 +187,7 @@ export const ProductMixWeeklyReport = () => {
 
       return true;
     });
-  };
+  }, [filters.categoryIds, filters.menuItemIds]);
 
   // Calculate metrics grouped by order taker and day
   const orderTakerMetrics = useMemo(() => {
@@ -254,7 +254,7 @@ export const ProductMixWeeklyReport = () => {
     });
 
     return Array.from(metricsMap.values()).sort((a, b) => a.userName.localeCompare(b.userName));
-  }, [filteredOrders, weekStart, filters.categoryIds, filters.menuItemIds]);
+  }, [filteredOrders, getFilteredOrderItems, t, weekStart]);
 
   const dayHeaders = useMemo(() => {
     return WEEK_DAYS.map((_, index) => ({

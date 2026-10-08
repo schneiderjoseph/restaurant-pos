@@ -356,7 +356,7 @@ export const SalesSummary2Report = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate]);
+  }, [filters.startDate, filters.endDate, t]);
 
   // First section: Financial calculations
   const financialMetrics = useMemo(() => {
@@ -659,7 +659,7 @@ export const SalesSummary2Report = () => {
       tipsBreakdown,
       extrasBreakdown,
     };
-  }, [orders, t, unknownLabel]);
+  }, [orders, t]);
 
   // Fourth section: Breakdowns
   const breakdownMetrics = useMemo(() => {
@@ -753,7 +753,7 @@ export const SalesSummary2Report = () => {
         .map(([name, data]) => ({name, ...data}))
         .sort((a, b) => b.total - a.total),
     };
-  }, [orders]);
+  }, [orders, t]);
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategories(prev => {

@@ -12,10 +12,18 @@ interface InputProps extends HTMLProps<HTMLTextAreaElement>{
 export const Textarea = forwardRef((
   props: InputProps, ref: Ref<HTMLTextAreaElement>
 ) => {
-  const {enableKeyboard = true, ...rest} = props;
+  const {
+    enableKeyboard = true,
+    onChange,
+    onMouseDown,
+    value,
+    placeholder,
+    className,
+    ...rest
+  } = props;
 
   const [showKeyboard, setShowKeyboard] = useState(false);
-  const [keyboardValue, setKeyboardValue] = useState((props.value as any)?.toString?.() || '');
+  const [keyboardValue, setKeyboardValue] = useState((value as any)?.toString?.() || '');
   const inputElRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [page] = useAtom(appPage);
@@ -30,13 +38,13 @@ export const Textarea = forwardRef((
   }, [ref]);
 
   const handleMouseDownOpen = useCallback((e: any) => {
-    if (props.onMouseDown) props.onMouseDown(e);
+    if (onMouseDown) onMouseDown(e);
     if (!(enableKeyboard && page.touch)) return;
     if (e.defaultPrevented) return;
     e.preventDefault();
-    setKeyboardValue((props.value as any)?.toString?.() || '');
+    setKeyboardValue((value as any)?.toString?.() || '');
     setShowKeyboard(true);
-  }, [enableKeyboard, page.touch, props.onMouseDown, props.value]);
+  }, [enableKeyboard, page.touch, onMouseDown, value]);
 
   const handleKeyboardClose = useCallback(() => {
     setShowKeyboard(false);
@@ -47,29 +55,29 @@ export const Textarea = forwardRef((
     }
   }, []);
 
-  const emitKeyboardChange = useCallback((value: string) => {
-    if (!props.onChange) {
+  const emitKeyboardChange = useCallback((nextValue: string) => {
+    if (!onChange) {
       return;
     }
 
     const syntheticEvent = {
-      target: {value},
-      currentTarget: {value},
+      target: {value: nextValue},
+      currentTarget: {value: nextValue},
     } as ChangeEvent<HTMLTextAreaElement>;
 
-    props.onChange(syntheticEvent);
-  }, [props]);
+    onChange(syntheticEvent);
+  }, [onChange]);
 
   // Keep internal keyboardValue in sync with external value when keyboard is not open
   useEffect(() => {
     if (!(enableKeyboard && page.touch)) return;
     if (!showKeyboard) {
-      const next = (props.value as any)?.toString?.() || '';
+      const next = (value as any)?.toString?.() || '';
       if (next !== keyboardValue) {
         setKeyboardValue(next);
       }
     }
-  }, [props.value, enableKeyboard, page.touch, showKeyboard]);
+  }, [value, enableKeyboard, page.touch, showKeyboard, keyboardValue]);
 
   return (
     <>
@@ -78,21 +86,22 @@ export const Textarea = forwardRef((
         className={
           cn(
             'form-control mousetrap',
-            props.className && props.className
+            className && className
           )
         }
         ref={assignRef}
-        value={enableKeyboard && page.touch ? keyboardValue : rest.value}
-        onChange={enableKeyboard && page.touch ? undefined : rest.onChange}
+        placeholder={placeholder}
+        value={enableKeyboard && page.touch ? keyboardValue : value}
+        onChange={enableKeyboard && page.touch ? undefined : onChange}
         readOnly={enableKeyboard && page.touch ? true : rest.readOnly}
-        onMouseDown={enableKeyboard && page.touch ? handleMouseDownOpen : rest.onMouseDown}
+        onMouseDown={enableKeyboard && page.touch ? handleMouseDownOpen : onMouseDown}
       />
       {enableKeyboard && page.touch && showKeyboard && (
         <VirtualKeyboard
           open={showKeyboard}
           onClose={handleKeyboardClose}
           type={undefined}
-          placeholder={props.placeholder}
+          placeholder={placeholder}
           value={keyboardValue}
           onChange={(v) => {
             setKeyboardValue(v);
