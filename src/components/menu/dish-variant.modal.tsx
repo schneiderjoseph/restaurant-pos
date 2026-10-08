@@ -34,6 +34,8 @@ interface Props {
 }
 
 const KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3'];
+// Big enough to hit with a thumb, small enough that the pad fits the modal on a tablet.
+const KEY_CLASS = '!h-14 w-full text-xl';
 
 /** Asks which variant (bottle / shot) or how much (3.5 oz) before a dish goes in the cart. */
 export const DishVariantModal = ({ dish, unitPrice, onPick, onClose }: Props) => {
@@ -148,14 +150,14 @@ const MeasurePicker = ({
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {KEYS.map((key) => (
           <Button
             key={key}
-            size="xl"
+            size="lg"
             flat
             variant="primary"
-            className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
+            className={KEY_CLASS}
             data-testid={`dish-measure-key-${key}`}
             onClick={() => press(key)}
           >
@@ -163,32 +165,32 @@ const MeasurePicker = ({
           </Button>
         ))}
         <Button
-          size="xl"
+          size="lg"
           flat
           variant="primary"
           disabled={!decimals}
-          className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
+          className={KEY_CLASS}
           data-testid="dish-measure-key-dot"
           onClick={() => press('.')}
         >
           {(0.5).toLocaleString(locale).replace(/\d/g, '') || '.'}
         </Button>
         <Button
-          size="xl"
+          size="lg"
           flat
           variant="primary"
-          className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
+          className={KEY_CLASS}
           data-testid="dish-measure-key-0"
           onClick={() => press('0')}
         >
           0
         </Button>
         <Button
-          size="xl"
+          size="lg"
           flat
           variant="danger"
           icon={faDeleteLeft}
-          className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
+          className={KEY_CLASS}
           aria-label={t('variants.erase')}
           data-testid="dish-measure-key-back"
           onClick={() => {
