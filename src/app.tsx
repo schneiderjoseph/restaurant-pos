@@ -34,6 +34,7 @@ import {MyOrderReadyAlert} from "@/components/orders/my-order-ready-alert.tsx";
 import {OrderEditRequestWatcher} from "@/components/orders/order-edit-request-watcher.tsx";
 import {DuoWatcher} from "@/components/duo/duo-watcher.tsx";
 import {SessionReplacedWatcher} from "@/components/security/session-replaced-watcher.tsx";
+import {PwaBranding} from "@/components/common/pwa-branding.tsx";
 
 
 // react query client wrapper
@@ -101,6 +102,7 @@ function App() {
                         <BrowserRouter>
                           <I18nProvider>
                             <SessionIdleProvider>
+                              <PwaBranding/>
                               <AiAssistantWidget/>
                               <MyOrderReadyAlert/>
                               <OrderEditRequestWatcher/>

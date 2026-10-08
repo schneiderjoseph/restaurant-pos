@@ -64,5 +64,7 @@ payments/.env
 asi-sync/.env
 loyverse-sync/.env
 
-# Per-installation branding (login background), not shared between sites
+# Per-installation branding (login background + PWA icons), not shared between sites.
+# Regenerate with: .\scripts\generate-branding-icons.ps1 -LogoPath <logo> [-EmblemCrop]
+# Committed fallbacks live in public/icons/. Runtime also follows the restaurant profile logo.
 public/branding/
