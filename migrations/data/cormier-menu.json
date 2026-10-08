@@ -1,0 +1,1695 @@
+{
+  "source": "Cormier_Plages_Menu_Extracted.xlsx + Cormier_Plage_Beverage_Menu_Extracted.xlsx + Cormier_Plage_Breakfast_Menu_Extracted.xlsx (2026-10-08)",
+  "taxes": [
+    "tax:asi_10",
+    "tax:asi_5"
+  ],
+  "categories": [
+    {
+      "key": "petit_dejeuner",
+      "name": "Petit-déjeuner",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Café ou thé + fruits, toast, jus (petit-déj)",
+          "price": 0,
+          "number": "101",
+          "description": {
+            "fr": "Café ou thé, plateau de fruits, pain grillé, confiture, beurre, jus de fruits frais. Inclus dans le prix de la chambre.",
+            "en": "Coffee or tea, fruit platter, toast, jam, butter, fresh fruit juice. Included in the room rate."
+          }
+        },
+        {
+          "name": "Œufs bouillis",
+          "price": 0,
+          "number": "102",
+          "description": {
+            "en": "Boil Eggs"
+          }
+        },
+        {
+          "name": "Œufs brouillés (jambon & fromage)",
+          "price": 0,
+          "number": "103",
+          "description": {
+            "fr": "Avec Jambon et Fromage à côté.",
+            "en": "Scramble Eggs — With Ham and Cheese on Side."
+          }
+        },
+        {
+          "name": "Œufs au plat (jambon & fromage)",
+          "price": 0,
+          "number": "104",
+          "description": {
+            "fr": "Avec Jambon et Fromage à côté.",
+            "en": "Fry Eggs — With Ham and Cheese on Side."
+          }
+        },
+        {
+          "name": "Omelette fromage et/ou jambon",
+          "price": 0,
+          "number": "105",
+          "description": {
+            "en": "Cheese and Ham Omelet"
+          }
+        },
+        {
+          "name": "Omelette créole",
+          "price": 0,
+          "number": "106",
+          "description": {
+            "fr": "Œuf, Tomates, Oignons.",
+            "en": "Omelet Créole — Eggs, Tomatoes, Onions."
+          }
+        },
+        {
+          "name": "Omelette nature",
+          "price": 0,
+          "number": "107",
+          "description": {
+            "en": "Omelet Nature"
+          }
+        },
+        {
+          "name": "Omelette espagnole (petit-déj)",
+          "price": 0,
+          "number": "108",
+          "description": {
+            "fr": "Tomates, Oignons, et Pomme de Terre.",
+            "en": "Spanish Omelet With Potatoes — Eggs, Potatoes, Onions, Olive Oil."
+          }
+        },
+        {
+          "name": "Avoine au lait ou à l’eau",
+          "price": 0,
+          "number": "109",
+          "description": {
+            "en": "Oatmeal With Water or Milk"
+          }
+        },
+        {
+          "name": "French toast",
+          "price": 0,
+          "number": "110",
+          "description": {
+            "en": "French Toast"
+          }
+        },
+        {
+          "name": "Crêpes",
+          "price": 0,
+          "number": "111",
+          "description": {
+            "en": "Crêpes"
+          }
+        },
+        {
+          "name": "Pancakes",
+          "price": 0,
+          "number": "112",
+          "description": {
+            "en": "Pancakes"
+          }
+        },
+        {
+          "name": "Saucisses grillées ou bouillies",
+          "price": 0,
+          "number": "113",
+          "description": {
+            "fr": "Avec Pomme de Terre Sautées ou Spaghettis Nature.",
+            "en": "Grilled or Boil Hot Dog — With Sautes Potatoes or Spaghetti Nature."
+          }
+        }
+      ]
+    },
+    {
+      "key": "entrees",
+      "name": "Entrées & Salades",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Salade de tomate",
+          "price": 725,
+          "number": "201",
+          "description": {
+            "fr": "Tomates fraîches, oignons et pesto.",
+            "en": "Tomato Salad — Fresh tomatoes, onions, and pesto."
+          }
+        },
+        {
+          "name": "Assiette de crudités",
+          "price": 1350,
+          "number": "202",
+          "description": {
+            "fr": "Légumes de saison, crus ou pochés, avec la touche du chef.",
+            "en": "Plate of Raw Vegetables — Seasonal vegetables, raw or poached, with a chef's touch."
+          }
+        },
+        {
+          "name": "Salade de poulet",
+          "price": 1350,
+          "number": "203",
+          "description": {
+            "fr": "Poulet tendre, échalotes, laitue et tomates. (10 oz)",
+            "en": "Chicken Salad — Tender chicken, shallots, lettuce, and tomatoes. (10 oz)"
+          }
+        },
+        {
+          "name": "Salade de pomme de terre avec hareng",
+          "price": 1780,
+          "number": "204",
+          "description": {
+            "fr": "Mélange crémeux, hareng et fromage Tête de Maure.",
+            "en": "Potato Salad with Herring — Creamy blend, herring, and Tête de Maure cheese."
+          }
+        }
+      ]
+    },
+    {
+      "key": "specialites",
+      "name": "Nos spécialités",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Ceviche de poisson",
+          "price": 2000,
+          "number": "301",
+          "description": {
+            "fr": "Poisson frais mariné au citron vert. (7 oz)",
+            "en": "Fish Ceviche — Fresh fish marinated in zesty lime. (7 oz)"
+          }
+        },
+        {
+          "name": "Ceviche de lambi",
+          "price": 2000,
+          "number": "302",
+          "description": {
+            "fr": "Lambi tendre infusé au citron vert. (6 oz)",
+            "en": "Conch Ceviche — Tender conch infused with fresh lime. (6 oz)"
+          }
+        },
+        {
+          "name": "Ailerons de poulet au djon-djon",
+          "price": 2200,
+          "number": "303",
+          "description": {
+            "fr": "Ailes macérées dans une sauce aux champignons noirs. (8 oz)",
+            "en": "Black Mushroom Wings — Wings marinated in a rich black mushroom sauce. (8 oz)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "pates",
+      "name": "Les pâtes",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Macaroni au fromage",
+          "price": 1400,
+          "number": "401",
+          "description": {
+            "fr": "Gratiné au four avec une béchamel onctueuse.",
+            "en": "Mac & Cheese — Oven-baked with a creamy béchamel sauce."
+          }
+        },
+        {
+          "name": "Spaghetti hot-dog",
+          "price": 1370,
+          "number": "402",
+          "description": {
+            "fr": "Saucisses marinées et pâtes savoureuses.",
+            "en": "Classic Hot Dog Spaghetti — Marinated sausages and flavorful pasta."
+          }
+        },
+        {
+          "name": "Spaghetti au poulet",
+          "price": 1700,
+          "number": "403",
+          "description": {
+            "fr": "Tendres morceaux de poulet et sauce tomate légère.",
+            "en": "Chicken Spaghetti — Tender chicken chunks in a light tomato sauce."
+          }
+        },
+        {
+          "name": "Spaghetti du pêcheur",
+          "price": 4150,
+          "number": "404",
+          "description": {
+            "fr": "Mélange de poisson, lambi, langouste et crevette/calamars.",
+            "en": "Seafood Spaghetti — A medley of fish, conch, shrimp and lobster/squid."
+          }
+        }
+      ]
+    },
+    {
+      "key": "boeuf",
+      "name": "Filet de bœuf",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Tassot de bœuf",
+          "price": 2000,
+          "number": "501",
+          "description": {
+            "fr": "Filet de bœuf traditionnel. (7 oz)",
+            "en": "Beef Filet / Tassot — Traditional beef filet. (7 oz)"
+          }
+        },
+        {
+          "name": "Filet de bœuf grillé",
+          "price": 2000,
+          "number": "502",
+          "description": {
+            "fr": "Épices de la maison et grillé. (7 oz)",
+            "en": "Grilled Beef Fillet — House spices and grilled. (7 oz)"
+          }
+        },
+        {
+          "name": "Filet de bœuf créole",
+          "price": 2000,
+          "number": "503",
+          "description": {
+            "fr": "Cuit dans une sauce créole. (7 oz)",
+            "en": "Creole Beef Fillet — Simmered in a Creole sauce. (7 oz)"
+          }
+        },
+        {
+          "name": "Filet de bœuf poivre crème",
+          "price": 2300,
+          "number": "504",
+          "description": {
+            "fr": "Crème de lait et poivre noir. (7 oz)",
+            "en": "Pepper Cream Beef Fillet — Milk cream and black pepper. (7 oz)"
+          }
+        }
+      ],
+      "sides": true
+    },
+    {
+      "key": "viandes",
+      "name": "Viandes",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Cabri grillé « Boucanier »",
+          "price": 2450,
+          "number": "601",
+          "description": {
+            "fr": "Désossé selon la tradition. (7 oz)",
+            "en": "Grilled « Boucanier » Goat — Boneless traditional style. (7 oz)"
+          }
+        },
+        {
+          "name": "Cabri sauce créole",
+          "price": 2450,
+          "number": "602",
+          "description": {
+            "fr": "Désossé, mijoté aux aromates et épices. (7 oz)",
+            "en": "Creole Goat — Boneless, simmered with herbs and spices. (7 oz)"
+          }
+        },
+        {
+          "name": "Griot de porc au four",
+          "price": 2300,
+          "number": "603",
+          "description": {
+            "fr": "Morceaux désossés, rôtis jusqu’à tendreté. (7 oz)",
+            "en": "Oven-Baked Pork Griot — Boneless cuts, oven-roasted until tender. (7 oz)"
+          }
+        },
+        {
+          "name": "Porc sauce créole",
+          "price": 2300,
+          "number": "604",
+          "description": {
+            "fr": "Désossé, braisé dans une sauce tomate épicée. (7 oz)",
+            "en": "Creole Pork — Boneless, braised in a spicy tomato sauce. (7 oz)"
+          }
+        }
+      ],
+      "sides": true
+    },
+    {
+      "key": "poulet",
+      "name": "Le poulet",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Poulet grillé au citron vert",
+          "price": 2000,
+          "number": "701",
+          "description": {
+            "fr": "Mariné au jus de citron vert frais. (10 oz)",
+            "en": "Lime Grilled Chicken — Marinated in fresh lime juice. (10 oz)"
+          }
+        },
+        {
+          "name": "Poulet à la créole",
+          "price": 2000,
+          "number": "702",
+          "description": {
+            "fr": "Mijoté aux aromates et épices des îles. (10 oz)",
+            "en": "Creole Style Chicken — Simmered with island herbs and spices. (10 oz)"
+          }
+        },
+        {
+          "name": "Poulet à la diable",
+          "price": 2000,
+          "number": "703",
+          "description": {
+            "fr": "Sauce créole relevée au piment fort. (10 oz)",
+            "en": "Deviled Chicken — Spicy Creole sauce with a fiery kick. (10 oz)"
+          }
+        },
+        {
+          "name": "Poulet frit",
+          "price": 2000,
+          "number": "704",
+          "description": {
+            "fr": "Croustillant, servi avec sauce Ti-Malice. (10 oz)",
+            "en": "Fried Chicken — Crispy golden chicken with Ti-Malice sauce. (10 oz)"
+          }
+        }
+      ],
+      "sides": true
+    },
+    {
+      "key": "poissons",
+      "name": "Poissons entiers (par oz)",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Poisson entier grillé (par oz)",
+          "price": 225,
+          "number": "801",
+          "description": {
+            "fr": "Citron vert et sauce Ti-Malice.",
+            "en": "Whole Grilled Fish — Key lime and spicy Ti-Malice sauce."
+          }
+        },
+        {
+          "name": "Poisson entier créole (par oz)",
+          "price": 230,
+          "number": "802",
+          "description": {
+            "fr": "Sauce aux condiments des îles.",
+            "en": "Whole Creole Fish — Island-style herb and spice sauce."
+          }
+        },
+        {
+          "name": "Poisson entier « gros sel » (par oz)",
+          "price": 220,
+          "number": "803",
+          "description": {
+            "fr": "Poché au court-bouillon traditionnel.",
+            "en": "Whole « Gros Sel » Fish — Poached in a traditional seasoned broth."
+          }
+        },
+        {
+          "name": "Poisson entier frit (par oz)",
+          "price": 230,
+          "number": "804",
+          "description": {
+            "fr": "Croustillant, servi avec sauce Ti-Malice.",
+            "en": "Whole Fried Fish — Crispy fish, served with Ti-Malice sauce."
+          }
+        }
+      ],
+      "sides": true
+    },
+    {
+      "key": "filets",
+      "name": "Filets de poisson",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Filet grillé",
+          "price": 3860,
+          "number": "901",
+          "description": {
+            "fr": "Zeste de citron vert et sauce Ti-Malice. (7 oz)",
+            "en": "Grilled Fish Fillet — Lime zest and spicy Ti-Malice sauce. (7 oz)"
+          }
+        },
+        {
+          "name": "Filet créole",
+          "price": 3900,
+          "number": "902",
+          "description": {
+            "fr": "Mijoté aux saveurs de la Caraïbe. (7 oz)",
+            "en": "Creole Fish Fillet — Simmered in Caribbean flavors. (7 oz)"
+          }
+        },
+        {
+          "name": "Filet frit",
+          "price": 3890,
+          "number": "903",
+          "description": {
+            "fr": "Cuit en douceur au court-bouillon. (7 oz)",
+            "en": "Fried Fish Fillet — Gently poached in seasoned broth. (7 oz)"
+          }
+        },
+        {
+          "name": "Filet « gros sel »",
+          "price": 3810,
+          "number": "904",
+          "description": {
+            "fr": "Cuit en douceur au court-bouillon. (7 oz)",
+            "en": "« Gros Sel » Fish Fillet — Gently poached in seasoned broth. (7 oz)"
+          }
+        }
+      ],
+      "sides": true
+    },
+    {
+      "key": "crustaces",
+      "name": "Crustacés & fruits de mer",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Langouste grillée (par oz)",
+          "price": 195,
+          "number": "1001",
+          "description": {
+            "fr": "Au poids, servie avec beurre citronné.",
+            "en": "Grilled Lobster — By weight, served with lemon butter."
+          }
+        },
+        {
+          "name": "Langouste créole",
+          "price": 3570,
+          "number": "1002",
+          "description": {
+            "fr": "Mijotée dans une sauce créole relevée. (10 oz)",
+            "en": "Creole Lobster — Simmered in a zesty Creole sauce. (10 oz)"
+          }
+        },
+        {
+          "name": "Langouste fricassée",
+          "price": 3400,
+          "number": "1003",
+          "description": {
+            "fr": "Sautée au beurre et à l’ail. (10 oz)",
+            "en": "Fricassee Lobster — Sautéed in garlic butter. (10 oz)"
+          }
+        },
+        {
+          "name": "Langouste gratinée",
+          "price": 3650,
+          "number": "1004",
+          "description": {
+            "fr": "Béchamel au four servie en coquille. (10 oz)",
+            "en": "Lobster au Gratin — Baked in béchamel sauce and served in-shell. (10 oz)"
+          }
+        },
+        {
+          "name": "Écrevisses créole",
+          "price": 3150,
+          "number": "1005",
+          "description": {
+            "fr": "Cuites dans une sauce créole. (6 oz)",
+            "en": "Creole Crawfish — Cooked in a Creole sauce. (6 oz)"
+          }
+        },
+        {
+          "name": "Écrevisses grillées",
+          "price": 3050,
+          "number": "1006",
+          "description": {
+            "fr": "Sauce échalote. (6 oz)",
+            "en": "Grilled Crawfish — Shallot sauce. (6 oz)"
+          }
+        },
+        {
+          "name": "Lambi créole",
+          "price": 3000,
+          "number": "1007",
+          "description": {
+            "fr": "Tendre lambi en sauce créole. (6 oz)",
+            "en": "Creole Conch — Tender conch in Creole sauce. (6 oz)"
+          }
+        },
+        {
+          "name": "Lambi grillé",
+          "price": 3000,
+          "number": "1008",
+          "description": {
+            "fr": "Saisi à la salamandre, sauce échalote. (6 oz)",
+            "en": "Grilled Conch — Seared to perfection, shallot sauce. (6 oz)"
+          }
+        }
+      ],
+      "sides": true
+    },
+    {
+      "key": "leger",
+      "name": "Quelque chose de léger",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Soupe du jour",
+          "price": 900,
+          "number": "1101",
+          "description": {
+            "fr": "Toujours de saison.",
+            "en": "Soup of the Day — Always seasonal."
+          }
+        },
+        {
+          "name": "Omelette espagnole",
+          "price": 700,
+          "number": "1102",
+          "description": {
+            "fr": "Tomates et oignons.",
+            "en": "Spanish Omelette — Tomatoes and onions."
+          }
+        },
+        {
+          "name": "Sandwich au poulet chaud ou fondu",
+          "price": 890,
+          "number": "1103",
+          "description": {
+            "fr": "Poulet effiloché à la mayonnaise.",
+            "en": "Chicken Sandwich Heated or Panini — Shredded chicken and mayonnaise."
+          }
+        },
+        {
+          "name": "Hamburger simple",
+          "price": 850,
+          "number": "1104",
+          "description": {
+            "fr": "Laitue et tomates fraîches.",
+            "en": "Single Hamburger — Fresh lettuce and tomatoes."
+          }
+        },
+        {
+          "name": "Cheese burger simple",
+          "price": 850,
+          "number": "1105",
+          "description": {
+            "fr": "Laitue, tomates et fromage fondu.",
+            "en": "Single Cheeseburger — Lettuce, tomatoes, and melted cheese."
+          }
+        },
+        {
+          "name": "Hamburger double",
+          "price": 1000,
+          "number": "1106",
+          "description": {
+            "fr": "Tomates et oignons.",
+            "en": "Double Hamburger — Tomatoes and onions."
+          }
+        },
+        {
+          "name": "Cheese burger double",
+          "price": 1000,
+          "number": "1107",
+          "description": {
+            "fr": "Tomates, oignons et double fromage.",
+            "en": "Double Cheeseburger — Tomatoes, onions, and double cheese."
+          }
+        }
+      ]
+    },
+    {
+      "key": "supplements",
+      "name": "Suppléments",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Plat de banane pesée",
+          "price": 800,
+          "number": "1201",
+          "description": {
+            "fr": "Plat de banane pesée. (8 pièces)",
+            "en": "Fried Plantains — Fried plantains platter. (8 pièces)"
+          }
+        },
+        {
+          "name": "Plat de frites",
+          "price": 900,
+          "number": "1202",
+          "description": {
+            "fr": "Plat de frites. (6 oz)",
+            "en": "French Fries — French fries platter. (6 oz)"
+          }
+        },
+        {
+          "name": "Plat de pomme de terre sautées",
+          "price": 850,
+          "number": "1203",
+          "description": {
+            "fr": "Plat de pomme de terre sautées. (6 oz)",
+            "en": "Sautéed Potatoes — Sautéed potatoes platter. (6 oz)"
+          }
+        },
+        {
+          "name": "Plat acras",
+          "price": 910,
+          "number": "1204",
+          "description": {
+            "fr": "Plat d’acras traditionnel. (10 pièces)",
+            "en": "Acras Platter — Traditional accras platter. (10 pièces)"
+          }
+        },
+        {
+          "name": "Plat de vivres",
+          "price": 700,
+          "number": "1205",
+          "description": {
+            "fr": "Plat de vivres bouillis. (6 oz)",
+            "en": "Boiled Root Vegetables — Boiled root vegetables platter. (6 oz)"
+          }
+        },
+        {
+          "name": "Plat purée de pomme de terre",
+          "price": 880,
+          "number": "1206",
+          "description": {
+            "fr": "Plat de purée de pomme de terre. (6 oz)",
+            "en": "Mashed Potatoes — Mashed potatoes platter. (6 oz)"
+          }
+        },
+        {
+          "name": "Plat de patate douce sautées",
+          "price": 850,
+          "number": "1207",
+          "description": {
+            "fr": "Plat de patate douce sautées. (6 oz)",
+            "en": "Sautéed Sweet Potatoes — Sautéed sweet potatoes platter. (6 oz)"
+          }
+        },
+        {
+          "name": "Plat de riz",
+          "price": 680,
+          "number": "1208",
+          "description": {
+            "fr": "Plat de riz. (6 oz)",
+            "en": "Rice Platter — Rice platter. (6 oz)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "desserts",
+      "name": "Desserts",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Bananes flambées au rhum",
+          "price": 825,
+          "number": "1301",
+          "description": {
+            "fr": "Préparées à la minute sur commande.",
+            "en": "Rum-Flambéed Bananas — Freshly prepared to order."
+          }
+        },
+        {
+          "name": "Gâteau maison",
+          "price": 700,
+          "number": "1302",
+          "description": {
+            "fr": "La part généreuse du jour.",
+            "en": "Homemade Cake — A generous slice of the day."
+          }
+        },
+        {
+          "name": "Pain patate maison",
+          "price": 500,
+          "number": "1303",
+          "description": {
+            "fr": "Recette artisanale. (6 oz)",
+            "en": "Traditional Sweet Potato Bread — Artisanal recipe. (6 oz)"
+          }
+        },
+        {
+          "name": "Crème glacée maison",
+          "price": 600,
+          "number": "1304",
+          "description": {
+            "fr": "L’une de nos meilleures spécialités.",
+            "en": "Homemade Ice Cream — One of our finest specialties."
+          }
+        }
+      ]
+    },
+    {
+      "key": "weekend_aperitifs",
+      "name": "Weekend – Apéritifs",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "name": "Boulettes de lambi (3)",
+          "price": 1300,
+          "number": "1401"
+        },
+        {
+          "name": "Acras (10)",
+          "price": 900,
+          "number": "1402"
+        },
+        {
+          "name": "Pâtés poulet (3)",
+          "price": 650,
+          "number": "1403"
+        },
+        {
+          "name": "Black chicken wings 4 oz",
+          "price": 1100,
+          "number": "1404"
+        },
+        {
+          "name": "Ceviche + chips banane",
+          "price": 2000,
+          "number": "1405"
+        }
+      ]
+    },
+    {
+      "key": "weekend_plats",
+      "name": "Weekend – Plats",
+      "outlet": "restaurant",
+      "items": [
+        {
+          "ref": "viandes::Cabri grillé « Boucanier »"
+        },
+        {
+          "ref": "viandes::Griot de porc au four"
+        },
+        {
+          "ref": "poissons::Poisson entier grillé (par oz)"
+        },
+        {
+          "ref": "crustaces::Lambi grillé"
+        },
+        {
+          "ref": "poulet::Poulet grillé au citron vert"
+        },
+        {
+          "ref": "poulet::Poulet frit"
+        },
+        {
+          "ref": "crustaces::Langouste grillée (par oz)"
+        }
+      ]
+    },
+    {
+      "key": "weekend_boissons",
+      "name": "Boissons Weekend",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Mojito Weekend",
+          "price": 1300,
+          "number": "1501"
+        },
+        {
+          "name": "Ti Punch Clairin St. Michel",
+          "price": 800,
+          "number": "1502"
+        },
+        {
+          "name": "Jus de canne & orange sûre",
+          "price": 500,
+          "number": "1503"
+        }
+      ]
+    },
+    {
+      "key": "cocktails_classiques",
+      "name": "Cocktails classiques",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Amaretto Sour",
+          "price": 1250,
+          "number": "1601"
+        },
+        {
+          "name": "Black Russian / Absolut",
+          "price": 1100,
+          "number": "1602"
+        },
+        {
+          "name": "Black Russian / Grey Goose",
+          "price": 1850,
+          "number": "1603"
+        },
+        {
+          "name": "Black Russian / Stolichnaya",
+          "price": 1100,
+          "number": "1604"
+        },
+        {
+          "name": "Bloody Mary / Absolut",
+          "price": 1300,
+          "number": "1605"
+        },
+        {
+          "name": "Bloody Mary / Grey Goose",
+          "price": 2100,
+          "number": "1606"
+        },
+        {
+          "name": "Bloody Mary / Stolichnaya",
+          "price": 1300,
+          "number": "1607"
+        },
+        {
+          "name": "Cormier Punch",
+          "price": 1000,
+          "number": "1608"
+        },
+        {
+          "name": "Daiquiri Simple",
+          "price": 705,
+          "number": "1611"
+        },
+        {
+          "name": "Frozen Daiquiri",
+          "price": 705,
+          "number": "1612"
+        },
+        {
+          "name": "Long Island Ice Tea",
+          "price": 4700,
+          "number": "1619"
+        },
+        {
+          "name": "Ricard Pink / Grenadine",
+          "price": 900,
+          "number": "1633"
+        }
+      ]
+    },
+    {
+      "key": "cocktails_rhum",
+      "name": "Cocktails – Rhum",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Cuba Libre *** Simple",
+          "price": 655,
+          "number": "1609"
+        },
+        {
+          "name": "Cuba Libre ***** Simple",
+          "price": 900,
+          "number": "1610"
+        },
+        {
+          "name": "Mojito Perrier",
+          "price": 1500,
+          "number": "1622"
+        },
+        {
+          "name": "Mojito Soda",
+          "price": 1200,
+          "number": "1623"
+        },
+        {
+          "name": "Petit Punch",
+          "price": 800,
+          "number": "1624"
+        },
+        {
+          "name": "Pina Colada / Liqr. Malibu",
+          "price": 1000,
+          "number": "1625"
+        },
+        {
+          "name": "Pina Colada / Rhum Blanc",
+          "price": 1600,
+          "number": "1626"
+        },
+        {
+          "name": "Rhum Punch ***",
+          "price": 900,
+          "number": "1627"
+        },
+        {
+          "name": "Rhum Punch *****",
+          "price": 1200,
+          "number": "1628"
+        },
+        {
+          "name": "Rhum Punch Double ***",
+          "price": 1200,
+          "number": "1629"
+        },
+        {
+          "name": "Rhum Punch Double *****",
+          "price": 2000,
+          "number": "1630"
+        },
+        {
+          "name": "Rhum Sour ***",
+          "price": 610,
+          "number": "1631"
+        },
+        {
+          "name": "Rhum Sour *****",
+          "price": 900,
+          "number": "1632"
+        }
+      ]
+    },
+    {
+      "key": "cocktails_vodka",
+      "name": "Cocktails – Vodka",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Vodka Soda / Absolut",
+          "price": 1150,
+          "number": "1634"
+        },
+        {
+          "name": "Vodka Soda / Grey Goose",
+          "price": 1900,
+          "number": "1635"
+        },
+        {
+          "name": "Vodka Soda / Stolichnaya",
+          "price": 1150,
+          "number": "1636"
+        },
+        {
+          "name": "Vodka Sour / Absolut",
+          "price": 775,
+          "number": "1637"
+        },
+        {
+          "name": "Vodka Sour / Grey Goose",
+          "price": 1650,
+          "number": "1638"
+        },
+        {
+          "name": "Vodka Sour / Stolichnaya",
+          "price": 750,
+          "number": "1639"
+        }
+      ]
+    },
+    {
+      "key": "cocktails_gin",
+      "name": "Cocktails – Gin",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Gin Sour / Beefeater",
+          "price": 775,
+          "number": "1613"
+        },
+        {
+          "name": "Gin Sour / Gordon",
+          "price": 1000,
+          "number": "1614"
+        },
+        {
+          "name": "Gin Sour / Tanqueray",
+          "price": 1000,
+          "number": "1615"
+        },
+        {
+          "name": "Gin Tonic / Beefeater",
+          "price": 1050,
+          "number": "1616"
+        },
+        {
+          "name": "Gin Tonic / Gordon",
+          "price": 1550,
+          "number": "1617"
+        },
+        {
+          "name": "Gin Tonic / Tanqueray",
+          "price": 1250,
+          "number": "1618"
+        }
+      ]
+    },
+    {
+      "key": "cocktails_whisky",
+      "name": "Cocktails – Whisky",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Whisky Sour / Black",
+          "price": 1600,
+          "number": "1640"
+        },
+        {
+          "name": "Whisky Sour / Chivas",
+          "price": 1550,
+          "number": "1641"
+        },
+        {
+          "name": "Whisky Sour / Jack Daniel",
+          "price": 1200,
+          "number": "1642"
+        },
+        {
+          "name": "Whisky Sour / Something Special",
+          "price": 800,
+          "number": "1643"
+        },
+        {
+          "name": "Whisky Sour / White",
+          "price": 700,
+          "number": "1644"
+        }
+      ]
+    },
+    {
+      "key": "cocktails_tequila",
+      "name": "Cocktails – Tequila",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Margarita / Cuervo Gold",
+          "price": 1900,
+          "number": "1620"
+        },
+        {
+          "name": "Margarita / Cuervo Silver",
+          "price": 1900,
+          "number": "1621"
+        }
+      ]
+    },
+    {
+      "key": "bieres",
+      "name": "Bières",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Becks",
+          "price": 530,
+          "number": "1701"
+        },
+        {
+          "name": "Corona",
+          "price": 530,
+          "number": "1703"
+        },
+        {
+          "name": "Heineken",
+          "price": 530,
+          "number": "1704"
+        },
+        {
+          "name": "Prestige",
+          "price": 430,
+          "number": "1705"
+        },
+        {
+          "name": "Kinanm",
+          "price": 380,
+          "number": "1801"
+        }
+      ]
+    },
+    {
+      "key": "soft",
+      "name": "Boissons non alcoolisées",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Gazeuses",
+          "price": 250,
+          "number": "1802"
+        },
+        {
+          "name": "Eau / Water",
+          "price": 220,
+          "number": "1803"
+        },
+        {
+          "name": "Perrier 16.09 oz",
+          "price": 735,
+          "number": "1804"
+        },
+        {
+          "name": "Jus Naturel / Natural Juice",
+          "price": 500,
+          "number": "1805"
+        },
+        {
+          "name": "Fruit Punch",
+          "price": 700,
+          "number": "1806"
+        }
+      ]
+    },
+    {
+      "key": "rhum",
+      "name": "Rhum",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Rhum 3*** 2 oz",
+          "price": 475,
+          "number": "1901"
+        },
+        {
+          "name": "Rhum 5***** 2 oz",
+          "price": 700,
+          "number": "1902"
+        },
+        {
+          "name": "Rhum Blanc 2 oz",
+          "price": 425,
+          "number": "1903"
+        },
+        {
+          "name": "Rhum 3*** – bouteille",
+          "price": 3950,
+          "number": "1904"
+        },
+        {
+          "name": "Rhum 5***** – bouteille",
+          "price": 8050,
+          "number": "1905"
+        },
+        {
+          "name": "Rhum Blanc – bouteille",
+          "price": 3800,
+          "number": "1906"
+        }
+      ]
+    },
+    {
+      "key": "whisky",
+      "name": "Whisky",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Glenfiddich 2 oz",
+          "price": 1480,
+          "number": "2001"
+        },
+        {
+          "name": "Whisky Black Label 2 oz",
+          "price": 1300,
+          "number": "2002"
+        },
+        {
+          "name": "Whisky Chivas 2 oz",
+          "price": 1320,
+          "number": "2003"
+        },
+        {
+          "name": "Whisky Jack Daniel's 2 oz",
+          "price": 1045,
+          "number": "2004"
+        },
+        {
+          "name": "Whisky Something Special 2 oz",
+          "price": 635,
+          "number": "2005"
+        },
+        {
+          "name": "Whisky White Label 2 oz",
+          "price": 520,
+          "number": "2006"
+        },
+        {
+          "name": "Glenfiddich 12 Ans – bouteille 70 cl",
+          "price": 16300,
+          "number": "2007"
+        },
+        {
+          "name": "Glenfiddich 12 Ans – bouteille 50 cl",
+          "price": 10865,
+          "number": "2008"
+        },
+        {
+          "name": "Whisky Black Label – bouteille 750 ml",
+          "price": 14865,
+          "number": "2009"
+        },
+        {
+          "name": "Whisky Black Label – bouteille 1 L",
+          "price": 19185,
+          "number": "2010"
+        },
+        {
+          "name": "Whisky Jack Daniel's – bouteille 75 cl",
+          "price": 9600,
+          "number": "2011"
+        },
+        {
+          "name": "Whisky Jack Daniel's – bouteille 1 L",
+          "price": 13465,
+          "number": "2012"
+        },
+        {
+          "name": "Whisky White Label – bouteille 750 ml",
+          "price": 5600,
+          "number": "2013"
+        }
+      ]
+    },
+    {
+      "key": "vodka",
+      "name": "Vodka",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Vodka Absolut 2 oz",
+          "price": 600,
+          "number": "2101"
+        },
+        {
+          "name": "Vodka Grey Goose 2 oz",
+          "price": 1500,
+          "number": "2102"
+        },
+        {
+          "name": "Vodka Stolichnaya 2 oz",
+          "price": 600,
+          "number": "2103"
+        },
+        {
+          "name": "Vodka Absolut – bouteille 750 ml",
+          "price": 7465,
+          "number": "2104"
+        },
+        {
+          "name": "Vodka Absolut – bouteille 1 L",
+          "price": 9380,
+          "number": "2105"
+        },
+        {
+          "name": "Vodka Grey Goose – bouteille 75 cl",
+          "price": 15465,
+          "number": "2106"
+        },
+        {
+          "name": "Vodka Grey Goose – bouteille 1 L",
+          "price": 20040,
+          "number": "2107"
+        },
+        {
+          "name": "Vodka Stolichnaya – bouteille 75 cl",
+          "price": 9465,
+          "number": "2108"
+        },
+        {
+          "name": "Vodka Stolichnaya – bouteille 1 L",
+          "price": 10465,
+          "number": "2109"
+        }
+      ]
+    },
+    {
+      "key": "gin",
+      "name": "Gin",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Gin Beefeater 2 oz",
+          "price": 600,
+          "number": "2201"
+        },
+        {
+          "name": "Gin Gordon 2 oz",
+          "price": 840,
+          "number": "2202"
+        },
+        {
+          "name": "Gin Tanqueray 2 oz",
+          "price": 840,
+          "number": "2203"
+        },
+        {
+          "name": "Gin Beefeater – bouteille 750 ml",
+          "price": 6040,
+          "number": "2204"
+        },
+        {
+          "name": "Gin Gordon – bouteille 1 L",
+          "price": 10200,
+          "number": "2205"
+        },
+        {
+          "name": "Gin Tanqueray – bouteille 750 ml",
+          "price": 9570,
+          "number": "2206"
+        }
+      ]
+    },
+    {
+      "key": "tequila",
+      "name": "Tequila",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Tequila Cuervo Gold 2 oz",
+          "price": 900,
+          "number": "2301"
+        },
+        {
+          "name": "Tequila Cuervo Silver 2 oz",
+          "price": 900,
+          "number": "2302"
+        },
+        {
+          "name": "Tequila Don Julio Blanco 2 oz",
+          "price": 1550,
+          "number": "2303"
+        },
+        {
+          "name": "Tequila Don Julio Anejo 2 oz",
+          "price": 1900,
+          "number": "2304"
+        },
+        {
+          "name": "Tequila Casamigos – bouteille 75 cl",
+          "price": 23864,
+          "number": "2305"
+        },
+        {
+          "name": "Tequila Don Julio Anejo – bouteille 75 cl",
+          "price": 30420,
+          "number": "2306"
+        },
+        {
+          "name": "Tequila Don Julio Blanco – bouteille 75 cl",
+          "price": 24180,
+          "number": "2307"
+        },
+        {
+          "name": "Tequila Cuervo Gold – bouteille 1 L",
+          "price": 10865,
+          "number": "2308"
+        },
+        {
+          "name": "Tequila Cuervo Silver – bouteille 1 L",
+          "price": 10865,
+          "number": "2309"
+        }
+      ]
+    },
+    {
+      "key": "cognac",
+      "name": "Cognac",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Hennessy VSOP 2 oz",
+          "price": 1660,
+          "number": "2401"
+        },
+        {
+          "name": "Hennessy VS 2 oz",
+          "price": 1100,
+          "number": "2402"
+        },
+        {
+          "name": "Remy Martin 2 oz",
+          "price": 1425,
+          "number": "2403"
+        },
+        {
+          "name": "Hennessy VS – bouteille 700 ml",
+          "price": 14630,
+          "number": "2404"
+        },
+        {
+          "name": "Hennessy VSOP – bouteille 700 ml",
+          "price": 20465,
+          "number": "2405"
+        },
+        {
+          "name": "Remy Martin – bouteille 700 ml",
+          "price": 20670,
+          "number": "2406"
+        }
+      ]
+    },
+    {
+      "key": "liqueurs",
+      "name": "Liqueurs",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Amaretto 2 oz",
+          "price": 1100,
+          "number": "2501"
+        },
+        {
+          "name": "Baileys 2 oz",
+          "price": 1100,
+          "number": "2502"
+        },
+        {
+          "name": "Grand Marnier 2 oz",
+          "price": 1200,
+          "number": "2505"
+        },
+        {
+          "name": "Amaretto – bouteille 1 L",
+          "price": 11515,
+          "number": "2507"
+        },
+        {
+          "name": "Amaretto – bouteille 70 cl",
+          "price": 9565,
+          "number": "2508"
+        },
+        {
+          "name": "Baileys – bouteille 1 L",
+          "price": 14765,
+          "number": "2509"
+        },
+        {
+          "name": "Cointreau – bouteille 750 ml",
+          "price": 8500,
+          "number": "2510"
+        },
+        {
+          "name": "Grand Marnier – bouteille 700 ml",
+          "price": 13725,
+          "number": "2511"
+        },
+        {
+          "name": "Benedicta",
+          "price": 540,
+          "number": "1702"
+        }
+      ]
+    },
+    {
+      "key": "aperitifs",
+      "name": "Apéritifs / Vermouth",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Cinzano Rouge 2 oz",
+          "price": 720,
+          "number": "2503"
+        },
+        {
+          "name": "Cinzano Blanc 2 oz",
+          "price": 720,
+          "number": "2504"
+        },
+        {
+          "name": "Ricard 2 oz",
+          "price": 670,
+          "number": "2506"
+        }
+      ]
+    },
+    {
+      "key": "vins_blancs",
+      "name": "Vins blancs",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Ménage à Trois blanc – bouteille",
+          "price": 6000,
+          "number": "2601"
+        },
+        {
+          "name": "Le Loup y Es-Tu blanc – bouteille",
+          "price": 4500,
+          "number": "2602"
+        },
+        {
+          "name": "JP Chenet blanc – bouteille",
+          "price": 4000,
+          "number": "2603"
+        },
+        {
+          "name": "Cuvée du Patron blanc – bouteille",
+          "price": 2500,
+          "number": "2604"
+        },
+        {
+          "name": "Ménage à Trois blanc – verre",
+          "price": 1200,
+          "number": "2605"
+        },
+        {
+          "name": "Le Loup y Es-Tu blanc – verre",
+          "price": 900,
+          "number": "2606"
+        },
+        {
+          "name": "JP Chenet blanc – verre",
+          "price": 800,
+          "number": "2607"
+        },
+        {
+          "name": "Cuvée du Patron blanc – verre",
+          "price": 500,
+          "number": "2608"
+        }
+      ]
+    },
+    {
+      "key": "vins_rouges",
+      "name": "Vins rouges",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Ménage à Trois rouge – bouteille",
+          "price": 6000,
+          "number": "2701"
+        },
+        {
+          "name": "Le Loup dans la Bergerie rouge – bouteille",
+          "price": 4500,
+          "number": "2702"
+        },
+        {
+          "name": "JP Chenet rouge – bouteille",
+          "price": 4000,
+          "number": "2703"
+        },
+        {
+          "name": "Cuvée du Patron rouge – bouteille",
+          "price": 2500,
+          "number": "2704"
+        },
+        {
+          "name": "Ménage à Trois rouge – verre",
+          "price": 1200,
+          "number": "2705"
+        },
+        {
+          "name": "Le Loup y Es-Tu rouge – verre",
+          "price": 900,
+          "number": "2706"
+        },
+        {
+          "name": "JP Chenet rouge – verre",
+          "price": 800,
+          "number": "2707"
+        },
+        {
+          "name": "Cuvée du Patron rouge – verre",
+          "price": 500,
+          "number": "2708"
+        }
+      ]
+    },
+    {
+      "key": "vins_roses",
+      "name": "Vins rosés",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "Ménage à Trois rosé – bouteille",
+          "price": 6000,
+          "number": "2801"
+        },
+        {
+          "name": "Le Loup dans la Bergerie rosé – bouteille",
+          "price": 4500,
+          "number": "2802"
+        },
+        {
+          "name": "JP Chenet rosé – bouteille",
+          "price": 4000,
+          "number": "2803"
+        },
+        {
+          "name": "Cuvée du Patron rosé – bouteille",
+          "price": 2500,
+          "number": "2804"
+        },
+        {
+          "name": "Ménage à Trois rosé – verre",
+          "price": 1200,
+          "number": "2805"
+        },
+        {
+          "name": "Le Loup y Es-Tu rosé – verre",
+          "price": 900,
+          "number": "2806"
+        },
+        {
+          "name": "JP Chenet rosé – verre",
+          "price": 800,
+          "number": "2807"
+        },
+        {
+          "name": "Cuvée du Patron rosé – verre",
+          "price": 500,
+          "number": "2808"
+        }
+      ]
+    },
+    {
+      "key": "champagnes",
+      "name": "Champagnes",
+      "outlet": "bar",
+      "items": [
+        {
+          "name": "JP Chenet Brut – bouteille",
+          "price": 4500,
+          "number": "2901"
+        },
+        {
+          "name": "JP Chenet Rosé – bouteille",
+          "price": 4500,
+          "number": "2902"
+        },
+        {
+          "name": "Vie de Rêve Brut – bouteille",
+          "price": 4000,
+          "number": "2903"
+        },
+        {
+          "name": "Vie de Rêve Rosé – bouteille",
+          "price": 4000,
+          "number": "2904"
+        },
+        {
+          "name": "Moët & Chandon Rosé Impérial – bouteille",
+          "price": 25165.4,
+          "number": "2905"
+        },
+        {
+          "name": "Moët & Chandon Champagne – bouteille",
+          "price": 25165.4,
+          "number": "2906"
+        },
+        {
+          "name": "Veuve Clicquot – bouteille",
+          "price": 25295.4,
+          "number": "2907"
+        },
+        {
+          "name": "Bottega – bouteille",
+          "price": 10345.4,
+          "number": "2908"
+        }
+      ]
+    }
+  ]
+}
