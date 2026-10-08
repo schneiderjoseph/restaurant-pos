@@ -6,4 +6,6 @@ export interface OrderPayment extends ID {
   comments?: string
   payable?: number
   payment_type?: PaymentType
+  /** Manual stay folio line (Room tender); ASI Room payments leave this empty. */
+  stay?: unknown
 }

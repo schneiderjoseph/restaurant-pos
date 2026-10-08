@@ -49,6 +49,7 @@ import {
   checkRoomCharge,
   isRoomPaymentType,
   loadCustomerForRoomCharge,
+  loadStayDateOutForRoomCharge,
   type RoomChargeCheck,
   type RoomChargeRefusal,
 } from "@/lib/room-charge.ts";
@@ -180,6 +181,7 @@ const OrderPaymentReceivingContent = ({
 
   const roomRefusalMessage: Record<RoomChargeRefusal, string> = {
     'checked-out': t('receiving.roomCheckedOut'),
+    'manual-stay-closed': t('receiving.roomManualStayClosed'),
     'sync-stale': t('receiving.roomSyncStale'),
     'not-hotel-guest': t('receiving.roomNotHotelGuest'),
   };
@@ -190,7 +192,15 @@ const OrderPaymentReceivingContent = ({
   /** Reads the stay again right now: the guest may have checked out since the order was taken. */
   const verifyRoomCharge = async (): Promise<RoomChargeCheck> => {
     const customer = await loadCustomerForRoomCharge(db, order?.customer);
-    const check = checkRoomCharge(customer, nowInAppTimezone());
+    const stayId = customer?.current_stay
+      ? (typeof customer.current_stay === 'object' && customer.current_stay && 'id' in customer.current_stay
+        ? (customer.current_stay as { id: unknown }).id
+        : customer.current_stay)
+      : undefined;
+    const stayDateOut = stayId != null
+      ? await loadStayDateOutForRoomCharge(db, stayId).catch(() => null)
+      : null;
+    const check = checkRoomCharge(customer, nowInAppTimezone(), { stayDateOut });
     setRoomCheck(check);
     return check;
   };
@@ -221,8 +231,16 @@ const OrderPaymentReceivingContent = ({
   useEffect(() => {
     let cancelled = false;
     void loadCustomerForRoomCharge(db, order?.customer)
-      .then((customer) => {
-        if (!cancelled) setRoomCheck(checkRoomCharge(customer, nowInAppTimezone()));
+      .then(async (customer) => {
+        const stayId = customer?.current_stay
+          ? (typeof customer.current_stay === 'object' && customer.current_stay && 'id' in customer.current_stay
+            ? (customer.current_stay as { id: unknown }).id
+            : customer.current_stay)
+          : undefined;
+        const stayDateOut = stayId != null
+          ? await loadStayDateOutForRoomCharge(db, stayId).catch(() => null)
+          : null;
+        if (!cancelled) setRoomCheck(checkRoomCharge(customer, nowInAppTimezone(), { stayDateOut }));
       })
       .catch((error) => {
         console.error('Room charge check failed', error);
@@ -562,8 +580,19 @@ const OrderPaymentReceivingContent = ({
       return;
     }
 
-    if (isRoomPaymentType(paymentType) && !(await ensureRoomChargeAllowed())) {
-      return;
+    let roomStayId: unknown;
+    if (isRoomPaymentType(paymentType)) {
+      const check = await verifyRoomCharge();
+      if (!check.ok) {
+        setAlert(prev => ({
+          ...prev,
+          opened: true,
+          type: 'error',
+          message: roomRefusalMessage[check.reason],
+        }));
+        return;
+      }
+      roomStayId = check.stayId;
     }
 
     // Compute change due relative to this payable (may include tax for selected payment type)
@@ -597,7 +626,8 @@ const OrderPaymentReceivingContent = ({
         payment_type: paymentType,
         amount: Number(amount),
         payable: payable,
-        id: nanoid()
+        id: nanoid(),
+        ...(roomStayId != null ? { stay: roomStayId } : {}),
       }
     ])
     setSelectedAmount('');

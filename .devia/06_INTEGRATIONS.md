@@ -17,6 +17,10 @@ Signature verified against the raw body, stale timestamps rejected, replays are 
 
 ## When one is down
 
-- **ASI FrontDesk sync down** → fail closed: the Room tender is refused for every guest
+- **ASI FrontDesk sync down** → fail closed for **ASI** guests: the Room tender is refused
   ("Séjour non vérifiable — paiement direct"); cash and card still work. Decided by Joseph on
-  2026-10-02: a guest whose stay cannot be confirmed pays like a walk-in.
+  2026-10-02: a guest whose stay cannot be confirmed pays like a walk-in. Manual POS stays
+  (`customer.current_stay`) still accept Room — the POS is the source of truth for those stays.
+  asi-sync is unchanged and never writes `source` other than `asi-fd`; it does not close manual
+  stays. If ASI later occupies a room that already has a manual stay, the floor and Front Desk
+  screens show a conflict badge (no automatic resolution).

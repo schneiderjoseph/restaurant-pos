@@ -111,6 +111,8 @@ const MIGRATION_PLAN = [
   { id: '2026_10_07_drop_inventory_hr_tables', file: '2026_10_07_drop_inventory_hr_tables.surql' },
   { id: '2026_10_08_customers_view_phone', file: '2026_10_08_customers_view_phone.surql' },
   { id: '2026_10_08_anonymous_cash_customer', file: '2026_10_08_anonymous_cash_customer.surql' },
+  { id: '2026_10_08_manual_stay', file: '2026_10_08_manual_stay.surql' },
+  { id: '2026_10_08_manual_stay_fix', file: '2026_10_08_manual_stay_fix.surql' },
 ];
 
 const rows = (result) => {

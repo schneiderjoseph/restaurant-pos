@@ -1,10 +1,13 @@
 import { Tables } from "@/api/db/tables.ts";
 import { OrderPayment } from "@/api/model/order_payment.ts";
+import { isRoomPaymentType } from "@/lib/room-charge.ts";
+import { clearStayFullySettledFlag } from "@/lib/stay.service.ts";
 
 type SyncOrderPaymentsDb = {
   create: (table: string, data: Record<string, unknown>) => Promise<any>;
   merge: (id: unknown, data: Record<string, unknown>) => Promise<any>;
   delete: (id: unknown) => Promise<any>;
+  query?: (sql: string, params?: Record<string, unknown>) => Promise<unknown>;
 };
 
 export const isPersistedOrderPaymentId = (id: unknown): boolean => {
@@ -61,12 +64,15 @@ export async function syncOrderPayments(
       continue;
     }
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       amount: payment.amount,
       payment_type: payment.payment_type.id,
       comments: payment.comments || "",
       payable: payment.payable ?? defaultPayable,
     };
+    if (payment.stay != null && payment.stay !== "") {
+      payload.stay = payment.stay;
+    }
 
     if (isPersistedOrderPaymentId(payment.id)) {
       try {
@@ -86,6 +92,21 @@ export async function syncOrderPayments(
       ...payment,
       id: createdId,
     });
+
+    // A new Room line after a folio settle must reopen the outstanding balance.
+    if (
+      db.query
+      && payment.stay != null
+      && payment.stay !== ''
+      && isRoomPaymentType(payment.payment_type)
+    ) {
+      await clearStayFullySettledFlag(
+        { query: db.query },
+        payment.stay,
+      ).catch((error) => {
+        console.error('Failed to clear stay settled flag after Room payment', error);
+      });
+    }
   }
 
   return { paymentIds, payments };

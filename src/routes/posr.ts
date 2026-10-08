@@ -10,6 +10,7 @@ export const ADMIN = '/admin';
 export const SETTINGS = '/settings';
 export const INTEGRATIONS = '/integrations';
 export const TIP_DISTRIBUTION = '/tip-distribution';
+export const FRONTDESK = '/frontdesk';
 export const ACCOUNTS = '/accounts';
 
 export const REPORTS = '/reports';

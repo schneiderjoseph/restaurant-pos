@@ -18,6 +18,8 @@ export interface Customer extends ID, Name{
   room?: string
   /** True when currently in-house (ASI FD sync also sets tags containing in-house). */
   in_house?: boolean
+  /** Open manual POS stay, if any. Never set on ASI guests. */
+  current_stay?: unknown
   /** ASI FrontDesk guest master id */
   asi_guest_id?: number | null
   /** ASI FrontDesk check-in id (stay) — upsert key customer:asi_fd_{id} */

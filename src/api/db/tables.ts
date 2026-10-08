@@ -3,6 +3,8 @@ export enum Tables {
   outlets = 'outlet',
   closings = 'day_closing',
   customers = 'customer',
+  stays = 'stay',
+  stay_settlements = 'stay_settlement',
   discounts = 'discount',
   discount_reasons = 'discount_reason',
   role_discount_policies = 'role_discount_policy',

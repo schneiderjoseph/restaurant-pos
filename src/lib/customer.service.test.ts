@@ -175,6 +175,11 @@ describe('canEditCustomerIdentity', () => {
     expect(canEditCustomerIdentity(walkIn, { id: 'user:2' }, manager)).toBe(true);
     expect(canEditCustomerIdentity({ source: 'asi-fd', asi_guest_id: 3 } as Customer, { id: 'user:2' }, manager)).toBe(false);
   });
+
+  it('does not let Front Desk edit identity on the server guest list', () => {
+    const fd = (module: string) => module === 'frontdesk.checkin' || module === 'frontdesk';
+    expect(canEditCustomerIdentity(walkIn, { id: 'user:9' }, fd)).toBe(false);
+  });
 });
 
 describe('isBirthdayToday', () => {

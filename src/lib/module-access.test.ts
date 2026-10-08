@@ -15,6 +15,7 @@ import {
   ADMIN,
   CLOSING,
   DELIVERY,
+  FRONTDESK,
   MENU,
   ORDERS,
   REPORTS,
@@ -67,6 +68,11 @@ describe('getFirstAllowedPath', () => {
   it('returns null when nothing is allowed', () => {
     expect(getFirstAllowedPath([], allFlagsOn)).toBeNull();
     expect(getFirstAllowedPath(['settings'], allFlagsOn)).toBeNull();
+  });
+
+  it('lands a Front Desk-only role on /frontdesk', () => {
+    expect(getFirstAllowedPath(['frontdesk'], allFlagsOn)).toBe(FRONTDESK);
+    expect(getRoutePermission(FRONTDESK)).toBe('frontdesk');
   });
 });
 

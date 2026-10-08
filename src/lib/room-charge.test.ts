@@ -23,10 +23,48 @@ describe('checkRoomCharge', () => {
     expect(checkRoomCharge(inHouse, now)).toEqual({ ok: true, departsToday: false });
   });
 
-  it('refuses a walk-in, a local client or no client', () => {
-    expect(checkRoomCharge({ ...inHouse, source: 'walk-in' }, now)).toEqual({ ok: false, reason: 'not-hotel-guest' });
-    expect(checkRoomCharge({ ...inHouse, source: undefined }, now)).toEqual({ ok: false, reason: 'not-hotel-guest' });
+  it('refuses a walk-in without a manual stay, a local client or no client', () => {
+    expect(checkRoomCharge({ ...inHouse, source: 'walk-in', current_stay: undefined }, now)).toEqual({
+      ok: false,
+      reason: 'not-hotel-guest',
+    });
+    expect(checkRoomCharge({ ...inHouse, source: undefined, current_stay: undefined, asi_checkin_id: null, asi_guest_id: null }, now)).toEqual({
+      ok: false,
+      reason: 'not-hotel-guest',
+    });
     expect(checkRoomCharge(undefined, now)).toEqual({ ok: false, reason: 'not-hotel-guest' });
+  });
+
+  it('allows a walk-in with an open manual stay', () => {
+    expect(
+      checkRoomCharge(
+        {
+          source: 'walk-in',
+          in_house: true,
+          current_stay: 'stay:abc',
+          asi_checkin_id: null,
+          asi_guest_id: null,
+        },
+        now,
+        { stayDateOut: '2026-10-02' },
+      ),
+    ).toEqual({ ok: true, departsToday: true, stayId: 'stay:abc' });
+  });
+
+  it('refuses a closed manual stay with a distinct reason', () => {
+    expect(
+      checkRoomCharge(
+        {
+          source: 'walk-in',
+          in_house: false,
+          current_stay: undefined,
+          tags: ['walk-in', 'manual-stay', 'checked-out'],
+          asi_checkin_id: null,
+          asi_guest_id: null,
+        },
+        now,
+      ),
+    ).toEqual({ ok: false, reason: 'manual-stay-closed' });
   });
 
   it('refuses a guest whose stay is closed in ASI: they pay like a walk-in', () => {

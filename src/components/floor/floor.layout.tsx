@@ -26,18 +26,7 @@ import {formatGuestLabel} from "@/lib/guest.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {narrowToTableList} from "@/lib/menu-categories.ts";
 import {ACTIVE_CUSTOMER} from "@/lib/customer-scope.ts";
-
-
-const normalizeRoomKey = (raw?: string | number | null): string => {
-  const trimmed = String(raw ?? '').trim();
-  if (!trimmed) {
-    return '';
-  }
-  if (/^\d+$/.test(trimmed)) {
-    return String(Number(trimmed));
-  }
-  return trimmed.toLowerCase();
-};
+import {normalizeRoomKey} from "@/lib/room-key.ts";
 
 export const FloorLayout = () => {
   const { t } = useTranslation(['closing', 'menu']);
@@ -56,6 +45,8 @@ export const FloorLayout = () => {
   const isClosingLocked = enforcement.orderTakingBlocked;
   const closingLockMessage = enforcement.message;
   const [occupiedRooms, setOccupiedRooms] = useState<Map<string, Customer>>(new Map());
+  /** Room keys claimed by more than one in-house guest (ASI vs manual, etc.). */
+  const [conflictRoomKeys, setConflictRoomKeys] = useState<Set<string>>(new Set());
 
   const floors = useMemo(() => {
     return settings.floors;
@@ -152,13 +143,34 @@ export const FloorLayout = () => {
          AND room != NULL`
     );
     const map = new Map<string, Customer>();
+    const counts = new Map<string, number>();
     for (const guest of Array.isArray(rows) ? rows : []) {
       const key = normalizeRoomKey(guest.room);
-      if (!key || map.has(key)) {
-        continue;
+      if (!key) continue;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+      if (!map.has(key)) {
+        map.set(key, guest);
       }
-      map.set(key, guest);
     }
+    // Merge asi_alias onto the same conflict key when both number and alias are occupied.
+    for (const table of settings.tables ?? []) {
+      if (table.source !== 'asi-room') continue;
+      const numKey = normalizeRoomKey(table.number);
+      const aliasKey = normalizeRoomKey(table.asi_alias as string | undefined);
+      if (!numKey || !aliasKey || numKey === aliasKey) continue;
+      const n = (counts.get(numKey) ?? 0) + (counts.get(aliasKey) ?? 0);
+      if (n > 1) {
+        counts.set(numKey, n);
+        if (!map.has(numKey) && map.has(aliasKey)) {
+          map.set(numKey, map.get(aliasKey)!);
+        }
+      }
+    }
+    const conflicts = new Set<string>();
+    for (const [key, count] of counts) {
+      if (count > 1) conflicts.add(key);
+    }
+    setConflictRoomKeys(conflicts);
     setOccupiedRooms(map);
     return map;
   };
@@ -300,9 +312,18 @@ export const FloorLayout = () => {
     return guestFromRoomMap(item, occupiedRooms);
   };
 
+  const roomHasConflict = (item: Table): boolean => {
+    if (item.source !== 'asi-room') return false;
+    const numKey = normalizeRoomKey(item.number);
+    const aliasKey = normalizeRoomKey(item.asi_alias as string | undefined);
+    return Boolean((numKey && conflictRoomKeys.has(numKey)) || (aliasKey && conflictRoomKeys.has(aliasKey)));
+  };
+
   const roomOccupiedBy = (item: Table): string | undefined => {
     const guest = roomGuestForTable(item);
-    return guest ? formatGuestLabel(guest) : undefined;
+    if (!guest) return undefined;
+    const label = formatGuestLabel(guest);
+    return roomHasConflict(item) ? `⚠ ${label}` : label;
   };
 
   const isTableBusy = (item: Table) => {

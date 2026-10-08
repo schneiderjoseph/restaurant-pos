@@ -105,6 +105,8 @@ export const Customers = ({
            WHERE ${ACTIVE_CUSTOMER} AND (
               in_house = true OR tags CONTAINS 'in-house'
               OR source = 'walk-in' OR tags CONTAINS 'walk-in'
+              OR tags CONTAINS 'manual-stay'
+              OR current_stay != NONE
               OR source = 'local'
               OR (notes != NONE AND notes != NULL AND notes != '')
            )

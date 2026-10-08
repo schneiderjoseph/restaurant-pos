@@ -124,12 +124,12 @@ export const useDB = () => {
     }
   };
 
-  const runGuarded = async <T>(op: () => Promise<T>, label: string): Promise<T> => {
+  const runGuarded = async <T>(op: () => Promise<T>, label: string, quiet = false): Promise<T> => {
     try {
       await ensureReady();
       return await op();
     } catch (e) {
-      if (isQuietError(e)) {
+      if (quiet || isQuietError(e)) {
         throw e;
       }
       console.error(`ERROR while ${label}`, e);
@@ -155,7 +155,15 @@ export const useDB = () => {
     return runGuarded(op, label);
   };
 
-  const query = async <R extends unknown[] = any[]>(sql: string, parameters?: QueryBindings): Promise<R> => {
+  /**
+   * `quiet`: the caller turns a failure into its own message (a transaction whose THROW the
+   * driver reports as a generic "failed transaction"), so no generic toast is shown.
+   */
+  const query = async <R extends unknown[] = any[]>(
+    sql: string,
+    parameters?: QueryBindings,
+    options?: { quiet?: boolean },
+  ): Promise<R> => {
     return runGuarded(async () => {
       const t0 = performance.now();
       const result = await client.query<R>(sql, parameters).collect<R>();
@@ -170,7 +178,7 @@ export const useDB = () => {
         console.groupEnd()
       }
       return result as R;
-    }, 'query');
+    }, 'query', options?.quiet === true);
   }
 
   const select = async <T = any>(

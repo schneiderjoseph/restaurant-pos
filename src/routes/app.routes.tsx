@@ -47,7 +47,9 @@ import {
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
-  TIP_DISTRIBUTION, ACCOUNTS,
+  TIP_DISTRIBUTION,
+  FRONTDESK,
+  ACCOUNTS,
 } from "@/routes/posr.ts";
 import {
   AccountsScreen,
@@ -84,6 +86,7 @@ import {
   TablesSummaryReport,
   TaxReport,
   TipDistributionScreen,
+  FrontDeskScreen,
   TipsReport,
   VoidsReport,
 } from "@/routes/lazy-screens.ts";
@@ -117,6 +120,7 @@ export const AppRoutes = () => {
         <Route path={SETTINGS} element={<Settings/>}/>
         {integrations && <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>}
         <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
+        <Route path={FRONTDESK} element={<FrontDeskScreen/>}/>
         {accounting && <Route path={ACCOUNTS} element={<AccountsScreen/>}/>}
         <Route path={REPORTS} element={<Reports/>}/>
         <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>

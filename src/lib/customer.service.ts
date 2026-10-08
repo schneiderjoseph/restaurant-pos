@@ -392,6 +392,8 @@ export function canEditCustomerIdentity(
     return false;
   }
   if (can('admin.customers.update')) return true;
+  // Front Desk must not edit identity from the server guest list — only create/check-in
+  // flows on /frontdesk write name/phone/ID for new walk-ins.
   const walkIn = customer.source === 'walk-in' || Boolean(customer.tags?.includes('walk-in'));
   return walkIn && Boolean(user?.id) && sameCustomer(customer.created_by, user?.id);
 }

@@ -751,6 +751,9 @@
       },
       "customers": {
         "label": "Customers"
+      },
+      "frontdesk": {
+        "label": "Front Desk"
       }
     },
     "permissions": {
@@ -961,6 +964,10 @@
       "customers.preferences": "Edit allergies, diet and notes",
       "customers.view_id_document": "See ID documents in full",
       "customers.view_phone": "See phone numbers in full",
+      "frontdesk": "Front Desk (manual stays)",
+      "frontdesk.checkin": "Manual check-in",
+      "frontdesk.checkout": "Manual check-out",
+      "frontdesk.move": "Move room / extend stay",
       "admin.customers": "Clients",
       "admin.customers.update": "Edit any client",
       "admin.customers.delete": "Delete and restore clients",

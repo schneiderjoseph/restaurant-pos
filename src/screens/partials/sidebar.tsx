@@ -14,7 +14,8 @@ import {
   faPowerOff,
   faReceipt,
   faPlug,
-  faRefresh
+  faRefresh,
+  faHotel,
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -25,6 +26,7 @@ import {
   ADMIN,
   CLOSING,
   DELIVERY,
+  FRONTDESK,
   INTEGRATIONS,
   KITCHEN,
   MENU,
@@ -66,6 +68,7 @@ const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [ADMIN]: 'nav-admin',
   [REPORTS]: 'nav-reports',
   [TIP_DISTRIBUTION]: 'nav-tip-distribution',
+  [FRONTDESK]: 'nav-frontdesk',
   [ACCOUNTS]: 'nav-accounts',
   [INTEGRATIONS]: 'nav-integrations',
 };
@@ -81,6 +84,7 @@ const SIDEBAR_ICONS: Record<string, ReactNode> = {
   admin: <FontAwesomeIcon icon={faGear} size="lg"/>,
   reports: <FontAwesomeIcon icon={faLineChart} size="lg"/>,
   tips: <FontAwesomeIcon icon={faBarChart} size="lg"/>,
+  frontdesk: <FontAwesomeIcon icon={faHotel} size="lg"/>,
   accounts: <FontAwesomeIcon icon={faReceipt} size="lg"/>,
   integrations: <FontAwesomeIcon icon={faPlug} size="lg"/>,
 };
@@ -96,6 +100,7 @@ const SIDEBAR_TITLE_KEYS: Record<string, string> = {
   admin: 'sidebar.manage',
   reports: 'sidebar.reports',
   tips: 'sidebar.tipDist',
+  frontdesk: 'sidebar.frontdesk',
   accounts: 'sidebar.accounts',
   integrations: 'sidebar.integrations',
 };

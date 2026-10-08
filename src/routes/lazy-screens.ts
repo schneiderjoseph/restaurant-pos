@@ -21,6 +21,9 @@ export const IntegrationsScreen = lazy(() =>
 export const TipDistributionScreen = lazy(() =>
   import('@/screens/tip.distribution.tsx').then(m => ({default: m.TipDistributionScreen}))
 );
+export const FrontDeskScreen = lazy(() =>
+  import('@/screens/frontdesk.tsx').then(m => ({default: m.FrontDeskScreen}))
+);
 export const AccountsScreen = lazy(() =>
   import('@/screens/accounts.tsx').then(m => ({default: m.AccountsScreen}))
 );

@@ -3,6 +3,7 @@ import {
   ADMIN,
   CLOSING,
   DELIVERY,
+  FRONTDESK,
   INTEGRATIONS,
   KITCHEN,
   MENU,
@@ -47,6 +48,7 @@ export const SIDEBAR_NAV_ENTRIES: readonly SidebarNavEntry[] = [
   { link: ADMIN, role: 'admin' },
   { link: REPORTS, role: 'reports' },
   { link: TIP_DISTRIBUTION, role: 'tips' },
+  { link: FRONTDESK, role: 'frontdesk' },
   { link: ACCOUNTS, role: 'accounts', featureModule: 'accounting' },
   { link: INTEGRATIONS, role: 'integrations', featureModule: 'integrations' },
 ];
@@ -84,6 +86,7 @@ export const getRoutePermission = (pathname: string): string | null => {
   if (path === ADMIN || path.startsWith(`${ADMIN}/`)) return 'admin';
   if (path === REPORTS || path.startsWith(`${REPORTS}/`)) return 'reports';
   if (path === TIP_DISTRIBUTION || path.startsWith(`${TIP_DISTRIBUTION}/`)) return 'tips';
+  if (path === FRONTDESK || path.startsWith(`${FRONTDESK}/`)) return 'frontdesk';
   if (path === ACCOUNTS || path.startsWith(`${ACCOUNTS}/`)) return 'accounts';
   if (path === INTEGRATIONS || path.startsWith(`${INTEGRATIONS}/`)) return 'integrations';
   if (path === SETTINGS || path.startsWith(`${SETTINGS}/`)) return 'settings';

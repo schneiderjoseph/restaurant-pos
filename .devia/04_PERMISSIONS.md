@@ -10,6 +10,8 @@
 | Role | Can | Cannot |
 |---|---|---|
 | POS user (role modules) | Open modules listed on their `user_role.roles` (and legacy aliases) | Open modules not granted — sidebar/tabs hidden; deep links redirected |
+| Front Desk (seeded role) | `frontdesk.*` + `customers.create` / preferences / view phone & ID — screen `/frontdesk` | Menu, orders, `payments.receive`; does **not** get blanket identity edit on the server guest list (`canEditCustomerIdentity`) |
+| Cashier settling a folio | `payments.receive` (+ must open `/frontdesk`, so also `frontdesk` or a dual role) | Collects Cash/Card via `stay_settlement`; does not grant identity edit |
 | Manager override | Approve `protectAction` for modules they themselves hold | — |
 
 Permission IDs and hierarchy live in `src/lib/access.rules.ts` (`ACCESS_RULE_MODULES`,

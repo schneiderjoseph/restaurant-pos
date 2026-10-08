@@ -69,6 +69,16 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "customers.view_phone",
     ],
   },
+  // Front Desk manual stays (outside ASI). Own section so it is not granted with menu/orders.
+  frontdesk: {
+    label: "Front Desk",
+    children: [
+      "frontdesk",
+      "frontdesk.checkin",
+      "frontdesk.checkout",
+      "frontdesk.move",
+    ],
+  },
   summary: {
     label: "Summary",
     children: [

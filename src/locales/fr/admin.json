@@ -597,6 +597,9 @@
       },
       "customers": {
         "label": "Clients"
+      },
+      "frontdesk": {
+        "label": "Réception"
       }
     },
     "permissions": {
@@ -807,6 +810,10 @@
       "customers.preferences": "Modifier allergies, régime et notes",
       "customers.view_id_document": "Voir les pièces d'identité en entier",
       "customers.view_phone": "Voir les numéros de téléphone en entier",
+      "frontdesk": "Réception (séjours manuels)",
+      "frontdesk.checkin": "Check-in manuel",
+      "frontdesk.checkout": "Check-out manuel",
+      "frontdesk.move": "Changer de chambre / prolonger",
       "admin.customers": "Clients",
       "admin.customers.update": "Modifier n'importe quel client",
       "admin.customers.delete": "Supprimer et restaurer des clients",
