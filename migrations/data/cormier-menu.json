@@ -4,6 +4,13 @@
     "tax:asi_10",
     "tax:asi_5"
   ],
+  "outlets": [
+    {
+      "key": "plage",
+      "name": "Plage",
+      "priority": 3
+    }
+  ],
   "categories": [
     {
       "key": "petit_dejeuner",
@@ -380,40 +387,48 @@
       "outlet": "restaurant",
       "items": [
         {
-          "name": "Poisson entier grillé (par oz)",
+          "name": "Poisson entier grillé",
           "price": 225,
           "number": "801",
           "description": {
             "fr": "Citron vert et sauce Ti-Malice.",
             "en": "Whole Grilled Fish — Key lime and spicy Ti-Malice sauce."
-          }
+          },
+          "measure_unit": "oz",
+          "measure_step": 0.5
         },
         {
-          "name": "Poisson entier créole (par oz)",
+          "name": "Poisson entier créole",
           "price": 230,
           "number": "802",
           "description": {
             "fr": "Sauce aux condiments des îles.",
             "en": "Whole Creole Fish — Island-style herb and spice sauce."
-          }
+          },
+          "measure_unit": "oz",
+          "measure_step": 0.5
         },
         {
-          "name": "Poisson entier « gros sel » (par oz)",
+          "name": "Poisson entier « gros sel »",
           "price": 220,
           "number": "803",
           "description": {
             "fr": "Poché au court-bouillon traditionnel.",
             "en": "Whole « Gros Sel » Fish — Poached in a traditional seasoned broth."
-          }
+          },
+          "measure_unit": "oz",
+          "measure_step": 0.5
         },
         {
-          "name": "Poisson entier frit (par oz)",
+          "name": "Poisson entier frit",
           "price": 230,
           "number": "804",
           "description": {
             "fr": "Croustillant, servi avec sauce Ti-Malice.",
             "en": "Whole Fried Fish — Crispy fish, served with Ti-Malice sauce."
-          }
+          },
+          "measure_unit": "oz",
+          "measure_step": 0.5
         }
       ],
       "sides": true
@@ -468,13 +483,15 @@
       "outlet": "restaurant",
       "items": [
         {
-          "name": "Langouste grillée (par oz)",
+          "name": "Langouste grillée",
           "price": 195,
           "number": "1001",
           "description": {
             "fr": "Au poids, servie avec beurre citronné.",
             "en": "Grilled Lobster — By weight, served with lemon butter."
-          }
+          },
+          "measure_unit": "oz",
+          "measure_step": 0.5
         },
         {
           "name": "Langouste créole",
@@ -778,7 +795,7 @@
           "ref": "viandes::Griot de porc au four"
         },
         {
-          "ref": "poissons::Poisson entier grillé (par oz)"
+          "ref": "poissons::Poisson entier grillé"
         },
         {
           "ref": "crustaces::Lambi grillé"
@@ -790,7 +807,7 @@
           "ref": "poulet::Poulet frit"
         },
         {
-          "ref": "crustaces::Langouste grillée (par oz)"
+          "ref": "crustaces::Langouste grillée"
         }
       ]
     },
@@ -1148,34 +1165,55 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Rhum 3*** 2 oz",
+          "name": "Rhum 3***",
           "price": 475,
-          "number": "1901"
+          "number": "1901",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 475,
+              "from": "1901"
+            },
+            {
+              "name": "Bouteille",
+              "price": 3950,
+              "from": "1904"
+            }
+          ]
         },
         {
-          "name": "Rhum 5***** 2 oz",
+          "name": "Rhum 5*****",
           "price": 700,
-          "number": "1902"
+          "number": "1902",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 700,
+              "from": "1902"
+            },
+            {
+              "name": "Bouteille",
+              "price": 8050,
+              "from": "1905"
+            }
+          ]
         },
         {
-          "name": "Rhum Blanc 2 oz",
+          "name": "Rhum Blanc",
           "price": 425,
-          "number": "1903"
-        },
-        {
-          "name": "Rhum 3*** – bouteille",
-          "price": 3950,
-          "number": "1904"
-        },
-        {
-          "name": "Rhum 5***** – bouteille",
-          "price": 8050,
-          "number": "1905"
-        },
-        {
-          "name": "Rhum Blanc – bouteille",
-          "price": 3800,
-          "number": "1906"
+          "number": "1903",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 425,
+              "from": "1903"
+            },
+            {
+              "name": "Bouteille",
+              "price": 3800,
+              "from": "1906"
+            }
+          ]
         }
       ]
     },
@@ -1190,9 +1228,26 @@
           "number": "2001"
         },
         {
-          "name": "Whisky Black Label 2 oz",
+          "name": "Whisky Black Label",
           "price": 1300,
-          "number": "2002"
+          "number": "2002",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1300,
+              "from": "2002"
+            },
+            {
+              "name": "Bouteille 750 ml",
+              "price": 14865,
+              "from": "2009"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 19185,
+              "from": "2010"
+            }
+          ]
         },
         {
           "name": "Whisky Chivas 2 oz",
@@ -1200,9 +1255,26 @@
           "number": "2003"
         },
         {
-          "name": "Whisky Jack Daniel's 2 oz",
+          "name": "Whisky Jack Daniel's",
           "price": 1045,
-          "number": "2004"
+          "number": "2004",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1045,
+              "from": "2004"
+            },
+            {
+              "name": "Bouteille 75 cl",
+              "price": 9600,
+              "from": "2011"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 13465,
+              "from": "2012"
+            }
+          ]
         },
         {
           "name": "Whisky Something Special 2 oz",
@@ -1210,44 +1282,38 @@
           "number": "2005"
         },
         {
-          "name": "Whisky White Label 2 oz",
+          "name": "Whisky White Label",
           "price": 520,
-          "number": "2006"
+          "number": "2006",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 520,
+              "from": "2006"
+            },
+            {
+              "name": "Bouteille 750 ml",
+              "price": 5600,
+              "from": "2013"
+            }
+          ]
         },
         {
-          "name": "Glenfiddich 12 Ans – bouteille 70 cl",
-          "price": 16300,
-          "number": "2007"
-        },
-        {
-          "name": "Glenfiddich 12 Ans – bouteille 50 cl",
+          "name": "Glenfiddich 12 Ans",
           "price": 10865,
-          "number": "2008"
-        },
-        {
-          "name": "Whisky Black Label – bouteille 750 ml",
-          "price": 14865,
-          "number": "2009"
-        },
-        {
-          "name": "Whisky Black Label – bouteille 1 L",
-          "price": 19185,
-          "number": "2010"
-        },
-        {
-          "name": "Whisky Jack Daniel's – bouteille 75 cl",
-          "price": 9600,
-          "number": "2011"
-        },
-        {
-          "name": "Whisky Jack Daniel's – bouteille 1 L",
-          "price": 13465,
-          "number": "2012"
-        },
-        {
-          "name": "Whisky White Label – bouteille 750 ml",
-          "price": 5600,
-          "number": "2013"
+          "number": "2007",
+          "variants": [
+            {
+              "name": "Bouteille 50 cl",
+              "price": 10865,
+              "from": "2008"
+            },
+            {
+              "name": "Bouteille 70 cl",
+              "price": 16300,
+              "from": "2007"
+            }
+          ]
         }
       ]
     },
@@ -1257,49 +1323,70 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Vodka Absolut 2 oz",
+          "name": "Vodka Absolut",
           "price": 600,
-          "number": "2101"
+          "number": "2101",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 600,
+              "from": "2101"
+            },
+            {
+              "name": "Bouteille 750 ml",
+              "price": 7465,
+              "from": "2104"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 9380,
+              "from": "2105"
+            }
+          ]
         },
         {
-          "name": "Vodka Grey Goose 2 oz",
+          "name": "Vodka Grey Goose",
           "price": 1500,
-          "number": "2102"
+          "number": "2102",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1500,
+              "from": "2102"
+            },
+            {
+              "name": "Bouteille 75 cl",
+              "price": 15465,
+              "from": "2106"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 20040,
+              "from": "2107"
+            }
+          ]
         },
         {
-          "name": "Vodka Stolichnaya 2 oz",
+          "name": "Vodka Stolichnaya",
           "price": 600,
-          "number": "2103"
-        },
-        {
-          "name": "Vodka Absolut – bouteille 750 ml",
-          "price": 7465,
-          "number": "2104"
-        },
-        {
-          "name": "Vodka Absolut – bouteille 1 L",
-          "price": 9380,
-          "number": "2105"
-        },
-        {
-          "name": "Vodka Grey Goose – bouteille 75 cl",
-          "price": 15465,
-          "number": "2106"
-        },
-        {
-          "name": "Vodka Grey Goose – bouteille 1 L",
-          "price": 20040,
-          "number": "2107"
-        },
-        {
-          "name": "Vodka Stolichnaya – bouteille 75 cl",
-          "price": 9465,
-          "number": "2108"
-        },
-        {
-          "name": "Vodka Stolichnaya – bouteille 1 L",
-          "price": 10465,
-          "number": "2109"
+          "number": "2103",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 600,
+              "from": "2103"
+            },
+            {
+              "name": "Bouteille 75 cl",
+              "price": 9465,
+              "from": "2108"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 10465,
+              "from": "2109"
+            }
+          ]
         }
       ]
     },
@@ -1309,34 +1396,55 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Gin Beefeater 2 oz",
+          "name": "Gin Beefeater",
           "price": 600,
-          "number": "2201"
+          "number": "2201",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 600,
+              "from": "2201"
+            },
+            {
+              "name": "Bouteille 750 ml",
+              "price": 6040,
+              "from": "2204"
+            }
+          ]
         },
         {
-          "name": "Gin Gordon 2 oz",
+          "name": "Gin Gordon",
           "price": 840,
-          "number": "2202"
+          "number": "2202",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 840,
+              "from": "2202"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 10200,
+              "from": "2205"
+            }
+          ]
         },
         {
-          "name": "Gin Tanqueray 2 oz",
+          "name": "Gin Tanqueray",
           "price": 840,
-          "number": "2203"
-        },
-        {
-          "name": "Gin Beefeater – bouteille 750 ml",
-          "price": 6040,
-          "number": "2204"
-        },
-        {
-          "name": "Gin Gordon – bouteille 1 L",
-          "price": 10200,
-          "number": "2205"
-        },
-        {
-          "name": "Gin Tanqueray – bouteille 750 ml",
-          "price": 9570,
-          "number": "2206"
+          "number": "2203",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 840,
+              "from": "2203"
+            },
+            {
+              "name": "Bouteille 750 ml",
+              "price": 9570,
+              "from": "2206"
+            }
+          ]
         }
       ]
     },
@@ -1346,49 +1454,77 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Tequila Cuervo Gold 2 oz",
+          "name": "Tequila Cuervo Gold",
           "price": 900,
-          "number": "2301"
+          "number": "2301",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 900,
+              "from": "2301"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 10865,
+              "from": "2308"
+            }
+          ]
         },
         {
-          "name": "Tequila Cuervo Silver 2 oz",
+          "name": "Tequila Cuervo Silver",
           "price": 900,
-          "number": "2302"
+          "number": "2302",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 900,
+              "from": "2302"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 10865,
+              "from": "2309"
+            }
+          ]
         },
         {
-          "name": "Tequila Don Julio Blanco 2 oz",
+          "name": "Tequila Don Julio Blanco",
           "price": 1550,
-          "number": "2303"
+          "number": "2303",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1550,
+              "from": "2303"
+            },
+            {
+              "name": "Bouteille 75 cl",
+              "price": 24180,
+              "from": "2307"
+            }
+          ]
         },
         {
-          "name": "Tequila Don Julio Anejo 2 oz",
+          "name": "Tequila Don Julio Anejo",
           "price": 1900,
-          "number": "2304"
+          "number": "2304",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1900,
+              "from": "2304"
+            },
+            {
+              "name": "Bouteille 75 cl",
+              "price": 30420,
+              "from": "2306"
+            }
+          ]
         },
         {
           "name": "Tequila Casamigos – bouteille 75 cl",
           "price": 23864,
           "number": "2305"
-        },
-        {
-          "name": "Tequila Don Julio Anejo – bouteille 75 cl",
-          "price": 30420,
-          "number": "2306"
-        },
-        {
-          "name": "Tequila Don Julio Blanco – bouteille 75 cl",
-          "price": 24180,
-          "number": "2307"
-        },
-        {
-          "name": "Tequila Cuervo Gold – bouteille 1 L",
-          "price": 10865,
-          "number": "2308"
-        },
-        {
-          "name": "Tequila Cuervo Silver – bouteille 1 L",
-          "price": 10865,
-          "number": "2309"
         }
       ]
     },
@@ -1398,34 +1534,55 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Hennessy VSOP 2 oz",
+          "name": "Hennessy VSOP",
           "price": 1660,
-          "number": "2401"
+          "number": "2401",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1660,
+              "from": "2401"
+            },
+            {
+              "name": "Bouteille 700 ml",
+              "price": 20465,
+              "from": "2405"
+            }
+          ]
         },
         {
-          "name": "Hennessy VS 2 oz",
+          "name": "Hennessy VS",
           "price": 1100,
-          "number": "2402"
+          "number": "2402",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1100,
+              "from": "2402"
+            },
+            {
+              "name": "Bouteille 700 ml",
+              "price": 14630,
+              "from": "2404"
+            }
+          ]
         },
         {
-          "name": "Remy Martin 2 oz",
+          "name": "Remy Martin",
           "price": 1425,
-          "number": "2403"
-        },
-        {
-          "name": "Hennessy VS – bouteille 700 ml",
-          "price": 14630,
-          "number": "2404"
-        },
-        {
-          "name": "Hennessy VSOP – bouteille 700 ml",
-          "price": 20465,
-          "number": "2405"
-        },
-        {
-          "name": "Remy Martin – bouteille 700 ml",
-          "price": 20670,
-          "number": "2406"
+          "number": "2403",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1425,
+              "from": "2403"
+            },
+            {
+              "name": "Bouteille 700 ml",
+              "price": 20670,
+              "from": "2406"
+            }
+          ]
         }
       ]
     },
@@ -1435,44 +1592,65 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Amaretto 2 oz",
+          "name": "Amaretto",
           "price": 1100,
-          "number": "2501"
+          "number": "2501",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1100,
+              "from": "2501"
+            },
+            {
+              "name": "Bouteille 70 cl",
+              "price": 9565,
+              "from": "2508"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 11515,
+              "from": "2507"
+            }
+          ]
         },
         {
-          "name": "Baileys 2 oz",
+          "name": "Baileys",
           "price": 1100,
-          "number": "2502"
+          "number": "2502",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1100,
+              "from": "2502"
+            },
+            {
+              "name": "Bouteille 1 L",
+              "price": 14765,
+              "from": "2509"
+            }
+          ]
         },
         {
-          "name": "Grand Marnier 2 oz",
+          "name": "Grand Marnier",
           "price": 1200,
-          "number": "2505"
-        },
-        {
-          "name": "Amaretto – bouteille 1 L",
-          "price": 11515,
-          "number": "2507"
-        },
-        {
-          "name": "Amaretto – bouteille 70 cl",
-          "price": 9565,
-          "number": "2508"
-        },
-        {
-          "name": "Baileys – bouteille 1 L",
-          "price": 14765,
-          "number": "2509"
+          "number": "2505",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1200,
+              "from": "2505"
+            },
+            {
+              "name": "Bouteille 700 ml",
+              "price": 13725,
+              "from": "2511"
+            }
+          ]
         },
         {
           "name": "Cointreau – bouteille 750 ml",
           "price": 8500,
           "number": "2510"
-        },
-        {
-          "name": "Grand Marnier – bouteille 700 ml",
-          "price": 13725,
-          "number": "2511"
         },
         {
           "name": "Benedicta",
@@ -1509,44 +1687,72 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Ménage à Trois blanc – bouteille",
-          "price": 6000,
-          "number": "2601"
-        },
-        {
-          "name": "Le Loup y Es-Tu blanc – bouteille",
-          "price": 4500,
-          "number": "2602"
-        },
-        {
-          "name": "JP Chenet blanc – bouteille",
-          "price": 4000,
-          "number": "2603"
-        },
-        {
-          "name": "Cuvée du Patron blanc – bouteille",
-          "price": 2500,
-          "number": "2604"
-        },
-        {
-          "name": "Ménage à Trois blanc – verre",
+          "name": "Ménage à Trois blanc",
           "price": 1200,
-          "number": "2605"
+          "number": "2601",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 1200,
+              "from": "2605"
+            },
+            {
+              "name": "Bouteille",
+              "price": 6000,
+              "from": "2601"
+            }
+          ]
         },
         {
-          "name": "Le Loup y Es-Tu blanc – verre",
+          "name": "Le Loup y Es-Tu blanc",
           "price": 900,
-          "number": "2606"
+          "number": "2602",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 900,
+              "from": "2606"
+            },
+            {
+              "name": "Bouteille",
+              "price": 4500,
+              "from": "2602"
+            }
+          ]
         },
         {
-          "name": "JP Chenet blanc – verre",
+          "name": "JP Chenet blanc",
           "price": 800,
-          "number": "2607"
+          "number": "2603",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 800,
+              "from": "2607"
+            },
+            {
+              "name": "Bouteille",
+              "price": 4000,
+              "from": "2603"
+            }
+          ]
         },
         {
-          "name": "Cuvée du Patron blanc – verre",
+          "name": "Cuvée du Patron blanc",
           "price": 500,
-          "number": "2608"
+          "number": "2604",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 500,
+              "from": "2608"
+            },
+            {
+              "name": "Bouteille",
+              "price": 2500,
+              "from": "2604"
+            }
+          ]
         }
       ]
     },
@@ -1556,9 +1762,21 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Ménage à Trois rouge – bouteille",
-          "price": 6000,
-          "number": "2701"
+          "name": "Ménage à Trois rouge",
+          "price": 1200,
+          "number": "2701",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 1200,
+              "from": "2705"
+            },
+            {
+              "name": "Bouteille",
+              "price": 6000,
+              "from": "2701"
+            }
+          ]
         },
         {
           "name": "Le Loup dans la Bergerie rouge – bouteille",
@@ -1566,34 +1784,43 @@
           "number": "2702"
         },
         {
-          "name": "JP Chenet rouge – bouteille",
-          "price": 4000,
-          "number": "2703"
+          "name": "JP Chenet rouge",
+          "price": 800,
+          "number": "2703",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 800,
+              "from": "2707"
+            },
+            {
+              "name": "Bouteille",
+              "price": 4000,
+              "from": "2703"
+            }
+          ]
         },
         {
-          "name": "Cuvée du Patron rouge – bouteille",
-          "price": 2500,
-          "number": "2704"
-        },
-        {
-          "name": "Ménage à Trois rouge – verre",
-          "price": 1200,
-          "number": "2705"
+          "name": "Cuvée du Patron rouge",
+          "price": 500,
+          "number": "2704",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 500,
+              "from": "2708"
+            },
+            {
+              "name": "Bouteille",
+              "price": 2500,
+              "from": "2704"
+            }
+          ]
         },
         {
           "name": "Le Loup y Es-Tu rouge – verre",
           "price": 900,
           "number": "2706"
-        },
-        {
-          "name": "JP Chenet rouge – verre",
-          "price": 800,
-          "number": "2707"
-        },
-        {
-          "name": "Cuvée du Patron rouge – verre",
-          "price": 500,
-          "number": "2708"
         }
       ]
     },
@@ -1603,9 +1830,21 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Ménage à Trois rosé – bouteille",
-          "price": 6000,
-          "number": "2801"
+          "name": "Ménage à Trois rosé",
+          "price": 1200,
+          "number": "2801",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 1200,
+              "from": "2805"
+            },
+            {
+              "name": "Bouteille",
+              "price": 6000,
+              "from": "2801"
+            }
+          ]
         },
         {
           "name": "Le Loup dans la Bergerie rosé – bouteille",
@@ -1613,34 +1852,43 @@
           "number": "2802"
         },
         {
-          "name": "JP Chenet rosé – bouteille",
-          "price": 4000,
-          "number": "2803"
+          "name": "JP Chenet rosé",
+          "price": 800,
+          "number": "2803",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 800,
+              "from": "2807"
+            },
+            {
+              "name": "Bouteille",
+              "price": 4000,
+              "from": "2803"
+            }
+          ]
         },
         {
-          "name": "Cuvée du Patron rosé – bouteille",
-          "price": 2500,
-          "number": "2804"
-        },
-        {
-          "name": "Ménage à Trois rosé – verre",
-          "price": 1200,
-          "number": "2805"
+          "name": "Cuvée du Patron rosé",
+          "price": 500,
+          "number": "2804",
+          "variants": [
+            {
+              "name": "Verre",
+              "price": 500,
+              "from": "2808"
+            },
+            {
+              "name": "Bouteille",
+              "price": 2500,
+              "from": "2804"
+            }
+          ]
         },
         {
           "name": "Le Loup y Es-Tu rosé – verre",
           "price": 900,
           "number": "2806"
-        },
-        {
-          "name": "JP Chenet rosé – verre",
-          "price": 800,
-          "number": "2807"
-        },
-        {
-          "name": "Cuvée du Patron rosé – verre",
-          "price": 500,
-          "number": "2808"
         }
       ]
     },
@@ -1688,6 +1936,38 @@
           "name": "Bottega – bouteille",
           "price": 10345.4,
           "number": "2908"
+        }
+      ]
+    },
+    {
+      "key": "plage",
+      "name": "PLAGE",
+      "outlet": "plage",
+      "taxes": [],
+      "items": [
+        {
+          "name": "Plage adulte",
+          "price": 500,
+          "number": "3001",
+          "asi_item_id": 393
+        },
+        {
+          "name": "Plage enfant",
+          "price": 250,
+          "number": "3002",
+          "asi_item_id": 392
+        },
+        {
+          "name": "Plage",
+          "price": 500,
+          "number": "3003",
+          "asi_item_id": 523
+        },
+        {
+          "name": "Serviettes plage",
+          "price": 200,
+          "number": "3004",
+          "asi_item_id": 436
         }
       ]
     }
