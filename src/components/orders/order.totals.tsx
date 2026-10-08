@@ -22,9 +22,11 @@ interface CartTotalsProps {
   allowServiceCharges?: boolean
   /** Taxes the order will start without (the customer's exemptions). */
   excludedTaxIds?: string[]
+  /** Extras of the order type / table (room service), charged like the taxes. */
+  extras?: Array<{name: string, value: number}>
 }
 
-export const CartTotals = ({cart, itemCount, className, allowServiceCharges, excludedTaxIds}: CartTotalsProps) => {
+export const CartTotals = ({cart, itemCount, className, allowServiceCharges, excludedTaxIds, extras}: CartTotalsProps) => {
   const {t} = useTranslation('orders');
   const preview = useMemo(() => previewCartTotals(cart, excludedTaxIds), [cart, excludedTaxIds]);
   const itemsBase = preview.itemsBase;
@@ -51,7 +53,8 @@ export const CartTotals = ({cart, itemCount, className, allowServiceCharges, exc
     return {amount, label};
   }, [allowServiceCharges, serviceChargeSettings, itemsBase]);
 
-  const grandTotal = itemsBase + preview.taxTotal + serviceChargePreview.amount;
+  const extrasTotal = (extras ?? []).reduce((sum, extra) => sum + extra.value, 0);
+  const grandTotal = itemsBase + preview.taxTotal + serviceChargePreview.amount + extrasTotal;
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
@@ -73,6 +76,12 @@ export const CartTotals = ({cart, itemCount, className, allowServiceCharges, exc
           <div className="text-right"><DualCurrency amount={serviceChargePreview.amount} /></div>
         </div>
       )}
+      {(extras ?? []).map((extra) => (
+        <div className="flex" key={extra.name} data-testid="cart-totals-extra">
+          <div className="flex-1">{extra.name}</div>
+          <div className="text-right"><DualCurrency amount={extra.value} /></div>
+        </div>
+      ))}
       <div className="separator h-[2px]" style={separatorStyle}></div>
       <div className="flex font-bold text-2xl text-success-900">
         <div className="flex-1">{t('totals.total')}</div>

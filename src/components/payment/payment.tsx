@@ -8,6 +8,9 @@ import {orderEditSessionAtom} from "@/store/order-edit-session.ts";
 import {calculateCartItemNetTotal} from "@/lib/cart.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
+import {orderAutoExtras, syncOrderAutoExtras} from "@/lib/order-auto-extras.ts";
+import useApi, {SettingsData} from "@/api/db/use.api.ts";
+import {Extra} from "@/api/model/extra.ts";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {
@@ -502,6 +505,12 @@ export const Payment = () => {
 
       const normalizedOrder = isNewOrder ? orderObj[0] : orderObj;
       await syncOrderTaxes(db, toRecordId(normalizedOrder?.id));
+      // Room service and the like: extras of the order type / table go on the order now,
+      // so the pre-bill carries them before payment.
+      await syncOrderAutoExtras(db, normalizedOrder?.id, {
+        orderTypeId: state?.orderType?.id?.toString() ?? normalizedOrder?.order_type?.toString(),
+        tableId: state?.table?.id?.toString(),
+      });
 
       postOrderTracking({
         module: isNewOrder ? t("payment:tracking.createOrder") : t("payment:tracking.appendOrder"),
@@ -667,6 +676,17 @@ export const Payment = () => {
 
   const hasNewLines = state.cart.some(item => item.newOrOld === MenuItemType.new);
 
+  // Extras of the order type / table (room service), in the footer before the order is sent.
+  const {data: extrasCatalog} = useApi<SettingsData<Extra>>(Tables.extras, [], ["name asc"], 0, 99999, [
+    "payment_types",
+    "order_types",
+    "tables",
+  ]);
+  const cartExtras = useMemo(() => orderAutoExtras(extrasCatalog?.data, {
+    orderTypeId: state?.orderType?.id?.toString(),
+    tableId: state?.table?.id?.toString(),
+  }), [extrasCatalog, state?.orderType?.id, state?.table?.id]);
+
   return (
     <>
       <div className="font-bold">
@@ -680,7 +700,7 @@ export const Payment = () => {
         )}
         {!order && (
           <div className="p-3">
-            <CartTotals itemCount={cartItemCount} cart={state.cart} allowServiceCharges={state?.orderType?.allow_service_charges} excludedTaxIds={customerExemptTaxIds} />
+            <CartTotals itemCount={cartItemCount} cart={state.cart} allowServiceCharges={state?.orderType?.allow_service_charges} excludedTaxIds={customerExemptTaxIds} extras={cartExtras} />
           </div>
         )}
 
