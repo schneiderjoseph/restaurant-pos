@@ -1,5 +1,8 @@
 import { MenuItem, MenuItemType } from '@/api/model/cart_item.ts';
 import { Order, OrderStatus } from '@/api/model/order.ts';
+import type { OrderItem } from '@/api/model/order_item.ts';
+import { orderIdToString } from '@/store/order-edit-session.ts';
+import { nanoid } from 'nanoid';
 
 /** Only unpaid / open orders can be edited in the POS cart. */
 export function canEditOrder(order?: Pick<Order, 'status'> | null): boolean {
@@ -50,4 +53,43 @@ export function seatsFromOrder(order?: Order | null): string[] {
     }
   }
   return Array.from(seats.values());
+}
+
+/**
+ * A sent line whose quantity went up (its + button, or the same dish added again from the menu)
+ * keeps the quantity already sent; the extra plates become a new line, so they reach the kitchen
+ * and print as an add-on like any other addition. A lower quantity stays an edit of the line.
+ */
+export function splitSentQuantityIncreases(
+  originals: readonly OrderItem[] | null | undefined,
+  cart: readonly MenuItem[],
+): MenuItem[] {
+  const sent = new Map(
+    (originals ?? [])
+      .filter((orig) => orig && !orig.deleted_at)
+      .map((orig) => [orderIdToString(orig.id), orig]),
+  );
+
+  return cart.flatMap((item) => {
+    const orig = item.deleted_at ? undefined : sent.get(orderIdToString(item.id));
+    const sentQuantity = Number(orig?.quantity);
+    const extra = Number(item.quantity) - sentQuantity;
+    if (!orig || !(extra > 0)) {
+      return [item];
+    }
+
+    return [
+      { ...item, quantity: sentQuantity },
+      {
+        ...item,
+        id: nanoid(),
+        newOrOld: MenuItemType.new,
+        quantity: extra,
+        isSelected: false,
+        created_at: undefined,
+        updated_at: undefined,
+        menu_name: item.menu_name ?? (orig as { menu?: string }).menu,
+      },
+    ];
+  });
 }

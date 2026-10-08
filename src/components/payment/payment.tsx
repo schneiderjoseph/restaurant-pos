@@ -51,6 +51,7 @@ import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {orderIdToString} from "@/store/order-edit-session.ts";
 import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
+import {splitSentQuantityIncreases} from "@/lib/order-edit.ts";
 import {createOrderEditRequest, diffSentLines, refKey, sentItemsEditMode} from "@/lib/order-edit-request.ts";
 import {duoMemberIds} from "@/lib/duo.ts";
 import {getCustomerTaxExemptionIds} from "@/lib/tax-calculator.ts";
@@ -162,18 +163,24 @@ export const Payment = () => {
     };
   }, [state?.order?.id]);
 
+  const originalOrderItems = () =>
+    editSession?.order?.items ?? state.order?.order?.items ?? [];
+
+  /** The cart as saved: extra plates on a sent line go out as a new line (kitchen add-on). */
+  const cartToSave = () =>
+    state?.order?.id === 'new'
+      ? state.cart
+      : splitSentQuantityIncreases(originalOrderItems(), state.cart);
+
   const hasNewCartItems = () =>
-    state.cart.some((item) => item.newOrOld === MenuItemType.new && !item.deleted_at);
+    cartToSave().some((item) => item.newOrOld === MenuItemType.new && !item.deleted_at);
 
   const isPersistedCartItem = (item: { id?: unknown; newOrOld?: MenuItemType }) =>
     item.newOrOld === MenuItemType.old || item.id?.toString().includes('order_item:');
 
-  const originalOrderItems = () =>
-    editSession?.order?.items ?? state.order?.order?.items ?? [];
-
   /** What the cart changed on lines the order already holds (quantity, removal, comment, options). */
   const sentLineChanges = () =>
-    state?.order?.id === 'new' ? [] : diffSentLines(originalOrderItems(), state.cart);
+    state?.order?.id === 'new' ? [] : diffSentLines(originalOrderItems(), cartToSave());
 
   const hasPersistedCartEdits = () => sentLineChanges().length > 0;
 
@@ -250,7 +257,7 @@ export const Payment = () => {
       // One kitchen time for the whole send, so the KDS shows it as one ticket.
       const firedAt = await kitchenFireTime(db);
 
-      for (const item of state.cart) {
+      for (const item of cartToSave()) {
         if (isPersistedCartItem(item)) {
           if (awaitsApproval) {
             if (!item.deleted_at) {
