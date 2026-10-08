@@ -303,12 +303,12 @@ export const MenuHeader = () => {
             {personsCount}
           </Button>
 
-          <div className="input-group relative">
+          <div className="input-group relative max-w-[220px]">
             <Button
               flat
               variant="primary"
               size="lg"
-              iconButton
+              iconButton={!state?.customer}
               icon={faUser}
               active={!!state?.customer}
               onClick={() => setCustomerModal(true)}
@@ -316,8 +316,11 @@ export const MenuHeader = () => {
               title={customerAllergies.length
                 ? `${customerLabel} · ${t('customer.allergies')}: ${customerAllergies.join(', ')}`
                 : customerLabel}
+              className={state?.customer ? "max-w-full truncate" : undefined}
               data-testid="menu-customer"
-            />
+            >
+              {state?.customer ? customerLabel : undefined}
+            </Button>
             {customerAllergies.length > 0 && (
               // Allergies must not go unseen: a red mark on the customer button.
               <span
