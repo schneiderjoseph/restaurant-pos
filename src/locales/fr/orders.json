@@ -64,7 +64,8 @@
     "cancelled": "Annulée",
     "spilt": "Divisée",
     "merged": "Fusionnée",
-    "refunded": "Remboursée"
+    "refunded": "Remboursée",
+    "pending": "En attente"
   },
   "totals": {
     "items": "Articles ({{count}})",

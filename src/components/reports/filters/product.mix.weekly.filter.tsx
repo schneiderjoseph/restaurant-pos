@@ -183,7 +183,7 @@ export const ProductMixWeeklyReportFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />

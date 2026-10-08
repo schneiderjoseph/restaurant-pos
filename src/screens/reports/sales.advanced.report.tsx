@@ -120,6 +120,7 @@ const parseFilters = (): ReportFilters => {
 
 export const SalesAdvancedReport = () => {
   const { t } = useTranslation('reports');
+  const unknownLabel = t('common:actions.unknown');
   const db = useDB();
   const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
@@ -283,7 +284,7 @@ export const SalesAdvancedReport = () => {
         }
 
 
-        let orderByMode = filters.sortDirection === 'Ascending' ? 'asc' : 'desc';
+        const orderByMode = filters.sortDirection === 'Ascending' ? 'asc' : 'desc';
         let orderByClause = 'created_at';
         if (filters.sortBy) {
           switch (filters.sortBy) {
@@ -517,25 +518,25 @@ export const SalesAdvancedReport = () => {
       <div className="space-y-8">
         {/* Summary Totals */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Summary</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('labels.summary')}</h3>
           <div className="p-4">
             <table className="min-w-full text-sm table-hover">
               <tbody className="divide-y divide-neutral-100">
               <tr>
-                <td className="py-2 text-neutral-700">Total Orders</td>
+                <td className="py-2 text-neutral-700">{t('metrics.totalOrders')}</td>
                 <td className="py-2 text-right font-semibold text-neutral-900">{formatNumber(totals.ordersCount)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Sale Price w/o Tax</td>
+                <td className="py-2 text-neutral-700">{t('columns.salePriceWithoutTax')}</td>
                 <td
                   className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.salePriceWithoutTax)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Taxes</td>
+                <td className="py-2 text-neutral-700">{t('columns.taxes')}</td>
                 <td className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.taxes)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Service Charges</td>
+                <td className="py-2 text-neutral-700">{t('columns.serviceChargesTitle')}</td>
                 <td
                   className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.serviceCharges)}</td>
               </tr>
@@ -565,7 +566,7 @@ export const SalesAdvancedReport = () => {
                   className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.amountCollected)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Rounding</td>
+                <td className="py-2 text-neutral-700">{t('labels.rounding')}</td>
                 <td className="py-2 text-right font-semibold text-neutral-900">{withDualCurrency(totals.rounding)}</td>
               </tr>
               <tr className="border-t-2 border-neutral-300">
@@ -585,7 +586,7 @@ export const SalesAdvancedReport = () => {
                 type="button"
                 onClick={toggleAllOrderItems}
                 className="print:hidden h-6 w-6 rounded border border-neutral-300 text-xs font-bold text-neutral-700 hover:bg-neutral-100"
-                aria-label={areAllExpanded ? 'Hide menu items' : 'Show menu items'}
+                aria-label={areAllExpanded ? t('labels.hideMenuItems') : t('labels.showMenuItems')}
               >
                 {areAllExpanded ? '-' : '+'}
               </button>
@@ -600,9 +601,9 @@ export const SalesAdvancedReport = () => {
                   <th className="py-3 pl-6 pr-2 text-left text-xs font-semibold text-neutral-700 print:hidden">{t('columns.items')}</th>
                 )}
                 <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Order #</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.orderNumber')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Order Taker</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.orderTaker')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.table')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.floor')}</th>
@@ -612,18 +613,18 @@ export const SalesAdvancedReport = () => {
                   <>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.items')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.covers')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Sale w/o Tax</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Taxes</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Tip</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Service Charges</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.saleWithoutTax')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.taxes')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.tip')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.serviceChargesTitle')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.discounts')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.coupons')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('labels.amountDue')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('labels.amountCollected')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.changeDue')}</th>
-                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Payment Breakdown</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.paymentBreakdown')}</th>
                     <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.net')}</th>
-                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Notes</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.notes')}</th>
                   </>
                 )}
                 {!filters.showDetails && (
@@ -640,16 +641,16 @@ export const SalesAdvancedReport = () => {
                 const dateStr = orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT);
                 const timeStr = orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT);
                 const orderTakerName = order.user
-                  ? `${order.user.first_name ?? ''} ${order.user.last_name ?? ''}`.trim() || order.user.login || 'Unknown'
-                  : 'Unknown';
+                  ? `${order.user.first_name ?? ''} ${order.user.last_name ?? ''}`.trim() || order.user.login || unknownLabel
+                  : unknownLabel;
                 const cashierName = order.cashier
-                  ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || 'Unknown'
-                  : 'N/A';
+                  ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || unknownLabel
+                  : t('orderFiscal.notAvailable');
                 const tableName = order.table?.name || order.table?.source === 'asi-room'
                   ? formatTableLabel(order.table)
                   : `Table ${order.table?.number ?? ''}`;
-                const floorName = order.floor?.name || 'Unknown';
-                const orderTypeName = order.order_type?.name || 'Unknown';
+                const floorName = order.floor?.name || unknownLabel;
+                const orderTypeName = order.order_type?.name || unknownLabel;
                 const hasItems = filters.showMenuItems && order.items && order.items.length > 0;
                 const notesText = (order.notes ?? '').trim();
 
@@ -783,7 +784,7 @@ export const SalesAdvancedReport = () => {
               {filteredOrders.length === 0 && (
                 <tr>
                   <td colSpan={tableColSpan} className="py-6 text-center text-sm text-neutral-500">
-                    No orders found for the selected filters.
+                    {t('empty.noOrdersFound')}
                   </td>
                 </tr>
               )}

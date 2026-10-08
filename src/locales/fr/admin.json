@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "Import IA structure du menu",
     "manageOutlets": "Gérer les points de vente",
     "applyOutletSuggestions": "Appliquer les suggestions",
-    "outlet": "Point de vente"
+    "outlet": "Point de vente",
+    "bulkEditWithCount": "Modification groupée ({{count}})"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -425,7 +426,57 @@
     "extraModifierPricePlaceholder": "Prix de chaque choix",
     "includedModifiersGroupHint": "Utilisé quand un plat offre des choix de ce groupe (« Inclus » sur le plat) : lesquels sont offerts, et combien coûtent les suivants.",
     "maxRateGteMin": "Le taux maximum doit être supérieur ou égal au taux minimum",
-    "weightMustBeNonNegative": "Les poids doivent être supérieurs ou égaux à 0"
+    "weightMustBeNonNegative": "Les poids doivent être supérieurs ou égaux à 0",
+    "couponType": "Type de coupon",
+    "validDays": "Jours valides",
+    "couponTypes": {
+      "order": "Commande",
+      "product": "Produit",
+      "shipping": "Livraison"
+    },
+    "productionWorkflow": "Flux de production",
+    "workflowLegacyHint": "Flux (laisser vide pour le routage cuisine hérité)",
+    "workflowStagesHint": "Les étapes s'exécutent dans l'ordre. Remplacez la cuisine d'une étape pour ce produit si besoin.",
+    "kitchenStation": "Cuisine / Station",
+    "setWorkflowForSelected": "Définir le flux pour les plats sélectionnés",
+    "workflowClearLegacyHint": "Flux (effacer la sélection pour retirer le flux / utiliser le routage hérité)",
+    "replaceCategoriesForSelected": "Remplacer les catégories des plats sélectionnés",
+    "replaceModifierGroupsForSelected": "Remplacer les groupes de modificateurs des plats sélectionnés",
+    "autoSelectModifiers": "Sélection auto des modificateurs ?",
+    "autoOpenModifiers": "Ouverture auto des modificateurs ?",
+    "productionStages": "Étapes de production (dans l'ordre)",
+    "addStage": "Ajouter une étape",
+    "modifier": "Modificateur",
+    "newModifier": "Nouveau modificateur",
+    "nestedOverrideHelp": "Les modifications ne s'appliquent qu'à cette ligne de modificateur. Le groupe de base « {{groupName}} » reste inchangé.",
+    "resetToMenu": "Réinitialiser au menu",
+    "loadingDishes": "Chargement des plats...",
+    "taxMode": "Mode de taxe",
+    "taxExclusive": "Hors taxes",
+    "taxInclusive": "Toutes taxes comprises",
+    "toggleAll": "Tout basculer",
+    "printerTypes": {
+      "network": "Réseau",
+      "usb": "USB",
+      "serial": "Série",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Espèces",
+      "card": "Carte",
+      "points": "Points",
+      "remote": "Distant",
+      "room": "Chambre"
+    },
+    "gatewayModes": {
+      "sandbox": "Test",
+      "live": "Production"
+    },
+    "gatewayProvider": "Fournisseur de passerelle",
+    "gatewayMode": "Mode de passerelle",
+    "gatewayKeys": "Clés de passerelle",
+    "updateSelectedTables": "Mettre à jour les tables sélectionnées",
+    "applyToSelected": "Appliquer à la sélection"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -896,7 +947,8 @@
     "acknowledge": "Accuser réception",
     "hideDetails": "▼ Masquer détails",
     "showDetails": "▶ Afficher détails",
-    "badgeTooltip": "{{count}} alerte(s) critique(s) ouverte(s)"
+    "badgeTooltip": "{{count}} alerte(s) critique(s) ouverte(s)",
+    "acknowledgeFailed": "Échec de l'accusé de réception de l'alerte"
   },
   "customers": {
     "email": "E-mail",

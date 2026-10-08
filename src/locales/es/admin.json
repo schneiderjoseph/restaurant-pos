@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "Importar estructura del menú con IA",
     "manageOutlets": "Gestionar puntos de venta",
     "applyOutletSuggestions": "Aplicar sugerencias",
-    "outlet": "Punto de venta"
+    "outlet": "Punto de venta",
+    "bulkEditWithCount": "Edición masiva ({{count}})"
   },
   "delete": {
     "dish": "Eliminar artículo {{name}}",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Precio de cada opción",
     "includedModifiersGroupHint": "Se usa cuando un plato da opciones de este grupo gratis («Incluidos» en el plato): cuáles son gratis y cuánto cuestan las siguientes.",
     "maxRateGteMin": "La tasa máxima debe ser mayor o igual que la mínima",
-    "weightMustBeNonNegative": "Los pesos deben ser mayores o iguales a 0"
+    "weightMustBeNonNegative": "Los pesos deben ser mayores o iguales a 0",
+    "couponType": "Tipo de cupón",
+    "validDays": "Días válidos",
+    "couponTypes": {
+      "order": "Pedido",
+      "product": "Producto",
+      "shipping": "Envío"
+    },
+    "productionWorkflow": "Flujo de producción",
+    "workflowLegacyHint": "Flujo (dejar vacío para el enrutamiento de cocina heredado)",
+    "workflowStagesHint": "Las etapas se ejecutan en orden. Anule la cocina de una etapa para este producto si es necesario.",
+    "kitchenStation": "Cocina / Estación",
+    "setWorkflowForSelected": "Definir flujo para los platos seleccionados",
+    "workflowClearLegacyHint": "Flujo (borrar la selección para quitar el flujo / usar enrutamiento heredado)",
+    "replaceCategoriesForSelected": "Reemplazar categorías de los platos seleccionados",
+    "replaceModifierGroupsForSelected": "Reemplazar grupos de modificadores de los platos seleccionados",
+    "autoSelectModifiers": "¿Seleccionar modificadores automáticamente?",
+    "autoOpenModifiers": "¿Abrir modificadores automáticamente?",
+    "productionStages": "Etapas de producción (en orden)",
+    "addStage": "Añadir etapa",
+    "modifier": "Modificador",
+    "newModifier": "Nuevo modificador",
+    "nestedOverrideHelp": "Los cambios solo se aplican a esta fila de modificador. El grupo base «{{groupName}}» no cambia.",
+    "resetToMenu": "Restablecer al menú",
+    "loadingDishes": "Cargando platos...",
+    "taxMode": "Modo de impuesto",
+    "taxExclusive": "Exclusivo",
+    "taxInclusive": "Inclusivo",
+    "toggleAll": "Alternar todo",
+    "printerTypes": {
+      "network": "Red",
+      "usb": "USB",
+      "serial": "Serie",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Efectivo",
+      "card": "Tarjeta",
+      "points": "Puntos",
+      "remote": "Remoto",
+      "room": "Habitación"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Producción"
+    },
+    "gatewayProvider": "Proveedor de pasarela",
+    "gatewayMode": "Modo de pasarela",
+    "gatewayKeys": "Claves de pasarela",
+    "updateSelectedTables": "Actualizar mesas seleccionadas",
+    "applyToSelected": "Aplicar a la selección"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
@@ -858,7 +909,8 @@
     "acknowledge": "Reconocer",
     "hideDetails": "▼ Ocultar detalles",
     "showDetails": "▶ Mostrar detalles",
-    "badgeTooltip": "{{count}} alerta(s) crítica(s) abierta(s)"
+    "badgeTooltip": "{{count}} alerta(s) crítica(s) abierta(s)",
+    "acknowledgeFailed": "No se pudo acusar recibo de la alerta"
   },
   "customers": {
     "email": "Correo",

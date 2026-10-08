@@ -24,7 +24,8 @@
     "circleTooSmall": "Il cerchio è troppo piccolo. Trascina un raggio più grande.",
     "polygonTooSmall": "Il poligono è troppo piccolo. Trascina un contorno più grande.",
     "areasSaved": "Aree mappa salvate con successo",
-    "deleteSelected": "Elimina selezione"
+    "deleteSelected": "Elimina selezione",
+    "drawInstructions": "Disegna le zone di consegna sulla mappa. Scegli uno strumento a sinistra, poi fai clic e trascina per disegnare. Fai clic su una forma per selezionarla, trascinala per spostarla o usa le maniglie per ridimensionarla."
   },
   "settings": {
     "title": "Configurazione consegna",

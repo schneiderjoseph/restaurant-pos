@@ -119,16 +119,16 @@ export const SalesSummaryReport = () => {
     }));
 
     return [
-      {label: "Net sales", value: withDualCurrency(totalNetSales)},
-      {label: "Amount collected", value: withDualCurrency(paymentSummary.amountCollected)},
+      {label: t('labels.netSales'), value: withDualCurrency(totalNetSales)},
+      {label: t('labels.amountCollected'), value: withDualCurrency(paymentSummary.amountCollected)},
       {label: t('labels.cashPaymentsNet'), value: withDualCurrency(paymentSummary.cashPayments)},
-      {label: "Rounding benefit", value: withDualCurrency(roundingBenefit)},
+      {label: t('labels.roundingBenefit'), value: withDualCurrency(roundingBenefit)},
       {label: t('metrics.checkCountByDayPart'), breakdown: checkBreakdown},
-      {label: "Sale by day part", breakdown: saleBreakdown},
-      {label: "Net sales by order type", breakdown: orderTypeItems},
-      {label: "Service charges", value: withDualCurrency(serviceCharges)},
-      {label: "Taxes", value: withDualCurrency(taxes)},
-      {label: "Non cash payments", value: withDualCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
+      {label: t('labels.saleByDayPartRow'), breakdown: saleBreakdown},
+      {label: t('labels.netSalesByOrderType'), breakdown: orderTypeItems},
+      {label: t('columns.serviceCharges'), value: withDualCurrency(serviceCharges)},
+      {label: t('reports.tax'), value: withDualCurrency(taxes)},
+      {label: t('labels.nonCashPayments'), value: withDualCurrency(paymentSummary.nonCashPayments), breakdown: nonCashItems},
       {label: t('metrics.discounts'), value: withDualCurrency(Math.max(0, totalDiscounts - totalCoupons))},
       {label: t('metrics.coupons'), value: withDualCurrency(totalCoupons)},
       {label: t('reports.voids'), value: withDualCurrency(totalVoids)},
@@ -147,6 +147,7 @@ export const SalesSummaryReport = () => {
     totalCoupons,
     totalNetSales,
     totalVoids,
+    t,
   ]);
 
   if (loading) {
@@ -173,10 +174,10 @@ export const SalesSummaryReport = () => {
             <thead className="bg-neutral-50">
             <tr>
               <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
-                Metric
+                {t('labels.metric')}
               </th>
               <th scope="col" className="py-3.5 px-6 text-left text-sm font-semibold text-neutral-700">
-                Value
+                {t('labels.value')}
               </th>
             </tr>
             </thead>
@@ -204,7 +205,7 @@ export const SalesSummaryReport = () => {
             {summaryRows.length === 0 && (
               <tr>
                 <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">
-                  No sales activity for the selected period.
+                  {t('empty.noSalesActivity')}
                 </td>
               </tr>
             )}
@@ -217,13 +218,13 @@ export const SalesSummaryReport = () => {
             <thead className="bg-neutral-50">
             <tr>
               <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
-                Discount type
+                {t('labels.discountType')}
               </th>
               <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
-                Quantity
+                {t('columns.quantity')}
               </th>
               <th scope="col" className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">
-                Amount
+                {t('columns.amount')}
               </th>
             </tr>
             </thead>
@@ -243,7 +244,7 @@ export const SalesSummaryReport = () => {
             ) : (
               <tr>
                 <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">
-                  No discounts applied for the selected period.
+                  {t('empty.noDiscountsApplied')}
                 </td>
               </tr>
             )}

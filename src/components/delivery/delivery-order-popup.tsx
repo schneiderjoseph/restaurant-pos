@@ -15,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {calculateOrderTotal} from "@/lib/cart.ts";
-import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems, translateOrderStatus} from "@/lib/order.ts";
 import {useDB} from "@/api/db/db.ts";
 import {toast} from "sonner";
 import {DateTime} from "luxon";
@@ -43,6 +43,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
   onOrderUpdate,
 }) => {
   const { t } = useTranslation(['delivery', 'common']);
+  const { t: tOrders } = useTranslation('orders');
   const db = useDB();
   const {deliveryOrders, openOrderPopup, selectedOrder: contextSelectedOrder, isPopupOpen} = useDeliveryOrders();
   const [riders, setRiders] = useState<User[]>([]);
@@ -466,7 +467,11 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-neutral-600">{t('order.status')}</span>
-                <span className="text-base font-semibold">{order.status}</span>
+                <span className="text-base font-semibold">
+                  {order.status === OrderStatus.Pending
+                    ? tOrders('status.pending')
+                    : translateOrderStatus(tOrders, order.status)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-neutral-600">{t('order.created')}</span>

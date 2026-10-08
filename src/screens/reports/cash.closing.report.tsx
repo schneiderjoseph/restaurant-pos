@@ -105,15 +105,15 @@ export const CashClosingReport = () => {
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Opening balance</div>
+            <div className="text-sm text-neutral-500">{t('labels.openingBalance')}</div>
             <div className="text-xl font-semibold">{withDualCurrency(openingBalance)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Total cash</div>
+            <div className="text-sm text-neutral-500">{t('labels.totalCash')}</div>
             <div className="text-xl font-semibold">{withDualCurrency(totalCash)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Other payments</div>
+            <div className="text-sm text-neutral-500">{t('labels.otherPayments')}</div>
             <div className="text-xl font-semibold">{withDualCurrency(totalOtherPayments)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
@@ -138,25 +138,25 @@ export const CashClosingReport = () => {
                 <td className="py-3 pr-6 text-sm text-neutral-900 capitalize">{closing.status || "-"}</td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Window</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">{t('labels.window')}</td>
                 <td className="py-3 pr-6 text-sm text-neutral-900">
                   {toLuxonDateTime(closing.date_from).toFormat("yyyy-LL-dd HH:mm")} - {toLuxonDateTime(closing.date_to).toFormat("yyyy-LL-dd HH:mm")}
                 </td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Created at</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">{t('columns.createdAt')}</td>
                 <td className="py-3 pr-6 text-sm text-neutral-900">
                   {toLuxonDateTime(closing.created_at).toFormat("yyyy-LL-dd HH:mm")}
                 </td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Closed at</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">{t('columns.closedAt')}</td>
                 <td className="py-3 pr-6 text-sm text-neutral-900">
                   {closing.closed_at ? toLuxonDateTime(closing.closed_at).toFormat("yyyy-LL-dd HH:mm") : "-"}
                 </td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Notes</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">{t('labels.notes')}</td>
                 <td className="py-3 pr-6 text-sm text-neutral-900">{closing.notes || "-"}</td>
               </tr>
             </tbody>
@@ -164,23 +164,23 @@ export const CashClosingReport = () => {
         </div>
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Terminal cash</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('labels.terminalCash')}</h3>
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Terminal</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('labels.terminalDefault')}</th>
                 <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
               {(closing.terminal_cash || []).length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">No terminal cash data</td>
+                  <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">{t('empty.noTerminalCash')}</td>
                 </tr>
               ) : (
                 (closing.terminal_cash || []).map((terminal: any, index) => (
                   <tr key={toRecordString(terminal?.terminal_id) || String(index)}>
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{terminal?.terminal_name || "Terminal"}</td>
+                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{terminal?.terminal_name || t('labels.terminalDefault')}</td>
                     <td className="py-3 px-3 text-right text-sm text-neutral-900">{withDualCurrency(Number(terminal?.cash_amount || 0))}</td>
                   </tr>
                 ))
@@ -190,24 +190,24 @@ export const CashClosingReport = () => {
         </div>
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Payment summary</h3>
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('labels.paymentSummary')}</h3>
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Payment type</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('filters.paymentType')}</th>
                 <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 bg-white">
               {(closing.payments_data || []).length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">No payment summary data</td>
+                  <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">{t('empty.noPaymentSummary')}</td>
                 </tr>
               ) : (
                 (closing.payments_data || []).map((payment: any, index) => (
                   <tr key={`${toRecordString(payment?.payment_type?.id || payment?.payment_type)}_${index}`}>
                     <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">
-                      {payment?.payment_type?.name || toRecordString(payment?.payment_type) || "Unknown"}
+                      {payment?.payment_type?.name || toRecordString(payment?.payment_type) || t('common:actions.unknown')}
                     </td>
                     <td className="py-3 px-3 text-right text-sm text-neutral-900">{withDualCurrency(Number(payment?.amount || 0))}</td>
                   </tr>
@@ -230,7 +230,7 @@ export const CashClosingReport = () => {
             <tbody className="divide-y divide-neutral-100 bg-white">
               {(closing.expenses_data || []).length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">No expense records</td>
+                  <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">{t('empty.noExpenseRecords')}</td>
                 </tr>
               ) : (
                 (closing.expenses_data || []).map((expense: any, index) => (
@@ -245,7 +245,7 @@ export const CashClosingReport = () => {
             {(closing.expenses_data || []).length > 0 && (
               <tfoot className="bg-neutral-50">
                 <tr>
-                  <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">Total expenses</td>
+                  <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('labels.totalExpenses')}</td>
                   <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withDualCurrency(totalExpenses)}</td>
                 </tr>
               </tfoot>

@@ -66,7 +66,7 @@ export const SalesAdvancedFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />
@@ -82,14 +82,14 @@ export const SalesAdvancedFilter = () => {
             className="w-full"
             options={(usersData?.data || [])
               .map(user =>
-                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || 'Unnamed user')
+                toOption(user, `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('filters.unnamedUser'))
               )
               .filter(notNull)}
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-tables">Tables</label>
+          <label htmlFor="sales-advanced-tables">{t('filters.tables')}</label>
           <ReactSelect
             id="sales-advanced-tables"
             name="tables[]"
@@ -97,7 +97,7 @@ export const SalesAdvancedFilter = () => {
             isLoading={loadingTables}
             className="w-full"
             options={(tablesData?.data || [])
-              .map(table => toOption(table, table.name || table.source === 'asi-room' ? formatTableLabel(table) : `Table ${table.number ?? ''}`))
+              .map(table => toOption(table, table.name || table.source === 'asi-room' ? formatTableLabel(table) : t('filters.tableNumber', {number: table.number ?? ''})))
               .filter(notNull)}
           />
         </div>
@@ -200,33 +200,33 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-menu-items-match">Menu Items Match</label>
+          <label htmlFor="sales-advanced-menu-items-match">{t('filters.menuItemsMatch')}</label>
           <select
             id="sales-advanced-menu-items-match"
             name="menu_items_match"
             className="form-control"
             defaultValue="any"
           >
-            <option value="any">Any selected item</option>
-            <option value="all">All selected items</option>
+            <option value="any">{t('filters.menuItemsMatchAny')}</option>
+            <option value="all">{t('filters.menuItemsMatchAll')}</option>
           </select>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Status Filters</label>
+          <label>{t('filters.statusFilters')}</label>
           <div className="flex flex-col gap-3">
-            <Checkbox name="refund" value="1" label="Refund" />
-            <Checkbox name="merged" value="1" label="Merged" />
-            <Checkbox name="cancelled" value="1" label="Cancelled" />
-            <Checkbox name="split" value="1" label="Split" />
+            <Checkbox name="refund" value="1" label={t('filters.statusRefund')} />
+            <Checkbox name="merged" value="1" label={t('filters.statusMerged')} />
+            <Checkbox name="cancelled" value="1" label={t('filters.statusCancelled')} />
+            <Checkbox name="split" value="1" label={t('filters.statusSplit')} />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
           <label>{t('labels.displayOptions')}</label>
           <div className="flex flex-col gap-3">
-            <Checkbox name="show_menu_items" value="1" label="Show Menu Items for Details" />
-            <Checkbox name="show_details" value="1" label="Show Details" />
+            <Checkbox name="show_menu_items" value="1" label={t('filters.showMenuItemsForDetails')} />
+            <Checkbox name="show_details" value="1" label={t('filters.showDetails')} />
           </div>
         </div>
 
@@ -240,8 +240,15 @@ export const SalesAdvancedFilter = () => {
               defaultValue=""
             >
               <option value="">{t('labels.default')}</option>
-              {['Invoice', 'Date', 'Status', 'Cashier', 'Order taker', 'Total'].map(item => (
-                <option key={item} value={item}>{item}</option>
+              {[
+                ['Invoice', t('filters.sortOptionInvoice')],
+                ['Date', t('filters.sortOptionDate')],
+                ['Status', t('filters.sortOptionStatus')],
+                ['Cashier', t('filters.sortOptionCashier')],
+                ['Order taker', t('filters.sortOptionOrderTaker')],
+                ['Total', t('filters.sortOptionTotal')],
+              ].map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
@@ -254,8 +261,11 @@ export const SalesAdvancedFilter = () => {
               className="form-control"
               defaultValue="Ascending"
             >
-              {['Ascending', 'Descending'].map(item => (
-                <option key={item} value={item}>{item}</option>
+              {[
+                ['Ascending', t('filters.sortAscending')],
+                ['Descending', t('filters.sortDescending')],
+              ].map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>

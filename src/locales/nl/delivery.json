@@ -24,7 +24,8 @@
     "circleTooSmall": "Cirkel is te klein. Sleep een grotere straal.",
     "polygonTooSmall": "Veelhoek is te klein. Sleep een grotere omtrek.",
     "areasSaved": "Kaartgebieden succesvol opgeslagen",
-    "deleteSelected": "Selectie verwijderen"
+    "deleteSelected": "Selectie verwijderen",
+    "drawInstructions": "Teken bezorgzones op de kaart. Kies links een hulpmiddel en sleep om te tekenen. Klik op een vorm om deze te selecteren, sleep om te verplaatsen of gebruik de handvatten om te schalen."
   },
   "settings": {
     "title": "Bezorgconfiguratie",

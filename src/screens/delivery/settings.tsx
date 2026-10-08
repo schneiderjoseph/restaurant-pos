@@ -18,6 +18,7 @@ import {StringRecordId} from "surrealdb";
 import {TimePicker} from "@/components/common/antd/time.picker.tsx";
 import {DeliveryBannersSection} from "@/components/delivery/delivery-banners-section.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import i18n from "@/lib/i18n.ts";
 
 interface DeliveryTimingEntry {
   id: string;
@@ -52,7 +53,17 @@ const DAYS_OF_WEEK = [
   "Friday",
   "Saturday",
   "Sunday"
-];
+] as const;
+
+const DAY_I18N_KEYS: Record<(typeof DAYS_OF_WEEK)[number], string> = {
+  Monday: "monday",
+  Tuesday: "tuesday",
+  Wednesday: "wednesday",
+  Thursday: "thursday",
+  Friday: "friday",
+  Saturday: "saturday",
+  Sunday: "sunday",
+};
 
 const getDefaultDeliveryTiming = (): DeliveryTimingEntry[] => {
   return DAYS_OF_WEEK.map((day, index) => ({
@@ -70,20 +81,20 @@ const validationSchema = yup.object({
   delivery_menu: yup.object({
     label: yup.string(),
     value: yup.string()
-  }).required('This is required'),
-  delivery_charges: yup.number().min(0, "Delivery charges must be positive").required("This is required"),
-  delivery_time: yup.number().min(0, "Delivery time must be positive").required("This is required"),
-  minimum_order: yup.number().min(0, "Minimum order must be positive").required("This is required"),
+  }).required(i18n.t('validation:required')),
+  delivery_charges: yup.number().min(0, () => i18n.t('delivery:settings.deliveryChargesPositive')).required(i18n.t('validation:required')),
+  delivery_time: yup.number().min(0, () => i18n.t('delivery:settings.deliveryTimePositive')).required(i18n.t('validation:required')),
+  minimum_order: yup.number().min(0, () => i18n.t('delivery:settings.minimumOrderPositive')).required(i18n.t('validation:required')),
   map_center: yup.object({
-    lat: yup.number().required("Latitude is required"),
-    lng: yup.number().required("Longitude is required")
-  }).required("Map center is required"),
+    lat: yup.number().required(() => i18n.t('delivery:settings.latitudeRequired')),
+    lng: yup.number().required(() => i18n.t('delivery:settings.longitudeRequired'))
+  }).required(() => i18n.t('delivery:settings.mapCenterRequired')),
   delivery_timing: yup.array().of(
     yup.object({
       id: yup.string().required(),
-      day_or_date: yup.string().required("Day or date is required"),
-      start_time: yup.string().required("Start time is required"),
-      end_time: yup.string().required("End time is required"),
+      day_or_date: yup.string().required(() => i18n.t('delivery:settings.dayOrDateRequired')),
+      start_time: yup.string().required(() => i18n.t('delivery:settings.startTimeRequired')),
+      end_time: yup.string().required(() => i18n.t('delivery:settings.endTimeRequired')),
       is_end_time_next_day: yup.boolean(),
       enable_delivery: yup.boolean()
     })
@@ -246,7 +257,14 @@ export const DeliverySettings = () => {
   };
 
   const isDayOfWeek = (dayOrDate: string): boolean => {
-    return DAYS_OF_WEEK.includes(dayOrDate);
+    return (DAYS_OF_WEEK as readonly string[]).includes(dayOrDate);
+  };
+
+  const formatDayOrDate = (dayOrDate: string): string => {
+    if (isDayOfWeek(dayOrDate)) {
+      return t(`days.${DAY_I18N_KEYS[dayOrDate as (typeof DAYS_OF_WEEK)[number]]}`);
+    }
+    return dayOrDate;
   };
 
   return (
@@ -432,7 +450,7 @@ export const DeliverySettings = () => {
                                   <Input
                                     type={isDefaultDay ? "text" : "date"}
                                     label={isDefaultDay ? t('settings.dayOfWeek') : t('settings.date')}
-                                    value={dayField.value}
+                                    value={isDefaultDay ? formatDayOrDate(dayField.value) : dayField.value}
                                     onChange={dayField.onChange}
                                     disabled={isDefaultDay}
                                     error={errors.delivery_timing?.[index]?.day_or_date?.message}

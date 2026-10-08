@@ -97,12 +97,12 @@ export const NestedGroupOverrideEditor = ({
     >
       <div className="flex flex-col gap-4">
         <p className="text-sm text-neutral-600">
-          Changes apply only to this modifier row. The base group &quot;{groupName}&quot; is unchanged.
+          {t('forms.nestedOverrideHelp', { groupName })}
         </p>
 
         <div className="flex gap-2">
           <Button variant="secondary" type="button" onClick={resetGroup}>
-            Reset to menu
+            {t('forms.resetToMenu')}
           </Button>
           <Button
             variant="success"
@@ -110,7 +110,7 @@ export const NestedGroupOverrideEditor = ({
             className="ml-auto"
             onClick={() => onSave(draftItems)}
           >
-            Save
+            {t('common:actions.save')}
           </Button>
         </div>
 
@@ -157,7 +157,7 @@ export const NestedGroupOverrideEditor = ({
                     })
                   }
                 >
-                  Reset
+                  {t('common:actions.reset')}
                 </Button>
               </div>
             );

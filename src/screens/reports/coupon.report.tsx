@@ -3,5 +3,5 @@ import {OrderFinanceReport} from "@/screens/reports/order.finance.shared.tsx";
 
 export const CouponReport = () => {
   const { t } = useTranslation('reports');
-  return <OrderFinanceReport title={t('titles.coupon')} metric="coupon_discount" metricHeader="Coupon discount" />;
+  return <OrderFinanceReport title={t('titles.coupon')} metric="coupon_discount" metricHeader={t('metrics.couponDiscount')} />;
 };

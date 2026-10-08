@@ -84,7 +84,7 @@ export const SalesWeeklyReport = () => {
   const [error, setError] = useState<string | null>(null);
 
   const {weekStart, weekStartISO, weekEndISO, queryStart, queryEnd} = useMemo(parseWeekParams, []);
-  const subtitle = `${weekStartISO} to ${weekEndISO}`;
+  const subtitle = t('labels.dateRangeTo', {start: weekStartISO, end: weekEndISO});
 
   useEffect(() => {
     queryRef.current = db.query;
@@ -193,7 +193,7 @@ export const SalesWeeklyReport = () => {
 
       // Sales by order mode
       const orderTypeName =
-        order.order_type?.name || (typeof order.order_type === "string" ? order.order_type : "Unknown");
+        order.order_type?.name || (typeof order.order_type === "string" ? order.order_type : t('common:actions.unknown'));
       dayMetric.salesByOrderMode[orderTypeName] = (dayMetric.salesByOrderMode[orderTypeName] || 0) + netSales;
 
       // Comps (100% discounts or complimentary items)
@@ -220,18 +220,18 @@ export const SalesWeeklyReport = () => {
     });
 
     return metrics;
-  }, [orders, orderVoids, weekStart]);
+  }, [orders, orderVoids, weekStart, t]);
 
   const dayHeaders = useMemo(() => {
-    return WEEK_DAYS.map((day, index) => {
+    return WEEK_DAYS.map((_, index) => {
       const date = weekStart.plus({days: index});
       return {
-        day,
+        day: t(`weekdaysFull.${index + 1}`),
         dateLabel: date.toFormat('yyyy-LL-dd'),
         dateKey: date.toISODate() || '',
       };
     });
-  }, [weekStart]);
+  }, [weekStart, t]);
 
   const rows = useMemo(() => {
     const rowData: Array<{
@@ -262,7 +262,7 @@ export const SalesWeeklyReport = () => {
     // Non-Cash Payments
     const nonCashPaymentsValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.nonCashPayments || 0);
     rowData.push({
-      label: "Non-Cash Payments",
+      label: t('labels.nonCashPaymentsTitle'),
       values: nonCashPaymentsValues,
       total: nonCashPaymentsValues.reduce((sum, val) => sum + val, 0),
       formatter: withDualCurrency,
@@ -297,7 +297,7 @@ export const SalesWeeklyReport = () => {
     DAY_PARTS.forEach(part => {
       const dayPartValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.salesByDayPart[part.label] || 0);
       rowData.push({
-        label: `Sales by Day Part - ${part.label} (${getDayPartTimeRangeLabel(part.label)})`,
+        label: t('labels.salesByDayPartNamed', {part: part.label, range: getDayPartTimeRangeLabel(part.label)}),
         values: dayPartValues,
         total: dayPartValues.reduce((sum, val) => sum + val, 0),
         formatter: withDualCurrency,
@@ -316,7 +316,7 @@ export const SalesWeeklyReport = () => {
     orderTypesSet.forEach(orderType => {
       const orderTypeValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.salesByOrderMode[orderType] || 0);
       rowData.push({
-        label: `Sales by Order Mode - ${orderType}`,
+        label: t('labels.salesByOrderModeNamed', {orderType}),
         values: orderTypeValues,
         total: orderTypeValues.reduce((sum, val) => sum + val, 0),
         formatter: withDualCurrency,
@@ -344,7 +344,7 @@ export const SalesWeeklyReport = () => {
     // Service Charges Collected
     const serviceChargesCollectedValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.serviceChargesCollected || 0);
     rowData.push({
-      label: "Service Charges Collected",
+      label: t('labels.serviceChargesCollected'),
       values: serviceChargesCollectedValues,
       total: serviceChargesCollectedValues.reduce((sum, val) => sum + val, 0),
       formatter: withDualCurrency,
@@ -353,14 +353,14 @@ export const SalesWeeklyReport = () => {
     // Service Charges Not Collected
     const serviceChargesNotCollectedValues = dayHeaders.map(h => dayMetrics[h.dateKey]?.serviceChargesNotCollected || 0);
     rowData.push({
-      label: "Service Charges Not Collected",
+      label: t('labels.serviceChargesNotCollected'),
       values: serviceChargesNotCollectedValues,
       total: serviceChargesNotCollectedValues.reduce((sum, val) => sum + val, 0),
       formatter: withDualCurrency,
     });
 
     return rowData;
-  }, [dayMetrics, dayHeaders]);
+  }, [dayMetrics, dayHeaders, t]);
 
   if (loading) {
     return (
@@ -384,14 +384,14 @@ export const SalesWeeklyReport = () => {
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Metric</th>
+              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('labels.metric')}</th>
               {dayHeaders.map(({day, dateLabel}) => (
                 <th key={day} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700">
                   <div>{day}</div>
                   <div className="text-xs text-neutral-500 font-normal">{dateLabel}</div>
                 </th>
               ))}
-              <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Weekly Total</th>
+              <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('labels.weeklyTotal')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">

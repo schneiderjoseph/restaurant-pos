@@ -59,7 +59,8 @@
     "cancelled": "İptal Edildi",
     "spilt": "Bölündü",
     "merged": "Birleştirildi",
-    "refunded": "İade Edildi"
+    "refunded": "İade Edildi",
+    "pending": "Beklemede"
   },
   "totals": {
     "items": "Ürünler ({{count}})",

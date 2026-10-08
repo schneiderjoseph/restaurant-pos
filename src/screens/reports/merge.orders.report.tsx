@@ -86,16 +86,16 @@ export const MergeOrdersReport = () => {
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
           <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Merged at</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Merged by</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">New order</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Old orders</th>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.mergedAt')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.mergedBy')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.newOrder')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.oldOrders')}</th>
           </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">No merge events for selected range.</td>
+              <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">{t('empty.noMergeEvents')}</td>
             </tr>
           ) : rows.map((row) => (
             <tr key={row.id}>
@@ -112,7 +112,7 @@ export const MergeOrdersReport = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-4 text-sm text-neutral-600">Total merge events: <span className="font-semibold">{formatNumber(rows.length)}</span></div>
+      <div className="mt-4 text-sm text-neutral-600">{t('labels.totalMergeEvents')} <span className="font-semibold">{formatNumber(rows.length)}</span></div>
     </ReportsLayout>
   );
 };

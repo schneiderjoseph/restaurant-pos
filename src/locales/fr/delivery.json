@@ -24,7 +24,8 @@
     "circleTooSmall": "Le cercle est trop petit. Dessinez un rayon plus grand.",
     "polygonTooSmall": "Le polygone est trop petit. Dessinez un contour plus grand.",
     "areasSaved": "Zones de carte enregistrées avec succès",
-    "deleteSelected": "Supprimer la sélection"
+    "deleteSelected": "Supprimer la sélection",
+    "drawInstructions": "Dessinez les zones de livraison sur la carte. Choisissez un outil à gauche, puis cliquez-glissez pour dessiner. Cliquez une forme pour la sélectionner, faites-la glisser pour la déplacer, ou utilisez les poignées pour la redimensionner."
   },
   "settings": {
     "title": "Configuration de la livraison",

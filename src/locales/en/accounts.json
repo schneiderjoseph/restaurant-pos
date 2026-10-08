@@ -77,8 +77,10 @@
     "publishTitle": "Publish journal entry",
     "yes": "Yes, please",
     "no": "No, wait",
-    "activateGroup": "Are you sure to {{action}}activate this group?",
-    "activateAccount": "Are you sure to {{action}}activate this account?"
+    "activateGroup": "Are you sure you want to activate this group?",
+    "activateAccount": "Are you sure you want to activate this account?",
+    "deactivateGroup": "Are you sure you want to deactivate this group?",
+    "deactivateAccount": "Are you sure you want to deactivate this account?"
   },
   "reports": {
     "allLedgers": "All ledgers",
@@ -133,7 +135,8 @@
     "notBalanced": "Not balanced",
     "debitTotal": "Debit total",
     "creditTotal": "Credit total",
-    "netIncome": "Net income"
+    "netIncome": "Net income",
+    "unclassified": "Unclassified"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -152,10 +155,20 @@
     "publishFailed": "Failed to publish entry",
     "cannotReverse": "Only posted entries can be reversed",
     "cannotPublish": "Only draft entries can be published",
-    "lineBothDebitCredit": "A journal line cannot have both debit and credit."
+    "lineBothDebitCredit": "A journal line cannot have both debit and credit.",
+    "noLinesFound": "No lines found for this journal entry."
   },
   "upload": {
     "attachDocuments": "Attach Documents",
-    "documents": "Documents"
+    "documents": "Documents",
+    "documentN": "Document {{n}}",
+    "file": "File"
+  },
+  "headTypes": {
+    "asset": "Asset",
+    "liability": "Liability",
+    "equity": "Equity",
+    "income": "Income",
+    "expense": "Expense"
   }
 }

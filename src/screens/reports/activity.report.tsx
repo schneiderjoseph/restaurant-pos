@@ -5,29 +5,32 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Tracking} from "@/api/model/tracking.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import i18n from '@/lib/i18n.ts';
+
+const tr = (key: string) => i18n.t(`reports:activity.${key}`);
 
 export const detectBrowser = (userAgent?: string) => {
   if (!userAgent) return "-";
   const ua = userAgent.toLowerCase();
 
-  if (ua.includes("edg/")) return "Microsoft Edge";
-  if (ua.includes("opr/") || ua.includes("opera/")) return "Opera";
-  if (ua.includes("chrome/") && !ua.includes("edg/") && !ua.includes("opr/")) return "Google Chrome";
-  if (ua.includes("firefox/")) return "Mozilla Firefox";
-  if (ua.includes("safari/") && !ua.includes("chrome/")) return "Safari";
-  return "Unknown Browser";
+  if (ua.includes("edg/")) return tr('edge');
+  if (ua.includes("opr/") || ua.includes("opera/")) return tr('opera');
+  if (ua.includes("chrome/") && !ua.includes("edg/") && !ua.includes("opr/")) return tr('chrome');
+  if (ua.includes("firefox/")) return tr('firefox');
+  if (ua.includes("safari/") && !ua.includes("chrome/")) return tr('safari');
+  return tr('unknownBrowser');
 };
 
 export const detectOS = (userAgent?: string) => {
   if (!userAgent) return "-";
   const ua = userAgent.toLowerCase();
 
-  if (ua.includes("windows")) return "Windows";
-  if (ua.includes("android")) return "Android";
-  if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod")) return "iOS";
-  if (ua.includes("mac os x") || ua.includes("macintosh")) return "macOS";
-  if (ua.includes("linux")) return "Linux";
-  return "Unknown OS";
+  if (ua.includes("windows")) return tr('windows');
+  if (ua.includes("android")) return tr('android');
+  if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod")) return tr('ios');
+  if (ua.includes("mac os x") || ua.includes("macintosh")) return tr('macos');
+  if (ua.includes("linux")) return tr('linux');
+  return tr('unknownOs');
 };
 
 export const displayValue = (value?: unknown) => {
@@ -116,22 +119,22 @@ export const ActivityReport = () => {
           <tr>
             <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('common:actions.time')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Role</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Shift</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.role')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.shift')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.module')}</th>
             <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('common:table.page')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Auth</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Manager</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Manager Role</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.authMethod')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.managers')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.managerRole')}</th>
             {/* <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Coords</th> */}
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Payload</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.details')}</th>
             <th className="py-3 pr-6 text-left text-sm font-semibold text-neutral-700">{t('columns.device')}</th>
           </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 bg-white">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={12} className="py-6 text-center text-sm text-neutral-500">No activity logs for selected range.</td>
+              <td colSpan={12} className="py-6 text-center text-sm text-neutral-500">{t('empty.noActivityLogs')}</td>
             </tr>
           ) : rows.map((row) => (
             <tr key={row.id}>

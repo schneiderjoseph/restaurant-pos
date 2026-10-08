@@ -76,8 +76,10 @@
     "title": "Confirmation",
     "yes": "Yes, please",
     "no": "No, wait",
-    "activateGroup": "Are you sure to {{action}}activate this group?",
-    "activateAccount": "Are you sure to {{action}}activate this account?"
+    "activateGroup": "¿Seguro que desea activar este grupo?",
+    "activateAccount": "¿Seguro que desea activar esta cuenta?",
+    "deactivateGroup": "¿Seguro que desea desactivar este grupo?",
+    "deactivateAccount": "¿Seguro que desea desactivar esta cuenta?"
   },
   "reports": {
     "allLedgers": "All ledgers",
@@ -132,7 +134,8 @@
     "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
     "noLedgerEntries": "No journal entries for this account in the selected date range.",
     "viewEntry": "View entry",
-    "netIncome": "Resultado neto"
+    "netIncome": "Resultado neto",
+    "unclassified": "Sin clasificar"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -147,10 +150,20 @@
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
     "reverseSuccess": "Journal entry reversed successfully",
     "cannotReverse": "Only posted entries can be reversed",
-    "lineBothDebitCredit": "Una línea del asiento no puede tener débito y crédito a la vez."
+    "lineBothDebitCredit": "Una línea del asiento no puede tener débito y crédito a la vez.",
+    "noLinesFound": "No se encontraron líneas para este asiento."
   },
   "upload": {
     "attachDocuments": "Attach Documents",
-    "documents": "Documents"
+    "documents": "Documents",
+    "documentN": "Documento {{n}}",
+    "file": "Archivo"
+  },
+  "headTypes": {
+    "asset": "Activo",
+    "liability": "Pasivo",
+    "equity": "Patrimonio",
+    "income": "Ingresos",
+    "expense": "Gastos"
   }
 }

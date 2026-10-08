@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "ИИ-импорт структуры меню",
     "manageOutlets": "Управление точками продаж",
     "applyOutletSuggestions": "Применить предложения",
-    "outlet": "Точка продаж"
+    "outlet": "Точка продаж",
+    "bulkEditWithCount": "Массовое редактирование ({{count}})"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Цена каждого варианта",
     "includedModifiersGroupHint": "Используется, когда блюдо даёт варианты этой группы бесплатно («Включено» у блюда): какие бесплатны и сколько стоят следующие.",
     "maxRateGteMin": "Максимальная ставка должна быть не меньше минимальной",
-    "weightMustBeNonNegative": "Веса должны быть больше или равны 0"
+    "weightMustBeNonNegative": "Веса должны быть больше или равны 0",
+    "couponType": "Тип купона",
+    "validDays": "Действительные дни",
+    "couponTypes": {
+      "order": "Заказ",
+      "product": "Товар",
+      "shipping": "Доставка"
+    },
+    "productionWorkflow": "Производственный процесс",
+    "workflowLegacyHint": "Процесс (оставьте пустым для старой маршрутизации кухни)",
+    "workflowStagesHint": "Этапы выполняются по порядку. При необходимости замените кухню этапа для этого блюда.",
+    "kitchenStation": "Кухня / Станция",
+    "setWorkflowForSelected": "Задать процесс для выбранных блюд",
+    "workflowClearLegacyHint": "Процесс (очистите выбор, чтобы удалить процесс / использовать старую маршрутизацию)",
+    "replaceCategoriesForSelected": "Заменить категории выбранных блюд",
+    "replaceModifierGroupsForSelected": "Заменить группы модификаторов выбранных блюд",
+    "autoSelectModifiers": "Автовыбор модификаторов?",
+    "autoOpenModifiers": "Автооткрытие модификаторов?",
+    "productionStages": "Этапы производства (по порядку)",
+    "addStage": "Добавить этап",
+    "modifier": "Модификатор",
+    "newModifier": "Новый модификатор",
+    "nestedOverrideHelp": "Изменения применяются только к этой строке модификатора. Базовая группа «{{groupName}}» не меняется.",
+    "resetToMenu": "Сбросить к меню",
+    "loadingDishes": "Загрузка блюд...",
+    "taxMode": "Режим налога",
+    "taxExclusive": "Исключая налог",
+    "taxInclusive": "Включая налог",
+    "toggleAll": "Переключить все",
+    "printerTypes": {
+      "network": "Сеть",
+      "usb": "USB",
+      "serial": "Последовательный",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Наличные",
+      "card": "Карта",
+      "points": "Баллы",
+      "remote": "Удалённый",
+      "room": "Номер"
+    },
+    "gatewayModes": {
+      "sandbox": "Песочница",
+      "live": "Боевой"
+    },
+    "gatewayProvider": "Провайдер шлюза",
+    "gatewayMode": "Режим шлюза",
+    "gatewayKeys": "Ключи шлюза",
+    "updateSelectedTables": "Обновить выбранные столы",
+    "applyToSelected": "Применить к выбранным"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -858,7 +909,8 @@
     "acknowledge": "Подтвердить",
     "hideDetails": "▼ Скрыть детали",
     "showDetails": "▶ Показать детали",
-    "badgeTooltip": "{{count}} открытых критических оповещений"
+    "badgeTooltip": "{{count}} открытых критических оповещений",
+    "acknowledgeFailed": "Не удалось подтвердить предупреждение"
   },
   "customers": {
     "email": "Эл. почта",

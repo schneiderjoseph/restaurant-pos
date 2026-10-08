@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "AI Import Menu Structure",
     "manageOutlets": "Manage points of sale",
     "applyOutletSuggestions": "Apply suggestions",
-    "outlet": "Point of sale"
+    "outlet": "Point of sale",
+    "bulkEditWithCount": "Bulk Edit ({{count}})"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -425,7 +426,57 @@
     "extraModifierPricePlaceholder": "Each choice’s price",
     "includedModifiersGroupHint": "Used when a dish gives choices of this group free (“Included” on the dish): which ones are free, and what the next ones cost.",
     "maxRateGteMin": "Maximum rate must be greater than or equal to minimum rate",
-    "weightMustBeNonNegative": "Weights must be greater than or equal to 0"
+    "weightMustBeNonNegative": "Weights must be greater than or equal to 0",
+    "couponType": "Coupon type",
+    "validDays": "Valid days",
+    "couponTypes": {
+      "order": "Order",
+      "product": "Product",
+      "shipping": "Shipping"
+    },
+    "productionWorkflow": "Production workflow",
+    "workflowLegacyHint": "Workflow (leave empty to use legacy kitchen routing)",
+    "workflowStagesHint": "Stages run in order. Override a stage's kitchen for this product if needed.",
+    "kitchenStation": "Kitchen / Station",
+    "setWorkflowForSelected": "Set workflow for selected dishes",
+    "workflowClearLegacyHint": "Workflow (clear the selection to remove the workflow / use legacy routing)",
+    "replaceCategoriesForSelected": "Replace categories for selected dishes",
+    "replaceModifierGroupsForSelected": "Replace modifier groups for selected dishes",
+    "autoSelectModifiers": "Auto select modifiers?",
+    "autoOpenModifiers": "Auto open modifiers?",
+    "productionStages": "Production stages (in order)",
+    "addStage": "Add stage",
+    "modifier": "Modifier",
+    "newModifier": "New modifier",
+    "nestedOverrideHelp": "Changes apply only to this modifier row. The base group \"{{groupName}}\" is unchanged.",
+    "resetToMenu": "Reset to menu",
+    "loadingDishes": "Loading dishes...",
+    "taxMode": "Tax Mode",
+    "taxExclusive": "Exclusive",
+    "taxInclusive": "Inclusive",
+    "toggleAll": "Toggle All",
+    "printerTypes": {
+      "network": "Network",
+      "usb": "USB",
+      "serial": "Serial",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Cash",
+      "card": "Card",
+      "points": "Points",
+      "remote": "Remote",
+      "room": "Room"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Live"
+    },
+    "gatewayProvider": "Gateway Provider",
+    "gatewayMode": "Gateway Mode",
+    "gatewayKeys": "Gateway Keys",
+    "updateSelectedTables": "Update selected tables",
+    "applyToSelected": "Apply to Selected"
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -897,7 +948,8 @@
     "hideDetails": "▼ Hide details",
     "showDetails": "▶ Show details",
     "badgeTooltip": "{{count}} open critical alert(s)",
-    "badgeTooltipPlural": "{{count}} open critical alerts"
+    "badgeTooltipPlural": "{{count}} open critical alerts",
+    "acknowledgeFailed": "Failed to acknowledge alert"
   },
   "customers": {
     "email": "Email",

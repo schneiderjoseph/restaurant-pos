@@ -24,7 +24,8 @@
     "circleTooSmall": "Kreis ist zu klein. Ziehen Sie einen größeren Radius.",
     "polygonTooSmall": "Polygon ist zu klein. Ziehen Sie eine größere Umrandung.",
     "areasSaved": "Kartenbereiche erfolgreich gespeichert",
-    "deleteSelected": "Auswahl löschen"
+    "deleteSelected": "Auswahl löschen",
+    "drawInstructions": "Zeichnen Sie Lieferzonen auf der Karte. Wählen Sie links ein Werkzeug und ziehen Sie zum Zeichnen. Klicken Sie eine Form zum Auswählen, ziehen Sie sie zum Verschieben oder nutzen Sie die Griffe zum Größenändern."
   },
   "settings": {
     "title": "Lieferkonfiguration",

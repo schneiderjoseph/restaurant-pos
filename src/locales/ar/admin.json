@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي",
     "manageOutlets": "إدارة نقاط البيع",
     "applyOutletSuggestions": "تطبيق الاقتراحات",
-    "outlet": "نقطة البيع"
+    "outlet": "نقطة البيع",
+    "bulkEditWithCount": "تعديل جماعي ({{count}})"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "سعر كل خيار",
     "includedModifiersGroupHint": "يُستخدم عندما يقدّم طبق خيارات من هذه المجموعة مجانًا («مشمول» في الطبق): أيها مجاني وكم تكلف التالية.",
     "maxRateGteMin": "يجب أن يكون المعدل الأقصى أكبر من أو يساوي المعدل الأدنى",
-    "weightMustBeNonNegative": "يجب أن تكون الأوزان أكبر من أو تساوي 0"
+    "weightMustBeNonNegative": "يجب أن تكون الأوزان أكبر من أو تساوي 0",
+    "couponType": "نوع القسيمة",
+    "validDays": "الأيام الصالحة",
+    "couponTypes": {
+      "order": "طلب",
+      "product": "منتج",
+      "shipping": "توصيل"
+    },
+    "productionWorkflow": "سير عمل الإنتاج",
+    "workflowLegacyHint": "سير العمل (اتركه فارغًا لاستخدام توجيه المطبخ القديم)",
+    "workflowStagesHint": "تعمل المراحل بالترتيب. تجاوز مطبخ مرحلة لهذا المنتج عند الحاجة.",
+    "kitchenStation": "مطبخ / محطة",
+    "setWorkflowForSelected": "تعيين سير العمل للأطباق المحددة",
+    "workflowClearLegacyHint": "سير العمل (امسح التحديد لإزالة سير العمل / استخدام التوجيه القديم)",
+    "replaceCategoriesForSelected": "استبدال فئات الأطباق المحددة",
+    "replaceModifierGroupsForSelected": "استبدال مجموعات المعدّلات للأطباق المحددة",
+    "autoSelectModifiers": "تحديد المعدّلات تلقائيًا؟",
+    "autoOpenModifiers": "فتح المعدّلات تلقائيًا؟",
+    "productionStages": "مراحل الإنتاج (بالترتيب)",
+    "addStage": "إضافة مرحلة",
+    "modifier": "معدّل",
+    "newModifier": "معدّل جديد",
+    "nestedOverrideHelp": "تُطبَّق التغييرات فقط على صف المعدّل هذا. المجموعة الأساسية «{{groupName}}» دون تغيير.",
+    "resetToMenu": "إعادة التعيين إلى القائمة",
+    "loadingDishes": "جاري تحميل الأطباق...",
+    "taxMode": "وضع الضريبة",
+    "taxExclusive": "غير شاملة",
+    "taxInclusive": "شاملة",
+    "toggleAll": "تبديل الكل",
+    "printerTypes": {
+      "network": "شبكة",
+      "usb": "USB",
+      "serial": "تسلسلي",
+      "bluetooth": "بلوتوث"
+    },
+    "paymentTypes": {
+      "cash": "نقدًا",
+      "card": "بطاقة",
+      "points": "نقاط",
+      "remote": "عن بُعد",
+      "room": "غرفة"
+    },
+    "gatewayModes": {
+      "sandbox": "تجريبي",
+      "live": "مباشر"
+    },
+    "gatewayProvider": "مزود بوابة الدفع",
+    "gatewayMode": "وضع بوابة الدفع",
+    "gatewayKeys": "مفاتيح بوابة الدفع",
+    "updateSelectedTables": "تحديث الطاولات المحددة",
+    "applyToSelected": "تطبيق على المحدد"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -858,7 +909,8 @@
     "acknowledge": "إقرار",
     "hideDetails": "▼ إخفاء التفاصيل",
     "showDetails": "▶ إظهار التفاصيل",
-    "badgeTooltip": "{{count}} تنبيه حرج مفتوح"
+    "badgeTooltip": "{{count}} تنبيه حرج مفتوح",
+    "acknowledgeFailed": "فشل في الإقرار بالتنبيه"
   },
   "customers": {
     "email": "البريد الإلكتروني",

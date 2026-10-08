@@ -179,12 +179,12 @@ export const WorkflowForm = ({
 
           <div className="flex-1">
             <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
-              <legend>Production stages (in order)</legend>
+              <legend>{t('forms.productionStages')}</legend>
               <div className="mb-3">
                 <Button type="button" icon={faPlus} variant="primary" onClick={() => {
                   append({ name: '', kitchen: null });
                 }}>
-                  Add stage
+                  {t('forms.addStage')}
                 </Button>
               </div>
 
@@ -208,7 +208,7 @@ export const WorkflowForm = ({
                     />
                   </div>
                   <div className="flex-1">
-                    <label>Kitchen / Station</label>
+                    <label>{t('forms.kitchenStation')}</label>
                     <Controller
                       name={`stages.${index}.kitchen`}
                       control={control}

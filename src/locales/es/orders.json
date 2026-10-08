@@ -59,7 +59,8 @@
     "cancelled": "Cancelado",
     "spilt": "Dividido",
     "merged": "Combinado",
-    "refunded": "Reembolsado"
+    "refunded": "Reembolsado",
+    "pending": "Pendiente"
   },
   "totals": {
     "items": "Artículos ({{count}})",

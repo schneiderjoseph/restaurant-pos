@@ -24,7 +24,8 @@
     "circleTooSmall": "El círculo es demasiado pequeño. Dibuje un radio más grande.",
     "polygonTooSmall": "El polígono es demasiado pequeño. Dibuje un contorno más grande.",
     "areasSaved": "Áreas del mapa guardadas correctamente",
-    "deleteSelected": "Eliminar selección"
+    "deleteSelected": "Eliminar selección",
+    "drawInstructions": "Dibuje zonas de entrega en el mapa. Elija una herramienta a la izquierda y luego haga clic y arrastre para dibujar. Haga clic en una forma para seleccionarla, arrástrela para moverla o use los controladores para cambiar el tamaño."
   },
   "settings": {
     "title": "Configuración de entrega",

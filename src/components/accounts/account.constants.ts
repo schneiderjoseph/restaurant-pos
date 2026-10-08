@@ -1,20 +1,19 @@
 import {LabelValue} from "@/api/model/common.ts";
 import type {AccountHeadType, NormalBalance} from "@/api/model/account.ts";
 
-export const HEAD_TYPE_OPTIONS: LabelValue[] = [
-  {label: "Asset", value: "asset"},
-  {label: "Liability", value: "liability"},
-  {label: "Equity", value: "equity"},
-  {label: "Income", value: "income"},
-  {label: "Expense", value: "expense"},
+type TranslateFn = (key: string) => string;
+
+export const getHeadTypeOptions = (t: TranslateFn): LabelValue[] => [
+  {label: t('headTypes.asset'), value: "asset"},
+  {label: t('headTypes.liability'), value: "liability"},
+  {label: t('headTypes.equity'), value: "equity"},
+  {label: t('headTypes.income'), value: "income"},
+  {label: t('headTypes.expense'), value: "expense"},
 ];
 
-/** @deprecated use HEAD_TYPE_OPTIONS */
-export const ACCOUNT_TYPE_OPTIONS = HEAD_TYPE_OPTIONS;
-
-export const NORMAL_BALANCE_OPTIONS: LabelValue[] = [
-  {label: "Debit", value: "debit"},
-  {label: "Credit", value: "credit"},
+export const getNormalBalanceOptions = (t: TranslateFn): LabelValue[] => [
+  {label: t('columns.debit'), value: "debit"},
+  {label: t('columns.credit'), value: "credit"},
 ];
 
 export const defaultNormalBalanceForHead = (headType: AccountHeadType): NormalBalance => {

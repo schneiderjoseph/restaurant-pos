@@ -158,28 +158,28 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Status Filters</label>
+          <label>{t('filters.statusFilters')}</label>
           <div className="flex flex-col gap-3">
-            <Checkbox name="refund" value="1" label="Refund" />
-            <Checkbox name="merged" value="1" label="Merged" />
-            <Checkbox name="cancelled" value="1" label="Cancelled" />
-            <Checkbox name="split" value="1" label="Split" />
-            <Checkbox name="paid" value="1" label="Paid" />
-            <Checkbox name="pending" value="1" label="Pending" />
-            <Checkbox name="in_progress" value="1" label="In Progress" />
+            <Checkbox name="refund" value="1" label={t('filters.statusRefund')} />
+            <Checkbox name="merged" value="1" label={t('filters.statusMerged')} />
+            <Checkbox name="cancelled" value="1" label={t('filters.statusCancelled')} />
+            <Checkbox name="split" value="1" label={t('filters.statusSplit')} />
+            <Checkbox name="paid" value="1" label={t('filters.statusPaid')} />
+            <Checkbox name="pending" value="1" label={t('filters.statusPending')} />
+            <Checkbox name="in_progress" value="1" label={t('filters.statusInProgress')} />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
           <label>{t('labels.displayOptions')}</label>
           <div className="flex flex-col gap-3">
-            <Checkbox name="show_menu_items" value="1" label="Show Menu Items" />
-            <Checkbox name="show_details" value="1" label="Show Details" />
+            <Checkbox name="show_menu_items" value="1" label={t('filters.showMenuItems')} />
+            <Checkbox name="show_details" value="1" label={t('filters.showDetails')} />
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-sort-by">Sort result by</label>
+          <label htmlFor="delivery-density-sort-by">{t('filters.sortBy')}</label>
           <select
             id="delivery-density-sort-by"
             name="sortBy"
@@ -187,22 +187,31 @@ export const DeliveryDensityFilter = () => {
             defaultValue=""
           >
             <option value="">{t('labels.default')}</option>
-            {["Invoice", "Date", "Status", "Total", "Area"].map(item => (
-              <option key={item} value={item}>{item}</option>
+            {[
+              ['Invoice', t('filters.sortOptionInvoice')],
+              ['Date', t('filters.sortOptionDate')],
+              ['Status', t('filters.sortOptionStatus')],
+              ['Total', t('filters.sortOptionTotal')],
+              ['Area', t('filters.sortOptionArea')],
+            ].map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
             ))}
           </select>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-sort-direction">Sort direction</label>
+          <label htmlFor="delivery-density-sort-direction">{t('filters.sortDirection')}</label>
           <select
             id="delivery-density-sort-direction"
             name="sortDirection"
             className="form-control"
             defaultValue="Descending"
           >
-            {["Ascending", "Descending"].map(item => (
-              <option key={item} value={item}>{item}</option>
+            {[
+              ['Ascending', t('filters.sortAscending')],
+              ['Descending', t('filters.sortDescending')],
+            ].map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
             ))}
           </select>
         </div>

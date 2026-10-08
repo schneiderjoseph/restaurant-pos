@@ -213,7 +213,7 @@ export const ProductMixWeeklyReport = () => {
       const userId = order.user?.id?.toString() || 'unknown';
       const userName = order.user?.first_name && order.user?.last_name
         ? `${order.user.first_name} ${order.user.last_name}`
-        : order.user?.login || 'Unknown User';
+        : order.user?.login || t('labels.unknownUser');
 
       // Get or create metrics for this order taker
       if (!metricsMap.has(userId)) {
@@ -257,12 +257,12 @@ export const ProductMixWeeklyReport = () => {
   }, [filteredOrders, weekStart, filters.categoryIds, filters.menuItemIds]);
 
   const dayHeaders = useMemo(() => {
-    return WEEK_DAYS.map((day, index) => ({
-      day,
+    return WEEK_DAYS.map((_, index) => ({
+      day: t(`weekdaysFull.${index + 1}`),
       dateKey: weekStart.plus({days: index}).toISODate() || '',
       dateLabel: weekStart.plus({days: index}).toFormat('yyyy-LL-dd'),
     }));
-  }, [weekStart]);
+  }, [weekStart, t]);
 
   if (loading) {
     return (
@@ -344,7 +344,7 @@ export const ProductMixWeeklyReport = () => {
             {orderTakerMetrics.length === 0 && (
               <tr>
                 <td colSpan={dayHeaders.length * 2 + 3} className="py-6 text-center text-sm text-neutral-500">
-                  No data available for the selected filters
+                  {t('empty.noProductsForFilters')}
                 </td>
               </tr>
             )}

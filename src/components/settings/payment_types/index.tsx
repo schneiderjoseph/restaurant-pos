@@ -47,7 +47,11 @@ export const AdminPaymentTypes = () => {
       header: t('columns.name')
     }),
     columnHelper.accessor("type", {
-      header: t('columns.type')
+      header: t('columns.type'),
+      cell: info => {
+        const value = info.getValue();
+        return value ? t(`forms.paymentTypes.${String(value).toLowerCase()}`) : value;
+      }
     }),
     columnHelper.accessor("gateway", {
       header: t('columns.gateway'),
@@ -55,7 +59,12 @@ export const AdminPaymentTypes = () => {
     }),
     columnHelper.accessor("gateway_mode", {
       header: t('columns.mode'),
-      cell: info => info.getValue() ? <div className="flex gap-2 flex-wrap"><span className="tag">{info.getValue()}</span></div> : <span>-</span>
+      cell: info => {
+        const value = info.getValue();
+        return value
+          ? <div className="flex gap-2 flex-wrap"><span className="tag">{t(`forms.gatewayModes.${String(value).toLowerCase()}`)}</span></div>
+          : <span>-</span>;
+      }
     }),
     columnHelper.accessor("tax", {
       header: t('columns.tax'),

@@ -171,17 +171,17 @@ const SalesLineChart = ({
   const { t } = useTranslation('reports');
   const chartData = useMemo(() => [
     {
-      id: 'Sales',
+      id: t('categories.sales'),
       data,
     },
-  ], [data]);
+  ], [data, t]);
 
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-700">Sales Trend</h2>
-          <p className="text-sm text-neutral-500">Revenue over time</p>
+          <h2 className="text-2xl font-bold text-neutral-700">{t('charts.salesTrend')}</h2>
+          <p className="text-sm text-neutral-500">{t('charts.revenueOverTime')}</p>
         </div>
       </div>
       <div className="h-[300px] relative">
@@ -204,7 +204,7 @@ const SalesLineChart = ({
             axisRight={null}
             axisBottom={{
               tickRotation: -45,
-              legend: 'Time',
+              legend: t('charts.legendTime'),
               legendOffset: 40,
               legendPosition: 'middle',
               format: (value: any) => String(value).substring(0, 10),
@@ -213,7 +213,7 @@ const SalesLineChart = ({
               tickSize: 5,
               tickPadding: 5,
               tickRotation: 0,
-              legend: 'Revenue',
+              legend: t('charts.legendRevenue'),
               legendOffset: -50,
               legendPosition: 'middle',
               format: (value: any) => withDualCurrency(value).replace(/\.00$/, ''),
@@ -265,7 +265,7 @@ const SalesLineChart = ({
           />
         ) : (
           <div className="h-full flex items-center justify-center text-neutral-500">
-            No sales data for this period
+            {t('empty.noSalesData')}
           </div>
         )}
       </div>
@@ -283,17 +283,17 @@ const OrdersPerHourChart = ({
   const { t } = useTranslation('reports');
   const chartData = useMemo(() => [
     {
-      id: 'Orders',
+      id: t('columns.orders'),
       data,
     },
-  ], [data]);
+  ], [data, t]);
 
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-700">Orders Per Hour</h2>
-          <p className="text-sm text-neutral-500">Order volume by hour</p>
+          <h2 className="text-2xl font-bold text-neutral-700">{t('charts.ordersPerHour')}</h2>
+          <p className="text-sm text-neutral-500">{t('charts.orderVolumeByHour')}</p>
         </div>
       </div>
       <div className="h-[300px] relative">
@@ -316,7 +316,7 @@ const OrdersPerHourChart = ({
             axisRight={null}
             axisBottom={{
               tickRotation: -45,
-              legend: 'Hour',
+              legend: t('charts.legendHour'),
               legendOffset: 40,
               legendPosition: 'middle',
             }}
@@ -324,7 +324,7 @@ const OrdersPerHourChart = ({
               tickSize: 5,
               tickPadding: 5,
               tickRotation: 0,
-              legend: 'Orders',
+              legend: t('charts.legendOrders'),
               legendOffset: -50,
               legendPosition: 'middle',
             }}
@@ -346,10 +346,10 @@ const OrdersPerHourChart = ({
             tooltip={({point}) => (
               <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
                 <p className="text-sm font-medium text-neutral-900">
-                  Hour: {point.data.x}
+                  {t('charts.hourTooltip', {hour: point.data.x})}
                 </p>
                 <p className="text-sm text-success-500 font-semibold">
-                  {formatNumber(point.data.y || 0)} orders
+                  {t('charts.ordersCount', {count: Number(point.data.y || 0)})}
                 </p>
               </div>
             )}
@@ -375,7 +375,7 @@ const OrdersPerHourChart = ({
           />
         ) : (
           <div className="h-full flex items-center justify-center text-neutral-500">
-            No orders data
+            {t('empty.noOrdersData')}
           </div>
         )}
       </div>
@@ -384,6 +384,7 @@ const OrdersPerHourChart = ({
 };
 
 const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; revenue: number}[]}) => {
+  const { t } = useTranslation('reports');
   const DAY_PART_COLORS = [
     '#FFA514', // breakfast - warning
     '#3DE567', // lunch - success
@@ -393,13 +394,13 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
 
   const chartData = useMemo(() => [
     {
-      id: 'Day Parts',
+      id: t('columns.dayPart'),
       data: dayParts.map((part) => ({
         x: part.label,
         y: part.revenue,
       })),
     },
-  ], [dayParts]);
+  ], [dayParts, t]);
   const dayPartSummary = useMemo(
     () => DAY_PARTS.map(part => `${part.label} (${getDayPartTimeRangeLabel(part.label)})`).join(', '),
     [],
@@ -412,7 +413,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
           <Clock className="w-5 h-5 text-warning-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Sales by Day Part</h2>
+          <h2 className="text-xl font-bold text-neutral-700">{t('labels.saleByDayPart')}</h2>
           <p className="text-xs text-neutral-500">{dayPartSummary}</p>
         </div>
       </div>
@@ -446,7 +447,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
                     <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
                   </div>
                   <p className="text-sm text-neutral-600">
-                    {formatNumber(dayPartData?.orders || 0)} orders • {withDualCurrency(datum.value)}
+                    {t('charts.dayPartTooltip', {count: Number(dayPartData?.orders || 0), amount: withDualCurrency(datum.value)})}
                   </p>
                 </div>
               );
@@ -471,7 +472,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
           />
         ) : (
           <div className="h-full flex items-center justify-center text-neutral-500">
-            No day part data
+            {t('empty.noDayPartData')}
           </div>
         )}
       </div>
@@ -489,7 +490,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
           <Tag className="w-5 h-5 text-success-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Sales by Category</h2>
+          <h2 className="text-xl font-bold text-neutral-700">{t('labels.salesByCategory')}</h2>
           <p className="text-xs text-neutral-500">{t('labels.distribution')}</p>
         </div>
       </div>
@@ -540,7 +541,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
           />
         ) : (
           <div className="h-full flex items-center justify-center text-neutral-500">
-            No category data
+            {t('empty.noCategoryData')}
           </div>
         )}
       </div>
@@ -632,7 +633,7 @@ const BreakdownTabsWidget = ({
                 ]}
               />
             ) : (
-              <div className="h-full flex items-center justify-center text-neutral-500">No data available</div>
+              <div className="h-full flex items-center justify-center text-neutral-500">{t('empty.noDataAvailable')}</div>
             )}
           </div>
         </TabPanel>
@@ -655,7 +656,7 @@ const BreakdownTabsWidget = ({
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">No data available</td>
+                    <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">{t('empty.noDataAvailable')}</td>
                   </tr>
                 )}
               </tbody>
@@ -676,7 +677,7 @@ const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}
           <TrendingUp className="w-5 h-5 text-info-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Period Comparison</h2>
+          <h2 className="text-xl font-bold text-neutral-700">{t('charts.periodComparison')}</h2>
           <p className="text-xs text-neutral-500">{t('labels.databaseSnapshots')}</p>
         </div>
       </div>
@@ -727,12 +728,12 @@ const ActivitySection = () => {
   return (
     <div className="bg-white p-5 shadow-xl xl:col-span-1 rounded-lg border border-neutral-200">
       <h3 className="text-lg font-semibold text-neutral-700">{t('labels.latestActivity')}</h3>
-      <p className="text-xs text-neutral-500 mb-3">Top 100 records from tracking</p>
+      <p className="text-xs text-neutral-500 mb-3">{t('labels.trackingTop100')}</p>
       <div className="max-h-[420px] overflow-y-auto rounded-md border border-neutral-200 bg-white">
         {trackingLoading ? (
           <div className="p-4 text-sm text-neutral-500">{t('loading.latestActivity')}</div>
         ) : trackingRows.length === 0 ? (
-          <div className="p-4 text-sm text-neutral-500">No activity found</div>
+          <div className="p-4 text-sm text-neutral-500">{t('empty.noActivityFound')}</div>
         ) : (
           
           <table className="table table-xs">
@@ -805,7 +806,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
 
   const tabs = {
     'map': {
-      title: 'Map View',
+      title: t('labels.mapView'),
       component: mapLoading ? (
         <div className="h-[400px] w-full rounded-lg bg-neutral-100 flex items-center justify-center">
           <div className="text-center">
@@ -830,7 +831,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
               const lat = order.delivery?.lat || order.customer?.lat;
               const lng = order.delivery?.lng || order.customer?.lng;
               const address = order.delivery?.address || order.customer?.address;
-              const customerName = order.customer?.name || "Walk-in";
+              const customerName = order.customer?.name || t('labels.walkIn');
 
               if (!lat || !lng) return null;
 
@@ -844,20 +845,20 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                 >
                   <Popup>
                     <div className="p-2 min-w-[200px]">
-                      <p className="font-bold text-sm mb-1">Order #{order.invoice_number}</p>
+                      <p className="font-bold text-sm mb-1">{t('labels.popupOrder', {number: order.invoice_number})}</p>
                       <p className="text-xs text-gray-600 mb-1">
-                        Status: <span className="font-semibold">{order.status}</span>
+                        {t('lifecycle.statusLabel')} <span className="font-semibold">{order.status}</span>
                       </p>
                       <p className="text-xs text-gray-600 mb-1">
-                        Customer: <span className="font-semibold">{customerName}</span>
+                        {t('labels.popupCustomer')} <span className="font-semibold">{customerName}</span>
                       </p>
                       {address && (
                         <p className="text-xs text-gray-600 mb-1">
-                          Address: <span className="font-semibold">{address}</span>
+                          {t('labels.popupAddress')} <span className="font-semibold">{address}</span>
                         </p>
                       )}
                       <p className="text-xs text-gray-600">
-                        Total: <span className="font-bold text-primary-500">{withDualCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
+                        {t('labels.popupTotal')} <span className="font-bold text-primary-500">{withDualCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
                       </p>
                     </div>
                   </Popup>
@@ -869,14 +870,14 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
       )
     },
     'table': {
-      title: 'Table View',
+      title: t('labels.tableView'),
       component: (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
               <tr>
-                <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Order #</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Customer</th>
+                <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.orderNumber')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.customer')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.type')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
                 <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.time')}</th>
@@ -890,10 +891,10 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                     <span className="font-mono text-sm font-semibold text-primary-500">#{order.invoice_number}</span>
                   </td>
                   <td className="py-3 px-3 text-sm text-neutral-700">
-                    {order.customer?.name || 'Walk-in'}
+                    {order.customer?.name || t('labels.walkIn')}
                   </td>
                   <td className="py-3 px-3 text-sm text-neutral-600">
-                    {order.order_type?.name || 'Dine-in'}
+                    {order.order_type?.name || t('labels.dineInDefault')}
                   </td>
                   <td className="py-3 px-3 text-sm">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -914,7 +915,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
               )) : (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-sm text-neutral-500">
-                    No active delivery orders
+                    {t('empty.noActiveDeliveryOrders')}
                   </td>
                 </tr>
               )}
@@ -933,12 +934,12 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
             <Truck className="w-5 h-5 text-primary-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-700">Delivery Orders</h2>
+            <h2 className="text-xl font-bold text-neutral-700">{t('labels.deliveryOrders')}</h2>
             <p className="text-xs text-neutral-500">{t('labels.activeDeliveries')}</p>
           </div>
         </div>
         <span className="bg-primary-100 text-primary-500 text-xs font-semibold px-3 py-1.5 rounded-full">
-          {orders.length} active
+          {t('labels.activeCount', {count: orders.length})}
         </span>
       </div>
       
@@ -947,7 +948,7 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
         selectedKey={selectedTab}
         onSelectionChange={(key: string) => setSelectedTab(key as 'map' | 'table')}
       >
-        <TabList aria-label="Delivery tabs" className="flex flex-row gap-3 mb-4">
+        <TabList aria-label={t('dashboard.deliveryTabs')} className="flex flex-row gap-3 mb-4">
           <Tab activeClass="bg-neutral-900 text-warning-500" id="map" key="map">{t('labels.mapView')}</Tab>
           <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">{t('labels.tableView')}</Tab>
         </TabList>
@@ -1019,12 +1020,12 @@ const UserSessionsWidget = () => {
             const minutes = Math.floor((durationSeconds % 3600) / 60);
             const duration = clockOut
               ? `${hours}h ${minutes}m`
-              : 'Active';
+              : t('status.durationActive');
 
-            const firstName = user?.first_name || 'Unknown';
+            const firstName = user?.first_name || t('common:actions.unknown');
             const lastName = user?.last_name || '';
-            const roleName = user?.user_role?.name || 'N/A';
-            const shiftName = user?.user_shift?.name || 'No shift';
+            const roleName = user?.user_role?.name || t('orderFiscal.notAvailable');
+            const shiftName = user?.user_shift?.name || t('status.noShift');
 
             return {
               user: `${firstName} ${lastName}`.trim(),
@@ -1046,7 +1047,7 @@ const UserSessionsWidget = () => {
     };
 
     loadSessions();
-  }, []);
+  }, [t]);
 
   return (
     <div className="bg-white p-5 rounded-lg shadow-xl border">
@@ -1056,12 +1057,12 @@ const UserSessionsWidget = () => {
             <UserCheck className="w-5 h-5 text-info-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-700">User Sessions</h2>
+            <h2 className="text-xl font-bold text-neutral-700">{t('labels.userSessions')}</h2>
             <p className="text-xs text-neutral-500">{t('labels.latestTimeEntries')}</p>
           </div>
         </div>
         <span className="bg-info-100 text-info-500 text-xs font-semibold px-3 py-1.5 rounded-full">
-          {sessions.filter(s => s.isActive).length} active
+          {t('labels.activeCount', {count: sessions.filter(s => s.isActive).length})}
         </span>
       </div>
       <div className="overflow-x-auto">
@@ -1069,10 +1070,10 @@ const UserSessionsWidget = () => {
           <thead className="bg-neutral-50">
             <tr>
               <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.user')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Role</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Shift</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock In</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock Out</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.role')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.shift')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.clockIn')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.clockOut')}</th>
               <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.duration')}</th>
               <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
             </tr>
@@ -1122,11 +1123,11 @@ const UserSessionsWidget = () => {
                   {session.isActive ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700">
                       <span className="w-2 h-2 bg-success-500 rounded-full mr-1.5 animate-pulse"></span>
-                      Active
+                      {t('status.sessionActive')}
                     </span>
                   ) : (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-200 text-neutral-600">
-                      Completed
+                      {t('status.sessionCompleted')}
                     </span>
                   )}
                 </td>
@@ -1134,7 +1135,7 @@ const UserSessionsWidget = () => {
             )) : (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-sm text-neutral-500">
-                  No user sessions found
+                  {t('empty.noUserSessions')}
                 </td>
               </tr>
             )}
@@ -1180,12 +1181,12 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
                 </td>
                 <td className="py-3 px-3 text-sm text-neutral-700">
                   <span>
-                    {order.cashier?.first_name || 'Unknown'}
+                    {order.cashier?.first_name || t('common:actions.unknown')}
                   </span>
                 </td>
                 <td className="py-3 px-3 text-sm">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-200 text-neutral-700">
-                    {order.order_type?.name || 'Dine-in'}
+                    {order.order_type?.name || t('labels.dineInDefault')}
                   </span>
                 </td>
                 <td>
@@ -1215,7 +1216,7 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
             )) : (
               <tr>
                 <td colSpan={8} className="py-8 text-center text-sm text-neutral-500">
-                  No orders yet
+                  {t('empty.noOrdersYet')}
                 </td>
               </tr>
             )}
@@ -1331,13 +1332,13 @@ export const SalesDashboardReport = () => {
         ]);
 
         setPeriodSales([
-          {label: 'This period last year', amount: thisPeriodLastYear},
-          {label: 'Yesterday sale', amount: yesterdaySale},
-          {label: 'This week sale', amount: thisWeekSale},
+          {label: t('dashboard.thisPeriodLastYear'), amount: thisPeriodLastYear},
+          {label: t('dashboard.yesterdaySale'), amount: yesterdaySale},
+          {label: t('dashboard.thisWeekSale'), amount: thisWeekSale},
           {label: t('labels.lastWeekSale'), amount: lastWeekSale},
-          {label: 'This month sale', amount: thisMonthSale},
+          {label: t('dashboard.thisMonthSale'), amount: thisMonthSale},
           {label: t('labels.lastMonthSale'), amount: lastMonthSale},
-          {label: 'This year sale', amount: thisYearSale},
+          {label: t('dashboard.thisYearSale'), amount: thisYearSale},
           {label: t('labels.lastYearSale'), amount: lastYearSale},
           {label: t('labels.allTimeSale'), amount: allTimeSale},
         ]);
@@ -1471,7 +1472,7 @@ export const SalesDashboardReport = () => {
 
     paidOrders.forEach(order => {
       getOrderFilteredItems(order).forEach(item => {
-        const category = item.item?.categories?.[0]?.name || item.category || 'Other';
+        const category = item.item?.categories?.[0]?.name || item.category || t('labels.otherCategory');
         map.set(category, (map.get(category) || 0) + safeNumber(calculateOrderItemPrice(item)));
       });
     });
@@ -1484,14 +1485,14 @@ export const SalesDashboardReport = () => {
         color: COLORS[idx % COLORS.length],
       }))
       .sort((a, b) => b.value - a.value);
-  }, [paidOrders]);
+  }, [paidOrders, t]);
 
   const topUsers = useMemo((): UserSales[] => {
     const map = new Map<string, {orders: number; revenue: number}>();
 
     paidOrders.forEach(order => {
       const figures = getOrderFigures(order);
-      const name = `${order.cashier?.first_name || 'U'} ${order.cashier?.last_name || ''}`.trim() || 'Unknown';
+      const name = `${order.cashier?.first_name || 'U'} ${order.cashier?.last_name || ''}`.trim() || t('common:actions.unknown');
       const current = map.get(name) || {orders: 0, revenue: 0};
       current.orders += 1;
       current.revenue += figures.totalRevenue;
@@ -1501,14 +1502,14 @@ export const SalesDashboardReport = () => {
     return Array.from(map.entries())
       .map(([name, data]) => ({name, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [paidOrders]);
+  }, [paidOrders, t]);
 
   const topTables = useMemo((): TableSales[] => {
     const map = new Map<string, {orders: number; revenue: number}>();
 
     paidOrders.forEach(order => {
       const figures = getOrderFigures(order);
-      const table = order?.table ? formatTableLabel(order.table) : 'Delivery';
+      const table = order?.table ? formatTableLabel(order.table) : t('labels.deliveryFallback');
       const current = map.get(table) || {orders: 0, revenue: 0};
       current.orders += 1;
       current.revenue += figures.totalRevenue;
@@ -1518,14 +1519,14 @@ export const SalesDashboardReport = () => {
     return Array.from(map.entries())
       .map(([table, data]) => ({table, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [paidOrders]);
+  }, [paidOrders, t]);
 
   const orderTypes = useMemo((): OrderTypeSales[] => {
     const map = new Map<string, {orders: number; revenue: number}>();
 
     paidOrders.forEach(order => {
       const figures = getOrderFigures(order);
-      const type = order.order_type?.name || 'Dine-in';
+      const type = order.order_type?.name || t('labels.dineInDefault');
       const current = map.get(type) || {orders: 0, revenue: 0};
       current.orders += 1;
       current.revenue += figures.totalRevenue;
@@ -1535,7 +1536,7 @@ export const SalesDashboardReport = () => {
     return Array.from(map.entries())
       .map(([name, data]) => ({name, ...data}))
       .sort((a, b) => b.revenue - a.revenue);
-  }, [paidOrders]);
+  }, [paidOrders, t]);
 
   const paymentTypes = useMemo((): PaymentTypeSales[] => {
     const map = new Map<string, {count: number; amount: number}>();
@@ -1597,19 +1598,19 @@ export const SalesDashboardReport = () => {
 
   const reportTitle = useMemo(() => {
     if (filters.startDate && filters.endDate) {
-      return `Sales Dashboard - ${filters.startDate} to ${filters.endDate}`;
+      return t('dashboard.subtitleRange', {start: filters.startDate, end: filters.endDate});
     } else if (filters.startDate) {
-      return `Sales Dashboard - From ${filters.startDate}`;
+      return t('dashboard.subtitleFrom', {start: filters.startDate});
     } else if (filters.endDate) {
-      return `Sales Dashboard - Until ${filters.endDate}`;
+      return t('dashboard.subtitleUntil', {end: filters.endDate});
     }
-    return 'Sales Dashboard - All Time';
-  }, [filters]);
+    return t('dashboard.subtitleAllTime');
+  }, [filters, t]);
 
   if (error) {
     return (
       <ReportsLayout title={t('reports.salesDashboard')}>
-        <div className="py-12 text-center text-danger-500">Failed to load dashboard: {error}</div>
+        <div className="py-12 text-center text-danger-500">{t('dashboard.failedToLoad', {error})}</div>
       </ReportsLayout>
     );
   }
@@ -1631,7 +1632,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-success-700"
             />
             <KPIMetricWidget
-              title="Net Sale"
+              title={t('labels.netSale')}
               value={withDualCurrency(kpis.netSale)}
               icon={TrendingUp}
               gradientFrom="from-primary-100"
@@ -1641,7 +1642,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-primary-700"
             />
             <KPIMetricWidget
-              title="Total Revenue"
+              title={t('metrics.totalRevenue')}
               value={withDualCurrency(kpis.totalRevenue)}
               icon={ArrowLeftRight}
               gradientFrom="from-info-100"
@@ -1651,7 +1652,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-info-700"
             />
             <KPIMetricWidget
-              title="Grand Total"
+              title={t('columns.grandTotal')}
               value={withDualCurrency(kpis.grandTotal)}
               icon={ShoppingCart}
               gradientFrom="from-primary-100"
@@ -1691,7 +1692,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-danger-700"
             />
             <KPIMetricWidget
-              title="Service Charge"
+              title={t('metrics.serviceCharge')}
               value={withDualCurrency(kpis.serviceCharge)}
               icon={ArrowLeftRight}
               gradientFrom="from-primary-100"
@@ -1701,7 +1702,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-primary-700"
             />
             <KPIMetricWidget
-              title="Total Order"
+              title={t('metrics.totalOrders')}
               value={formatNumber(kpis.totalOrder)}
               icon={Package}
               gradientFrom="from-info-100"
@@ -1711,7 +1712,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-info-700"
             />
             <KPIMetricWidget
-              title="Total Cover"
+              title={t('metrics.totalCovers')}
               value={formatNumber(kpis.totalCover)}
               icon={UserCheck}
               gradientFrom="from-success-100"
@@ -1721,7 +1722,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-success-700"
             />
             <KPIMetricWidget
-              title="Avg Order"
+              title={t('metrics.avgOrder')}
               value={withDualCurrency(kpis.avgOrder)}
               icon={TrendingUp}
               gradientFrom="from-warning-100"
@@ -1731,7 +1732,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-warning-700"
             />
             <KPIMetricWidget
-              title="Avg Cover"
+              title={t('metrics.avgCover')}
               value={withDualCurrency(kpis.avgCover)}
               icon={DollarSign}
               gradientFrom="from-success-100"
@@ -1741,7 +1742,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-success-700"
             />
             <KPIMetricWidget
-              title="Refund Order"
+              title={t('metrics.refundOrders')}
               value={formatNumber(kpis.refundOrder)}
               icon={ArrowLeftRight}
               gradientFrom="from-info-100"
@@ -1751,7 +1752,7 @@ export const SalesDashboardReport = () => {
               labelColor="text-info-700"
             />
             <KPIMetricWidget
-              title="Late Orders"
+              title={t('metrics.lateOrders')}
               value={formatNumber(kpis.lateOrders)}
               icon={Clock}
               gradientFrom="from-warning-100"
@@ -1815,12 +1816,12 @@ export const SalesDashboardReport = () => {
         {/* Top Items and Day Parts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <BreakdownTabsWidget
-            title="Top Selling Items"
-            subtitle="Exclude deleted/refunded/suspended items"
+            title={t('labels.topSellingItems')}
+            subtitle={t('labels.topSellingItemsSubtitle')}
             rows={topItemsBreakdown}
             icon={Package}
             colorClass={{bg: 'bg-primary-100', text: 'text-primary-600'}}
-            countLabel="Quantity"
+            countLabel={t('columns.quantity')}
           />
           <DayPartsWidget dayParts={dayParts} />
         </div>
@@ -1828,40 +1829,40 @@ export const SalesDashboardReport = () => {
         {/* Users and Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <BreakdownTabsWidget
-            title="Top Cashiers"
-            subtitle="By total revenue"
+            title={t('labels.topCashiers')}
+            subtitle={t('labels.byTotalRevenue')}
             rows={topUsersBreakdown}
             icon={UserCheck}
             colorClass={{bg: 'bg-info-100', text: 'text-info-600'}}
-            countLabel="Orders"
+            countLabel={t('columns.orders')}
           />
           <BreakdownTabsWidget
-            title="Top Tables"
-            subtitle="By total revenue"
+            title={t('labels.topTables')}
+            subtitle={t('labels.byTotalRevenue')}
             rows={topTablesBreakdown}
             icon={TableIcon}
             colorClass={{bg: 'bg-warning-100', text: 'text-warning-600'}}
-            countLabel="Orders"
+            countLabel={t('columns.orders')}
           />
         </div>
 
         {/* Order Types and Payment Methods */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <BreakdownTabsWidget
-            title="Top Order Types"
-            subtitle="By total revenue"
+            title={t('labels.topOrderTypes')}
+            subtitle={t('labels.byTotalRevenue')}
             rows={orderTypesBreakdown}
             icon={Package}
             colorClass={{bg: 'bg-primary-100', text: 'text-primary-600'}}
-            countLabel="Orders"
+            countLabel={t('columns.orders')}
           />
           <BreakdownTabsWidget
-            title="Payment Methods"
-            subtitle="Using getOrderPaymentTotals"
+            title={t('labels.paymentMethods')}
+            subtitle={t('labels.paymentMethodsSubtitle')}
             rows={paymentTypesBreakdown}
             icon={Tag}
             colorClass={{bg: 'bg-success-100', text: 'text-success-600'}}
-            countLabel="Transactions"
+            countLabel={t('metrics.transactions')}
           />
         </div>
 

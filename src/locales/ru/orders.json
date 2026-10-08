@@ -59,7 +59,8 @@
     "cancelled": "Отменён",
     "spilt": "Разделён",
     "merged": "Объединён",
-    "refunded": "Возвращён"
+    "refunded": "Возвращён",
+    "pending": "Ожидание"
   },
   "totals": {
     "items": "Позиции ({{count}})",

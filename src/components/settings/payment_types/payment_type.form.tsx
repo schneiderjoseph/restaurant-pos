@@ -135,6 +135,11 @@ export const PaymentTypeForm = ({
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
+  const paymentTypeLabel = (value: string) =>
+    t(`forms.paymentTypes.${String(value).toLowerCase()}`);
+  const gatewayModeLabel = (value: string) =>
+    t(`forms.gatewayModes.${String(value).toLowerCase()}`);
+
   const closeModal = () => {
     onClose();
     reset({
@@ -154,7 +159,7 @@ export const PaymentTypeForm = ({
         name: data.name,
         priority: String(data.priority),
         type: {
-          label: data.type,
+          label: paymentTypeLabel(data.type),
           value: data.type
         },
         gateway: (data.gateway ? {
@@ -162,7 +167,7 @@ export const PaymentTypeForm = ({
           value: data.gateway
         } : null),
         gateway_mode: (data.gateway_mode ? {
-          label: data.gateway_mode,
+          label: gatewayModeLabel(data.gateway_mode),
           value: data.gateway_mode
         } : null),
         gateway_config: getGatewayConfigValues(data.gateway_config),
@@ -172,7 +177,7 @@ export const PaymentTypeForm = ({
         } : null),
       });
     }
-  }, [data]);
+  }, [data, t]);
 
   const db = useDB();
 
@@ -319,14 +324,14 @@ export const PaymentTypeForm = ({
 
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <label htmlFor="">Type</label>
+              <label htmlFor="">{t('columns.type')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
                     options={types.map(item => ({
-                      label: item,
+                      label: paymentTypeLabel(item),
                       value: item
                     }))}
                   />
@@ -340,7 +345,7 @@ export const PaymentTypeForm = ({
           {isRemoteType && (
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
-                <label htmlFor="">Gateway Provider</label>
+                <label htmlFor="">{t('forms.gatewayProvider')}</label>
                 <Controller
                   render={({ field }) => (
                     <ReactSelect
@@ -359,14 +364,14 @@ export const PaymentTypeForm = ({
                 />
               </div>
               <div className="flex-1">
-                <label htmlFor="">Gateway Mode</label>
+                <label htmlFor="">{t('forms.gatewayMode')}</label>
                 <Controller
                   render={({ field }) => (
                     <ReactSelect
                       value={field.value}
                       onChange={field.onChange}
                       options={gatewayModes.map(item => ({
-                        label: item,
+                        label: gatewayModeLabel(item),
                         value: item
                       }))}
                       isClearable
@@ -383,7 +388,7 @@ export const PaymentTypeForm = ({
 
           {isRemoteType && selectedGatewayDescriptor && (
             <div className="mb-3 border rounded p-3">
-              <h4 className="font-medium mb-3">Gateway Keys</h4>
+              <h4 className="font-medium mb-3">{t('forms.gatewayKeys')}</h4>
               {showEncryptedCredentialsHint && (
                 <div className="mb-3 p-2 bg-warning-50 border border-warning-200 rounded text-sm text-warning-800 dark:bg-warning-950/30 dark:border-warning-800 dark:text-warning-200">
                   <strong>{t('admin:forms.encryptedCredentialsHint')}</strong>{' '}
@@ -412,7 +417,7 @@ export const PaymentTypeForm = ({
 
           <div className="flex gap-3 mb-3 items-end">
             <div className="flex-1">
-              <label htmlFor="">Tax</label>
+              <label htmlFor="">{t('columns.tax')}</label>
               <Controller
                 render={({ field }) => (
                   <ReactSelect

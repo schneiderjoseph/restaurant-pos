@@ -162,7 +162,8 @@
     "smartImportMenuStructure": "KI-Import Menüstruktur",
     "manageOutlets": "Verkaufsstellen verwalten",
     "applyOutletSuggestions": "Vorschläge anwenden",
-    "outlet": "Verkaufsstelle"
+    "outlet": "Verkaufsstelle",
+    "bulkEditWithCount": "Massenbearbeitung ({{count}})"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -400,7 +401,57 @@
     "extraModifierPricePlaceholder": "Preis jeder Auswahl",
     "includedModifiersGroupHint": "Gilt, wenn ein Gericht Auswahlen dieser Gruppe gratis gibt („Inklusive“ am Gericht): welche gratis sind und was weitere kosten.",
     "maxRateGteMin": "Der Höchstsatz muss größer oder gleich dem Mindestsatz sein",
-    "weightMustBeNonNegative": "Gewichte müssen größer oder gleich 0 sein"
+    "weightMustBeNonNegative": "Gewichte müssen größer oder gleich 0 sein",
+    "couponType": "Gutscheintyp",
+    "validDays": "Gültige Tage",
+    "couponTypes": {
+      "order": "Bestellung",
+      "product": "Produkt",
+      "shipping": "Versand"
+    },
+    "productionWorkflow": "Produktionsablauf",
+    "workflowLegacyHint": "Ablauf (leer lassen für die alte Küchenweiterleitung)",
+    "workflowStagesHint": "Schritte laufen der Reihe nach. Küche eines Schritts für dieses Produkt bei Bedarf überschreiben.",
+    "kitchenStation": "Küche / Station",
+    "setWorkflowForSelected": "Ablauf für ausgewählte Gerichte festlegen",
+    "workflowClearLegacyHint": "Ablauf (Auswahl leeren, um Ablauf zu entfernen / alte Weiterleitung zu nutzen)",
+    "replaceCategoriesForSelected": "Kategorien der ausgewählten Gerichte ersetzen",
+    "replaceModifierGroupsForSelected": "Modifiergruppen der ausgewählten Gerichte ersetzen",
+    "autoSelectModifiers": "Modifier automatisch auswählen?",
+    "autoOpenModifiers": "Modifier automatisch öffnen?",
+    "productionStages": "Produktionsschritte (in Reihenfolge)",
+    "addStage": "Schritt hinzufügen",
+    "modifier": "Modifier",
+    "newModifier": "Neuer Modifier",
+    "nestedOverrideHelp": "Änderungen gelten nur für diese Modifier-Zeile. Die Basisgruppe „{{groupName}}“ bleibt unverändert.",
+    "resetToMenu": "Auf Menü zurücksetzen",
+    "loadingDishes": "Gerichte werden geladen...",
+    "taxMode": "Steuermodus",
+    "taxExclusive": "Exklusiv",
+    "taxInclusive": "Inklusiv",
+    "toggleAll": "Alle umschalten",
+    "printerTypes": {
+      "network": "Netzwerk",
+      "usb": "USB",
+      "serial": "Seriell",
+      "bluetooth": "Bluetooth"
+    },
+    "paymentTypes": {
+      "cash": "Bar",
+      "card": "Karte",
+      "points": "Punkte",
+      "remote": "Remote",
+      "room": "Zimmer"
+    },
+    "gatewayModes": {
+      "sandbox": "Sandbox",
+      "live": "Live"
+    },
+    "gatewayProvider": "Gateway-Anbieter",
+    "gatewayMode": "Gateway-Modus",
+    "gatewayKeys": "Gateway-Schlüssel",
+    "updateSelectedTables": "Ausgewählte Tische aktualisieren",
+    "applyToSelected": "Auf Auswahl anwenden"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -858,7 +909,8 @@
     "acknowledge": "Bestätigen",
     "hideDetails": "▼ Details ausblenden",
     "showDetails": "▶ Details anzeigen",
-    "badgeTooltip": "{{count}} offene kritische Warnung(en)"
+    "badgeTooltip": "{{count}} offene kritische Warnung(en)",
+    "acknowledgeFailed": "Bestätigung der Warnung fehlgeschlagen"
   },
   "customers": {
     "email": "E-Mail",

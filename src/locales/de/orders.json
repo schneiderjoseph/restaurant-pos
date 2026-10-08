@@ -59,7 +59,8 @@
     "cancelled": "Storniert",
     "spilt": "Aufgeteilt",
     "merged": "Zusammengeführt",
-    "refunded": "Erstattet"
+    "refunded": "Erstattet",
+    "pending": "Ausstehend"
   },
   "totals": {
     "items": "Artikel ({{count}})",

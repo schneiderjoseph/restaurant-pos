@@ -16,7 +16,7 @@ export const TipsFilter = () => {
       <DateRange isRequired />
 
       <div className="w-full">
-        <label htmlFor="tips-shift">Shift</label>
+        <label htmlFor="tips-shift">{t('filters.shift')}</label>
         <ReactSelect
           id="tips-shift"
           name="shift"

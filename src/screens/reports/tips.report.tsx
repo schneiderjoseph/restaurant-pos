@@ -38,7 +38,7 @@ export const TipsReport = () => {
 
   const subtitle = useMemo(() => {
     const datePart = filters.startDate && filters.endDate
-      ? `${filters.startDate} to ${filters.endDate}`
+      ? t('labels.dateRangeTo', {start: filters.startDate, end: filters.endDate})
       : t('labels.allDates');
     const shiftPart = shiftName || t('labels.allShifts');
     return `${datePart} | ${shiftPart}`;
@@ -108,8 +108,8 @@ export const TipsReport = () => {
       (distribution.users || []).forEach((share: any) => {
         const user = share?.user;
         const userName = user
-          ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
-          : normalizeId(share?.user) || "Unknown";
+          ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || t('common:actions.unknown')
+          : normalizeId(share?.user) || t('common:actions.unknown');
         map.set(userName, (map.get(userName) || 0) + safeNumber(share?.amount));
       });
     });

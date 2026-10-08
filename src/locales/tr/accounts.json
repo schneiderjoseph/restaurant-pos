@@ -76,8 +76,10 @@
     "title": "Confirmation",
     "yes": "Yes, please",
     "no": "No, wait",
-    "activateGroup": "Are you sure to {{action}}activate this group?",
-    "activateAccount": "Are you sure to {{action}}activate this account?"
+    "activateGroup": "Bu grubu etkinleştirmek istediğinizden emin misiniz?",
+    "activateAccount": "Bu hesabı etkinleştirmek istediğinizden emin misiniz?",
+    "deactivateGroup": "Bu grubu devre dışı bırakmak istediğinizden emin misiniz?",
+    "deactivateAccount": "Bu hesabı devre dışı bırakmak istediğinizden emin misiniz?"
   },
   "reports": {
     "allLedgers": "All ledgers",
@@ -132,7 +134,8 @@
     "ledgerEntriesFor": "{{account}} — {{from}} to {{to}}",
     "noLedgerEntries": "No journal entries for this account in the selected date range.",
     "viewEntry": "View entry",
-    "netIncome": "Net kâr"
+    "netIncome": "Net kâr",
+    "unclassified": "Sınıflandırılmamış"
   },
   "messages": {
     "needTwoAccounts": "Add at least two active accounts before posting journal entries.",
@@ -147,10 +150,20 @@
     "confirmReverse": "Are you sure you want to reverse this journal entry?",
     "reverseSuccess": "Journal entry reversed successfully",
     "cannotReverse": "Only posted entries can be reversed",
-    "lineBothDebitCredit": "Bir yevmiye satırında hem borç hem alacak olamaz."
+    "lineBothDebitCredit": "Bir yevmiye satırında hem borç hem alacak olamaz.",
+    "noLinesFound": "Bu yevmiye kaydı için satır bulunamadı."
   },
   "upload": {
     "attachDocuments": "Attach Documents",
-    "documents": "Documents"
+    "documents": "Documents",
+    "documentN": "Belge {{n}}",
+    "file": "Dosya"
+  },
+  "headTypes": {
+    "asset": "Varlık",
+    "liability": "Yükümlülük",
+    "equity": "Özkaynak",
+    "income": "Gelir",
+    "expense": "Gider"
   }
 }

@@ -381,8 +381,8 @@ export const SalesServerReport = () => {
           return;
         }
         const userName = sellerUser
-          ? `${sellerUser.first_name ?? ''} ${sellerUser.last_name ?? ''}`.trim() || sellerUser.login || 'Unknown user'
-          : 'Unknown user';
+          ? `${sellerUser.first_name ?? ''} ${sellerUser.last_name ?? ''}`.trim() || sellerUser.login || t('labels.unknownUser')
+          : t('labels.unknownUser');
 
         if (!map.has(userId)) {
           map.set(userId, {
@@ -470,7 +470,7 @@ export const SalesServerReport = () => {
     return (
       <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
         <div className="text-center p-6 text-gray-500">
-          No server sales found for the selected filters.
+          {t('empty.noServerSales')}
         </div>
       </ReportsLayout>
     );
@@ -525,7 +525,7 @@ export const SalesServerReport = () => {
             <section key={section.userId} className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold">{section.userName}</h2>
-                <p className="text-sm text-gray-500">Server ID: {section.userId}</p>
+                <p className="text-sm text-gray-500">{t('labels.serverId', {id: section.userId})}</p>
               </div>
 
               <div className="overflow-x-auto">
@@ -534,10 +534,10 @@ export const SalesServerReport = () => {
                     <tr>
                       <th>{t('columns.category')}</th>
                       <th className="text-right">{t('labels.amountDue')}</th>
-                      <th className="text-right">Net Sales Due</th>
+                      <th className="text-right">{t('columns.netSalesDue')}</th>
                       <th className="text-right">{t('metrics.discounts')}</th>
                       <th className="text-right">{t('metrics.coupons')}</th>
-                      <th className="text-right">Taxes</th>
+                      <th className="text-right">{t('columns.taxes')}</th>
                       <th className="text-right">{t('labels.grossSale')}</th>
                       <th className="text-right">{t('columns.avgCheck')}</th>
                       <th className="text-right">{t('columns.avgGuest')}</th>
@@ -564,7 +564,7 @@ export const SalesServerReport = () => {
                     {section.categories.length === 0 && (
                       <tr>
                         <td colSpan={9} className="text-center text-gray-500 py-4">
-                          No category data found for this server.
+                          {t('empty.noCategoryDataForServer')}
                         </td>
                       </tr>
                     )}
@@ -594,12 +594,12 @@ export const SalesServerReport = () => {
                   <thead>
                     <tr>
                       <th>{t('columns.dayPart')}</th>
-                      <th className="text-right">Net Sales Due</th>
-                      <th className="text-right">Total Guests</th>
-                      <th className="text-right">Total Checks</th>
-                      <th className="text-right">Taxes</th>
+                      <th className="text-right">{t('columns.netSalesDue')}</th>
+                      <th className="text-right">{t('columns.totalGuests')}</th>
+                      <th className="text-right">{t('columns.totalChecks')}</th>
+                      <th className="text-right">{t('columns.taxes')}</th>
                       <th className="text-right">{t('columns.payments')}</th>
-                      <th className="text-right">Service Charges</th>
+                      <th className="text-right">{t('columns.serviceChargesTitle')}</th>
                       <th className="text-right">{t('metrics.coupons')}</th>
                     </tr>
                   </thead>
