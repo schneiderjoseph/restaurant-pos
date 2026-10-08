@@ -1,4 +1,5 @@
 import {lineDisplayName} from "@/lib/dish-selling.ts";
+import {groupRepeatedModifiers, repeatedModifierLabel} from "@/lib/modifier-repeats.ts";
 import { cn, formatNumber } from "@/lib/utils.ts";
 import React from "react";
 import { OrderItem, OrderItemModifier } from "@/api/model/order_item.ts";
@@ -72,17 +73,18 @@ export const OrderItemModifiers = ({
   return (
     <div key={modifier.id} className="flex flex-col kitchen-order-modifier-group">
       {showGroups && <strong>{modifier.out.name}</strong>}
-      {modifier.selectedModifiers.map(selectedModifier => {
+      {groupRepeatedModifiers(modifier.selectedModifiers).map(({modifier: selectedModifier, count, total}) => {
+        // The same side twice shows once with its count: "Riz (2)".
         const price = parentItem
-          ? getOrderItemModifierDisplayPrice(selectedModifier.price, parentItem, showInclusive)
-          : selectedModifier.price;
+          ? getOrderItemModifierDisplayPrice(total, parentItem, showInclusive)
+          : total;
 
         return (
           <div key={selectedModifier.id} className="pl-3 text-sm">
             <div className="flex">
               <span className="flex-1">
                 <span aria-hidden className="mr-1 text-warning-600">↳</span>
-                {selectedModifier.dish.name}
+                {repeatedModifierLabel(selectedModifier.dish.name, count)}
               </span>
               {showPrice && <span className="flex-0 w-[70px] text-right">{formatNumber(price)}</span>}
             </div>

@@ -113,7 +113,7 @@ function getOrderItemModifierLines(orderItem) {
     if (depth > MODIFIER_WALK_MAX_DEPTH) return;
     (Array.isArray(groups) ? groups : []).forEach((group) => {
       if (!group || !Array.isArray(group.selectedModifiers)) return;
-      // The same choice picked twice in one group is two portions (e.g. 2x fries, one free
+      // The same choice picked twice in one group is two portions ("Fries (2)", one free
       // and one charged): counted, not dropped by the path dedup.
       const pickedInGroup = new Map();
       group.selectedModifiers.forEach((sel) => {
@@ -128,7 +128,7 @@ function getOrderItemModifierLines(orderItem) {
         const picked = pickedInGroup.get(currentPath);
         if (picked) {
           picked.count += 1;
-          if (picked.line) picked.line.name = `${picked.count}x ${modifierName}`;
+          if (picked.line) picked.line.name = `${modifierName} (${picked.count})`;
           return;
         }
         if (seen.has(currentPath)) return;
