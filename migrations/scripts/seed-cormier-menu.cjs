@@ -161,6 +161,7 @@ async function buildVariantsSql(data) {
   for (const d of dishes) {
     numbers.add(d.item.number);
     (d.item.variants ?? []).forEach((v) => numbers.add(v.from));
+    (d.item.absorbs ?? []).forEach((from) => numbers.add(from));
   }
   const [rows] = await sql(
     `SELECT id, name, price, variants, deleted_at FROM ${[...numbers].map((n) => `menu_item:m${n}`).join(', ')};`,
@@ -194,12 +195,17 @@ async function buildVariantsSql(data) {
     lines.push(
       `UPDATE ${d.id} SET name = ${q(d.item.name)}, price = ${price.toFixed(2)}f, variants = ${variantsOf(variants)};`,
     );
-    for (const v of d.item.variants) {
-      if (v.from === n) continue;
-      lines.push(`UPDATE menu_item:m${v.from} SET deleted_at = time::now();`);
-      lines.push(`UPDATE menu_menu_item:m${v.from} SET active = false;`);
-      lines.push(`UPDATE ${MENU_ID} SET items -= menu_menu_item:m${v.from};`);
-      lines.push(`UPDATE kitchen SET items -= menu_item:m${v.from} WHERE items CONTAINS menu_item:m${v.from};`);
+    // Dishes a variant replaces leave the menu: the formats folded in, and `absorbs`
+    // (a dish sold apart before, e.g. Fruit Punch now a juice flavour).
+    const retired = new Set([
+      ...d.item.variants.map((v) => v.from).filter((from) => from !== n),
+      ...(d.item.absorbs ?? []).filter((from) => live.has(from)),
+    ]);
+    for (const from of retired) {
+      lines.push(`UPDATE menu_item:m${from} SET deleted_at = time::now();`);
+      lines.push(`UPDATE menu_menu_item:m${from} SET active = false;`);
+      lines.push(`UPDATE ${MENU_ID} SET items -= menu_menu_item:m${from};`);
+      lines.push(`UPDATE kitchen SET items -= menu_item:m${from} WHERE items CONTAINS menu_item:m${from};`);
     }
     notes.push(`${d.item.name} : ${variants.map((v) => `${v.name} ${v.price}`).join(' / ')}`);
   }

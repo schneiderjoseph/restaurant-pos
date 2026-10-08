@@ -1159,7 +1159,29 @@
         {
           "name": "Gazeuses",
           "price": 250,
-          "number": "1802"
+          "number": "1802",
+          "variants": [
+            {
+              "name": "Coca",
+              "price": 250,
+              "from": "1802"
+            },
+            {
+              "name": "Sprite",
+              "price": 250,
+              "from": "1802"
+            },
+            {
+              "name": "Couronne",
+              "price": 250,
+              "from": "1802"
+            },
+            {
+              "name": "7UP",
+              "price": 250,
+              "from": "1802"
+            }
+          ]
         },
         {
           "name": "Eau / Water",
@@ -1174,12 +1196,37 @@
         {
           "name": "Jus Naturel / Natural Juice",
           "price": 500,
-          "number": "1805"
-        },
-        {
-          "name": "Fruit Punch",
-          "price": 700,
-          "number": "1806"
+          "number": "1805",
+          "variants": [
+            {
+              "name": "Citron",
+              "price": 500,
+              "from": "1805"
+            },
+            {
+              "name": "Fruit Punch",
+              "price": 500,
+              "from": "1805"
+            },
+            {
+              "name": "Papaye",
+              "price": 500,
+              "from": "1805"
+            },
+            {
+              "name": "Grenadia",
+              "price": 500,
+              "from": "1805"
+            },
+            {
+              "name": "Cranberry",
+              "price": 500,
+              "from": "1805"
+            }
+          ],
+          "absorbs": [
+            "1806"
+          ]
         }
       ]
     },
