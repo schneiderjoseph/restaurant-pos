@@ -154,7 +154,7 @@ export const OrderPaymentServiceCharges = ({
         {entry || draftServiceCharge}{draftServiceChargeType === DiscountType.Percent && '%'}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+      <div className="grid grid-cols-3 max-sm:grid-cols-2 gap-3 mb-3">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" onClick={() => typeKey(item)}>
             {item}

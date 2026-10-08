@@ -223,7 +223,7 @@ export const TipDistributionScreen = () => {
     <Layout containerClassName="p-5 flex flex-col gap-5">
       <DocumentTitle parts={[tNav('sidebar.tipDist')]} />
       <div data-testid="tip-distribution-page" className="flex flex-col gap-5">
-      <div className="bg-white rounded-xl shadow p-4 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end" data-testid="tip-distribution-filters">
+      <div className="bg-white rounded-xl shadow p-4 grid grid-cols-3 max-sm:grid-cols-1 gap-4 items-end" data-testid="tip-distribution-filters">
         <div>
           <label>{t("summary:tipDistribution.shift")}</label>
           <ReactSelect

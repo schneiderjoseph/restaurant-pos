@@ -616,11 +616,11 @@ export const KitchenScreen = () => {
             )}
           </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-5 max-sm:grid-cols-1 gap-5">
           <ScrollContainer
             className={cn(
               'h-[calc(100vh_-_110px)] select-none overflow-x-hidden',
-              dishesModal ? 'col-span-1 lg:col-span-4' : 'col-span-1 lg:col-span-5'
+              dishesModal ? 'col-span-4 max-sm:col-span-1' : 'col-span-5 max-sm:col-span-1'
             )}
           >
             <div

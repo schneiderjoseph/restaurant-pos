@@ -237,7 +237,7 @@ export const SplitItems = ({
         size="full"
         onClose={onClose}
       >
-         <div className="flex flex-col lg:flex-row h-full gap-6 p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-white select-none">
+         <div className="flex flex-row max-sm:flex-col h-full gap-6 p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-white select-none">
            {/* Left Side - First Split (Fixed) */}
            <div className="w-full max-w-[400px] min-w-0 shrink-0">
              <div className="mb-4">
@@ -331,7 +331,7 @@ export const SplitItems = ({
              <div className="flex-1 min-h-0">
                {actualSplits.length > 1 ? (
                  <ScrollContainer className="h-full overflow-x-auto overflow-y-auto lg:overflow-y-hidden">
-                   <div className="flex flex-col lg:flex-row gap-5 pb-4 h-full">
+                   <div className="flex flex-row max-sm:flex-col gap-5 pb-4 h-full">
                      {actualSplits.slice(1).map((split, index) => (
                        <div
                          key={split.id}

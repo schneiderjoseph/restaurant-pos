@@ -6,10 +6,13 @@ export const BREAKPOINTS = {
   xl: 1280,
 } as const;
 
-/** Below this width we treat the device as "narrow" (phone / small portrait). */
-export const NARROW_MAX = BREAKPOINTS.lg - 1;
+/**
+ * Phone-only band for stacked POS layouts (cart sheet, drawer nav, payment stack).
+ * Tablets (≥640 CSS px, including iPad portrait/landscape) keep the classic POS chrome.
+ */
+export const NARROW_MAX = BREAKPOINTS.sm - 1;
 
-/** Phone-ish portrait band used for denser dish grids and pad sizing. */
+/** Denser dish grids / pad sizing on very small phones. */
 export const PHONE_MAX = 480;
 
 export const mediaQuery = {
@@ -21,10 +24,10 @@ export const mediaQuery = {
   phone: `(max-width: ${PHONE_MAX}px)`,
 } as const;
 
-export function isNarrowViewport(width = typeof window !== 'undefined' ? window.innerWidth : BREAKPOINTS.lg): boolean {
+export function isNarrowViewport(width = typeof window !== 'undefined' ? window.innerWidth : BREAKPOINTS.sm): boolean {
   return width <= NARROW_MAX;
 }
 
-export function isPhoneViewport(width = typeof window !== 'undefined' ? window.innerWidth : BREAKPOINTS.lg): boolean {
+export function isPhoneViewport(width = typeof window !== 'undefined' ? window.innerWidth : BREAKPOINTS.sm): boolean {
   return width <= PHONE_MAX;
 }

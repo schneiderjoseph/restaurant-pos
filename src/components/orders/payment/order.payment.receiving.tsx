@@ -657,7 +657,7 @@ const OrderPaymentReceivingContent = ({
             setSelectedAmount('');
           }}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 max-sm:grid-cols-1 gap-3">
           <div className="rounded-xl bg-neutral-100 px-3 py-2 text-center">
             <div className="text-sm text-neutral-500">{t('receiving.toPay')}</div>
             <div className="text-2xl font-bold tabular-nums" data-testid="payment-total">
@@ -762,7 +762,7 @@ const OrderPaymentReceivingContent = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 grid-rows-6 sm:grid-rows-4 gap-2 flex-1 min-h-[232px]" data-testid="payment-keypad">
+      <div className="grid grid-cols-3 max-sm:grid-cols-2 grid-rows-4 max-sm:grid-rows-6 gap-2 flex-1 min-h-[232px]" data-testid="payment-keypad">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" className="!h-full" onClick={() => {
             const key = item.toString();

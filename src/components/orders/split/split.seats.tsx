@@ -227,7 +227,7 @@ export const SplitBySeats = ({
         size="full"
         onClose={onClose}
       >
-        <div className="flex flex-col lg:flex-row h-full gap-6 p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-white select-none">
+        <div className="flex flex-row max-sm:flex-col h-full gap-6 p-4 lg:p-6 bg-gradient-to-br from-gray-50 to-white select-none">
           {/* Right Side - Other Splits (Scrollable) */}
           <div className="flex-1 flex flex-col min-w-0">
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
@@ -247,7 +247,7 @@ export const SplitBySeats = ({
             <div className="flex-1 min-h-0">
               {actualSplits.length > 0 ? (
                 <ScrollContainer className="h-full overflow-x-auto overflow-y-auto lg:overflow-y-hidden">
-                  <div className="flex flex-col lg:flex-row gap-5 pb-4 h-full">
+                  <div className="flex flex-row max-sm:flex-col gap-5 pb-4 h-full">
                     {actualSplits.map((split, index) => (
                       <div
                         key={split.id}

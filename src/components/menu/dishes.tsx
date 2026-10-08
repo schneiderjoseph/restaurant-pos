@@ -186,7 +186,7 @@ export const MenuDishes = () => {
         {Array.from({length: slides}, (_, i) => i).map(rowId => (
           <SwiperSlide
             key={rowId}
-            className="!grid grid-cols-2 grid-rows-4 sm:grid-cols-3 sm:grid-rows-5 md:grid-cols-4 md:grid-rows-5"
+            className="!grid sm:grid-cols-3 md:grid-cols-4 md:grid-rows-5 sm:grid-rows-4 max-sm:grid-cols-2 max-sm:grid-rows-4"
           >
             {dishes.slice(rowId * ITEMS_PER_SLIDE, ((rowId * ITEMS_PER_SLIDE) + ITEMS_PER_SLIDE)).map((item) => (
               <MenuDish

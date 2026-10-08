@@ -260,8 +260,8 @@ export const Delivery = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5" data-testid="delivery-map-panel">
-      <div className="col-span-1 lg:col-span-4">
+    <div className="grid grid-cols-5 max-sm:grid-cols-1 gap-5" data-testid="delivery-map-panel">
+      <div className="col-span-4 max-sm:col-span-1">
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <Map
             className="h-[calc(100vh_-_70px_-_25px)]"
@@ -280,7 +280,7 @@ export const Delivery = () => {
         </APIProvider>
       </div>
       <div className="col-span-1 select-none min-w-0" data-testid="delivery-orders-list">
-        <ScrollContainer className="h-[min(40vh,calc(100vh_-_70px_-_25px))] lg:h-[calc(100vh_-_70px_-_25px)]">
+        <ScrollContainer className="h-[calc(100vh_-_70px_-_25px)] max-sm:h-[min(40vh,calc(100vh_-_70px_-_25px))]">
           <div className="">
             {deliveryOrders.length > 0 ? (
               deliveryOrders.map((order) => (

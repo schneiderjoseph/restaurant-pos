@@ -1,7 +1,7 @@
 import {useMediaQuery} from 'react-responsive';
 import {mediaQuery} from '@/lib/breakpoints.ts';
 
-/** True when viewport is below Tailwind `lg` (1024px) — phone / small portrait. */
+/** True only on phones (&lt; 640px). Tablets keep the classic POS layout. */
 export function useIsNarrow(): boolean {
   return useMediaQuery({query: mediaQuery.narrow});
 }
@@ -11,7 +11,7 @@ export function useIsPhone(): boolean {
   return useMediaQuery({query: mediaQuery.phone});
 }
 
-/** True when viewport is at least Tailwind `lg` (tablet landscape / desktop POS). */
+/** True when viewport is at least Tailwind `lg`. */
 export function useIsLgUp(): boolean {
   return useMediaQuery({query: mediaQuery.lgUp});
 }

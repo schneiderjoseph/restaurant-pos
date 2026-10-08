@@ -314,7 +314,7 @@ export const OrderDisplayScreen = () => {
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col lg:flex-row gap-3 min-h-0" data-testid="order-display-boards">
+        <div className="flex flex-1 flex-row max-sm:flex-col gap-3 min-h-0" data-testid="order-display-boards">
           <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
             <div className="flex-shrink-0 px-4 py-3 bg-warning-500 text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">

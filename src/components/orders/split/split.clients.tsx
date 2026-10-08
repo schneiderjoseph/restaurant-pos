@@ -319,7 +319,7 @@ export const SplitByClients = ({
         <p className="text-sm text-neutral-600">{t('split.byClients.hint')}</p>
         <p className="text-xs text-primary-600">{t('split.tapHint')}</p>
         <ScrollContainer className="flex-1">
-          <div className="flex flex-col lg:flex-row gap-4 min-h-[420px] pb-4">
+          <div className="flex flex-row max-sm:flex-col gap-4 min-h-[420px] pb-4">
             {splits.map((split, index) => renderSplitCard(split, index))}
             <div className="min-w-[180px] flex items-start">
               <Button variant="primary" flat icon={faPlus} onClick={addSplit}>
