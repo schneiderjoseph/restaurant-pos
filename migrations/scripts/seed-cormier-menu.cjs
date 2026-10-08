@@ -75,7 +75,12 @@ const categorySet = (c, ci) =>
  * ("Plat de frites") sold on its own.
  */
 const SIDES_CATEGORY = 'category:accompagnements';
-const sideItems = (data) => data.categories.find((c) => c.key === 'supplements').items.filter((it) => it.side_name);
+// Supplements plates that are also a side, then sides sold only as a side (`side_only`:
+// Banane bouillie), listed on the hidden Accompagnements category.
+const sideItems = (data) => [
+  ...data.categories.find((c) => c.key === 'supplements').items.filter((it) => it.side_name),
+  ...(data.categories.find((c) => c.key === 'accompagnements')?.side_only ?? []),
+];
 const sideDishSet = (it, priority) =>
   `menu_item:s${it.number} SET name = ${q(it.side_name)}, number = ${q(`S${it.number}`)}, price = 0f, ` +
   `cost = 0f, priority = ${priority}, source = 'manual', deleted_at = NONE, categories = [${SIDES_CATEGORY}]`;
@@ -88,8 +93,9 @@ function buildSidesSql(data) {
   const notes = [];
   sideItems(data).forEach((it, i) => {
     lines.push(`UPSERT ${sideDishSet(it, 9000 + i)};`);
-    lines.push(`UPDATE modifier:side_${it.number} SET modifier = menu_item:s${it.number};`);
-    notes.push(`${it.name} → ${it.side_name}`);
+    lines.push(`UPSERT modifier:side_${it.number} SET modifier = menu_item:s${it.number}, price = price ?? 0f;`);
+    lines.push(`UPDATE ${SIDES_GROUP} SET modifiers = array::union(modifiers ?? [], [modifier:side_${it.number}]);`);
+    notes.push(`${it.name ?? '(accompagnement seul)'} → ${it.side_name}`);
   });
   lines.push('COMMIT TRANSACTION;');
   return { sql: lines.join('\n'), dishCount: notes.length, notes };

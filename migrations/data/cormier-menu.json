@@ -733,7 +733,13 @@
       "name": "Accompagnements",
       "outlet": "restaurant",
       "hidden": true,
-      "items": []
+      "items": [],
+      "side_only": [
+        {
+          "number": "1209",
+          "side_name": "Banane bouillie"
+        }
+      ]
     },
     {
       "key": "desserts",
@@ -1233,6 +1239,11 @@
           "name": "Jus de canne",
           "price": 500,
           "number": "1855"
+        },
+        {
+          "name": "Jus d'ananas",
+          "price": 500,
+          "number": "1856"
         }
       ]
     },
