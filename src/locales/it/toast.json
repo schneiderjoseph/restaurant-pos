@@ -102,7 +102,7 @@
     "selectCategoriesRequired": "Seleziona almeno una categoria",
     "menuItemsUpdated": "{{count}} articolo/i aggiornato/i",
     "invalidCategories": "Le categorie non sono valide",
-    "pinTaken": "Il PIN {{login}} è già assegnato a {{name}}. Ogni persona deve avere il proprio PIN.",
+    "pinTaken": "Questo PIN è già in uso. Generane un altro.",
     "invalidDishNumber": "Il numero del piatto non è valido",
     "invalidDishNameOrNumber": "Il nome o il numero del piatto non è valido",
     "ambiguousDishName": "Più piatti corrispondono a questo nome; usare il numero del piatto",

@@ -373,9 +373,6 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                   <p className="font-medium">
                     {delivery.rider.first_name} {delivery.rider.last_name}
                   </p>
-                  {delivery.rider.login && (
-                    <p className="text-sm text-neutral-500">{delivery.rider.login}</p>
-                  )}
                 </div>
               </div>
             </div>

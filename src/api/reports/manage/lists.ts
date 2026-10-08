@@ -455,7 +455,7 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, first_name, last_name, login, login_method, user_role.name AS role_name FROM ${Tables.users}
+    SELECT id, first_name, last_name, login_method, user_role.name AS role_name FROM ${Tables.users}
     WHERE deleted_at = NONE
     ORDER BY first_name ASC, last_name ASC
     LIMIT ${safeLimit(limit)}
@@ -465,7 +465,6 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
     id: unknown;
     first_name?: string;
     last_name?: string;
-    login?: string;
     login_method?: string;
     role_name?: string;
     user_role?: {name?: string};
@@ -477,14 +476,12 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
       return {
         id: recordIdToString(row.id),
         name,
-        login: row.login ?? "",
         login_method: row.login_method ?? "pin",
         role_name: row.role_name ?? row.user_role?.name ?? "",
       };
     })
     .filter(row =>
       matchesSearch(row.name, search)
-      || matchesSearch(row.login ?? "", search)
       || matchesSearch(row.role_name ?? "", search),
     );
 };

@@ -2,6 +2,7 @@ import {Tables} from "@/api/db/tables.ts";
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {StringRecordId} from "surrealdb";
+import {pickFreePin} from "@/lib/kitchen/station-account.ts";
 
 export interface LoginOwner {
   id: string;
@@ -34,4 +35,13 @@ export async function findActiveLoginOwner(
     id: recordIdToString(row.id),
     name: `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
   };
+}
+
+/** A random 4-digit PIN no active user holds, or null when all 10000 are taken. */
+export async function generateFreePin(db: Pick<ImportDbLike, "query">): Promise<string | null> {
+  const result = await db.query(
+    `SELECT VALUE login FROM ${Tables.users} WHERE deleted_at = NONE OR deleted_at = NULL`,
+  );
+  const logins = Array.isArray(result?.[0]) ? result[0] : [];
+  return pickFreePin(logins.map(String));
 }

@@ -102,7 +102,7 @@
     "selectCategoriesRequired": "En az bir kategori seçin",
     "menuItemsUpdated": "{{count}} öğe güncellendi",
     "invalidCategories": "Kategoriler geçersiz",
-    "pinTaken": "{{login}} PIN kodu zaten {{name}} kullanıcısına atanmış. Herkesin kendi PIN kodu olmalı.",
+    "pinTaken": "Bu PIN zaten kullanılıyor. Başka bir tane oluşturun.",
     "invalidDishNumber": "Yemek numarası geçersiz",
     "invalidDishNameOrNumber": "Yemek adı veya numarası geçersiz",
     "ambiguousDishName": "Bu ada birden fazla yemek uyuyor; yemek numarasını kullanın",

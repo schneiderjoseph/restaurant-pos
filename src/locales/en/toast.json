@@ -106,7 +106,7 @@
     "selectCategoriesRequired": "Select at least one category",
     "menuItemsUpdated": "Updated {{count}} item(s)",
     "invalidCategories": "Categories are invalid",
-    "pinTaken": "PIN {{login}} is already assigned to {{name}}. Each person needs their own PIN.",
+    "pinTaken": "This PIN is already in use. Generate another one.",
     "invalidDishNumber": "Dish number is invalid",
     "invalidDishNameOrNumber": "Dish name or number is invalid",
     "ambiguousDishName": "Multiple dishes match this name; use the dish number instead",

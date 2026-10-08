@@ -45,9 +45,6 @@ const AdminUsersList = () => {
     columnHelper.accessor("last_name", {
       header: t('columns.lastName')
     }),
-    columnHelper.accessor("login", {
-      header: t('columns.login')
-    }),
     columnHelper.accessor("user_role", {
       header: t('columns.role'),
       enableColumnFilter: false,

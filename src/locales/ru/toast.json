@@ -102,7 +102,7 @@
     "selectCategoriesRequired": "Выберите хотя бы одну категорию",
     "menuItemsUpdated": "Обновлено позиций: {{count}}",
     "invalidCategories": "Категории недействительны",
-    "pinTaken": "PIN {{login}} уже назначен пользователю {{name}}. У каждого должен быть свой PIN.",
+    "pinTaken": "Этот PIN уже используется. Сгенерируйте другой.",
     "invalidDishNumber": "Номер блюда недействителен",
     "invalidDishNameOrNumber": "Название или номер блюда недействителен",
     "ambiguousDishName": "Несколько блюд соответствуют этому названию; укажите номер блюда",

@@ -18,10 +18,10 @@ import { StringRecordId } from "surrealdb";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faRotate } from "@fortawesome/free-solid-svg-icons";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
 import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
-import { findActiveLoginOwner } from "@/components/settings/users/user.login.ts";
+import { findActiveLoginOwner, generateFreePin } from "@/components/settings/users/user.login.ts";
 
 interface Props {
   open: boolean
@@ -29,14 +29,17 @@ interface Props {
   data?: User
 }
 
-const validationSchema = yup.object({
+// PIN is the only login method: login is the 4-digit PIN.
+const pinField = yup.string().matches(/^\d{4}$/, {
+  message: "PIN must be exactly 4 digits only.",
+  excludeEmptyString: true,
+});
+
+// Nobody sees an existing user's PIN: editing leaves it empty (= unchanged) unless reset.
+const makeValidationSchema = (isEdit: boolean) => yup.object({
   first_name: yup.string().required(i18n.t('validation:required')),
   last_name: yup.string().required(i18n.t('validation:required')),
-  // PIN is the only login method: login is the 4-digit PIN.
-  login: yup
-    .string()
-    .required(i18n.t('validation:required'))
-    .matches(/^\d{4}$/, "PIN must be exactly 4 digits only."),
+  login: isEdit ? pinField.nullable() : pinField.required(i18n.t('validation:required')),
   user_role: yup.object({
     label: yup.string(),
     value: yup.string(),
@@ -52,9 +55,11 @@ export const UserForm = ({
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: yupResolver(validationSchema),
+  const isEdit = Boolean(data?.id);
+  const { control, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
+    resolver: yupResolver(makeValidationSchema(isEdit)),
   });
+  const newPin = watch("login");
 
   const closeModal = () => {
     onClose();
@@ -73,7 +78,7 @@ export const UserForm = ({
         ...data,
         first_name: data.first_name,
         last_name: data.last_name,
-        login: data.login,
+        login: null,
         user_role: data?.user_role ? {
           label: data.user_role.name,
           value: data.user_role.id,
@@ -112,18 +117,20 @@ export const UserForm = ({
     // Saving a user written before PIN-only login converts it to PIN.
     vals.login_method = "pin";
     vals.password = vals.login;
+    const pinChanged = Boolean(vals.login);
 
     const displayName = `${values.first_name} ${values.last_name}`;
 
     try {
-      const owner = await findActiveLoginOwner(db, vals.login, data?.id);
-      if (owner) {
-        toast.error(t('toast:admin.pinTaken', { login: vals.login, name: owner.name }));
+      // Generic message: naming the holder would tell who owns which PIN.
+      if (pinChanged && await findActiveLoginOwner(db, vals.login, data?.id)) {
+        toast.error(t('toast:admin.pinTaken'));
         return;
       }
 
       if( data?.id ) {
-        await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
+        const pinSet = pinChanged ? ', login = $login, password = crypto::bcrypt::generate($password)' : '';
+        await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login_method = $login_method${pinSet}, roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
           ...vals
         });
 
@@ -154,12 +161,31 @@ export const UserForm = ({
     }
   }
 
+  const fillFreePin = async () => {
+    try {
+      const pin = await generateFreePin(db);
+      if (pin) {
+        setValue("login", pin, { shouldValidate: true });
+      }
+    } catch (e) {
+      console.error('PIN generation failed', e);
+    }
+  };
+
   useEffect(() => {
     if (open) {
       fetchRoles();
       fetchShifts();
     }
   }, [open, fetchRoles, fetchShifts]);
+
+  // A new user starts with a free PIN; it stays editable.
+  useEffect(() => {
+    if (open && !data) {
+      void fillFreePin();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per opening; db identity changes every render
+  }, [open, data]);
 
   const [roleModal, setRoleModal] = useState(false);
   const [shiftModal, setShiftModal] = useState(false);
@@ -180,8 +206,17 @@ export const UserForm = ({
             <div className="flex-1">
               <InputField name="last_name" control={control} label={t('columns.lastName')} error={errors?.last_name?.message}/>
             </div>
-            <div className="flex-1">
-              <InputField name="login" control={control} label={t('auth:security.pin')} inputMode="numeric" maxLength={4} error={errors?.login?.message}/>
+            <div>
+              <div className="flex gap-2 items-end">
+                <div className="flex-1">
+                  {/* Read-only: a typed PIN would let anyone probe which PINs are taken. */}
+                  <InputField name="login" control={control} label={t('auth:security.pin')} readOnly placeholder="••••" error={errors?.login?.message}/>
+                </div>
+                <IconTooltipButton label={isEdit ? t('forms.resetPin') : t('forms.generatePin')} type="button" variant="primary" onClick={() => void fillFreePin()}><FontAwesomeIcon icon={faRotate}/></IconTooltipButton>
+              </div>
+              <p className="text-sm text-neutral-500 mt-1">
+                {newPin ? t('forms.newPinHint') : t('forms.pinHidden')}
+              </p>
             </div>
             <div className="flex gap-2 items-end">
               <div className="flex-1">

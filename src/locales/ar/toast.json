@@ -102,7 +102,7 @@
     "selectCategoriesRequired": "اختر فئة واحدة على الأقل",
     "menuItemsUpdated": "تم تحديث {{count}} عنصر",
     "invalidCategories": "الفئات غير صالحة",
-    "pinTaken": "رمز PIN {{login}} مخصص بالفعل لـ {{name}}. يجب أن يكون لكل شخص رمز PIN خاص به.",
+    "pinTaken": "هذا PIN مستخدم بالفعل. أنشئ رمزًا آخر.",
     "invalidDishNumber": "رقم الطبق غير صالح",
     "invalidDishNameOrNumber": "اسم أو رقم الطبق غير صالح",
     "ambiguousDishName": "توجد عدة أطباق بهذا الاسم؛ استخدم رقم الطبق",

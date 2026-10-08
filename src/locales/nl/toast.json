@@ -102,7 +102,7 @@
     "selectCategoriesRequired": "Selecteer minstens één categorie",
     "menuItemsUpdated": "{{count}} item(s) bijgewerkt",
     "invalidCategories": "Categorieën zijn ongeldig",
-    "pinTaken": "Pincode {{login}} is al toegewezen aan {{name}}. Iedereen heeft een eigen pincode nodig.",
+    "pinTaken": "Deze PIN is al in gebruik. Genereer een andere.",
     "invalidDishNumber": "Gerechtnummer is ongeldig",
     "invalidDishNameOrNumber": "Gerechtnaam of -nummer is ongeldig",
     "ambiguousDishName": "Meerdere gerechten komen overeen met deze naam; gebruik het gerechtnummer",

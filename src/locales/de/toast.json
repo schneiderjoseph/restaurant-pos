@@ -102,7 +102,7 @@
     "selectCategoriesRequired": "Wählen Sie mindestens eine Kategorie aus",
     "menuItemsUpdated": "{{count}} Artikel aktualisiert",
     "invalidCategories": "Kategorien sind ungültig",
-    "pinTaken": "Die PIN {{login}} ist bereits {{name}} zugewiesen. Jede Person braucht eine eigene PIN.",
+    "pinTaken": "Diese PIN ist bereits vergeben. Bitte eine andere generieren.",
     "invalidDishNumber": "Gerichtennummer ist ungültig",
     "invalidDishNameOrNumber": "Gerichtenname oder -nummer ist ungültig",
     "ambiguousDishName": "Mehrere Gerichte passen zu diesem Namen; verwenden Sie die Gerichtennummer",
