@@ -768,6 +768,7 @@
       "customers.create": "Inloopklanten registreren",
       "customers.preferences": "Allergieën, dieet en notities bewerken",
       "customers.view_id_document": "Documenten volledig zien",
+      "customers.view_phone": "Telefoonnummers volledig zien",
       "admin.customers": "Klanten",
       "admin.customers.update": "Elke klant bewerken",
       "admin.customers.delete": "Klanten verwijderen en herstellen",

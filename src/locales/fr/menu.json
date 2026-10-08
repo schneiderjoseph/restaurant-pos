@@ -78,6 +78,12 @@
     "newTab": "Nouveau compte",
     "newTabOpened": "Nouveau compte ouvert",
     "startOrder": "Nouvelle commande",
+    "openOrders": {
+      "title": "{{name}} a déjà une commande en cours",
+      "hint": "Ajoutez plutôt à la commande ouverte : une seule addition pour le client. Ce que vous ajoutez compte pour vous.",
+      "addTo": "Ajouter à la #{{number}}",
+      "newAnyway": "Créer une nouvelle commande quand même"
+    },
     "folio": "Commandes récentes",
     "folioEmpty": "Aucune commande précédente",
     "pickGuest": "Recherchez ou créez un client pour continuer",

@@ -768,6 +768,7 @@
       "customers.create": "Registrar clientes sin reserva",
       "customers.preferences": "Editar alergias, dieta y notas",
       "customers.view_id_document": "Ver documentos completos",
+      "customers.view_phone": "Ver teléfonos completos",
       "admin.customers": "Clientes",
       "admin.customers.update": "Editar cualquier cliente",
       "admin.customers.delete": "Eliminar y restaurar clientes",

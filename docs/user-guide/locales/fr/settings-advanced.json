@@ -1,148 +1,40 @@
 {
   "title": "Paramètres généraux",
-  "intro": "Les réglages de l’établissement se trouvent sous Gérer → Paramètres généraux. Ouvrez Gérer dans la barre latérale, puis l’onglet Paramètres généraux. Seul le rôle Master voit cet onglet par défaut ; accordez Paramètres généraux à d’autres rôles dans l’éditeur de rôles si besoin.",
+  "intro": "Gérer → Paramètres généraux rassemble les réglages de tout l’établissement, en cartes. Chaque carte a son bouton Enregistrer. Les cartes Restaurant, Devise, Traduire les reçus et Options d’impression sont décrites dans « Imprimantes et tickets » ; Paramètres du menu dans « Carte » ; Points de vente ASI dans « Points de vente » ; Visibilité des commandes et Accès à l’Affichage dans « Les droits qui changent le travail en salle ».",
   "sections": [
     {
-      "id": "overview",
-      "title": "Ouvrir Paramètres généraux",
-      "steps": [
-        "Connectez-vous en Master, ou avec un rôle qui a la permission Paramètres généraux.",
-        "Ouvrez Gérer dans la barre latérale.",
-        "Sélectionnez l’onglet Paramètres généraux.",
-        "Les cartes de cette page s’appliquent à tous les utilisateurs et terminaux de l’établissement."
-      ],
-      "image": "settings-adv-overview.png",
-      "caption": "Gérer → Paramètres généraux — cartes de configuration du site."
-    },
-    {
-      "id": "restaurant-profile",
-      "title": "Profil du restaurant",
-      "intro": "Nom, adresse, téléphone et logo utilisés sur les tickets et rapports. Les modèles d’impression peuvent encore remplacer le logo ou l’en-tête.",
-      "steps": [
-        "Ouvrez la carte Restaurant.",
-        "Saisissez le nom, l’adresse, le téléphone et éventuellement e-mail, site web et n° de TVA.",
-        "Ajoutez ou retirez le logo si besoin.",
-        "Enregistrez (approbation manager éventuelle)."
-      ]
-    },
-    {
-      "id": "currency-symbol",
-      "title": "Symbole monétaire",
-      "intro": "Afficher le symbole monétaire à l’écran et/ou sur les tickets.",
-      "steps": [
-        "Ouvrez la carte.",
-        "Basculez UI et/ou tickets.",
-        "Enregistrez (approbation éventuelle)."
-      ],
-      "image": "settings-currency-symbol.png",
-      "caption": "Symbole monétaire."
-    },
-    {
-      "id": "translate-receipts",
-      "title": "Traduire les tickets",
-      "intro": "Quand c’est activé, le texte imprimé suit la langue du terminal si possible.",
-      "steps": [
-        "Ouvrez la carte.",
-        "Activez ou non.",
-        "Enregistrez (approbation éventuelle)."
-      ],
-      "image": "settings-translate-receipts.png",
-      "caption": "Traduire les tickets."
-    },
-    {
-      "id": "print-options",
-      "title": "Options d’impression",
-      "steps": [
-        "Ouvrez Options d’impression.",
-        "Définissez le nombre de copies.",
-        "Définissez les tentatives max (0 = illimité).",
-        "Enregistrez."
-      ],
-      "image": "settings-print-options.png",
-      "caption": "Copies et tentatives."
-    },
-    {
-      "id": "menus",
-      "title": "Menus actifs",
-      "steps": [
-        "Sélectionnez les menus du terminal.",
-        "Enregistrez.",
-        "Avec Gérer → Menus."
-      ],
-      "image": "settings-adv-menus.png",
-      "caption": "Carte menus."
-    },
-    {
-      "id": "service-charges",
+      "id": "service",
       "title": "Frais de service",
-      "steps": [
-        "Type et valeur par défaut.",
-        "Appliqués au paiement.",
-        "Enregistrez."
-      ],
-      "image": "settings-adv-service-charges.png",
-      "caption": "Carte frais de service."
+      "intro": "Type (Fixe ou Pourcentage) et Valeur. Appliqués aux types de commande qui les autorisent."
     },
     {
-      "id": "closing-cycle",
-      "title": "Cycle de clôture",
-      "intro": "Fenêtre du jour d'exploitation.",
-      "steps": [
-        "Activez un cycle custom si nuit.",
-        "Définissez début/fin.",
-        "Enregistrez."
-      ],
-      "image": "settings-adv-closing-cycle.png",
-      "caption": "Carte cycle de clôture."
-    },
-    {
-      "id": "auto-check-close",
-      "title": "Clôture auto des notes",
-      "steps": [
-        "Activez le règlement en fin de cycle.",
-        "Impression et type de paiement.",
-        "Enregistrez."
-      ],
-      "image": "settings-adv-auto-check-close.png",
-      "caption": "Carte clôture auto."
-    },
-    {
-      "id": "session-security",
+      "id": "session",
       "title": "Sécurité de session",
-      "intro": "Un seul réglage pour tous les utilisateurs et terminaux. Tant qu’un admin ne l’enregistre pas, la valeur par défaut s’applique : déconnexion après 15 minutes d’inactivité (le même utilisateur qui se reconnecte reprend).",
-      "steps": [
-        "Ouvrez la carte Sécurité de session.",
-        "Activez la protection d’inactivité pour verrouiller ou déconnecter.",
-        "Définissez les minutes et l’action (verrouiller ou se déconnecter).",
-        "Enregistrez. La règle s’applique à tout l’établissement."
+      "fields": [
+        { "name": "Activé", "effect": "Active le verrouillage ou la déconnexion automatique." },
+        { "name": "Minutes d’inactivité", "effect": "Délai sans toucher l’écran avant l’action (0,1 ≈ 6 secondes, pour tester)." },
+        { "name": "Action", "effect": "Verrouiller (le même PIN rouvre, panier conservé) ou Déconnexion (tablette libre pour quelqu’un d’autre)." }
       ],
-      "image": "settings-adv-session-security.png",
-      "caption": "Carte sécurité de session (tout le site)."
+      "note": "S’applique à tous les utilisateurs et tous les appareils, y compris les écrans de station : choisissez un délai qui ne gêne pas le service."
     },
     {
-      "id": "show-inclusive-prices",
-      "title": "Prix TTC",
-      "intro": "Affiche des prix TTC selon la config des taxes.",
-      "steps": [
-        "Ouvrez la carte.",
-        "Activez ou non.",
-        "Enregistrez (approbation éventuelle)."
-      ],
-      "image": "settings-show-inclusive-prices.png",
-      "caption": "Prix TTC."
+      "id": "inclusive",
+      "title": "Afficher les prix TTC",
+      "intro": "Pour les plats à taxe incluse : lignes affichées TTC sur le paiement, les reçus et les rapports par article. Le sous-total reste hors taxe, la taxe reste à part, le total ne change pas. Affichage seulement."
     },
     {
-      "id": "items-visibility",
-      "title": "Visibilité des éléments",
-      "intro": "Affichage recherche menu, totaux panier et cartes commande sur ce terminal.",
-      "steps": [
-        "Ouvrez la carte.",
-        "Menu : recherche et numéros.",
-        "Panier : totaux.",
-        "Commandes : totaux et champs."
+      "id": "closing",
+      "title": "Cycle de clôture et clôture automatique (module Clôture)",
+      "fields": [
+        { "name": "Cycle de clôture", "effect": "Heure de début et de fin de la journée de caisse ; la fin peut être le lendemain (06:00 → 02:00)." },
+        { "name": "Clôture automatique des tickets", "effect": "À la fin du cycle, ferme les tickets de table encore ouverts avec le type de paiement choisi (obligatoire), et imprime la note finale si coché. Livraisons exclues ; avertissement 1 minute avant." }
       ],
-      "image": "settings-items-visibility.png",
-      "caption": "Visibilité menu, panier, commandes."
+      "note": "Ces cartes n’ont d’effet que si le module Clôture est activé."
+    },
+    {
+      "id": "visibility",
+      "title": "Visibilité des articles",
+      "intro": "Réglée sur chaque appareil (voir « Paramètres de l’appareil ») : recherche, numéros et photos sur le menu, totaux du panier, détail des cartes de commande, nom ou code guest sur les tickets station."
     }
   ]
 }

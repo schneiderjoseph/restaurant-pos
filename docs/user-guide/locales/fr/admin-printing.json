@@ -1,95 +1,59 @@
 {
-  "title": "Printers and print settings",
-  "intro": "Define printer records in Manage, configure what each print job contains, then assign printers to devices in Settings.",
+  "title": "Imprimantes et tickets",
+  "intro": "Trois endroits : Gérer → Imprimantes (les appareils), Gérer → Paramètres d’impression (l’apparence de chaque ticket) et Gérer → Paramètres généraux (copies, limites, informations du restaurant, devise).",
   "sections": [
     {
       "id": "printers",
-      "title": "Printers",
-      "intro": "Printer records store connection details used across receipt, kitchen, and report printing.",
-      "steps": [
-        "Open the Printers tab.",
-        "Add printers with name, type, and connection settings.",
-        "Link printers to kitchens and device Settings so tickets reach the right hardware."
-      ],
-      "image": "admin-printers.png",
-      "caption": "Printers master list in Manage."
-    },
-    {
-      "id": "print-settings",
-      "title": "Print settings",
-      "intro": "Print settings control templates and options for temp bills, final receipts, kitchen tickets, summaries, and delivery slips.",
-      "steps": [
-        "Open the Print settings tab.",
-        "Edit each print type (Temp, Final, Kitchen, Summary, Delivery).",
-        "Save so new orders use the updated layout and fields."
-      ],
-      "image": "admin-print-settings.png",
-      "caption": "Print settings tab."
-    },
-    {
-      "id": "printer-form",
-      "title": "Formulaire imprimante",
-      "steps": [
-        "Admin → Impression → Imprimantes.",
-        "Nom et connexion IP/USB.",
-        "Type reçu/cuisine/étiquette.",
-        "Enregistrer."
-      ],
-      "image": "admin-printing-printer-form.png",
-      "caption": "Formulaire imprimante.",
+      "title": "Déclarer une imprimante",
       "fields": [
-        {
-          "name": "Nom",
-          "effect": "Nom convivial."
-        },
-        {
-          "name": "Type",
-          "effect": "Profil reçu/cuisine/étiquette."
-        },
-        {
-          "name": "IP / port",
-          "effect": "Connexion réseau ESC/POS."
-        },
-        {
-          "name": "VID / PID",
-          "effect": "IDs USB."
-        }
+        { "name": "Nom", "effect": "Nom parlant : « Cuisine », « Bar », « Caisse plage »." },
+        { "name": "Type", "effect": "Network (réseau, le plus courant), USB, Serial ou Bluetooth." },
+        { "name": "Chemin, Port", "effect": "Pour une imprimante réseau : son adresse IP et son port (souvent 9100). Le port doit être un nombre valide." },
+        { "name": "VID, PID", "effect": "Pour une imprimante USB : identifiants de l’appareil." }
+      ],
+      "bullets": [
+        "Une station imprime sur les imprimantes choisies dans sa fiche (Gérer → Stations).",
+        "Les notes provisoires, finales, remboursements et résumés vont aux imprimantes de caisse définies à l’installation.",
+        "Imprimante injoignable (éteinte, papier, réseau) : les tickets sont mis en file et partent quand elle revient. L’écran de station reste à jour pendant ce temps."
       ]
     },
     {
-      "id": "print-setting-form",
-      "title": "Formulaire param impression",
-      "intro": "Chaque job a son modèle.",
-      "steps": [
-        "Paramètres impression.",
-        "Type job.",
-        "Logo, en-tête/pied, TVA, marges.",
-        "Enregistrer."
-      ],
-      "image": "admin-printing-print-setting-form.png",
-      "caption": "Éditeur modèle.",
+      "id": "templates",
+      "title": "Apparence des tickets",
+      "intro": "Gérer → Paramètres d’impression → Modifier sur un type de ticket (note provisoire, note finale, cuisine, remboursement, résumé…).",
       "fields": [
-        {
-          "name": "Afficher logo",
-          "effect": "Logo sur ticket."
-        },
-        {
-          "name": "Sections en-tête/pied",
-          "effect": "Blocs texte/image."
-        },
-        {
-          "name": "Nom/n° TVA",
-          "effect": "Bloc fiscal."
-        },
-        {
-          "name": "Marges",
-          "effect": "Espacement en points."
-        },
-        {
-          "name": "Colonnes article",
-          "effect": "N°, nom, qté, prix, total."
-        }
+        { "name": "Logo", "effect": "Logo propre à ce ticket (sinon celui du restaurant). « Décalage horizontal du logo » le recentre, en points, si l’imprimante le décale." },
+        { "name": "Sections d’en-tête / de pied de page", "effect": "« Ajouter une section » : texte ou image, alignement (gauche, centre, droite), taille (normale, moyenne, grande), activée ou non. Exemple : « Merci de votre visite » en pied, centré." },
+        { "name": "Nom TVA, Numéro TVA", "effect": "Mentions fiscales du ticket." },
+        { "name": "Marges", "effect": "Supérieure, inférieure, gauche, droite." }
+      ],
+      "note": "Supprimer une section ne devient définitif qu’après Enregistrer."
+    },
+    {
+      "id": "options",
+      "title": "Copies et limites (Paramètres généraux → Options d’impression)",
+      "fields": [
+        { "name": "Copies par type d’impression", "effect": "Nombre d’exemplaires : note provisoire, note finale, remboursement, cuisine / KOT, livraison, résumé." },
+        { "name": "Max. impressions note provisoire / note finale", "effect": "Nombre d’impressions permises par commande avant qu’un responsable doive approuver. 0 = illimité." }
       ]
+    },
+    {
+      "id": "profile",
+      "title": "Informations du restaurant",
+      "intro": "Paramètres généraux → Restaurant : nom, adresse, téléphone, e-mail, site web, NIF / TVA et logo (15 Mo max.). Ils figurent sur les reçus, tickets et rapports, et donnent le nom et l’icône de l’application installée sur les tablettes."
+    },
+    {
+      "id": "currency",
+      "title": "Devise",
+      "bullets": [
+        "Paramètres généraux → Devise : HTG (G) ou USD ($), ou nombres sans symbole. Affichage uniquement, les montants enregistrés ne changent pas.",
+        "Taux de change USD → HTG (ex. 132) : affiche la deuxième monnaie sous les montants, à l’écran et/ou sur les reçus, et fait apparaître le choix « Le client paie en » sur l’écran de paiement."
+      ]
+    },
+    {
+      "id": "translate",
+      "title": "Traduire les reçus",
+      "intro": "Paramètres généraux → Traduire les reçus : les libellés système imprimés (titres, facture, table, taxe, total, tickets cuisine, résumé) suivent la langue de l’appareil qui imprime. Le texte d’en-tête et de pied personnalisé n’est pas traduit."
     }
   ]
 }

@@ -960,6 +960,7 @@
       "customers.create": "Register walk-in clients",
       "customers.preferences": "Edit allergies, diet and notes",
       "customers.view_id_document": "See ID documents in full",
+      "customers.view_phone": "See phone numbers in full",
       "admin.customers": "Clients",
       "admin.customers.update": "Edit any client",
       "admin.customers.delete": "Delete and restore clients",

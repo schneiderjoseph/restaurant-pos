@@ -29,6 +29,7 @@ import {
 } from "@/lib/feature-modules.ts";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
+import {ClientUpdateBanner} from "@/components/common/client-update-banner.tsx";
 import {MyOrderReadyAlert} from "@/components/orders/my-order-ready-alert.tsx";
 import {OrderEditRequestWatcher} from "@/components/orders/order-edit-request-watcher.tsx";
 import {DuoWatcher} from "@/components/duo/duo-watcher.tsx";
@@ -90,6 +91,7 @@ function App() {
       <ConfigProvider theme={appAntdTheme}>
         <DatabaseProvider>
           <OfflineModeBanner />
+          <ClientUpdateBanner />
           <IntegrationProvider>
             <AutoCheckCloseProvider>
               <ClosingLayer>

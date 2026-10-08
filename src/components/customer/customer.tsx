@@ -32,7 +32,7 @@ import {
   parseCustomerNumber,
   type CustomerMatch,
 } from "@/lib/customer.service.ts";
-import { displayPhone } from "@/lib/phone.ts";
+import { visiblePhone } from "@/lib/phone.ts";
 import { PhoneInput } from "@/components/customer/phone.input.tsx";
 import { CustomerMatchesModal } from "@/components/customer/customer.matches.modal.tsx";
 import { useModuleAccess } from "@/providers/module-access.provider.tsx";
@@ -65,6 +65,7 @@ export const Customers = ({
   const [newIdDocument, setNewIdDocument] = useState("");
   const [page] = useAtom(appPage);
   const { can } = useModuleAccess();
+  const canViewPhone = can("customers.view_phone");
   const [matches, setMatches] = useState<CustomerMatch[] | null>(null);
   const searchRequestRef = useRef(0);
 
@@ -409,7 +410,7 @@ export const Customers = ({
                 ) : null}
               </td>
               <td>{item.email}</td>
-              <td className="whitespace-nowrap">{displayPhone(item.phone)}</td>
+              <td className="whitespace-nowrap">{visiblePhone(item.phone, canViewPhone)}</td>
               <td>{item.address}</td>
               <td>{item.secondary_address}</td>
               <td>{item.points}</td>

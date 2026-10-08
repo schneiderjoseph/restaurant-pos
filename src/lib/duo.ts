@@ -127,34 +127,19 @@ export const isInviteLive = (duo: Pick<Duo, 'status' | 'created_at'>, nowMs: num
   duo.status === DuoStatus.pending
   && toLuxonDateTime(duo.created_at).toMillis() + DUO_INVITE_TTL_MINUTES * 60_000 > nowMs;
 
-/** The two servers of the duo that worked this order (`duo` fetched), else none. */
-export const orderDuoMembers = (order: Pick<Order, 'duo'>): string[] => {
-  const duo = order.duo as Duo | undefined;
-  return duo && typeof duo === 'object' && 'inviter' in duo ? duoMemberIds(duo) : [];
-};
-
-/** Who sold a line of this order: in a duo whichever of the two added it, else the order's server. */
-export const orderLineSeller = (order: Pick<Order, 'user' | 'duo'>) => {
+/** Who sold a line of this order: whoever added it, else (an old line with no author) the order's server. */
+export const orderLineSeller = (order: Pick<Order, 'user'>) => {
   const owner = refKey(order.user);
-  const members = orderDuoMembers(order);
-  return (item: Pick<OrderItem, 'created_by'>): string => {
-    const creator = refKey(item.created_by);
-    return members.includes(creator) ? creator : owner;
-  };
+  return (item: Pick<OrderItem, 'created_by'>): string => refKey(item.created_by) || owner;
 };
 
 /**
- * Who an order's sales belong to, as shares adding up to 1. Outside a duo the whole order is
- * its server's. In a duo every line counts for whichever of the two added it, even on an order
- * the other one opened; a line added by anyone else counts for the order's server.
- * Needs `items` and `duo` fetched.
+ * Who an order's sales belong to, as shares adding up to 1: every line counts for whoever added
+ * it, even on an order another server opened (a duo, or a colleague adding to a guest's open
+ * order). Needs `items` fetched.
  */
-export const orderSalesShares = (order: Pick<Order, 'user' | 'items' | 'duo'>): Map<string, number> => {
+export const orderSalesShares = (order: Pick<Order, 'user' | 'items'>): Map<string, number> => {
   const owner = refKey(order.user);
-  if (orderDuoMembers(order).length === 0) {
-    return new Map([[owner, 1]]);
-  }
-
   const sellerOf = orderLineSeller(order);
   const totals = new Map<string, number>();
   let total = 0;
@@ -171,14 +156,16 @@ export const orderSalesShares = (order: Pick<Order, 'user' | 'items' | 'duo'>): 
 };
 
 /**
- * `orderSalesShares` with each seller's user record where the order holds it (`user`, and
- * `duo.inviter` / `duo.partner` when fetched), for reports that print names.
+ * `orderSalesShares` with each seller's user record where the order holds it (`user`,
+ * `items.created_by`, and `duo.inviter` / `duo.partner` when fetched), for reports that print names.
  */
 export const orderSellers = (
   order: Pick<Order, 'user' | 'items' | 'duo'>,
 ): Array<{ userId: string; user: unknown; share: number }> => {
   const duo = order.duo as Duo | undefined;
-  const known = [order.user, duo?.inviter, duo?.partner].filter((user) => user && typeof user === 'object');
+  const lineAuthors = (order.items ?? []).map((item) => (item as Partial<OrderItem> | undefined)?.created_by);
+  const known = [order.user, duo?.inviter, duo?.partner, ...lineAuthors]
+    .filter((user) => user && typeof user === 'object' && 'first_name' in user);
   return Array.from(orderSalesShares(order).entries()).map(([userId, share]) => ({
     userId,
     user: known.find((user) => refKey(user) === userId) ?? (userId === refKey(order.user) ? order.user : userId),
@@ -203,15 +190,17 @@ export const splitByShares = (amount: number, shares: Map<string, number>): Map<
 };
 
 /**
- * The tip of a duo's order split between the two by their sales in it (`orderSalesShares`);
- * empty outside a duo, where the tip stays with whoever cashed the order.
+ * The tip of an order several servers added lines to (a duo, or a colleague adding to another's
+ * order), split between them by their sales in it (`orderSalesShares`); empty when one server
+ * sold it all, where the tip stays with whoever cashed the order.
  */
-export const duoTipParts = (order: Pick<Order, 'user' | 'items' | 'duo' | 'tip_amount'>): Map<string, number> => {
+export const sharedTipParts = (order: Pick<Order, 'user' | 'items' | 'tip_amount'>): Map<string, number> => {
   const tip = Number(order.tip_amount) || 0;
-  if (orderDuoMembers(order).length === 0 || tip === 0) {
+  const shares = orderSalesShares(order);
+  if (shares.size < 2 || tip === 0) {
     return new Map();
   }
-  return splitByShares(tip, orderSalesShares(order));
+  return splitByShares(tip, shares);
 };
 
 // ---------------------------------------------------------------- database

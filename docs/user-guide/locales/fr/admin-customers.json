@@ -1,0 +1,41 @@
+{
+  "title": "Clients",
+  "intro": "Gérer → Clients liste tous les clients : ceux de l’hôtel (synchronisés depuis ASI, en lecture seule) et ceux enregistrés dans POSR (walk-in). C’est ici qu’on corrige, fusionne les doublons et restaure.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "La liste",
+      "fields": [
+        { "name": "N°, Nom, VIP, Téléphone", "effect": "Identité du client ; badge VIP." },
+        { "name": "Pièce d’identité", "effect": "Masquée (••••7890) sans le droit de la voir en entier." },
+        { "name": "Origine", "effect": "Hôtel (ASI), walk-in ou local." },
+        { "name": "Créé le / Supprimé le", "effect": "Dates de création et de suppression." }
+      ],
+      "bullets": [
+        "La barre de recherche filtre par nom, téléphone, pièce ou numéro (C-000123).",
+        "Ajouter : formulaire d’enregistrement sous la barre de recherche (Nom, Téléphone, E-mail, Type de pièce, Pièce d’identité)."
+      ]
+    },
+    {
+      "id": "actions",
+      "title": "Actions sur un client",
+      "fields": [
+        { "name": "Voir", "effect": "Fiche complète : contact, chambre, langue, anniversaire, origine, consentement aux offres ; et ses statistiques : visites, dépensé, ticket moyen, dernière visite, plats préférés, commandes récentes." },
+        { "name": "Modifier", "effect": "Nom, téléphone, e-mail, pièce d’identité. Une pièce déjà utilisée par un autre client est refusée." },
+        { "name": "Préférences", "effect": "Allergies (imprimées sur les tickets cuisine), régime, place préférée, langue, anniversaire, VIP." },
+        { "name": "Fusionner dans un autre client", "effect": "Pour un doublon : choisissez le client à garder. Le doublon disparaît des listes ; ses commandes apparaissent avec le client gardé, qui reprend ses informations manquantes." },
+        { "name": "Supprimer", "effect": "Le client disparaît des listes (motif facultatif). Ses commandes restent." },
+        { "name": "Restaurer", "effect": "Sur un client supprimé. Refusé si un autre client actif détient maintenant la même pièce d’identité : fusionnez ou modifiez d’abord." }
+      ]
+    },
+    {
+      "id": "asi",
+      "title": "Clients de l’hôtel",
+      "bullets": [
+        "Nom, chambre et dates de séjour viennent d’ASI et se corrigent à la réception.",
+        "Les préférences (allergies, régime…) restent modifiables dans POSR.",
+        "Un client parti n’est plus proposé aux serveurs, sauf s’il a une note du personnel."
+      ]
+    }
+  ]
+}

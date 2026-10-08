@@ -11,6 +11,9 @@
     "cart": "Panier",
     "payment": "Paiement",
     "orders": "Commandes",
-    "session": "Session"
+    "session": "Session",
+    "admin-roles-rights": "Droits des rôles qui changent le travail en salle",
+    "admin-outlets": "Points de vente",
+    "admin-customers": "Clients"
   }
 }

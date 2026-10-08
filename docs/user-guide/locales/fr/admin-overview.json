@@ -1,41 +1,43 @@
 {
-  "title": "Vue d'ensemble Gérer",
-  "intro": "Gérer est le hub de configuration : plats, menus, étages, utilisateurs, taxes, remises, cuisines et imprimantes.",
+  "title": "Vue d’ensemble de Gérer",
+  "intro": "Gérer (barre latérale) est l’espace de configuration de l’établissement. Chaque onglet n’apparaît que si votre rôle y a droit ; ouvrir un onglet réservé demande l’autorisation d’un responsable (« Accéder à … »).",
   "sections": [
     {
-      "id": "open",
-      "title": "Ouvrir Gérer",
-      "steps": [
-        "Connectez-vous avec un accès administrateur.",
-        "Appuyez sur Gérer dans la barre latérale.",
-        "L'écran s'ouvre sur l'onglet Plats par défaut."
-      ],
-      "image": "admin-overview.png",
-      "caption": "Écran Gérer avec onglets et panneau."
-    },
-    {
       "id": "tabs",
-      "title": "Navigation par onglets",
-      "intro": "Les onglets regroupent les réglages. Changer d'onglet peut exiger un PIN manager.",
-      "steps": [
-        "Faites défiler la barre d'onglets.",
-        "Les onglets couvrent menus, salle, promotions, cuisine, impression, paiements et utilisateurs.",
-        "Chaque onglet ouvre sa table.",
-        "L'onglet actif est mis en surbrillance."
-      ],
-      "image": "admin-tabs.png",
-      "caption": "Barre d'onglets Gérer."
+      "title": "Les onglets, dans l’ordre",
+      "fields": [
+        { "name": "Plats, Menus, Catégories, Groupes de modificateurs", "effect": "La carte (chapitre « Carte »). Les points de vente se gèrent depuis Catégories." },
+        { "name": "Tables, Salles", "effect": "Le plan de salle (chapitre « Salles et tables »)." },
+        { "name": "Remises, Coupons", "effect": "Chapitre « Remises et coupons »." },
+        { "name": "Stations, Flux de travail", "effect": "Postes de préparation (chapitre « Stations et flux »)." },
+        { "name": "Imprimantes, Paramètres d’impression", "effect": "Chapitre « Imprimantes et tickets »." },
+        { "name": "Types de commande, Types de paiement, Suppléments, Taxes", "effect": "Chapitre « Types de commande, paiements, taxes »." },
+        { "name": "Paramètres généraux", "effect": "Réglages de tout l’établissement." },
+        { "name": "Clients", "effect": "Fiches clients, doublons, restauration." },
+        { "name": "Utilisateurs", "effect": "Comptes, rôles, services, définition des pourboires." },
+        { "name": "Alertes de Sécurité", "effect": "Activités suspectes détectées (voir ci-dessous)." }
+      ]
     },
     {
-      "id": "dishes",
-      "title": "Onglet Plats (par défaut)",
-      "steps": [
-        "Plats liste chaque article vendable.",
-        "Utilisez Ajouter, Modifier, Importer si autorisé.",
-        "Recherche et pagination pour grands menus."
-      ],
-      "image": "admin-dishes.png",
-      "caption": "Table de maintenance des plats."
+      "id": "common",
+      "title": "Ce qui marche pareil dans tous les onglets",
+      "bullets": [
+        "Une liste en tableau, avec Créer en haut, et Modifier / Supprimer sur chaque ligne (avec confirmation).",
+        "Une suppression retire l’élément des listes sans effacer l’historique (les ventes passées gardent leurs plats, tables, utilisateurs).",
+        "Modification groupée (Plats, Catégories, Tables) : cochez plusieurs lignes et changez un champ pour toutes.",
+        "Import IA : créer en masse depuis un CSV, un Excel, un PDF ou une photo. Toujours relire le résultat.",
+        "Les tablettes voient les changements après Actualiser (barre latérale) ou « Recharger le cache »."
+      ]
+    },
+    {
+      "id": "alerts",
+      "title": "Alertes de Sécurité",
+      "bullets": [
+        "Réservé au rôle administrateur. Un badge « N alerte(s) critique(s) ouverte(s) » signale les alertes en attente.",
+        "Chaque alerte a un niveau (Critique, Avertissement, Info), un type de règle, l’acteur (utilisateur, rôles), l’IP source et l’heure ; « ×3 » si elle s’est répétée.",
+        "Après vérification, « Accuser réception » avec une note de résolution (ex. « Enquêté — fausse alarme ») : l’alerte quitte la liste des alertes ouvertes.",
+        "« Aucune alerte ouverte » : le détecteur n’a rien signalé."
+      ]
     }
   ]
 }

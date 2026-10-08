@@ -94,6 +94,9 @@
     "retryConnection": "Повторить подключение",
     "connecting": "Подключение к серверу..."
   },
+   "update": {
+    "available": "Update available — tap to reload"
+  },
   "offline": {
     "disconnected": "⚠ Не в сети — изменения синхронизируются при подключении",
     "disconnectedWithQueue": "⚠ Не в сети — {{count}} изменений в очереди, синхронизируются при подключении",

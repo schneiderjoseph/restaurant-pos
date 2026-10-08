@@ -1,0 +1,106 @@
+{
+  "title": "Suivre ses commandes",
+  "intro": "L’écran Commandes rassemble les commandes envoyées. C’est là qu’on voit ce qui est prêt, qu’on rouvre une commande et qu’on prépare l’addition.",
+  "sections": [
+    {
+      "id": "what",
+      "title": "Ce que l’écran montre par défaut",
+      "bullets": [
+        "Sans filtre de statut, seules les commandes En cours sont affichées.",
+        "Les commandes En cours apparaissent toujours, quelle que soit leur date (même une commande ouverte hier et jamais payée).",
+        "Pour retrouver une commande payée ou annulée, choisissez le statut Payée ou Annulée dans le filtre : vous voyez alors celles de la date choisie (aujourd’hui par défaut, modifiable avec le calendrier).",
+        "Selon le réglage de l’établissement, un serveur ne voit que ses propres commandes (et celles de son binôme en DUO) ; le filtre Utilisateurs disparaît alors."
+      ]
+    },
+    {
+      "id": "card",
+      "title": "Lire une carte de commande",
+      "fields": [
+        { "name": "#012", "effect": "Numéro de la commande, le même que sur le ticket cuisine et l’écran d’affichage." },
+        { "name": "Pastille de statut", "effect": "En cours, Prête (vert : toutes les stations ont terminé, la commande n’est pas encore payée), Payée, Annulée, Divisée, Fusionnée, Remboursée." },
+        { "name": "Pour 19:30", "effect": "Commande prévue pour plus tard (« dem. » si c’est demain)." },
+        { "name": "Prénom sur fond gris, en haut à droite", "effect": "Le serveur qui a ouvert la commande ; en dessous, le client et son téléphone ou sa chambre." },
+        { "name": "Icône imprimante orange à côté du prénom", "effect": "La note provisoire a déjà été imprimée au moins une fois." },
+        { "name": "Divisée de #010 / Fusion de #008, #009", "effect": "D’où vient la commande quand elle résulte d’une division ou d’une fusion." },
+        { "name": "Double flèche vers le bas", "effect": "Fait défiler la liste des plats quand elle dépasse la carte." }
+      ],
+      "image": "srv-orders.png",
+      "caption": "Écran Commandes en blocs."
+    },
+    {
+      "id": "buttons",
+      "title": "Les boutons en bas de la carte",
+      "intro": "Ils n’apparaissent que sur une commande En cours, et selon les droits de votre rôle.",
+      "fields": [
+        { "name": "⋮", "effect": "Menu des autres actions (voir ci-dessous)." },
+        { "name": "Crayon", "effect": "Rouvre la commande dans le Menu pour ajouter des plats ou changer une ligne." },
+        { "name": "Imprimante (bleue, puis orange)", "effect": "Imprime la note provisoire. Elle devient orange une fois imprimée, pour éviter les doublons." },
+        { "name": "Carte bancaire (orange plein)", "effect": "Ouvre l’écran de paiement. Absente si votre rôle n’encaisse pas : appelez alors un caissier." }
+      ],
+      "note": "Pendant la clôture de caisse, le crayon et la plupart des actions du ⋮ sont grisés."
+    },
+    {
+      "id": "menu",
+      "title": "Le menu ⋮",
+      "fields": [
+        { "name": "Modifier", "effect": "Comme le crayon." },
+        { "name": "Annuler la commande (rouge)", "effect": "Annule tout ou partie des plats (voir plus bas)." },
+        { "name": "Diviser par places / articles / montant / clients", "effect": "Voir le chapitre Addition. « Par places » n’apparaît que si les plats sont répartis sur au moins deux places." },
+        { "name": "Déplacer vers un autre client", "effect": "La commande quitte le client actuel pour celui que vous choisissez (commande ouverte sur la mauvaise fiche)." },
+        { "name": "Fusionner les commandes", "effect": "Regroupe plusieurs commandes en une." },
+        { "name": "Imprimer une copie KOT", "effect": "Réimprime le ticket cuisine (KOT = ticket de cuisine), par exemple si la station a perdu le sien." }
+      ],
+      "bullets": [
+        "Sur une commande Payée, le ⋮ propose Rembourser, Imprimer une copie de la note finale et la copie KOT.",
+        "Les actions de division et de fusion n’apparaissent que si votre rôle y a droit.",
+        "Annuler, Rembourser et les impressions apparaissent toujours ; si votre rôle n’y a pas droit, la fenêtre « Authentification requise » s’ouvre : un responsable tape son PIN sur votre tablette pour autoriser cette action une fois."
+      ]
+    },
+    {
+      "id": "print-limit",
+      "title": "Limite d’impression des notes",
+      "intro": "L’établissement peut limiter le nombre d’impressions de la note provisoire et de la note finale par commande. Au-delà, POSR affiche « Limite d’impression de la note provisoire atteinte (2/2). Approbation du responsable requise » et demande le PIN d’une autre personne autorisée. Vous ne pouvez pas approuver votre propre réimpression."
+    },
+    {
+      "id": "toolbar",
+      "title": "Filtres et vues",
+      "fields": [
+        { "name": "Statut, Types, Salles, Utilisateurs, Clients", "effect": "Filtres combinables ; plusieurs valeurs possibles dans chaque filtre." },
+        { "name": "Calendrier", "effect": "Jour des commandes payées ou annulées affichées. On ne peut pas choisir un jour futur." },
+        { "name": "Ouvrir le tiroir-caisse", "effect": "Ouvre le tiroir sans vente (monnaie). Demande l’autorisation d’un responsable si votre rôle n’a pas ce droit ; l’action est tracée." },
+        { "name": "Blocs / Tableau", "effect": "Blocs : une carte par commande. Tableau : une ligne par commande (n°, table ou client, serveur, statut, heure, articles, total), plus lisible quand il y en a beaucoup." }
+      ]
+    },
+    {
+      "id": "ready",
+      "title": "Quand une commande est prête",
+      "intro": "Dès que la cuisine (ou le bar) a terminé, la tablette du serveur qui a ouvert la commande sonne, annonce à voix haute « Commande 12, table 7, est prête » (ou le nom du client, ou la chambre) et affiche une fenêtre avec le numéro.",
+      "bullets": [
+        "Touchez OK pour fermer. « OK (encore 2) » : deux autres alertes attendent derrière, elles s’affichent l’une après l’autre.",
+        "Une commande qui passe par plusieurs stations prévient à chaque station : « Commande 12, Bar prêt », puis « Commande 12, est prête » quand tout est terminé.",
+        "L’alerte arrive sur la tablette où vous êtes connecté, sur n’importe quel écran, même verrouillé. Pas sur l’écran d’affichage.",
+        "Si vous n’êtes connecté nulle part (ou si un collègue a pris la tablette avec son PIN), vous ne recevez rien : la commande reste visible « Prête » dans Commandes et sur l’affichage.",
+        "Pas de son ? Le navigateur bloque le son tant que l’écran n’a pas été touché depuis le chargement : touchez l’écran une fois et vérifiez le volume.",
+        "En DUO, les alertes des deux serveurs sonnent sur les deux tablettes."
+      ],
+      "image": "srv-ready-alert.png",
+      "caption": "Alerte « Commande prête » sur la tablette du serveur."
+    },
+    {
+      "id": "cancel",
+      "title": "Annuler une commande ou des articles",
+      "steps": [
+        "Touchez ⋮ puis Annuler la commande (en rouge).",
+        "Si votre rôle n’a pas ce droit, un responsable autorise avec son PIN.",
+        "Choisissez le motif ; le premier (Salle non préparée) est présélectionné : Salle non préparée, Cuisine non préparée, Client non servi, Salle préparée, Cuisine préparée, Client servi, Saisie par erreur, Test.",
+        "Touchez les plats à annuler, ou Tout sélectionner. Pour un plat en plusieurs exemplaires, ajustez avec − et + (par exemple 1 / 3 pour n’annuler qu’une bière sur trois).",
+        "Ajoutez un commentaire si besoin, puis Confirmer l’annulation."
+      ],
+      "bullets": [
+        "Toutes les quantités sélectionnées : la commande passe à Annulée. Sinon, seuls ces plats sont retirés et le total est recalculé (frais de service compris).",
+        "Chaque station concernée reçoit un ticket de suppression avec le motif.",
+        "Choisissez le motif honnêtement : « préparée » ou « non préparée » distingue la perte de marchandise dans le rapport des annulations."
+      ]
+    }
+  ]
+}

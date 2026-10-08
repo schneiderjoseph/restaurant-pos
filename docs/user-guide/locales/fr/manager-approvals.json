@@ -1,0 +1,49 @@
+{
+  "title": "Approuver les modifications de commandes",
+  "intro": "Quand un serveur sans droit de modification change une ligne déjà envoyée en cuisine, la demande arrive chez les personnes autorisées à approuver. Rien ne change en cuisine tant qu’elle n’est pas acceptée.",
+  "sections": [
+    {
+      "id": "receive",
+      "title": "Recevoir une demande",
+      "intro": "La fenêtre « Modification de commande à approuver » s’ouvre par-dessus votre écran, quel qu’il soit. Rien ne s’affiche tant que votre tablette est verrouillée : la demande apparaît dès que vous la déverrouillez. La fenêtre indique le numéro de commande, « Demandée par » et chaque changement :",
+      "bullets": [
+        "Supprimer 2 × Poisson gros sel",
+        "Burger : quantité 2 → 1",
+        "Pâtes : commentaire « sans fromage »",
+        "Steak : options modifiées"
+      ]
+    },
+    {
+      "id": "decide",
+      "title": "Répondre",
+      "fields": [
+        {
+          "name": "Approuver",
+          "effect": "Les lignes sont modifiées, les taxes recalculées, la cuisine reçoit un ticket de suppression ou de MODIFICATION. Le serveur voit « approuvée »."
+        },
+        {
+          "name": "Refuser",
+          "effect": "Rien n’est modifié. Le serveur voit « refusée »."
+        },
+        {
+          "name": "Plus tard",
+          "effect": "Ferme la fenêtre ; la demande reste en attente. Un bouton « Modifications de commande à approuver : N » reste affiché en haut au centre de l’écran : touchez-le pour rouvrir."
+        }
+      ],
+      "bullets": [
+        "Plusieurs demandes : « N autre(s) en attente » s’affiche sous le titre ; elles se présentent l’une après l’autre.",
+        "Vérifiez avec la cuisine avant d’approuver une suppression : si le plat est déjà préparé, choisissez plutôt l’annulation avec le motif « Cuisine préparée » pour que la perte soit comptée."
+      ]
+    },
+    {
+      "id": "edge",
+      "title": "Cas particuliers",
+      "bullets": [
+        "« La commande n’est plus ouverte » : elle a été payée, annulée ou fusionnée entre-temps. Rien n’est modifié.",
+        "« Quelqu’un d’autre a déjà répondu » : un autre approbateur a été plus rapide.",
+        "« n’a pas pu être appliquée » : problème réseau. Réessayez, la demande est restée en attente.",
+        "Personne n’est connecté avec ce droit : la demande attend. Gardez au moins un approbateur connecté pendant le service."
+      ]
+    }
+  ]
+}

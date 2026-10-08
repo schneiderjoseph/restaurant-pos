@@ -11,7 +11,7 @@ import {User} from "@/api/model/user.ts";
 import {Customer} from "@/api/model/customer.ts";
 import {formatGuestLabel} from "@/lib/guest-label.ts";
 import {useAtom} from "jotai";
-import {appAlert, appPage, appSettings, appState, AppStateInterface} from "@/store/jotai.ts";
+import {appPage, appSettings, appState, AppStateInterface} from "@/store/jotai.ts";
 import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {getLocalTimeZone, today} from '@internationalized/date';
 import {DateValue} from "react-aria-components";
@@ -42,7 +42,7 @@ import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {useOrderVisibility} from "@/hooks/useOrderVisibility.ts";
 import {useDuoUserIds} from "@/hooks/useDuoUserIds.ts";
 import {SEES_ALL_ORDERS_MODULE, seesAllOrders as seesAllOrdersFor} from "@/api/model/order_visibility.ts";
-import {kitchenReadyOrderIds} from "@/lib/order-display.ts";
+import {fetchKitchenReadiness} from "@/lib/kitchen-readiness.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 
 const ORDERS_LIST_LIMIT = 500;
@@ -78,7 +78,6 @@ export const Orders = () => {
   const [mergingOrders, setMergingOrders] = useState<OrderModel[]>([]);
   const [mergingTable, setMergingTable] = useState<string>();
 
-  const [, setAlert] = useAtom(appAlert);
   const [app,] = useAtom(appPage);
   // With "own orders only" on (Manage → General settings), a role without this grant sees
   // only the orders its user opened, and those of their duo partner.
@@ -90,6 +89,8 @@ export const Orders = () => {
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
   const [kitchenReadyIds, setKitchenReadyIds] = useState<Set<string>>(new Set());
+  /** Lines the kitchen is done with ("order_item:id"), marked ready on the cards. */
+  const [readyItemIds, setReadyItemIds] = useState<Set<string>>(new Set());
   /** Split / merge history of the listed orders, keyed by "order:id". */
   const [lineageByOrder, setLineageByOrder] = useState<Record<string, OrderLineage>>({});
 
@@ -133,7 +134,8 @@ export const Orders = () => {
         f.push(`(${userFilters.join(' or ')})`);
       }
     } else {
-      f.push(`user IN $visibleUsers`);
+      // Their own orders, and those they added lines to (a colleague's order for the same guest).
+      f.push(`(user IN $visibleUsers OR items.created_by ANYINSIDE $visibleUsers)`);
       params.visibleUsers = duoUserKey ? duoUserKey.split("|").map(id => toRecordId(id)) : [];
     }
 
@@ -201,38 +203,20 @@ export const Orders = () => {
       return {};
     }));
 
-    // Looked up by order item (indexed), so the query does not scan every kitchen row ever made.
     const inProgressItems = list
       .filter((order) => order.status === OrderStatus["In Progress"])
       .flatMap((order) => (order.items ?? []) as unknown[])
       .map((item) => item instanceof RecordId ? item : toRecordId((item as {id?: unknown})?.id))
       .filter(Boolean);
 
-    if (inProgressItems.length === 0) {
-      setKitchenReadyIds(new Set());
-      return;
-    }
-
     try {
-      // Lines re-created by a split by amount follow the original line's kitchen rows.
-      const [itemRows, , kitchenRows] = await db.query(
-        `SELECT order, deleted_at, is_refunded, is_suspended, split_source FROM ${Tables.order_items}
-         WHERE id IN $items;
-         LET $sources = array::filter((SELECT VALUE split_source FROM ${Tables.order_items} WHERE id IN $items), |$v| $v != NONE AND $v != NULL);
-         SELECT status, order_item, order_item.order AS order, order_item.deleted_at AS deleted_at,
-         order_item.is_suspended AS is_suspended FROM ${Tables.order_items_kitchen}
-         WHERE order_item IN array::concat($items, $sources)`,
-        { items: inProgressItems }
-      );
-      setKitchenReadyIds(
-        kitchenReadyOrderIds(
-          Array.isArray(itemRows) ? itemRows : [],
-          Array.isArray(kitchenRows) ? kitchenRows : []
-        )
-      );
+      const {readyOrders, readyItems} = await fetchKitchenReadiness(db, inProgressItems);
+      setKitchenReadyIds(readyOrders);
+      setReadyItemIds(readyItems);
     } catch (error) {
       console.error('Orders kitchen ready query failed', error);
       setKitchenReadyIds(new Set());
+      setReadyItemIds(new Set());
     }
   }, [ordersQb.queryString, ordersQb.parameters]);
 
@@ -305,18 +289,7 @@ export const Orders = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const confirmMerge = async () => {
-
-    if (!mergingTable) {
-      setAlert(prev => ({
-        ...prev,
-        opened: true,
-        type: 'error',
-        message: t('merge.chooseTableAlert')
-      }))
-
-      return;
-    }
-
+    // The table is optional: none chosen keeps the first order's (a guest's orders often have none).
     try {
       await assertOrderMutationsAllowed(db);
       setIsSaving(true);
@@ -324,7 +297,7 @@ export const Orders = () => {
       // One transaction: lines, payments taken, discounts, coupon and extras move together.
       const merged = await commitMerge(db, {
         orderIds: mergingOrders.map(item => item.id),
-        table: {id: mergingTable, floor: selectedTable?.floor},
+        table: mergingTable ? {id: mergingTable, floor: selectedTable?.floor} : undefined,
         user: app?.user,
       });
 
@@ -484,6 +457,7 @@ export const Orders = () => {
                         taxes={settings.taxes}
                         tempPrinted={tempPrintedOrderIds.has(item.id.toString())}
                         kitchenReady={kitchenReadyIds.has(item.id.toString())}
+                        readyItemIds={readyItemIds}
                         lineage={lineageByOrder[item.id.toString()]}
                         onMergeSelect={(order, status) => {
                           if (status) {

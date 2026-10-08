@@ -1,86 +1,37 @@
 {
-  "title": "Kitchens and workflows",
-  "intro": "Route fired items to the right kitchen stations and define how orders move through preparation stages.",
+  "title": "Stations et flux de production",
+  "intro": "Une station est un poste de préparation (Cuisine, Bar, Pâtisserie…) : elle reçoit les tickets de ses plats, à l’écran et sur son imprimante. Gérer → Stations et Gérer → Flux de travail.",
   "sections": [
     {
-      "id": "kitchens",
-      "title": "Kitchens",
-      "intro": "Kitchens group dishes and link to printers for kitchen tickets.",
-      "steps": [
-        "Open the Kitchens tab.",
-        "Create kitchen stations (e.g. Grill, Bar, Pastry).",
-        "Assign dishes and printers so tickets route to the correct station."
-      ],
-      "image": "admin-kitchens.png",
-      "caption": "Kitchens maintenance table."
-    },
-    {
-      "id": "workflows",
-      "title": "Workflows",
-      "intro": "Workflows define order-status steps used by kitchen and order-display screens.",
-      "steps": [
-        "Open the Workflows tab.",
-        "Create or edit workflow steps and transitions.",
-        "Link workflows to order types or kitchens as required by your venue setup."
-      ],
-      "image": "admin-workflows.png",
-      "caption": "Workflows tab."
-    },
-    {
-      "id": "kitchen-form",
-      "title": "Formulaire cuisine",
-      "intro": "Route plats vers imprimantes et stocks.",
-      "steps": [
-        "Admin → Cuisine → Cuisines.",
-        "Nom, priorité, imprimantes, plats.",
-        "Enregistrer."
-      ],
-      "image": "admin-kitchen-kitchen-form.png",
-      "caption": "Formulaire station cuisine.",
+      "id": "station",
+      "title": "Créer une station",
       "fields": [
-        {
-          "name": "Nom",
-          "effect": "Libellé KOT et affichage."
-        },
-        {
-          "name": "Priorité",
-          "effect": "Ordre si plusieurs cuisines."
-        },
-        {
-          "name": "Imprimantes",
-          "effect": "Appareils tickets."
-        },
-        {
-          "name": "Articles (plats)",
-          "effect": "Plats routés."
-        }
+        { "name": "Nom", "effect": "Nom affiché sur l’écran de station, les pastilles de l’Affichage et les alertes (« Bar prêt »)." },
+        { "name": "Afficher tous les tickets", "effect": "Station de passe / expo : elle voit les plats de toutes les stations, sans les leur retirer. Badge « tout » sur l’écran." },
+        { "name": "Plats", "effect": "Les plats qui partent à cette station. Cochez-les par catégorie ; la recherche aide pour une grande carte." },
+        { "name": "Imprimantes", "effect": "Où s’impriment ses tickets (+ Ajouter). Sans imprimante, la station n’a que l’écran et « Réimprimer » est grisé." },
+        { "name": "Priorité", "effect": "Ordre des boutons de stations." },
+        { "name": "Point de vente", "effect": "Sert aux suggestions de points de vente des catégories." }
+      ],
+      "bullets": [
+        "Un plat rattaché à aucune station n’est envoyé nulle part : il passe directement « prêt ». Vérifiez chaque nouveau plat.",
+        "Un plat rattaché à deux stations part aux deux.",
+        "Le compte de la station (PIN dans la colonne « PIN du compte station ») est créé tout seul en ouvrant cet onglet."
       ]
     },
     {
-      "id": "workflow-form",
-      "title": "Formulaire workflow",
-      "intro": "Enchaîne étapes cuisine.",
+      "id": "workflow",
+      "title": "Flux de travail (plats en plusieurs étapes)",
+      "intro": "Pour un plat qui passe par plusieurs postes (par exemple Grill puis Dressage), créez un flux.",
       "steps": [
-        "Cuisine → Workflows.",
-        "Nom et étapes.",
-        "Cuisine par étape.",
-        "Lier aux plats."
+        "Flux de travail → Créer : Nom.",
+        "« Ajouter une étape » : Nom de l’étape et Cuisine / Station. Monter / Descendre pour l’ordre.",
+        "Enregistrer (au moins une étape).",
+        "Sur la fiche du plat, « Flux de production » : choisissez le flux. Pour ce plat seulement, vous pouvez remplacer la station d’une étape."
       ],
-      "image": "admin-kitchen-workflow-form.png",
-      "caption": "Éditeur étapes workflow.",
-      "fields": [
-        {
-          "name": "Nom",
-          "effect": "ID sur plats."
-        },
-        {
-          "name": "Étapes",
-          "effect": "Pas ordonnés."
-        },
-        {
-          "name": "Cuisine étape",
-          "effect": "Station par étape."
-        }
+      "bullets": [
+        "À l’envoi, le plat apparaît sur la station de la première étape. Quand elle le marque prêt, il apparaît sur la station suivante.",
+        "Le plat n’est prêt pour le serveur qu’à la fin de la dernière étape."
       ]
     }
   ]

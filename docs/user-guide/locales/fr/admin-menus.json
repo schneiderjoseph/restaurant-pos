@@ -1,182 +1,89 @@
 {
-  "title": "Menus, categories, and dishes",
-  "intro": "Configure what appears on the ordering screen: dishes, menu groupings, and categories.",
+  "title": "Carte : menus, catégories, plats et options",
+  "intro": "La carte se construit en quatre onglets de Gérer : Plats (tout ce qui se vend, options comprises), Catégories (le rangement), Groupes de modificateurs (les choix comme cuisson ou accompagnement) et Menus (quels plats, à quel prix, à quelle heure).",
   "sections": [
     {
-      "id": "dishes",
-      "title": "Dishes",
-      "steps": [
-        "Open the Dishes tab.",
-        "Create or edit dishes with price, categories, modifiers, and recipes.",
-        "Import CSV files for bulk dish or ingredient updates when needed."
+      "id": "logic",
+      "title": "Comment le menu affiché est choisi",
+      "bullets": [
+        "Gérer → Paramètres généraux → Paramètres du menu : « Activer les menus » et la liste des menus utilisés.",
+        "Un menu est actif s’il est coché Actif et si l’heure est dans sa plage (Heure de début → Heure de fin ; « Se termine le lendemain » pour une plage qui passe minuit).",
+        "Au moins un menu actif : les tablettes n’affichent que les plats de ces menus, aux prix du menu. Les catégories sans plat disparaissent.",
+        "Aucun menu actif à cette heure : toute la carte s’affiche, aux prix de vente des fiches plats.",
+        "Après une modification, les tablettes la voient après « Actualiser » (flèches circulaires de la barre latérale)."
+      ]
+    },
+    {
+      "id": "dish",
+      "title": "Créer un plat",
+      "fields": [
+        { "name": "Nom de l’article", "effect": "Nom sur la tuile, le ticket cuisine et le reçu. Court et clair." },
+        { "name": "Numéro de l’article", "effect": "Numéro à taper dans la recherche du menu, affiché « #12 » sur la tuile si l’option est activée." },
+        { "name": "Priorité", "effect": "Ordre d’affichage dans la catégorie (petit nombre = en premier)." },
+        { "name": "Prix de vente", "effect": "Prix de base. 0 affiche un badge rouge sur la tuile." },
+        { "name": "Catégories", "effect": "Une ou plusieurs ; + pour en créer une." },
+        { "name": "Flux de production", "effect": "Étapes de préparation successives (voir Stations). Vide = le plat va à la station à laquelle il est rattaché." },
+        { "name": "Photo", "effect": "Affichée sur la tuile si « Afficher les photos des plats » est activé sur l’appareil. Taille limitée." },
+        { "name": "Description", "effect": "Affichée au serveur par un appui long sur la tuile. « Ajouter une langue… » pour les langues des clients." },
+        { "name": "Groupes de modificateurs", "effect": "Les options du plat, avec pour chaque groupe les réglages ci-dessous." }
+      ]
+    },
+    {
+      "id": "dish-groups",
+      "title": "Réglages d’un groupe d’options sur un plat",
+      "fields": [
+        { "name": "Ouverture auto des modificateurs ?", "effect": "La fenêtre d’options s’ouvre dès que le serveur touche le plat. Sinon le plat s’ajoute directement, et les options se choisissent avec le crayon du panier." },
+        { "name": "Sélection auto des modificateurs ?", "effect": "Si le groupe ne propose qu’exactement le nombre de choix obligatoires, ils sont cochés tout seuls." },
+        { "name": "Modificateurs requis + Modificateurs obligatoires", "effect": "Le serveur ne peut pas valider sans ce nombre de choix (groupe rouge, compteur 0 / 1)." },
+        { "name": "Inclus (gratuits)", "effect": "Nombre de choix offerts avec ce plat ; les suivants sont payants. Vide = désactivé." },
+        { "name": "Choix max", "effect": "Nombre maximum de choix, gratuits et payants. Vide = sans limite. Doit être au moins égal aux nombres inclus et obligatoire." }
       ],
-      "image": "admin-menus-dishes.png",
-      "caption": "Dishes tab."
+      "note": "Exemple : « Poisson gros sel » avec le groupe Accompagnement, obligatoire 1, inclus 1, max 2 : le serveur doit choisir un accompagnement offert, et peut en ajouter un second payant."
+    },
+    {
+      "id": "groups",
+      "title": "Groupes de modificateurs",
+      "fields": [
+        { "name": "Nom, Priorité", "effect": "Nom affiché dans la fenêtre d’options (Cuisson, Accompagnement, Sauce…) et ordre des groupes." },
+        { "name": "Modificateurs", "effect": "Les choix du groupe, chacun avec son prix. Un choix est un article (« Utilisé comme modificateur » dans la liste des plats) ; « Nouveau modificateur » en crée un." },
+        { "name": "Choix offerts", "effect": "Quand un plat offre des choix de ce groupe : lesquels sont gratuits — les premiers choisis, les moins chers ou les plus chers." },
+        { "name": "Prix du supplément", "effect": "Un prix unique pour chaque choix payant au-delà des inclus. Vide = le prix propre de chaque choix." },
+        { "name": "Groupes de modificateurs suivants", "effect": "Sous-groupe qui s’ouvre après un choix (par exemple Frites → Sauce)." }
+      ]
+    },
+    {
+      "id": "categories",
+      "title": "Catégories",
+      "fields": [
+        { "name": "Nom de la catégorie, Priorité", "effect": "Bouton dans la rangée des catégories, et son ordre." },
+        { "name": "Afficher cette catégorie dans le menu", "effect": "Décochez pour cacher une catégorie aux serveurs sans la supprimer (plats de saison, modificateurs)." },
+        { "name": "Point de vente", "effect": "Bar, Restaurant… (voir Points de vente)." }
+      ],
+      "bullets": [
+        "Modification groupée : cochez plusieurs catégories pour leur donner le même point de vente ou la même visibilité ; « — Ne pas changer — » laisse un champ tel quel.",
+        "La colonne Articles compte les plats de chaque catégorie."
+      ]
     },
     {
       "id": "menus",
       "title": "Menus",
-      "intro": "Menus control which dishes are visible on each service period or channel.",
       "steps": [
-        "Open the Menus tab.",
-        "Assign dishes to menus and set availability windows.",
-        "Save changes so floor staff see updated items on the Menu screen."
-      ],
-      "image": "admin-menus-menus.png",
-      "caption": "Menus tab."
-    },
-    {
-      "id": "categories",
-      "title": "Categories",
-      "steps": [
-        "Open the Categories tab.",
-        "Group dishes for navigation on the ordering screen.",
-        "Reorder categories to match how staff browse the menu."
-      ],
-      "image": "admin-menus-categories.png",
-      "caption": "Categories tab."
-    },
-    {
-      "id": "modifier-groups",
-      "title": "Modifier groups",
-      "intro": "Modifier groups define optional add-ons, sizes, and nested choices shown when staff customize a dish.",
-      "steps": [
-        "Open the Modifier groups tab.",
-        "Create groups with modifiers, prices, and optional next-group rules.",
-        "Assign groups to dishes so the cart shows the correct customization flow."
-      ],
-      "image": "admin-modifier-groups.png",
-      "caption": "Modifier groups tab."
-    },
-    {
-      "id": "dish-form",
-      "title": "Formulaire plat",
-      "intro": "Articles vendables avec prix, catégories, modificateurs et cuisine.",
-      "steps": [
-        "Admin → Menus → Plats.",
-        "Numéro, nom, prix, catégories.",
-        "Modificateurs, recette, cuisine.",
-        "Enregistrer."
-      ],
-      "image": "admin-menus-dish-form.png",
-      "caption": "Formulaire maintenance plat.",
-      "fields": [
-        {
-          "name": "Numéro / nom",
-          "effect": "ID POS et nom affiché."
-        },
-        {
-          "name": "Prix / coût",
-          "effect": "Prix vente et coût théorique."
-        },
-        {
-          "name": "Catégories",
-          "effect": "Regroupement menu."
-        },
-        {
-          "name": "Groupes modificateurs",
-          "effect": "Flux personnalisation."
-        },
-        {
-          "name": "Lignes recette",
-          "effect": "Déplétion stock."
-        },
-        {
-          "name": "Cuisine / workflow",
-          "effect": "Routage KOT."
-        }
+        "Menus → Créer : nom, heure de début, heure de fin.",
+        "« Gérer les articles du menu » : cochez Actif sur les plats du menu et saisissez leur Prix (le « Prix orig. » rappelle le prix de la fiche plat).",
+        "Paramètres groupés des articles : appliquer à tous les articles ou à des catégories choisies un mode de taxe (hors taxes / toutes taxes comprises), des taxes, et un ajustement de prix par facteur (pourcentage ou montant fixe). « Tout basculer » coche ou décoche tout.",
+        "« Prix des modificateurs » : des prix d’options propres à ce menu (par exemple un supplément plus cher en soirée). « Réinitialiser au modèle » revient au prix du groupe.",
+        "Enregistrer : « Articles du menu enregistrés »."
       ]
     },
     {
-      "id": "menu-form",
-      "title": "Formulaire menu",
-      "intro": "Limite catégories POS par horaire.",
-      "steps": [
-        "Onglet Menus.",
-        "Nom et horaires.",
-        "Actif et fin lendemain.",
-        "Enregistrer."
-      ],
-      "image": "admin-menus-menu-form.png",
-      "caption": "Formulaire menu.",
-      "fields": [
-        {
-          "name": "Nom",
-          "effect": "Libellé sélecteur POS."
-        },
-        {
-          "name": "Début / fin",
-          "effect": "Fenêtre disponibilité."
-        },
-        {
-          "name": "Fin lendemain",
-          "effect": "Service après minuit."
-        },
-        {
-          "name": "Actif",
-          "effect": "Inactifs masqués."
-        }
-      ]
+      "id": "import",
+      "title": "Import IA",
+      "intro": "Les onglets Plats, Catégories et Groupes de modificateurs proposent un « Import IA » à partir d’un fichier CSV, Excel, PDF ou d’une photo de carte. Vérifiez toujours le résultat (prix, catégories, options) avant de l’utiliser en service."
     },
     {
-      "id": "category-form",
-      "title": "Formulaire catégorie",
-      "steps": [
-        "Catégories.",
-        "Nom, priorité, afficher menu.",
-        "Enregistrer."
-      ],
-      "image": "admin-menus-category-form.png",
-      "caption": "Formulaire catégorie.",
-      "fields": [
-        {
-          "name": "Nom",
-          "effect": "En-tête POS."
-        },
-        {
-          "name": "Priorité",
-          "effect": "Ordre."
-        },
-        {
-          "name": "Afficher menu",
-          "effect": "Masqué si off."
-        }
-      ]
-    },
-    {
-      "id": "modifier-group-form",
-      "title": "Formulaire groupe modificateur",
-      "intro": "Modificateurs, prix et groupes imbriqués.",
-      "steps": [
-        "Groupes modificateurs.",
-        "Nom, priorité, prix.",
-        "Groupes suivants.",
-        "Enregistrer."
-      ],
-      "image": "admin-menus-modifier-group-form.png",
-      "caption": "Formulaire groupes imbriqués.",
-      "fields": [
-        {
-          "name": "Nom / priorité",
-          "effect": "Libellé et ordre."
-        },
-        {
-          "name": "Modificateur",
-          "effect": "Option sélectionnable."
-        },
-        {
-          "name": "Prix",
-          "effect": "Supplément."
-        },
-        {
-          "name": "Groupes suivants autorisés",
-          "effect": "Après choix."
-        },
-        {
-          "name": "Overrides groupe suivant",
-          "effect": "Masquer ou repricing."
-        }
-      ]
+      "id": "cormier",
+      "title": "Note pour l’établissement",
+      "intro": "La synchronisation automatique de la carte depuis ASI est désactivée : la carte est gérée ici, à la main. Les changements faits dans ASI n’arrivent plus dans POSR."
     }
   ]
 }

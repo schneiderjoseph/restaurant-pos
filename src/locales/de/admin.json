@@ -768,6 +768,7 @@
       "customers.create": "Laufkunden anlegen",
       "customers.preferences": "Allergien, Ernährung und Notizen bearbeiten",
       "customers.view_id_document": "Ausweise vollständig sehen",
+      "customers.view_phone": "Telefonnummern vollständig sehen",
       "admin.customers": "Kunden",
       "admin.customers.update": "Jeden Kunden bearbeiten",
       "admin.customers.delete": "Kunden löschen und wiederherstellen",

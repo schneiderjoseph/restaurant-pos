@@ -94,6 +94,9 @@
     "retryConnection": "Bağlantıyı Yeniden Dene",
     "connecting": "Sunucuya bağlanılıyor..."
   },
+   "update": {
+    "available": "Update available — tap to reload"
+  },
   "offline": {
     "disconnected": "⚠ Çevrimdışı — değişiklikler yeniden bağlanınca senkronize edilecek",
     "disconnectedWithQueue": "⚠ Çevrimdışı — {{count}} değişiklik kuyrukta, yeniden bağlanınca senkronize edilecek",

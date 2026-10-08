@@ -1,0 +1,104 @@
+{
+  "title": "Bien démarrer",
+  "intro": "Le serveur travaille sur une tablette. Chaque personne a son propre code PIN : c’est lui qui signe chaque commande, chaque envoi en cuisine et chaque encaissement.",
+  "sections": [
+    {
+      "id": "pin",
+      "title": "Se connecter",
+      "steps": [
+        "Ouvrez POSR sur la tablette (icône du restaurant sur l’écran d’accueil, ou l’adresse donnée par le responsable). Le logo du restaurant apparaît en fond, flouté.",
+        "Saisissez votre code PIN à 4 chiffres sur le pavé. Chaque chiffre tapé allume un rond.",
+        "La connexion part toute seule au 4e chiffre : pas de bouton à toucher.",
+        "Une erreur de frappe ? Avant le 4e chiffre, ⌫ (rouge, en bas à gauche) efface le dernier chiffre, C (rouge, en bas à droite) efface tout.",
+        "Vous arrivez sur le Menu (ou sur l’écran où vous étiez si c’est vous qui vous reconnectez)."
+      ],
+      "image": "srv-login.png",
+      "caption": "Écran de connexion : le pavé PIN.",
+      "note": "Ne donnez jamais votre PIN à un collègue. Tout ce qui est fait avec votre PIN est enregistré à votre nom (commandes, annulations, encaissements, autorisations)."
+    },
+    {
+      "id": "errors",
+      "title": "Si le PIN est refusé",
+      "bullets": [
+        "« PIN invalide. Il reste N tentative(s) avant le verrouillage » : le code est faux. Le pavé tremble.",
+        "Après 5 erreurs, le compte est bloqué 15 minutes. Attendez, ou demandez au responsable de vérifier votre PIN.",
+        "« Trop de tentatives de connexion depuis cet appareil » : c’est la tablette elle-même qui est bloquée un moment, même avec un autre PIN.",
+        "« Connexion à la base de données impossible » : problème réseau. Vérifiez le Wi-Fi (réseau du personnel) et réessayez."
+      ]
+    },
+    {
+      "id": "one-device",
+      "title": "Une seule tablette à la fois",
+      "intro": "Votre compte ne peut être ouvert que sur un appareil. Si vous vous connectez sur une autre tablette, la première vous déconnecte d’elle-même (au plus tard 10 secondes après, ou dès qu’on la rallume) et affiche « Vous avez été déconnecté : ce compte vient de se connecter sur un autre appareil ».",
+      "bullets": [
+        "Vous changez de tablette en cours de service : connectez-vous simplement sur la nouvelle. Ce qui n’était pas envoyé sur l’ancienne est perdu : envoyez avant de changer.",
+        "Ce message apparaît alors que vous n’avez rien fait : quelqu’un utilise votre PIN. Prévenez le responsable pour qu’il le change.",
+        "Déverrouiller la même tablette, la recharger ou ouvrir un deuxième onglet ne déconnecte rien."
+      ]
+    },
+    {
+      "id": "screen",
+      "title": "La barre latérale",
+      "intro": "À gauche, la barre latérale ne montre que les écrans autorisés pour votre rôle. Un serveur voit en général :",
+      "fields": [
+        {
+          "name": "Menu",
+          "effect": "Prendre une commande : client, table, plats, envoi en cuisine."
+        },
+        {
+          "name": "Commandes",
+          "effect": "Suivre vos commandes ouvertes, voir celles qui sont prêtes, préparer l’addition."
+        },
+        {
+          "name": "Affichage",
+          "effect": "Si votre rôle y a accès : l’écran des commandes en préparation et prêtes."
+        },
+        {
+          "name": "DUO (deux personnes)",
+          "effect": "Travailler en binôme avec un collègue (voir le chapitre DUO)."
+        },
+        {
+          "name": "Flèches circulaires (Actualiser)",
+          "effect": "Recharge la carte, les tables et les réglages. À utiliser si un plat ou une table ajouté par le responsable n’apparaît pas."
+        },
+        {
+          "name": "Cadenas (Verrouiller)",
+          "effect": "Ferme l’écran sans perdre la commande en cours."
+        },
+        {
+          "name": "Marche/Arrêt (Se déconnecter)",
+          "effect": "En fin de service : ferme votre session sur la tablette."
+        }
+      ]
+    },
+    {
+      "id": "lock",
+      "title": "Quitter la tablette un instant",
+      "steps": [
+        "Touchez le cadenas avant de vous éloigner.",
+        "L’écran PIN revient avec le bandeau « Système verrouillé par prénom nom, seul cet utilisateur peut ouvrir pour le moment ».",
+        "Revenez avec votre PIN : vous retrouvez votre panier tel que vous l’avez laissé, sur le même écran.",
+        "Un autre PIN est refusé tant que la tablette est verrouillée par vous. Pour qu’un collègue la prenne, déconnectez-vous (Marche/Arrêt) au lieu de verrouiller : il repartira d’un écran vide."
+      ],
+      "bullets": [
+        "Le responsable peut régler un verrouillage (ou une déconnexion) automatique après quelques minutes sans toucher l’écran.",
+        "Les alertes « Commande prête » arrivent aussi sur l’écran verrouillé."
+      ],
+      "note": "Le panier non envoyé n’est gardé qu’en mémoire : si la page est rechargée pendant que la tablette est verrouillée, il est perdu. Envoyez avant de vous éloigner longtemps."
+    },
+    {
+      "id": "sound",
+      "title": "Activer le son",
+      "intro": "La tablette annonce à voix haute vos commandes prêtes. Le navigateur n’autorise le son qu’après un premier toucher sur l’écran depuis le chargement de la page : touchez n’importe où une fois après la connexion. Montez le volume de la tablette et désactivez le mode silencieux. Pour vérifier : Paramètres (clé dans la barre latérale) → Alerte commande prête → Tester l’alerte, si votre rôle a accès aux Paramètres."
+    },
+    {
+      "id": "end",
+      "title": "Fin de service",
+      "steps": [
+        "Vérifiez dans Commandes qu’il ne vous reste pas de commande En cours (ou passez-la au responsable).",
+        "Si vous êtes en DUO, quittez le DUO.",
+        "Touchez Marche/Arrêt pour vous déconnecter."
+      ]
+    }
+  ]
+}

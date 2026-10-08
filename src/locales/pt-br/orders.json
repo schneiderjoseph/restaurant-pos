@@ -55,6 +55,7 @@
   "status": {
     "inProgress": "Em Andamento",
     "ready": "Pronto",
+    "itemReady": "Pronto",
     "paid": "Pago",
     "cancelled": "Cancelado",
     "spilt": "Dividido",

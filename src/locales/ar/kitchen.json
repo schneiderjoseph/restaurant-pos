@@ -14,7 +14,12 @@
     "addon": "إضافة",
     "original": "أصلي",
     "completed": "مكتمل: {{time}}",
-    "items": "الأصناف: {{count}}"
+    "items": "الأصناف: {{count}}",
+    "allergies": "الحساسية",
+    "covers": "{{count}} أشخاص",
+    "orderNotes": "ملاحظات الطلب",
+    "seat": "المقعد {{seat}}",
+    "takenAt": "أُخذ في {{time}}"
   },
   "announcements": {
     "newOrder": "طلب جديد. {{context}}. {{number}}.",

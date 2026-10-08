@@ -203,7 +203,6 @@ export async function loginWithPin(page: Page, pin = docsLoginPin()): Promise<vo
   }
 
   await waitForLoginOrApp(page);
-  await page.getByTestId('login-method-pin').click();
   await expect(page.getByTestId('login-pin-pad')).toBeVisible();
 
   for (const digit of pin.slice(0, 4)) {

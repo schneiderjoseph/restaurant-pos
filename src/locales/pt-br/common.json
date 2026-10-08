@@ -94,6 +94,9 @@
     "retryConnection": "Tentar conexão novamente",
     "connecting": "Conectando ao servidor..."
   },
+   "update": {
+    "available": "Update available — tap to reload"
+  },
   "offline": {
     "disconnected": "⚠ Offline — alterações sincronizarão ao reconectar",
     "disconnectedWithQueue": "⚠ Offline — {{count}} alterações na fila, sincronizarão ao reconectar",

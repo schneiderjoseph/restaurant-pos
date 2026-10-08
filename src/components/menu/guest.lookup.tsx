@@ -6,6 +6,8 @@ import { Customer } from '@/api/model/customer.ts';
 import { Floor } from '@/api/model/floor.ts';
 import { Order, OrderStatus } from '@/api/model/order.ts';
 import { Table } from '@/api/model/table.ts';
+import type { User } from '@/api/model/user.ts';
+import { userName } from '@/lib/duo.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
@@ -38,7 +40,7 @@ import {
   type CustomerMatch,
   type CustomerPatch,
 } from '@/lib/customer.service.ts';
-import { displayPhone } from '@/lib/phone.ts';
+import { maskPhone, visiblePhone } from '@/lib/phone.ts';
 import { PhoneInput } from '@/components/customer/phone.input.tsx';
 import { CustomerAlerts } from '@/components/customer/customer.alerts.tsx';
 import { CustomerPreferencesForm } from '@/components/customer/customer.preferences.form.tsx';
@@ -94,6 +96,7 @@ export const GuestLookup = () => {
   const canCreateCustomer = can('customers.create');
   const canEditPreferences = can('customers.preferences');
   const canViewIdDocument = can('customers.view_id_document');
+  const canViewPhone = can('customers.view_phone');
 
   const [search, setSearch] = useState('');
   const [guests, setGuests] = useState<Customer[]>([]);
@@ -109,6 +112,8 @@ export const GuestLookup = () => {
   const [editInfo, setEditInfo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [transferOrder, setTransferOrder] = useState<FolioOrder | undefined>();
+  // "New order" on a guest who already has unpaid orders: add to one of them, or a new bill anyway.
+  const [openOrdersPrompt, setOpenOrdersPrompt] = useState<{ guest: Customer; orders: FolioOrder[] } | null>(null);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   // Known clients the walk-in being registered may be (same phone or name): staff choose.
   const [walkInMatches, setWalkInMatches] = useState<{ list: CustomerMatch[]; andStartOrder: boolean } | null>(null);
@@ -269,8 +274,9 @@ export const GuestLookup = () => {
     setEditingName(false);
     setNameDraft(selected?.name ?? '');
     setEditingPhone(false);
+    // Without the right to see it, the phone is never prefilled: typing replaces it.
     setPhoneDraft(
-      selected?.phone != null && selected.phone !== ''
+      canViewPhone && selected?.phone != null && selected.phone !== ''
         ? String(selected.phone)
         : '',
     );
@@ -327,9 +333,15 @@ export const GuestLookup = () => {
 
   const saveGuestPhone = async () => {
     // A phone may be shared (a family, a company): no uniqueness check.
+    // Without view right the editor is empty, so an empty draft means "no change".
+    const value = phoneDraft.trim();
+    if (!canViewPhone && !value) {
+      setEditingPhone(false);
+      return;
+    }
     setSavingPhone(true);
     try {
-      if (await saveGuestIdentity({ phone: phoneDraft.trim() || null })) {
+      if (await saveGuestIdentity({ phone: value || null })) {
         toast.success(t('menu:guest.phoneSaved'));
         setEditingPhone(false);
       }
@@ -519,7 +531,39 @@ export const GuestLookup = () => {
     }
   };
 
-  const startNewOrderFor = async (guest: Customer) => {
+  /** The guest's unpaid orders (their duplicates' too), read fresh: another server may have just opened one. */
+  const fetchOpenOrders = async (guest: Customer): Promise<FolioOrder[]> => {
+    const customers = await customerHistoryIds(db, guest.id);
+    const [rows] = await db.query<FolioOrder[]>(
+      `SELECT * FROM ${Tables.orders}
+       WHERE customer IN $customers AND status = $open
+       ORDER BY created_at DESC
+       FETCH floor, order_type, customer, table, user`,
+      { customers, open: OrderStatus['In Progress'] }
+    );
+    return Array.isArray(rows) ? rows : [];
+  };
+
+  /**
+   * Starts a new order for the guest. A guest who already has an unpaid order is asked about
+   * first (add to it, or a separate bill anyway), so two servers don't each run a bill for the
+   * same guest without knowing; `evenIfOpen` is that "separate bill anyway".
+   */
+  const startNewOrderFor = async (guest: Customer, { evenIfOpen = false } = {}) => {
+    if (!evenIfOpen && guest.id) {
+      try {
+        const open = await fetchOpenOrders(guest);
+        if (open.length > 0) {
+          setOpenOrdersPrompt({ guest, orders: open });
+          return;
+        }
+      } catch (error) {
+        // The check only warns: an order can still be taken when it fails.
+        console.error('Failed to check the guest\'s open orders', error);
+      }
+    }
+    setOpenOrdersPrompt(null);
+
     let table: Table | undefined;
     // The typed number is a dining table; only the guest's own room resolves to a hotel room.
     const wantedTable = tableNumber.trim();
@@ -565,7 +609,7 @@ export const GuestLookup = () => {
     await startNewOrderFor(selected);
   };
 
-  const openFolioOrderForEdit = async (folioOrder: FolioOrder) => {
+  const openFolioOrderForEdit = async (folioOrder: FolioOrder, guest: Customer | undefined = selected) => {
     if (!canEditOrder(folioOrder)) {
       toast.error(t('orders:actions.editOnlyUnpaid'));
       return;
@@ -584,7 +628,7 @@ export const GuestLookup = () => {
         return;
       }
 
-      const session = buildOrderEditSession(full, selected ?? undefined);
+      const session = buildOrderEditSession(full, guest ?? undefined);
       if (!session) {
         toast.error(t('orders:loadFailed'));
         return;
@@ -826,7 +870,7 @@ export const GuestLookup = () => {
               const hasAllergies = (guest.allergies?.length ?? 0) > 0;
               const metaParts: string[] = [];
               if (guest.phone != null && String(guest.phone).trim()) {
-                metaParts.push(displayPhone(guest.phone));
+                metaParts.push(visiblePhone(guest.phone, canViewPhone));
               }
 
               return (
@@ -926,7 +970,7 @@ export const GuestLookup = () => {
                     <div className="text-neutral-600 mt-1" data-testid="guest-contact">
                       {[
                         selected.phone != null && String(selected.phone).trim()
-                          ? displayPhone(selected.phone)
+                          ? visiblePhone(selected.phone, canViewPhone)
                           : '',
                         selected.id_document_number
                           ? `${selected.id_document_type
@@ -1104,7 +1148,7 @@ export const GuestLookup = () => {
                           onClick={() => {
                             setEditingPhone(false);
                             setPhoneDraft(
-                              selected.phone != null && selected.phone !== ''
+                              canViewPhone && selected.phone != null && selected.phone !== ''
                                 ? String(selected.phone)
                                 : '',
                             );
@@ -1123,7 +1167,7 @@ export const GuestLookup = () => {
                         data-testid="guest-phone-edit"
                         onClick={() => {
                           setPhoneDraft(
-                            selected.phone != null && selected.phone !== ''
+                            canViewPhone && selected.phone != null && selected.phone !== ''
                               ? String(selected.phone)
                               : '',
                           );
@@ -1292,6 +1336,62 @@ export const GuestLookup = () => {
           onClose={() => setPreferencesOpen(false)}
           onSaved={(updated) => applyUpdatedGuest({ ...updated, last_order_at: selected.last_order_at })}
         />
+      )}
+
+      {openOrdersPrompt && (
+        <Modal
+          open
+          onClose={() => setOpenOrdersPrompt(null)}
+          title={t('menu:guest.openOrders.title', { name: openOrdersPrompt.guest.name || '' })}
+          size="md"
+          testId="guest-open-orders"
+        >
+          <p className="text-sm text-neutral-600 mb-3">{t('menu:guest.openOrders.hint')}</p>
+          <div className="space-y-2">
+            {openOrdersPrompt.orders.map((order) => (
+              <div
+                key={order.id?.toString()}
+                className="border rounded-lg p-3 flex justify-between gap-3 items-center"
+              >
+                <div>
+                  <div className="font-bold">
+                    {t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}
+                  </div>
+                  <div className="text-sm text-neutral-600">
+                    {[
+                      userName(order.user as Partial<User> | undefined),
+                      toLuxonDateTime(order.created_at).toFormat('HH:mm'),
+                      order.table ? formatTableLabel(order.table) : orderZoneLabel(order),
+                    ].filter(Boolean).join(' · ')}
+                  </div>
+                </div>
+                <Button
+                  variant="primary"
+                  filled
+                  className="min-h-[48px] shrink-0"
+                  data-testid="guest-open-orders-add"
+                  isLoading={editingOrderId === order.id?.toString()}
+                  onClick={() => {
+                    const { guest } = openOrdersPrompt;
+                    setOpenOrdersPrompt(null);
+                    void openFolioOrderForEdit(order, guest);
+                  }}
+                >
+                  {t('menu:guest.openOrders.addTo', { number: getInvoiceNumber(order) })}
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            variant="neutral"
+            flat
+            className="w-full min-h-[48px] mt-4"
+            data-testid="guest-open-orders-new"
+            onClick={() => void startNewOrderFor(openOrdersPrompt.guest, { evenIfOpen: true })}
+          >
+            {t('menu:guest.openOrders.newAnyway')}
+          </Button>
+        </Modal>
       )}
 
       {transferOrder && (

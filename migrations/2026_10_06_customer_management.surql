@@ -21,6 +21,7 @@
 --   customers.create            register a walk-in from the POS
 --   customers.preferences       edit allergies, diet, notes from the POS
 --   customers.view_id_document  see an ID document in full
+--   customers.view_phone        see a phone in full (else last four digits; see 2026_10_08_customers_view_phone)
 --   admin.customers[.update|.delete|.merge]  Manage > Clients
 -- One-shot grant: every role holding `menu` gets customers.create and customers.preferences, so
 -- servers keep registering walk-ins; roles holding `admin` get customers.view_id_document.

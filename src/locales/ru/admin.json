@@ -768,6 +768,7 @@
       "customers.create": "Регистрировать клиентов без брони",
       "customers.preferences": "Изменять аллергии, питание и заметки",
       "customers.view_id_document": "Видеть документы полностью",
+      "customers.view_phone": "Видеть телефоны полностью",
       "admin.customers": "Клиенты",
       "admin.customers.update": "Изменять любого клиента",
       "admin.customers.delete": "Удалять и восстанавливать клиентов",

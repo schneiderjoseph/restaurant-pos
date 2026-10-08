@@ -4,10 +4,11 @@
  *
  * Tree:
  *   POSR Documentation
- *   ├── Employee Guide
- *   ├── Manager Guide
- *   ├── Accounts Guide
- *   └── Administrator Guide
+ *   ├── Server Guide (floor staff)
+ *   ├── Cashier and Manager Guide
+ *   ├── Screens Guide (station, order display)
+ *   ├── Administrator Guide
+ *   └── Accounts Guide
  *
  * Chapters with key present map to locales/{lang}/{key}.json when the file exists.
  * Planned keys without a locale file render as “Coming soon” in the guide PDF/HTML.
@@ -43,23 +44,22 @@ export const LANGS = [
 /** @type {GuideDef[]} */
 export const GUIDES = [
   {
-    id: 'employee',
+    id: 'server',
     emoji: '📘',
-    folder: 'employee',
-    pdfName: 'posr-employee-guide.pdf',
-    defaultTitle: 'Employee Guide',
+    folder: 'server',
+    pdfName: 'posr-server-guide.pdf',
+    defaultTitle: 'Server Guide',
     defaultIntro:
-      'Day-to-day POS work for floor staff: sign-in, take orders, cart and payment, manage open checks, and lock the terminal.',
+      'Floor staff on the tablet: sign in, find the guest or the table, take and send the order, follow it until it is ready, and settle the bill.',
     chapters: [
-      { key: 'login' },
-      { key: 'menu' },
-      { key: 'cart' },
-      { key: 'payment' },
-      { key: 'orders' },
-      { key: 'session' },
-      { key: 'settings' },
-      { key: 'tables' },
-      { key: 'security-auth' },
+      { key: 'server-start', plannedTitle: 'Getting started' },
+      { key: 'server-guest-table', plannedTitle: 'Guest, room or table' },
+      { key: 'server-ordering', plannedTitle: 'Taking the order' },
+      { key: 'server-cart', plannedTitle: 'Cart and sending' },
+      { key: 'server-orders', plannedTitle: 'Following orders' },
+      { key: 'server-edit', plannedTitle: 'Changing a sent order' },
+      { key: 'server-bill', plannedTitle: 'Bill, split and payment' },
+      { key: 'server-duo', plannedTitle: 'Working as a DUO' },
     ],
   },
   {
@@ -67,18 +67,56 @@ export const GUIDES = [
     emoji: '📗',
     folder: 'manager',
     pdfName: 'posr-manager-guide.pdf',
-    defaultTitle: 'Manager Guide',
+    defaultTitle: 'Cashier and Manager Guide',
     defaultIntro:
-      'Shift leadership screens: sales summary, kitchen board, delivery, closing, and operational reports.',
+      'Cashing, approvals and shift leadership: payment, sent-order approvals, refunds, closing, summary and reports.',
     chapters: [
+      { key: 'manager-cashier', plannedTitle: 'Cashing and authorizations' },
+      { key: 'manager-approvals', plannedTitle: 'Approving changes to sent orders' },
       { key: 'summary' },
-      { key: 'kitchen' },
-      { key: 'order-display' },
-      { key: 'delivery' },
       { key: 'closing' },
       { key: 'reports-ops' },
-      { key: 'tips-manager' },
       { key: 'tip-distribution' },
+      { key: 'delivery' },
+    ],
+  },
+  {
+    id: 'display',
+    emoji: '📺',
+    folder: 'display',
+    pdfName: 'posr-display-guide.pdf',
+    defaultTitle: 'Screens Guide',
+    defaultIntro:
+      'Wall and counter screens: the preparation station (kitchen, bar) and the order display that tells the floor what is ready.',
+    chapters: [
+      { key: 'display-setup', plannedTitle: 'Setting up a screen' },
+      { key: 'display-station', plannedTitle: 'Preparation station' },
+      { key: 'display-orders', plannedTitle: 'Order display' },
+    ],
+  },
+  {
+    id: 'admin',
+    emoji: '📓',
+    folder: 'admin',
+    pdfName: 'posr-administrator-guide.pdf',
+    defaultTitle: 'Administrator Guide',
+    defaultIntro:
+      'Venue configuration: Manage (menus, floors, users, taxes…), integrations, and advanced settings.',
+    chapters: [
+      { key: 'admin-overview' },
+      { key: 'admin-users' },
+      { key: 'admin-roles-rights', plannedTitle: 'Role rights that change the floor' },
+      { key: 'admin-menus' },
+      { key: 'admin-outlets', plannedTitle: 'Points of sale' },
+      { key: 'admin-floors' },
+      { key: 'admin-kitchen' },
+      { key: 'admin-printing' },
+      { key: 'admin-payments' },
+      { key: 'admin-promotions' },
+      { key: 'admin-customers', plannedTitle: 'Customers' },
+      { key: 'settings-advanced' },
+      { key: 'settings' },
+      { key: 'integrations' },
     ],
   },
   {
@@ -92,28 +130,6 @@ export const GUIDES = [
       { key: 'accounts-overview' },
       { key: 'accounts-expenses' },
       { key: 'accounts-ledgers' },
-    ],
-  },
-  {
-    id: 'admin',
-    emoji: '📓',
-    folder: 'admin',
-    pdfName: 'posr-administrator-guide.pdf',
-    defaultTitle: 'Administrator Guide',
-    defaultIntro:
-      'Venue configuration: Manage (menus, floors, users, taxes…), integrations, and advanced settings.',
-    chapters: [
-      { key: 'admin-overview' },
-      { key: 'admin-menus' },
-      { key: 'admin-floors' },
-      { key: 'admin-promotions' },
-      { key: 'admin-kitchen' },
-      { key: 'admin-printing' },
-      { key: 'admin-payments' },
-      { key: 'admin-users' },
-      { key: 'reports-admin' },
-      { key: 'integrations' },
-      { key: 'settings-advanced' },
     ],
   },
 ];

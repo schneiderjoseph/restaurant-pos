@@ -768,6 +768,7 @@
       "customers.create": "Registrare clienti walk-in",
       "customers.preferences": "Modificare allergie, dieta e note",
       "customers.view_id_document": "Vedere i documenti per intero",
+      "customers.view_phone": "Vedere i telefoni per intero",
       "admin.customers": "Clienti",
       "admin.customers.update": "Modificare qualsiasi cliente",
       "admin.customers.delete": "Eliminare e ripristinare clienti",

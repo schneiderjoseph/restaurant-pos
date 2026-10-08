@@ -62,7 +62,12 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   // (edit any customer, delete, restore, merge) is admin.customers.*.
   customers: {
     label: "Customers",
-    children: ["customers.create", "customers.preferences", "customers.view_id_document"],
+    children: [
+      "customers.create",
+      "customers.preferences",
+      "customers.view_id_document",
+      "customers.view_phone",
+    ],
   },
   summary: {
     label: "Summary",

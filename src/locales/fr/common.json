@@ -94,6 +94,9 @@
     "retryConnection": "Réessayer la connexion",
     "connecting": "Connexion au serveur..."
   },
+  "update": {
+    "available": "Mise à jour disponible — touchez pour recharger"
+  },
   "offline": {
     "disconnected": "⚠ Hors ligne — les changements seront synchronisés à la reconnexion",
     "disconnectedWithQueue": "⚠ Hors ligne — {{count}} changements en file d'attente, synchronisation à la reconnexion",

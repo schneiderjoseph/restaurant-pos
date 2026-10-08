@@ -40,7 +40,7 @@ import {
   restoreCustomer,
 } from '@/lib/customer.service.ts';
 import { maskIdDocument } from '@/lib/customer-id-document.ts';
-import { displayPhone } from '@/lib/phone.ts';
+import { visiblePhone } from '@/lib/phone.ts';
 import { phoneDigits } from '@/lib/guest.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { cn } from '@/lib/utils.ts';
@@ -74,6 +74,7 @@ export const AdminCustomers = () => {
   const canMerge = isVisible('admin.customers.merge');
   const canEditPreferences = isVisible('customers.preferences') || canUpdate;
   const canViewIdDocument = isVisible('customers.view_id_document');
+  const canViewPhone = isVisible('customers.view_phone');
   const canCreate = isVisible('customers.create') || canUpdate;
 
   const [scope, setScope] = useState<Scope>('active');
@@ -147,7 +148,9 @@ export const AdminCustomers = () => {
     columnHelper.accessor('phone', {
       header: t('menu:guest.phone'),
       enableSorting: false,
-      cell: (info) => <span className="whitespace-nowrap">{displayPhone(info.getValue())}</span>,
+      cell: (info) => (
+        <span className="whitespace-nowrap">{visiblePhone(info.getValue(), canViewPhone)}</span>
+      ),
     }),
     columnHelper.accessor('id_document_number', {
       header: t('menu:guest.idDocument'),
@@ -279,10 +282,16 @@ export const AdminCustomers = () => {
         onClose={() => setCreating(false)}
         onCreated={() => loadHook.fetchData()}
       />
-      <CustomerDetail customer={detail} canViewIdDocument={canViewIdDocument} onClose={() => setDetail(undefined)} />
+      <CustomerDetail
+        customer={detail}
+        canViewIdDocument={canViewIdDocument}
+        canViewPhone={canViewPhone}
+        onClose={() => setDetail(undefined)}
+      />
       <CustomerForm
         customer={editing}
         canViewIdDocument={canViewIdDocument}
+        canViewPhone={canViewPhone}
         onClose={() => setEditing(undefined)}
         onSaved={() => loadHook.fetchData()}
       />

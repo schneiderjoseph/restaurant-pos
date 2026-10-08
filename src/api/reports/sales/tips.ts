@@ -5,7 +5,7 @@ import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {safeNumber, toRecordId} from "@/lib/utils.ts";
-import {duoTipParts} from "@/lib/duo.ts";
+import {sharedTipParts} from "@/lib/duo.ts";
 
 interface TipDistributionSettings {
   roles?: Array<{role_id: string; weight: number}>;
@@ -197,29 +197,29 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
       `
         SELECT * FROM ${Tables.orders}
         WHERE ${conditions.join(" AND ")}
-        FETCH cashier, cashier.user_role, cashier.user_shift, user, items, duo
+        FETCH cashier, cashier.user_role, cashier.user_shift, user, items
       `,
       params,
     ),
   );
 
-  // Each tip goes to whoever cashed the order; a duo's tip is split by the two's sales in it.
-  const hasDuoTips = orders.some(order => duoTipParts(order).size > 0);
-  // The duo's users by id, deleted ones included: a tip earned before someone left still counts.
-  const duoUserIds = hasDuoTips
-    ? Array.from(new Set(orders.flatMap(order => Array.from(duoTipParts(order).keys()).map(id => recordIdToString(id)))))
+  // Each tip goes to whoever cashed the order; an order several servers sold is split by their sales in it.
+  const hasSharedTips = orders.some(order => sharedTipParts(order).size > 0);
+  // Those servers by id, deleted ones included: a tip earned before someone left still counts.
+  const sharedUserIds = hasSharedTips
+    ? Array.from(new Set(orders.flatMap(order => Array.from(sharedTipParts(order).keys()).map(id => recordIdToString(id)))))
     : [];
-  const duoUsers = duoUserIds.length > 0
+  const sharedUsers = sharedUserIds.length > 0
     ? unwrapQueryResult<User>(await db.query(
       "SELECT * FROM $ids FETCH user_role, user_shift",
-      {ids: duoUserIds.map(id => toRecordId(id))},
+      {ids: sharedUserIds.map(id => toRecordId(id))},
     ))
     : [];
-  const userById = new Map(duoUsers.map(user => [recordIdToString(user.id), user]));
+  const userById = new Map(sharedUsers.map(user => [recordIdToString(user.id), user]));
   const tipParts = orders.flatMap(order => {
-    const duoParts = duoTipParts(order);
-    if (duoParts.size > 0) {
-      return Array.from(duoParts.entries()).map(([userId, amount]) => ({
+    const sharedParts = sharedTipParts(order);
+    if (sharedParts.size > 0) {
+      return Array.from(sharedParts.entries()).map(([userId, amount]) => ({
         orderId: recordIdToString(order.id),
         userId: recordIdToString(userId),
         user: userById.get(recordIdToString(userId)),

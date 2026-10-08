@@ -1,0 +1,101 @@
+{
+  "title": "Prendre la commande",
+  "intro": "L’écran Menu montre les plats à gauche et le panier à droite. Rien ne part en cuisine tant que vous n’avez pas touché Envoyer.",
+  "sections": [
+    {
+      "id": "header",
+      "title": "Le bandeau du haut, de gauche à droite",
+      "fields": [
+        {
+          "name": "← (flèche)",
+          "effect": "Revient à l’écran Client (ou au plan de salle) et libère la table. S’il reste des plats non envoyés, POSR demande d’abord « Il y a N articles dans le panier, choisissez une action » : Envoyer, Effacer ou Annuler pour rester."
+        },
+        {
+          "name": "#012, #013…",
+          "effect": "Les commandes déjà ouvertes pour ce client ou cette table. La commande affichée est en surbrillance ; touchez-en une autre pour basculer dessus."
+        },
+        {
+          "name": "+",
+          "effect": "Nouvelle commande séparée pour le même client ou la même table (par exemple deux additions distinctes dès le départ). Grisé pendant la clôture."
+        },
+        {
+          "name": "Icône personnes + chiffre",
+          "effect": "Nombre de couverts. Touchez pour le changer ; sur une commande déjà envoyée, le nouveau nombre est enregistré tout de suite."
+        },
+        {
+          "name": "Icône client",
+          "effect": "Allumée quand un client est lié à la commande. Touchez-la pour voir sa fiche (chambre, téléphone, alertes) ou lier un autre client. Un rond rouge « ! » signale des allergies : passez le doigt dessus ou ouvrez la fiche pour les lire."
+        },
+        {
+          "name": "Boutons à droite (Sur place, À emporter…)",
+          "effect": "Type de commande. Le premier est choisi par défaut ; certaines tables n’en proposent qu’une partie."
+        }
+      ],
+      "image": "srv-menu.png",
+      "caption": "Écran Menu : bandeau, plats à gauche, panier à droite."
+    },
+    {
+      "id": "find",
+      "title": "Trouver un plat",
+      "bullets": [
+        "Points de vente (Tous, Bar, Restaurant…) : les onglets du haut filtrent la carte. Vous pouvez en activer plusieurs à la fois.",
+        "Catégories : la rangée de boutons sous la recherche.",
+        "Recherche : touchez le champ « Rechercher par numéro ou nom » au-dessus des catégories. Le clavier de la tablette s’ouvre avec les 12 premiers résultats affichés juste au-dessus des touches : touchez un résultat pour l’ajouter sans fermer le clavier. La recherche couvre toute la carte, pas seulement la catégorie ouverte, et tolère les fautes de frappe.",
+        "« Aucun plat trouvé » : vérifiez l’orthographe ou cherchez par numéro.",
+        "Pages : quand une catégorie a beaucoup de plats, faites glisser la grille vers la gauche ; les points sous la grille indiquent la page et permettent d’y sauter."
+      ]
+    },
+    {
+      "id": "tile",
+      "title": "Lire une tuile de plat",
+      "fields": [
+        {
+          "name": "Prix en haut à droite",
+          "effect": "Fond noir : prix normal. Fond rouge à 0 : plat offert ou sans prix (vérifiez avant d’envoyer si ce n’est pas voulu)."
+        },
+        {
+          "name": "#12 sous le nom",
+          "effect": "Numéro du plat, à taper dans la recherche (si l’affichage des numéros est activé)."
+        },
+        {
+          "name": "Chiffre bleu en bas à droite",
+          "effect": "Combien de ce plat sont déjà dans le panier."
+        },
+        {
+          "name": "Appui long",
+          "effect": "Affiche la description du plat (ingrédients, préparation) pour répondre au client, sans l’ajouter."
+        }
+      ]
+    },
+    {
+      "id": "add",
+      "title": "Ajouter un plat",
+      "steps": [
+        "Touchez le plat : il s’ajoute au panier, sur la place actuellement choisie.",
+        "Si le plat a des options à ouverture automatique (cuisson, accompagnement, taille…), la fenêtre « Modifier nom du plat » s’ouvre d’abord. Sinon le plat s’ajoute directement ; ses options restent modifiables avec le crayon dans le panier.",
+        "Touchez à nouveau le plat pour en ajouter un deuxième (nouvelle ligne), ou + dans le panier pour augmenter la quantité de la même ligne."
+      ]
+    },
+    {
+      "id": "modifiers",
+      "title": "La fenêtre d’options",
+      "intro": "À gauche, les groupes d’options (Cuisson, Accompagnement…) ; au centre, les choix du groupe ouvert ; à droite, ce qui est déjà choisi.",
+      "bullets": [
+        "Groupe sur fond rouge : obligatoire et pas encore complet. Le compteur « 1 / 2 » indique combien de choix sont faits sur combien requis.",
+        "Tant qu’un groupe obligatoire est incomplet, Valider reste grisé et la croix de fermeture disparaît : il faut compléter, ou Annuler.",
+        "Groupe plein : les choix supplémentaires sont ignorés. Pour changer, retirez un choix à droite (corbeille) et choisissez à nouveau.",
+        "En modification d’un plat déjà dans le panier, un nouveau choix dans un groupe plein remplace le dernier, avec l’avertissement « Le dernier modificateur a été remplacé ».",
+        "Quand un groupe obligatoire n’offre qu’exactement le nombre de choix requis, ils peuvent être cochés automatiquement.",
+        "« inclus » à la place du prix : choix gratuit, jusqu’au nombre indiqué dans le compteur « 2 · 1 inclus ». Au-delà, les choix sont facturés.",
+        "Certains choix ouvrent un sous-groupe (par exemple la sauce d’un accompagnement)."
+      ],
+      "image": "srv-modifiers.png",
+      "caption": "Fenêtre d’options : groupes à gauche, choix au centre, sélection à droite."
+    },
+    {
+      "id": "blocked",
+      "title": "Si la prise de commande est bloquée (module Clôture)",
+      "intro": "Uniquement si le module Clôture de caisse est activé dans l’établissement. Pendant la clôture de caisse, toucher une table, un plat ou + affiche « Prise de commande temporairement indisponible » et le pavé des couverts renvoie au plan de salle. Attendez que le responsable ait terminé la clôture, puis réessayez. « Impossible de vérifier la clôture » : problème réseau, réessayez dans quelques secondes."
+    }
+  ]
+}

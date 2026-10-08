@@ -51,7 +51,7 @@
     "success": "Fusion réussie dans {{invoiceNumber}}",
     "failed": "Échec de la fusion des commandes",
     "changed": "Une des commandes a changé pendant la fusion (paiement, article ou division). Resélectionnez-les et réessayez.",
-    "chooseTable": "Choisir une table",
+    "chooseTable": "Table (facultatif)",
     "selectTwoOrMore": "Sélectionner 2 commandes ou plus",
     "confirmMerging": "Confirmer la fusion de {{count}} commandes",
     "cancelMerging": "Annuler la fusion"
@@ -62,6 +62,7 @@
   "status": {
     "inProgress": "En cours",
     "ready": "Prête",
+    "itemReady": "Prêt",
     "paid": "Payée",
     "cancelled": "Annulée",
     "spilt": "Divisée",

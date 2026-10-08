@@ -4,7 +4,7 @@ import {useAtom} from "jotai";
 import {appState} from "@/store/jotai.ts";
 import {cn} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faMinus, faPencil, faPlus, faTrash, faComment} from "@fortawesome/free-solid-svg-icons";
+import {faCheck, faMinus, faPencil, faPlus, faTrash, faComment} from "@fortawesome/free-solid-svg-icons";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
 import {CartItemName} from "@/components/common/cart/cart.item.name.tsx";
 import {useTranslation} from "react-i18next";
@@ -38,10 +38,12 @@ function itemPourModalValue(pourLabel: string | null): string | null {
 interface Props {
   item: MenuItem
   index?: number
+  /** An old line the kitchen is done with: green, with a small "ready" mark. */
+  ready?: boolean
 }
 
-export const CartItem = ({ item }: Props) => {
-  const { t } = useTranslation(['cart', 'common', 'payment', 'receipts']);
+export const CartItem = ({ item, ready = false }: Props) => {
+  const { t } = useTranslation(['cart', 'common', 'payment', 'receipts', 'orders']);
   const [state, setState] = useAtom(appState);
   const [isModifiersOpen, setModifiersOpen] = useState(false);
   const [isCommentKeyboardOpen, setCommentKeyboardOpen] = useState(false);
@@ -98,7 +100,7 @@ export const CartItem = ({ item }: Props) => {
         className={cn(
           "flex items-center gap-2 rounded-md cursor-pointer select-none px-2 py-1.5 min-h-[44px]",
           item.isSelected ? 'bg-neutral-300' : (
-            item.isHold ? 'bg-warning-100' : 'bg-neutral-100'
+            item.isHold ? 'bg-warning-100' : (ready && !item.deleted_at ? 'bg-success-100' : 'bg-neutral-100')
           ),
           item.deleted_at && 'opacity-60',
         )}
@@ -150,6 +152,14 @@ export const CartItem = ({ item }: Props) => {
           item.deleted_at && 'line-through text-danger-500',
         )}>
           <CartItemName item={item} mainItem={item} />
+          {ready && !item.deleted_at && (
+            <span
+              className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-success-600 px-2 text-[10px] font-bold uppercase text-white"
+              data-testid="cart-item-ready"
+            >
+              <FontAwesomeIcon icon={faCheck}/>{t('orders:status.itemReady')}
+            </span>
+          )}
         </div>
 
         <div className="shrink-0 text-right" onClick={(e) => e.stopPropagation()}>

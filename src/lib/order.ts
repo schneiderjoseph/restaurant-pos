@@ -74,6 +74,20 @@ export const getOrderDisplayItems = (order: OrderModel): OrderItem[] => {
   return getOrderFilteredItems(order);
 }
 
+/**
+ * Lines newest send first (what was just added on top); lines sent together keep their order.
+ */
+export const newestLinesFirst = <T extends { created_at?: unknown }>(items: T[]): T[] => {
+  const at = (item: T) => {
+    const time = item?.created_at ? new Date(String(item.created_at)).getTime() : NaN;
+    return Number.isFinite(time) ? time : 0;
+  };
+  return items
+    .map((item, index) => ({ item, index, time: at(item) }))
+    .sort((a, b) => b.time - a.time || a.index - b.index)
+    .map(({ item }) => item);
+};
+
 /** Resolved extras only — drops null/undefined FETCH holes from stale order.extras IDs. */
 export const getOrderExtras = (order?: OrderModel | null): OrderExtra[] =>
   asRecordArray<OrderExtra>(order?.extras).filter(

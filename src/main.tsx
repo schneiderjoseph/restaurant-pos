@@ -6,6 +6,9 @@ await i18nReady
 const { resolveBrowserSession } = await import('@/lib/browser-session.ts')
 await resolveBrowserSession()
 
+const { startClientUpdateWatcher } = await import('@/lib/client-update.ts')
+startClientUpdateWatcher()
+
 const { default: App } = await import('./app.tsx')
 import ReactDOM from 'react-dom/client'
 

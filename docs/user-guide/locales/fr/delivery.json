@@ -1,51 +1,34 @@
 {
-  "title": "Delivery",
-  "intro": "Delivery helps managers track outbound orders on a map, manage delivery areas, and configure delivery settings.",
+  "title": "Livraison (module optionnel)",
+  "intro": "Ce chapitre ne concerne que les établissements où le module Livraison est activé. Sans lui, l’écran Livraison et le rapport « Densité de livraison » n’apparaissent pas.",
   "sections": [
     {
-      "id": "overview",
-      "title": "Delivery hub",
-      "steps": [
-        "Tap Delivery in the sidebar.",
-        "Tabs at the top switch between Delivery orders, Areas, and Settings.",
-        "The Delivery tab shows a map and a list of active delivery orders."
-      ],
-      "image": "delivery-overview.png",
-      "caption": "Delivery screen with tabs."
-    },
-    {
-      "id": "map",
-      "title": "Map and order list",
-      "steps": [
-        "The map shows delivery zones and order markers when coordinates exist.",
-        "Click a marker or list row to open the order popup.",
-        "When no delivery orders are open, the list shows an empty state."
-      ],
-      "image": "delivery-map.png",
-      "caption": "Delivery map and order sidebar."
+      "id": "orders",
+      "title": "Commandes en livraison",
+      "intro": "Le premier onglet montre sur une carte les commandes de type livraison en cours, avec leur liste. « Aucune commande en livraison » quand il n’y en a pas."
     },
     {
       "id": "areas",
-      "title": "Delivery areas",
-      "intro": "Define geographic zones used for delivery routing and reporting.",
+      "title": "Zones de livraison",
       "steps": [
-        "Open the Areas tab.",
-        "Draw or manage polygons on the map for each delivery zone.",
-        "Save area changes when your role allows editing."
-      ],
-      "image": "delivery-areas.png",
-      "caption": "Delivery areas tab."
+        "Onglet Zones de livraison.",
+        "Choisissez un outil à gauche : polygone, rectangle ou cercle.",
+        "Touchez-glissez sur la carte pour dessiner la zone. Une forme trop petite est refusée.",
+        "Touchez une forme pour la sélectionner, faites-la glisser pour la déplacer, ou tirez ses poignées pour la redimensionner. « Supprimer la sélection » l’efface.",
+        "Enregistrez : « Zones de carte enregistrées avec succès »."
+      ]
     },
     {
       "id": "settings",
-      "title": "Delivery settings",
-      "steps": [
-        "Open the Settings tab.",
-        "Configure map center, fees, and other delivery options for the venue.",
-        "Save when finished (manager approval may be required)."
-      ],
-      "image": "delivery-settings.png",
-      "caption": "Delivery settings tab."
+      "title": "Paramètres de livraison",
+      "fields": [
+        { "name": "Activer la livraison", "effect": "Ouvre ou ferme la prise de commandes en livraison." },
+        { "name": "Frais de livraison, Commande minimum, Délai en minutes", "effect": "Montants et délai annoncés (valeurs positives uniquement)." },
+        { "name": "Menu livraison", "effect": "La carte proposée en livraison." },
+        { "name": "Centre de la carte", "effect": "Latitude et longitude du restaurant." },
+        { "name": "Horaires de livraison", "effect": "Par jour de la semaine ou par date précise (« Ajouter une date personnalisée »), avec heure de début et de fin ; cochez « Heure de fin le jour suivant ? » pour un service qui passe minuit." },
+        { "name": "Bannières", "effect": "Images promotionnelles affichées pour la livraison." }
+      ]
     }
   ]
 }

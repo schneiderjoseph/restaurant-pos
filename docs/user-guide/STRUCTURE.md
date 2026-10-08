@@ -5,44 +5,50 @@ Generated from `docs-automation/guide-catalog.mjs` (edit the catalog, not this f
 ```
 POSR Documentation
 │
-├── 📘 Employee Guide
-│   ├── Login
-│   ├── Menu and order taking
-│   ├── Cart
-│   ├── Payment screen
-│   ├── Orders
-│   ├── Session lock and logout
-│   ├── Settings
-│   ├── Tables and dine-in
-│   └── Security re-authentication
+├── 📘 Server Guide
+│   ├── Getting started [planned]
+│   ├── Guest, room or table [planned]
+│   ├── Taking the order [planned]
+│   ├── Cart and sending [planned]
+│   ├── Following orders [planned]
+│   ├── Changing a sent order [planned]
+│   ├── Bill, split and payment [planned]
+│   └── Working as a DUO [planned]
 │
-├── 📗 Manager Guide
+├── 📗 Cashier and Manager Guide
+│   ├── Cashing and authorizations [planned]
+│   ├── Approving changes to sent orders [planned]
 │   ├── Summary
-│   ├── Kitchen
-│   ├── Order display
-│   ├── Delivery
 │   ├── Closing
 │   ├── Reports (operations)
-│   ├── Tip oversight
-│   └── Tip distribution
+│   ├── Tip distribution
+│   └── Delivery
 │
-├── 📕 Accounts Guide
-│   ├── Accounts overview
-│   ├── Journal entries and account groups
-│   └── Ledgers, P&L, and cash flow
+├── 📺 Screens Guide
+│   ├── Setting up a screen [planned]
+│   ├── Preparation station [planned]
+│   └── Order display [planned]
 │
-└── 📓 Administrator Guide
-    ├── Manage overview
-    ├── Menus, categories, and dishes
-    ├── Floors and tables
-    ├── Discounts and coupons
-    ├── Kitchens and workflows
-    ├── Printers and print settings
-    ├── Payment types, taxes, and order types
-    ├── Users and roles
-    ├── Reports hub (administrator packs)
-    ├── Integrations
-    └── General settings
+├── 📓 Administrator Guide
+│   ├── Manage overview
+│   ├── Users and roles
+│   ├── Role rights that change the floor [planned]
+│   ├── Menus, categories, and dishes
+│   ├── Points of sale [planned]
+│   ├── Floors and tables
+│   ├── Kitchens and workflows
+│   ├── Printers and print settings
+│   ├── Payment types, taxes, and order types
+│   ├── Discounts and coupons
+│   ├── Customers [planned]
+│   ├── General settings
+│   ├── Settings
+│   └── Integrations
+│
+└── 📕 Accounts Guide
+    ├── Accounts overview
+    ├── Journal entries and account groups
+    └── Ledgers, P&L, and cash flow
 ```
 
 ## Build output

@@ -15,7 +15,8 @@ import {Customers} from "@/components/customer/customer.tsx";
 import {CustomerAlerts} from "@/components/customer/customer.alerts.tsx";
 import {customerAllergies as customerAllergiesOf} from "@/lib/customer-preferences.ts";
 import {customerNumberLabel} from "@/lib/customer.service.ts";
-import {displayPhone} from "@/lib/phone.ts";
+import {visiblePhone} from "@/lib/phone.ts";
+import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {formatOrderNumber, getInvoiceNumber} from "@/lib/order.ts";
 import {formatGuestLabel, guestCodeLabel} from "@/lib/guest.ts";
 import {useResortFb} from "@/hooks/useResortFb.ts";
@@ -34,6 +35,8 @@ export const MenuHeader = () => {
   const connectedRef = useRef(isEffectivelyConnected);
   connectedRef.current = isEffectivelyConnected;
   const { t } = useTranslation('menu');
+  const { can } = useModuleAccess();
+  const canViewPhone = can('customers.view_phone');
 
   const [state, setState] = useAtom(appState);
   const [editSession] = useAtom(orderEditSessionAtom);
@@ -380,7 +383,7 @@ export const MenuHeader = () => {
             ) : null}
             {state.customer.phone != null && String(state.customer.phone).trim() ? (
               <div className="text-sm text-neutral-600">
-                {t('guest.phone')} {displayPhone(state.customer.phone)}
+                {t('guest.phone')} {visiblePhone(state.customer.phone, canViewPhone)}
               </div>
             ) : null}
             {state.customer.email?.trim() ? (

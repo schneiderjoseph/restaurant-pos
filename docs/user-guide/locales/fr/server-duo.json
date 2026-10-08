@@ -1,0 +1,47 @@
+{
+  "title": "Travailler en DUO",
+  "intro": "Le DUO met deux serveurs en binôme sur un même secteur : chacun voit et peut compléter les commandes de l’autre, et entend quand elles sont prêtes. Le pourboire d’une commande commune est partagé selon ce que chacun y a vendu.",
+  "sections": [
+    {
+      "id": "start",
+      "title": "Lancer un DUO",
+      "steps": [
+        "Touchez DUO (icône deux personnes) dans la barre latérale.",
+        "La fenêtre affiche « Choisissez un collègue connecté : » et la liste des serveurs connectés en ce moment sur une tablette. Les comptes de station et les collègues déjà en DUO n’y sont pas.",
+        "Touchez le collègue. La fenêtre affiche « Invitation envoyée à prénom, en attente de sa réponse… ».",
+        "Sur sa tablette s’ouvre « Invitation DUO — prénom veut faire un DUO avec vous » : il touche Accepter ou Refuser. Il a 2 minutes ; passé ce délai, l’invitation n’est plus valable.",
+        "Une fois accepté, un message « DUO avec prénom commencé » s’affiche chez les deux, et le bouton de la barre latérale devient « DUO · prénom »."
+      ],
+      "bullets": [
+        "« Aucun collègue connecté disponible » : votre collègue n’est connecté sur aucune tablette, ou il est déjà en DUO.",
+        "« Votre invitation DUO a été refusée » : il a touché Refuser.",
+        "« L’un de vous est déjà en DUO » : quelqu’un a été plus rapide.",
+        "Pour retirer une invitation avant la réponse : DUO → Annuler l’invitation."
+      ],
+      "image": "srv-duo.png",
+      "caption": "Fenêtre DUO : choix du collègue connecté."
+    },
+    {
+      "id": "during",
+      "title": "Pendant le DUO",
+      "bullets": [
+        "Chacun voit les commandes de l’autre dans Commandes et sur l’écran d’affichage, même si l’établissement limite chaque serveur à ses propres commandes.",
+        "Les alertes « Commande prête » des deux serveurs sonnent et parlent sur les deux tablettes.",
+        "Une commande reste au nom de celui qui l’a ouverte, même si l’autre y ajoute des plats.",
+        "Dans le rapport des ventes par serveur, chaque plat compte pour celui qui l’a ajouté.",
+        "Le pourboire d’une commande DUO est partagé au prorata des ventes de chacun sur cette commande, et chaque part va dans la cagnotte de son serveur.",
+        "Touchez DUO pendant le binôme pour voir « En DUO avec prénom » et l’heure de fin prévue (« Se termine à 23:00 »)."
+      ]
+    },
+    {
+      "id": "end",
+      "title": "Fin du DUO",
+      "bullets": [
+        "Le DUO s’arrête tout seul 2 h après la fin du dernier service des deux serveurs (services définis par le responsable).",
+        "À l’heure de fin, les deux tablettes sonnent, disent « Le DUO va se terminer » et proposent Prolonger 1 h, ou Terminer avec un compte à rebours : sans réponse, le DUO se termine après 10 secondes.",
+        "Pour arrêter plus tôt : DUO → Quitter le DUO. L’autre tablette affiche « Le DUO est terminé ».",
+        "Les commandes ne changent pas de serveur à la fin du DUO."
+      ]
+    }
+  ]
+}

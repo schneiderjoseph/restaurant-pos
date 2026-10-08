@@ -1,0 +1,42 @@
+{
+  "title": "Installer un écran",
+  "intro": "Une station (cuisine, bar, pâtisserie…) et l’écran d’affichage des commandes tournent sur une tablette ou un écran fixe, branché sur le même réseau que les tablettes des serveurs.",
+  "sections": [
+    {
+      "id": "station-account",
+      "title": "Le compte de la station",
+      "intro": "Chaque station a son propre compte, créé automatiquement : en ouvrant Gérer → Stations, POSR crée le compte manquant de chaque station (prénom « Station », nom de la station, rôle Station) avec un PIN à 4 chiffres libre, tiré au hasard. Ce PIN est affiché dans la colonne « PIN du compte station ».",
+      "bullets": [
+        "Connecté avec ce PIN, l’écran ouvre directement sa station et rien d’autre : pas de barre latérale, pas de menu, pas de caisse.",
+        "Le seul bouton pour en sortir est l’icône Marche/Arrêt rouge en haut à droite.",
+        "Un compte station ne peut être ouvert que sur un écran à la fois, comme un compte serveur : n’utilisez pas le même PIN sur deux écrans.",
+        "Ne connectez pas une station avec le PIN d’un serveur : le serveur serait déconnecté de sa tablette, et l’écran afficherait sa barre latérale.",
+        "Les comptes station n’apparaissent pas dans la liste DUO."
+      ]
+    },
+    {
+      "id": "install",
+      "title": "Installer l’application sur l’écran",
+      "steps": [
+        "Ouvrez l’adresse de POSR dans Chrome (ou Edge) sur l’écran.",
+        "Menu du navigateur → « Installer l’application » (ou « Ajouter à l’écran d’accueil » sur tablette).",
+        "L’icône et le nom du restaurant apparaissent sur l’écran d’accueil ; l’application s’ouvre en plein écran.",
+        "Désactivez la mise en veille de l’écran dans les réglages de l’appareil."
+      ]
+    },
+    {
+      "id": "sound",
+      "title": "Son et annonces vocales",
+      "intro": "La station annonce chaque nouvelle commande, l’affichage annonce chaque commande prête. Le navigateur bloque le son tant que personne n’a touché l’écran : après chaque démarrage, touchez l’écran une fois, puis réglez le volume de l’appareil."
+    },
+    {
+      "id": "check",
+      "title": "Vérification avant le service",
+      "steps": [
+        "L’écran affiche la bonne station (son nom est en surbrillance en haut).",
+        "Un serveur envoie une commande test : elle apparaît sur la station, le son se fait entendre.",
+        "La station touche Prêt : la commande passe dans « Prêt à récupérer » sur l’affichage, et le serveur reçoit son alerte."
+      ]
+    }
+  ]
+}

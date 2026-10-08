@@ -127,7 +127,7 @@ interface TempCategoryTotals {
   coupons: number;
   taxes: number;
   grossSale: number;
-  /** Gross of this category's lines by who sold them (a duo's order has two sellers). */
+  /** Gross of this category's lines by who sold them (whoever added each line). */
   grossBySeller: Map<string, number>;
 }
 
@@ -285,10 +285,10 @@ export const SalesServerReport = () => {
           params.endDate = filters.endDate;
         }
 
-        // A duo's order also counts for the partner who added lines to it.
+        // An order also counts for anyone who added lines to it (a duo, a colleague).
         const userFilter = buildRecordInsideCondition('user', filters.userIds, 'userIds');
         if (userFilter.condition) {
-          conditions.push(`(${userFilter.condition} OR duo.inviter INSIDE $userIds OR duo.partner INSIDE $userIds)`);
+          conditions.push(`(${userFilter.condition} OR items.created_by ANYINSIDE $userIds)`);
           Object.assign(params, userFilter.params);
         }
 
@@ -327,6 +327,7 @@ export const SalesServerReport = () => {
           WHERE ${conditions.join(' AND ')}
           FETCH user,
                 items,
+                items.created_by,
                 items.item,
                 items.item.categories,
                 items.taxes,
@@ -373,7 +374,7 @@ export const SalesServerReport = () => {
       const orderNet = Array.from(categoryTotals.values()).reduce((sum, row) => sum + row.netSales, 0);
       const covers = safeNumber(order.covers);
 
-      // A duo's order counts for each of the two by the lines they added.
+      // An order counts for each server by the lines they added (a duo, a colleague adding to it).
       orderSellers(order).forEach(({userId: sellerId, user: seller, share}) => {
         const sellerUser = (seller && typeof seller === 'object' ? seller : undefined) as Order['user'] | undefined;
         const userId = recordToString(sellerUser?.id ?? sellerId) || 'unknown';

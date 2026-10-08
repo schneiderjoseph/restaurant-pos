@@ -55,6 +55,7 @@
   "status": {
     "inProgress": "Devam Ediyor",
     "ready": "Hazır",
+    "itemReady": "Hazır",
     "paid": "Ödendi",
     "cancelled": "İptal Edildi",
     "spilt": "Bölündü",

@@ -41,7 +41,8 @@ import {Customer} from "@/api/model/customer.ts";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {OrderCancelModal} from "@/components/orders/order.cancel.modal.tsx";
 import {OrderRefundModal} from "@/components/orders/order.refund.modal.tsx";
-import {getOrderDisplayItems, getOrderFilteredItems} from "@/lib/order.ts";
+import {getOrderDisplayItems, getOrderFilteredItems, newestLinesFirst} from "@/lib/order.ts";
+import {kitchenOrderItemKey} from "@/lib/order-display.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
@@ -72,6 +73,8 @@ interface Props {
   tempPrinted?: boolean;
   taxes?: Tax[];
   kitchenReady?: boolean;
+  /** Lines the kitchen is done with ("order_item:id"): shown in green with a ready mark. */
+  readyItemIds?: Set<string>;
   lineage?: OrderLineage;
 }
 
@@ -84,6 +87,7 @@ export const OrderBox = ({
   tempPrinted: tempPrintedProp,
   taxes: taxesProp,
   kitchenReady = false,
+  readyItemIds,
   lineage,
 }: Props) => {
   const {t} = useTranslation('orders');
@@ -362,7 +366,7 @@ export const OrderBox = ({
                 )}
               </div>
             )}
-            {cardReady && getOrderDisplayItems(order).map((item, index) => (
+            {cardReady && newestLinesFirst(getOrderDisplayItems(order)).map((item, index) => (
               <OrderItemName
                 item={item}
                 showQuantity={true}
@@ -373,6 +377,7 @@ export const OrderBox = ({
                 showGroups={showGroupsInOrderCard}
                 showModifiers={showModifiersInOrderCard}
                 cancelled={order.status === OrderStatus.Cancelled || item.deleted_at != null}
+                ready={readyItemIds?.has(kitchenOrderItemKey(item.id)) ?? false}
               />
             ))}
             </div>

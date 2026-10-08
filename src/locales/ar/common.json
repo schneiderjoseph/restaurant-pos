@@ -94,6 +94,9 @@
     "retryConnection": "إعادة محاولة الاتصال",
     "connecting": "جارٍ الاتصال بالخادم..."
   },
+   "update": {
+    "available": "Update available — tap to reload"
+  },
   "offline": {
     "disconnected": "⚠ غير متصل — ستتم مزامنة التغييرات عند إعادة الاتصال",
     "disconnectedWithQueue": "⚠ غير متصل — {{count}} تغييرات في الانتظار، ستتم المزامنة عند إعادة الاتصال",

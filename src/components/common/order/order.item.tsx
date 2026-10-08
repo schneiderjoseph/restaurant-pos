@@ -2,6 +2,9 @@ import {lineDisplayName} from "@/lib/dish-selling.ts";
 import {groupRepeatedModifiers, repeatedModifierLabel} from "@/lib/modifier-repeats.ts";
 import { cn, formatNumber } from "@/lib/utils.ts";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { OrderItem, OrderItemModifier } from "@/api/model/order_item.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import {
@@ -10,7 +13,8 @@ import {
 } from "@/lib/order-item-display.ts";
 
 export const OrderItemName = ({
-  item, showGroups, showQuantity, showPrice, showModifierPrice, showTotal, showModifiers = true, cancelled = false
+  item, showGroups, showQuantity, showPrice, showModifierPrice, showTotal, showModifiers = true, cancelled = false,
+  ready = false,
 }: {
   item: OrderItem,
   showGroups?: boolean
@@ -20,18 +24,32 @@ export const OrderItemName = ({
   showModifierPrice?: boolean
   showModifiers?: boolean
   cancelled?: boolean
+  /** The kitchen is done with this line: green, with a small "ready" mark. */
+  ready?: boolean
 }) => {
+  const { t } = useTranslation('orders');
   const { enabled: showInclusive } = useShowInclusivePrices();
   const unitPrice = getOrderItemDisplayUnitPrice(item, showInclusive);
   const lineTotal = unitPrice * (item.quantity || 1);
   const isVoided = cancelled || item.deleted_at != null;
+  const isReady = ready && !isVoided;
 
   return (
-    <div className={cn("hover:bg-neutral-200 flex-1", isVoided && "opacity-55")}>
-      <div className={cn("pl-x flex text-lg gap-1", isVoided && "line-through text-neutral-500")} style={{
+    <div className={cn("hover:bg-neutral-200 flex-1", isVoided && "opacity-55")} data-ready={isReady || undefined}>
+      <div className={cn("pl-x flex text-lg gap-1", isVoided && "line-through text-neutral-500", isReady && "text-success-700")} style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>
-        <span className="flex-1">{lineDisplayName(item?.item?.name, item?.variant)}</span>
+        <span className="flex-1">
+          {lineDisplayName(item?.item?.name, item?.variant)}
+          {isReady && (
+            <span
+              className="ml-2 inline-flex items-center gap-1 rounded-full bg-success-100 px-2 align-middle text-xs font-bold uppercase text-success-700"
+              data-testid="order-item-ready"
+            >
+              <FontAwesomeIcon icon={faCheck}/>{t('status.itemReady')}
+            </span>
+          )}
+        </span>
         <div className="flex gap-1 text-right">
           {showQuantity && <span className="flex-0 w-[50px]">{formatNumber(item.quantity)}</span>}
           {showPrice && <span className="flex-0 w-[70px]">{formatNumber(unitPrice)}</span>}

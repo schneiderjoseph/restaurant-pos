@@ -77,6 +77,12 @@
     "newTab": "New tab",
     "newTabOpened": "New tab opened",
     "startOrder": "New order",
+    "openOrders": {
+      "title": "{{name}} already has an open order",
+      "hint": "Add to their open order instead, so they get a single bill. What you add counts for you.",
+      "addTo": "Add to #{{number}}",
+      "newAnyway": "Start a new order anyway"
+    },
     "folio": "Recent orders",
     "folioEmpty": "No previous orders",
     "pickGuest": "Search or create a guest to continue",

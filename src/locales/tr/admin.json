@@ -768,6 +768,7 @@
       "customers.create": "Rezervasyonsuz müşteri kaydet",
       "customers.preferences": "Alerji, diyet ve notları düzenle",
       "customers.view_id_document": "Belgeleri tam görme",
+      "customers.view_phone": "Telefonları tam görme",
       "admin.customers": "Müşteriler",
       "admin.customers.update": "Her müşteriyi düzenle",
       "admin.customers.delete": "Müşteri sil ve geri yükle",

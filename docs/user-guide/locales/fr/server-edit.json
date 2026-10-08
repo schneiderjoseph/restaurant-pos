@@ -1,0 +1,50 @@
+{
+  "title": "Modifier une commande envoyée",
+  "intro": "Ajouter des plats à une commande déjà envoyée est toujours libre. Changer ou supprimer une ligne déjà partie en cuisine dépend de votre rôle : soit c’est enregistré tout de suite, soit un approbateur doit accepter.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Rouvrir une commande",
+      "steps": [
+        "Dans Commandes, touchez le crayon de la carte (ou ⋮ → Modifier). Depuis le Menu, touchez le numéro #012 dans le bandeau du haut.",
+        "La commande s’ouvre dans le Menu : les plats déjà envoyés sont sous le trait noir, les nouveaux s’ajouteront au-dessus.",
+        "La table de la commande est verrouillée pour vos collègues tant que vous êtes dessus (cadenas sur le plan de salle)."
+      ],
+      "bullets": [
+        "« Seules les commandes non payées peuvent être modifiées » : la commande est déjà payée. Pour corriger, il faut un remboursement (responsable).",
+        "« Prise de commande temporairement indisponible » : la clôture de caisse est en cours."
+      ]
+    },
+    {
+      "id": "add",
+      "title": "Ajouter des plats",
+      "steps": [
+        "Ajoutez les plats comme d’habitude.",
+        "Touchez Envoyer : seuls les nouveaux plats partent en cuisine, sur un ticket marqué SUPPLÉMENT. La station l’annonce « Supplément, table 7, 12 »."
+      ],
+      "note": "Aucune approbation n’est jamais demandée pour ajouter des plats."
+    },
+    {
+      "id": "change",
+      "title": "Changer une ligne déjà envoyée",
+      "intro": "Sont concernés : la quantité, la suppression (ligne barrée en rouge), le commentaire et les options d’une ligne déjà envoyée.",
+      "steps": [
+        "Faites la modification dans le panier.",
+        "Si votre rôle a le droit « modifier les lignes envoyées » : touchez Envoyer, c’est enregistré tout de suite. La cuisine reçoit un ticket de suppression pour les lignes retirées et un ticket MODIFICATION pour les lignes changées.",
+        "Sinon, une ligne orange apparaît au-dessus des boutons : « Envoyez : un approbateur approuvera les modifications des lignes déjà envoyées ». Touchez Envoyer quand même.",
+        "Les nouveaux plats partent en cuisine tout de suite ; les lignes déjà envoyées restent comme avant, et le message « Les modifications des lignes déjà envoyées ont été envoyées pour approbation » confirme la demande.",
+        "La réponse arrive sur la tablette où vous êtes connecté : « Votre modification de commande a été approuvée » ou « … a été refusée »."
+      ],
+      "bullets": [
+        "Si la commande est payée, annulée ou fusionnée avant la réponse, vous voyez « Votre modification de commande est abandonnée » et rien n’est modifié.",
+        "Tant que la demande n’est pas approuvée, la cuisine continue de préparer l’ancienne version : si c’est urgent (allergie, erreur de plat), prévenez aussi la cuisine de vive voix.",
+        "Votre droit est relu au moment d’envoyer : si le responsable vient de vous le donner, il s’applique tout de suite."
+      ]
+    },
+    {
+      "id": "who",
+      "title": "Qui approuve ?",
+      "intro": "Les personnes dont le rôle a le droit « approuver les modifications » (souvent le responsable de salle ou le caissier) reçoivent la demande sur leur propre tablette, avec le numéro de commande, qui demande et chaque changement. Si personne n’est connecté avec ce droit, la demande attend sans prévenir personne : signalez-la de vive voix au responsable."
+    }
+  ]
+}

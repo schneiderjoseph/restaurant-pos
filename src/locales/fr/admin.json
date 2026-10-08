@@ -806,6 +806,7 @@
       "customers.create": "Enregistrer des clients walk-in",
       "customers.preferences": "Modifier allergies, régime et notes",
       "customers.view_id_document": "Voir les pièces d'identité en entier",
+      "customers.view_phone": "Voir les numéros de téléphone en entier",
       "admin.customers": "Clients",
       "admin.customers.update": "Modifier n'importe quel client",
       "admin.customers.delete": "Supprimer et restaurer des clients",

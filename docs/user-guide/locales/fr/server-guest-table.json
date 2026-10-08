@@ -1,0 +1,128 @@
+{
+  "title": "Client, chambre ou table",
+  "intro": "Toute commande commence par savoir pour qui elle est. En touchant Menu, l’écran Client s’ouvre : on y cherche le client de l’hôtel, on enregistre un client de passage, ou on ouvre le plan de salle.",
+  "sections": [
+    {
+      "id": "search",
+      "title": "Trouver un client de l’hôtel",
+      "steps": [
+        "Touchez Menu dans la barre latérale : l’écran Client s’affiche, avec la liste des clients présents à l’hôtel en premier.",
+        "Dans « Rechercher ou enregistrer un client », tapez un nom, un code guest, un numéro de chambre, un téléphone ou une pièce d’identité.",
+        "La recherche tolère les fautes : sous les résultats exacts, « Noms proches » propose les orthographes voisines (Jean-Baptiste / Jean Batiste).",
+        "Touchez le bon client. Sa fiche s’ouvre : nom, chambre, date de départ, téléphone, pièce d’identité, allergies, préférences, et ses 20 dernières commandes."
+      ],
+      "image": "srv-guest-search.png",
+      "caption": "Écran Client : recherche et fiche du client sélectionné.",
+      "note": "« Départ aujourd’hui » sur la fiche : le client quitte l’hôtel aujourd’hui. Pensez-y avant de mettre une note sur sa chambre.",
+      "bullets": [
+        "Dans la liste : le badge Walk-in signale un client de passage enregistré dans POSR ; la chambre s’affiche pour les clients de l’hôtel.",
+        "Un client parti de l’hôtel reste trouvable s’il a une note du personnel ; sinon il disparaît de la liste après son départ."
+      ]
+    },
+    {
+      "id": "place",
+      "title": "Indiquer la table ou la zone (facultatif)",
+      "intro": "Pour un client servi à une table précise, touchez « Table ou zone » sur sa fiche, choisissez la zone et/ou tapez le numéro de table. La table apparaît alors sur le ticket cuisine et sur l’écran d’affichage, ce qui aide au service."
+    },
+    {
+      "id": "start",
+      "title": "Ouvrir la commande",
+      "steps": [
+        "Sur la fiche du client, touchez Nouvelle commande : vous passez au menu, avec le client déjà lié (son nom et ses allergies dans le bandeau).",
+        "Le client a déjà une commande ouverte ? Elle est listée dans « Commandes récentes » avec son numéro et son statut. Touchez Modifier sur cette ligne pour y ajouter des plats au lieu d’en ouvrir une nouvelle.",
+        "« Commandes récentes » montre aussi les commandes payées : utile pour répondre « comme hier »."
+      ]
+    },
+    {
+      "id": "edit-guest",
+      "title": "Compléter la fiche",
+      "bullets": [
+        "Ajouter un téléphone / Modifier le téléphone : choisissez l’indicatif du pays (les plus fréquents en premier), puis le numéro.",
+        "Ajouter une pièce d’identité : type (CIN, NIF, passeport, permis, autre) et numéro.",
+        "Si le numéro ou la pièce appartient déjà à un autre client, POSR le dit (« Ce numéro est déjà utilisé par … ») et n’enregistre pas.",
+        "Le nom ne se modifie que pour un client de passage que vous avez enregistré vous-même, ou avec le droit de modifier les clients. Les clients de l’hôtel (ASI) sont en lecture seule : corrections à la réception.",
+        "La pièce d’identité s’affiche masquée (••••7890, les 4 derniers caractères) sauf si votre rôle a le droit de la voir en entier."
+      ]
+    },
+    {
+      "id": "walk-in",
+      "title": "Enregistrer un client de passage (walk-in)",
+      "intro": "Une personne qui n’est pas dans la base peut être enregistrée en quelques secondes.",
+      "steps": [
+        "Tapez son nom complet dans la recherche.",
+        "Aucun résultat : touchez « Enregistrer « nom » ».",
+        "Saisissez au moins un téléphone ou une pièce d’identité (CIN, NIF, passeport, permis…).",
+        "Touchez Enregistrer et commander pour ouvrir directement le menu, ou Enregistrer pour seulement créer la fiche."
+      ],
+      "image": "srv-guest-register.png",
+      "caption": "Enregistrement d’un nouveau client depuis la recherche.",
+      "bullets": [
+        "Le téléphone ou la pièce appartient déjà à quelqu’un : POSR vous le dit et propose ce client. Vérifiez avant de créer un doublon.",
+        "Même nom ne veut pas dire même personne : si POSR propose un client connu qui n’est pas le bon, choisissez « Nouveau client « nom » ».",
+        "Le bouton « Enregistrer » n’apparaît que si votre rôle a le droit d’enregistrer des clients walk-in. Sinon, demandez au responsable ou servez via le plan de salle."
+      ]
+    },
+    {
+      "id": "preferences",
+      "title": "Allergies et préférences",
+      "intro": "Sur la fiche, Préférences permet de noter allergies, régime, place préférée, langue et anniversaire. Les allergies sont imprimées sur les tickets cuisine et affichées en rouge sur l’écran de la station : remplissez-les dès que le client les signale. Modifier ces informations demande le droit « Modifier allergies, régime et notes » ; sans lui, vous les voyez mais ne pouvez pas les changer."
+    },
+    {
+      "id": "floor",
+      "title": "Servir à une table sans client (plan de salle)",
+      "steps": [
+        "Sur l’écran Client, touchez Plan de salle / Walk-in.",
+        "En bas, les boutons de salles (Terrasse, Salle, Plage…) changent de plan ; chacun affiche « N occupée(s) ».",
+        "Touchez la table. Si elle est réglée pour demander les couverts, le pavé « Choisir le nombre de personnes » s’ouvre : tapez le nombre (C pour effacer) puis OK. 0 ou vide est refusé : le pavé tremble.",
+        "Le menu s’ouvre sur cette table.",
+        "Pour revenir à la recherche de clients, touchez Retour clients en haut à gauche."
+      ],
+      "image": "srv-floor.png",
+      "caption": "Plan de salle : tables libres, occupées et verrouillées."
+    },
+    {
+      "id": "floor-read",
+      "title": "Lire le plan de salle",
+      "intro": "En haut du plan, un compteur indique les tables libres et occupées, avec la légende des couleurs.",
+      "fields": [
+        {
+          "name": "Table normale",
+          "effect": "Libre. Touchez-la pour commencer."
+        },
+        {
+          "name": "Table avec chrono, prénom et montant",
+          "effect": "Occupée : en haut le temps écoulé depuis l’ouverture de la commande, au centre le prénom du serveur, en bas le nombre de couverts (icône personne) et le total à payer."
+        },
+        {
+          "name": "Pastille avec un chiffre en haut à droite",
+          "effect": "La table a plusieurs commandes ouvertes."
+        },
+        {
+          "name": "Table orange avec un nom",
+          "effect": "Chambre occupée par un client de l’hôtel, sans commande en cours."
+        },
+        {
+          "name": "Cadenas",
+          "effect": "Un collègue est en train de prendre une commande sur cette table. La toucher affiche « Prénom Nom prend déjà une commande sur cette table ». Attendez qu’il ait fini. Si le cadenas reste alors que personne n’est dessus (tablette éteinte en pleine commande), un responsable la débloque dans Gérer → Tables."
+        },
+        {
+          "name": "Contour rouge + point d’exclamation qui bat",
+          "effect": "Commande ouverte depuis plus de 2 heures. Vérifiez si la table a besoin de quelque chose ou si l’addition a été oubliée."
+        }
+      ],
+      "note": "Une table se verrouille dès que vous l’ouvrez et se libère quand vous revenez en arrière avec la flèche ←. Ne laissez pas une tablette ouverte sur une table : vos collègues ne pourraient plus y commander.",
+      "bullets": [
+        "Le plan s’ajuste à l’écran à l’ouverture de chaque salle. Faites-le glisser avec un doigt pour le déplacer, pincez pour zoomer. Un glissement ne compte pas comme un toucher de table."
+      ]
+    },
+    {
+      "id": "room",
+      "title": "Chambres et clients de l’hôtel",
+      "bullets": [
+        "On ne commande pas sur une chambre vide : il faut un client présent dans la chambre.",
+        "Les clients venant de l’hôtel (ASI) sont en lecture seule : leur nom et leur chambre se corrigent à la réception, pas dans POSR.",
+        "Une commande ouverte sur le mauvais client se déplace : dans « Commandes récentes », touchez Déplacer vers un autre client."
+      ]
+    }
+  ]
+}

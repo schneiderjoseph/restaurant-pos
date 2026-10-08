@@ -237,3 +237,14 @@ export function maskPhone(stored?: string | number | null): string {
   const { country, national } = splitPhone(e164);
   return `+${country.dial} •••• ${national.slice(-4)}`;
 }
+
+/**
+ * Full international display when the viewer may see phones; otherwise the masked form.
+ * Search still uses the stored number — only what is shown changes.
+ */
+export function visiblePhone(
+  stored?: string | number | null,
+  canViewFull = false,
+): string {
+  return canViewFull ? displayPhone(stored) : maskPhone(stored);
+}

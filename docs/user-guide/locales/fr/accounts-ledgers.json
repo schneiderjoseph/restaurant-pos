@@ -1,68 +1,36 @@
 {
-  "title": "Grands livres, P&L et flux de trésorerie",
-  "intro": "Review posted activity and period balances: general ledger detail, trial balance, and balance sheet.",
+  "title": "Grand livre et états financiers (module optionnel)",
+  "intro": "Tous les états se filtrent par période (ou par date pour le bilan) et s’exportent comme les autres rapports.",
   "sections": [
     {
-      "id": "ledger",
-      "title": "General ledger",
-      "steps": [
-        "Open the General ledger tab.",
-        "Filter by account and date range to inspect posted lines.",
-        "Use this view to drill into journal activity for an account."
-      ],
-      "image": "accounts-ledger.png",
-      "caption": "General ledger tab."
+      "id": "gl",
+      "title": "General Ledger (grand livre)",
+      "intro": "Choisissez un compte (ou « All ledgers ») et la période, puis Load : solde d’ouverture, chaque ligne avec débit, crédit et solde courant, solde de clôture. « View entry » ouvre l’écriture d’origine."
     },
     {
-      "id": "trial",
-      "title": "Trial balance",
-      "intro": "Trial balance lists debit and credit totals by account for a period.",
-      "steps": [
-        "Open the Trial balance tab.",
-        "Choose the period or as-of date your venue uses.",
-        "Confirm debits equal credits before relying on statements."
-      ],
-      "image": "accounts-trial-balance.png",
-      "caption": "Trial balance tab."
+      "id": "tb",
+      "title": "Trial Balance (balance)",
+      "intro": "Total des débits et des crédits par compte, et soldes de clôture. Les deux totaux doivent être égaux avant de se fier aux états."
     },
     {
-      "id": "balance-sheet",
-      "title": "Balance sheet",
-      "steps": [
-        "Open the Balance sheet tab.",
-        "Review assets, liabilities, and equity for the selected date.",
-        "Other statement tabs (Profit & loss, Cash flow) follow the same pattern."
-      ],
-      "image": "accounts-balance-sheet.png",
-      "caption": "Balance sheet tab."
+      "id": "bs",
+      "title": "Balance Sheet (bilan)",
+      "intro": "Actif, Passif et Capitaux propres à une date, avec le contrôle « Assets vs Liabilities + Equity » : un écart signale une écriture mal classée."
     },
     {
-      "id": "profit-loss",
-      "title": "Compte de résultat",
-      "intro": "État des résultats : revenus, coût des ventes et charges.",
-      "steps": [
-        "Ouvrez Comptes → Résultat.",
-        "Définissez la période.",
-        "Développez les groupes de comptes.",
-        "Exportez à la clôture."
-      ],
-      "image": "accounts-profit-loss.png",
-      "caption": "Onglet compte de résultat.",
-      "fields": []
+      "id": "pl",
+      "title": "Profit & Loss (compte de résultat)",
+      "intro": "Produits et charges de la période, et le résultat net (Net Profit / Loss)."
     },
     {
-      "id": "cash-flow",
-      "title": "Flux de trésorerie",
-      "intro": "Résume les flux opérationnels, d'investissement et de financement.",
-      "steps": [
-        "Ouvrez Flux de trésorerie dans Comptes.",
-        "Même période que les autres états.",
-        "Vérifiez solde d'ouverture, variation et clôture.",
-        "Utilisez avec le résultat pour cash vs. comptabilité d'engagement."
-      ],
-      "image": "accounts-cash-flow.png",
-      "caption": "Onglet flux de trésorerie.",
-      "fields": []
+      "id": "cf",
+      "title": "Cash Flow (flux de trésorerie)",
+      "intro": "Mouvements de trésorerie par module d’origine, classés Operating, Investing, Financing, et variation nette."
+    },
+    {
+      "id": "statements",
+      "title": "Relevés client et fournisseur",
+      "intro": "Choisissez le compte client ou fournisseur : solde d’ouverture, mouvements, solde courant et de clôture. Ces relevés supposent des comptes dédiés dont le code ou le nom contient « customer »/« cust » ou « supplier »/« sup »."
     }
   ]
 }

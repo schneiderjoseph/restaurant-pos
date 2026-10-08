@@ -1,74 +1,42 @@
 {
-  "title": "Paramètres",
-  "intro": "Paramètres ne contient que vos préférences personnelles et par appareil : Langue, Clavier à l’écran, Sélection de table et Cache. Ouvrez Paramètres avec l’icône clé à molette en bas de la barre latérale gauche après connexion. Les réglages de l’établissement sont sous Gérer → Paramètres généraux (rôle Master par défaut).",
+  "title": "Paramètres de l’appareil",
+  "intro": "L’écran Paramètres (clé dans la barre latérale) règle la tablette sur laquelle on se trouve, pas l’établissement. À faire une fois par appareil à l’installation, et à revoir si une tablette se comporte différemment des autres.",
   "sections": [
     {
-      "id": "open",
-      "title": "Ouvrir les paramètres",
-      "steps": [
-        "Connectez-vous avec un utilisateur autorisé.",
-        "Touchez l’icône clé dans la barre latérale gauche.",
-        "La page affiche des cartes de configuration en colonnes."
-      ],
-      "image": "settings-nav.png",
-      "caption": "Contrôle clé pour ouvrir Paramètres."
-    },
-    {
-      "id": "overview",
-      "title": "Vue d’ensemble",
-      "intro": "Chaque carte de Paramètres s’applique à ce navigateur, ce terminal ou l’utilisateur connecté — pas à tout l’établissement.",
-      "steps": [
-        "Faites défiler pour trouver la carte.",
-        "Modifiez puis enregistrez si un bouton Enregistrer est présent.",
-        "Pour les contrôles de l’établissement (profil, devise, options d’impression, cycle de clôture, sécurité de session, etc.), ouvrez Gérer → Paramètres généraux."
-      ],
-      "image": "settings-overview.png",
-      "caption": "Page Paramètres — préférences personnelles et appareil."
-    },
-    {
-      "id": "cache",
-      "title": "Cache",
-      "steps": [
-        "Ouvrez Cache si les menus semblent obsolètes.",
-        "Touchez Recharger le cache."
-      ],
-      "image": "settings-cache.png",
-      "caption": "Rechargement du cache."
-    },
-    {
       "id": "language",
-      "title": "Langue et direction",
-      "steps": [
-        "Ouvrez Langue.",
-        "Choisissez la langue.",
-        "Choisissez LTR ou RTL si besoin.",
-        "S’applique immédiatement."
-      ],
-      "image": "settings-language.png",
-      "caption": "Langue et direction."
+      "title": "Langue et sens du texte",
+      "intro": "Langue d’affichage de cette tablette (français, anglais, espagnol…) et sens gauche-droite ou droite-gauche. Si « Traduire les reçus » est activé, les tickets imprimés depuis cet appareil suivent aussi cette langue."
     },
     {
-      "id": "touch",
+      "id": "keyboard",
       "title": "Clavier à l’écran",
-      "steps": [
-        "Ouvrez la carte.",
-        "Activez ou non le clavier virtuel."
-      ],
-      "image": "settings-touch.png",
-      "caption": "Clavier virtuel."
+      "intro": "Activé : chaque champ texte ouvre le clavier de POSR (avec les résultats de recherche au-dessus des touches), jamais celui de la tablette. À laisser activé sur les tablettes tactiles ; à désactiver sur un poste avec clavier physique."
     },
     {
       "id": "table-selection",
-      "title": "Sélection de table",
-      "intro": "Si activée, le personnel choisit une table avant de commander. Si désactivée, l’étape plan de salle est masquée sur ce terminal.",
-      "steps": [
-        "Ouvrez la carte.",
-        "Activez ou désactivez.",
-        "Prend effet immédiatement."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Sélection de table.",
-      "note": "La capture doc nécessite la sélection de table activée."
+      "title": "Masquer la sélection de table",
+      "intro": "Activé : le Menu s’ouvre directement sur les plats, sans écran Client ni plan de salle. Pour un comptoir de vente à emporter. Ne pas activer sur les tablettes des serveurs de salle."
+    },
+    {
+      "id": "alert-test",
+      "title": "Tester l’alerte « commande prête »",
+      "intro": "« Tester l’alerte » joue sur cet appareil le carillon et la vibration d’une commande prête. À faire à l’installation et quand un serveur dit ne rien entendre : si rien ne sonne, vérifiez le volume, le mode silencieux et les réglages de son et de vibration du navigateur."
+    },
+    {
+      "id": "cache",
+      "title": "Recharger le cache",
+      "intro": "La tablette garde la carte, les tables et les réglages en mémoire pour aller vite. « Recharger le cache » les relit tous. À faire si un plat, une table ou un réglage modifié dans Gérer n’apparaît pas (c’est aussi ce que fait le bouton Actualiser de la barre latérale)."
+    },
+    {
+      "id": "device-visibility",
+      "title": "Affichage des articles (dans Gérer)",
+      "intro": "Gérer → Paramètres généraux → Configuration de visibilité des articles, réglé sur chaque appareil par l’administrateur :",
+      "fields": [
+        { "name": "Menu", "effect": "Recherche par numéro de plat, mode de recherche (numéro uniquement, ou nom et numéro), numéros sur les tuiles, photos des plats." },
+        { "name": "Panier", "effect": "Afficher les totaux des articles." },
+        { "name": "Commandes", "effect": "Sur les cartes de commande : totaux, groupes, quantités, prix, options et prix des options." },
+        { "name": "Stations / Cuisine", "effect": "Sur les tickets station : nom du client (raccourci), code guest, ou les deux." }
+      ]
     }
   ]
 }

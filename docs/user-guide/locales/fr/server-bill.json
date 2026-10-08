@@ -1,0 +1,104 @@
+{
+  "title": "Addition, division et paiement",
+  "intro": "L’addition se prépare depuis l’écran Commandes. Selon votre rôle, vous encaissez vous-même ou vous passez la main au caissier.",
+  "sections": [
+    {
+      "id": "temp-bill",
+      "title": "Présenter l’addition (note provisoire)",
+      "steps": [
+        "Vérifiez qu’il ne reste pas de lignes en attente (orange) : elles ne sont pas sur la note.",
+        "Dans Commandes, touchez l’imprimante de la carte : la note provisoire s’imprime.",
+        "L’imprimante devient orange sur la carte (et une petite imprimante orange s’affiche à côté du prénom) : la note a déjà été imprimée.",
+        "Si le client recommande, ajoutez les plats puis réimprimez."
+      ],
+      "note": "Le nombre d’impressions peut être limité par commande. Au-delà, un responsable doit autoriser avec son PIN (voir « Suivre ses commandes »)."
+    },
+    {
+      "id": "split",
+      "title": "Diviser l’addition",
+      "intro": "Touchez ⋮ sur la carte, puis la méthode qui convient. Sur tablette, on ne glisse pas : on touche un plat, puis la division où le mettre (le plat sélectionné est entouré).",
+      "fields": [
+        { "name": "Diviser par places", "effect": "Une addition par place. Visible seulement si les plats sont répartis sur au moins deux places dans le panier." },
+        { "name": "Diviser par articles", "effect": "Tous les plats commencent dans la Division 1 (principale). « Ajouter une division », puis touchez un plat et la division de destination. Les ciseaux (« Séparer 1 unité ») détachent une unité d’une ligne : 1 bière sur 3 pour une personne." },
+        { "name": "Diviser par montant", "effect": "Chaque division reçoit un montant. « Répartir équitablement » partage à parts égales, « Remplir automatiquement le restant » met le reste dans une division. Le restant doit tomber à zéro ; « Dépasse le total » si vous en mettez trop." },
+        { "name": "Diviser par clients", "effect": "Une division par client : choisissez le client de chacune (ou « Enregistrer un nouveau client » sur place), puis répartissez les plats. Chaque division doit avoir un client et au moins un plat." }
+      ],
+      "steps": [
+        "Préparez les divisions, puis touchez « Enregistrer N division(s) ». Il faut au moins deux divisions, et chacune doit contenir un plat.",
+        "Chaque division devient une commande séparée, payable à part. Sa carte indique « Divisée de #012 », et l’originale « Divisée en #013, #014 ».",
+        "Les couverts sont répartis entre les divisions ; les frais supplémentaires de la commande restent sur la première division.",
+        "Les lignes en attente ne sont pas proposées : elles suivent la première division."
+      ],
+      "bullets": [
+        "« Impossible de diviser une commande qui a déjà un paiement » : un paiement a été saisi sur l’écran de paiement (même sans terminer). Ouvrez le paiement, retirez la ligne de paiement (croix rouge), puis divisez.",
+        "« La commande a changé pendant la division » : un collègue a ajouté un plat ou un paiement en même temps. Fermez, rouvrez et recommencez.",
+        "La division n’envoie rien en cuisine. La note de chaque division indique de quelle commande elle vient."
+      ]
+    },
+    {
+      "id": "merge",
+      "title": "Regrouper plusieurs commandes",
+      "steps": [
+        "Touchez ⋮ sur l’une des commandes, puis Fusionner les commandes.",
+        "Une case « Sélectionner pour fusionner » apparaît sur chaque commande En cours : cochez celles à regrouper (au moins deux).",
+        "En bas, « Choisir une table » : la table de la commande fusionnée.",
+        "Touchez « Confirmer la fusion de N commandes ». « Annuler la fusion » sort du mode sans rien changer.",
+        "Une seule commande reste, avec la mention « Fusion de #008, #009 » ; les autres passent au statut Fusionnée."
+      ],
+      "note": "« Une des commandes a changé pendant la fusion » : quelqu’un a payé, ajouté un plat ou divisé entre-temps. Resélectionnez et réessayez."
+    },
+    {
+      "id": "pay-screen",
+      "title": "L’écran de paiement",
+      "intro": "Touchez la carte bancaire orange sur la carte de commande. À gauche, le détail et les réglages de l’addition ; à droite, l’encaissement.",
+      "fields": [
+        { "name": "Taxe", "effect": "Retirer ou changer la taxe de la commande (selon droits)." },
+        { "name": "Remise", "effect": "Choisir une remise prévue par l’établissement : sur toute la commande ou sur des plats choisis (« Sélectionner les articles »), avec un motif quand la remise l’exige. Les remises automatiques sont marquées « Automatique ». Sans droit, un responsable autorise avec son PIN." },
+        { "name": "Coupon", "effect": "Taper le code d’un coupon. Message clair s’il est expiré, hors horaire, sous le montant minimum ou déjà utilisé." },
+        { "name": "Frais de service", "effect": "Taux par défaut de l’établissement, modifiable ou supprimable selon droits." },
+        { "name": "Pourboire", "effect": "Montant fixe ou pourcentage." },
+        { "name": "Notes", "effect": "Texte libre sur la commande (ex. référence de paiement)." },
+        { "name": "Total", "effect": "Montant final à encaisser." }
+      ],
+      "image": "srv-payment.png",
+      "caption": "Écran de paiement."
+    },
+    {
+      "id": "pay",
+      "title": "Encaisser",
+      "intro": "En haut à droite, trois cases : À payer, Reçu, et Restant (rouge, il manque de l’argent) ou Monnaie (vert, à rendre).",
+      "steps": [
+        "Si un taux de change est configuré, « Le client paie en » USD / HTG apparaît en haut : choisissez la monnaie dans laquelle le client paie. Les montants s’affichent dans les deux monnaies.",
+        "Montant exact : touchez directement le mode de paiement (Espèces, Carte…) : le restant dû est ajouté.",
+        "Montant différent : tapez-le sur le pavé (C pour effacer), puis touchez le mode de paiement. Exemple : 2 000 en espèces pour une note de 1 650 → Monnaie 350 en vert.",
+        "Paiement en plusieurs fois : répétez avec un autre mode (moitié carte, moitié espèces).",
+        "Une ligne de paiement erronée : touchez-la (croix rouge) pour la retirer.",
+        "Touchez Terminer (vert). Il reste grisé tant que le Restant n’est pas à zéro.",
+        "La note finale s’imprime automatiquement, la commande passe à Payée et quitte la liste En cours."
+      ],
+      "bullets": [
+        "Carte : on ne rend pas la monnaie sur une carte. Si vous tapez plus que le restant, POSR ramène au montant exact (« Montant exact ajouté pour le paiement par carte ») ; si tout est déjà payé, il refuse d’ajouter une carte.",
+        "Certains modes de paiement appliquent leur propre taxe ou remise : le total peut changer en les choisissant.",
+        "Les paiements saisis sont enregistrés au fur et à mesure : fermer la fenêtre sans terminer les garde sur la commande.",
+        "Selon votre rôle, seuls certains modes de paiement sont proposés.",
+        "« Votre rôle n’encaisse pas » : à la place des modes de paiement et de Terminer. Vous pouvez encore imprimer la note provisoire ; appelez un caissier, qui se connecte avec son propre PIN."
+      ]
+    },
+    {
+      "id": "room",
+      "title": "Mettre sur la chambre",
+      "bullets": [
+        "Le mode de paiement chambre n’est actif que si le client de la commande est un client de l’hôtel encore en séjour. POSR le vérifie auprès de l’hôtel à l’ajout du paiement, puis encore au moment de Terminer.",
+        "« Départ prévu aujourd’hui » (bleu) : la charge est possible, mais le client part aujourd’hui ; assurez-vous que la réception la verra avant le check-out.",
+        "« Check-out fait dans ASI : ce client paie directement » : le client est parti, il paie comme un client de passage.",
+        "« Séjour non vérifiable (synchro ASI en retard) » : la liaison avec l’hôtel a plus de quelques minutes de retard. Faites payer directement, ou réessayez un peu plus tard.",
+        "La commande garde son client même s’il paie directement."
+      ]
+    },
+    {
+      "id": "fiscal",
+      "title": "Si un message fiscal apparaît",
+      "intro": "« Échec de la transmission fiscale » ou « Certains services fiscaux ont échoué » : la vente n’a pas pu être déclarée au service fiscal. Selon le réglage, la commande n’est pas clôturée (réessayez Terminer) ou elle l’est et la déclaration est rejouée plus tard. Prévenez le responsable dans les deux cas."
+    }
+  ]
+}

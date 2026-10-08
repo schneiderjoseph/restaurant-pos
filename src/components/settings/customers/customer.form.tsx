@@ -21,16 +21,18 @@ import {
   normalizeIdDocument,
 } from '@/lib/customer-id-document.ts';
 import { canRegisterGuestFromSearch } from '@/lib/guest.ts';
+import { maskPhone } from '@/lib/phone.ts';
 
 interface Props {
   customer?: Customer;
   canViewIdDocument: boolean;
+  canViewPhone: boolean;
   onClose: () => void;
   onSaved: () => void;
 }
 
 /** Identity of a customer: name, phone, email, ID document (Manage > Clients). */
-export const CustomerForm = ({ customer, canViewIdDocument, onClose, onSaved }: Props) => {
+export const CustomerForm = ({ customer, canViewIdDocument, canViewPhone, onClose, onSaved }: Props) => {
   const { t } = useTranslation(['admin', 'menu', 'common']);
   const db = useDB();
   const [page] = useAtom(appPage);
@@ -44,12 +46,13 @@ export const CustomerForm = ({ customer, canViewIdDocument, onClose, onSaved }: 
   useEffect(() => {
     if (!customer) return;
     setName(customer.name ?? '');
-    setPhone(customer.phone != null ? String(customer.phone) : '');
+    // Without the right to see it, the phone is never prefilled: typing replaces it.
+    setPhone(canViewPhone && customer.phone != null ? String(customer.phone) : '');
     setEmail(customer.email ?? '');
     setIdType(customer.id_document_type ?? '');
     // Without the right to see it, the ID is never prefilled: typing replaces it.
     setIdNumber(canViewIdDocument ? customer.id_document_number ?? '' : '');
-  }, [customer, canViewIdDocument]);
+  }, [customer, canViewIdDocument, canViewPhone]);
 
   if (!customer) return null;
 
@@ -69,12 +72,14 @@ export const CustomerForm = ({ customer, canViewIdDocument, onClose, onSaved }: 
           return;
         }
       }
+      const phoneValue = phone.trim();
       await updateCustomer(
         db,
         customer.id,
         {
           name: cleanName,
-          phone,
+          // Hidden phone left empty: keep the stored one.
+          ...(phoneValue || canViewPhone ? { phone: phoneValue || null } : {}),
           email,
           id_document_type: idType || null,
           // Hidden ID left empty: keep the stored one.
@@ -101,7 +106,12 @@ export const CustomerForm = ({ customer, canViewIdDocument, onClose, onSaved }: 
     <Modal open onClose={onClose} title={t('admin:customers.editTitle')} size="md" testId="customer-form">
       <div className="space-y-3">
         <Input label={t('menu:customer.name')} value={name} onChange={(event) => setName(event.target.value)} />
-        <PhoneInput label={t('menu:guest.phone')} value={phone} onChange={setPhone} testId="customer-form-phone" />
+        <div>
+          <PhoneInput label={t('menu:guest.phone')} value={phone} onChange={setPhone} testId="customer-form-phone" />
+          {!canViewPhone && customer.phone != null && String(customer.phone).trim() ? (
+            <p className="text-sm text-neutral-500 mt-1">{maskPhone(customer.phone)}</p>
+          ) : null}
+        </div>
         <Input
           label={t('admin:customers.email')}
           type="email"

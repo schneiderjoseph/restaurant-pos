@@ -73,9 +73,15 @@ function imageHrefFromHub(relFromRoot) {
   return `../../images/${relFromRoot}`;
 }
 
+/** Per-language UI labels for the rendered guide; set by assembleLang from guides.json. */
+let LABELS = {
+  fields: 'Fields',
+  screenshotPending: 'Screenshot pending',
+};
+
 function renderFieldsMarkdown(section) {
   if (!Array.isArray(section.fields) || !section.fields.length) return '';
-  const lines = ['**Fields**', ''];
+  const lines = [`**${LABELS.fields}**`, ''];
   for (const f of section.fields) {
     lines.push(`- **${f.name}** — ${f.effect}`);
   }
@@ -91,7 +97,7 @@ function renderFieldsHtml(section) {
         `<li><strong>${escapeHtml(f.name)}</strong> — ${escapeHtml(f.effect)}</li>`
     )
     .join('\n');
-  return `<p><strong>Fields</strong></p><ul class="field-list">${items}</ul>`;
+  return `<p><strong>${escapeHtml(LABELS.fields)}</strong></p><ul class="field-list">${items}</ul>`;
 }
 
 function sectionToMarkdown(section, langFolder, imageHrefFn) {
@@ -100,6 +106,10 @@ function sectionToMarkdown(section, langFolder, imageHrefFn) {
   if (section.intro) lines.push(section.intro, '');
   if (Array.isArray(section.steps) && section.steps.length) {
     section.steps.forEach((step, i) => lines.push(`${i + 1}. ${step}`));
+    lines.push('');
+  }
+  if (Array.isArray(section.bullets) && section.bullets.length) {
+    section.bullets.forEach((b) => lines.push(`- ${b}`));
     lines.push('');
   }
   const fieldsMd = renderFieldsMarkdown(section);
@@ -118,7 +128,7 @@ function sectionToMarkdown(section, langFolder, imageHrefFn) {
       }
     } else {
       lines.push(
-        `> _Screenshot pending: \`${section.image}\` (run \`DOCS_GUIDE_LANG=${langFolder} npm run docs:guide:capture\`)_`,
+        `> _${LABELS.screenshotPending}: \`${section.image}\` (run \`DOCS_GUIDE_LANG=${langFolder} npm run docs:guide:capture\`)_`,
         ''
       );
     }
@@ -136,6 +146,11 @@ function sectionToHtml(section, langFolder, imageHrefFn) {
     for (const step of section.steps) parts.push(`<li>${escapeHtml(step)}</li>`);
     parts.push('</ol>');
   }
+  if (Array.isArray(section.bullets) && section.bullets.length) {
+    parts.push('<ul>');
+    for (const b of section.bullets) parts.push(`<li>${escapeHtml(b)}</li>`);
+    parts.push('</ul>');
+  }
   const fieldsHtml = renderFieldsHtml(section);
   if (fieldsHtml) parts.push(fieldsHtml);
   if (section.image) {
@@ -152,7 +167,7 @@ function sectionToHtml(section, langFolder, imageHrefFn) {
       }
     } else {
       parts.push(
-        `<p class="pending"><em>Screenshot pending: ${escapeHtml(section.image)} — run DOCS_GUIDE_LANG=${escapeHtml(langFolder)} npm run docs:guide:capture</em></p>`
+        `<p class="pending"><em>${escapeHtml(LABELS.screenshotPending)}: ${escapeHtml(section.image)} — run DOCS_GUIDE_LANG=${escapeHtml(langFolder)} npm run docs:guide:capture</em></p>`
       );
     }
   }
@@ -418,6 +433,10 @@ function assembleLang(lang) {
 
   const common = readJsonSafe(path.join(localeDir, 'common.json'), { chapters: {} });
   const guidesJson = readJsonSafe(path.join(localeDir, 'guides.json'), {});
+  LABELS = {
+    fields: guidesJson.fieldsLabel || 'Fields',
+    screenshotPending: guidesJson.screenshotPending || 'Screenshot pending',
+  };
   const hub = {
     title: guidesJson.title || 'POSR Documentation',
     intro:

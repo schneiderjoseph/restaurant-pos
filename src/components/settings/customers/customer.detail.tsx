@@ -9,7 +9,7 @@ import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { CustomerAlerts } from '@/components/customer/customer.alerts.tsx';
 import { customerHistoryIds, customerNumberLabel, isCustomerDeleted } from '@/lib/customer.service.ts';
 import { maskIdDocument } from '@/lib/customer-id-document.ts';
-import { displayPhone } from '@/lib/phone.ts';
+import { visiblePhone } from '@/lib/phone.ts';
 import { formatGuestLabel } from '@/lib/guest.ts';
 import { calculateOrderNetSales, getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
@@ -18,6 +18,7 @@ import { withCurrency } from '@/lib/utils.ts';
 interface Props {
   customer?: Customer;
   canViewIdDocument: boolean;
+  canViewPhone: boolean;
   onClose: () => void;
 }
 
@@ -25,7 +26,7 @@ interface Props {
 const HISTORY_LIMIT = 200;
 
 /** Who the customer is, what they like, and what they ordered (merged duplicates included). */
-export const CustomerDetail = ({ customer, canViewIdDocument, onClose }: Props) => {
+export const CustomerDetail = ({ customer, canViewIdDocument, canViewPhone, onClose }: Props) => {
   const { t } = useTranslation(['admin', 'menu', 'orders', 'common']);
   const { t: tOrders } = useTranslation('orders');
   const db = useDB();
@@ -93,7 +94,7 @@ export const CustomerDetail = ({ customer, canViewIdDocument, onClose }: Props) 
 
   const identity: Array<[string, string]> = [
     [t('menu:customer.number'), customerNumberLabel(customer)],
-    [t('menu:guest.phone'), displayPhone(customer.phone)],
+    [t('menu:guest.phone'), visiblePhone(customer.phone, canViewPhone)],
     [t('admin:customers.email'), customer.email ?? ''],
     [
       customer.id_document_type

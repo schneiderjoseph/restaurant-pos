@@ -1,39 +1,41 @@
 {
   "title": "Répartition des pourboires",
-  "intro": "Calcule la répartition des pourboires du shift et enregistre le résultat.",
+  "intro": "L’écran « Répart. pourb. » calcule la part de chacun dans la cagnotte d’un service, selon des poids fixés par l’administrateur, et l’enregistre.",
   "sections": [
     {
-      "id": "overview",
-      "title": "Écran de répartition",
-      "steps": [
-        "Appuyez sur Répartition des pourboires.",
-        "Sélectionnez shift et date.",
-        "Charger calcule les totaux."
-      ],
-      "image": "tips-overview.png",
-      "caption": "Écran de répartition."
+      "id": "setup",
+      "title": "Ce qu’il faut avoir réglé avant (administrateur)",
+      "bullets": [
+        "Gérer → Utilisateurs → Services : chaque service (Midi, Soir…) avec ses heures. Un service qui finit après minuit est reconnu et va jusqu’au lendemain.",
+        "Chaque utilisateur est rattaché à un service dans sa fiche.",
+        "Gérer → Utilisateurs → Définition des pourboires : un poids par rôle (par exemple Serveur 2, Commis 1, Barman 1,5), et si besoin un poids particulier pour une personne, qui remplace celui de son rôle."
+      ]
     },
     {
-      "id": "filters",
-      "title": "Shift et date",
+      "id": "calc",
+      "title": "Calculer la répartition",
       "steps": [
-        "Choisissez le shift.",
-        "Choisissez la date.",
-        "Appuyez sur Charger."
+        "Choisissez le Service et la Date.",
+        "Touchez « Charger les pourboires ».",
+        "« Total des pourboires : … » affiche la cagnotte, et le tableau liste chaque personne du service avec son rôle, son poids et son montant.",
+        "Vérifiez, puis touchez Soumettre pour enregistrer la répartition (« répartition enregistrée »)."
       ],
-      "image": "tips-filters.png",
-      "caption": "Shift, date et chargement."
+      "fields": [
+        { "name": "Cagnotte", "effect": "Pourboires des commandes payées entre l’heure de début et l’heure de fin du service, ce jour-là, encaissées par une personne de ce service." },
+        { "name": "Montant d’une personne", "effect": "Cagnotte × son poids ÷ somme des poids des personnes du service." },
+        { "name": "Commande en DUO", "effect": "Son pourboire est d’abord partagé entre les deux serveurs au prorata de leurs ventes sur la commande ; chaque part va dans la cagnotte du service de son serveur." }
+      ],
+      "note": "La cagnotte suit le service de la personne qui a encaissé (hors DUO), pas celui du serveur : si un caissier du soir encaisse une table du midi, le pourboire part dans la cagnotte du soir. Encaissez dans le bon service."
     },
     {
-      "id": "table",
-      "title": "Tableau de répartition",
-      "steps": [
-        "Le total montre le montant du shift.",
-        "Chaque ligne : utilisateur, rôle, poids et part.",
-        "Envoyer enregistre après contrôle."
-      ],
-      "image": "tips-table.png",
-      "caption": "Totaux et tableau."
+      "id": "zero",
+      "title": "Si un montant est à 0",
+      "bullets": [
+        "Personne absente du tableau : elle n’est rattachée à aucun service, ou à un autre service.",
+        "Poids 0 : son rôle n’a pas de poids dans la Définition des pourboires.",
+        "« Aucune répartition calculée pour le moment » : touchez d’abord « Charger les pourboires ».",
+        "« Sélectionnez un service et une date » : l’un des deux manque."
+      ]
     }
   ]
 }

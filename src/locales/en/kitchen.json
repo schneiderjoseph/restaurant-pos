@@ -17,7 +17,12 @@
     "items": "Items: {{count}}",
     "room": "Room",
     "table": "Table",
-    "guest": "Guest"
+    "guest": "Guest",
+    "allergies": "Allergies",
+    "covers": "{{count}} covers",
+    "orderNotes": "Order notes",
+    "seat": "Seat {{seat}}",
+    "takenAt": "Taken at {{time}}"
   },
   "announcements": {
     "newOrder": "New order. {{context}}. {{number}}.",

@@ -14,7 +14,12 @@
     "addon": "EK",
     "original": "ASIL",
     "completed": "Tamamlandı: {{time}}",
-    "items": "Ürünler: {{count}}"
+    "items": "Ürünler: {{count}}",
+    "allergies": "Alerjiler",
+    "covers": "{{count}} kişi",
+    "orderNotes": "Sipariş notları",
+    "seat": "Koltuk {{seat}}",
+    "takenAt": "Alındı: {{time}}"
   },
   "announcements": {
     "newOrder": "Yeni sipariş. {{context}}. {{number}}.",

@@ -14,7 +14,12 @@
     "addon": "EXTRA",
     "original": "ORIGINEEL",
     "completed": "Voltooid: {{time}}",
-    "items": "Artikelen: {{count}}"
+    "items": "Artikelen: {{count}}",
+    "allergies": "Allergieën",
+    "covers": "{{count}} couverts",
+    "orderNotes": "Bestelnotities",
+    "seat": "Plaats {{seat}}",
+    "takenAt": "Opgenomen om {{time}}"
   },
   "announcements": {
     "newOrder": "Nieuwe bestelling. {{context}}. {{number}}.",

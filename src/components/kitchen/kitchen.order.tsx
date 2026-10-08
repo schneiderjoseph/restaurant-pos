@@ -18,6 +18,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import { useActionVisible } from "@/hooks/useActionVisible.ts";
+import { CustomerAlerts } from "@/components/customer/customer.alerts.tsx";
+import { customerAllergies } from "@/lib/customer-preferences.ts";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import {
   formatKitchenGuestLabel,
   formatKitchenPlaceLabel,
@@ -88,6 +92,9 @@ export const KitchenOrder = ({
     table: t('labels.table'),
   });
   const guestLabel = formatKitchenGuestLabel(order?.customer, guestLabelMode);
+  const allergies = customerAllergies(order?.customer);
+  const orderNotes = order?.notes?.trim();
+  const takenAt = order?.created_at ? toLuxonDateTime(order.created_at)?.toFormat('HH:mm') : null;
 
   const ready = async () => {
     try {
@@ -260,6 +267,17 @@ export const KitchenOrder = ({
                 {t("labels.items", { count: itemCount })}
               </span>
               {kindLabel}
+              {allergies.length > 0 && (
+                // Allergies must not go unseen: open the ticket for the detail.
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded-full bg-danger-600 text-white truncate"
+                  title={allergies.join(', ')}
+                  data-testid="kitchen-allergy-badge"
+                >
+                  <FontAwesomeIcon icon={faTriangleExclamation} className="mr-1" />
+                  {t("labels.allergies")}
+                </span>
+              )}
             </div>
             <span className="text-sm font-semibold truncate opacity-70">{order?.user?.first_name}</span>
           </div>
@@ -286,7 +304,10 @@ export const KitchenOrder = ({
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg bg-white p-3">
               {subtitle && <span className="font-semibold uppercase">{subtitle}</span>}
+              {guestLabel && <span className="font-semibold">{guestLabel}</span>}
+              {order?.covers ? <span className="text-neutral-600">{t("labels.covers", { count: order.covers })}</span> : null}
               {order?.user?.first_name && <span className="text-neutral-600">{order.user.first_name}</span>}
+              {takenAt && <span className="text-neutral-600">{t("labels.takenAt", { time: takenAt })}</span>}
               {dueLabel && <span className="font-black text-danger-600">{dueLabel}</span>}
               {timerStart && (
                 <span className="ml-auto font-bold tabular-nums">
@@ -294,6 +315,16 @@ export const KitchenOrder = ({
                 </span>
               )}
             </div>
+
+            {/* Allergies, diet and the guest's note come before the dishes. */}
+            <CustomerAlerts customer={order?.customer} kitchen />
+
+            {orderNotes && (
+              <div className="rounded-lg border border-warning-300 bg-warning-100 p-3" data-testid="kitchen-order-notes">
+                <div className="font-bold text-sm mb-1">{t("labels.orderNotes")}</div>
+                <div className="whitespace-pre-wrap text-lg">{orderNotes}</div>
+              </div>
+            )}
 
             {/* Tap a line to mark that dish ready on its own. */}
             <div className="rounded-lg bg-white divide-y divide-neutral-100 max-h-[60vh] overflow-auto">
@@ -308,6 +339,11 @@ export const KitchenOrder = ({
                   )}
                   key={item.id}
                 >
+                  {item.order_item?.seat && (
+                    <span className="self-start text-xs font-bold px-2 py-0.5 rounded-full bg-neutral-200 text-neutral-700 shrink-0">
+                      {t("labels.seat", { seat: item.order_item.seat })}
+                    </span>
+                  )}
                   <OrderItemName item={item.order_item} showQuantity />
                 </div>
               ))}

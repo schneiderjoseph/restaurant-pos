@@ -1,0 +1,149 @@
+{
+  "title": "Panier et envoi en cuisine",
+  "intro": "Le panier à droite contient ce que vous êtes en train de commander. Vérifiez-le avec le client, ajoutez les précisions, puis envoyez.",
+  "sections": [
+    {
+      "id": "layout",
+      "title": "Comment le panier est organisé",
+      "bullets": [
+        "En haut : la barre des places quand rien n’est sélectionné ; elle est remplacée par la barre d’actions dès qu’une ligne est sélectionnée.",
+        "Au milieu : d’abord les plats que vous venez d’ajouter, puis un trait noir, puis les plats déjà envoyés de la commande.",
+        "Le prix à droite de chaque ligne est hors taxes ; les taxes, frais et le total sont en bas, au-dessus des boutons.",
+        "Les plats nouveaux identiques sont regroupés sur une ligne ; « Voir chaque plat » les détaille, « Replier » les regroupe."
+      ]
+    },
+    {
+      "id": "lines",
+      "title": "Modifier une ligne",
+      "fields": [
+        {
+          "name": "− / +",
+          "effect": "Change la quantité. À 1, le − devient une corbeille : la ligne est retirée."
+        },
+        {
+          "name": "Crayon",
+          "effect": "Rouvre la fenêtre d’options. N’apparaît que si le plat a des options."
+        },
+        {
+          "name": "Bulle",
+          "effect": "Ouvre le clavier pour un commentaire cuisine, avec les boutons rapides. Le commentaire est enregistré quand le clavier se ferme."
+        },
+        {
+          "name": "Ligne barrée en rouge",
+          "effect": "Plat déjà envoyé que vous venez de retirer. La suppression n’est effective qu’à Envoyer (et peut demander une approbation, voir « Modifier une commande envoyée »)."
+        }
+      ],
+      "note": "Les boutons −, +, crayon et bulle n’apparaissent que sur les lignes modifiables : les nouvelles lignes, et les lignes d’une commande rouverte avec Modifier.",
+      "image": "srv-cart.png",
+      "caption": "Panier : places, lignes, total et boutons d’envoi."
+    },
+    {
+      "id": "seats",
+      "title": "Les places",
+      "intro": "Les places servent à savoir quel plat va à quelle personne, et à diviser l’addition par places.",
+      "steps": [
+        "Touchez le bouton orange « + Place » : une place est créée (Place n° 1, 2…) et devient la place active.",
+        "Les plats que vous touchez ensuite vont sur la place active.",
+        "Touchez un onglet de place pour l’activer : le panier n’affiche alors que les plats de cette place.",
+        "« Sans place » apparaît quand des plats n’ont pas de place ; touchez-le pour les voir.",
+        "Une place vide affiche le bouton rouge « Place ? » : touchez-le pour la supprimer."
+      ],
+      "note": "Si un plat semble avoir disparu du panier, vérifiez l’onglet de place actif : il est probablement sur une autre place."
+    },
+    {
+      "id": "comments",
+      "title": "Commentaires rapides",
+      "intro": "Dans la fenêtre commentaire, des boutons tout prêts évitent de taper : Sans sel, Sans sucre, Sans oignon, Sans ail, Sans piment, Sans sauce, Sauce à part, Extra sauce, Sans beurre, Sans fromage, Saignant, À point, Bien cuit, Allergie, Immédiat. Le commentaire s’imprime sur le ticket cuisine sous le plat.",
+      "bullets": [
+        "Pour heure : le plat doit sortir à une heure précise. Le ticket cuisine imprime « POUR 19:30 » sur la ligne.",
+        "Immédiat : le plat part tout de suite. Choisir Immédiat retire la « Pour heure », et inversement."
+      ]
+    },
+    {
+      "id": "select",
+      "title": "Actions sur plusieurs lignes",
+      "intro": "Touchez une ligne pour la sélectionner : elle devient grise. Les boutons au-dessus du panier agissent sur toutes les lignes sélectionnées. Seules les lignes encore modifiables (pas encore envoyées) ou en attente peuvent être sélectionnées.",
+      "fields": [
+        {
+          "name": "☑ Tout sélectionner",
+          "effect": "Sélectionne toutes les lignes (un deuxième appui désélectionne)."
+        },
+        {
+          "name": "Copier (deux feuilles)",
+          "effect": "Duplique les lignes sélectionnées, options et commentaires compris. Pratique pour « la même chose pour monsieur »."
+        },
+        {
+          "name": "Corbeille rouge",
+          "effect": "Retire les lignes sélectionnées, après confirmation « Retirer les articles sélectionnés de cette commande ? »."
+        },
+        {
+          "name": "⏸ Mettre en attente / ▶ Envoyer",
+          "effect": "Retient des plats pour les lancer plus tard (voir ci-dessous)."
+        },
+        {
+          "name": "Place",
+          "effect": "Attribue les lignes à la place 1, 2… ou à une « Nouvelle place ». Sert à servir la bonne personne et à diviser l’addition par places."
+        }
+      ],
+      "note": "Copier, Corbeille et Place n’apparaissent que lorsqu’une ligne est sélectionnée."
+    },
+    {
+      "id": "hold",
+      "title": "Mettre des plats en attente (⏸) et les lancer (▶)",
+      "intro": "Usage typique : vous prenez toute la commande d’un coup (entrées et plats), vous retenez les plats, et vous les lancez en cuisine seulement quand la table a fini ses entrées.",
+      "steps": [
+        "Sélectionnez les lignes à retenir (elles deviennent grises).",
+        "Touchez le bouton orange ⏸ (Mettre en attente). Les lignes passent sur fond orange clair.",
+        "Touchez Envoyer en bas du panier : les autres lignes partent en cuisine ; les lignes en attente sont enregistrées dans la commande mais ne partent pas (pas de ticket imprimé, rien sur l’écran de la station).",
+        "Le moment venu, rouvrez la commande, touchez les lignes orange pour les sélectionner : le bouton devient vert ▶ (Envoyer).",
+        "Touchez ▶ : le ticket part en cuisine, marqué SUPPLÉMENT, et les lignes redeviennent normales."
+      ],
+      "bullets": [
+        "Changement d’avis avant d’envoyer : sélectionnez la ligne orange ; le bouton devient ▶. Touchez-le : l’attente est retirée et la ligne partira avec le prochain Envoyer (rien n’est imprimé à ce moment-là, puisque la commande n’est pas encore enregistrée).",
+        "Le bouton ▶ s’affiche dès qu’au moins une ligne sélectionnée est en attente ; sinon c’est ⏸. Pour mettre en attente, sélectionnez donc uniquement des lignes normales.",
+        "Une ligne en attente n’est pas comptée dans le total, ni sur la note provisoire, ni à l’encaissement : elle n’est facturée qu’une fois lancée.",
+        "À la division de l’addition, les lignes en attente ne sont pas proposées : elles suivent la première division.",
+        "Le chronomètre de la cuisine part au moment où vous touchez ▶, pas au moment de la prise de commande."
+      ],
+      "note": "Avant de présenter l’addition, vérifiez qu’il ne reste pas de lignes orange : un plat resté en attente ne sera ni préparé ni payé."
+    },
+    {
+      "id": "due",
+      "title": "Commande pour plus tard",
+      "steps": [
+        "En bas du panier, touchez « Pour quand : dès que possible ».",
+        "Choisissez un délai (15 min à 2 h) ou une heure précise aujourd’hui ou demain.",
+        "Touchez Valider.",
+        "Le ticket cuisine, la station et l’écran d’affichage montrent « Pour 19:30 ». Le chronomètre de la cuisine ne démarre qu’à cette heure-là."
+      ],
+      "note": "Si l’heure choisie est déjà passée au moment de l’envoi, la commande part en « dès que possible »."
+    },
+    {
+      "id": "send",
+      "title": "Les boutons du bas",
+      "fields": [
+        {
+          "name": "Pour quand : dès que possible",
+          "effect": "Commande pour plus tard (voir ci-dessus)."
+        },
+        {
+          "name": "Envoyer (vert ✓)",
+          "effect": "Enregistre la commande, envoie les tickets aux stations concernées, puis revient à l’écran Client (ou au plan de salle) et libère la table. Grisé si le panier est vide."
+        },
+        {
+          "name": "Annuler (rouge)",
+          "effect": "Abandonne les plats non envoyés et quitte la commande, sans confirmation. Les plats déjà envoyés ne sont pas touchés."
+        },
+        {
+          "name": "Effacer (orange ×)",
+          "effect": "Retire les plats non envoyés mais reste sur la commande. Grisé s’il n’y a rien de nouveau."
+        }
+      ],
+      "bullets": [
+        "Après Envoyer, la commande apparaît dans Commandes et sur l’écran d’affichage « En préparation » ; les lignes en attente restent en attente.",
+        "Un double appui sur Envoyer n’envoie pas deux fois : tant que l’envoi est en cours, le bouton tourne et les appuis suivants sont ignorés.",
+        "Il n’y a pas de bouton Payer dans le panier : l’addition se fait depuis Commandes."
+      ]
+    }
+  ]
+}

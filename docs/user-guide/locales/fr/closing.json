@@ -1,51 +1,42 @@
 {
-  "title": "Closing",
-  "intro": "Closing is the end-of-day cash and payment reconciliation screen. Count terminal cash, record expenses, review payment totals, then save a draft or complete the closing cycle.",
+  "title": "Clôture de caisse (module optionnel)",
+  "intro": "Ce chapitre ne concerne que les établissements où le module Clôture est activé. Sans lui, l’écran Clôture n’apparaît pas et la prise de commande n’est jamais bloquée.",
   "sections": [
     {
-      "id": "overview",
-      "title": "Closing overview",
-      "steps": [
-        "Tap Closing in the sidebar.",
-        "The title shows today’s date and the active closing window (business day cycle).",
-        "Alerts warn if the cycle is disabled or already completed."
-      ],
-      "image": "closing-overview.png",
-      "caption": "Closing screen header and cycle window."
+      "id": "cycle",
+      "title": "Le cycle de clôture",
+      "bullets": [
+        "Le responsable fixe un cycle (par exemple de 06:00 à 05:59 le lendemain). En haut de l’écran : « Cycle : début - fin ».",
+        "À la fin du cycle, s’il est réglé ainsi, les tickets de table encore ouverts sont clôturés automatiquement ; un avertissement « Les tickets seront clôturés automatiquement dans … » apparaît 1 minute avant. Les livraisons ne sont pas concernées.",
+        "Une fois la clôture terminée pour le cycle, la prise de commande est bloquée jusqu’au cycle suivant (« Prise de commande temporairement indisponible » chez les serveurs).",
+        "Si le cycle est désactivé, la période va de la dernière clôture terminée jusqu’à maintenant."
+      ]
     },
     {
-      "id": "cash",
-      "title": "Balances and terminal cash",
-      "steps": [
-        "Enter previous day balance and petty cash added today.",
-        "For each terminal, count notes and coins or enter a total cash amount.",
-        "Add or remove terminals with the Add terminal control."
+      "id": "fill",
+      "title": "Remplir la clôture",
+      "fields": [
+        { "name": "Solde du jour précédent", "effect": "Fond de caisse laissé la veille." },
+        { "name": "Caisse petite monnaie", "effect": "Montant de la petite caisse." },
+        { "name": "Espèces du terminal", "effect": "Comptage par terminal : nombre de billets et de pièces de chaque valeur ; le total se calcule. « Ajouter un terminal » pour une deuxième caisse." },
+        { "name": "Résumé des types de paiement du système", "effect": "Ce que POSR a encaissé par mode de paiement sur la période." },
+        { "name": "Dépenses", "effect": "« Ajouter une dépense » : description, catégorie, montant (achat payé en espèces dans la caisse)." },
+        { "name": "Notes", "effect": "Remarques pour le responsable." }
       ],
-      "image": "closing-terminal-cash.png",
-      "caption": "Terminal cash counting section."
+      "bullets": [
+        "« Écart » : différence entre les espèces comptées et les espèces attendues d’après les paiements. Recomptez avant de clôturer si l’écart n’est pas nul.",
+        "Le Résumé en bas donne : solde précédent, total espèces, autres paiements, dépenses, montant net."
+      ]
     },
     {
-      "id": "payments-expenses",
-      "title": "Payments and expenses",
-      "steps": [
-        "Payment summary lists each payment type with system totals (editable when not completed).",
-        "Add expenses with description, category, and amount.",
-        "Net amount summarizes cash, other payments, expenses, and balances."
-      ],
-      "image": "closing-payments.png",
-      "caption": "Payment summaries and expenses."
-    },
-    {
-      "id": "actions",
-      "title": "Save, complete, and print",
-      "steps": [
-        "Save closing stores a draft without locking the day.",
-        "Close closing completes the cycle (open orders in the cycle must be settled first).",
-        "Print closing sends a summary slip to the printer.",
-        "Reopen appears after completion if your role can edit closings."
-      ],
-      "image": "closing-actions.png",
-      "caption": "Save, close, print, and reopen actions."
+      "id": "finish",
+      "title": "Enregistrer, clôturer, imprimer",
+      "fields": [
+        { "name": "Enregistrer la clôture", "effect": "Garde la saisie sans clôturer (on peut y revenir)." },
+        { "name": "Clôturer", "effect": "Termine la clôture du cycle. La prise de commande est bloquée jusqu’au cycle suivant." },
+        { "name": "Imprimer la clôture", "effect": "Ticket de clôture pour le classeur." },
+        { "name": "Modifier (approbation manager)", "effect": "Rouvre une clôture terminée ; un responsable doit autoriser." }
+      ]
     }
   ]
 }

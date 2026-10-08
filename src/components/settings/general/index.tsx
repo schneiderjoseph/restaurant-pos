@@ -2,8 +2,7 @@ import {PropsWithChildren} from "react";
 import {RestaurantProfileSettingsCard} from "@/components/user_settings/restaurant_profile.tsx";
 import {CurrencySymbolSettingsCard} from "@/components/user_settings/currency_symbol.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
-// Printer routing is moving to the print router; the default/system printers card stays hidden.
-// import {Printersettings} from "@/components/user_settings/printers.tsx";
+import {Printersettings} from "@/components/user_settings/printers.tsx";
 import {PrintOptionsSettingsCard} from "@/components/user_settings/print_options.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AsiOutletsSettingsCard} from "@/components/user_settings/asi_outlets.tsx";
@@ -30,7 +29,7 @@ export const AdminGeneralSettings = () => (
     <MasonryItem><RestaurantProfileSettingsCard /></MasonryItem>
     <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
     <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
-    {/* <MasonryItem><Printersettings /></MasonryItem> */}
+    <MasonryItem><Printersettings /></MasonryItem>
     <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>
     <MasonryItem><MenusSettings /></MasonryItem>
     {/* Carries its own masonry wrapper: it renders nothing where ASI is not synced. */}

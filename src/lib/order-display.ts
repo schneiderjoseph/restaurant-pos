@@ -83,6 +83,47 @@ export function kitchenReadyOrderIds(
   return ready;
 }
 
+/**
+ * Order item ids the kitchen is done with, for the "ready" mark on each line: every line of an
+ * order that is ready as a whole (`readyOrders`, from `kitchenReadyOrderIds`), and otherwise a
+ * line with at least one completed kitchen row and none still to do. A line copied by a split
+ * by amount follows its original line's rows. `items` need their `id`.
+ */
+export function kitchenReadyItemIds(
+  items: Array<KitchenReadyItem & { id?: unknown }> = [],
+  rows: KitchenReadyRow[] = [],
+  readyOrders: Set<string> = new Set()
+): Set<string> {
+  const done = new Set<string>();
+  const pending = new Set<string>();
+  for (const row of rows) {
+    if (row.deleted_at || row.is_suspended === true) {
+      continue;
+    }
+    const key = kitchenOrderItemKey(row.order_item);
+    if (row.status && INCOMPLETE_KITCHEN_STATUSES.has(row.status)) {
+      pending.add(key);
+    } else if (row.status === OrderItemKitchenStatus.Completed) {
+      done.add(key);
+    }
+  }
+
+  const ready = new Set<string>();
+  for (const item of items) {
+    if (item.deleted_at || item.is_refunded === true || item.is_suspended === true) {
+      continue;
+    }
+    const key = kitchenOrderItemKey(item.id);
+    const source = item.split_source ? kitchenOrderItemKey(item.split_source) : '';
+    const keys = source ? [key, source] : [key];
+    const isDone = keys.some((k) => done.has(k)) && !keys.some((k) => pending.has(k));
+    if (key && (readyOrders.has(orderIdKey(item.order)) || isDone)) {
+      ready.add(key);
+    }
+  }
+  return ready;
+}
+
 /** Stable key for order_item whether FETCH expanded it or left a RecordId. */
 export function kitchenOrderItemKey(value: unknown): string {
   if (value == null) {

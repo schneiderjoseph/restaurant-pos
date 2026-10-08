@@ -16,7 +16,7 @@ import { DatePicker } from "@/components/common/antd/datepicker.tsx";
 import { withCurrency } from "@/lib/utils.ts";
 import { appPage } from "@/store/jotai.ts";
 import { isOvernightShift } from "@/lib/shift.utils.ts";
-import { duoTipParts } from "@/lib/duo.ts";
+import { sharedTipParts } from "@/lib/duo.ts";
 import { DateValue } from "react-aria-components";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import {useTranslation} from "react-i18next";
@@ -112,7 +112,7 @@ export const TipDistributionScreen = () => {
          WHERE status = $status
            AND completed_at >= $fromAt
            AND completed_at <= $toAt
-         FETCH cashier, cashier.user_role, cashier.user_shift, user, user.user_role, user.user_shift, items, duo`,
+         FETCH cashier, cashier.user_role, cashier.user_shift, user, user.user_role, user.user_shift, items`,
         {
           status: OrderStatus.Paid,
           fromAt: fromDate,
@@ -126,10 +126,10 @@ export const TipDistributionScreen = () => {
         normalizeId((user as any)?.user_shift?.id ?? (user as any)?.user_shift),
       ]));
       const tips = (orders || []).reduce((sum, order) => {
-        // A duo's tip is shared by the two first; each part joins the pool of its server's shift.
-        const duoParts = duoTipParts(order);
-        if (duoParts.size > 0) {
-          return sum + Array.from(duoParts.entries())
+        // A tip several servers earned is shared by their sales first; each part joins the pool of its server's shift.
+        const sharedParts = sharedTipParts(order);
+        if (sharedParts.size > 0) {
+          return sum + Array.from(sharedParts.entries())
             .filter(([userId]) => shiftOfUser.get(normalizeId(userId)) === selectedShiftId)
             .reduce((total, [, amount]) => total + amount, 0);
         }

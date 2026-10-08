@@ -768,6 +768,7 @@
       "customers.create": "تسجيل عملاء بدون حجز",
       "customers.preferences": "تعديل الحساسية والنظام الغذائي والملاحظات",
       "customers.view_id_document": "رؤية وثائق الهوية كاملة",
+      "customers.view_phone": "رؤية أرقام الهاتف كاملة",
       "admin.customers": "العملاء",
       "admin.customers.update": "تعديل أي عميل",
       "admin.customers.delete": "حذف العملاء واستعادتهم",

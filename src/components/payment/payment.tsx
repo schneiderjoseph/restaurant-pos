@@ -421,7 +421,6 @@ export const Payment = () => {
         items: items,
         // NONE when tableless; never pass undefined (Surreal error "undefined doesn't exist")
         table: state?.table?.id ? toRecordId(state.table.id) : null,
-        user: page?.user?.id ? toRecordId(page.user.id) : null,
       };
 
       // A customer left as loaded is not written back: the order may have been moved to
@@ -431,8 +430,14 @@ export const Payment = () => {
         delete data.customer;
       }
 
-      // In a duo, the order is the duo's: its lines count for whichever of the two added them.
-      // An order of the partner stays theirs when this user changes it.
+      // The order stays with the server who opened it: a colleague adding to it does not take it
+      // over (it would drop out of the opener's Orders list). Each line counts for whoever added
+      // it (`created_by`), so the sales stay traceable.
+      if (isNewOrder) {
+        data.user = page?.user?.id ? toRecordId(page.user.id) : null;
+      }
+
+      // In a duo, the order is the duo's.
       if (duo) {
         const members = duoMemberIds(duo);
         const [storedOwner] = isNewOrder
@@ -440,9 +445,6 @@ export const Payment = () => {
           : await db.query(`SELECT VALUE user FROM ONLY $id`, {id: toRecordId(state?.order?.id)});
         if (isNewOrder || members.includes(refKey(storedOwner))) {
           data.duo = toRecordId(refKey(duo));
-          if (!isNewOrder) {
-            data.user = storedOwner;
-          }
         }
       }
 

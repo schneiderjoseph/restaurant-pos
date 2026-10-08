@@ -14,7 +14,12 @@
     "addon": "ZUSATZ",
     "original": "ORIGINAL",
     "completed": "Abgeschlossen: {{time}}",
-    "items": "Artikel: {{count}}"
+    "items": "Artikel: {{count}}",
+    "allergies": "Allergien",
+    "covers": "{{count}} Gedecke",
+    "orderNotes": "Bestellnotizen",
+    "seat": "Platz {{seat}}",
+    "takenAt": "Aufgenommen um {{time}}"
   },
   "announcements": {
     "newOrder": "Neue Bestellung. {{context}}. {{number}}.",

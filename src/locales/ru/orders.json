@@ -55,6 +55,7 @@
   "status": {
     "inProgress": "В работе",
     "ready": "Готов",
+    "itemReady": "Готов",
     "paid": "Оплачен",
     "cancelled": "Отменён",
     "spilt": "Разделён",

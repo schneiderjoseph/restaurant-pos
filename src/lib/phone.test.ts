@@ -7,6 +7,7 @@ import {
   samePhone,
   splitPhone,
   toE164,
+  visiblePhone,
 } from '@/lib/phone.ts';
 
 describe('toE164', () => {
@@ -80,6 +81,11 @@ describe('formatPhone / displayPhone / maskPhone', () => {
   it('masks all but the last four digits', () => {
     expect(maskPhone('+509 3747 3889')).toBe('+509 •••• 3889');
     expect(maskPhone('12')).toBe('');
+  });
+
+  it('shows full or masked phone from the view right', () => {
+    expect(visiblePhone('+509 3747 3889', true)).toBe('+509 3747 3889');
+    expect(visiblePhone('+509 3747 3889', false)).toBe('+509 •••• 3889');
   });
 });
 

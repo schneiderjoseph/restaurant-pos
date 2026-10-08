@@ -1,40 +1,44 @@
 {
-  "title": "Vue d'ensemble Comptabilité",
-  "intro": "Comptabilité est le hub financier : plan comptable, journaux, grands livres et états.",
+  "title": "Comptabilité : vue d’ensemble (module optionnel)",
+  "intro": "Ce guide ne concerne que les établissements où le module Comptabilité est activé (onglet « Accounts » de la barre latérale). Les noms des onglets de cet écran sont encore en anglais dans l’application ; ils sont repris tels quels ici.",
   "sections": [
     {
-      "id": "open",
-      "title": "Ouvrir Comptabilité",
-      "steps": [
-        "Connectez-vous avec accès comptabilité.",
-        "Appuyez sur Comptabilité.",
-        "S'ouvre sur le Plan comptable."
-      ],
-      "image": "accounts-overview.png",
-      "caption": "Écran Comptabilité."
-    },
-    {
       "id": "tabs",
-      "title": "Navigation par onglets",
-      "intro": "Onglets : paramétrage, écritures et rapports.",
-      "steps": [
-        "Faites défiler horizontalement.",
-        "Paramétrage : Plan et Groupes.",
-        "Rapports : Grand livre, Balance, Bilan."
-      ],
-      "image": "accounts-tabs.png",
-      "caption": "Barre d'onglets."
+      "title": "Les onglets",
+      "fields": [
+        {
+          "name": "Chart of Accounts (plan comptable)",
+          "effect": "Les comptes : code, nom, groupe, sens normal (débit ou crédit), statut actif ou inactif."
+        },
+        {
+          "name": "Account Groups (groupes de comptes)",
+          "effect": "Le rangement des comptes, chacun rattaché à une grande classe : Actif, Passif, Capitaux propres, Produits, Charges."
+        },
+        {
+          "name": "Journal Entries (écritures)",
+          "effect": "Les écritures, saisies à la main ou générées par les ventes."
+        },
+        {
+          "name": "General Ledger, Trial Balance, Balance Sheet, Profit & Loss, Cash Flow",
+          "effect": "Grand livre, balance, bilan, compte de résultat, flux de trésorerie."
+        },
+        {
+          "name": "Customer / Supplier Statement",
+          "effect": "Relevés de compte client et fournisseur."
+        }
+      ]
     },
     {
-      "id": "chart",
-      "title": "Plan comptable",
+      "id": "order",
+      "title": "Dans quel ordre tout mettre en place",
       "steps": [
-        "Maintenez les comptes GL.",
-        "Ajoutez ou modifiez codes et types.",
-        "La structure alimente livres et états."
+        "Créez d’abord les groupes (« Create a group first » : un compte ne peut pas être créé sans groupe).",
+        "Créez les comptes dans le plan comptable, ou importez-les (« Import CSV » ou « Import IA »). Le résumé d’import indique créés, mis à jour et invalides.",
+        "Il faut au moins deux comptes actifs avant de pouvoir passer une écriture."
       ],
-      "image": "accounts-chart.png",
-      "caption": "Panneau Plan comptable."
+      "bullets": [
+        "Désactiver un compte ou un groupe (avec confirmation) le retire des choix sans effacer son historique."
+      ]
     }
   ]
 }

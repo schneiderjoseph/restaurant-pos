@@ -161,7 +161,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
   const query = `
     SELECT * FROM ${Tables.orders}
     WHERE ${conditions.join(" AND ")}
-    FETCH user, items, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount, duo, duo.inviter, duo.partner
+    FETCH user, items, items.created_by, items.item, items.taxes, items.tax_mode, order_type, tax, order_taxes, order_taxes.tax, order_discounts, order_discounts.discount, duo, duo.inviter, duo.partner
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
@@ -174,7 +174,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
       paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
     );
 
-    // A duo's order counts for each of the two by the lines they added.
+    // An order counts for each server by the lines they added (a duo, a colleague adding to it).
     orderSellers(order).forEach(({user: seller, share}) => {
       const user = seller as {id?: unknown; first_name?: string; last_name?: string} | undefined;
       const userId = recordIdToString(user?.id ?? user);

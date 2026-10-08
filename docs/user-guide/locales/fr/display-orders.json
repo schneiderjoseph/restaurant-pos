@@ -1,0 +1,61 @@
+{
+  "title": "Écran d’affichage des commandes",
+  "intro": "L’écran Affichage montre au passe ou au comptoir où en est chaque commande du jour : à gauche celles en préparation, à droite celles prêtes à récupérer. Il se met à jour tout seul à chaque envoi et à chaque Prêt d’une station.",
+  "sections": [
+    {
+      "id": "columns",
+      "title": "Les deux colonnes",
+      "fields": [
+        { "name": "En préparation (gauche, bord orange)", "effect": "Au moins une station n’a pas fini. Les plus anciennes en premier." },
+        { "name": "Prêt à récupérer (droite, bord vert)", "effect": "Toutes les stations ont terminé. Les plus récentes en premier." }
+      ],
+      "bullets": [
+        "Chaque colonne affiche au plus 12 commandes. Les plus anciennes prêtes sortent de l’écran quand de nouvelles arrivent : marquez-les livrées au fur et à mesure.",
+        "Une commande sans aucun plat à préparer (par exemple uniquement des boissons servies au comptoir, sans station) est directement prête."
+      ],
+      "image": "display-orders.png",
+      "caption": "Affichage : en préparation à gauche, prêt à droite."
+    },
+    {
+      "id": "tile",
+      "title": "Une carte de commande",
+      "bullets": [
+        "Numéro (#012), table ou chambre, nombre d’articles et heure de commande.",
+        "Pastilles des stations : orange « Cuisine … » en cours, vert « Bar ✓ » terminé. On voit d’un coup d’œil ce qui manque.",
+        "Badge « Prête » sur les cartes de droite.",
+        "« Pour 19:30 » (« dem. » si demain) : commande prévue plus tard ; elle reste affichée jusqu’à son heure, même prise la veille.",
+        "Touchez la carte pour le détail : type, table ou chambre, client, serveur, heure de commande, heure prévue, temps écoulé, notes et liste des plats."
+      ]
+    },
+    {
+      "id": "ready",
+      "title": "Quand une commande devient prête",
+      "intro": "La carte passe à droite, s’entoure d’un anneau vert, un grand message « Prêt à récupérer ! » s’affiche brièvement et l’écran annonce « La commande numéro 12 est prête ». Changer un filtre n’annonce pas les commandes déjà prêtes qui réapparaissent."
+    },
+    {
+      "id": "served",
+      "title": "Marquer comme livrée",
+      "steps": [
+        "Touchez une carte de la colonne « Prêt à récupérer ».",
+        "Dans le détail, touchez Marquer comme livrée : la carte quitte l’écran et « Commande 12 livrée » s’affiche en bas.",
+        "Une erreur ? Touchez Annuler dans ce message en bas : la carte revient."
+      ],
+      "bullets": [
+        "Si des plats sont ajoutés à une commande déjà livrée, elle repasse en préparation puis réapparaît dans « Prêt à récupérer » quand ils sont terminés.",
+        "Marquer livrée ne paie pas la commande et ne la ferme pas : elle reste En cours dans Commandes."
+      ]
+    },
+    {
+      "id": "filters",
+      "title": "Filtres et place à l’écran",
+      "bullets": [
+        "Par défaut, seules les commandes En cours sont affichées : une commande payée disparaît, même si elle n’a pas été marquée livrée.",
+        "Statut : ajoutez Payée pour garder à l’écran les commandes payées d’avance (vente au comptoir).",
+        "Types de commande : par exemple seulement À emporter pour un écran au comptoir des ventes à emporter.",
+        "Les filtres sont gardés sur l’appareil.",
+        "« Afficher la barre latérale » masque ou affiche le menu de gauche pour gagner de la place."
+      ],
+      "note": "Si l’établissement limite chaque serveur à ses propres commandes, l’affichage ouvert avec le PIN d’un serveur ne montre que les siennes (et celles de son DUO). Pour un écran commun au passe, utilisez un compte dont le rôle voit toutes les commandes."
+    }
+  ]
+}

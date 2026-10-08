@@ -16,24 +16,26 @@ interface Props {
   compact?: boolean;
   /** Hide the free-text note (shown elsewhere on the screen). */
   hideNotes?: boolean;
+  /** Kitchen screen: only what changes the cooking (allergies, diet, note) — no VIP, birthday or seating. */
+  kitchen?: boolean;
   className?: string;
 }
 
 /** What staff must see before serving the customer: allergies first, then diet, VIP, seating… */
-export const CustomerAlerts = ({ customer, compact, hideNotes, className }: Props) => {
+export const CustomerAlerts = ({ customer, compact, hideNotes, kitchen, className }: Props) => {
   const { t } = useTranslation('menu');
   if (!customer) return null;
 
   const allergies = customerAllergies(customer);
   const diets = customerDiets(customer);
-  const seating = customer.seating_pref?.trim();
+  const seating = kitchen ? '' : customer.seating_pref?.trim();
   const notes = hideNotes ? '' : customer.notes?.trim();
   const appToday = nowInAppTimezone();
-  const birthday = isBirthdayToday(
+  const birthday = !kitchen && isBirthdayToday(
     customer.birthday,
     new Date(appToday.year, appToday.month - 1, appToday.day),
   );
-  const vip = Boolean(customer.vip);
+  const vip = !kitchen && Boolean(customer.vip);
 
   if (!allergies.length && !diets.length && !seating && !notes && !birthday && !vip) {
     return null;

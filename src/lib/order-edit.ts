@@ -24,6 +24,7 @@ export function orderToCartItems(order?: Order | null): MenuItem[] {
       id: item.id,
       selectedGroups: (item.modifiers || []) as MenuItem['selectedGroups'],
       newOrOld: MenuItemType.old,
+      created_at: item.created_at,
       price: item.price,
       updated_at: item.updated_at,
       deleted_at: item.deleted_at,

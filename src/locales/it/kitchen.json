@@ -14,7 +14,12 @@
     "addon": "EXTRA",
     "original": "ORIGINALE",
     "completed": "Completato: {{time}}",
-    "items": "Articoli: {{count}}"
+    "items": "Articoli: {{count}}",
+    "allergies": "Allergie",
+    "covers": "{{count}} coperti",
+    "orderNotes": "Note dell'ordine",
+    "seat": "Posto {{seat}}",
+    "takenAt": "Preso alle {{time}}"
   },
   "announcements": {
     "newOrder": "Nuovo ordine. {{context}}. {{number}}.",

@@ -1,0 +1,40 @@
+{
+  "title": "Points de vente",
+  "intro": "Un point de vente (Bar, Restaurant, Plage…) range la carte et les ventes par lieu de service. Il se règle sur les catégories : chaque plat suit le point de vente de sa catégorie.",
+  "sections": [
+    {
+      "id": "create",
+      "title": "Créer les points de vente",
+      "steps": [
+        "Gérer → Catégories → « Gérer les points de vente ».",
+        "Créer un point de vente : Nom, Priorité (ordre des onglets sur le menu) et Couleur.",
+        "Enregistrer. Un point de vente supprimé disparaît des onglets ; les catégories qui l’utilisaient n’en ont plus."
+      ]
+    },
+    {
+      "id": "assign",
+      "title": "Rattacher les catégories",
+      "bullets": [
+        "Une par une : fiche de la catégorie → Point de vente. « Aucun — hérite de la catégorie parente » pour une sous-catégorie.",
+        "Plusieurs à la fois : cochez les catégories → Modification groupée → Point de vente.",
+        "Automatiquement : « Appliquer les suggestions ». POSR propose pour chaque catégorie le point de vente de la majorité des stations où partent ses plats (sous-catégories comprises). Sans station, ou en cas d’égalité, il ne propose rien. Une fenêtre annonce « N catégories seront classées » : Confirmer ou Annuler.",
+        "Dans une fiche de catégorie, « Suggéré : Bar » avec un bouton Appliquer donne la même suggestion pour elle seule."
+      ]
+    },
+    {
+      "id": "effects",
+      "title": "Ce que ça change",
+      "bullets": [
+        "Sur le Menu, les onglets Tous, Bar, Restaurant… filtrent la carte ; le serveur peut en activer plusieurs.",
+        "Chaque ligne vendue garde le point de vente de son plat au moment du paiement.",
+        "Le rapport « Résumé des ventes » donne les ventes par point de vente.",
+        "Une station peut aussi avoir un point de vente : c’est lui qui sert aux suggestions."
+      ]
+    },
+    {
+      "id": "asi",
+      "title": "Points de vente ASI",
+      "intro": "Gérer → Paramètres généraux → Points de vente ASI (seulement si la carte vient d’ASI) : choisir les points de vente ASI dont les articles et les prix alimentent le menu. Si un article existe dans plusieurs, le prix du premier de la liste est utilisé ; sans sélection, tous sont synchronisés. La mise à jour arrive à la synchronisation suivante (environ 30 secondes)."
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "title": "Les droits qui changent le travail en salle",
+  "intro": "Quelques droits ont un effet direct et visible sur les tablettes. Les voici, avec ce qui se passe quand un rôle ne les a pas.",
+  "sections": [
+    {
+      "id": "floor",
+      "title": "Prise de commande et commandes",
+      "fields": [
+        { "name": "Menu, Commandes", "effect": "Ouvrir les écrans Menu et Commandes. Sans eux, l’écran n’apparaît pas dans la barre latérale ; un lien direct renvoie au premier écran autorisé." },
+        { "name": "Diviser par places / articles / montant", "effect": "Sans le droit : l’entrée n’apparaît pas dans le ⋮. « Diviser par clients » suit le droit « par articles »." },
+        { "name": "Fusionner les commandes", "effect": "Sans le droit : l’entrée n’apparaît pas." },
+        { "name": "Annuler la commande, Rembourser, Imprimer (provisoire, finale, KOT), Ouvrir le tiroir, Appliquer la remise, Appliquer le coupon", "effect": "Toujours visibles. Sans le droit, la fenêtre « Authentification requise » demande le PIN d’un responsable qui l’a." },
+        { "name": "Contourner la limite d’impression", "effect": "Autoriser une note au-delà du nombre d’impressions permis. Toujours demandé à une autre personne." },
+        { "name": "Appliquer la taxe / les frais de service / les pourboires, Modifier les suppléments", "effect": "Modifier ces onglets sur l’écran de paiement." }
+      ]
+    },
+    {
+      "id": "payment",
+      "title": "Encaissement",
+      "fields": [
+        { "name": "Recevoir le paiement", "effect": "Réglé dans le bloc Encaissement du rôle. Sans lui : pas de bouton Payer sur les cartes, et l’écran de paiement affiche « Votre rôle n’encaisse pas ». Pas d’autorisation responsable possible : le caissier se connecte avec son propre PIN." },
+        { "name": "Types de paiement acceptés", "effect": "Limite les modes proposés (par exemple un serveur : Chambre uniquement)." },
+        { "name": "Terminer la commande", "effect": "Le bouton Terminer de l’écran de paiement." }
+      ]
+    },
+    {
+      "id": "sent",
+      "title": "Modification des commandes envoyées",
+      "fields": [
+        { "name": "Modifier directement les lignes déjà envoyées", "effect": "Le changement d’une ligne déjà en cuisine est enregistré tout de suite. Sans lui, il part en demande d’approbation." },
+        { "name": "Approuver les modifications demandées par les autres", "effect": "Reçoit les demandes sur sa tablette. Ne permet pas, à lui seul, de modifier directement." }
+      ],
+      "note": "Gardez toujours au moins une personne connectée avec le droit d’approuver pendant le service, sinon les demandes attendent sans que personne ne soit prévenu."
+    },
+    {
+      "id": "visibility",
+      "title": "Visibilité des commandes",
+      "intro": "Gérer → Paramètres généraux → Visibilité des commandes : « Chaque utilisateur ne voit que ses commandes ». Une fois activé, chacun ne voit que ce qu’il a ouvert dans Commandes et sur l’Affichage, sauf les « Rôles qui voient toutes les commandes » cochés juste en dessous (responsables, caissiers, bar). En DUO, les deux serveurs voient les commandes de l’autre.",
+      "bullets": [
+        "Ce réglage organise l’écran, ce n’est pas une protection des données : il ne remplace pas des rôles bien définis.",
+        "Gérer → Paramètres généraux → Accès à l’écran Affichage : les rôles qui peuvent ouvrir l’Affichage."
+      ]
+    },
+    {
+      "id": "customers",
+      "title": "Clients",
+      "fields": [
+        { "name": "Enregistrer des clients walk-in", "effect": "Fait apparaître « Enregistrer » dans la recherche de l’écran Client." },
+        { "name": "Modifier allergies, régime et notes", "effect": "Sans lui, les préférences sont visibles mais pas modifiables." },
+        { "name": "Voir les pièces d’identité en entier", "effect": "Sans lui, seuls les 4 derniers caractères s’affichent (••••7890)." },
+        { "name": "Voir les numéros de téléphone en entier", "effect": "Sans lui, seuls les 4 derniers chiffres s’affichent (+509 •••• 3889). La recherche accepte toujours le numéro complet." }
+      ]
+    },
+    {
+      "id": "examples",
+      "title": "Exemples de rôles",
+      "fields": [
+        { "name": "Serveur", "effect": "Menu, Commandes, Clients (walk-in, préférences), Imprimer la note provisoire. Sans encaissement ni modification directe des lignes envoyées." },
+        { "name": "Caissier", "effect": "Serveur + Recevoir le paiement, Terminer, Imprimer la finale, Ouvrir le tiroir, Approuver les modifications, Voir les commandes de tous." },
+        { "name": "Responsable de salle", "effect": "Caissier + Annuler, Rembourser, Remises, Contourner la limite d’impression, Résumé, Rapports, Répartition des pourboires." },
+        { "name": "Station", "effect": "Cuisine uniquement. Créé automatiquement, ne pas modifier." }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "title": "Station de préparation",
+  "intro": "L’écran de la station (cuisine, bar, pâtisserie…) complète le ticket papier : chaque envoi d’un serveur y apparaît comme un ticket, dans l’ordre d’arrivée, et la station le marque Prêt quand c’est fini. C’est ce Prêt qui prévient le serveur et l’écran d’affichage.",
+  "sections": [
+    {
+      "id": "toolbar",
+      "title": "Le haut de l’écran",
+      "fields": [
+        { "name": "Boutons des stations (à gauche)", "effect": "Pour un responsable qui a accès à plusieurs stations : chaque bouton ouvre la sienne, la station ouverte est en surbrillance. Le badge « tout » marque une station de passe qui voit les plats de toutes les stations. Un compte station ne voit que la sienne." },
+        { "name": "Commandes terminées", "effect": "Les tickets marqués Prêt aujourd’hui, avec l’heure de fin et le nombre d’articles, et le bouton Rappeler." },
+        { "name": "Voir tous les plats", "effect": "Ouvre à droite le total par plat de tout ce qui reste à préparer (combien de frites, de poissons…), pour lancer en série." },
+        { "name": "Temps moy. (chiffres orange sur noir)", "effect": "Temps moyen de préparation de la station aujourd’hui." },
+        { "name": "Marche/Arrêt rouge", "effect": "Uniquement sur un compte station : la seule façon de se déconnecter (il n’y a pas de barre latérale)." }
+      ],
+      "image": "display-station.png",
+      "caption": "Écran de station avec ses tickets."
+    },
+    {
+      "id": "ticket",
+      "title": "Lire un ticket",
+      "bullets": [
+        "En tête : le numéro de commande en grand, puis le type de commande et la table, la chambre ou le client (nom, code guest ou les deux, selon le réglage de l’appareil).",
+        "ORIGINAL (gris) : le premier envoi. SUPPLÉMENT (bleu) : des plats ajoutés ensuite à la même commande, sur un ticket séparé.",
+        "« Pour 19:30 » (« dem. » si c’est demain) : commande prévue pour plus tard. Le chronomètre ne démarre qu’à cette heure ; une commande prise la veille pour aujourd’hui reste bien affichée.",
+        "« → #013 » : la commande a été divisée ensuite ; le plat sera servi sur la commande #013.",
+        "Allergies : badge rouge en tête de ticket. À lire avant de préparer.",
+        "Couverts, « Prise à 19:05 », et les notes de la commande sur fond jaune.",
+        "Le nombre d’articles : touchez le ticket (Voir les articles) pour voir le détail des plats, places, options et commentaires."
+      ]
+    },
+    {
+      "id": "colours",
+      "title": "Les couleurs du ticket",
+      "fields": [
+        { "name": "Bleu", "effect": "Ticket qui vient d’arriver (pendant 18 secondes)." },
+        { "name": "Blanc", "effect": "En préparation, moins de 30 minutes." },
+        { "name": "Orange", "effect": "En retard : 30 à 59 minutes depuis l’envoi (ou depuis l’heure prévue)." },
+        { "name": "Rouge", "effect": "Très en retard : 60 minutes et plus." }
+      ]
+    },
+    {
+      "id": "ready",
+      "title": "Marquer prêt",
+      "steps": [
+        "Tout le ticket est prêt : touchez Prêt. Le ticket quitte l’écran.",
+        "Un seul plat est prêt : ouvrez le ticket (Voir les articles) et touchez la ligne du plat. Le ticket reste tant que tous les plats ne sont pas prêts.",
+        "Quand toutes les stations d’une commande ont fini, l’affichage la passe en « Prêt à récupérer » et le serveur reçoit son alerte. Chaque station prévient aussi le serveur pour sa partie (« Bar prêt »)."
+      ],
+      "bullets": [
+        "Une ligne barrée en rouge dans le détail est un plat annulé : ne le préparez pas (on ne peut pas le marquer prêt).",
+        "Si un plat passe par plusieurs étapes (par exemple cuisson puis dressage), le marquer prêt l’envoie à la station suivante au lieu de le terminer.",
+        "Une station « tout » (passe) voit les plats des autres stations sans les leur retirer.",
+        "Erreur ? Commandes terminées → Rappeler remet le ticket à l’écran."
+      ]
+    },
+    {
+      "id": "reprint",
+      "title": "Réimprimer",
+      "intro": "Réimprimer renvoie le ticket à l’imprimante de la station (ticket abîmé, imprimante revenue après une panne). Le bouton est grisé si la station n’a pas d’imprimante. Selon les droits du compte, un responsable doit autoriser avec son PIN.",
+      "note": "Une imprimante injoignable n’arrête pas le service : les tickets attendent en file et s’impriment quand elle revient. L’écran, lui, est toujours à jour."
+    },
+    {
+      "id": "announcements",
+      "title": "Annonces vocales",
+      "bullets": [
+        "« Nouvelle commande. Table 7. 12. » à chaque premier envoi.",
+        "« Supplément. Table 7. 12. » quand des plats sont ajoutés à une commande.",
+        "« Article ajouté. Burger. … » ou « Article annulé. Burger. … » quand une commande déjà à l’écran change.",
+        "Un ticket de suppression ou de MODIFICATION s’imprime aussi quand une modification approuvée touche des plats déjà envoyés.",
+        "Pas de son : touchez l’écran une fois après chaque démarrage (règle du navigateur), puis vérifiez le volume."
+      ]
+    }
+  ]
+}

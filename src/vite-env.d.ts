@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_TRACKING_ENABLED?: string;
   readonly VITE_PROTECT_MODULES_SOURCE?: string;
   readonly VITE_TRACKING_SERVER_URL?: string;
+  readonly VITE_BUILD_ID?: string;
 }
 
 interface ImportMeta {

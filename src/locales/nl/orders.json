@@ -55,6 +55,7 @@
   "status": {
     "inProgress": "In behandeling",
     "ready": "Klaar",
+    "itemReady": "Klaar",
     "paid": "Betaald",
     "cancelled": "Geannuleerd",
     "spilt": "Gesplitst",

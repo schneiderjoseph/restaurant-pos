@@ -4,13 +4,13 @@ import type { Order } from '@/api/model/order.ts';
 import { DuoStatus } from '@/api/model/duo.ts';
 import {
   computeDuoEndsAt,
-  duoTipParts,
   isDuoEnding,
   isDuoRunning,
   isDuoStale,
   isInviteLive,
   orderSalesShares,
   orderSellers,
+  sharedTipParts,
   shiftEndCovering,
   splitByShares,
 } from '@/lib/duo.ts';
@@ -105,17 +105,26 @@ const order = (overrides: Record<string, unknown> = {}) => ({
 }) as unknown as Order;
 
 describe('orderSalesShares', () => {
-  it('gives a whole order outside a duo to its server', () => {
-    expect(orderSalesShares(order({ duo: undefined }))).toEqual(new Map([[A, 1]]));
+  it('gives a whole order its server sold alone to that server', () => {
+    expect(orderSalesShares(order({ items: [line(A, 30), line(A, 70)] }))).toEqual(new Map([[A, 1]]));
   });
 
   it('gives each of the duo the lines they added, even on the other one\'s order', () => {
     expect(orderSalesShares(order())).toEqual(new Map([[A, 0.3], [B, 0.7]]));
   });
 
-  it('counts a line added by anyone else for the order\'s server', () => {
+  it('gives a colleague outside any duo the lines they added to another\'s order', () => {
+    expect(orderSalesShares(order({ duo: undefined }))).toEqual(new Map([[A, 0.3], [B, 0.7]]));
+  });
+
+  it('counts a line added by anyone, a manager too, for whoever added it', () => {
     const shares = orderSalesShares(order({ items: [line(B, 50), line(M, 50)] }));
-    expect(shares).toEqual(new Map([[B, 0.5], [A, 0.5]]));
+    expect(shares).toEqual(new Map([[B, 0.5], [M, 0.5]]));
+  });
+
+  it('counts an old line with no author for the order\'s server', () => {
+    const shares = orderSalesShares(order({ items: [{ ...line(B, 50), created_by: undefined }, line(B, 50)] }));
+    expect(shares).toEqual(new Map([[A, 0.5], [B, 0.5]]));
   });
 
   it('names both sellers when the duo is fetched', () => {
@@ -123,15 +132,23 @@ describe('orderSalesShares', () => {
     expect(sellers.map(({ user, share }) => [(user as { first_name: string }).first_name, share]))
       .toEqual([['Ana', 0.3], ['Ben', 0.7]]);
   });
+
+  it('names a colleague from the fetched line author', () => {
+    const ben = { id: B, first_name: 'Ben' };
+    const sellers = orderSellers(order({ duo: undefined, items: [line(A, 30), { ...line(B, 70), created_by: ben }] }));
+    expect(sellers.map(({ user, share }) => [(user as { first_name: string }).first_name, share]))
+      .toEqual([['Ana', 0.3], ['Ben', 0.7]]);
+  });
 });
 
-describe('duo tips', () => {
-  it('splits the tip by the two\'s sales in the order', () => {
-    expect(duoTipParts(order())).toEqual(new Map([[B, 7], [A, 3]]));
+describe('shared tips', () => {
+  it('splits the tip by each server\'s sales in the order', () => {
+    expect(sharedTipParts(order())).toEqual(new Map([[B, 7], [A, 3]]));
+    expect(sharedTipParts(order({ duo: undefined }))).toEqual(new Map([[B, 7], [A, 3]]));
   });
 
-  it('leaves a tip outside a duo to whoever cashed it', () => {
-    expect(duoTipParts(order({ duo: undefined })).size).toBe(0);
+  it('leaves a tip one server sold alone to whoever cashed it', () => {
+    expect(sharedTipParts(order({ items: [line(A, 30), line(A, 70)] })).size).toBe(0);
   });
 
   it('keeps every cent: the rounding goes to the larger share', () => {

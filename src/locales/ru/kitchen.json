@@ -14,7 +14,12 @@
     "addon": "ДОПОЛНЕНИЕ",
     "original": "ОСНОВНОЙ",
     "completed": "Завершено: {{time}}",
-    "items": "Позиций: {{count}}"
+    "items": "Позиций: {{count}}",
+    "allergies": "Аллергии",
+    "covers": "Гостей: {{count}}",
+    "orderNotes": "Примечания к заказу",
+    "seat": "Место {{seat}}",
+    "takenAt": "Принят в {{time}}"
   },
   "announcements": {
     "newOrder": "Новый заказ. {{context}}. {{number}}.",

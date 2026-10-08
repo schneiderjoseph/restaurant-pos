@@ -1,0 +1,61 @@
+{
+  "title": "Caisse et autorisations",
+  "intro": "Le caissier encaisse les commandes que les serveurs ne peuvent pas encaisser, rembourse, et autorise sur place les actions que certains rôles n’ont pas le droit de faire seuls. L’encaissement lui-même (écran de paiement, monnaie, chambre) est décrit dans le guide serveur, chapitre « Addition, division et paiement ».",
+  "sections": [
+    {
+      "id": "authorize",
+      "title": "Autoriser une action sur la tablette d’un collègue",
+      "intro": "Quand un serveur tente une action réservée (annuler, remiser, réimprimer au-delà de la limite, ouvrir le tiroir…), la fenêtre « Authentification requise » s’ouvre sur sa tablette avec le nom de l’action.",
+      "steps": [
+        "Lisez l’action affichée et vérifiez-la avec le serveur (quel plat, quel motif).",
+        "Tapez votre PIN sur le pavé de sa tablette.",
+        "Si votre rôle a ce droit, l’action est faite une seule fois, à votre nom dans l’historique. Le serveur reste connecté.",
+        "Sinon : « Code PIN invalide, ou utilisateur introuvable avec la permission … »."
+      ],
+      "bullets": [
+        "Votre autorisation ne donne pas le droit au serveur pour la suite : la fenêtre reviendra à la prochaine action du même type.",
+        "Pour un dépassement de limite d’impression, vous ne pouvez pas autoriser votre propre réimpression : il faut le PIN d’une autre personne.",
+        "Quand vous faites vous-même une action à laquelle votre rôle a droit, aucune fenêtre ne s’ouvre."
+      ]
+    },
+    {
+      "id": "cash-in",
+      "title": "Encaisser pour un serveur",
+      "steps": [
+        "Connectez-vous avec votre PIN sur la caisse (pas sur la tablette du serveur : il serait déconnecté de son compte si vous preniez le sien, et vous verrouilleriez la sienne).",
+        "Commandes → filtrez au besoin par Utilisateurs ou Salles → carte bancaire orange sur la commande.",
+        "Encaissez, touchez Terminer : la note finale s’imprime et la commande reste au nom du serveur qui l’a ouverte (ventes et pourboires lui sont comptés)."
+      ]
+    },
+    {
+      "id": "refund",
+      "title": "Rembourser",
+      "steps": [
+        "Commandes → filtre Statut : Payée → retrouvez la commande (choisissez la date au besoin).",
+        "⋮ → Rembourser (rouge). Sans droit, un responsable autorise.",
+        "Cochez les articles à rembourser ; le total du remboursement se calcule en bas (articles, taxe, remise, frais de service, pourboire).",
+        "Saisissez le motif, puis « Rembourser N article(s) ».",
+        "Un ticket de remboursement s’imprime. Rendez l’argent selon le mode de paiement d’origine."
+      ],
+      "bullets": [
+        "Remboursement de tous les articles : frais de service, pourboire et remise de la commande sont remis à zéro, et le coupon utilisé est libéré.",
+        "La commande garde son statut Payée ; les articles remboursés sortent des ventes nettes et apparaissent dans « Remboursements » du Résumé.",
+        "Un article déjà remboursé n’est plus proposé : impossible de le rembourser deux fois."
+      ]
+    },
+    {
+      "id": "copies",
+      "title": "Réimprimer une note ou un ticket",
+      "fields": [
+        { "name": "⋮ → Imprimer une copie de la note finale", "effect": "Sur une commande payée : le reçu du client, imprimé avec la mention « Duplicata addition finale ». Soumis à la limite d’impression." },
+        { "name": "⋮ → Imprimer une copie KOT", "effect": "Réimprime le ticket cuisine d’origine, marqué « DUPLICATA »." },
+        { "name": "Imprimante de la carte", "effect": "Note provisoire d’une commande en cours. Soumise à la limite d’impression." }
+      ]
+    },
+    {
+      "id": "drawer",
+      "title": "Ouvrir le tiroir-caisse sans vente",
+      "intro": "Commandes → « Ouvrir le tiroir-caisse » en haut. Utile pour faire de la monnaie. L’ouverture est enregistrée avec votre nom ; sans droit, un responsable autorise."
+    }
+  ]
+}

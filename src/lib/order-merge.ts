@@ -48,13 +48,14 @@ const mergedCharge = (
 };
 
 /**
- * Merge `orderIds` into one new order at `table`, in a single transaction: lines, payments
- * already taken, discounts, coupon and extras all move to the new order, or nothing changes.
+ * Merge `orderIds` into one new order at `table` (none chosen: the first order's table, if any),
+ * in a single transaction: lines, payments already taken, discounts, coupon and extras all move
+ * to the new order, or nothing changes. Each line keeps who added it, so the sales stay theirs.
  * The orders are read fresh here; one that changes before the commit refuses the merge.
  */
 export const commitMerge = async (
   db: MergeDb,
-  {orderIds, table, user}: {orderIds: unknown[], table: {id: unknown, floor?: unknown}, user?: unknown},
+  {orderIds, table, user}: {orderIds: unknown[], table?: {id: unknown, floor?: unknown}, user?: unknown},
 ) => {
   const ids = orderIds.map((id) => linkOf(id)!);
   const [loaded] = await db.query<[MergeSource[]]>(
@@ -121,8 +122,8 @@ export const commitMerge = async (
   const [invoiceNumber, autoId] = [await generateNextInvoiceNumber(db), await getNextAutoId(db)];
 
   statements.push(`CREATE ${bind(mergedId)} CONTENT ${bind({
-    floor: linkOf(table.floor) ?? linkOf(lead.floor),
-    table: linkOf(table.id),
+    floor: linkOf(table?.floor) ?? linkOf(lead.floor),
+    table: table ? linkOf(table.id) : (linkOf(lead.table) ?? null),
     order_type: linkOf(lead.order_type),
     user: linkOf(lead.user),
     ...(lead.duo ? {duo: linkOf(lead.duo)} : {}),

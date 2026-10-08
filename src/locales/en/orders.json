@@ -51,7 +51,7 @@
     "success": "Successfully merged into {{invoiceNumber}}",
     "failed": "Failed to create merging orders",
     "changed": "One of the orders changed while merging (payment, item or split). Select them again and retry.",
-    "chooseTable": "Choose a table",
+    "chooseTable": "Table (optional)",
     "selectTwoOrMore": "Select 2 or more orders",
     "confirmMerging": "Confirm merging of {{count}} orders",
     "cancelMerging": "Cancel merging"
@@ -62,6 +62,7 @@
   "status": {
     "inProgress": "In Progress",
     "ready": "Ready",
+    "itemReady": "Ready",
     "paid": "Paid",
     "cancelled": "Cancelled",
     "spilt": "Spilt",

@@ -768,6 +768,7 @@
       "customers.create": "Cadastrar clientes walk-in",
       "customers.preferences": "Editar alergias, dieta e notas",
       "customers.view_id_document": "Ver documentos completos",
+      "customers.view_phone": "Ver telefones completos",
       "admin.customers": "Clientes",
       "admin.customers.update": "Editar qualquer cliente",
       "admin.customers.delete": "Excluir e restaurar clientes",

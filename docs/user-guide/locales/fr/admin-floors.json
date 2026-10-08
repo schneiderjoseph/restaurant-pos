@@ -1,90 +1,58 @@
 {
-  "title": "Floors and tables",
-  "intro": "Floors and tables define the dine-in layout used when staff select a table before taking orders.",
+  "title": "Salles et tables",
+  "intro": "Les salles (Terrasse, Salle, Plage…) et leurs tables forment le plan de salle des serveurs. Onglets Gérer → Salles et Gérer → Tables.",
   "sections": [
     {
       "id": "floors",
-      "title": "Floors",
-      "steps": [
-        "Open the Floors tab.",
-        "Create floor plans for each dining area (e.g. Main, Patio).",
-        "Floors appear on the table-selection step when floor mode is enabled."
-      ],
-      "image": "admin-floors-floors.png",
-      "caption": "Floors tab."
+      "title": "Créer une salle",
+      "fields": [
+        { "name": "Nom", "effect": "Nom du bouton de salle en bas du plan." },
+        { "name": "Couleur de fond, Couleur du texte", "effect": "Couleurs du bouton de salle et du fond du plan." },
+        { "name": "Priorité", "effect": "Ordre des boutons de salle." }
+      ]
     },
     {
       "id": "tables",
-      "title": "Tables",
-      "intro": "Each table belongs to a floor and carries a name or number used on checks and kitchen tickets.",
-      "steps": [
-        "Open the Tables tab.",
-        "Add tables with capacity and floor assignment.",
-        "Edit or deactivate tables when the floor plan changes."
-      ],
-      "image": "admin-floors-tables.png",
-      "caption": "Tables tab."
-    },
-    {
-      "id": "floor-form",
-      "title": "Formulaire étage",
-      "steps": [
-        "Admin → Étages.",
-        "Nom, priorité, couleurs.",
-        "Enregistrer."
-      ],
-      "image": "admin-floors-floor-form.png",
-      "caption": "Formulaire étage.",
+      "title": "Créer une table",
       "fields": [
-        {
-          "name": "Nom",
-          "effect": "Libellé sélecteur étage."
-        },
-        {
-          "name": "Priorité",
-          "effect": "Ordre liste."
-        },
-        {
-          "name": "Fond / couleur",
-          "effect": "Style tuile plan."
-        }
+        { "name": "Nom de la table, Numéro de la table", "effect": "Ce qui s’affiche sur la table du plan, le ticket cuisine et l’écran d’affichage (« T7 »)." },
+        { "name": "Salle", "effect": "La salle où elle apparaît (+ pour en créer une)." },
+        { "name": "Couleur de fond, Couleur du texte", "effect": "Couleurs de la table sur le plan." },
+        { "name": "Priorité", "effect": "Ordre dans les listes." },
+        { "name": "Catégories", "effect": "Limite la carte proposée sur cette table (par exemple seulement les boissons sur une table de bar). Vide = toute la carte." },
+        { "name": "Types de commande", "effect": "Types proposés en haut du menu pour cette table ; le premier est choisi par défaut. Vide = tous." },
+        { "name": "Types de paiement", "effect": "Modes de paiement acceptés sur cette table (avant la limite du rôle). Vide = tous." }
+      ],
+      "bullets": [
+        "Colonne « Demander le nombre de couverts » : si oui, le pavé des couverts s’ouvre quand le serveur ouvre la table.",
+        "Modification groupée : cochez plusieurs tables pour changer d’un coup salle, couleurs, catégories, types de commande ou de paiement."
       ]
     },
     {
-      "id": "table-form",
-      "title": "Formulaire table",
-      "intro": "Appartient à étage; restrictions possibles.",
+      "id": "unlock",
+      "title": "Débloquer une table restée verrouillée",
+      "intro": "Une table se verrouille quand un serveur l’ouvre et se libère quand il en sort. Si une tablette s’est éteinte ou a perdu le réseau pendant la prise de commande, la table peut rester verrouillée (cadenas sur le plan, « … prend déjà une commande sur cette table »).",
       "steps": [
-        "Choisir étage.",
-        "Numéro, nom, couleurs.",
-        "Restrictions optionnelles.",
-        "Demander couverts.",
-        "Enregistrer."
-      ],
-      "image": "admin-floors-table-form.png",
-      "caption": "Formulaire table.",
-      "fields": [
-        {
-          "name": "Nom / numéro",
-          "effect": "Libellé plan."
-        },
-        {
-          "name": "Étage",
-          "effect": "Plan parent."
-        },
-        {
-          "name": "Priorité",
-          "effect": "Ordre."
-        },
-        {
-          "name": "Catégories / types commande / paiement",
-          "effect": "Restrictions."
-        },
-        {
-          "name": "Demander couverts",
-          "effect": "Prompt couverts."
-        }
+        "Vérifiez que personne n’est vraiment en train de commander sur cette table.",
+        "Gérer → Tables : colonne Verrouillé, cadenas rouge.",
+        "Touchez le cadenas (« Cliquer pour déverrouiller ») : la table est libérée."
       ]
+    },
+    {
+      "id": "layout",
+      "title": "Dessiner le plan",
+      "steps": [
+        "Gérer → Salles → « Plan de la salle » sur la salle voulue.",
+        "Faites glisser les tables à leur place. Zoom avant / Zoom arrière / Réinitialiser le zoom pour ajuster la vue.",
+        "Touchez une table pour ses options : hauteur, largeur, forme (coins carrés, arrondis, circulaire), couleur et fond.",
+        "Plusieurs tables à la fois : « Sélectionner les tables », touchez-les, puis « Modification groupée (N) » → réglages → « Appliquer à la sélection ».",
+        "Pour repartir d’une grille propre : réglez Espacement, Largeur et Hauteur de grille, puis Disposer (« N tables organisées dans la grille »)."
+      ]
+    },
+    {
+      "id": "rooms",
+      "title": "Chambres de l’hôtel",
+      "intro": "Les chambres venant d’ASI sont des tables d’un genre particulier : elles ne se commandent qu’avec un client présent, et s’affichent en orange avec son nom quand la chambre est occupée sans commande. Elles restent séparées des tables de restaurant."
     }
   ]
 }

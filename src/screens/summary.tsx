@@ -53,8 +53,8 @@ const getUserDisplayName = (user: unknown, unknownLabel: string): string => {
   return [first, last].filter(Boolean).join(' ') || u.name || u.login || unknownLabel;
 };
 
-/** Orders of the day, with the duo that worked each one (its two servers named in Server sales). */
-const SUMMARY_ORDER_FETCHES = [...ORDER_FETCHES, 'duo', 'duo.inviter', 'duo.partner'];
+/** Orders of the day, with who added each line (every seller named in Server sales). */
+const SUMMARY_ORDER_FETCHES = [...ORDER_FETCHES, 'items.created_by', 'duo', 'duo.inviter', 'duo.partner'];
 
 const getOrderSale = (order: OrderModel): number => {
   const itemsTotal = (getOrderFilteredItems(order) || []).reduce((sum, item) => {
@@ -287,7 +287,7 @@ export const Summary = () => {
       });
 
       // Every paid order counts, even when its server never clocked in, so the total matches the day.
-      // A duo's order counts for each of the two by the lines they added.
+      // An order counts for each server by the lines they added (a duo, a colleague adding to it).
       (orders || []).forEach((order) => {
         const sale = getOrderSale(order);
         orderSellers(order).forEach(({user, share}) => {

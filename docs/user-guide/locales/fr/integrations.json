@@ -1,75 +1,30 @@
 {
-  "title": "Intégrations",
-  "intro": "Les intégrations connectent POSR à des fournisseurs externes (comptabilité, fiscal, logging, inventaire). Activez, configurez et surveillez santé et file.",
+  "title": "Intégrations (module optionnel)",
+  "intro": "Uniquement si le module Intégrations est activé : connexion de POSR à des logiciels externes (par exemple QuickBooks pour la comptabilité).",
   "sections": [
-    {
-      "id": "open",
-      "title": "Ouvrir Intégrations",
-      "steps": [
-        "Connectez-vous avec accès intégrations.",
-        "Appuyez sur Intégrations.",
-        "S'ouvre sur Fournisseurs."
-      ],
-      "image": "integrations-overview.png",
-      "caption": "Écran Intégrations."
-    },
-    {
-      "id": "tabs",
-      "title": "Navigation par onglets",
-      "intro": "Onglets : liste, configuration, santé et file.",
-      "steps": [
-        "Fournisseurs liste les connecteurs.",
-        "Configuration stocke les identifiants.",
-        "Santé et File montrent l'état et les jobs."
-      ],
-      "image": "integrations-tabs.png",
-      "caption": "Barre d'onglets Intégrations."
-    },
     {
       "id": "providers",
       "title": "Fournisseurs",
-      "steps": [
-        "Examinez chaque carte : nom, catégorie, version.",
-        "Activez ou désactivez avec le switch.",
-        "Appuyez sur Configurer."
-      ],
-      "image": "integrations-providers.png",
-      "caption": "Liste des fournisseurs."
+      "bullets": [
+        "Activer ou Désactiver un fournisseur.",
+        "Connecter (par exemple « Autoriser avec QuickBooks »), Déconnecter, Reconnecter. « Connecté à Nom de la société » confirme le lien.",
+        "« Lancer la synchronisation initiale » importe les données de départ : « Synchronisation terminée — N entités importées »."
+      ]
     },
     {
-      "id": "configuration",
+      "id": "config",
       "title": "Configuration",
-      "intro": "Secrets et options de mapping du fournisseur.",
-      "steps": [
-        "Sélectionnez un fournisseur.",
-        "Remplissez les champs requis.",
-        "Connectez ou lancez la synchro initiale."
-      ],
-      "image": "integrations-configuration.png",
-      "caption": "Panneau de configuration."
+      "intro": "Réglages propres au fournisseur, puis « Enregistrer la configuration ». Chaque action est soumise à autorisation."
     },
     {
       "id": "health",
-      "title": "Santé",
-      "steps": [
-        "Ouvrez Santé pour les statuts.",
-        "Les fournisseurs sains envoient des événements.",
-        "Actualisé à l'ouverture ou au bascule."
-      ],
-      "image": "integrations-health.png",
-      "caption": "Panneau santé."
+      "title": "État",
+      "intro": "Statut, authentification, nombre de tâches échouées, dernière et prochaine synchronisation."
     },
     {
       "id": "queue",
-      "title": "File",
-      "intro": "Jobs sortants vers systèmes externes.",
-      "steps": [
-        "Ouvrez File pour voir en attente ou échecs.",
-        "Les jobs se mettent à jour onglet ouvert.",
-        "Les échecs se résolvent après correction."
-      ],
-      "image": "integrations-queue.png",
-      "caption": "Panneau file."
+      "title": "File d’attente",
+      "intro": "Les envois en attente vers le logiciel externe (vente, paiement, remboursement) avec leur statut : En attente, En cours, En pause, Terminé, Échoué, Annulé, Échec définitif ; tentatives, prochaine exécution et erreur. Une transmission fiscale qui a échoué au paiement se retrouve ici."
     }
   ]
 }

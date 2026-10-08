@@ -1,156 +1,53 @@
 {
-  "title": "Users and roles",
-  "intro": "Manage staff accounts, PINs, role permissions, shifts, and tip-pool definitions that control who can access each screen and tab.",
+  "title": "Utilisateurs, rôles et services",
+  "intro": "Gérer → Utilisateurs regroupe quatre sous-onglets : Utilisateurs, Rôles, Services et Définition des pourboires. Chaque personne a un compte, un rôle (ce qu’elle peut faire) et un service (pour les pourboires).",
   "sections": [
     {
-      "id": "list",
-      "title": "User list",
+      "id": "user",
+      "title": "Créer un utilisateur",
       "steps": [
-        "Open the Users tab.",
-        "Browse active users with name, role, and contact fields.",
-        "Use Add user to create a new account or Edit to update an existing one."
+        "Utilisateurs → Créer.",
+        "Prénom et Nom : le prénom s’affiche sur les cartes de commande, le plan de salle et les tickets.",
+        "Code PIN : 4 chiffres. Le bouton ↻ (« Générer un nouveau PIN ») propose un PIN libre au hasard.",
+        "Rôle : choisissez-le dans la liste, ou + pour en créer un sans quitter le formulaire.",
+        "Service : celui auquel la personne est rattachée (+ pour en créer un).",
+        "Enregistrer : « Utilisateur prénom enregistré »."
       ],
-      "image": "admin-users-list.png",
-      "caption": "Users maintenance table."
+      "bullets": [
+        "Le PIN identifie la personne : deux utilisateurs actifs ne peuvent pas avoir le même. « Le PIN 1234 est déjà attribué à … » bloque l’enregistrement.",
+        "Donnez le PIN à la personne de vive voix, jamais par écrit sur un post-it ou dans un groupe de messages.",
+        "Quelqu’un quitte l’équipe : supprimez son compte le jour même (son historique de ventes est conservé).",
+        "Un PIN qui a pu fuiter : régénérez-le. Communiquez le nouveau PIN à la personne."
+      ],
+      "fields": [
+        { "name": "Liste des utilisateurs", "effect": "Prénom, Nom, Identifiant (le PIN), Rôle, Service. Les comptes « Station … » sont créés automatiquement pour les stations : ne les supprimez pas." }
+      ]
     },
     {
       "id": "roles",
-      "title": "Roles",
-      "intro": "Roles bundle permission modules that gate sidebar screens, Manage tabs, and protected actions.",
+      "title": "Créer ou modifier un rôle",
       "steps": [
-        "Switch to the Roles sub-tab under Users.",
-        "Create roles and open the module list to enable or disable access.",
-        "Assign roles to users so permissions stay consistent across staff."
+        "Rôles → Créer, ou Modifier sur un rôle existant.",
+        "Nom du rôle (Serveur, Caissier, Responsable de salle, Barman…).",
+        "Bloc Encaissement : cochez « Peut recevoir le paiement » si ce rôle encaisse, puis les « Types de paiement acceptés » (aucun coché = tous). Sans encaissement, le bouton Payer disparaît des cartes de commande.",
+        "Modules : cochez ce que le rôle peut faire. Cocher un module donne tous ses sous-droits ; déroulez-le pour n’en cocher qu’une partie. La recherche filtre la liste.",
+        "Enregistrer. Le changement s’applique à la prochaine action des personnes concernées (certains droits, comme l’encaissement ou la modification des lignes envoyées, sont relus au moment même)."
       ],
-      "image": "admin-users-roles.png",
-      "caption": "Roles sub-tab."
+      "note": "Un rôle doit avoir au moins un module. La liste des rôles affiche le nombre de modules ; touchez-le pour voir le détail."
     },
     {
       "id": "shifts",
-      "title": "Shifts",
-      "intro": "Shifts define work windows used for labor reporting and automatic clock-out rules.",
-      "steps": [
-        "Switch to the Shifts sub-tab.",
-        "Add shift names with start and end times.",
-        "Assign shifts to users for scheduling and tip-distribution context."
-      ],
-      "image": "admin-users-shifts.png",
-      "caption": "Shifts sub-tab."
+      "title": "Services",
+      "intro": "Services → Créer : nom (Midi, Soir…), heure de début et heure de fin. Un service qui finit après minuit (18:00 → 02:00) est compris comme se terminant le lendemain. Les services servent à la répartition des pourboires et à la fin automatique du DUO."
     },
     {
-      "id": "tips-definition",
-      "title": "Définition pourboires (distribution)",
-      "intro": "Pondère pourboires poolés par rôles et utilisateurs.",
-      "steps": [
-        "Utilisateurs → Définition pourboires.",
-        "Lignes rôle avec poids.",
-        "Overrides utilisateur.",
-        "Enregistrer."
-      ],
-      "image": "admin-users-tips-definition.png",
-      "caption": "Panneau distribution pourboires.",
-      "fields": [
-        {
-          "name": "Poids rôle",
-          "effect": "Part du pool par rôle."
-        },
-        {
-          "name": "Poids utilisateur",
-          "effect": "Override optionnel."
-        }
-      ]
-    },
-    {
-      "id": "user-form",
-      "title": "Formulaire utilisateur",
-      "intro": "Opérateurs POS avec PIN ou mot de passe.",
-      "steps": [
-        "Admin → Utilisateurs.",
-        "Méthode login, nom, identifiants, rôle, shift.",
-        "Créer employé optionnel.",
-        "Enregistrer."
-      ],
-      "image": "admin-users-user-form.png",
-      "caption": "Formulaire compte utilisateur.",
-      "fields": [
-        {
-          "name": "Méthode login",
-          "effect": "PIN (4 chiffres) ou mot de passe."
-        },
-        {
-          "name": "Prénom / nom",
-          "effect": "Nom sur additions."
-        },
-        {
-          "name": "Login / PIN",
-          "effect": "Identifiants."
-        },
-        {
-          "name": "Mot de passe",
-          "effect": "Obligatoire si mot de passe."
-        },
-        {
-          "name": "Rôle",
-          "effect": "Paquet permissions."
-        },
-        {
-          "name": "Shift",
-          "effect": "Shift par défaut."
-        },
-        {
-          "name": "Créer employé",
-          "effect": "Auto-création HR lié."
-        }
-      ]
-    },
-    {
-      "id": "role-form",
-      "title": "Formulaire rôle",
-      "intro": "Accorde accès modules et actions.",
-      "steps": [
-        "Utilisateurs → Rôles.",
-        "Nom et arbre modules.",
-        "Cochez permissions.",
-        "Enregistrer."
-      ],
-      "image": "admin-users-role-form.png",
-      "caption": "Éditeur permissions rôle.",
-      "fields": [
-        {
-          "name": "Nom",
-          "effect": "Libellé formulaire utilisateur."
-        },
-        {
-          "name": "Permissions module",
-          "effect": "Cases hiérarchiques."
-        }
-      ]
-    },
-    {
-      "id": "shift-form",
-      "title": "Formulaire modèle shift",
-      "intro": "Définit fenêtres horaires.",
-      "steps": [
-        "Utilisateurs → Shifts.",
-        "Nom et horaires.",
-        "Nuit active lendemain.",
-        "Enregistrer."
-      ],
-      "image": "admin-users-shift-form.png",
-      "caption": "Formulaire shift.",
-      "fields": [
-        {
-          "name": "Nom",
-          "effect": "Libellé shift."
-        },
-        {
-          "name": "Heure début",
-          "effect": "Début planifié."
-        },
-        {
-          "name": "Heure fin",
-          "effect": "Fin planifiée."
-        }
+      "id": "tips",
+      "title": "Définition des pourboires",
+      "bullets": [
+        "Par rôles : un poids par rôle (Serveur 2, Commis 1…). Plus le poids est élevé, plus la part est grande.",
+        "Utilisateurs spécifiques : un poids pour une personne, qui remplace celui de son rôle (un chef de rang plus ancien, un apprenti).",
+        "Les poids doivent être positifs ou nuls ; 0 exclut de la cagnotte.",
+        "« Enregistrer la répartition » sauvegarde les poids. Le calcul se fait ensuite dans l’écran Répart. pourb."
       ]
     }
   ]

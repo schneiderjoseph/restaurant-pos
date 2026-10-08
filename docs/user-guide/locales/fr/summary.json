@@ -1,52 +1,49 @@
 {
-  "title": "Summary",
-  "intro": "The Summary screen shows paid sales for a chosen business day: totals, payment mix, and quick print actions for shift leaders.",
+  "title": "Résumé de la journée",
+  "intro": "L’écran Résumé donne le rapport de ventes d’une journée à l’écran, et imprime trois tickets de fin de service : le résumé, le mix produits et les ventes par serveur.",
   "sections": [
     {
-      "id": "overview",
-      "title": "Open Summary",
-      "steps": [
-        "Tap Summary in the left sidebar (manager access).",
-        "The page shows a date calendar on the left and the daily sales report on the right.",
-        "Paid orders for the selected date drive all figures."
+      "id": "date",
+      "title": "Choisir la journée",
+      "bullets": [
+        "Le Résumé s’ouvre sur aujourd’hui.",
+        "‹ et › passent au jour précédent ou suivant ; › est grisé sur aujourd’hui (pas de jour futur).",
+        "Le calendrier permet d’aller directement à une date passée."
       ],
-      "image": "summary-overview.png",
-      "caption": "Summary screen with calendar and daily report."
-    },
-    {
-      "id": "calendar",
-      "title": "Pick a business date",
-      "steps": [
-        "Use the calendar to select the day you want to review.",
-        "Previous date and Next date jump one day backward or forward.",
-        "You cannot select future dates."
-      ],
-      "image": "summary-calendar.png",
-      "caption": "Date calendar and day navigation."
-    },
-    {
-      "id": "print",
-      "title": "Print actions",
-      "intro": "Print buttons may require manager PIN approval depending on your role.",
-      "steps": [
-        "Print summary sends the full daily sales summary to the configured printer.",
-        "Product mix report lists items sold with quantity and share of sales.",
-        "Server sales breaks down checks, guests, time on floor, and sales per server."
-      ],
-      "image": "summary-print-actions.png",
-      "caption": "Print summary, product mix, and server sales."
+      "note": "Le Résumé compte les commandes Payées, rangées au jour où elles ont été ouvertes. Une commande ouverte à 23:30 et payée à 00:15 compte pour la veille. Les commandes encore En cours ne sont pas comptées : faites payer ou annuler avant de tirer le résumé de fin de journée."
     },
     {
       "id": "report",
-      "title": "Daily sales report",
-      "intro": "The scrollable report panel shows net sales, taxes, discounts, payment types, and other day totals.",
-      "steps": [
-        "Scroll the right panel to review all sections.",
-        "Figures update when you change the selected date.",
-        "If the day has no paid orders yet, sections may show zeros or empty lists."
+      "title": "Lire le rapport",
+      "intro": "Le rapport suit toujours le même ordre : ventes brutes → remises → ventes nettes → frais de service → taxes → pourboires → total général → encaissé.",
+      "fields": [
+        { "name": "1. Chiffre d’affaires", "effect": "Ventes hors taxes, suppléments, ventes brutes, remises (articles, sous-total, coupons) et ventes nettes." },
+        { "name": "2. Suppléments et taxes", "effect": "Frais de service et taxes collectés, calculés sur le net après remise." },
+        { "name": "3. Règlement et caisse", "effect": "Montant dû, pourboires, total général, montant encaissé, arrondi et écart de monnaie." },
+        { "name": "4. Contrôles opérationnels", "effect": "Annulations et remboursements (à part du chiffre d’affaires), couverts, couvert moyen, nombre de commandes, commande moyenne." },
+        { "name": "5. Mix produits", "effect": "Quantités et montants par catégorie, avec les plats et leurs options." },
+        { "name": "6 à 10", "effect": "Détail par mode de paiement, par taxe, par remise, par supplément et par coupon." }
+      ],
+      "bullets": [
+        "Couvert moyen = montant dû (avant pourboires) ÷ couverts. Pensez à saisir les couverts à la prise de commande, sinon ce chiffre est faux.",
+        "Une ligne « Monnaie / écart » non nulle signale une différence entre ce qui devait être encaissé et ce qui l’a été."
       ],
       "image": "summary-report.png",
-      "caption": "Daily sales summary report panel."
+      "caption": "Rapport de ventes de la journée."
+    },
+    {
+      "id": "print",
+      "title": "Imprimer les tickets de fin de service",
+      "fields": [
+        { "name": "Imprimer le résumé", "effect": "Le rapport de la journée sur l’imprimante de caisse." },
+        { "name": "Rapport mix produits", "effect": "Article, quantité, total, et grand total." },
+        { "name": "Ventes par serveur", "effect": "Pour chaque serveur : nombre de commandes, couverts, ventes. En DUO, chaque plat compte pour celui qui l’a ajouté." }
+      ],
+      "bullets": [
+        "Les boutons restent grisés tant que les commandes de la journée ne sont pas chargées.",
+        "Chaque impression demande l’autorisation d’un responsable si votre rôle n’a pas ce droit.",
+        "« Aucune donnée » : aucune commande payée ce jour-là, rien n’est imprimé."
+      ]
     }
   ]
 }

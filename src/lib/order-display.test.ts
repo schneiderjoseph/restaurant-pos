@@ -7,6 +7,7 @@ import {
   buildKitchenRowsMap,
   classifyOrder,
   kitchenOrderItemKey,
+  kitchenReadyItemIds,
   kitchenReadyOrderIds,
   partitionDisplayOrders,
 } from '@/lib/order-display.ts';
@@ -220,5 +221,46 @@ describe('partitionDisplayOrders served orders', () => {
     const map = buildKitchenRowsMap([completedRow('2026-10-05T12:30:00Z')]);
 
     expect(partitionDisplayOrders([order], map).ready).toHaveLength(1);
+  });
+});
+
+describe('kitchenReadyItemIds', () => {
+  const line = (id: string, extras: { split_source?: string; deleted_at?: unknown } = {}) =>
+    ({ id: `order_item:${id}`, order: 'order:a', ...extras });
+  const row = (itemId: string, status: OrderItemKitchenStatus) =>
+    ({ order: 'order:a', order_item: `order_item:${itemId}`, status });
+
+  it('marks the lines the kitchen finished, not those still to do', () => {
+    const ready = kitchenReadyItemIds(
+      [line('fish'), line('ice')],
+      [row('fish', OrderItemKitchenStatus.Completed), row('ice', OrderItemKitchenStatus.Pending)]
+    );
+    expect([...ready]).toEqual(['order_item:fish']);
+  });
+
+  it('does not mark a line with no kitchen row while the order is still running', () => {
+    expect(kitchenReadyItemIds([line('soda')], []).size).toBe(0);
+  });
+
+  it('marks every line of an order ready as a whole', () => {
+    const ready = kitchenReadyItemIds([line('fish'), line('soda')], [], new Set(['order:a']));
+    expect([...ready]).toEqual(['order_item:fish', 'order_item:soda']);
+  });
+
+  it('follows the original line\'s rows for a line copied by a split', () => {
+    const ready = kitchenReadyItemIds(
+      [line('copy', { split_source: 'order_item:fish' })],
+      [row('fish', OrderItemKitchenStatus.Completed)]
+    );
+    expect(ready.has('order_item:copy')).toBe(true);
+  });
+
+  it('skips a voided line', () => {
+    const ready = kitchenReadyItemIds(
+      [line('fish', { deleted_at: '2026-10-08' })],
+      [row('fish', OrderItemKitchenStatus.Completed)],
+      new Set(['order:a'])
+    );
+    expect(ready.size).toBe(0);
   });
 });

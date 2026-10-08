@@ -1,41 +1,77 @@
 {
-  "title": "Reports (operations)",
-  "intro": "The Reports hub lists operational and sales reports by category. Pick a category, choose a report, set filters, then run or export from the filter panel.",
+  "title": "Rapports",
+  "intro": "L’écran Rapports regroupe une trentaine de rapports par catégorie. Chacun ne s’affiche que si votre rôle y a droit.",
   "sections": [
     {
-      "id": "overview",
-      "title": "Reports hub",
+      "id": "use",
+      "title": "Ouvrir et régler un rapport",
       "steps": [
-        "Tap Reports in the sidebar.",
-        "The left column lists report categories (Sales, Operations, Orders, etc.).",
-        "The middle column lists reports inside the selected category.",
-        "The right panel shows filters for the chosen report."
+        "Touchez Rapports dans la barre latérale, puis une catégorie à gauche et un rapport.",
+        "Réglez les filtres du rapport : la période d’abord (Aujourd’hui, Hier, Cette semaine, Semaine dernière, Ce mois, Mois dernier, Cette année, Année dernière, Tout, ou Personnalisé), puis selon le rapport : utilisateurs, types de commande, modes de paiement, tables, catégories, plats, service, motifs…",
+        "Touchez Générer.",
+        "En haut du rapport : Imprimer, Télécharger en XLSX (Excel), Télécharger en PDF, Télécharger en image, Actualiser."
       ],
-      "image": "reports-overview.png",
-      "caption": "Reports hub three-column layout."
+      "bullets": [
+        "Les PDF et XLSX portent le logo et le nom du restaurant, l’heure de génération et, si deux monnaies sont utilisées, le taux de change appliqué (« Montants en … »).",
+        "Actualiser recalcule avec les mêmes filtres (par exemple en cours de service).",
+        "Un rapport long est découpé en pages : Précédent / Suivant, « Page 2 sur 5 »."
+      ]
     },
     {
-      "id": "categories",
-      "title": "Categories",
-      "intro": "Categories group related reports: dashboards, sales, orders, cash closing, operations, products, inventory, labor, and AI.",
-      "steps": [
-        "Click a category to load its report list.",
-        "A check mark shows the active category.",
-        "Opening some reports may require manager PIN approval."
-      ],
-      "image": "reports-categories.png",
-      "caption": "Report category list."
+      "id": "sales",
+      "title": "Ventes",
+      "fields": [
+        { "name": "Tableau de bord des ventes", "effect": "Courbes du chiffre d’affaires, commandes par heure, comparaison avec la période précédente. Pour voir les heures de pointe." },
+        { "name": "Ventes par serveur", "effect": "Ventes, commandes et couverts de chaque serveur. En DUO, chaque plat compte pour celui qui l’a ajouté." },
+        { "name": "Résumé des ventes", "effect": "Ventes nettes, taxes, remises et coupons, ventes par point de vente (Bar, Restaurant…), nombre de commandes par moment de la journée." },
+        { "name": "Résumé des ventes 2", "effect": "Par employé et par moment de la journée : commandes, couverts, ticket moyen, dépense moyenne par couvert, temps d’occupation ; commandes commencées, annulées, fusionnées, reportées." },
+        { "name": "Ventes hebdomadaires", "effect": "Ventes nettes jour par jour sur une semaine, avec gratuités et coupons." },
+        { "name": "Pourboires", "effect": "Total des pourboires et répartitions enregistrées." },
+        { "name": "Ventes avancées", "effect": "Une ligne par commande ou par article : n°, serveur, couverts, prix hors taxe, taxes, frais de service, détail des paiements, notes. Le plus complet pour la comptabilité (export XLSX)." },
+        { "name": "Remise, Taxe, Coupon", "effect": "Qui a appliqué quelle remise (et qui l’a approuvée), avec quel motif ; montants de taxe ; coupons utilisés." },
+        { "name": "Annulations", "effect": "Annulations par motif, par responsable, par article, et le détail ligne par ligne (date, quantité, montant, commentaire). À relire chaque semaine." },
+        { "name": "Résumé des tables", "effect": "Commandes, chiffre d’affaires et ticket moyen par table (et « sans table »)." }
+      ]
     },
     {
-      "id": "subreports",
-      "title": "Choose a report",
-      "steps": [
-        "After selecting a category, pick a report name in the middle column.",
-        "The filter panel on the right updates for that report.",
-        "Common operational reports include Sales dashboard, Activity, Expense, and Cash closing."
-      ],
-      "image": "reports-subreports.png",
-      "caption": "Sub-report list and filter panel."
+      "id": "orders",
+      "title": "Commandes",
+      "fields": [
+        { "name": "Fusion de commandes", "effect": "Quelles commandes ont été fusionnées, dans laquelle, quand et par qui." },
+        { "name": "Division de commandes", "effect": "Commandes divisées et commandes créées." },
+        { "name": "Cycle de vie des commandes", "effect": "Pour une commande : chaque événement dans l’ordre (création, envoi, passage en cuisine, modifications, paiement), avec qui et quand. Pour comprendre une réclamation." },
+        { "name": "Reçu de commande", "effect": "Retrouver et réimprimer le reçu d’une commande par son numéro." },
+        { "name": "Fiscalisation commandes", "effect": "État de la déclaration fiscale de chaque commande : terminée, échouée ou ignorée." }
+      ]
+    },
+    {
+      "id": "operations",
+      "title": "Opérations",
+      "fields": [
+        { "name": "Activité", "effect": "Chaque action protégée : qui l’a faite, quel module, sur quel appareil, et s’il a fallu l’autorisation d’un responsable (avec son rôle et la méthode : PIN…)." },
+        { "name": "Audit", "effect": "Journal des actions sensibles, filtrable par module." },
+        { "name": "Dépenses", "effect": "Dépenses enregistrées (module Comptabilité)." }
+      ]
+    },
+    {
+      "id": "products",
+      "title": "Produits",
+      "fields": [
+        { "name": "Mix produits hebdomadaire", "effect": "Quantités vendues par plat, jour par jour sur une semaine." },
+        { "name": "Résumé mix produits", "effect": "Classement des plats : quantité, prix moyen vendu, part des ventes, avec les options." },
+        { "name": "Produits horaires", "effect": "Ce qui se vend à quelle heure (quantités, sous-total, taxe, total)." },
+        { "name": "Liste des produits", "effect": "La carte : code, nom, catégorie, prix. Pratique pour vérifier les prix." }
+      ]
+    },
+    {
+      "id": "ai",
+      "title": "Rapport IA",
+      "intro": "Posez une question en français (« Quels plats se sont le moins vendus ce mois-ci ? ») ou choisissez un exemple, puis Exécuter. La réponse peut être un tableau ou un graphique. L’usage est limité par jour et par mois : le compteur sous la question indique ce qui reste. Vérifiez toujours un chiffre important dans le rapport classique correspondant."
+    },
+    {
+      "id": "optional",
+      "title": "Rapports des modules optionnels",
+      "intro": "« Clôture de caisse » et « Densité de livraison » n’apparaissent que si les modules Clôture et Livraison sont activés."
     }
   ]
 }

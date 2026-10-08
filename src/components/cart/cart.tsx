@@ -12,6 +12,9 @@ import {Seats} from "@/components/cart/seats.tsx";
 import {CartActions} from "@/components/cart/cart.actions.tsx";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {useTranslation} from "react-i18next";
+import {newestLinesFirst} from "@/lib/order.ts";
+import {useKitchenReadyLines} from "@/hooks/useKitchenReadyLines.ts";
+import {kitchenOrderItemKey} from "@/lib/order-display.ts";
 
 export const MenuCart = () => {
   const [state, setState] = useAtom(appState);
@@ -35,9 +38,19 @@ export const MenuCart = () => {
 
   const newGroups = useMemo(() => groupCartLines(newItems), [newItems]);
 
+  // Lines already sent, the latest sends first.
   const oldItems = useMemo(() => {
-    return cartItems.filter(item => item.newOrOld === MenuItemType.old);
+    return newestLinesFirst(cartItems.filter(item => item.newOrOld === MenuItemType.old));
   }, [cartItems]);
+
+  // Every line of the order being edited (all seats), for the kitchen's "ready" marks.
+  const sentLineIds = useMemo(() => (
+    state.cart
+      .filter(item => item.newOrOld === MenuItemType.old && !item.deleted_at)
+      .map(item => kitchenOrderItemKey(item.id))
+      .filter(Boolean)
+  ), [state.cart]);
+  const readyLines = useKitchenReadyLines(sentLineIds);
 
   return (
     <div className="flex flex-col h-full min-h-0" data-testid="cart-panel">
@@ -73,7 +86,7 @@ export const MenuCart = () => {
             <div className="h-[2px] bg-neutral-900 my-1 rounded-full"></div>
           )}
           {oldItems.map((item) => (
-            <CartItem item={item} key={item.id}/>
+            <CartItem item={item} key={item.id} ready={readyLines.has(kitchenOrderItemKey(item.id))}/>
           ))}
         </ScrollContainer>
       </div>
