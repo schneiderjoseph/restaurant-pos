@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { faDeleteLeft, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { Button } from '@/components/common/input/button.tsx';
-import { Dish } from '@/api/model/dish.ts';
+import { Dish, DishVariant } from '@/api/model/dish.ts';
 import { withCurrency } from '@/lib/utils.ts';
 import {
   bumpMeasure,
@@ -16,6 +16,7 @@ import {
   measureDefault,
   measurePrice,
   measureStep,
+  variantAsksQuantity,
 } from '@/lib/dish-selling.ts';
 
 /** What the server picked: the label shown after the dish name and the line's unit price. */
@@ -23,6 +24,8 @@ export interface DishVariantPick {
   variant: string;
   price: number;
   measureQuantity?: number;
+  /** Variant that asks how many (shots): the cart line's quantity. */
+  quantity?: number;
 }
 
 interface Props {
@@ -37,27 +40,69 @@ const KEYS = ['7', '8', '9', '4', '5', '6', '1', '2', '3'];
 // Big enough to hit with a thumb, small enough that the pad fits the modal on a tablet.
 const KEY_CLASS = '!h-14 w-full text-xl';
 
-/** Asks which variant (bottle / shot) or how much (3.5 oz) before a dish goes in the cart. */
+/**
+ * Asks which variant (bottle / shot) or how much (3.5 oz) before a dish goes in the cart.
+ * A variant that asks how many (shots) then shows the number pad: 1, 2, 3...
+ */
 export const DishVariantModal = ({ dish, unitPrice, onPick, onClose }: Props) => {
   const { t, i18n } = useTranslation('menu');
   const mode = dishSellingMode(dish);
+  const variants = dishVariants(dish);
+  // A dish whose only variant asks how many goes straight to the pad.
+  const [counting, setCounting] = useState<DishVariant | null>(
+    variants.length === 1 && variantAsksQuantity(variants[0]) ? variants[0] : null,
+  );
+
+  const pickVariant = (variant: DishVariant) => {
+    if (variantAsksQuantity(variant)) {
+      setCounting(variant);
+      return;
+    }
+    onPick({ variant: variant.name, price: Number(variant.price) });
+  };
+
+  const title = counting ? `${dish.name} — ${counting.name}` : dish.name;
 
   return (
-    <Modal open onClose={onClose} title={dish.name} size="md" testId="dish-variant-modal">
+    <Modal open onClose={onClose} title={title} size="md" testId="dish-variant-modal">
       {mode === 'measure' ? (
-        <MeasurePicker dish={dish} unitPrice={unitPrice} locale={i18n.language} onPick={onPick} />
+        <QuantityPad
+          unit={String(dish.measure_unit ?? '').trim()}
+          step={measureStep(dish)}
+          bump={measureBump(dish)}
+          preset={measureDefault(dish)}
+          unitPrice={unitPrice}
+          locale={i18n.language}
+          prompt={t('variants.howMuch', { unit: String(dish.measure_unit ?? '').trim(), price: withCurrency(unitPrice) })}
+          onConfirm={(quantity, total) => onPick({
+            variant: measureLabel(quantity, String(dish.measure_unit ?? ''), i18n.language),
+            price: total,
+            measureQuantity: quantity,
+          })}
+        />
+      ) : counting ? (
+        <QuantityPad
+          unit=""
+          step={1}
+          bump={1}
+          preset={1}
+          unitPrice={Number(counting.price)}
+          locale={i18n.language}
+          prompt={t('variants.howMany', { name: counting.name, price: withCurrency(Number(counting.price)) })}
+          onConfirm={(quantity) => onPick({ variant: counting.name, price: Number(counting.price), quantity })}
+        />
       ) : (
         <div className="flex flex-col gap-3">
           <p className="text-neutral-600">{t('variants.pickVariant')}</p>
           <div className="grid grid-cols-2 gap-3">
-            {dishVariants(dish).map((variant, index) => (
+            {variants.map((variant, index) => (
               <button
                 key={`${variant.name}-${index}`}
                 type="button"
                 className="flex min-h-[80px] flex-col justify-between gap-1 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-left shadow-sm select-none active:bg-warning-50 active:shadow-none"
                 data-testid="dish-variant-option"
                 data-variant-name={variant.name}
-                onClick={() => onPick({ variant: variant.name, price: Number(variant.price) })}
+                onClick={() => pickVariant(variant)}
               >
                 <span className="text-lg font-semibold leading-snug text-neutral-900">{variant.name}</span>
                 <span className="font-bold tabular-nums text-neutral-600">{withCurrency(Number(variant.price))}</span>
@@ -70,23 +115,28 @@ export const DishVariantModal = ({ dish, unitPrice, onPick, onClose }: Props) =>
   );
 };
 
-const MeasurePicker = ({
-  dish,
+/** Number pad for a quantity: ounces by halves (opens on 12, ±4) or shots by ones (opens on 1). */
+const QuantityPad = ({
+  unit,
+  step,
+  bump,
+  preset,
   unitPrice,
   locale,
-  onPick,
+  prompt,
+  onConfirm,
 }: {
-  dish: Dish;
+  unit: string;
+  step: number;
+  bump: number;
+  preset: number | null;
   unitPrice: number;
   locale: string;
-  onPick: (pick: DishVariantPick) => void;
+  prompt: string;
+  onConfirm: (quantity: number, total: number) => void;
 }) => {
   const { t } = useTranslation('menu');
-  const unit = String(dish.measure_unit ?? '').trim();
-  const step = measureStep(dish);
   const decimals = !Number.isInteger(step);
-  const bump = measureBump(dish);
-  const preset = measureDefault(dish);
   // Typed text, '.' as the decimal mark. Opens on the dish's default quantity (12 oz).
   const [entry, setEntry] = useState(preset != null ? String(preset) : '');
   // The first key typed replaces the default instead of appending to it ("12" + 5 = 5, not 125).
@@ -116,9 +166,7 @@ const MeasurePicker = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-neutral-600">
-        {t('variants.howMuch', { unit, price: withCurrency(unitPrice) })}
-      </p>
+      <p className="text-neutral-600">{prompt}</p>
 
       <div className="flex items-center gap-3">
         <Button
@@ -216,13 +264,7 @@ const MeasurePicker = ({
           size="lg"
           disabled={!valid}
           data-testid="dish-measure-confirm"
-          onClick={() =>
-            onPick({
-              variant: measureLabel(quantity, unit, locale),
-              price: total,
-              measureQuantity: quantity,
-            })
-          }
+          onClick={() => onConfirm(quantity, total)}
         >
           {t('variants.add')}
         </Button>

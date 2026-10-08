@@ -201,6 +201,7 @@
     "more": "Meer",
     "erase": "Wissen",
     "invalidStep": "Voer een veelvoud van {{step}} {{unit}} in.",
-    "add": "Toevoegen"
+    "add": "Toevoegen",
+    "howMany": "Hoeveel {{name}}? ({{price}} per stuk)"
   }
 }

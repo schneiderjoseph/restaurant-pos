@@ -201,6 +201,7 @@
     "more": "Mehr",
     "erase": "Löschen",
     "invalidStep": "Ein Vielfaches von {{step}} {{unit}} eingeben.",
-    "add": "Hinzufügen"
+    "add": "Hinzufügen",
+    "howMany": "Wie viele {{name}}? ({{price}} pro Stück)"
   }
 }

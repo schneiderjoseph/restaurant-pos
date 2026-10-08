@@ -48,6 +48,10 @@ export const bumpMeasure = (quantity: number, bump: number, direction: 1 | -1): 
   return next > 0 ? next : quantity;
 };
 
+/** A variant that asks how many first (shots). */
+export const variantAsksQuantity = (variant?: Pick<DishVariant, 'ask_quantity'> | null): boolean =>
+  variant?.ask_quantity === true;
+
 /** True when `quantity` is a positive multiple of `step` (float-safe). */
 export const isValidMeasure = (quantity: number, step: number): boolean => {
   if (!Number.isFinite(quantity) || quantity <= 0) {
@@ -82,6 +86,8 @@ export const cleanDishVariants = (variants?: Array<Partial<DishVariant>> | null)
     .map((variant) => ({
       name: String(variant?.name ?? '').trim(),
       price: Number(variant?.price),
+      // Only stored when on: plain variants keep their { name, price } shape.
+      ...(variant?.ask_quantity ? { ask_quantity: true } : {}),
     }))
     .filter((variant) => variant.name !== '' && Number.isFinite(variant.price));
   return cleaned.length > 0 ? cleaned : null;
@@ -90,7 +96,7 @@ export const cleanDishVariants = (variants?: Array<Partial<DishVariant>> | null)
 /** Form state of how a dish is sold; prices stay text while typed. */
 export interface DishSellingValue {
   mode: DishSellingMode;
-  variants: { name: string; price: string }[];
+  variants: { name: string; price: string; ask_quantity?: boolean }[];
   measure_unit: string;
   measure_step: string;
   /** Quantity the pad opens with; '' = empty. */
@@ -101,7 +107,11 @@ export interface DishSellingValue {
 
 export const dishSellingFormValue = (dish?: Dish | null): DishSellingValue => ({
   mode: dishSellingMode(dish),
-  variants: (dish?.variants ?? []).map((variant) => ({ name: variant.name, price: String(variant.price) })),
+  variants: (dish?.variants ?? []).map((variant) => ({
+    name: variant.name,
+    price: String(variant.price),
+    ask_quantity: variant.ask_quantity === true,
+  })),
   measure_unit: dish?.measure_unit ?? '',
   measure_step: String(dish?.measure_step ?? DEFAULT_MEASURE_STEP),
   measure_default: dish?.measure_default != null ? String(dish.measure_default) : '',
@@ -120,6 +130,7 @@ export const dishSellingPayload = (value?: DishSellingValue | null) => {
       ? cleanDishVariants((value?.variants ?? []).map((variant) => ({
         name: variant.name,
         price: variant.price === '' ? NaN : Number(String(variant.price).replace(',', '.')),
+        ask_quantity: variant.ask_quantity,
       })))
       : null,
     measure_unit: mode === 'measure' ? (value?.measure_unit ?? '').trim() || null : null,

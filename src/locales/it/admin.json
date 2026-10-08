@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "es. 12 (vuoto = tastierino vuoto)",
     "measureBump": "Passo dei pulsanti + / −",
     "measureBumpPlaceholder": "es. 4 (vuoto = quantità minima)",
-    "measurePresetsInvalid": "La quantità predefinita e il passo devono essere multipli della quantità minima."
+    "measurePresetsInvalid": "La quantità predefinita e il passo devono essere multipli della quantità minima.",
+    "variantAskQuantity": "Chiedi quanti",
+    "variantAskQuantityHint": "Dopo questa scelta il POS chiede quanti (shot: 1, 2, 3…) e la riga prende quella quantità."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

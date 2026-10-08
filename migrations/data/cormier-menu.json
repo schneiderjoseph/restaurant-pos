@@ -1249,7 +1249,8 @@
             {
               "name": "Shot 2 oz",
               "price": 475,
-              "from": "1901"
+              "from": "1901",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille",
@@ -1266,7 +1267,8 @@
             {
               "name": "Shot 2 oz",
               "price": 700,
-              "from": "1902"
+              "from": "1902",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille",
@@ -1283,12 +1285,27 @@
             {
               "name": "Shot 2 oz",
               "price": 425,
-              "from": "1903"
+              "from": "1903",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille",
               "price": 3800,
               "from": "1906"
+            }
+          ]
+        },
+        {
+          "name": "Rhum Malibu",
+          "price": 750,
+          "number": "1907",
+          "asi_item_id": 527,
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 750,
+              "from": "1907",
+              "ask_quantity": true
             }
           ]
         }
@@ -1300,9 +1317,17 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Glenfiddich 2 oz",
+          "name": "Glenfiddich",
           "price": 1480,
-          "number": "2001"
+          "number": "2001",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1480,
+              "from": "2001",
+              "ask_quantity": true
+            }
+          ]
         },
         {
           "name": "Whisky Black Label",
@@ -1312,7 +1337,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1300,
-              "from": "2002"
+              "from": "2002",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 750 ml",
@@ -1327,9 +1353,17 @@
           ]
         },
         {
-          "name": "Whisky Chivas 2 oz",
+          "name": "Whisky Chivas",
           "price": 1320,
-          "number": "2003"
+          "number": "2003",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 1320,
+              "from": "2003",
+              "ask_quantity": true
+            }
+          ]
         },
         {
           "name": "Whisky Jack Daniel's",
@@ -1339,7 +1373,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1045,
-              "from": "2004"
+              "from": "2004",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 75 cl",
@@ -1354,9 +1389,17 @@
           ]
         },
         {
-          "name": "Whisky Something Special 2 oz",
+          "name": "Whisky Something Special",
           "price": 635,
-          "number": "2005"
+          "number": "2005",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 635,
+              "from": "2005",
+              "ask_quantity": true
+            }
+          ]
         },
         {
           "name": "Whisky White Label",
@@ -1366,7 +1409,8 @@
             {
               "name": "Shot 2 oz",
               "price": 520,
-              "from": "2006"
+              "from": "2006",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 750 ml",
@@ -1407,7 +1451,8 @@
             {
               "name": "Shot 2 oz",
               "price": 600,
-              "from": "2101"
+              "from": "2101",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 750 ml",
@@ -1429,7 +1474,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1500,
-              "from": "2102"
+              "from": "2102",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 75 cl",
@@ -1451,7 +1497,8 @@
             {
               "name": "Shot 2 oz",
               "price": 600,
-              "from": "2103"
+              "from": "2103",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 75 cl",
@@ -1480,7 +1527,8 @@
             {
               "name": "Shot 2 oz",
               "price": 600,
-              "from": "2201"
+              "from": "2201",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 750 ml",
@@ -1497,7 +1545,8 @@
             {
               "name": "Shot 2 oz",
               "price": 840,
-              "from": "2202"
+              "from": "2202",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 1 L",
@@ -1514,7 +1563,8 @@
             {
               "name": "Shot 2 oz",
               "price": 840,
-              "from": "2203"
+              "from": "2203",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 750 ml",
@@ -1538,7 +1588,8 @@
             {
               "name": "Shot 2 oz",
               "price": 900,
-              "from": "2301"
+              "from": "2301",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 1 L",
@@ -1555,7 +1606,8 @@
             {
               "name": "Shot 2 oz",
               "price": 900,
-              "from": "2302"
+              "from": "2302",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 1 L",
@@ -1572,7 +1624,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1550,
-              "from": "2303"
+              "from": "2303",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 75 cl",
@@ -1589,7 +1642,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1900,
-              "from": "2304"
+              "from": "2304",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 75 cl",
@@ -1618,7 +1672,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1660,
-              "from": "2401"
+              "from": "2401",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 700 ml",
@@ -1635,7 +1690,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1100,
-              "from": "2402"
+              "from": "2402",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 700 ml",
@@ -1652,7 +1708,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1425,
-              "from": "2403"
+              "from": "2403",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 700 ml",
@@ -1676,7 +1733,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1100,
-              "from": "2501"
+              "from": "2501",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 70 cl",
@@ -1698,7 +1756,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1100,
-              "from": "2502"
+              "from": "2502",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 1 L",
@@ -1715,7 +1774,8 @@
             {
               "name": "Shot 2 oz",
               "price": 1200,
-              "from": "2505"
+              "from": "2505",
+              "ask_quantity": true
             },
             {
               "name": "Bouteille 700 ml",
@@ -1742,19 +1802,43 @@
       "outlet": "bar",
       "items": [
         {
-          "name": "Cinzano Rouge 2 oz",
+          "name": "Cinzano Rouge",
           "price": 720,
-          "number": "2503"
+          "number": "2503",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 720,
+              "from": "2503",
+              "ask_quantity": true
+            }
+          ]
         },
         {
-          "name": "Cinzano Blanc 2 oz",
+          "name": "Cinzano Blanc",
           "price": 720,
-          "number": "2504"
+          "number": "2504",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 720,
+              "from": "2504",
+              "ask_quantity": true
+            }
+          ]
         },
         {
-          "name": "Ricard 2 oz",
+          "name": "Ricard",
           "price": 670,
-          "number": "2506"
+          "number": "2506",
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 670,
+              "from": "2506",
+              "ask_quantity": true
+            }
+          ]
         }
       ]
     },

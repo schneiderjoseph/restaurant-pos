@@ -201,6 +201,7 @@
     "more": "Arttır",
     "erase": "Sil",
     "invalidStep": "{{step}} {{unit}} katı bir miktar girin.",
-    "add": "Ekle"
+    "add": "Ekle",
+    "howMany": "Kaç {{name}}? (tanesi {{price}})"
   }
 }

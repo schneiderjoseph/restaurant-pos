@@ -515,7 +515,9 @@
     "measureDefaultPlaceholder": "e.g. 12 (empty = blank pad)",
     "measureBump": "+ / − buttons step",
     "measureBumpPlaceholder": "e.g. 4 (empty = smallest quantity)",
-    "measurePresetsInvalid": "The default quantity and the step must be multiples of the smallest quantity."
+    "measurePresetsInvalid": "The default quantity and the step must be multiples of the smallest quantity.",
+    "variantAskQuantity": "Ask how many",
+    "variantAskQuantityHint": "After this choice the POS asks how many (shots: 1, 2, 3…) and the line takes that quantity."
   },
   "dishView": {
     "detailsTitle": "Dish details",

@@ -201,6 +201,7 @@
     "more": "Mais",
     "erase": "Apagar",
     "invalidStep": "Informe um múltiplo de {{step}} {{unit}}.",
-    "add": "Adicionar"
+    "add": "Adicionar",
+    "howMany": "Quantos {{name}}? ({{price}} cada)"
   }
 }

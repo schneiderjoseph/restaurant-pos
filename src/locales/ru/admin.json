@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "напр. 12 (пусто = пустое поле)",
     "measureBump": "Шаг кнопок + / −",
     "measureBumpPlaceholder": "напр. 4 (пусто = минимальное количество)",
-    "measurePresetsInvalid": "Количество по умолчанию и шаг должны быть кратны минимальному количеству."
+    "measurePresetsInvalid": "Количество по умолчанию и шаг должны быть кратны минимальному количеству.",
+    "variantAskQuantity": "Спросить количество",
+    "variantAskQuantityHint": "После выбора POS спрашивает количество (шоты: 1, 2, 3…), и строка получает это количество."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

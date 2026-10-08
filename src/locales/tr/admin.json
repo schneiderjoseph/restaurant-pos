@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "ör. 12 (boş = boş tuş takımı)",
     "measureBump": "+ / − düğmelerinin adımı",
     "measureBumpPlaceholder": "ör. 4 (boş = en küçük miktar)",
-    "measurePresetsInvalid": "Varsayılan miktar ve adım, en küçük miktarın katları olmalıdır."
+    "measurePresetsInvalid": "Varsayılan miktar ve adım, en küçük miktarın katları olmalıdır.",
+    "variantAskQuantity": "Adet sor",
+    "variantAskQuantityHint": "Bu seçimden sonra POS kaç adet olduğunu sorar (shot: 1, 2, 3…) ve satır bu miktarı alır."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

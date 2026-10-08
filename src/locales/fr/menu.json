@@ -203,6 +203,7 @@
     "more": "Plus",
     "erase": "Effacer",
     "invalidStep": "Saisissez un multiple de {{step}} {{unit}}.",
-    "add": "Ajouter"
+    "add": "Ajouter",
+    "howMany": "Combien de {{name}} ? ({{price}} chacun)"
   }
 }

@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "ex. 12 (vazio = teclado vazio)",
     "measureBump": "Passo dos botões + / −",
     "measureBumpPlaceholder": "ex. 4 (vazio = quantidade mínima)",
-    "measurePresetsInvalid": "A quantidade padrão e o passo devem ser múltiplos da quantidade mínima."
+    "measurePresetsInvalid": "A quantidade padrão e o passo devem ser múltiplos da quantidade mínima.",
+    "variantAskQuantity": "Perguntar quantos",
+    "variantAskQuantityHint": "Após esta escolha, o PDV pergunta quantos (doses: 1, 2, 3…) e a linha recebe essa quantidade."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

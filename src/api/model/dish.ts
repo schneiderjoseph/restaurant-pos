@@ -14,6 +14,8 @@ export type DishDescription = Record<string, string>;
 export interface DishVariant {
   name: string
   price: number
+  /** Ask how many after picking it (shots: 1, 2, 3...); the line takes that quantity. */
+  ask_quantity?: boolean
 }
 
 export interface Dish extends ID, Name, Priority {

@@ -225,8 +225,14 @@ export const MenuDish = ({
     };
   }, [item?.dish_photo, showDishPhotos]);
 
+  // Shots counted on the pad become the line's quantity: "3 × Rhum 3*** — Shot 2 oz".
   const pickFields = (picked: DishVariantPick | null) => picked
-    ? {variant: picked.variant, measureQuantity: picked.measureQuantity, price: picked.price}
+    ? {
+      variant: picked.variant,
+      measureQuantity: picked.measureQuantity,
+      price: picked.price,
+      quantity: picked.quantity ?? 1,
+    }
     : {price: price};
 
   const handleClick = () => {

@@ -515,7 +515,9 @@
     "measureDefaultPlaceholder": "ex. 12 (vide = clavier vide)",
     "measureBump": "Pas des boutons + / −",
     "measureBumpPlaceholder": "ex. 4 (vide = quantité minimale)",
-    "measurePresetsInvalid": "La quantité par défaut et le pas doivent être des multiples de la quantité minimale."
+    "measurePresetsInvalid": "La quantité par défaut et le pas doivent être des multiples de la quantité minimale.",
+    "variantAskQuantity": "Demander le nombre",
+    "variantAskQuantityHint": "Après ce choix, le POS demande combien (shots : 1, 2, 3…) et la ligne prend cette quantité."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

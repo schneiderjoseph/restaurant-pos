@@ -137,7 +137,9 @@ const descriptionOf = (item) => (item.description ? q(item.description) : null);
 
 /** Variants as stored on the dish: name and price only (`from` is the JSON's bookkeeping). */
 const variantsOf = (variants) =>
-  `[${variants.map((v) => `{ name: ${q(v.name)}, price: ${Number(v.price).toFixed(2)}f }`).join(', ')}]`;
+  `[${variants.map((v) => `{ name: ${q(v.name)}, price: ${Number(v.price).toFixed(2)}f` +
+    // Shots: the POS asks how many (needs migrations/2026_10_08_variant_ask_quantity.surql).
+    `${v.ask_quantity ? ', ask_quantity: true' : ''} }`).join(', ')}]`;
 
 /** How the dish is sold: variants, by measure, or nothing for a single price. */
 const sellingSet = (item) => {
@@ -183,7 +185,15 @@ async function buildVariantsSql(data) {
       continue;
     }
     if (Array.isArray(kept.variants) && kept.variants.length > 0) {
-      notes.push(`déjà fait : ${d.item.name}`);
+      // Already folded: only the "ask how many" flags follow the JSON; live prices stay.
+      const flags = new Map(d.item.variants.map((v) => [v.name, v.ask_quantity === true]));
+      const synced = kept.variants.map((v) => ({ ...v, ask_quantity: flags.get(v.name) ?? v.ask_quantity === true }));
+      if (synced.some((v, i) => v.ask_quantity !== (kept.variants[i].ask_quantity === true))) {
+        lines.push(`UPDATE ${d.id} SET variants = ${variantsOf(synced)};`);
+        notes.push(`nombre demandé : ${d.item.name}`);
+      } else {
+        notes.push(`déjà fait : ${d.item.name}`);
+      }
       continue;
     }
     const missing = d.item.variants.filter((v) => !live.has(v.from));
@@ -191,7 +201,9 @@ async function buildVariantsSql(data) {
       notes.push(`ignoré : ${d.item.name}, plats absents ${missing.map((v) => v.from).join(', ')}`);
       continue;
     }
-    const variants = d.item.variants.map((v) => ({ name: v.name, price: Number(live.get(v.from).price) }));
+    const variants = d.item.variants.map((v) => ({
+      name: v.name, price: Number(live.get(v.from).price), ask_quantity: v.ask_quantity === true,
+    }));
     const price = Math.min(...variants.map((v) => v.price));
     lines.push(
       `UPDATE ${d.id} SET name = ${q(d.item.name)}, price = ${price.toFixed(2)}f, variants = ${variantsOf(variants)};`,

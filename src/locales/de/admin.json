@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "z. B. 12 (leer = leeres Feld)",
     "measureBump": "Schritt der Tasten + / −",
     "measureBumpPlaceholder": "z. B. 4 (leer = kleinste Menge)",
-    "measurePresetsInvalid": "Standardmenge und Schritt müssen Vielfache der kleinsten Menge sein."
+    "measurePresetsInvalid": "Standardmenge und Schritt müssen Vielfache der kleinsten Menge sein.",
+    "variantAskQuantity": "Anzahl abfragen",
+    "variantAskQuantityHint": "Nach dieser Wahl fragt das POS nach der Anzahl (Shots: 1, 2, 3…) und die Zeile übernimmt diese Menge."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

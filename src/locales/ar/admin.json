@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "مثل 12 (فارغ = لوحة فارغة)",
     "measureBump": "خطوة الزرين + / −",
     "measureBumpPlaceholder": "مثل 4 (فارغ = أصغر كمية)",
-    "measurePresetsInvalid": "يجب أن تكون الكمية الافتراضية والخطوة من مضاعفات أصغر كمية."
+    "measurePresetsInvalid": "يجب أن تكون الكمية الافتراضية والخطوة من مضاعفات أصغر كمية.",
+    "variantAskQuantity": "اسأل عن العدد",
+    "variantAskQuantityHint": "بعد هذا الاختيار يسأل نظام البيع عن العدد (شوت: 1، 2، 3…) ويأخذ السطر هذه الكمية."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

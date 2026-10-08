@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
+import { Switch } from '@/components/common/input/switch.tsx';
 import { DishSellingMode, DishSellingValue, dishSellingFormValue } from '@/lib/dish-selling.ts';
 
 interface Props {
@@ -67,6 +68,15 @@ export const DishSellingFields = ({ value, onChange, error }: Props) => {
                   data-testid={`dish-variant-price-${index}`}
                   onChange={(event) => setVariant(index, { price: (event.target as HTMLInputElement).value })}
                 />
+              </div>
+              <div className="pb-2" title={t('forms.variantAskQuantityHint')}>
+                <Switch
+                  checked={variant.ask_quantity === true}
+                  data-testid={`dish-variant-ask-quantity-${index}`}
+                  onChange={(event) => setVariant(index, { ask_quantity: event.target.checked })}
+                >
+                  {t('forms.variantAskQuantity')}
+                </Switch>
               </div>
               <Button
                 variant="danger"

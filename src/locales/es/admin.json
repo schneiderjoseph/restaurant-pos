@@ -490,7 +490,9 @@
     "measureDefaultPlaceholder": "ej. 12 (vacío = teclado vacío)",
     "measureBump": "Paso de los botones + / −",
     "measureBumpPlaceholder": "ej. 4 (vacío = cantidad mínima)",
-    "measurePresetsInvalid": "La cantidad por defecto y el paso deben ser múltiplos de la cantidad mínima."
+    "measurePresetsInvalid": "La cantidad por defecto y el paso deben ser múltiplos de la cantidad mínima.",
+    "variantAskQuantity": "Preguntar cuántos",
+    "variantAskQuantityHint": "Tras esta elección, el POS pregunta cuántos (shots: 1, 2, 3…) y la línea toma esa cantidad."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

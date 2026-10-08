@@ -3,6 +3,7 @@ import {
   bumpMeasure,
   cleanDishVariants,
   dishSellingError,
+  dishSellingFormValue,
   measureBump,
   measureDefault,
   dishSellingPayload,
@@ -123,5 +124,24 @@ describe('measure presets', () => {
     expect(dishSellingError(value, t)).toBeNull();
     expect(dishSellingError({ ...value, measure_bump: '4.3' }, t)).toBe('forms.measurePresetsInvalid');
     expect(dishSellingError({ ...value, measure_default: 'abc' }, t)).toBe('forms.measurePresetsInvalid');
+  });
+});
+
+describe('variants that ask how many', () => {
+  it('keeps the flag only when on', () => {
+    expect(cleanDishVariants([
+      { name: 'Shot 2 oz', price: 475, ask_quantity: true },
+      { name: 'Bouteille', price: 3950, ask_quantity: false },
+    ])).toEqual([
+      { name: 'Shot 2 oz', price: 475, ask_quantity: true },
+      { name: 'Bouteille', price: 3950 },
+    ]);
+  });
+
+  it('round-trips through the dish form', () => {
+    const dish = { variants: [{ name: 'Shot 2 oz', price: 475, ask_quantity: true }, { name: 'Bouteille', price: 3950 }] };
+    const value = dishSellingFormValue(dish as any);
+    expect(value.variants.map((v) => v.ask_quantity)).toEqual([true, false]);
+    expect(dishSellingPayload(value).variants).toEqual(dish.variants);
   });
 });
