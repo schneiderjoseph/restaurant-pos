@@ -80,7 +80,7 @@ export const normalizeModifierTree = (
   }));
 };
 
-const sumNormalizedModifierTree = (groups: CartModifierGroup[] | undefined): number => {
+export const sumNormalizedModifierTree = (groups: CartModifierGroup[] | undefined): number => {
   return (groups ?? []).reduce((groupTotal, group) => {
     return groupTotal + (group.selectedModifiers ?? []).reduce((modTotal, modifier) => {
       const modPrice = safeNumber(modifier.price ?? modifier.dish?.price ?? 0);

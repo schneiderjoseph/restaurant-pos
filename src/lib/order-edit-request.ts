@@ -1,4 +1,4 @@
-import type { MenuItem } from '@/api/model/cart_item.ts';
+import type { CartModifierGroup, MenuItem } from '@/api/model/cart_item.ts';
 import type { OrderItem } from '@/api/model/order_item.ts';
 import { OrderStatus } from '@/api/model/order.ts';
 import { OrderVoidReason } from '@/api/model/order_void.ts';
@@ -8,7 +8,7 @@ import {
   OrderEditRequestStatus,
   SentLineChange,
 } from '@/api/model/order_edit_request.ts';
-import { buildOrderItemPayload } from '@/lib/order-item-pricing.ts';
+import { buildOrderItemPayload, sumNormalizedModifierTree } from '@/lib/order-item-pricing.ts';
 import { lineDisplayName } from '@/lib/dish-selling.ts';
 import { syncOrderTaxes } from '@/lib/order-tax.service.ts';
 import { cancelItemStages } from '@/lib/kitchen/workflow.service.ts';
@@ -30,6 +30,13 @@ export type SentItemsEditMode = 'direct' | 'request';
 
 export const sentItemsEditMode = (can: (module: string) => boolean): SentItemsEditMode =>
   can(EDIT_SENT_ITEMS_MODULE) ? 'direct' : 'request';
+
+/** Below this, two unit prices are the same (float noise from tax-inclusive conversion). */
+const PRICE_EPSILON = 0.005;
+
+/** The changes that wait for an approver: only those taking money off the order. */
+export const changesNeedingApproval = (changes: readonly SentLineChange[]): SentLineChange[] =>
+  changes.filter((change) => change.lowers_total);
 
 type AnyDb = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<any>;
@@ -73,7 +80,7 @@ export const diffSentLines = (
     };
 
     if (!cur || cur.deleted_at) {
-      changes.push({ ...base, action: 'void', quantity: Number(orig.quantity) });
+      changes.push({ ...base, action: 'void', quantity: Number(orig.quantity), lowers_total: true });
       continue;
     }
 
@@ -85,10 +92,15 @@ export const diffSentLines = (
     }
 
     const pricing = buildOrderItemPayload(cur);
+    const sentUnit =
+      Number(orig.price || 0) + sumNormalizedModifierTree(orig.modifiers as CartModifierGroup[]);
+    const newUnit = pricing.price + sumNormalizedModifierTree(pricing.modifiers);
     changes.push({
       ...base,
       action: 'update',
       quantity: Number(cur.quantity),
+      lowers_total:
+        Number(cur.quantity) < Number(orig.quantity) || newUnit < sentUnit - PRICE_EPSILON,
       comments_changed: commentsChanged,
       comments: cur.comments || '',
       modifiers_changed: modifiersChanged,

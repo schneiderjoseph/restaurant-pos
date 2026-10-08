@@ -52,7 +52,13 @@ import {orderIdToString} from "@/store/order-edit-session.ts";
 import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
 import {useModuleAccess} from "@/providers/module-access.provider.tsx";
 import {splitSentQuantityIncreases} from "@/lib/order-edit.ts";
-import {createOrderEditRequest, diffSentLines, refKey, sentItemsEditMode} from "@/lib/order-edit-request.ts";
+import {
+  changesNeedingApproval,
+  createOrderEditRequest,
+  diffSentLines,
+  refKey,
+  sentItemsEditMode,
+} from "@/lib/order-edit-request.ts";
 import {duoMemberIds} from "@/lib/duo.ts";
 import {getCustomerTaxExemptionIds} from "@/lib/tax-calculator.ts";
 
@@ -184,6 +190,9 @@ export const Payment = () => {
 
   const hasPersistedCartEdits = () => sentLineChanges().length > 0;
 
+  /** Only changes taking money off the order (void, fewer plates, cheaper options) need an approver. */
+  const hasEditsNeedingApproval = () => changesNeedingApproval(sentLineChanges()).length > 0;
+
   /** The role is read again from the database, as `protectAction` does. */
   const fetchSentItemsEditMode = async () => {
     const modules = await fetchUserModules(db, page?.user);
@@ -246,10 +255,14 @@ export const Payment = () => {
 
       const date = DateTime.now().toJSDate();
 
-      // Changing a line already sent takes the right to; without it the lines stay as sent
-      // and the changes wait for an approver. New lines are saved and sent either way.
-      const changes = sentLineChanges();
-      const awaitsApproval = changes.length > 0 && (await fetchSentItemsEditMode()) === 'request';
+      // A change that takes money off a sent line (void, fewer plates, cheaper options) takes the
+      // right to; without it that line stays as sent and the change waits for an approver.
+      // Anything else (a comment, a dearer option) and new lines are saved and sent either way.
+      const pendingChanges = changesNeedingApproval(sentLineChanges());
+      const awaitsApproval =
+        pendingChanges.length > 0 && (await fetchSentItemsEditMode()) === 'request';
+      const awaitingIds = new Set(awaitsApproval ? pendingChanges.map((change) => change.order_item) : []);
+      const lineAwaitsApproval = (id: unknown) => awaitingIds.has(orderIdToString(id));
 
       const kitchenItems: Record<string, any[]> = {};
       const items: any[] = [];
@@ -259,7 +272,7 @@ export const Payment = () => {
 
       for (const item of cartToSave()) {
         if (isPersistedCartItem(item)) {
-          if (awaitsApproval) {
+          if (lineAwaitsApproval(item.id)) {
             if (!item.deleted_at) {
               await db.merge(toRecordId(item.id), {
                 seat: item.seat,
@@ -378,7 +391,7 @@ export const Payment = () => {
             // Already handled via deleted_at branch above.
             continue;
           }
-          if (awaitsApproval) {
+          if (lineAwaitsApproval(id)) {
             items.push(toRecordId(id));
             continue;
           }
@@ -545,7 +558,7 @@ export const Payment = () => {
         await createOrderEditRequest(db, {
           orderId: normalizedOrder?.id,
           requestedBy: page?.user?.id,
-          changes,
+          changes: pendingChanges,
         });
         toast.info(t("payment:editRequest.sent"));
       }
@@ -723,7 +736,7 @@ export const Payment = () => {
 
 
         <div className="p-3" data-testid="cart-payment-actions">
-          {hasPersistedCartEdits() && sentItemsEditMode(can) === 'request' && (
+          {hasEditsNeedingApproval() && sentItemsEditMode(can) === 'request' && (
             <p className="mb-3 text-sm font-normal text-warning-700" data-testid="cart-edit-needs-approval">
               {t("payment:editRequest.notice")}
             </p>

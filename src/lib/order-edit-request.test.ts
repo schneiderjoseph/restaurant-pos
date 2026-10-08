@@ -8,6 +8,7 @@ import { userModulesGrant } from '@/lib/access.rules.ts';
 import {
   APPROVE_SENT_ITEMS_EDIT_MODULE,
   approveOrderEditRequest,
+  changesNeedingApproval,
   diffSentLines,
   EDIT_SENT_ITEMS_MODULE,
   refKey,
@@ -115,6 +116,23 @@ describe('diffSentLines', () => {
     const groups = [{ id: 'g1', selectedModifiers: [] }] as unknown as MenuItem['selectedGroups'];
     const [options] = diffSentLines([sent('a')], [cartLine('a', { selectedGroups: groups })]);
     expect(options).toMatchObject({ action: 'update', modifiers_changed: true });
+  });
+
+  it('marks for approval only the changes that take money off the order', () => {
+    const option = (price: number) =>
+      [{ id: 'g1', selectedModifiers: [{ id: 'm1', name: 'Fromage', price }] }] as unknown as MenuItem['selectedGroups'];
+    const withOption = sent('a', { modifiers: option(2) as unknown as OrderItem['modifiers'] });
+
+    const lowers = (originals: OrderItem[], cart: MenuItem[]) =>
+      changesNeedingApproval(diffSentLines(originals, cart)).length > 0;
+
+    expect(lowers([sent('a')], [])).toBe(true);
+    expect(lowers([sent('a')], [cartLine('a', { quantity: 1 })])).toBe(true);
+    expect(lowers([withOption], [cartLine('a', { selectedGroups: [] })])).toBe(true);
+
+    expect(lowers([sent('a')], [cartLine('a', { comments: 'sans oignon' })])).toBe(false);
+    expect(lowers([sent('a')], [cartLine('a', { selectedGroups: option(2) })])).toBe(false);
+    expect(lowers([withOption], [cartLine('a', { selectedGroups: option(2), comments: 'bien cuit' })])).toBe(false);
   });
 
   it('ignores a line that was already voided on the order', () => {

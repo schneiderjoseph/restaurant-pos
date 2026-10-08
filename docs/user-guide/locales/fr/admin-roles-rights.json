@@ -27,7 +27,7 @@
       "id": "sent",
       "title": "Modification des commandes envoyées",
       "fields": [
-        { "name": "Modifier directement les lignes déjà envoyées", "effect": "Le changement d’une ligne déjà en cuisine est enregistré tout de suite. Sans lui, il part en demande d’approbation." },
+        { "name": "Modifier directement les lignes déjà envoyées", "effect": "Un retrait sur une ligne déjà en cuisine (suppression, moins de plats, option moins chère) est enregistré tout de suite. Sans ce droit, il part en demande d’approbation. Ce qui n’enlève pas d’argent (plats en plus, commentaire, option ajoutée ou plus chère) passe toujours sans approbation." },
         { "name": "Approuver les modifications demandées par les autres", "effect": "Reçoit les demandes sur sa tablette. Ne permet pas, à lui seul, de modifier directement." }
       ],
       "note": "Gardez toujours au moins une personne connectée avec le droit d’approuver pendant le service, sinon les demandes attendent sans que personne ne soit prévenu."

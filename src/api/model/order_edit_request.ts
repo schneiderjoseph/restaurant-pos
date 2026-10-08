@@ -23,6 +23,11 @@ export interface SentLineChange {
   comments_changed?: boolean
   comments?: string
   modifiers_changed?: boolean
+  /**
+   * The change takes money off the order (a void, fewer plates, cheaper options). Only these
+   * wait for an approver; a comment or a dearer option is written straight away.
+   */
+  lowers_total?: boolean
   /** Fields written on the order line once approved (update only). */
   patch?: {
     quantity: number
