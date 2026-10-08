@@ -69,6 +69,10 @@ describe('InternalAccountingProvider', () => {
       if (sql.includes('idempotency_key')) {
         return [[]];
       }
+      // Entry numbers come from the atomic counter (UPSERT … RETURN AFTER).
+      if (sql.includes('UPSERT')) {
+        return [[{ value: 1 }]];
+      }
       return [[{ max_value: 0 }]];
     });
 

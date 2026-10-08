@@ -11,6 +11,7 @@ import {
 } from "@/utils/csv-import.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {getNextJournalEntryNumber} from "@/lib/invoice.ts";
 
 const NORMAL_BALANCES = ["debit", "credit"];
 
@@ -138,15 +139,21 @@ export function createAiJournalEntryImportConfig({
 
       if (!reference || !entryDate || !accountKey) throw new Error("reference, entry_date, and account are required");
       if (debit === 0 && credit === 0) throw new Error("debit or credit must be non-zero");
+      if (debit > 0 && credit > 0) throw new Error("a line is either a debit or a credit, not both");
+      const parsedDate = new Date(entryDate);
+      if (Number.isNaN(parsedDate.getTime())) throw new Error(`Invalid entry_date: ${entryDate}`);
 
       const account = await resolveAccountId(db, accountKey);
       if (!account) throw new Error(`Account not found: ${accountKey}`);
 
       let entryId = entryCache.get(reference);
       if (!entryId) {
-        const [created] = await db.create?.(Tables.account_journal_entries, {
-          entry_date: entryDate,
-          description: v.description ? String(v.description) : reference,
+        if (!db.create) throw new Error("This database client cannot create journal entries");
+        // Field names of account_journal_entry: date, memo, entry_number (both required).
+        const [created] = await db.create(Tables.account_journal_entries, {
+          entry_number: await getNextJournalEntryNumber(db as Parameters<typeof getNextJournalEntryNumber>[0]),
+          date: parsedDate,
+          memo: v.description ? String(v.description) : reference,
           status: "posted",
           created_at: nowSurrealDateTime(),
           created_by: context.userId ? toRecordId(context.userId) : undefined,
@@ -156,12 +163,17 @@ export function createAiJournalEntryImportConfig({
         entryCache.set(reference, entryId);
       }
 
-      await db.create?.(Tables.account_journal_lines, {
-        journal_entry: toRecordId(entryId),
+      const [line] = await db.create(Tables.account_journal_lines, {
+        entry: toRecordId(entryId),
         account: toRecordId(account.id),
         debit,
         credit,
         description: v.line_description ? String(v.line_description) : undefined,
+      });
+      // The entry lists its lines, as entries made from the journal screen do.
+      await db.query("UPDATE $entry SET lines = array::union(lines ?? [], [$line])", {
+        entry: toRecordId(entryId),
+        line: (line as {id?: unknown})?.id,
       });
     },
   };

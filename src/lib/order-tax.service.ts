@@ -31,6 +31,8 @@ export const syncOrderTaxes = async (
   db: DbClient,
   orderOrId: Order | unknown,
   orderTaxOverride?: Tax | null,
+  /** From computeOrderPaymentTotals when the discounts being saved are newer than `order`. */
+  taxableShare?: number,
 ): Promise<void> => {
   const recordId = isOrderRecord(orderOrId) ? toRecordId(orderOrId.id) : toRecordId(orderOrId);
   const order = isOrderRecord(orderOrId)
@@ -43,7 +45,7 @@ export const syncOrderTaxes = async (
 
   // `null` = no order-level tax; left out = the order's stored one.
   const resolvedOrderTax = orderTaxOverride === undefined ? order.tax ?? null : orderTaxOverride;
-  const rows = collectOrderTaxRows(order, resolvedOrderTax);
+  const rows = collectOrderTaxRows(order, resolvedOrderTax, taxableShare);
 
   const existingResult = await db.query<[Array<{ id: unknown }>]>(
     `SELECT id FROM ${Tables.order_taxes} WHERE order = $orderId`,

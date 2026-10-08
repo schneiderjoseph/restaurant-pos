@@ -1,4 +1,5 @@
 import {FC, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {getNextJournalEntryNumber} from "@/lib/invoice.ts";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
 import dayjs, {type Dayjs} from "dayjs";
 import {faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
@@ -121,13 +122,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
     [db, t, append, update, getValues]
   );
 
-  const fetchNextEntryNumber = useCallback(async () => {
-    const [rows] = await db.query(`SELECT math::max(<int>entry_number) as max_value
-                                   FROM ${Tables.account_journal_entries}
-                                   GROUP ALL`);
-    const num = Number(rows?.[0]?.max_value || 0);
-    return isFinite(num) ? num + 1 : 1;
-  }, []);
+  const fetchNextEntryNumber = useCallback(() => getNextJournalEntryNumber(db), []);
 
   useEffect(() => {
     setModal(addModal);

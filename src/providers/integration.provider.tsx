@@ -90,7 +90,6 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     let mounted = true;
-    let queueTimer: ReturnType<typeof setInterval> | undefined;
 
     const refreshProviderStates = async () => {
       let enabledIds: string[] = [];
@@ -160,15 +159,13 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       }
     });
 
-    queueTimer = setInterval(() => {
+    const queueTimer = setInterval(() => {
       void manager.processQueue();
     }, 1200);
 
     return () => {
       mounted = false;
-      if (queueTimer) {
-        clearInterval(queueTimer);
-      }
+      clearInterval(queueTimer);
       void publishApplicationShutdown(manager).finally(() => {
         void manager.shutdown();
       });

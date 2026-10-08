@@ -128,3 +128,21 @@ export const getNextAutoId = async (db: QueryableDb): Promise<number> => {
   const seed = await maxAutoId(db);
   return allocateFromCounter(db, "auto_id", seed);
 };
+
+const maxJournalEntryNumber = async (db: QueryableDb): Promise<number> => {
+  const [result] = await db.query<MaxRow[]>(
+    `SELECT math::max(<int>entry_number) as max_value
+     FROM ${Tables.account_journal_entries}
+     GROUP ALL`,
+  );
+  return asFiniteNumber(result?.[0]?.max_value, 0);
+};
+
+/**
+ * Next journal entry number. Same atomic counter as invoices: two terminals posting at
+ * the same moment get distinct numbers (max + 1 read separately gave both the same).
+ */
+export const getNextJournalEntryNumber = async (db: QueryableDb): Promise<number> => {
+  const seed = await maxJournalEntryNumber(db);
+  return allocateFromCounter(db, "account_journal_entry", seed);
+};

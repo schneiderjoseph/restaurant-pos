@@ -696,7 +696,7 @@ export const OrderBox = ({
         <SplitBySeats order={modalOrder} onClose={() => {
           setSplitBySeats(false);
           setActionOrder(null);
-          onAction && onAction();
+          onAction?.();
         }}/>
       )}
 
@@ -704,7 +704,7 @@ export const OrderBox = ({
         <SplitItems order={modalOrder} onClose={() => {
           setSplitByManually(false);
           setActionOrder(null);
-          onAction && onAction();
+          onAction?.();
         }}/>
       )}
 
@@ -712,7 +712,7 @@ export const OrderBox = ({
         <SplitAmount order={modalOrder} onClose={() => {
           setSplitByAmount(false);
           setActionOrder(null);
-          onAction && onAction();
+          onAction?.();
         }}/>
       )}
 
@@ -720,7 +720,7 @@ export const OrderBox = ({
         <SplitByClients order={modalOrder} onClose={() => {
           setSplitByClients(false);
           setActionOrder(null);
-          onAction && onAction();
+          onAction?.();
         }}/>
       )}
 
@@ -753,7 +753,7 @@ export const OrderBox = ({
                 }));
                 setTransferCustomerOpen(false);
                 setActionOrder(null);
-                onAction && onAction();
+                onAction?.();
               } catch (error) {
                 console.error(error);
                 toast.error(t('customer.transferFailed'));
@@ -771,7 +771,7 @@ export const OrderBox = ({
           onClose={() => {
             setCancelOrderOpen(false);
             setActionOrder(null);
-            onAction && onAction();
+            onAction?.();
           }}
         />
       )}
@@ -783,7 +783,7 @@ export const OrderBox = ({
           onClose={() => {
             setRefundOrderOpen(false)
             setActionOrder(null);
-            onAction && onAction();
+            onAction?.();
           }}
         />
       )}

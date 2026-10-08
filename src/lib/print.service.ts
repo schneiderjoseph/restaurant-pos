@@ -320,7 +320,7 @@ export async function dispatchPrint<Payload = any>(
     return false;
   }
 
-  let printPayload = { ...(payload as Record<string, unknown>) };
+  const printPayload = { ...(payload as Record<string, unknown>) };
   if (printPayload.order) {
     const needsEnrich =
       template === 'kitchen' ||

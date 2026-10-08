@@ -243,8 +243,8 @@ export const OrderPayment = ({
 
   // Every tax the order carries, removed ones included, for the Tax panel.
   const taxRows = useMemo(
-    () => collectOrderTaxRows({...order, excluded_taxes: []}, paymentTotalsParams.tax),
-    [order, paymentTotalsParams.tax],
+    () => collectOrderTaxRows({...order, excluded_taxes: []}, paymentTotalsParams.tax, paymentTotals.taxableShare),
+    [order, paymentTotalsParams.tax, paymentTotals.taxableShare],
   );
   const itemsCarryTaxes = useMemo(
     () => collectOrderTaxRows({...order, excluded_taxes: []}, null).length > 0,
@@ -712,9 +712,11 @@ export const OrderPayment = ({
     await db.merge(order.id, progressMerge);
 
     // Tax rows follow the taxes chosen here, so the Orders screen and the bills match.
-    if (syncedTaxKeyRef.current !== taxKey) {
-      await syncOrderTaxes(db, taxedOrder, tax ?? null);
-      syncedTaxKeyRef.current = taxKey;
+    // The taxable share moves with discounts taxed after them: resync when it changes too.
+    const taxSyncKey = `${taxKey}|${paymentTotals.taxableShare}`;
+    if (syncedTaxKeyRef.current !== taxSyncKey) {
+      await syncOrderTaxes(db, taxedOrder, tax ?? null, paymentTotals.taxableShare);
+      syncedTaxKeyRef.current = taxSyncKey;
     }
 
     postOrderTracking({
@@ -740,6 +742,7 @@ export const OrderPayment = ({
     taxAmount,
     taxedOrder,
     taxKey,
+    paymentTotals.taxableShare,
     cartTotals,
     discountLines,
     tip,
@@ -1112,6 +1115,7 @@ export const OrderPayment = ({
             }}
             tax={tax}
             taxAmount={taxAmount}
+            taxableShare={paymentTotals.taxableShare}
             tip={tip}
             tipAmount={tipAmount}
             tipType={tipType}
