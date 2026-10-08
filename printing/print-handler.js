@@ -113,8 +113,8 @@ async function handlePrint(body) {
     throw new Error('Request must include a non-empty "printers" array');
   }
 
-  const { normalizeConfig } = require('./lib/receipt-helpers');
-  const config = normalizeConfig(rawConfig);
+  const { normalizeConfig, applyPrintTypeDefaults } = require('./lib/receipt-helpers');
+  const config = normalizeConfig(applyPrintTypeDefaults(printType, rawConfig));
 
   const results = [];
 

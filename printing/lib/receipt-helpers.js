@@ -193,6 +193,24 @@ function normalizeSections(sections) {
   return sections.map(normalizeSection).filter(Boolean);
 }
 
+/** Customer bills: line prices are shown unless the print template turns them off. */
+const BILL_PRINT_TYPES = new Set(['temp', 'final', 'delivery', 'refund']);
+
+/**
+ * Fill print-type specific defaults into a raw config (before normalizeConfig).
+ * @param {string} printType
+ * @param {Object} c - raw config
+ * @returns {Object}
+ */
+function applyPrintTypeDefaults(printType, c = {}) {
+  if (!BILL_PRINT_TYPES.has(String(printType || '').toLowerCase())) return c;
+  return {
+    ...c,
+    showItemPrice: c.showItemPrice !== undefined ? c.showItemPrice : true,
+    showItemTotal: c.showItemTotal !== undefined ? c.showItemTotal : true,
+  };
+}
+
 /**
  * Normalize printer config from request.
  * @param {Object} c - raw config
@@ -1324,6 +1342,7 @@ async function printFiscalLogoThenQrFallback(printer, qrValue, logoDataUri, conf
 
 module.exports = {
   normalizeConfig,
+  applyPrintTypeDefaults,
   normalizeLogo,
   normalizeSections,
   applyMargins,

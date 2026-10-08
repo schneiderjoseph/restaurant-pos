@@ -1,6 +1,7 @@
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {useDB} from "@/api/db/db.ts";
 import {createColumnHelper} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
@@ -14,14 +15,61 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 
+// Same keys as print.service.ts PRINT_CONFIG_KEYS. Bills show line prices by default,
+// like the print server does when the template has no row.
+const PRINT_TEMPLATES: { key: string; bill: boolean }[] = [
+  {key: 'Temp Print', bill: true},
+  {key: 'Final Print', bill: true},
+  {key: 'Delivery Print', bill: true},
+  {key: 'Kitchen Print', bill: false},
+  {key: 'Deletion Print', bill: false},
+  {key: 'Summary Print', bill: false},
+];
+
+const keyFilter = `(${PRINT_TEMPLATES.map(({key}) => `key = "${key}"`).join(' or ')})`;
+
 export const AdminPrints = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const { protectAction } = useSecurity();
   const isVisible = useActionVisible();
   const canUpdate = isVisible('admin.print_settings.update');
-  const loadHook = useApi<SettingsData<Setting>>(Tables.settings, [
-    '(key = "Temp Print" or key = "Final Print" or key = "Kitchen Print" or key = "Summary Print" or key = "Delivery Print")'
-  ], ['priority asc']);
+  const db = useDB();
+  const loadHook = useApi<SettingsData<Setting>>(Tables.settings, [keyFilter], ['priority asc']);
+
+  // Templates only appear once a row exists: create the missing ones so they can be edited.
+  useEffect(() => {
+    if (!canUpdate) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [res] = await db.query(
+          `SELECT key FROM ${Tables.settings} WHERE is_global = true AND ${keyFilter}`
+        );
+        const existing = new Set((Array.isArray(res) ? res : []).map((r: { key: string }) => r.key));
+        const missing = PRINT_TEMPLATES.filter(({key}) => !existing.has(key));
+        if (missing.length === 0 || cancelled) return;
+        for (const {key, bill} of missing) {
+          await db.create(Tables.settings, {
+            key,
+            is_global: true,
+            values: {
+              showItemName: true,
+              showItemQuantity: true,
+              showItemPrice: bill,
+              showItemTotal: bill,
+            },
+          });
+        }
+        if (!cancelled) loadHook.fetchData();
+      } catch (e) {
+        console.error('Failed to create missing print settings', e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUpdate]);
 
   const [data, setData] = useState<Setting>();
   const [formModal, setFormModal] = useState(false);

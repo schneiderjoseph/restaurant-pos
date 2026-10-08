@@ -1,6 +1,6 @@
 'use strict';
 
-const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp } = require('./receipt-helpers');
+const { formatMoney, normalizeConfig, applyPrintTypeDefaults, normalizeSections, formatPrintingTimestamp } = require('./receipt-helpers');
 const { formatBillLineage, mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
 
@@ -629,8 +629,8 @@ function renderRefundToHtml(data, config) {
  * @returns {string} HTML
  */
 function renderPreview(printType, data, config) {
-  const cfg = normalizeConfig(config || {});
   const t = (printType || (data && data.printType) || 'final').toLowerCase();
+  const cfg = normalizeConfig(applyPrintTypeDefaults(t, config || {}));
 
   if (t === 'temp') {
     const order = data && data.order;
