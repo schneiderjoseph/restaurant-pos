@@ -20,6 +20,7 @@ import {
   getVisibleCatalogModifiers,
   hasIncludedModifiers,
   isGroupFilled,
+  isOpenEndedGroup,
   isOptionalGroup,
   isSameGroupInstance,
   resolveGroupInList,
@@ -116,6 +117,11 @@ export const MenuDishModifiers = (props: Props) => {
 
   const optional = useMemo(() => {
     return groups.filter(isOptionalGroup).length;
+  }, [groups]);
+
+  // Groups that take more than their included choices (several sides, or the same twice).
+  const openEnded = useMemo(() => {
+    return groups.filter(isOpenEndedGroup).length;
   }, [groups]);
 
   const isDismissible = useMemo(() => {
@@ -272,10 +278,11 @@ export const MenuDishModifiers = (props: Props) => {
   }, [groups, group]);
 
   useEffect(() => {
-    if (allFilled && optional === 0 && props.editing !== true) {
+    // Closes by itself only when nothing more can be added; otherwise "Confirm" closes it.
+    if (allFilled && optional === 0 && openEnded === 0 && props.editing !== true) {
       props.onClose(selected > 0 ? groups : []);
     }
-  }, [selected, allFilled, groups, optional, props]);
+  }, [selected, allFilled, groups, optional, openEnded, props]);
 
   const removeItem = (targetGroup: CartModifierGroup, itemIndex: number) => {
     setGroups(prev => prev.map(grp => {

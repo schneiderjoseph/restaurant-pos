@@ -532,6 +532,19 @@ export function getGroupFillTarget(grp: DishModifierGroup): number {
   return max !== undefined ? Math.min(target, max) : target;
 }
 
+/**
+ * The group takes more choices than its fill target (sides: 1 included, no limit), so the
+ * server may add a second side, or the same one twice: the picker waits for "Confirm"
+ * instead of closing on the first pick.
+ */
+export function isOpenEndedGroup(grp: DishModifierGroup): boolean {
+  if (!hasIncludedModifiers(grp)) {
+    return false;
+  }
+  const max = getGroupMaxModifiers(grp);
+  return max === undefined || max > getGroupFillTarget(grp);
+}
+
 export function isGroupFilled(grp: CartModifierGroup): boolean {
   return (grp.selectedModifiers?.length ?? 0) >= getGroupFillTarget(grp);
 }

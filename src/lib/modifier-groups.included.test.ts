@@ -6,6 +6,7 @@ import {
   findNextActiveGroup,
   getGroupFillTarget,
   getGroupMaxModifiers,
+  isOpenEndedGroup,
   isOptionalGroup,
   shouldAdvanceFromGroup,
 } from '@/lib/modifier-groups.ts';
@@ -209,5 +210,19 @@ describe('groupCartLines', () => {
       taxes: [{ id: 'tax:t', name: 'TCA', rate: 10 } as never],
     });
     expect(calculateCartItemNetTotal(taxed)).toBe((3860 + 229) * 2);
+  });
+});
+
+describe('isOpenEndedGroup', () => {
+  it('waits for confirm when a group takes more than its included choices', () => {
+    // Sides: one included, no limit, so a second side or the same twice can follow.
+    expect(isOpenEndedGroup({ included_modifiers: 1, has_required_modifiers: true, required_modifiers: 1 } as any)).toBe(true);
+    expect(isOpenEndedGroup({ included_modifiers: 1, max_modifiers: 3 } as any)).toBe(true);
+  });
+
+  it('still closes by itself when the count is fixed', () => {
+    expect(isOpenEndedGroup({ included_modifiers: 2, max_modifiers: 2 } as any)).toBe(false);
+    expect(isOpenEndedGroup({ has_required_modifiers: true, required_modifiers: 1 } as any)).toBe(false);
+    expect(isOpenEndedGroup({} as any)).toBe(false);
   });
 });
