@@ -148,30 +148,47 @@ const MeasurePicker = ({
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-3">
         {KEYS.map((key) => (
-          <Button key={key} size="lg" flat variant="primary" data-testid={`dish-measure-key-${key}`} onClick={() => press(key)}>
+          <Button
+            key={key}
+            size="xl"
+            flat
+            variant="primary"
+            className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
+            data-testid={`dish-measure-key-${key}`}
+            onClick={() => press(key)}
+          >
             {key}
           </Button>
         ))}
         <Button
-          size="lg"
+          size="xl"
           flat
           variant="primary"
           disabled={!decimals}
+          className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
           data-testid="dish-measure-key-dot"
           onClick={() => press('.')}
         >
           {(0.5).toLocaleString(locale).replace(/\d/g, '') || '.'}
         </Button>
-        <Button size="lg" flat variant="primary" data-testid="dish-measure-key-0" onClick={() => press('0')}>
+        <Button
+          size="xl"
+          flat
+          variant="primary"
+          className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
+          data-testid="dish-measure-key-0"
+          onClick={() => press('0')}
+        >
           0
         </Button>
         <Button
-          size="lg"
+          size="xl"
           flat
           variant="danger"
           icon={faDeleteLeft}
+          className="aspect-square !h-auto !min-h-[4.5rem] w-full text-2xl"
           aria-label={t('variants.erase')}
           data-testid="dish-measure-key-back"
           onClick={() => {
