@@ -49,6 +49,8 @@ const POST_LATEST = [
   '2026_08_30_hot_path_indexes.surql',
   '2026_10_01_customer_notes.surql',
   '2026_10_02_user_unique_pin.surql',
+  // latest.surql still defines the removed inventory/HR tables; drop them.
+  '2026_10_07_drop_inventory_hr_tables.surql',
 ];
 
 // ASI / Resort F&B field migrations. resort_customer_pms first (base customer

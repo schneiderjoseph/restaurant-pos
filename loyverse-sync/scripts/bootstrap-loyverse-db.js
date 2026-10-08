@@ -85,6 +85,8 @@ async function main() {
   await runFile(db, 'migrations/latest.surql');
   await runFile(db, 'migrations/2026_08_26_loyverse_sync_fields.surql');
   await runFile(db, 'migrations/2026_08_27_loyverse_mirror.surql');
+  // latest.surql still defines the removed inventory/HR tables; drop them.
+  await runFile(db, 'migrations/2026_10_07_drop_inventory_hr_tables.surql');
 
   console.log('Applying Loyverse extra fields (idempotent) …');
   const extras = [
