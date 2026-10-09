@@ -990,14 +990,30 @@
           "number": "1624"
         },
         {
-          "name": "Pina Colada / Liqr. Malibu",
+          "name": "Piña Colada",
           "price": 1000,
-          "number": "1625"
-        },
-        {
-          "name": "Pina Colada / Rhum Blanc",
-          "price": 1600,
-          "number": "1626"
+          "number": "1626",
+          "asi_item_ids": [
+            449,
+            599
+          ],
+          "variants": [
+            {
+              "name": "Rhum blanc",
+              "price": 1600,
+              "from": "1626"
+            },
+            {
+              "name": "Rhum 5*",
+              "price": 1600,
+              "from": "1626"
+            },
+            {
+              "name": "Malibu",
+              "price": 1000,
+              "from": "1625"
+            }
+          ]
         },
         {
           "name": "Rhum Punch ***",
@@ -1028,6 +1044,12 @@
           "name": "Rhum Sour *****",
           "price": 900,
           "number": "1632"
+        },
+        {
+          "name": "Banana Colada Malibu",
+          "price": 905,
+          "number": "1645",
+          "asi_item_id": 611
         }
       ]
     },
