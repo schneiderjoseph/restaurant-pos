@@ -1173,6 +1173,12 @@
           "name": "Kinanm",
           "price": 380,
           "number": "1801"
+        },
+        {
+          "name": "Benedicta",
+          "price": 540,
+          "number": "1706",
+          "asi_item_id": 28
         }
       ]
     },
