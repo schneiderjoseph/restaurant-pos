@@ -4,6 +4,7 @@ import { Order } from '@/api/model/order.ts';
 import { formatOrderNumber, getInvoiceNumber } from '@/lib/order.ts';
 import {
   cancelOrderReadySpeech,
+  playReadyChime,
   speakOrderReady,
 } from '@/lib/order-ready-announcement.ts';
 
@@ -55,13 +56,16 @@ export const useOrderReadyAnnouncements = (
       return;
     }
 
+    playReadyChime();
     const celebrations = newlyReady.map((order) => {
       const spokenNumber = getInvoiceNumber(order);
       const displayNumber = formatOrderNumber(order);
-      speakOrderReady(
-        t('orderReadyAnnouncement', { number: spokenNumber }),
-        i18n.language
-      );
+      window.setTimeout(() => {
+        speakOrderReady(
+          t('orderReadyAnnouncement', { number: spokenNumber }),
+          i18n.language
+        );
+      }, 900);
 
       return {
         id: order.id.toString(),

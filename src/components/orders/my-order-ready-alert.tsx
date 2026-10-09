@@ -33,7 +33,7 @@ import {
 } from "@/lib/order-ready-announcement.ts";
 
 const REFRESH_DEBOUNCE_MS = 1000;
-const SPEECH_AFTER_CHIME_MS = 700;
+const SPEECH_AFTER_CHIME_MS = 950;
 
 /**
  * Tells the signed-in server, on whatever page this terminal shows (lock screen included),

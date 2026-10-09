@@ -6,7 +6,10 @@ import { getInvoiceNumber } from '@/lib/order.ts';
 import { formatKitchenPlaceLabel, type KitchenPlaceLabels } from '@/lib/kitchen-ticket-label.ts';
 import {
   cancelOrderReadySpeech,
+  playReadyChime,
   speakOrderReady,
+  unlockReadyChime,
+  unlockSpeech,
 } from '@/lib/order-ready-announcement.ts';
 
 const HIGHLIGHT_MS = 18_000;
@@ -97,7 +100,11 @@ export const useKitchenOrderAnnouncements = (
   }, []);
 
   const speak = useCallback((text: string) => {
-    speakOrderReady(text, i18n.language);
+    playReadyChime();
+    // Let the loud chime finish before speech so both cut through the kitchen.
+    window.setTimeout(() => {
+      speakOrderReady(text, i18n.language);
+    }, 900);
   }, [i18n.language]);
 
   const highlightBatch = (batchKey: string) => {
@@ -244,6 +251,16 @@ export const useKitchenOrderAnnouncements = (
     knownBatchesRef.current = batches;
     knownItemsRef.current = items;
   }, [orders, kitchenId, hydrated, t, i18n.language, speak]);
+
+  // Browsers only play sound after a gesture; any tap on the kitchen unlocks it.
+  useEffect(() => {
+    const unlock = () => {
+      unlockSpeech();
+      unlockReadyChime();
+    };
+    window.addEventListener('pointerdown', unlock, { once: true });
+    return () => window.removeEventListener('pointerdown', unlock);
+  }, []);
 
   useEffect(() => {
     // The timer map is never replaced: clear what it holds at unmount.

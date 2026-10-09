@@ -19,6 +19,9 @@ const speechQueue: string[] = [];
 let isSpeaking = false;
 let voicesReady = false;
 
+/** Browser TTS caps volume at 1; repeating cuts through a noisy kitchen better. */
+const SPEECH_REPEAT = 2;
+
 const getSpeechLocale = (language: string) =>
   SPEECH_LOCALE_BY_LANGUAGE[language]
   ?? SPEECH_LOCALE_BY_LANGUAGE[language.split('-')[0] ?? '']
@@ -40,6 +43,17 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   window.speechSynthesis.addEventListener('voiceschanged', ensureVoices);
 }
 
+/** Prefer local OS voices: usually fuller and more reliable on POS tablets than remote ones. */
+const pickBest = (candidates: SpeechSynthesisVoice[]) => {
+  if (candidates.length === 0) {
+    return undefined;
+  }
+  return candidates.find((v) => v.localService && v.default)
+    ?? candidates.find((v) => v.localService)
+    ?? candidates.find((v) => v.default)
+    ?? candidates[0];
+};
+
 const pickVoice = (language: string): SpeechSynthesisVoice | undefined => {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     return undefined;
@@ -51,13 +65,13 @@ const pickVoice = (language: string): SpeechSynthesisVoice | undefined => {
   }
 
   const locale = getSpeechLocale(language);
-  const exact = voices.find((v) => v.lang === locale);
-  if (exact) {
-    return exact;
+  const exact = voices.filter((v) => v.lang === locale);
+  if (exact.length > 0) {
+    return pickBest(exact);
   }
 
-  const prefix = locale.split('-')[0];
-  return voices.find((v) => v.lang.toLowerCase().startsWith(prefix.toLowerCase()));
+  const prefix = locale.split('-')[0].toLowerCase();
+  return pickBest(voices.filter((v) => v.lang.toLowerCase().startsWith(prefix)));
 };
 
 const processSpeechQueue = (language: string) => {
@@ -84,7 +98,9 @@ const processSpeechQueue = (language: string) => {
   const utterance = new SpeechSynthesisUtterance(text);
   const locale = getSpeechLocale(language);
   utterance.lang = locale;
-  utterance.rate = 0.95;
+  // Slightly slower + a touch lower pitch reads louder in a noisy room.
+  utterance.rate = 0.88;
+  utterance.pitch = 0.85;
   utterance.volume = 1;
 
   const voice = pickVoice(language);
@@ -137,7 +153,9 @@ export const speakOrderReady = (text: string, language: string) => {
   }
 
   ensureVoices();
-  speechQueue.push(trimmed);
+  for (let i = 0; i < SPEECH_REPEAT; i++) {
+    speechQueue.push(trimmed);
+  }
 
   // Defer if voices are not ready yet (first load).
   if (!voicesReady && window.speechSynthesis.getVoices().length === 0) {
@@ -227,7 +245,10 @@ export const vibrateOrderReady = (): 'unsupported' | 'blocked' | 'sent' => {
   }
 };
 
-/** Two loud rising tones, synthesised: no sound file to ship. */
+/**
+ * Loud attention tones before speech. Square + saw layers push harder than a
+ * single triangle; gain sits at the Web Audio ceiling.
+ */
 export const playReadyChime = () => {
   const context = getChimeContext();
   if (!context) {
@@ -238,17 +259,26 @@ export const playReadyChime = () => {
   }
 
   const start = context.currentTime;
-  [880, 1320].forEach((frequency, index) => {
-    const at = start + index * 0.28;
+  const tones: Array<{ frequency: number; at: number; type: OscillatorType; peak: number }> = [
+    { frequency: 880, at: 0, type: 'square', peak: 1 },
+    { frequency: 1760, at: 0, type: 'sawtooth', peak: 0.55 },
+    { frequency: 1175, at: 0.26, type: 'square', peak: 1 },
+    { frequency: 2350, at: 0.26, type: 'sawtooth', peak: 0.55 },
+    { frequency: 1320, at: 0.52, type: 'square', peak: 1 },
+    { frequency: 2640, at: 0.52, type: 'sawtooth', peak: 0.6 },
+  ];
+
+  tones.forEach(({ frequency, at: offset, type, peak }) => {
+    const at = start + offset;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = 'triangle';
+    oscillator.type = type;
     oscillator.frequency.value = frequency;
     gain.gain.setValueAtTime(0.0001, at);
-    gain.gain.exponentialRampToValueAtTime(0.9, at + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.4);
+    gain.gain.exponentialRampToValueAtTime(peak, at + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.38);
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(at);
-    oscillator.stop(at + 0.42);
+    oscillator.stop(at + 0.4);
   });
 };
