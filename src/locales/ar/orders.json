@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "تمت طباعة الفاتورة المؤقتة مسبقاً"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "جاري تحميل العناصر…",
   "retryLoad": "إعادة محاولة تحميل العناصر",
   "loadFailed": "فشل تحميل الطلب",

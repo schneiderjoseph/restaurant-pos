@@ -30,3 +30,23 @@ test('lines with a different note or price stay apart', () => {
   });
   assert.equal(bill.items.length, 3);
 });
+
+const { scaleBillAmounts } = require('./order-mapping');
+
+test('scaleBillAmounts converts HTG totals into USD for a prebill', () => {
+  const bill = mapOrderToTemp({
+    invoice_number: 1,
+    items: [prestige(2)],
+    tax_amount: 0,
+  });
+  const usd = scaleBillAmounts(bill, 1 / 132, 'USD');
+  assert.equal(usd.itemsTotal, 6.52);
+  assert.equal(usd.total, 6.52);
+  assert.equal(usd.items[0].total, 6.52);
+});
+
+test('scaleBillAmounts rounds HTG to whole gourdes', () => {
+  const bill = { itemsTotal: 10, total: 10, items: [{ price: 10, total: 10 }], taxLines: [], discountLines: [], extras: [], payments: [] };
+  const htg = scaleBillAmounts(bill, 132, 'HTG');
+  assert.equal(htg.total, 1320);
+});

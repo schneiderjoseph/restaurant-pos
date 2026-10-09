@@ -253,6 +253,8 @@ function normalizeConfig(c = {}) {
     paperWidthPx: resolvePaperWidthPx(c),
     showInclusivePrices: Boolean(c.showInclusivePrices),
     decimal_place: c.decimal_place,
+    currencyScale: Number.isFinite(Number(c.currencyScale)) ? Number(c.currencyScale) : 1,
+    currencyCode: typeof c.currencyCode === 'string' ? c.currencyCode : '',
     labels: c.labels && typeof c.labels === 'object' ? c.labels : {},
     locale: typeof c.locale === 'string' && c.locale ? c.locale : 'en-US',
     timezone: resolveTimezone(c.timezone),
@@ -423,10 +425,12 @@ function printDivider(printer) {
  * Format amount as currency string (e.g. "$12.34").
  * @param {number} amount
  * @param {string} [symbol='$'] - empty string omits the symbol
+ * @param {number} [decimals=0]
  * @returns {string}
  */
-function formatMoney(amount, symbol) {
-  const num = Number(amount || 0).toFixed(0);
+function formatMoney(amount, symbol, decimals) {
+  const dp = typeof decimals === 'number' && decimals >= 0 ? decimals : 0;
+  const num = Number(amount || 0).toFixed(dp);
   const s = symbol === undefined || symbol === null ? '$' : String(symbol);
   if (!s) return num;
   return s + ' ' + num;

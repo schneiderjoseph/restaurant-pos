@@ -155,18 +155,27 @@ function roundMoney(amount: number, code: string): number {
   return Math.round(amount * factor) / factor;
 }
 
-/** Convert an amount stored in the app primary currency into the pay (tender) currency. */
-export function convertPrimaryToPay(amountPrimary: number, payCurrency: string): number {
+/**
+ * Exact multiplier from app-primary amounts into `payCurrency` (no per-amount rounding).
+ * Use with {@link convertPrimaryToPay} / roundMoney on each printed amount.
+ */
+export function getPrimaryToPayScale(payCurrency: string): number {
   const primary = getAppCurrency();
   const pay = (payCurrency || primary).toUpperCase();
-  if (pay === primary) return roundMoney(amountPrimary, pay);
+  if (pay === primary) return 1;
 
   const rate = getUsdToHtgRate();
-  if (!rate) return roundMoney(amountPrimary, pay);
+  if (!rate) return 1;
 
-  if (primary === 'USD' && pay === 'HTG') return roundMoney(amountPrimary * rate, 'HTG');
-  if (primary === 'HTG' && pay === 'USD') return roundMoney(amountPrimary / rate, 'USD');
-  return roundMoney(amountPrimary, pay);
+  if (primary === 'USD' && pay === 'HTG') return rate;
+  if (primary === 'HTG' && pay === 'USD') return 1 / rate;
+  return 1;
+}
+
+/** Convert an amount stored in the app primary currency into the pay (tender) currency. */
+export function convertPrimaryToPay(amountPrimary: number, payCurrency: string): number {
+  const pay = (payCurrency || getAppCurrency()).toUpperCase();
+  return roundMoney(Number(amountPrimary || 0) * getPrimaryToPayScale(pay), pay);
 }
 
 /** Convert a tendered amount in pay currency back to the app primary currency for storage. */

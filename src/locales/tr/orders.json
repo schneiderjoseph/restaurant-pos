@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Ürünler yükleniyor…",
   "retryLoad": "Ürünleri yeniden yükle",
   "loadFailed": "Sipariş yüklenemedi",

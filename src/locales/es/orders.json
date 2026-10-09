@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Factura temporal ya impresa"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Cargando artículos…",
   "retryLoad": "Reintentar carga de artículos",
   "loadFailed": "No se pudo cargar el pedido",

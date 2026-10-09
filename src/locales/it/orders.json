@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Preconto già stampato"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Caricamento articoli…",
   "retryLoad": "Riprova a caricare gli articoli",
   "loadFailed": "Caricamento ordine non riuscito",

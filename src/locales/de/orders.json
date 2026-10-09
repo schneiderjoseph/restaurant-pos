@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Artikel werden geladen…",
   "retryLoad": "Artikel erneut laden",
   "loadFailed": "Bestellung konnte nicht geladen werden",

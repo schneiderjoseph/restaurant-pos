@@ -109,6 +109,11 @@
   "print": {
     "tempAlreadyPrinted": "Temp bill already printed"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "cancel": {
     "title": "Cancel order",
     "reason": "Reason",

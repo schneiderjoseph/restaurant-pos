@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Conta provisória já impressa"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Carregando itens…",
   "retryLoad": "Tentar carregar itens novamente",
   "loadFailed": "Falha ao carregar o pedido",

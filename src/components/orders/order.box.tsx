@@ -49,6 +49,7 @@ import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
+import { chooseTempBillCurrency } from "@/components/common/currency/choose-temp-bill-currency.tsx";
 import { printDuplicateKotForOrder } from "@/lib/kitchen/print-duplicate-kot.ts";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
 import {fetchOrderById, fetchOrderFull} from "@/lib/order-fetch.ts";
@@ -256,21 +257,28 @@ export const OrderBox = ({
   };
 
   const printTempBill = () => {
-    void withFullOrder(async (full) => { await requestBillPrint({
-      db,
-      protectAction,
-      orderId: full.id.toString(),
-      printType: 'temp',
-      printModule: 'orders.print_temp',
-      description: 'Print temp bill',
-      payload: { order: full.id.toString() },
-      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
-      doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, {order: full, taxes}, {userId: page?.user?.id}),
-      onPrinted: () => {
-        setTempPrintedLocal(true);
-        onAction?.();
-      },
-    }); });
+    void withFullOrder(async (full) => {
+      const printCurrency = await chooseTempBillCurrency();
+      if (!printCurrency) return;
+      await requestBillPrint({
+        db,
+        protectAction,
+        orderId: full.id.toString(),
+        printType: 'temp',
+        printModule: 'orders.print_temp',
+        description: 'Print temp bill',
+        payload: { order: full.id.toString() },
+        userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+        doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, { order: full, taxes }, {
+          userId: page?.user?.id,
+          printCurrency,
+        }),
+        onPrinted: () => {
+          setTempPrintedLocal(true);
+          onAction?.();
+        },
+      });
+    });
   };
 
   const printFinalCopy = () => {

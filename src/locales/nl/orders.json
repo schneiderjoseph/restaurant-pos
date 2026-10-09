@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Artikelen laden…",
   "retryLoad": "Artikelen opnieuw laden",
   "loadFailed": "Order laden mislukt",

@@ -788,6 +788,55 @@ function mapOrderToBill(order, opts) {
 }
 
 /**
+ * Round a money amount for a print currency (HTG whole units, else 2 decimals).
+ * @param {number} amount
+ * @param {string} [currencyCode]
+ * @returns {number}
+ */
+function roundBillMoney(amount, currencyCode) {
+  const code = String(currencyCode || '').toUpperCase();
+  const decimals = code === 'HTG' ? 0 : 2;
+  const factor = 10 ** decimals;
+  return Math.round(Number(amount || 0) * factor) / factor;
+}
+
+/**
+ * Scale all bill money fields from the app primary currency into another print currency.
+ * @param {Object} bill
+ * @param {number} scale - multiplier from primary → print currency
+ * @param {string} [currencyCode] - HTG | USD (controls rounding)
+ * @returns {Object}
+ */
+function scaleBillAmounts(bill, scale, currencyCode) {
+  const s = Number(scale);
+  if (!bill || !Number.isFinite(s) || s === 1) return bill;
+  const round = (n) => roundBillMoney(Number(n || 0) * s, currencyCode);
+  return {
+    ...bill,
+    items: (bill.items || []).map((it) => ({
+      ...it,
+      price: round(it.price),
+      total: round(it.total),
+    })),
+    itemsTotal: round(bill.itemsTotal),
+    tax: round(bill.tax),
+    taxLines: (bill.taxLines || []).map((t) => ({ ...t, amount: round(t.amount) })),
+    discountAmount: round(bill.discountAmount),
+    discountLines: (bill.discountLines || []).map((d) => ({ ...d, amount: round(d.amount) })),
+    serviceChargeAmount: round(bill.serviceChargeAmount),
+    tipAmount: round(bill.tipAmount),
+    deliveryCharges: round(bill.deliveryCharges),
+    total: round(bill.total),
+    change: round(bill.change),
+    extras: (bill.extras || []).map((e) => ({ ...e, value: round(e.value) })),
+    payments: (bill.payments || []).map((p) => ({ ...p, amount: round(p.amount) })),
+    totalRows: Array.isArray(bill.totalRows)
+      ? bill.totalRows.map((r) => ({ ...r, amount: round(r.amount) }))
+      : bill.totalRows,
+  };
+}
+
+/**
  * Temp: Pre-Sale Bill style (CommonBillParts only, no payments/change). Matches presale.bill.tsx.
  */
 function mapOrderToTemp(order, options) {
@@ -972,4 +1021,6 @@ module.exports = {
   mapOrderToKitchen,
   getRefundOrderItems,
   mapOrderToRefund,
+  scaleBillAmounts,
+  roundBillMoney,
 };

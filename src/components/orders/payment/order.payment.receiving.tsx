@@ -58,6 +58,7 @@ import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
+import { chooseTempBillCurrency } from "@/components/common/currency/choose-temp-bill-currency.tsx";
 import { fetchOrderFull } from "@/lib/order-fetch.ts";
 import {
   fiscalShouldBlockBeforePaid,
@@ -804,27 +805,31 @@ const OrderPaymentReceivingContent = ({
             size="xl"
             data-testid="payment-temp-bill"
             onClick={() => {
-              void requestBillPrint({
-                db,
-                protectAction,
-                orderId: order.id.toString(),
-                printType: 'temp',
-                printModule: 'orders.print_temp',
-                description: 'Print temp bill',
-                payload: { order: order.id.toString() },
-                userId: page?.user?.id?.toString?.() ?? page?.user?.id,
-                doPrint: async () => {
-                  const full = await fetchOrderFull(db, order.id);
-                  if (!full) {
-                    throw new Error('Failed to load order for temp bill print');
-                  }
-                  return dispatchPrint(db, PRINT_TYPE.presale_bill, {
-                    order: full,
-                    taxes: allTaxes?.data
-                  }, {userId: page?.user?.id});
-                },
-                onPrinted: () => setTempPrinted(true),
-              });
+              void (async () => {
+                const printCurrency = await chooseTempBillCurrency({ defaultCurrency: payCurrency });
+                if (!printCurrency) return;
+                await requestBillPrint({
+                  db,
+                  protectAction,
+                  orderId: order.id.toString(),
+                  printType: 'temp',
+                  printModule: 'orders.print_temp',
+                  description: 'Print temp bill',
+                  payload: { order: order.id.toString() },
+                  userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+                  doPrint: async () => {
+                    const full = await fetchOrderFull(db, order.id);
+                    if (!full) {
+                      throw new Error('Failed to load order for temp bill print');
+                    }
+                    return dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                      order: full,
+                      taxes: allTaxes?.data
+                    }, { userId: page?.user?.id, printCurrency });
+                  },
+                  onPrinted: () => setTempPrinted(true),
+                });
+              })();
             }}
           >{t('receiving.tempBill')}</Button>
         </span>

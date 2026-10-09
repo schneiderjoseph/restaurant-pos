@@ -22,7 +22,14 @@ import {
   type PrintOptions,
 } from "@/api/model/print_options.ts";
 import { getAppTimezone } from "@/lib/datetime.ts";
-import { CURRENCY_SYMBOLS, getAppCurrency, getCurrencySymbol } from '@/lib/currency.ts';
+import {
+  CURRENCY_SYMBOLS,
+  getAppCurrency,
+  getCurrencySymbol,
+  getPrimaryToPayScale,
+  type PayCurrencyCode,
+  shouldShowSecondaryCurrency,
+} from '@/lib/currency.ts';
 import {
   applyRestaurantProfileToPrintConfig,
   fetchRestaurantProfile,
@@ -291,7 +298,9 @@ export async function dispatchPrint<Payload = any>(
   payload: Payload,
   options?: {
     title?: string; copies?: number; userId?: string | { id?: string; toString?: () => string } | null,
-    printers?: Printer[]
+    printers?: Printer[];
+    /** Temp bill: print amounts in this currency (HTG / USD) when dual currency is enabled. */
+    printCurrency?: PayCurrencyCode | string;
   }
 ): Promise<boolean> {
   const baseUrl = printServerBaseUrl();
@@ -375,14 +384,30 @@ export async function dispatchPrint<Payload = any>(
     );
   }
 
+  const requestedPrintCurrency = String(options?.printCurrency || '').trim().toUpperCase();
+  const printCurrencyOverride =
+    template === 'temp' &&
+    shouldShowSecondaryCurrency() &&
+    (requestedPrintCurrency === 'HTG' || requestedPrintCurrency === 'USD')
+      ? requestedPrintCurrency
+      : null;
+
   const printConfig: Record<string, unknown> = {
     ...config,
-    decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
+    decimal_place: printCurrencyOverride === 'HTG'
+      ? 0
+      : printCurrencyOverride === 'USD'
+        ? 2
+        : import.meta.env.VITE_DECIMAL_PLACES,
     showInclusivePrices,
     showCurrencySymbol: currencySymbolSettings.receipts,
-    currencySymbol: currencySymbolSettings.code
-      ? getCurrencySymbol(currencySymbolSettings.code)
-      : config.currencySymbol,
+    currencySymbol: printCurrencyOverride
+      ? getCurrencySymbol(printCurrencyOverride)
+      : (currencySymbolSettings.code
+        ? getCurrencySymbol(currencySymbolSettings.code)
+        : config.currencySymbol),
+    currencyScale: printCurrencyOverride ? getPrimaryToPayScale(printCurrencyOverride) : 1,
+    currencyCode: printCurrencyOverride || '',
     timezone: getAppTimezone(),
   };
 

@@ -226,6 +226,11 @@
   "print": {
     "tempAlreadyPrinted": "Note provisoire déjà imprimée"
   },
+  "printCurrency": {
+    "title": "Imprimer la note en",
+    "hint": "Choisissez la devise de la note provisoire",
+    "cancel": "Annuler"
+  },
   "loadingItems": "Chargement des articles…",
   "retryLoad": "Réessayer le chargement des articles",
   "loadFailed": "Échec du chargement de la commande",

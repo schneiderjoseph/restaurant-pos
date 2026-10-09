@@ -9,6 +9,7 @@ import {
   getAppCurrency,
   convertPayToPrimary,
   convertPrimaryToPay,
+  getPrimaryToPayScale,
   setUsdToHtgRate,
   shouldShowSecondaryCurrency,
   getExchangeRateLabel,
@@ -57,6 +58,15 @@ describe('currency', () => {
     setUsdToHtgRate(132);
     expect(convertPrimaryToPay(10, 'HTG')).toBe(1320);
     expect(convertPayToPrimary(1320, 'HTG')).toBe(10);
+    setUsdToHtgRate(null);
+    setAppCurrencyCode(null);
+  });
+
+  it('exposes an exact primary→pay scale for receipt conversion', () => {
+    setAppCurrencyCode('HTG');
+    setUsdToHtgRate(132);
+    expect(getPrimaryToPayScale('USD')).toBeCloseTo(1 / 132, 10);
+    expect(getPrimaryToPayScale('HTG')).toBe(1);
     setUsdToHtgRate(null);
     setAppCurrencyCode(null);
   });

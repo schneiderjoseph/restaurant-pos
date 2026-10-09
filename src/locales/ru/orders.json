@@ -206,6 +206,11 @@
   "print": {
     "tempAlreadyPrinted": "Предварительный счёт уже напечатан"
   },
+  "printCurrency": {
+    "title": "Print prebill in",
+    "hint": "Choose the currency for this prebill",
+    "cancel": "Cancel"
+  },
   "loadingItems": "Загрузка позиций…",
   "retryLoad": "Повторить загрузку позиций",
   "loadFailed": "Не удалось загрузить заказ",

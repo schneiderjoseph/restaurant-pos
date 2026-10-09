@@ -2,11 +2,12 @@
 
 const { normalizeConfig, printReceiptHeader } = require('../lib/receipt-helpers');
 const { printBillLayout } = require('../lib/bill-layout');
-const { mapOrderToTemp } = require('../lib/order-mapping');
+const { mapOrderToTemp, scaleBillAmounts } = require('../lib/order-mapping');
 
 /**
  * Temp print – Pre-Sale Bill (no payments/change).
  * Expects data: { order: Order, qrcodes?, qrcode? }. Order from src/api/model/order.ts.
+ * Optional config.currencyScale + config.currencyCode convert amounts (e.g. HTG ↔ USD).
  */
 function build(printer, data = {}, config = {}) {
   const order = data && data.order;
@@ -15,12 +16,13 @@ function build(printer, data = {}, config = {}) {
   }
 
   const cfg = normalizeConfig(config);
-  const bill = mapOrderToTemp(order, {
+  let bill = mapOrderToTemp(order, {
     showInclusivePrices: !!cfg.showInclusivePrices,
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,
   });
+  bill = scaleBillAmounts(bill, cfg.currencyScale, cfg.currencyCode);
 
   return printReceiptHeader(printer, cfg).then(() => {
     return printBillLayout(printer, bill, cfg, {
