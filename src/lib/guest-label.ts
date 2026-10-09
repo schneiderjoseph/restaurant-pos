@@ -9,11 +9,24 @@ export type GuestLike = {
 } | null | undefined;
 
 /**
+ * "jHON  CartEr" → "Jhon Carter": each word capitalized, the rest lowercase.
+ * Also after a hyphen or an apostrophe: "jean-pierre o'brien" → "Jean-Pierre O'Brien".
+ */
+export function formatPersonName(value?: string | null): string {
+  return (value ?? '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('fr')
+    .replace(/(^|[\s'’-])(\p{L})/gu, (_, separator: string, letter: string) =>
+      separator + letter.toLocaleUpperCase('fr'));
+}
+
+/**
  * Prefer customer display name; fall back to #CODE when only a guest/room code exists.
  */
 export function formatGuestLabel(guest: GuestLike): string {
   if (!guest) return '';
-  const name = (guest.name ?? '').trim();
+  const name = formatPersonName(guest.name);
   if (name) return name;
   const code = (guest.guest_code ?? guest.code ?? '').toString().trim();
   if (code) return code.startsWith('#') ? code : `#${code}`;

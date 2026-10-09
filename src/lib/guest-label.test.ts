@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatGuestContact, formatGuestLabel } from '@/lib/guest-label.ts';
+import { formatGuestContact, formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 
 describe('formatGuestLabel', () => {
   it('prefers name over guest_code', () => {
@@ -50,5 +50,18 @@ describe('formatGuestContact', () => {
     expect(formatGuestContact(null)).toBe('');
     expect(formatGuestContact(undefined)).toBe('');
     expect(formatGuestContact({})).toBe('');
+  });
+});
+
+describe('formatPersonName', () => {
+  it('capitalizes each word whatever the typing', () => {
+    expect(formatPersonName('  JHON   CartEr XxXy ')).toBe('Jhon Carter Xxxy');
+    expect(formatPersonName('jean-pierre o\'brien')).toBe('Jean-Pierre O\'Brien');
+    expect(formatPersonName('ÉLODIE DUPONT')).toBe('Élodie Dupont');
+    expect(formatPersonName(null)).toBe('');
+  });
+
+  it('is used for the guest label', () => {
+    expect(formatGuestLabel({ name: 'mARIE pierre' })).toBe('Marie Pierre');
   });
 });

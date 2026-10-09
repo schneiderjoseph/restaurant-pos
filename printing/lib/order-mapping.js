@@ -372,9 +372,18 @@ function getOrderPlaceValue(order) {
   return getOrderTable(order);
 }
 
+/** "jHON  CartEr" → "Jhon Carter"; also after a hyphen or apostrophe ("Jean-Pierre O'Brien"). */
+function formatPersonName(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('fr')
+    .replace(/(^|[\s'’-])(\p{L})/gu, (_, separator, letter) => separator + letter.toLocaleUpperCase('fr'));
+}
+
 function getOrderGuestLabel(order) {
   if (!order || !order.customer || typeof order.customer !== 'object') return '';
-  const name = String(order.customer.name || '').trim();
+  const name = formatPersonName(order.customer.name);
   const codeRaw = String(order.customer.guest_code || '').trim();
   const code = codeRaw ? (codeRaw.startsWith('#') ? codeRaw : `#${codeRaw}`) : '';
   if (name && code) return `${name} / ${code}`;
@@ -472,7 +481,7 @@ function getOrderDeliveryAddress(order) {
 
 function getOrderCustomerName(order) {
   if (!order || !order.customer) return '';
-  return order.customer.name || '';
+  return formatPersonName(order.customer.name);
 }
 
 function getOrderDeliveryTime(order) {

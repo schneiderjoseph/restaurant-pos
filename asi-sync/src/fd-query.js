@@ -2,6 +2,15 @@
 
 const sql = require('mssql');
 
+/** "jHON  CartEr" → "Jhon Carter"; also after a hyphen or apostrophe ("Jean-Pierre O'Brien"). */
+function formatPersonName(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLocaleLowerCase('fr')
+    .replace(/(^|[\s'’-])(\p{L})/gu, (_, separator, letter) => separator + letter.toLocaleUpperCase('fr'));
+}
+
 /**
  * In-house guests from ASI FrontDesk ASIFD600.
  * Room number comes from cUnit.unitAlias (e.g. "21").
@@ -51,7 +60,7 @@ async function fetchInHouseGuests(cfg) {
       const first = String(row.firstName || '').trim();
       const middle = String(row.middleName || '').trim();
       const last = String(row.lastName || '').trim();
-      const name = [first, middle, last].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+      const name = formatPersonName([first, middle, last].filter(Boolean).join(' '));
       const room = String(row.unitAlias || row.unitName || '').trim();
       const phone = String(row.mobileNumber || row.homePhone || '').trim();
       const email = String(row.email1 || '').trim();

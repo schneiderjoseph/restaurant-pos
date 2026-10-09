@@ -4,7 +4,7 @@ import type { User } from '@/api/model/user.ts';
 import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
 import { normalizeIdDocument } from '@/lib/customer-id-document.ts';
 import { findCustomersByPhone } from '@/lib/customer-phone.ts';
-import { namesAreSamePerson } from '@/lib/guest.ts';
+import { formatPersonName, namesAreSamePerson } from '@/lib/guest.ts';
 import { toRecordId } from '@/lib/utils.ts';
 
 export type CustomerMatchReason = 'phone' | 'name';
@@ -110,7 +110,7 @@ export interface WalkInInput {
 export async function createWalkInCustomer(db: AnyDb, input: WalkInInput): Promise<Customer> {
   const idDocument = normalizeIdDocument(input.idDocument);
   const content: Record<string, unknown> = {
-    name: input.name.trim().replace(/\s+/g, ' '),
+    name: formatPersonName(input.name),
     guest_code: input.guestCode,
     room: null,
     in_house: false,
@@ -156,7 +156,7 @@ export async function updateCustomer(
   user?: Pick<User, 'id'> | null,
 ): Promise<Customer> {
   const data: Record<string, unknown> = { ...patch };
-  if ('name' in patch) data.name = String(patch.name ?? '').trim().replace(/\s+/g, ' ');
+  if ('name' in patch) data.name = formatPersonName(patch.name);
   if ('phone' in patch) data.phone = String(patch.phone ?? '').trim() || null;
   if ('id_document_number' in patch) data.id_document_number = normalizeIdDocument(patch.id_document_number) || null;
   if ('allergies' in patch) data.allergies = cleanList(patch.allergies);

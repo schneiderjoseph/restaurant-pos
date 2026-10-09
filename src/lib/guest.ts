@@ -1,9 +1,9 @@
 import { Customer } from '@/api/model/customer.ts';
 import { Order } from '@/api/model/order.ts';
-import { formatGuestLabel } from '@/lib/guest-label.ts';
+import { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 import {formatTableLabel} from "@/lib/table-label.ts";
 
-export { formatGuestLabel } from '@/lib/guest-label.ts';
+export { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 
 /** Prefer guest code when present (admin / lookup secondary line). */
 export function guestCodeLabel(
@@ -16,7 +16,7 @@ export function guestCodeLabel(
   if (code) {
     return code;
   }
-  return customer.name?.trim() ?? '';
+  return formatPersonName(customer.name);
 }
 
 /** Prefer customer name for tickets / KDS / order display. */
@@ -26,7 +26,7 @@ export function guestDisplayLabel(
   if (!customer) {
     return '';
   }
-  const name = customer.name?.trim();
+  const name = formatPersonName(customer.name);
   if (name) {
     return name;
   }
