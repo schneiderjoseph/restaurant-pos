@@ -21,6 +21,9 @@
  *                                the JSON's `retired` numbers. Keeps orders.
  *   ... --sides --apply        # side choices on their own short-named dishes ("Frites"), the
  *                                Supplements plates keep their names. Keeps orders.
+ *   ... --hours --apply        # category hours from the JSON (breakfast 06:00–10:00, free for room
+ *                                guests, 1 690 a plate for walk-ins). Defines the fields of
+ *                                migrations/2026_10_09_category_hours.surql. Keeps orders.
  *
  * Plage (beach passes, from the ASI PLAGE group, POS BAR prices): own outlet, untaxed like in
  * ASI, and on no station, so they print on bills and pre-bills only, never on a KDS / KOT.
@@ -47,6 +50,7 @@ const CATEGORIES_ONLY = args.includes('--categories');
 const VARIANTS_ONLY = args.includes('--variants');
 const ADD_ONLY = args.includes('--add');
 const SIDES_ONLY = args.includes('--sides');
+const HOURS_ONLY = args.includes('--hours');
 const URL = opt('url', 'http://127.0.0.1:8000');
 const NS = opt('ns', process.env.SURREAL_NS || 'posr');
 const DB = opt('db', process.env.SURREAL_DB || 'posr');
@@ -105,6 +109,39 @@ function buildSidesSql(data) {
   });
   lines.push('COMMIT TRANSACTION;');
   return { sql: lines.join('\n'), dishCount: notes.length, notes };
+}
+
+/**
+ * Category hours (src/lib/category-hours.ts): `hours: ["06:00", "10:00"]`, `room_included`,
+ * `walkin_price: 1690` and `package_base: ["101"]` (dish numbers).
+ */
+const hoursSet = (c) =>
+  `available_from = ${c.hours ? q(c.hours[0]) : 'NONE'}, available_to = ${c.hours ? q(c.hours[1]) : 'NONE'}, ` +
+  `room_included = ${c.room_included === true}, ` +
+  `walkin_price = ${c.walkin_price != null ? `${Number(c.walkin_price).toFixed(2)}f` : 'NONE'}, ` +
+  `package_base_items = [${(c.package_base ?? []).map((n) => `menu_item:m${n}`).join(', ')}]`;
+
+const hasHours = (c) => Boolean(c.hours || c.room_included || c.walkin_price != null);
+
+/** Hours only, on a live menu: sets them on the JSON's categories that have some. */
+function buildHoursSql(data) {
+  // The fields of migrations/2026_10_09_category_hours.surql, so this runs on its own.
+  const schema = fs.readFileSync(path.join(ROOT, 'migrations', '2026_10_09_category_hours.surql'), 'utf8')
+    .split(/\r?\n/).filter((line) => line.startsWith('DEFINE FIELD'));
+  const lines = [
+    ...schema,
+    // First try (2026-10-09 morning) charged a separate package dish: gone, field and dish.
+    'UPDATE category SET walkin_package = NONE WHERE walkin_package != NONE;',
+    'REMOVE FIELD IF EXISTS walkin_package ON category;',
+    'BEGIN TRANSACTION;',
+  ];
+  const notes = [];
+  for (const c of data.categories.filter(hasHours)) {
+    lines.push(`UPDATE category:${c.key} SET ${hoursSet(c)};`);
+    notes.push(`${c.name} : ${c.hours?.join('–') ?? 'sans horaire'}${c.room_included ? ', inclus chambre' : ''}${c.walkin_price != null ? `, walk-in ${c.walkin_price} le plat` : ''}`);
+  }
+  lines.push('COMMIT TRANSACTION;');
+  return { sql: lines.join('\n'), dishCount: 0, notes };
 }
 
 /** Outlets beyond Bar and Restaurant (the outlets migration creates those two). */
@@ -378,6 +415,7 @@ function buildSql(data) {
   lines.push(
     `CREATE ${MENU_ID} SET name = 'Cormier Plage', active = true, deleted_at = NONE, items = [${menuItems.join(', ')}];`,
   );
+  for (const c of data.categories.filter(hasHours)) lines.push(`UPDATE category:${c.key} SET ${hoursSet(c)};`);
   lines.push(`UPDATE setting SET values = [${MENU_ID}] WHERE key = 'menus' AND is_global = true;`);
   for (const [outlet, ids] of Object.entries(byOutlet)) {
     lines.push(
@@ -432,7 +470,9 @@ async function backup() {
 
 async function main() {
   const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'migrations', 'data', 'cormier-menu.json'), 'utf8'));
-  const { sql: script, dishCount, notes } = SIDES_ONLY
+  const { sql: script, dishCount, notes } = HOURS_ONLY
+    ? buildHoursSql(data)
+    : SIDES_ONLY
     ? buildSidesSql(data)
     : ADD_ONLY
     ? await buildAddSql(data)

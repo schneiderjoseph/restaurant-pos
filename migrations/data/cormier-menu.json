@@ -12,13 +12,23 @@
     }
   ],
   "retired": [
-    "1805"
+    "1805",
+    "100"
   ],
   "categories": [
     {
       "key": "petit_dejeuner",
       "name": "Petit-déjeuner",
       "outlet": "restaurant",
+      "hours": [
+        "06:00",
+        "10:00"
+      ],
+      "room_included": true,
+      "walkin_price": 1690,
+      "package_base": [
+        "101"
+      ],
       "items": [
         {
           "name": "Café ou thé + fruits, toast, jus (petit-déj)",

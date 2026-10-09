@@ -23,6 +23,8 @@ import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { suggestOutlet } from "@/lib/outlet.ts";
 import { isCategoryShownInMenu } from "@/lib/menu-categories.ts";
 import { KITCHEN_FETCHES } from "@/api/model/kitchen.ts";
+import { TimePicker } from "@/components/common/antd/time.picker.tsx";
+import { hasCategoryHours } from "@/lib/category-hours.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 
@@ -42,7 +44,25 @@ const validationSchema = yup.object({
   priority: yup.string().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   show_in_menu: yup.boolean(),
   outlet: selectOptionSchema.optional(),
+  available_from: yup.string().nullable(),
+  available_to: yup.string().nullable(),
+  room_included: yup.boolean(),
+  walkin_price: yup.number()
+    .transform((value, original) => (original === '' || original == null ? null : value))
+    .nullable()
+    .min(0, i18n.t('validation:mustBeNumber'))
+    .typeError(i18n.t('validation:mustBeNumber')),
+  package_base_items: yup.array().of(selectOptionSchema).nullable(),
 });
+
+type Option = { label: string; value: string };
+
+const dishLabel = (dish?: Partial<Dish> | null): string =>
+  [dish?.number, dish?.name].filter(Boolean).join(' · ');
+
+/** Category hours fields, named only when set or being cleared like `outlet`: keeps the save
+ * valid on a DB without migrations/2026_10_09_category_hours.surql (SCHEMAFULL). */
+const HOURS_FIELDS = ['available_from', 'available_to', 'room_included', 'walkin_price', 'package_base_items'] as const;
 
 export const CategoryForm = ({
   open, onClose, data
@@ -62,6 +82,11 @@ export const CategoryForm = ({
       priority: null,
       show_in_menu: true,
       outlet: null,
+      available_from: null,
+      available_to: null,
+      room_included: false,
+      walkin_price: null,
+      package_base_items: [],
     });
   }
 
@@ -76,6 +101,11 @@ export const CategoryForm = ({
         outlet: outletId
           ? { label: (data.outlet as Outlet)?.name ?? outletId, value: outletId }
           : { label: t('forms.outletNone'), value: '' },
+        available_from: data.available_from ?? null,
+        available_to: data.available_to ?? null,
+        room_included: data.room_included === true,
+        walkin_price: data.walkin_price ?? null,
+        package_base_items: [],
       });
     }
   }, [data, reset, t]);
@@ -121,6 +151,27 @@ export const CategoryForm = ({
   );
 
   const selectedOutlet = useWatch({ control, name: 'outlet' });
+  const roomIncluded = useWatch({ control, name: 'room_included' });
+
+  const categoryDishOptions = useMemo<Option[]>(() => {
+    const categoryId = recordIdToString(data?.id);
+    return (dishes?.data ?? [])
+      .filter((dish) => (dish.categories ?? []).some((category) => recordIdToString(category) === categoryId))
+      .map((dish) => ({ label: dishLabel(dish), value: recordIdToString(dish.id) }))
+      .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true }));
+  }, [dishes?.data, data?.id]);
+
+  // The base dish picker fills in once the dishes are loaded.
+  useEffect(() => {
+    if (!data || !dishes?.data) {
+      return;
+    }
+    const byId = new Map(categoryDishOptions.map((option) => [option.value, option]));
+    setValue('package_base_items', (data.package_base_items ?? []).map((item) => {
+      const id = recordIdToString(item);
+      return byId.get(id) ?? { label: id, value: id };
+    }));
+  }, [data, dishes?.data, categoryDishOptions, setValue]);
 
   const suggestion = useMemo(() => {
     if (!data?.id || recordIdToString(data.outlet) || recordIdToString(selectedOutlet?.value)) {
@@ -153,6 +204,25 @@ export const CategoryForm = ({
       vals.outlet = null;
     } else {
       delete vals.outlet;
+    }
+
+    const hours = {
+      available_from: values.available_from || null,
+      available_to: values.available_to || null,
+      room_included: values.room_included === true,
+      walkin_price: values.room_included && values.walkin_price != null ? Number(values.walkin_price) : null,
+      package_base_items: values.room_included
+        ? (values.package_base_items ?? [])
+          .filter((option: Option | null) => option?.value)
+          .map((option: Option) => toRecordId(option.value))
+        : [],
+    };
+    const hadHours = hasCategoryHours(data) || data?.room_included === true || data?.walkin_price != null;
+    for (const field of HOURS_FIELDS) {
+      delete vals[field];
+    }
+    if (hadHours || hours.available_from || hours.available_to || hours.room_included) {
+      Object.assign(vals, hours);
     }
 
     try {
@@ -258,6 +328,79 @@ export const CategoryForm = ({
               </div>
             )}
           </div>
+          <fieldset className="mb-3 rounded-lg border border-neutral-200 p-3">
+            <legend className="px-1 text-sm font-semibold">{t('forms.categoryHours.title')}</legend>
+            <p className="mb-2 text-sm text-neutral-600">{t('forms.categoryHours.help')}</p>
+            <div className="flex gap-3 mb-3">
+              <div className="flex-1">
+                <Controller
+                  name="available_from"
+                  control={control}
+                  render={({ field }) => (
+                    <TimePicker label={t('forms.categoryHours.from')} value={field.value} onChange={field.onChange} isClearable />
+                  )}
+                />
+              </div>
+              <div className="flex-1">
+                <Controller
+                  name="available_to"
+                  control={control}
+                  render={({ field }) => (
+                    <TimePicker label={t('forms.categoryHours.to')} value={field.value} onChange={field.onChange} isClearable />
+                  )}
+                />
+              </div>
+            </div>
+            <div className="mb-3">
+              <Controller
+                name="room_included"
+                control={control}
+                render={({ field }) => (
+                  <Switch checked={field.value === true} onChange={field.onChange}>
+                    {t('forms.categoryHours.roomIncluded')}
+                  </Switch>
+                )}
+              />
+            </div>
+            {roomIncluded && (
+              <>
+                <div className="mb-3">
+                  <Controller
+                    name="walkin_price"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="number"
+                        label={t('forms.categoryHours.walkinPrice')}
+                        error={errors?.walkin_price?.message}
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                  <p className="mt-1 text-xs text-neutral-500">{t('forms.categoryHours.walkinPriceHelp')}</p>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="">{t('forms.categoryHours.baseItems')}</label>
+                  <Controller
+                    name="package_base_items"
+                    control={control}
+                    render={({ field }) => (
+                      <ReactSelect
+                        isMulti
+                        value={field.value ?? []}
+                        onChange={field.onChange}
+                        options={categoryDishOptions}
+                        isSearchable
+                        placeholder={t('forms.categoryHours.baseItemsNone')}
+                      />
+                    )}
+                  />
+                  <p className="mt-1 text-xs text-neutral-500">{t('forms.categoryHours.baseItemsHelp')}</p>
+                </div>
+              </>
+            )}
+          </fieldset>
           <div>
             <Button type="submit" variant="primary">{t('common:actions.save')}</Button>
           </div>

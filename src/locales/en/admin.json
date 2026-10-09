@@ -517,7 +517,19 @@
     "measureBumpPlaceholder": "e.g. 4 (empty = smallest quantity)",
     "measurePresetsInvalid": "The default quantity and the step must be multiples of the smallest quantity.",
     "variantAskQuantity": "Ask how many",
-    "variantAskQuantityHint": "After this choice the POS asks how many (shots: 1, 2, 3…) and the line takes that quantity."
+    "variantAskQuantityHint": "After this choice the POS asks how many (shots: 1, 2, 3…) and the line takes that quantity.",
+    "categoryHours": {
+      "title": "Service hours",
+      "help": "E.g. breakfast 06:00–10:00. Without \"Included for room guests\", the hours are only shown on the category tab.",
+      "from": "From",
+      "to": "To",
+      "roomIncluded": "Included for room guests during these hours (walk-ins pay the walk-in price)",
+      "baseItems": "Come with the plate (stay at 0)",
+      "baseItemsNone": "None",
+      "baseItemsHelp": "E.g. coffee + fruits: served with the plate, never charged to a walk-in.",
+      "walkinPrice": "Walk-in price of a plate",
+      "walkinPriceHelp": "Price of the category’s dishes at 0 for a walk-in, and for everybody outside the hours. Dishes with their own price (> 0) keep it."
+    }
   },
   "dishView": {
     "detailsTitle": "Dish details",

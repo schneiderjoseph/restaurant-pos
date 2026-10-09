@@ -517,7 +517,19 @@
     "measureBumpPlaceholder": "ex. 4 (vide = quantité minimale)",
     "measurePresetsInvalid": "La quantité par défaut et le pas doivent être des multiples de la quantité minimale.",
     "variantAskQuantity": "Demander le nombre",
-    "variantAskQuantityHint": "Après ce choix, le POS demande combien (shots : 1, 2, 3…) et la ligne prend cette quantité."
+    "variantAskQuantityHint": "Après ce choix, le POS demande combien (shots : 1, 2, 3…) et la ligne prend cette quantité.",
+    "categoryHours": {
+      "title": "Horaire",
+      "help": "Ex. petit-déjeuner 06:00–10:00. Sans « Inclus chambre », l'horaire est seulement affiché sur l'onglet de la catégorie.",
+      "from": "De",
+      "to": "À",
+      "roomIncluded": "Inclus pour les clients en chambre pendant l’horaire (walk-in : prix walk-in)",
+      "baseItems": "Compris avec le plat (restent à 0)",
+      "baseItemsNone": "Aucun",
+      "baseItemsHelp": "Ex. café + fruits : servis avec le plat, jamais facturés au walk-in.",
+      "walkinPrice": "Prix walk-in d’un plat",
+      "walkinPriceHelp": "Prix des plats à 0 de la catégorie pour un client de passage, et pour tous hors horaire. Les plats à prix propre (> 0) gardent le leur."
+    }
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

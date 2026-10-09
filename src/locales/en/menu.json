@@ -217,5 +217,8 @@
     "invalidStep": "Enter a multiple of {{step}} {{unit}}.",
     "add": "Add",
     "howMany": "How many {{name}}? ({{price}} each)"
+  },
+  "categoryHours": {
+    "roomIncluded": "Included (room)"
   }
 }

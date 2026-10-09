@@ -8,6 +8,7 @@ import {outletsInUse} from "@/lib/outlet-tabs.ts";
 import {outletOfCategory} from "@/lib/outlet.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {menuCategoriesFor} from "@/lib/menu-categories.ts";
+import {formatCategoryHours, hasCategoryHours} from "@/lib/category-hours.ts";
 
 
 export const MenuCategories = () => {
@@ -134,6 +135,9 @@ export const MenuCategories = () => {
             style={categoryStyles}
           >
             {item.name}
+            {hasCategoryHours(item) && (
+              <span className="ml-2 text-xs font-normal opacity-70 tabular-nums">{formatCategoryHours(item)}</span>
+            )}
           </button>
         ))}
       </ScrollContainer>

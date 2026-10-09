@@ -20,6 +20,7 @@ import {useSearchParams} from "react-router";
 import {useResortFb} from "@/hooks/useResortFb.ts";
 import {useEnsureAsiMenuCache} from "@/hooks/useEnsureAsiMenuCache.ts";
 import {useEnsureLoyverseMenuCache} from "@/hooks/useEnsureLoyverseMenuCache.ts";
+import {useCategoryHours} from "@/hooks/useCategoryHours.ts";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
@@ -33,6 +34,7 @@ export const Menu = () => {
   const {enabled: resortFb} = useResortFb();
   useEnsureAsiMenuCache();
   useEnsureLoyverseMenuCache();
+  useCategoryHours();
   /** Docs capture only — never write this into persisted appState. */
   const docsTableless = searchParams.get('docs_tableless') === '1';
   /** User preference (Settings → table selection). */

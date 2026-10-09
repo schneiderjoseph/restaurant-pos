@@ -62,6 +62,11 @@ export interface MenuItem {
   /** Modifier line: one of the choices the dish gives free (price 0). */
   includedModifier?: boolean
 
+  /** Category hours: free for the hotel guest (breakfast in a room), price 0. */
+  roomIncluded?: boolean
+  /** Category hours: the price the line was added with, before the room or walk-in price. */
+  hoursOwnPrice?: number
+
   /** Tax mode for this item (exclusive or inclusive) */
   tax_mode?: TaxMode
 
