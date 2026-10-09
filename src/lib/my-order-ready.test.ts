@@ -43,7 +43,11 @@ describe('findNewlyReadyOrders', () => {
   });
 
   it('announces it once', () => {
-    const running: OrderReadyState = new Map([['order:12', { column: 'running', readyAtMs: null }]]);
+    const running: OrderReadyState = new Map([['order:12', {
+      column: 'running',
+      readyAtMs: null,
+      completedKitchenCount: 0,
+    }]]);
     const ready = findNewlyReadyOrders(
       running,
       [order()],
@@ -63,7 +67,11 @@ describe('findNewlyReadyOrders', () => {
       .toEqual([]);
     expect(
       findNewlyReadyOrders(
-        new Map([['order:12', { column: 'ready', readyAtMs: Date.parse('2026-10-05T10:05:00.000Z') }]]) as OrderReadyState,
+        new Map([['order:12', {
+          column: 'ready',
+          readyAtMs: Date.parse('2026-10-05T10:05:00.000Z'),
+          completedKitchenCount: 1,
+        }]]) as OrderReadyState,
         [order()],
         {},
       ).newlyReady,
@@ -72,7 +80,11 @@ describe('findNewlyReadyOrders', () => {
 
   it('announces again after a kitchen recall then finish (even if running was missed)', () => {
     const firstReady = findNewlyReadyOrders(
-      new Map([['order:12', { column: 'running', readyAtMs: null }]]) as OrderReadyState,
+      new Map([['order:12', {
+        column: 'running',
+        readyAtMs: null,
+        completedKitchenCount: 0,
+      }]]) as OrderReadyState,
       [order()],
       kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:05:00.000Z'),
     );
@@ -91,9 +103,11 @@ describe('findNewlyReadyOrders', () => {
     const ready: OrderReadyState = new Map([['order:12', {
       column: 'ready',
       readyAtMs: Date.parse('2026-10-05T10:05:00.000Z'),
+      completedKitchenCount: 1,
     }]]);
     const recalled = findNewlyReadyOrders(ready, [order()], kitchen(OrderItemKitchenStatus.Pending));
     expect(recalled.newlyReady).toEqual([]);
+    expect(recalled.newlyRecalled.map(o => o.id.toString())).toEqual(['order:12']);
     expect(recalled.columns.get('order:12')?.column).toBe('running');
 
     const finished = findNewlyReadyOrders(
@@ -102,6 +116,53 @@ describe('findNewlyReadyOrders', () => {
       kitchen(OrderItemKitchenStatus.Completed, '2026-10-05T10:20:00.000Z'),
     );
     expect(finished.newlyReady.map(o => o.id.toString())).toEqual(['order:12']);
+    expect(finished.newlyRecalled).toEqual([]);
+  });
+
+  it('tells the server when a ready order is recalled', () => {
+    const ready: OrderReadyState = new Map([['order:12', {
+      column: 'ready',
+      readyAtMs: Date.parse('2026-10-05T10:05:00.000Z'),
+      completedKitchenCount: 1,
+    }]]);
+    const result = findNewlyReadyOrders(ready, [order()], kitchen(OrderItemKitchenStatus.Pending));
+    expect(result.newlyRecalled.map(o => o.id.toString())).toEqual(['order:12']);
+    expect(toReadyAlert(result.newlyRecalled[0], '', true)).toMatchObject({
+      recalled: true,
+      id: 'order:12#recalled',
+    });
+    expect(readyAnnouncement(toReadyAlert(result.newlyRecalled[0], '', true)).key)
+      .toBe('readyAlert.recalledSpeech');
+  });
+
+  it('does not treat an addon on a ready order as a recall', () => {
+    const firstItem = { id: { toString: () => 'order_item:1' } };
+    const addonItem = { id: { toString: () => 'order_item:2' } };
+    const readyOrder = order({ items: [firstItem] });
+    const withAddon = order({ items: [firstItem, addonItem] });
+    const ready: OrderReadyState = new Map([['order:12', {
+      column: 'ready',
+      readyAtMs: Date.parse('2026-10-05T10:05:00.000Z'),
+      completedKitchenCount: 1,
+    }]]);
+    const rows = buildKitchenRowsMap([
+      {
+        id: { toString: () => 'oik:1' },
+        order_item: firstItem,
+        status: OrderItemKitchenStatus.Completed,
+        completed_at: '2026-10-05T10:05:00.000Z',
+      },
+      {
+        id: { toString: () => 'oik:2' },
+        order_item: addonItem,
+        status: OrderItemKitchenStatus.Pending,
+      },
+    ] as unknown as OrderItemKitchen[]);
+
+    const result = findNewlyReadyOrders(ready, [withAddon], rows);
+    expect(result.newlyRecalled).toEqual([]);
+    expect(result.columns.get('order:12')?.column).toBe('running');
+    expect(result.columns.get('order:12')?.completedKitchenCount).toBe(1);
   });
 });
 

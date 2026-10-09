@@ -96,6 +96,7 @@ describe("recallStage", () => {
 
     const reopen = updates.find((sql) => sql.includes("SET status = $pending"));
     expect(reopen).toContain("completed_by = []");
+    expect(reopen).toContain("activated_at = time::now()");
   });
 
   it("leaves a stage that is not closed alone", async () => {

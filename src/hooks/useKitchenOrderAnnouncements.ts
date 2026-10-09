@@ -84,11 +84,17 @@ export const useKitchenOrderAnnouncements = (
   const { t, i18n } = useTranslation('kitchen');
   const knownBatchesRef = useRef<Map<string, BatchSnapshot>>(new Map());
   const knownItemsRef = useRef<Map<string, ItemSnapshot>>(new Map());
+  const pendingRecallsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
   const kitchenIdRef = useRef<string | undefined>(undefined);
   const staleHydrationRef = useRef(false);
   const highlightTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const [highlightedBatchKeys, setHighlightedBatchKeys] = useState<Set<string>>(new Set());
+
+  /** Mark a batch so its return to the board is announced as a recall, not a new order. */
+  const markBatchRecalled = useCallback((batchKey: string) => {
+    pendingRecallsRef.current.add(batchKey);
+  }, []);
 
   const speak = useCallback((text: string) => {
     speakOrderReady(text, i18n.language);
@@ -159,9 +165,21 @@ export const useKitchenOrderAnnouncements = (
     const prevBatches = knownBatchesRef.current;
     const prevItems = knownItemsRef.current;
 
-    // New batches (order / addon fires).
+    // New batches (order / addon fires) — or a completed ticket recalled to the board.
     for (const [batchKey, batch] of batches) {
       if (prevBatches.has(batchKey)) {
+        continue;
+      }
+
+      if (pendingRecallsRef.current.has(batchKey)) {
+        pendingRecallsRef.current.delete(batchKey);
+        speak(
+          t('announcements.recalled', {
+            context: batch.context,
+            number: batch.orderNumber,
+          })
+        );
+        highlightBatch(batchKey);
         continue;
       }
 
@@ -241,5 +259,6 @@ export const useKitchenOrderAnnouncements = (
 
   return {
     highlightedBatchKeys,
+    markBatchRecalled,
   };
 };

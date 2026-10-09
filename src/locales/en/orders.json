@@ -241,6 +241,7 @@
     "speechStationTable": "Order {{number}}, table {{table}}, {{station}} is ready",
     "speechStationRoom": "Order {{number}}, room {{room}}, {{station}} is ready",
     "title": "Order ready",
+    "recalledTitle": "Order recalled",
     "table": "Table {{table}}",
     "ok": "OK",
     "okWithMore": "OK ({{count}} more)",
@@ -248,7 +249,11 @@
     "speechGuest": "Order {{number}}, {{guest}}, is ready",
     "speechTable": "Order {{number}}, table {{table}}, is ready",
     "room": "Room {{room}}",
-    "speechRoom": "Order {{number}}, room {{room}}, is ready"
+    "speechRoom": "Order {{number}}, room {{room}}, is ready",
+    "recalledSpeech": "Order {{number}} was recalled",
+    "recalledSpeechGuest": "Order {{number}}, {{guest}}, was recalled",
+    "recalledSpeechTable": "Order {{number}}, table {{table}}, was recalled",
+    "recalledSpeechRoom": "Order {{number}}, room {{room}}, was recalled"
   },
   "due": {
     "forTime": "For {{time}}",

@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Bestellung konnte nicht zurückgerufen werden",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "Bestellung konnte nicht als fertig markiert werden",
     "itemReadyFailed": "Artikel konnte nicht als fertig markiert werden",
     "reprintFailed": "Küchenbeleg konnte nicht erneut gedruckt werden"

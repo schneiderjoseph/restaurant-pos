@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Échec du rappel de la commande",
+    "recallYesterdayBlocked": "On ne peut pas rappeler une commande d'hier",
     "readyFailed": "Échec du marquage « prêt »",
     "itemReadyFailed": "Échec du marquage de l’article comme prêt",
     "reprintFailed": "Échec de la réimpression du ticket cuisine"

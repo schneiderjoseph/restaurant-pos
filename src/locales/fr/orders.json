@@ -241,6 +241,7 @@
     "speechStationTable": "Commande {{number}}, table {{table}}, {{station}} prêt",
     "speechStationRoom": "Commande {{number}}, chambre {{room}}, {{station}} prêt",
     "title": "Commande prête",
+    "recalledTitle": "Commande rappelée",
     "table": "Table {{table}}",
     "ok": "OK",
     "okWithMore": "OK (encore {{count}})",
@@ -248,7 +249,11 @@
     "speechGuest": "Commande {{number}}, {{guest}}, est prête",
     "speechTable": "Commande {{number}}, table {{table}}, est prête",
     "room": "Chambre {{room}}",
-    "speechRoom": "Commande {{number}}, chambre {{room}}, est prête"
+    "speechRoom": "Commande {{number}}, chambre {{room}}, est prête",
+    "recalledSpeech": "Commande {{number}} a été rappelée",
+    "recalledSpeechGuest": "Commande {{number}}, {{guest}}, a été rappelée",
+    "recalledSpeechTable": "Commande {{number}}, table {{table}}, a été rappelée",
+    "recalledSpeechRoom": "Commande {{number}}, chambre {{room}}, a été rappelée"
   },
   "due": {
     "forTime": "Pour {{time}}",

@@ -12,6 +12,7 @@
     "avgTime": "متوسط الوقت: {{time}}",
     "avgTimeMins": "{{count}} دقيقة",
     "addon": "إضافة",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "original": "أصلي",
     "completed": "مكتمل: {{time}}",
     "items": "الأصناف: {{count}}",
@@ -24,6 +25,7 @@
   "announcements": {
     "newOrder": "طلب جديد. {{context}}. {{number}}.",
     "addon": "إضافة. {{context}}. {{number}}.",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "itemAdded": "تمت إضافة صنف. {{item}}. {{context}}. {{number}}.",
     "itemRemoved": "تم إلغاء صنف. {{item}}. {{context}}. {{number}}.",
     "itemFallback": "صنف"

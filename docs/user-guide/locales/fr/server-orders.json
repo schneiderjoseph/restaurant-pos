@@ -7,8 +7,9 @@
       "title": "Ce que l’écran montre par défaut",
       "bullets": [
         "Sans filtre de statut, seules les commandes En cours sont affichées.",
-        "Les commandes En cours apparaissent toujours, quelle que soit leur date (même une commande ouverte hier et jamais payée).",
-        "Pour retrouver une commande payée ou annulée, choisissez le statut Payée ou Annulée dans le filtre : vous voyez alors celles de la date choisie (aujourd’hui par défaut, modifiable avec le calendrier).",
+        "Seules les commandes de la date choisie s’affichent (aujourd’hui par défaut). Une commande d’hier non payée n’apparaît pas tant que vous ne sélectionnez pas hier dans le calendrier.",
+        "Une commande prise la veille mais prévue pour aujourd’hui (heure « Pour … ») reste visible aujourd’hui.",
+        "Pour retrouver une commande payée ou annulée, choisissez le statut Payée ou Annulée dans le filtre, avec la date voulue.",
         "Selon le réglage de l’établissement, un serveur ne voit que ses propres commandes (et celles de son binôme en DUO) ; le filtre Utilisateurs disparaît alors."
       ]
     },

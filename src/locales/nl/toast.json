@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Bestelling terughalen mislukt",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "Kon bestelling niet als klaar markeren",
     "itemReadyFailed": "Kon artikel niet als klaar markeren",
     "reprintFailed": "Kon keukenticket niet opnieuw afdrukken"

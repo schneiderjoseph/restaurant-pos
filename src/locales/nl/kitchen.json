@@ -12,6 +12,7 @@
     "avgTime": "Gem. tijd: {{time}}",
     "avgTimeMins": "{{count}} min",
     "addon": "EXTRA",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "original": "ORIGINEEL",
     "completed": "Voltooid: {{time}}",
     "items": "Artikelen: {{count}}",
@@ -24,6 +25,7 @@
   "announcements": {
     "newOrder": "Nieuwe bestelling. {{context}}. {{number}}.",
     "addon": "Extra. {{context}}. {{number}}.",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "itemAdded": "Artikel toegevoegd. {{item}}. {{context}}. {{number}}.",
     "itemRemoved": "Artikel geannuleerd. {{item}}. {{context}}. {{number}}.",
     "itemFallback": "Artikel"

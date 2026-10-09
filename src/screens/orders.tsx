@@ -163,19 +163,21 @@ export const Orders = () => {
       f.push(`(${customerFilters.join(' or ')})`);
     }
 
-    if (date) {
-      const dayStart = calendarDateToAppDateTime({
-        year: date.year,
-        month: date.month,
-        day: date.day,
-      });
-      const dayEnd = dayStart.plus({days: 1});
-      f.push(
-        `(status = "${OrderStatus["In Progress"]}" OR (created_at >= $dayStart AND created_at < $dayEnd))`
-      );
-      params.dayStart = toSurrealDateTime(dayStart);
-      params.dayEnd = toSurrealDateTime(dayEnd);
-    }
+    // Always scope to a calendar day (today when the picker is cleared). Yesterday's
+    // unpaid checks stay hidden until the server picks that day; due-on-this-day
+    // orders taken earlier still appear.
+    const filterDate = date ?? today(getLocalTimeZone());
+    const dayStart = calendarDateToAppDateTime({
+      year: filterDate.year,
+      month: filterDate.month,
+      day: filterDate.day,
+    });
+    const dayEnd = dayStart.plus({days: 1});
+    f.push(
+      `((created_at >= $dayStart AND created_at < $dayEnd) OR (due_at >= $dayStart AND due_at < $dayEnd))`
+    );
+    params.dayStart = toSurrealDateTime(dayStart);
+    params.dayEnd = toSurrealDateTime(dayEnd);
 
     return {orderFilters: f, orderFilterParams: params};
   }, [selectedOrderFilters, date, seesAllOrders, duoUserKey]);

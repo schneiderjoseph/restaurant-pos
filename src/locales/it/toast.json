@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Richiamo ordine non riuscito",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "Impossibile segnare l’ordine come pronto",
     "itemReadyFailed": "Impossibile segnare l’articolo come pronto",
     "reprintFailed": "Impossibile ristampare il ticket cucina"

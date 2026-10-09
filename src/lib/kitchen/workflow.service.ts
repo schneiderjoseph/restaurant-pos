@@ -583,8 +583,9 @@ export const recallStage = async (
     row.status === OrderItemKitchenStatus.Skipped;
   if (!closed) return;
 
+  // Re-activate like a fresh fire so the board timer and `activated_at` filter pick it up.
   await db.query(
-    `UPDATE $oik SET status = $pending, completed_at = NONE, user = NONE, completed_by = []`,
+    `UPDATE $oik SET status = $pending, completed_at = NONE, user = NONE, completed_by = [], activated_at = time::now()`,
     { oik, pending: OrderItemKitchenStatus.Pending }
   );
 

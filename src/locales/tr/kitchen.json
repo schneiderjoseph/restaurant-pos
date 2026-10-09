@@ -12,6 +12,7 @@
     "avgTime": "Ort. süre: {{time}}",
     "avgTimeMins": "{{count}} dk",
     "addon": "EK",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "original": "ASIL",
     "completed": "Tamamlandı: {{time}}",
     "items": "Ürünler: {{count}}",
@@ -24,6 +25,7 @@
   "announcements": {
     "newOrder": "Yeni sipariş. {{context}}. {{number}}.",
     "addon": "Ek. {{context}}. {{number}}.",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "itemAdded": "Ürün eklendi. {{item}}. {{context}}. {{number}}.",
     "itemRemoved": "Ürün iptal. {{item}}. {{context}}. {{number}}.",
     "itemFallback": "Ürün"

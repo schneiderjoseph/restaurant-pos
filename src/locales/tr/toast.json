@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Sipariş geri çağrılamadı",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "Sipariş hazır olarak işaretlenemedi",
     "itemReadyFailed": "Kalem hazır olarak işaretlenemedi",
     "reprintFailed": "Mutfak fişi yeniden yazdırılamadı"

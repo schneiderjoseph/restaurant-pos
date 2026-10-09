@@ -12,7 +12,7 @@ import {Order, OrderStatus} from "@/api/model/order.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faChair} from "@fortawesome/free-solid-svg-icons";
 import {LiveSubscription} from "surrealdb";
-import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {getAppStartOfDay, nowSurrealDateTime, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
 import {Link} from "react-router";
@@ -93,7 +93,7 @@ export const FloorLayout = () => {
       'order_type', 'table', 'user', 'tax', 'order_taxes', 'order_taxes.tax', 'coupon', 'order_discounts',
       'extras',
     ], {}, [
-      'covers', 'created_at', 'floor', 'id', 'invoice_number', 'order_type', 'status', 'table', 'tags', 'user',
+      'covers', 'created_at', 'due_at', 'floor', 'id', 'invoice_number', 'order_type', 'status', 'table', 'tags', 'user',
       'items.*', 'customer',
       'tax', 'tax_amount', 'order_taxes',
       'discount_amount', 'order_discounts', 'order_discounts.discount',
@@ -101,6 +101,17 @@ export const FloorLayout = () => {
       'tip', 'tip_amount', 'tip_type',
       'extras', 'coupon',
     ]);
+
+  /** Today's service only — unpaid checks from earlier days stay off the map. */
+  const openOrdersToday = useMemo(() => {
+    const start = getAppStartOfDay();
+    return (orders?.data ?? []).filter((order) => {
+      if (toLuxonDateTime(order.created_at) >= start) {
+        return true;
+      }
+      return Boolean(order.due_at && toLuxonDateTime(order.due_at) >= start);
+    });
+  }, [orders?.data]);
 
   const fetchTables = async () => {
     const [t] = await db.query<Table[]>(
@@ -303,11 +314,11 @@ export const FloorLayout = () => {
   }, [floors, state.floor]);
 
   const tableOrders = (tableId: string) => {
-    return orders?.data?.filter(item => item?.table?.id?.toString() === tableId.toString())
+    return openOrdersToday.filter(item => item?.table?.id?.toString() === tableId.toString())
   }
 
   const tableOrder = (tableId: string) => {
-    return orders?.data?.find(item =>
+    return openOrdersToday.find(item =>
       item?.table?.id?.toString() === tableId.toString()
     )
   }
@@ -355,7 +366,7 @@ export const FloorLayout = () => {
     }
 
     return {occupied, locked, free, total: visible.length};
-  }, [tables, orders?.data, occupiedRooms]);
+  }, [tables, openOrdersToday, occupiedRooms]);
 
   const occupiedOnFloor = (floorId: string) => {
     const floorTables = settings.tables.filter(
@@ -397,8 +408,7 @@ export const FloorLayout = () => {
     }
 
     if (!item.is_block && !item.is_locked) {
-      let ordersData = orders?.data ?? [];
-      let ordersForTable = ordersData.filter(orderItem => orderItem?.table?.id?.toString() === item.id.toString());
+      let ordersForTable = openOrdersToday.filter(orderItem => orderItem?.table?.id?.toString() === item.id.toString());
       let order = ordersForTable[0];
       let cart = state.cart;
 
@@ -430,15 +440,18 @@ export const FloorLayout = () => {
           });
 
           // await fetchOrders();
+          const dayStart = toSurrealDateTime(getAppStartOfDay());
           const [freshTableOrders] = await db.query<Order[]>(
             `SELECT *
              FROM ${Tables.orders}
              WHERE status = $status AND table = $table
+               AND (created_at >= $dayStart OR due_at >= $dayStart)
              ORDER BY created_at ASC
              FETCH customer, items, items.item, order_type, table, user`,
             {
               status: OrderStatus["In Progress"],
               table: toRecordId(item.id),
+              dayStart,
             }
           );
 

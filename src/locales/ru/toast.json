@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Не удалось вернуть заказ",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "Не удалось отметить заказ как готовый",
     "itemReadyFailed": "Не удалось отметить позицию как готовую",
     "reprintFailed": "Не удалось повторно напечатать кухонный чек"

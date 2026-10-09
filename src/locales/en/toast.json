@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "Failed to recall order",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "Failed to mark order ready",
     "itemReadyFailed": "Failed to mark item ready",
     "reprintFailed": "Failed to reprint kitchen ticket"

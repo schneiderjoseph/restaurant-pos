@@ -23,7 +23,7 @@ import {KitchenBoardTicket, KitchenOrder} from "@/components/kitchen/kitchen.ord
 import {cn, toRecordId} from "@/lib/utils.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
-import {toLuxonDateTime, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
+import {toLuxonDateTime, getAppStartOfDay, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
 import {fetchDueOrderItemIds} from "@/lib/order-due-items.ts";
 import {formatOrderNumber, getInvoiceNumber} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
@@ -37,6 +37,12 @@ import {useKitchenOrderAnnouncements} from "@/hooks/useKitchenOrderAnnouncements
 import {unlockSpeech} from "@/lib/order-ready-announcement.ts";
 import {stationKitchenId} from "@/lib/kitchen/station-account.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {dispatchPrint} from "@/lib/print.service.ts";
+import {
+  formatKitchenGuestLabel,
+  formatKitchenPlaceLabel,
+  type KitchenGuestLabelMode,
+} from "@/lib/kitchen-ticket-label.ts";
 
 /** Bright borders for multi-part orders (original + addons / continued). */
 const ORDER_GROUP_COLORS = [
@@ -120,7 +126,7 @@ const buildBoardTickets = (orders: KitchenOrderModel[]): KitchenBoardTicket[] =>
 
 
 export const KitchenScreen = () => {
-  const {t} = useTranslation(["kitchen", "toast", "admin"]);
+  const {t} = useTranslation(["kitchen", "toast", "admin", "payment"]);
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [enforcement] = useAtom(closingEnforcementAtom);
@@ -153,7 +159,7 @@ export const KitchenScreen = () => {
     );
   }, [allOrders]);
 
-  const {highlightedBatchKeys} = useKitchenOrderAnnouncements(
+  const {highlightedBatchKeys, markBatchRecalled} = useKitchenOrderAnnouncements(
     orders,
     kitchen?.id?.toString(),
     ordersHydrated
@@ -454,14 +460,60 @@ export const KitchenScreen = () => {
       return;
     }
 
+    // Yesterday's tickets cannot be recalled — only today's fire (or due today).
+    const dayStart = getAppStartOfDay();
+    const order = ticket.order;
+    const batchCreated = ticket.createdAt ?? recallableItems[0]?.created_at;
+    const createdOk = batchCreated ? toLuxonDateTime(batchCreated) >= dayStart : false;
+    const dueOk = Boolean(order?.due_at && toLuxonDateTime(order.due_at) >= dayStart);
+    if (!createdOk && !dueOk) {
+      toast.error(t("toast:kitchen.recallYesterdayBlocked"));
+      return;
+    }
+
     setRecallingOrderKey(ticket.batchKey);
 
     try {
       await assertOrderMutationsAllowed(db);
 
+      markBatchRecalled(ticket.batchKey);
+
       await Promise.all(recallableItems.map((item) => {
         return recallStage(db, item.id.toString(), page?.user?.id);
       }));
+
+      // Re-print like a new fire so the station gets a fresh ticket.
+      const printItems = recallableItems
+        .filter((item) => item.order_item && !item.order_item.deleted_at)
+        .map((item) => ({
+          ...item.order_item,
+          item: item.order_item.item,
+        }));
+      if (printItems.length > 0 && kitchen.printers?.length) {
+        const guestLabelMode = (page?.menuConfig?.kitchenGuestLabel ?? 'name') as KitchenGuestLabelMode;
+        try {
+          await dispatchPrint(db, 'kitchen', {
+            items: printItems,
+            order,
+            kitchenName: kitchen.name,
+            table: order?.table,
+            guestLabel: formatKitchenGuestLabel(order?.customer, guestLabelMode),
+            placeLabel: formatKitchenPlaceLabel(order?.table, {
+              room: t('kitchen:labels.room'),
+              table: t('kitchen:labels.table'),
+            }),
+            placeKind: order?.table?.source === 'asi-room' ? 'room' : 'table',
+          }, {
+            title: t("payment:print.kitchenTitle"),
+            copies: 1,
+            userId: page?.user?.id,
+            printers: kitchen.printers,
+          });
+        } catch (printError) {
+          console.error('Kitchen recall print failed', printError);
+          toast.error(t("toast:kitchen.reprintFailed"));
+        }
+      }
 
       await loadOrders(kitchen.id);
       await loadCompletedOrders(kitchen.id);

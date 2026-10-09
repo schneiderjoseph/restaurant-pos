@@ -18,7 +18,7 @@ Open Orders from the left sidebar. Filters sit at the top; order cards (or table
 
 1. Status: In Progress, Paid, Cancelled, Split, Merged (multi-select).
 2. Order type, floor, and user filters limit who and where.
-3. The date picker shows paid/historical checks for that day; In Progress still appears when relevant.
+3. The date picker scopes the list to that calendar day (today by default). Unpaid checks from other days stay hidden until you pick that day; an order taken earlier but due on the selected day still appears.
 
 ![Orders filter bar.](images/en/orders-filters.png)
 

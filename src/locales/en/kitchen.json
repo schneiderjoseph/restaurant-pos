@@ -27,6 +27,7 @@
   "announcements": {
     "newOrder": "New order. {{context}}. {{number}}.",
     "addon": "Addon. {{context}}. {{number}}.",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "itemAdded": "Item added. {{item}}. {{context}}. {{number}}.",
     "itemRemoved": "Item cancelled. {{item}}. {{context}}. {{number}}.",
     "itemFallback": "Item"

@@ -14,7 +14,7 @@ import {getAppStartOfDaySurreal} from "@/lib/datetime.ts";
 import {useDuoUserIds} from "@/hooks/useDuoUserIds.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {buildKitchenRowsMap} from "@/lib/order-display.ts";
-import {toRecordId} from "@/lib/utils.ts";
+import {cn, toRecordId} from "@/lib/utils.ts";
 import {
   findNewlyReadyOrders,
   findNewlyReadyStations,
@@ -127,11 +127,16 @@ export const MyOrderReadyAlert = () => {
       }
 
       const rowsMap = buildKitchenRowsMap(kitchenRows);
-      const {columns, newlyReady} = findNewlyReadyOrders(columnsRef.current, orders, rowsMap);
+      const {columns, newlyReady, newlyRecalled} = findNewlyReadyOrders(
+        columnsRef.current,
+        orders,
+        rowsMap,
+      );
       const stationReady = findNewlyReadyStations(stationsRef.current, orders, rowsMap);
       columnsRef.current = columns;
       stationsRef.current = stationReady.stations;
       const ready = [
+        ...newlyRecalled.map(order => toReadyAlert(order, '', true)),
         ...stationReady.newlyReady.map(({order, station}) => toReadyAlert(order, station)),
         ...newlyReady.map(order => toReadyAlert(order)),
       ];
@@ -185,13 +190,27 @@ export const MyOrderReadyAlert = () => {
       aria-labelledby="order-ready-alert-title"
       data-testid="order-ready-alert"
     >
-      <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border-4 border-success-500 bg-white p-8 text-center shadow-2xl">
-        <p id="order-ready-alert-title" className="text-2xl font-bold uppercase text-success-700">
-          {current.station
-            ? t('readyAlert.stationTitle', {station: current.station})
-            : t('readyAlert.title')}
+      <div className={cn(
+        "flex w-full max-w-md flex-col items-center gap-4 rounded-3xl border-4 bg-white p-8 text-center shadow-2xl",
+        current.recalled ? "border-warning-500" : "border-success-500",
+      )}>
+        <p
+          id="order-ready-alert-title"
+          className={cn(
+            "text-2xl font-bold uppercase",
+            current.recalled ? "text-warning-700" : "text-success-700",
+          )}
+        >
+          {current.recalled
+            ? t('readyAlert.recalledTitle')
+            : current.station
+              ? t('readyAlert.stationTitle', {station: current.station})
+              : t('readyAlert.title')}
         </p>
-        <p className="text-6xl font-black tabular-nums text-success-900">{current.displayNumber}</p>
+        <p className={cn(
+          "text-6xl font-black tabular-nums",
+          current.recalled ? "text-warning-900" : "text-success-900",
+        )}>{current.displayNumber}</p>
         {current.table && (
           <p className="text-2xl font-semibold">
             {current.room
@@ -201,7 +220,7 @@ export const MyOrderReadyAlert = () => {
         )}
         {current.guest && <p className="text-xl text-neutral-700">{current.guest}</p>}
         <Button
-          variant="success"
+          variant={current.recalled ? "warning" : "success"}
           size="lg"
           className="w-full"
           data-testid="order-ready-alert-ok"

@@ -29,6 +29,7 @@
   },
   "kitchen": {
     "recallFailed": "فشل استرجاع الطلب",
+    "recallYesterdayBlocked": "Yesterday's orders cannot be recalled",
     "readyFailed": "فشل وضع الطلب كجاهز",
     "itemReadyFailed": "فشل وضع العنصر كجاهز",
     "reprintFailed": "فشل إعادة طباعة تذكرة المطبخ"

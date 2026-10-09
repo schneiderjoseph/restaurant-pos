@@ -50,7 +50,7 @@
         "Une ligne barrée en rouge dans le détail est un plat annulé : ne le préparez pas (on ne peut pas le marquer prêt).",
         "Si un plat passe par plusieurs étapes (par exemple cuisson puis dressage), le marquer prêt l’envoie à la station suivante au lieu de le terminer.",
         "Une station « tout » (passe) voit les plats des autres stations sans les leur retirer.",
-        "Erreur ? Commandes terminées → Rappeler remet le ticket à l’écran."
+        "Erreur ? Commandes terminées → Rappeler remet le ticket à l’écran, réimprime le KOT comme une nouvelle commande, annonce « Commande rappelée », et prévient le serveur. On ne peut pas rappeler une commande d’hier."
       ]
     },
     {
@@ -65,6 +65,7 @@
       "bullets": [
         "« Nouvelle commande. Table 7. 12. » à chaque premier envoi.",
         "« Supplément. Table 7. 12. » quand des plats sont ajoutés à une commande.",
+        "« Commande rappelée. Table 7. 12. » quand un ticket terminé est rappelé (réimpression KOT + alerte serveur).",
         "« Article ajouté. Burger. … » ou « Article annulé. Burger. … » quand une commande déjà à l’écran change.",
         "Un ticket de suppression ou de MODIFICATION s’imprime aussi quand une modification approuvée touche des plats déjà envoyés.",
         "Pas de son : touchez l’écran une fois après chaque démarrage (règle du navigateur), puis vérifiez le volume."

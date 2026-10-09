@@ -12,6 +12,7 @@
     "avgTime": "Tiempo prom.: {{time}}",
     "avgTimeMins": "{{count}} min",
     "addon": "COMPLEMENTO",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "original": "ORIGINAL",
     "completed": "Completado: {{time}}",
     "items": "Artículos: {{count}}",
@@ -24,6 +25,7 @@
   "announcements": {
     "newOrder": "Nuevo pedido. {{context}}. {{number}}.",
     "addon": "Complemento. {{context}}. {{number}}.",
+    "recalled": "Order recalled. {{context}}. {{number}}.",
     "itemAdded": "Artículo añadido. {{item}}. {{context}}. {{number}}.",
     "itemRemoved": "Artículo cancelado. {{item}}. {{context}}. {{number}}.",
     "itemFallback": "Artículo"
