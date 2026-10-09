@@ -214,6 +214,35 @@ function getOrderItems(order, showInclusivePrices) {
 }
 
 /**
+ * Bill lines for the same dish at the same price, with the same options and note, print as one
+ * line: plates added to a sent order are separate order items (so the kitchen gets them as an
+ * add-on), but the guest reads "5 Prestige", not three Prestige lines.
+ * @param {Array<{ name, qty, price, total, notes, modifierLines }>} items
+ */
+function mergeIdenticalBillLines(items) {
+  const merged = [];
+  const byKey = new Map();
+  for (const line of items) {
+    const key = JSON.stringify([
+      line.name,
+      Math.round(Number(line.price || 0) * 100),
+      line.notes || '',
+      line.modifierLines || [],
+    ]);
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.qty = Number(existing.qty) + Number(line.qty);
+      existing.total = Math.round((Number(existing.total) + Number(line.total)) * 100) / 100;
+      continue;
+    }
+    const copy = { ...line };
+    byKey.set(key, copy);
+    merged.push(copy);
+  }
+  return merged;
+}
+
+/**
  * Delivery charges from order.delivery_charges or order.delivery. Not from extras (extras are in extrasTotal).
  */
 function getOrderDeliveryCharges(order) {
@@ -699,7 +728,7 @@ function mapOrderToBill(order, opts) {
   const showInclusivePrices = !!(opts && opts.showInclusivePrices);
   const total = forDelivery ? tot.totalWithDelivery : tot.total;
   const pay = getOrderPaymentSummary(order, total);
-  const items = getOrderItems(order, showInclusivePrices);
+  const items = mergeIdenticalBillLines(getOrderItems(order, showInclusivePrices));
   const tipLabel = order && order.tip_type === 'Percent' ? 'Tip %' : 'Tip';
   let discountLines = (order.order_discounts || [])
     .filter((od) => od && !od.removed_at)
@@ -916,6 +945,7 @@ module.exports = {
   formatBillLineage,
   getOrderId,
   getOrderItems,
+  mergeIdenticalBillLines,
   getOrderTotals,
   getOrderPaymentsString,
   getOrderTable,

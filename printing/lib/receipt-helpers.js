@@ -55,6 +55,8 @@ const DEFAULTS = {
 const TEXT_SIZE_MAP = {
   normal: [1, 1],
   medium: [2, 1],
+  // Double height, normal width: stands out without the smudge bold gives digits on thermal paper.
+  tall: [1, 2],
   large: [2, 2],
 };
 
@@ -367,6 +369,12 @@ function resetTextSize(printer) {
 }
 
 function applyTextSize(printer, size) {
+  if (size === 'tall') {
+    // escpos's size() takes 0-based multipliers (size(1, 2) is double width, triple height,
+    // which pushes the amount onto the next line): GS ! 0x01 is double height alone.
+    printer.buffer.write('\x1d\x21\x01');
+    return;
+  }
   const dims = TEXT_SIZE_MAP[size] || TEXT_SIZE_MAP.normal;
   printer.size(dims[0], dims[1]);
 }
@@ -435,7 +443,9 @@ function printLineLeftRight(printer, left, right, opts) {
   const options = opts || {};
   const size = options.size || [1, 1];
   const [w, h] = size;
-  const textSize = w === 2 && h === 2 ? 'large' : (w !== 1 || h !== 1 ? 'medium' : 'normal');
+  const textSize = w === 2 && h === 2
+    ? 'large'
+    : w === 1 && h === 2 ? 'tall' : (w !== 1 || h !== 1 ? 'medium' : 'normal');
   hardResetLayout(printer);
   if (textSize !== 'normal') applyTextSize(printer, textSize);
   if (options.style === 'bold-underline') printer.style('bu');

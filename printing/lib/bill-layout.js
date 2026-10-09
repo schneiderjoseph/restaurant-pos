@@ -172,10 +172,11 @@ function printBillLayout(printer, bill, config, opts) {
 
   if (Array.isArray(bill.totalRows) && bill.totalRows.length > 0) {
     bill.totalRows.forEach((row) => {
-      printLineLeftRight(printer, row.label || totalLabel, formatMoney(row.amount, sym));
+      printLineLeftRight(printer, row.label || totalLabel, formatMoney(row.amount, sym), { size: [1, 2] });
     });
   } else {
-    printLineLeftRight(printer, totalLabel, formatMoney(bill.total, sym), { style: 'bold' });
+    // Tall, not bold: bold digits blur on thermal paper.
+    printLineLeftRight(printer, totalLabel, formatMoney(bill.total, sym), { size: [1, 2] });
     hardResetLayout(printer);
   }
 
