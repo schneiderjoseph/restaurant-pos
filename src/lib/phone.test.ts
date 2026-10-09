@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   displayPhone,
   formatPhone,
+  isPlaceholderPhone,
   maskPhone,
   PHONE_COUNTRIES,
   samePhone,
@@ -94,5 +95,21 @@ describe('PHONE_COUNTRIES', () => {
     expect(PHONE_COUNTRIES[0].iso).toBe('HT');
     const isos = PHONE_COUNTRIES.map((country) => country.iso);
     expect(new Set(isos).size).toBe(isos.length);
+  });
+});
+
+describe('isPlaceholderPhone', () => {
+  it('flags repeated digits and straight runs', () => {
+    expect(isPlaceholderPhone('+509 0000 0000')).toBe(true);
+    expect(isPlaceholderPhone('+509 2121 2121')).toBe(true);
+    expect(isPlaceholderPhone('12345678')).toBe(true);
+    expect(isPlaceholderPhone('+509 8765 4321')).toBe(true);
+  });
+
+  it('keeps real numbers', () => {
+    expect(isPlaceholderPhone('+509 3747 3889')).toBe(false);
+    expect(isPlaceholderPhone('+1 829 470 3739')).toBe(false);
+    expect(isPlaceholderPhone('')).toBe(false);
+    expect(isPlaceholderPhone(undefined)).toBe(false);
   });
 });

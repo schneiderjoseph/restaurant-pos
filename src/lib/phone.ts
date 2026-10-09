@@ -248,3 +248,19 @@ export function visiblePhone(
 ): string {
   return canViewFull ? displayPhone(stored) : maskPhone(stored);
 }
+
+/**
+ * A number typed only to get past the "phone required" rule: one or two digits repeated
+ * ("0000 0000", "2121 2121") or a straight run ("1234 5678"). Read on the national part.
+ */
+export function isPlaceholderPhone(stored?: string | number | null): boolean {
+  const { national } = splitPhone(stored);
+  if (national.length < MIN_PHONE_DIGITS) {
+    return false;
+  }
+  return (
+    new Set(national).size <= 2 ||
+    '01234567890123456789'.includes(national) ||
+    '98765432109876543210'.includes(national)
+  );
+}

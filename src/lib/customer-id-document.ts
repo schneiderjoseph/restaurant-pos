@@ -1,8 +1,8 @@
 import { Tables } from '@/api/db/tables.ts';
 import type { Customer } from '@/api/model/customer.ts';
 import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
-import { MIN_PHONE_DIGITS } from '@/lib/phone.ts';
-import { phoneDigits } from '@/lib/guest.ts';
+import { isPlaceholderPhone, MIN_PHONE_DIGITS } from '@/lib/phone.ts';
+import { phoneDigits, placeholderGuestName } from '@/lib/guest.ts';
 
 type AnyDb = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown>;
@@ -35,12 +35,37 @@ export function maskIdDocument(value?: string | null): string {
     : `${MASK}${normalized.slice(-VISIBLE_ID_CHARS)}`;
 }
 
-/** A walk-in is registered only with a usable phone number or an ID document number. */
+/**
+ * A walk-in is registered only with a usable phone number or an ID document number.
+ * A made-up phone ("0000 0000", "1234 5678") is no phone.
+ */
 export function hasWalkInContact(contact: { phone?: string | null; idDocument?: string | null }): boolean {
   return (
-    phoneDigits(contact.phone).length >= MIN_PHONE_DIGITS ||
+    (phoneDigits(contact.phone).length >= MIN_PHONE_DIGITS && !isPlaceholderPhone(contact.phone)) ||
     normalizeIdDocument(contact.idDocument).length > 0
   );
+}
+
+/**
+ * Why this walk-in cannot be registered, as a message key; null when it can.
+ * "Cash", "Client"… go on an order with no customer, "Ch-21" on the room's guest.
+ */
+export function walkInRefusal(walkIn: {
+  name?: string | null;
+  phone?: string | null;
+  idDocument?: string | null;
+}): string | null {
+  const placeholder = placeholderGuestName(walkIn.name);
+  if (placeholder === 'anonymous') {
+    return 'menu:guest.anonymousName';
+  }
+  if (placeholder === 'room') {
+    return 'menu:guest.roomAsName';
+  }
+  if (hasWalkInContact(walkIn)) {
+    return null;
+  }
+  return isPlaceholderPhone(walkIn.phone) ? 'menu:guest.fakePhone' : 'menu:guest.contactRequired';
 }
 
 /** Kinds of ID document a walk-in may show. */

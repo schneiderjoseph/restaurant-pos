@@ -20,7 +20,7 @@ import {
 } from "@/lib/guest.ts";
 import {
   findCustomerByIdDocument,
-  hasWalkInContact,
+  walkInRefusal,
   normalizeIdDocument,
 } from "@/lib/customer-id-document.ts";
 import {
@@ -193,8 +193,9 @@ export const Customers = ({
       return;
     }
 
-    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
-      toast.error(t("menu:guest.contactRequired"));
+    const refusal = walkInRefusal({ name, phone: newPhone, idDocument: newIdDocument });
+    if (refusal) {
+      toast.error(t(refusal));
       return;
     }
 

@@ -103,3 +103,9 @@ export {
 } from "@/api/reports/sales/server-analytics.ts";
 export {getUnsoldProducts, listMenuItems} from "@/api/reports/sales/products.ts";
 export type {GetUnsoldProductsOptions, ListMenuItemsOptions, MenuItemSummary} from "@/api/reports/sales/products.ts";
+export {
+  aggregateSalesByCustomer,
+  ANONYMOUS_CUSTOMER_ROW,
+  CUSTOMER_SALES_FETCHES,
+} from "@/api/reports/sales/customers.ts";
+export type {CustomerSales} from "@/api/reports/sales/customers.ts";

@@ -20,10 +20,17 @@ import {
   searchGuests,
   dropSupersededStays,
   isAsiGuest,
+  isAnonymousGuest,
+  isRoomGuest,
+  placeholderGuestName,
+  sortGuestsNewestFirst,
+  type GuestListTab,
 } from '@/lib/guest.ts';
+import { TabList, Tabs } from 'react-aria-components';
+import { Tab } from '@/components/common/react-aria/tabs.tsx';
 import {
   findCustomerByIdDocument,
-  hasWalkInContact,
+  walkInRefusal,
   ID_DOCUMENT_TYPES,
   maskIdDocument,
   normalizeIdDocument,
@@ -99,6 +106,7 @@ export const GuestLookup = () => {
   const canViewPhone = can('customers.view_phone');
 
   const [search, setSearch] = useState('');
+  const [listTab, setListTab] = useState<GuestListTab>(preferInHouse ? 'rooms' : 'walkin');
   const [guests, setGuests] = useState<Customer[]>([]);
   const [loadingGuests, setLoadingGuests] = useState(false);
   const [selected, setSelected] = useState<Customer | undefined>(state.customer);
@@ -134,14 +142,23 @@ export const GuestLookup = () => {
 
   const floors: Floor[] = settings.floors ?? [];
 
-  // Exact matches first, then names only spelled close to the search.
-  const found = useMemo(() => searchGuests(guests, search), [guests, search]);
+  // Rooms vs walk-in, newest guests first; search keeps that order within exact / close.
+  const tabGuests = useMemo(() => {
+    const filtered = guests.filter((guest) =>
+      !isAnonymousGuest(guest) && (listTab === 'rooms' ? isRoomGuest(guest) : !isRoomGuest(guest)),
+    );
+    return sortGuestsNewestFirst(filtered);
+  }, [guests, listTab]);
+  const found = useMemo(() => searchGuests(tabGuests, search), [tabGuests, search]);
   const results = useMemo(() => [...found.exact, ...found.close], [found]);
   const firstCloseId = found.close[0]?.id?.toString();
 
   // The name never identifies a client: a known name can be registered again, as a new client.
   const canRegisterFromSearch = canCreateCustomer && canRegisterGuestFromSearch(search);
-  const showRegisterPanel = canRegisterFromSearch && (found.exact.length === 0 || registerOpen);
+  // "Cash", "Client", "Ch-21": no customer is registered under such a name.
+  const searchPlaceholder = canCreateCustomer ? placeholderGuestName(search) : null;
+  const showRegisterPanel = canRegisterFromSearch && !searchPlaceholder
+    && (found.exact.length === 0 || registerOpen);
 
   const selectedLastOrderAt = folio[0]?.created_at ?? selected?.last_order_at;
   const selectedLastOrderLabel = selectedLastOrderAt
@@ -206,13 +223,13 @@ export const GuestLookup = () => {
                 OR source = 'local'
                 OR (notes != NONE AND notes != NULL AND notes != '')
              )
-             ORDER BY in_house DESC, name
+             ORDER BY created_at DESC
              LIMIT 500`
           )
         : await db.query<Customer[]>(
             `SELECT *, ${LAST_ORDER_AT} FROM ${Tables.customers}
              WHERE ${ACTIVE_CUSTOMER}
-             ORDER BY name
+             ORDER BY created_at DESC
              LIMIT 500`
           );
 
@@ -447,8 +464,9 @@ export const GuestLookup = () => {
       return;
     }
 
-    if (!hasWalkInContact({ phone: newPhone, idDocument: newIdDocument })) {
-      toast.error(t('menu:guest.contactRequired'));
+    const refusal = walkInRefusal({ name, phone: newPhone, idDocument: newIdDocument });
+    if (refusal) {
+      toast.error(t(refusal));
       return;
     }
 
@@ -755,7 +773,24 @@ export const GuestLookup = () => {
 
       <div className="grid gap-4 grid-rows-[minmax(12rem,1fr)_minmax(16rem,1.2fr)] lg:grid-rows-1 lg:grid-cols-2 flex-1 min-h-0">
         <div className="bg-white rounded-xl p-4 shadow flex flex-col min-h-0 overflow-hidden">
-          <div className="shrink-0 mb-3">
+          <div className="shrink-0 mb-3 space-y-3">
+            <Tabs
+              selectedKey={listTab}
+              onSelectionChange={(key) => setListTab(key as GuestListTab)}
+            >
+              <TabList
+                aria-label={t('menu:guest.listTabs')}
+                className="flex flex-row gap-2 flex-nowrap"
+                data-testid="guest-list-tabs"
+              >
+                <Tab id="rooms" data-testid="guest-tab-rooms">
+                  {t('menu:guest.tabRooms')}
+                </Tab>
+                <Tab id="walkin" data-testid="guest-tab-walkin">
+                  {t('menu:guest.tabWalkIn')}
+                </Tab>
+              </TabList>
+            </Tabs>
             <Input
               label={t('menu:guest.search')}
               placeholder={t('menu:guest.searchPlaceholder')}
@@ -766,7 +801,45 @@ export const GuestLookup = () => {
             />
           </div>
 
-          {canRegisterFromSearch && !showRegisterPanel && (
+          {searchPlaceholder && (
+            <div
+              className="rounded-xl border border-warning-300 bg-warning-50 p-4 space-y-3 mb-3 shrink-0"
+              data-testid="guest-placeholder-name"
+            >
+              <p className="text-sm text-neutral-800">
+                <FontAwesomeIcon icon={faTriangleExclamation} className="mr-2 text-warning-600" />
+                {t(searchPlaceholder === 'room' ? 'menu:guest.roomAsName' : 'menu:guest.anonymousName')}
+              </p>
+              {searchPlaceholder === 'room' ? (
+                <Button
+                  variant="primary"
+                  flat
+                  size="lg"
+                  className="w-full min-h-[48px]"
+                  data-testid="guest-placeholder-rooms"
+                  onClick={() => {
+                    setListTab('rooms');
+                    setSearch(search.replace(/\D/g, ''));
+                  }}
+                >
+                  {t('menu:guest.tabRooms')}
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  filled
+                  size="lg"
+                  className="w-full min-h-[48px]"
+                  data-testid="guest-placeholder-anonymous"
+                  onClick={() => void openFloorWalkIn()}
+                >
+                  {t('menu:guest.openFloor')}
+                </Button>
+              )}
+            </div>
+          )}
+
+          {canRegisterFromSearch && !searchPlaceholder && !showRegisterPanel && (
             <Button
               variant="primary"
               flat

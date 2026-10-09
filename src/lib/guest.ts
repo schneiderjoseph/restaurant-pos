@@ -1,9 +1,50 @@
 import { Customer } from '@/api/model/customer.ts';
 import { Order } from '@/api/model/order.ts';
+import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 import {formatTableLabel} from "@/lib/table-label.ts";
 
 export { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
+
+/** Guest list filter on the Client page: hotel rooms vs walk-ins. */
+export type GuestListTab = 'rooms' | 'walkin';
+
+/**
+ * Hotel / Front Desk guest with a room stay (ASI in-house or manual stay).
+ * Everyone else on the Client list is treated as a walk-in (passant).
+ */
+export function isRoomGuest(
+  guest: Pick<Customer, 'room' | 'in_house' | 'tags' | 'current_stay'>,
+): boolean {
+  if (guest.room != null && String(guest.room).trim() !== '') {
+    return true;
+  }
+  if (guest.in_house) {
+    return true;
+  }
+  if (guest.tags?.includes('in-house') || guest.tags?.includes('manual-stay')) {
+    return true;
+  }
+  if (guest.current_stay != null && guest.current_stay !== '') {
+    return true;
+  }
+  return false;
+}
+
+/** Newest `created_at` first; missing dates sink to the bottom. */
+export function sortGuestsNewestFirst<T extends Pick<Customer, 'created_at'>>(
+  guests: readonly T[],
+): T[] {
+  return [...guests].sort((a, b) => guestCreatedAtMs(b) - guestCreatedAtMs(a));
+}
+
+function guestCreatedAtMs(guest: Pick<Customer, 'created_at'>): number {
+  if (guest.created_at == null || guest.created_at === '') {
+    return 0;
+  }
+  const ms = toLuxonDateTime(guest.created_at).toMillis();
+  return Number.isFinite(ms) ? ms : 0;
+}
 
 /** Prefer guest code when present (admin / lookup secondary line). */
 export function guestCodeLabel(
@@ -305,6 +346,52 @@ export function generateWalkInGuestCode(name?: string): string {
   const prefix = guestCodePrefixFromName(name);
   const digits = String(100 + Math.floor(Math.random() * 900)); // 100–999
   return `${prefix}${digits}`;
+}
+
+/** Any of these words: the name stands for "someone who paid cash", not a person. */
+const ANONYMOUS_NAME_WORDS = new Set([
+  'CASH', 'ANONYME', 'ANONYMES', 'ANONYMOUS', 'ANON', 'PASSANT', 'PASSANTS', 'PASSANTE',
+  'WALKIN', 'INCONNU', 'INCONNUE', 'UNKNOWN',
+]);
+
+/** Only these words: filler typed to fill the name field ("Client", "Test", "Walk in"). */
+const FILLER_NAME_WORDS = new Set([
+  'CLIENT', 'CLIENTS', 'CLIENTE', 'GUEST', 'CUSTOMER', 'TEST', 'WALK', 'IN', 'DIVERS',
+  'COMPTOIR', 'BAR', 'NA', 'NN', 'NONE', 'AUCUN', 'MR', 'MME', 'MONSIEUR', 'MADAME',
+]);
+
+/** "Ch-21", "Chambre32", "Room 4", "Suite 2B": a room typed as a name. */
+const ROOM_AS_NAME = /^(CH|CHB|CHAMBRE|ROOM|RM|SUITE)\s*[-#.:]?\s*\d+[A-Z]?$/;
+
+/**
+ * Why this walk-in name names nobody: 'anonymous' (Cash, Client, Passant…) belongs on the
+ * anonymous order, 'room' (Ch-21) on the room's guest. null for a real name.
+ */
+export function placeholderGuestName(name?: string | null): 'anonymous' | 'room' | null {
+  const raw = (name ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toUpperCase()
+    .trim();
+  if (ROOM_AS_NAME.test(raw)) {
+    return 'room';
+  }
+  const words = guestNameTokens(raw).filter((word) => !/^\d+$/.test(word));
+  if (words.length === 0) {
+    return null;
+  }
+  if (words.some((word) => ANONYMOUS_NAME_WORDS.has(word))) {
+    return 'anonymous';
+  }
+  if (words.every((word) => FILLER_NAME_WORDS.has(word) || /^X+$/.test(word))) {
+    return 'anonymous';
+  }
+  return null;
+}
+
+/** The shared CASH customer of 2026_10_08_anonymous_cash_customer: never picked by hand. */
+export function isAnonymousGuest(guest?: Pick<Customer, 'tags'> | null): boolean {
+  return Boolean(guest?.tags?.includes('anonymous'));
 }
 
 /** True when the search text looks like a person name (not just a room #). */

@@ -4,6 +4,7 @@ import {
   hasWalkInContact,
   maskIdDocument,
   normalizeIdDocument,
+  walkInRefusal,
 } from '@/lib/customer-id-document.ts';
 
 describe('normalizeIdDocument', () => {
@@ -46,8 +47,30 @@ describe('hasWalkInContact', () => {
     expect(hasWalkInContact({ phone: '123' })).toBe(false);
   });
 
+  it('refuses a made-up phone', () => {
+    expect(hasWalkInContact({ phone: '+509 2121 2121' })).toBe(false);
+    expect(hasWalkInContact({ phone: '0000 0000' })).toBe(false);
+  });
+
   it('accepts an ID document alone', () => {
     expect(hasWalkInContact({ idDocument: '003-456-789-0' })).toBe(true);
+  });
+});
+
+describe('walkInRefusal', () => {
+  it('sends anonymous names and rooms elsewhere, whatever the contact', () => {
+    expect(walkInRefusal({ name: 'Cash', phone: '+509 3747 3889' })).toBe('menu:guest.anonymousName');
+    expect(walkInRefusal({ name: 'Ch-21', phone: '+509 3747 3889' })).toBe('menu:guest.roomAsName');
+  });
+
+  it('names a made-up phone apart from a missing one', () => {
+    expect(walkInRefusal({ name: 'Marie Joseph', phone: '+509 2121 2121' })).toBe('menu:guest.fakePhone');
+    expect(walkInRefusal({ name: 'Marie Joseph' })).toBe('menu:guest.contactRequired');
+  });
+
+  it('lets a real walk-in through', () => {
+    expect(walkInRefusal({ name: 'Marie Joseph', phone: '+509 3747 3889' })).toBeNull();
+    expect(walkInRefusal({ name: 'Marie Joseph', phone: '0000 0000', idDocument: '003-456' })).toBeNull();
   });
 });
 

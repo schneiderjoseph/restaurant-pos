@@ -17,6 +17,7 @@ import {VoidsFilter} from "@/components/reports/filters/voids.filter.tsx";
 import {TableSummaryFilter} from "@/components/reports/filters/table.summary.filter.tsx";
 import {SalesAdvancedFilter} from "@/components/reports/filters/sales.advanced.filter.tsx";
 import {SalesSummary2Filter} from "@/components/reports/filters/sales.summary2.filter.tsx";
+import {SalesByCustomerFilter} from "@/components/reports/filters/sales.by.customer.filter.tsx";
 import { TipsFilter } from "@/components/reports/filters/tips.filter.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useActionVisible} from "@/hooks/useActionVisible.ts";
@@ -60,6 +61,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   serverSales: 'reports.server_sales',
   salesSummary: 'reports.sales_summary',
   salesSummary2: 'reports.sales_summary_2',
+  salesByCustomer: 'reports.sales_by_customer',
   salesWeekly: 'reports.sales_weekly',
   tips: 'reports.tips',
   advancedSales: 'reports.advanced_sales',
@@ -121,6 +123,7 @@ export const Reports = () => {
           { reportKey: 'serverSales', filter: <SalesServerFilter /> },
           { reportKey: 'salesSummary', filter: <SalesSummaryFilter /> },
           { reportKey: 'salesSummary2', filter: <SalesSummary2Filter /> },
+          { reportKey: 'salesByCustomer', filter: <SalesByCustomerFilter /> },
           { reportKey: 'salesWeekly', filter: <SalesWeeklyFilter /> },
           { reportKey: 'tips', filter: <TipsFilter /> },
           { reportKey: 'advancedSales', filter: <SalesAdvancedFilter /> },

@@ -10,6 +10,8 @@ import {
   namesAreSamePerson,
   previewGuestCode,
   isAsiGuest,
+  isRoomGuest,
+  sortGuestsNewestFirst,
 } from '@/lib/guest.ts';
 
 describe('guestCodePrefixFromName', () => {
@@ -213,5 +215,41 @@ describe('searchGuests with close spellings', () => {
 
   it('returns everyone when nothing is typed', () => {
     expect(searchGuests(guests, '  ').exact).toHaveLength(3);
+  });
+});
+
+describe('isRoomGuest', () => {
+  it('is true for a guest with a room, in-house flag, stay tags or current stay', () => {
+    expect(isRoomGuest({ room: '12', in_house: false, tags: [], current_stay: null })).toBe(true);
+    expect(isRoomGuest({ room: '', in_house: true, tags: [], current_stay: null })).toBe(true);
+    expect(isRoomGuest({ room: null, in_house: false, tags: ['in-house'], current_stay: null })).toBe(true);
+    expect(isRoomGuest({ room: null, in_house: false, tags: ['manual-stay'], current_stay: null })).toBe(true);
+    expect(isRoomGuest({ room: null, in_house: false, tags: [], current_stay: 'stay:1' })).toBe(true);
+  });
+
+  it('is false for a plain walk-in', () => {
+    expect(isRoomGuest({
+      room: null,
+      in_house: false,
+      tags: ['walk-in'],
+      current_stay: null,
+    })).toBe(false);
+  });
+});
+
+describe('sortGuestsNewestFirst', () => {
+  it('puts newest created_at first and missing dates last', () => {
+    const sorted = sortGuestsNewestFirst([
+      { created_at: '2026-01-01T10:00:00Z' },
+      { created_at: null },
+      { created_at: '2026-10-08T12:00:00Z' },
+      { created_at: '2026-05-01T08:00:00Z' },
+    ]);
+    expect(sorted.map((g) => g.created_at)).toEqual([
+      '2026-10-08T12:00:00Z',
+      '2026-05-01T08:00:00Z',
+      '2026-01-01T10:00:00Z',
+      null,
+    ]);
   });
 });

@@ -62,6 +62,7 @@ export const REPORTS_SALES_SUMMARY = REPORTS + '/sales-summary';
 export const REPORTS_SALES_SUMMARY2 = REPORTS + '/sales-summary-2';
 export const REPORTS_SALES_WEEKLY = REPORTS + '/sales-weekly';
 export const REPORTS_TIPS = REPORTS + '/tips';
+export const REPORTS_SALES_BY_CUSTOMER = REPORTS + '/sales-by-customer';
 export const REPORTS_TABLES_SUMMARY = REPORTS + '/tables-summary';
 export const REPORTS_VOIDS = REPORTS + '/voids';
 export const REPORTS_AI = REPORTS + '/ai';

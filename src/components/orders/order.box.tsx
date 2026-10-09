@@ -74,7 +74,7 @@ interface Props {
   tempPrinted?: boolean;
   taxes?: Tax[];
   kitchenReady?: boolean;
-  /** Lines the kitchen is done with ("order_item:id"): shown in green with a ready mark. */
+  /** Lines the kitchen is done with ("order_item:id"): shown in green. */
   readyItemIds?: Set<string>;
   lineage?: OrderLineage;
 }

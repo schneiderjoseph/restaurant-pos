@@ -19,7 +19,7 @@ import {
 } from '@/lib/guest.ts';
 import {
   findCustomerByIdDocument,
-  hasWalkInContact,
+  walkInRefusal,
   normalizeIdDocument,
 } from '@/lib/customer-id-document.ts';
 import {
@@ -80,8 +80,9 @@ export const QuickCreateCustomerModal = ({ open, onClose, onCreated }: Props) =>
       toast.error(t('menu:guest.nameRequired'));
       return;
     }
-    if (!hasWalkInContact({ phone, idDocument })) {
-      toast.error(t('menu:guest.contactRequired'));
+    const refusal = walkInRefusal({ name: cleanName, phone, idDocument });
+    if (refusal) {
+      toast.error(t(refusal));
       return;
     }
     if (saving) {

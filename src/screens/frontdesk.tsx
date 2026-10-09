@@ -17,7 +17,7 @@ import { RECEIVE_PAYMENT_MODULE } from '@/lib/payment-access.ts';
 import { loadResortChambresFloor } from '@/lib/resort-floor-tables.ts';
 import { normalizeRoomKey } from '@/lib/room-key.ts';
 import { formatGuestLabel, generateWalkInGuestCode, isAsiGuest } from '@/lib/guest.ts';
-import { hasWalkInContact } from '@/lib/customer-id-document.ts';
+import { walkInRefusal } from '@/lib/customer-id-document.ts';
 import {
   createWalkInCustomer,
   CustomerIdDocumentTakenError,
@@ -65,7 +65,7 @@ const guestOf = (stay: Stay): Customer | undefined => {
 };
 
 export const FrontDeskScreen = () => {
-  const { t } = useTranslation(['frontdesk', 'toast', 'navigation']);
+  const { t } = useTranslation(['frontdesk', 'toast', 'navigation', 'menu']);
   const db = useDB();
   const [page] = useAtom(appPage);
   const { can } = useModuleAccess();
@@ -274,8 +274,9 @@ export const FrontDeskScreen = () => {
     }
 
     if (!canCreate) return;
-    if (!hasWalkInContact({ phone, idDocument })) {
-      toast.error(t('toast:customer.contactRequired', { defaultValue: 'Phone or ID required' }));
+    const refusal = walkInRefusal({ name: trimmed, phone, idDocument });
+    if (refusal) {
+      toast.error(t(refusal));
       return;
     }
     setBusy(true);

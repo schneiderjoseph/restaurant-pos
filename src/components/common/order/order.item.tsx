@@ -2,9 +2,6 @@ import {lineDisplayName} from "@/lib/dish-selling.ts";
 import {groupRepeatedModifiers, repeatedModifierLabel} from "@/lib/modifier-repeats.ts";
 import { cn, formatNumber } from "@/lib/utils.ts";
 import React from "react";
-import { useTranslation } from "react-i18next";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { OrderItem, OrderItemModifier } from "@/api/model/order_item.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import {
@@ -24,10 +21,9 @@ export const OrderItemName = ({
   showModifierPrice?: boolean
   showModifiers?: boolean
   cancelled?: boolean
-  /** The kitchen is done with this line: green, with a small "ready" mark. */
+  /** The kitchen is done with this line: shown in green. */
   ready?: boolean
 }) => {
-  const { t } = useTranslation('orders');
   const { enabled: showInclusive } = useShowInclusivePrices();
   const unitPrice = getOrderItemDisplayUnitPrice(item, showInclusive);
   const lineTotal = unitPrice * (item.quantity || 1);
@@ -41,14 +37,6 @@ export const OrderItemName = ({
       } as any}>
         <span className="flex-1">
           {lineDisplayName(item?.item?.name, item?.variant)}
-          {isReady && (
-            <span
-              className="ml-2 inline-flex items-center gap-1 rounded-full bg-success-100 px-2 align-middle text-xs font-bold uppercase text-success-700"
-              data-testid="order-item-ready"
-            >
-              <FontAwesomeIcon icon={faCheck}/>{t('status.itemReady')}
-            </span>
-          )}
         </span>
         <div className="flex gap-1 text-right">
           {showQuantity && <span className="flex-0 w-[50px]">{formatNumber(item.quantity)}</span>}
