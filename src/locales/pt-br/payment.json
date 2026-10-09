@@ -86,6 +86,7 @@
     "payIn": "O cliente paga em",
     "tempBill": "Conta provisória",
     "complete": "Concluir",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Não é possível adicionar mais pagamento para cartão",
     "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
     "tempAlreadyPrinted": "Conta provisória já impressa",

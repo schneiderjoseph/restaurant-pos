@@ -86,6 +86,7 @@
     "payIn": "Kunde zahlt in",
     "tempBill": "Zwischenrechnung",
     "complete": "Abschließen",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Keine weitere Kartenzahlung möglich",
     "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
     "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt",

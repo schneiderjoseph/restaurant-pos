@@ -86,6 +86,7 @@
     "payIn": "العميل يدفع بـ",
     "tempBill": "فاتورة مؤقتة",
     "complete": "إكمال",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "لا يمكن إضافة المزيد من الدفع للبطاقة",
     "exactCardAmount": "تمت إضافة المبلغ الدقيق للدفع بالبطاقة",
     "tempAlreadyPrinted": "تمت طباعة الفاتورة المؤقتة مسبقاً",

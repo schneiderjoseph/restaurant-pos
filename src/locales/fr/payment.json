@@ -93,6 +93,7 @@
     "payIn": "Le client paie en",
     "tempBill": "Note provisoire",
     "complete": "Terminer",
+    "completeAndPrint": "Terminer et imprimer",
     "cannotAddCard": "Impossible d'ajouter un paiement supplémentaire par carte",
     "exactCardAmount": "Montant exact ajouté pour le paiement par carte",
     "tempAlreadyPrinted": "Note provisoire déjà imprimée",

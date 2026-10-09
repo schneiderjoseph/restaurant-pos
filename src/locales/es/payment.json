@@ -86,6 +86,7 @@
     "payIn": "El cliente paga en",
     "tempBill": "Factura temporal",
     "complete": "Completar",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "No se puede agregar más pago con tarjeta",
     "exactCardAmount": "Se agregó el importe exacto para pago con tarjeta",
     "tempAlreadyPrinted": "Factura temporal ya impresa",

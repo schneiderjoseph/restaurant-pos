@@ -86,6 +86,7 @@
     "payIn": "Il cliente paga in",
     "tempBill": "Preconto",
     "complete": "Completa",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Impossibile aggiungere altro pagamento con carta",
     "exactCardAmount": "Aggiunto importo esatto per pagamento con carta",
     "tempAlreadyPrinted": "Preconto già stampato",

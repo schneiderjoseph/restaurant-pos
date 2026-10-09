@@ -86,6 +86,7 @@
     "payIn": "Klant betaalt in",
     "tempBill": "Tijdelijke rekening",
     "complete": "Voltooien",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Kan geen extra betaling toevoegen voor kaart",
     "exactCardAmount": "Exact bedrag toegevoegd voor kaartbetaling",
     "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt",

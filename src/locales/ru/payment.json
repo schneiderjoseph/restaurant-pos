@@ -86,6 +86,7 @@
     "payIn": "Клиент платит в",
     "tempBill": "Предварительный счёт",
     "complete": "Завершить",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Нельзя добавить ещё оплату картой",
     "exactCardAmount": "Добавлена точная сумма для оплаты картой",
     "tempAlreadyPrinted": "Предварительный счёт уже напечатан",

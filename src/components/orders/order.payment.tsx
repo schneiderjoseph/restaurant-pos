@@ -586,13 +586,15 @@ export const OrderPayment = ({
     });
   }
 
-  const onPayment = () => {
+  const onPayment = (opts?: { print?: boolean }) => {
     closeModal();
 
-    setTimeout(() => {
-      void print();
-    }, 300)
-  }
+    if (opts?.print) {
+      setTimeout(() => {
+        void print();
+      }, 300);
+    }
+  };
 
   const saveOrderProgress = useCallback(async () => {
     // Prevent persisting transient default state before first initialization is complete.

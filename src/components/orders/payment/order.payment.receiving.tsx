@@ -72,11 +72,16 @@ import {
 } from "@/integrations/events/publish/payments.ts";
 import {toast} from "sonner";
 
+export type PaymentCompleteOptions = {
+  /** When true, parent should print the final bill after closing. */
+  print?: boolean;
+};
+
 interface Props {
   order: Order
   total: number
   resolvePayable: (taxOverride?: Tax | null, paymentTypeId?: string) => number
-  onComplete: () => void
+  onComplete: (opts?: PaymentCompleteOptions) => void
 
   extras: Record<string, number>
 
@@ -320,7 +325,7 @@ const OrderPaymentReceivingContent = ({
     return isTaxObject(paymentType?.tax) ? paymentType?.tax : undefined;
   }
 
-  const closeOrder = async () => {
+  const closeOrder = async (opts?: PaymentCompleteOptions) => {
     setClosing(true);
 
     try {
@@ -518,17 +523,29 @@ const OrderPaymentReceivingContent = ({
           payment_count: payments.length,
           coupon: coupon?.id?.toString(),
           total,
+          print: opts?.print === true,
         },
         user: page?.user,
       });
 
-      onComplete();
+      onComplete({ print: opts?.print === true });
     } catch (e) {
       throw e;
     } finally {
       setClosing(false);
     }
   }
+
+  const runComplete = async (opts?: PaymentCompleteOptions) => {
+    await protectAction(async () => await closeOrder(opts), {
+      module: 'orders.complete',
+      description: opts?.print ? 'Complete order and print' : 'Complete order',
+      payload: {
+        order: order.id.toString(),
+        print: opts?.print === true,
+      },
+    });
+  };
 
   useEffect(() => {
     if (payments.length > 0) {
@@ -835,24 +852,28 @@ const OrderPaymentReceivingContent = ({
         </span>
         )}
         {canReceivePayment && isVisible('orders.complete') && (
-        <Button
-          variant="success"
-          className="flex-[2]"
-          filled
-          size="xl"
-          data-testid="payment-complete"
-          onClick={async () => {
-            await protectAction(async () => await closeOrder(), {
-              module: 'orders.complete',
-              description: 'Complete order',
-              payload: {
-                order: order.id.toString()
-              }
-            });
-          }}
-          disabled={changeDue < 0 || closing || remote.isProcessing}
-          flat
-        >{t('receiving.complete')}</Button>
+          <>
+            <Button
+              variant="success"
+              className="flex-1"
+              size="xl"
+              data-testid="payment-complete"
+              onClick={() => void runComplete({ print: false })}
+              disabled={changeDue < 0 || closing || remote.isProcessing}
+              flat
+            >{t('receiving.complete')}</Button>
+            <Button
+              variant="success"
+              className="flex-[2]"
+              filled
+              size="xl"
+              icon={faPrint}
+              data-testid="payment-complete-and-print"
+              onClick={() => void runComplete({ print: true })}
+              disabled={changeDue < 0 || closing || remote.isProcessing}
+              flat
+            >{t('receiving.completeAndPrint')}</Button>
+          </>
         )}
       </div>
     </div>

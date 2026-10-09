@@ -94,6 +94,7 @@
     "tempBill": "Temp bill",
     "tempAlreadyPrinted": "Temp bill already printed",
     "complete": "Complete",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Cannot add more payment for card",
     "exactCardAmount": "Added exact amount for card based payment",
     "roomCheckedOut": "Checked out in ASI: this guest pays directly, like a walk-in",

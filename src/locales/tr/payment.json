@@ -86,6 +86,7 @@
     "payIn": "Müşteri şu para biriminde öder",
     "tempBill": "Geçici fatura",
     "complete": "Tamamla",
+    "completeAndPrint": "Complete & print",
     "cannotAddCard": "Kart için daha fazla ödeme eklenemez",
     "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi",
     "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı",
