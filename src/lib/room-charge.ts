@@ -1,7 +1,6 @@
 import type { DateTime as LuxonDateTime } from 'luxon';
 import type { Customer } from '@/api/model/customer.ts';
 import type { PaymentType } from '@/api/model/payment_type.ts';
-import type { Stay } from '@/api/model/stay.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { isAsiGuest } from '@/lib/guest.ts';
 import { toRecordId } from '@/lib/utils.ts';
@@ -23,6 +22,8 @@ export type RoomChargeRefusal =
   | 'checked-out'
   /** A manual POS stay is closed: the guest pays directly. */
   | 'manual-stay-closed'
+  /** ASI checked a guest into the room of this manual stay: the room is ASI's now. */
+  | 'room-taken-by-asi'
   /** The last FrontDesk sync is too old to know whether the stay is still open. */
   | 'sync-stale';
 
@@ -67,7 +68,11 @@ export function checkRoomCharge(
     'source' | 'in_house' | 'asi_synced_at' | 'asi_date_out' | 'asi_checkin_id' | 'asi_guest_id' | 'current_stay' | 'tags'
   > | null | undefined,
   now: LuxonDateTime,
-  options?: { stayDateOut?: string | null },
+  options?: {
+    stayDateOut?: string | null;
+    /** An ASI in-house guest holds the same room (stay.service findAsiTakeover). */
+    asiOccupied?: boolean;
+  },
 ): RoomChargeCheck {
   if (!customer) {
     return { ok: false, reason: 'not-hotel-guest' };
@@ -93,6 +98,10 @@ export function checkRoomCharge(
   }
 
   const stayId = stayIdOf(customer.current_stay);
+  if (stayId != null && customer.in_house === true && options?.asiOccupied) {
+    // Charges go to the ASI folio from now on, never to the manual stay.
+    return { ok: false, reason: 'room-taken-by-asi' };
+  }
   if (stayId != null && customer.in_house === true) {
     return {
       ok: true,
@@ -133,17 +142,4 @@ export async function loadCustomerForRoomCharge(
   const result = await db.query('SELECT * FROM $id', { id: toRecordId(id) });
   const rows = Array.isArray(result) ? result[0] : undefined;
   return Array.isArray(rows) ? (rows[0] as Customer | undefined) : undefined;
-}
-
-/** Load open stay date_out for departsToday on manual Room charges. */
-export async function loadStayDateOutForRoomCharge(
-  db: AnyDb,
-  stayId: unknown,
-): Promise<string | null> {
-  if (stayId == null || stayId === '') return null;
-  const result = await db.query('SELECT date_out, status FROM $id', { id: toRecordId(stayId) });
-  const rows = Array.isArray(result) ? result[0] : undefined;
-  const stay = Array.isArray(rows) ? (rows[0] as Stay | undefined) : undefined;
-  if (!stay || stay.status !== 'open') return null;
-  return stay.date_out ?? null;
 }

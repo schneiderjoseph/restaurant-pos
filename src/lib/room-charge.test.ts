@@ -143,3 +143,29 @@ describe('loadCustomerForRoomCharge', () => {
     expect(calls).toHaveLength(0);
   });
 });
+
+describe('checkRoomCharge — ASI takes the room of a manual stay', () => {
+  const manual = {
+    source: 'walk-in',
+    in_house: true,
+    current_stay: 'stay:abc',
+    asi_checkin_id: null,
+    asi_guest_id: null,
+  };
+
+  it('refuses Room once an ASI guest holds the same room', () => {
+    expect(checkRoomCharge(manual, now, { asiOccupied: true })).toEqual({
+      ok: false,
+      reason: 'room-taken-by-asi',
+    });
+  });
+
+  it('still allows Room while the room is the manual stay alone', () => {
+    expect(checkRoomCharge(manual, now, { asiOccupied: false }).ok).toBe(true);
+  });
+
+  it('never applies to the ASI guest itself', () => {
+    const asi = { source: 'asi-fd', in_house: true, asi_synced_at: minutesAgo(1), asi_date_out: null };
+    expect(checkRoomCharge(asi, now, { asiOccupied: true }).ok).toBe(true);
+  });
+});

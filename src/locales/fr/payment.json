@@ -98,6 +98,7 @@
     "tempAlreadyPrinted": "Note provisoire déjà imprimée",
     "roomCheckedOut": "Check-out fait dans ASI : ce client paie directement, comme un walk-in",
     "roomManualStayClosed": "Check-out fait : ce client paie directement, comme un walk-in",
+    "roomTakenByAsi": "ASI a enregistré cette chambre : mettez la note sur le client ASI, ou réglez ce séjour à la réception",
     "roomSyncStale": "Séjour non vérifiable (synchro ASI en retard) : le client paie directement",
     "roomNotHotelGuest": "La charge chambre exige un client hôtel présent",
     "roomDepartsToday": "Départ prévu aujourd’hui",

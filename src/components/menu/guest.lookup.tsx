@@ -82,7 +82,7 @@ type FolioOrder = Order & { item_count?: number };
 export const GuestLookup = () => {
   const db = useDB();
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation(['menu', 'orders', 'common', 'frontdesk']);
+  const { t, i18n } = useTranslation(['menu', 'orders', 'common']);
   const { t: tOrders } = useTranslation('orders');
   const [state, setState] = useAtom(appState);
   const [, setEditSession] = useAtom(orderEditSessionAtom);
@@ -917,22 +917,16 @@ export const GuestLookup = () => {
                       </div>
                     )}
                   </div>
-                  <div className="shrink-0 flex flex-col items-end gap-1">
-                    {guest.room ? (
-                      <span className="rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
-                        {t('menu:guest.room')} {guest.room}
-                      </span>
-                    ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
-                      <span className="rounded-lg bg-neutral-200 text-neutral-700 px-3 py-2 text-sm font-medium">
-                        {t('menu:guest.walkInBadge')}
-                      </span>
-                    ) : null}
-                    {guest.tags?.includes('manual-stay') ? (
-                      <span className="rounded-lg bg-warning-100 text-warning-900 px-2 py-1 text-xs font-medium">
-                        {t('frontdesk:badgeManualStay')}
-                      </span>
-                    ) : null}
-                  </div>
+                  {/* A guest in a room (ASI or Front Desk stay) shows the same room badge. */}
+                  {guest.room ? (
+                    <span className="shrink-0 rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
+                      {t('menu:guest.room')} {guest.room}
+                    </span>
+                  ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
+                    <span className="shrink-0 rounded-lg bg-neutral-200 text-neutral-700 px-3 py-2 text-sm font-medium">
+                      {t('menu:guest.walkInBadge')}
+                    </span>
+                  ) : null}
                 </button>
                 </React.Fragment>
               );

@@ -98,6 +98,7 @@
     "exactCardAmount": "Added exact amount for card based payment",
     "roomCheckedOut": "Checked out in ASI: this guest pays directly, like a walk-in",
     "roomManualStayClosed": "Checked out: this guest pays directly, like a walk-in",
+    "roomTakenByAsi": "ASI has registered this room: charge the ASI guest, or settle this stay at the front desk",
     "roomSyncStale": "Stay cannot be verified (ASI sync is late): the guest pays directly",
     "roomNotHotelGuest": "Room charge needs an in-house hotel guest",
     "roomDepartsToday": "Departure planned today",

@@ -52,5 +52,11 @@
   "confirmCheckout": "Confirmer le check-out",
   "folioTitle": "Relevé chambre — séjour manuel",
   "emptyFolio": "Aucune note Room sur ce séjour",
-  "searchGuest": "Rechercher un client…"
+  "searchGuest": "Rechercher un client…",
+  "asiTakeoverWarn": "ASI a mis {{name}} en chambre {{room}} : ce séjour ne peut plus être mis sur la chambre. Encaissez le dû puis faites le check-out.",
+  "mergeIntoAsiTitle": "{{manual}} est-il la même personne que le client ASI {{asi}} ?",
+  "mergeIntoAsiHelp": "La fusion reporte notes, allergies, téléphone, pièce d’identité et historique des commandes sur le client ASI. La fiche manuelle reste en « fusionnée » et peut être restaurée.",
+  "mergeIntoAsi": "Fusionner dans le client ASI",
+  "mergeDifferent": "Personnes différentes",
+  "mergedIntoAsi": "Fiche fusionnée dans le client ASI"
 }

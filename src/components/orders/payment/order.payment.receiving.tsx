@@ -49,11 +49,11 @@ import {
   checkRoomCharge,
   isRoomPaymentType,
   loadCustomerForRoomCharge,
-  loadStayDateOutForRoomCharge,
   stayIdOf,
   type RoomChargeCheck,
   type RoomChargeRefusal,
 } from "@/lib/room-charge.ts";
+import {loadManualStayRoomContext} from "@/lib/stay.service.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
@@ -183,6 +183,7 @@ const OrderPaymentReceivingContent = ({
   const roomRefusalMessage: Record<RoomChargeRefusal, string> = {
     'checked-out': t('receiving.roomCheckedOut'),
     'manual-stay-closed': t('receiving.roomManualStayClosed'),
+    'room-taken-by-asi': t('receiving.roomTakenByAsi'),
     'sync-stale': t('receiving.roomSyncStale'),
     'not-hotel-guest': t('receiving.roomNotHotelGuest'),
   };
@@ -190,14 +191,19 @@ const OrderPaymentReceivingContent = ({
   /** Room tender state for this order's guest, read from the database (shown on the buttons). */
   const [roomCheck, setRoomCheck] = useState<RoomChargeCheck>();
 
+  /**
+   * The guest and their manual stay as stored right now. A failed read throws: the callers
+   * refuse the Room tender (fail closed), never charge a room ASI may have taken.
+   */
+  const readRoomCheck = async (): Promise<RoomChargeCheck> => {
+    const customer = await loadCustomerForRoomCharge(db, order?.customer);
+    const context = await loadManualStayRoomContext(db, customer, stayIdOf(customer?.current_stay));
+    return checkRoomCharge(customer, nowInAppTimezone(), context);
+  };
+
   /** Reads the stay again right now: the guest may have checked out since the order was taken. */
   const verifyRoomCharge = async (): Promise<RoomChargeCheck> => {
-    const customer = await loadCustomerForRoomCharge(db, order?.customer);
-    const stayId = stayIdOf(customer?.current_stay);
-    const stayDateOut = stayId != null
-      ? await loadStayDateOutForRoomCharge(db, stayId).catch(() => null)
-      : null;
-    const check = checkRoomCharge(customer, nowInAppTimezone(), { stayDateOut });
+    const check = await readRoomCheck();
     setRoomCheck(check);
     return check;
   };
@@ -227,13 +233,9 @@ const OrderPaymentReceivingContent = ({
   const customerKey = String((order?.customer as { id?: unknown } | undefined)?.id ?? order?.customer ?? '');
   useEffect(() => {
     let cancelled = false;
-    void loadCustomerForRoomCharge(db, order?.customer)
-      .then(async (customer) => {
-        const stayId = stayIdOf(customer?.current_stay);
-        const stayDateOut = stayId != null
-          ? await loadStayDateOutForRoomCharge(db, stayId).catch(() => null)
-          : null;
-        if (!cancelled) setRoomCheck(checkRoomCharge(customer, nowInAppTimezone(), { stayDateOut }));
+    void readRoomCheck()
+      .then((check) => {
+        if (!cancelled) setRoomCheck(check);
       })
       .catch((error) => {
         console.error('Room charge check failed', error);

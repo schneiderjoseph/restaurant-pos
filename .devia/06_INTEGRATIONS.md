@@ -22,5 +22,7 @@ Signature verified against the raw body, stale timestamps rejected, replays are 
   2026-10-02: a guest whose stay cannot be confirmed pays like a walk-in. Manual POS stays
   (`customer.current_stay`) still accept Room — the POS is the source of truth for those stays.
   asi-sync is unchanged and never writes `source` other than `asi-fd`; it does not close manual
-  stays. If ASI later occupies a room that already has a manual stay, the floor and Front Desk
-  screens show a conflict badge (no automatic resolution).
+  stays. If ASI later checks a guest into the room of an open manual stay, the room is ASI's:
+  Room is refused on the manual stay (`room-taken-by-asi`), the floor shows the ASI guest, and
+  Front Desk warns on the stay. Staff settle what is due and check out; if it is the same person,
+  they merge the manual record into the ASI guest (notes, allergies, phone, ID, orders).

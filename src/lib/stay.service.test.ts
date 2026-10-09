@@ -8,6 +8,7 @@ import {
   checkOutStay,
   settleStayRoom,
   isStayRoomSettled,
+  loadManualStayRoomContext,
   stayRoomOutstanding,
 } from '@/lib/stay.service.ts';
 
@@ -188,5 +189,37 @@ describe('settleStayRoom', () => {
     const params = db.query.mock.calls.find(([text]) => String(text).includes('BEGIN TRANSACTION'))?.[1] as Record<string, unknown>;
     expect(params.amount).toBe(30);
     expect(params.total).toBe(80);
+  });
+});
+
+describe('loadManualStayRoomContext', () => {
+  const dbWith = (asiInRoom: boolean, status = 'open') => ({
+    query: vi.fn(async (sql: string) => {
+      if (sql.startsWith('SELECT * FROM $id')) {
+        return [[{ id: 'stay:1', status, room: '14', date_out: '2026-10-09', customer: 'customer:1' }]];
+      }
+      if (sql.includes('asi-room')) return [[]];
+      if (sql.includes("source = 'asi-fd'")) {
+        return [asiInRoom ? [{ id: 'customer:asi_fd_9', room: '14', source: 'asi-fd' }] : []];
+      }
+      return [[]];
+    }),
+  });
+
+  it('flags a room ASI has taken', async () => {
+    await expect(loadManualStayRoomContext(dbWith(true), { in_house: true }, 'stay:1'))
+      .resolves.toEqual({ stayDateOut: '2026-10-09', asiOccupied: true });
+  });
+
+  it('leaves a room the manual stay holds alone', async () => {
+    await expect(loadManualStayRoomContext(dbWith(false), { in_house: true }, 'stay:1'))
+      .resolves.toEqual({ stayDateOut: '2026-10-09', asiOccupied: false });
+  });
+
+  it('says nothing for a closed stay or a guest not in house', async () => {
+    await expect(loadManualStayRoomContext(dbWith(true, 'closed'), { in_house: true }, 'stay:1'))
+      .resolves.toEqual({ stayDateOut: null, asiOccupied: false });
+    await expect(loadManualStayRoomContext(dbWith(true), { in_house: false }, 'stay:1'))
+      .resolves.toEqual({ stayDateOut: null, asiOccupied: false });
   });
 });

@@ -148,7 +148,9 @@ export const FloorLayout = () => {
       const key = normalizeRoomKey(guest.room);
       if (!key) continue;
       counts.set(key, (counts.get(key) ?? 0) + 1);
-      if (!map.has(key)) {
+      // Two guests on one room (ASI after a manual stay): the room shows the ASI guest.
+      const held = map.get(key);
+      if (!held || (held.source !== 'asi-fd' && guest.source === 'asi-fd')) {
         map.set(key, guest);
       }
     }
@@ -161,7 +163,9 @@ export const FloorLayout = () => {
       const n = (counts.get(numKey) ?? 0) + (counts.get(aliasKey) ?? 0);
       if (n > 1) {
         counts.set(numKey, n);
-        if (!map.has(numKey) && map.has(aliasKey)) {
+        const byNumber = map.get(numKey);
+        const byAlias = map.get(aliasKey);
+        if (byAlias && (!byNumber || (byNumber.source !== 'asi-fd' && byAlias.source === 'asi-fd'))) {
           map.set(numKey, map.get(aliasKey)!);
         }
       }

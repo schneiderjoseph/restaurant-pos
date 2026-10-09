@@ -151,6 +151,41 @@ export async function findAsiOccupant(
   return rows.find((row) => idOf(row.id) !== except);
 }
 
+/**
+ * The ASI in-house guest who now holds this manual stay's room, if any: ASI checked someone
+ * into it after the manual check-in (often the same person, registered in ASI later).
+ * From then on the room is ASI's: no more Room charges on the manual stay.
+ */
+export async function findAsiTakeover(
+  db: AnyDb,
+  stay: Pick<Stay, 'room' | 'customer'> | null | undefined,
+): Promise<Customer | undefined> {
+  const room = String(stay?.room ?? '').trim();
+  if (!room) return undefined;
+  return findAsiOccupant(db, await collectRoomCandidates(db, room), stay?.customer);
+}
+
+/** What checkRoomCharge needs about the customer's open manual stay (none for ASI guests). */
+export async function loadManualStayRoomContext(
+  db: AnyDb,
+  customer: Pick<Customer, 'current_stay' | 'in_house'> | null | undefined,
+  stayId: unknown,
+): Promise<{ stayDateOut: string | null; asiOccupied: boolean }> {
+  if (stayId == null || customer?.in_house !== true) {
+    return { stayDateOut: null, asiOccupied: false };
+  }
+  const stay = rowsOf<Stay>(
+    await db.query(`SELECT * FROM $id`, { id: toRecordId(idOf(stayId)) }),
+  )[0];
+  if (!stay || stay.status !== 'open') {
+    return { stayDateOut: null, asiOccupied: false };
+  }
+  return {
+    stayDateOut: stay.date_out ?? null,
+    asiOccupied: Boolean(await findAsiTakeover(db, stay)),
+  };
+}
+
 export interface CheckInStayInput {
   customer: Pick<Customer, 'id' | 'source' | 'asi_checkin_id' | 'asi_guest_id' | 'in_house' | 'tags' | 'current_stay'>;
   room: string;

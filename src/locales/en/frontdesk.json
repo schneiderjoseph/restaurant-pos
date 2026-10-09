@@ -52,5 +52,11 @@
   "confirmCheckout": "Confirm check-out",
   "folioTitle": "Room folio — manual stay",
   "emptyFolio": "No Room charges on this stay",
-  "searchGuest": "Search for a guest…"
+  "searchGuest": "Search for a guest…",
+  "asiTakeoverWarn": "ASI has checked {{name}} into room {{room}}: this stay can no longer be charged to the room. Settle what is due, then check out.",
+  "mergeIntoAsiTitle": "Is {{manual}} the same person as the ASI guest {{asi}}?",
+  "mergeIntoAsiHelp": "Merging moves notes, allergies, phone, ID and order history onto the ASI guest. The manual record is kept as merged and can be restored.",
+  "mergeIntoAsi": "Merge into the ASI guest",
+  "mergeDifferent": "Different people",
+  "mergedIntoAsi": "Record merged into the ASI guest"
 }

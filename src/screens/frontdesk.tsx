@@ -22,6 +22,7 @@ import {
   createWalkInCustomer,
   CustomerIdDocumentTakenError,
   findWalkInMatches,
+  mergeCustomers,
   type CustomerMatch,
   updateCustomer,
 } from '@/lib/customer.service.ts';
@@ -33,6 +34,7 @@ import {
   collectRoomCandidates,
   extendStay,
   findAsiOccupant,
+  findAsiTakeover,
   isStayRoomSettled,
   listOpenStays,
   listRoomConflicts,
@@ -84,6 +86,10 @@ export const FrontDeskScreen = () => {
   const [folioLines, setFolioLines] = useState<Array<{ id: unknown; amount?: number; comments?: string }>>([]);
   const [openOrders, setOpenOrders] = useState<Array<{ id: unknown; invoice_number?: unknown }>>([]);
   const [busy, setBusy] = useState(false);
+  /** ASI guest who took the selected stay's room after the manual check-in. */
+  const [asiTakeover, setAsiTakeover] = useState<Customer | undefined>();
+  /** After checking out a stay ASI took over: offer to fold the manual record into the ASI one. */
+  const [mergeOffer, setMergeOffer] = useState<{ manual: Customer; asi: Customer } | null>(null);
 
   // Check-in form
   const [name, setName] = useState('');
@@ -162,16 +168,20 @@ export const FrontDeskScreen = () => {
       setFolioTotal(0);
       setFolioLines([]);
       setOpenOrders([]);
+      setAsiTakeover(undefined);
       return;
     }
     let cancelled = false;
+    setAsiTakeover(undefined);
     void (async () => {
-      const [total, lines, orders] = await Promise.all([
+      const [total, lines, orders, takeover] = await Promise.all([
         loadStayRoomTotal(db, selectedStay.id),
         loadStayRoomPayments(db, selectedStay.id),
         loadOpenOrdersForCustomer(db, selectedStay.customer),
+        findAsiTakeover(db, selectedStay),
       ]);
       if (cancelled) return;
+      setAsiTakeover(takeover);
       setFolioTotal(total);
       setFolioLines(lines.map((line) => ({
         id: line.id,
@@ -310,7 +320,34 @@ export const FrontDeskScreen = () => {
         user: page?.user,
       });
       toast.success(t('checkedOut'));
+      // ASI took the room: often the same person registered in ASI later. Staff decide.
+      if (asiTakeover && can('admin.customers.merge')) {
+        setMergeOffer({ manual: guest, asi: asiTakeover });
+      }
       setSelectedStayId('');
+      await refresh();
+    } catch (error) {
+      toast.error(mapError(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Folds the checked-out manual record into the ASI guest (notes, allergies, phone, ID, orders). */
+  const onMergeIntoAsi = async () => {
+    if (!mergeOffer) return;
+    setBusy(true);
+    try {
+      const [rows] = await db.query<[Customer[]]>(
+        `SELECT * FROM ${Tables.customers} WHERE id IN $ids`,
+        { ids: [mergeOffer.asi.id, mergeOffer.manual.id] },
+      );
+      const keep = rows?.find((row) => String(row.id) === String(mergeOffer.asi.id));
+      const drop = rows?.find((row) => String(row.id) === String(mergeOffer.manual.id));
+      if (!keep || !drop) throw new StayServiceError('not_found');
+      await mergeCustomers(db, keep, drop, page?.user);
+      toast.success(t('mergedIntoAsi'));
+      setMergeOffer(null);
       await refresh();
     } catch (error) {
       toast.error(mapError(error));
@@ -446,6 +483,29 @@ export const FrontDeskScreen = () => {
           ))}
         </div>
 
+        {mergeOffer && (
+          <div
+            className="rounded-xl border border-primary-300 bg-primary-50 p-4 space-y-2"
+            data-testid="frontdesk-merge-asi"
+          >
+            <p className="font-semibold">
+              {t('mergeIntoAsiTitle', {
+                manual: formatGuestLabel(mergeOffer.manual),
+                asi: formatGuestLabel(mergeOffer.asi),
+              })}
+            </p>
+            <p className="text-sm text-neutral-700">{t('mergeIntoAsiHelp')}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="primary" disabled={busy} onClick={() => void onMergeIntoAsi()}>
+                {t('mergeIntoAsi')}
+              </Button>
+              <Button variant="secondary" disabled={busy} onClick={() => setMergeOffer(null)}>
+                {t('mergeDifferent')}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {tab === 'stays' && (
           <div className="grid lg:grid-cols-2 gap-4">
             <div className="border rounded-xl p-3 space-y-2 bg-white">
@@ -483,6 +543,15 @@ export const FrontDeskScreen = () => {
                   <p className="text-sm">
                     {t('room')} {selectedStay.room} · {selectedStay.date_in} → {selectedStay.date_out}
                   </p>
+                  {asiTakeover && (
+                    <p
+                      className="text-sm rounded-lg border border-danger-300 bg-danger-50 text-danger-800 px-3 py-2"
+                      role="status"
+                      data-testid="frontdesk-asi-takeover"
+                    >
+                      {t('asiTakeoverWarn', { name: formatGuestLabel(asiTakeover), room: selectedStay.room })}
+                    </p>
+                  )}
                   <p className="text-sm font-semibold">
                     {t('roomTotal')}: {withCurrency(folioTotal)}
                     {' · '}
