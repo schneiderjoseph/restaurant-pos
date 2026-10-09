@@ -67,6 +67,7 @@ $UpgradeMigrations = @(
   '2026_10_08_anonymous_cash_customer.surql'
   '2026_10_08_manual_stay.surql'
   '2026_10_08_manual_stay_fix.surql'
+  '2026_10_09_sales_by_customer_report.surql'
 )
 
 # Docker services the ASI profile runs, and the folder each one mounts.
