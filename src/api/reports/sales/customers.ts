@@ -2,7 +2,7 @@ import type {Order} from "@/api/model/order.ts";
 import {getOrderFigures} from "@/api/reports/sales/aggregate.ts";
 import {SALES_SUMMARY_FETCHES} from "@/api/reports/sales/fetch.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
-import {isAnonymousGuest} from "@/lib/guest.ts";
+import {isAnonymousGuest, orderRoomOf} from "@/lib/guest.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
@@ -54,7 +54,8 @@ export const aggregateSalesByCustomer = (orders: Order[]): CustomerSales[] => {
     const row = rows.get(key) ?? {
       customerId: key,
       name: anonymous ? undefined : customer?.name,
-      room: anonymous || customer?.room == null ? undefined : String(customer.room),
+      // A Front Desk (manual) stay is not a hotel room in the reports: ASI rooms only.
+      room: anonymous ? undefined : orderRoomOf(customer) || undefined,
       orders: 0,
       netSales: 0,
       total: 0,

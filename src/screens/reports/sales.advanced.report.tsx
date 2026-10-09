@@ -19,6 +19,7 @@ import {
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
+import {reportsAsWalkIn} from "@/lib/guest.ts";
 
 const recordToString = (value: any): string => recordIdToString(value);
 
@@ -647,10 +648,14 @@ export const SalesAdvancedReport = () => {
                 const cashierName = order.cashier
                   ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || unknownLabel
                   : t('orderFiscal.notAvailable');
-                const tableName = order.table?.name || order.table?.source === 'asi-room'
-                  ? formatTableLabel(order.table)
-                  : `Table ${order.table?.number ?? ''}`;
-                const floorName = order.floor?.name || unknownLabel;
+                // A Front Desk stay counts as a walk-in here, though its ticket says "Chambre".
+                const walkIn = reportsAsWalkIn(order);
+                const tableName = walkIn
+                  ? t('labels.walkIn')
+                  : order.table?.name || order.table?.source === 'asi-room'
+                    ? formatTableLabel(order.table)
+                    : `Table ${order.table?.number ?? ''}`;
+                const floorName = (!walkIn && order.floor?.name) || unknownLabel;
                 const orderTypeName = order.order_type?.name || unknownLabel;
                 const hasItems = filters.showMenuItems && order.items && order.items.length > 0;
                 const notesText = (order.notes ?? '').trim();

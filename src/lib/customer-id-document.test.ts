@@ -95,3 +95,18 @@ describe('findCustomerByIdDocument', () => {
     expect(queried).toBe(false);
   });
 });
+
+describe('walkInRefusal — Front Desk check-in (contact optional)', () => {
+  const optional = { contactOptional: true };
+
+  it('registers a guest with neither phone nor ID', () => {
+    expect(walkInRefusal({ name: 'Marie Joseph' }, optional)).toBeNull();
+    expect(walkInRefusal({ name: 'Marie Joseph', phone: '' }, optional)).toBeNull();
+  });
+
+  it('still refuses a made-up phone and placeholder names', () => {
+    expect(walkInRefusal({ name: 'Marie Joseph', phone: '+509 2121 2121' }, optional)).toBe('menu:guest.fakePhone');
+    expect(walkInRefusal({ name: 'Cash' }, optional)).toBe('menu:guest.anonymousName');
+    expect(walkInRefusal({ name: 'Ch-21' }, optional)).toBe('menu:guest.roomAsName');
+  });
+});

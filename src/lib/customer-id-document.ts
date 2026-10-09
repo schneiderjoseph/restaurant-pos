@@ -50,11 +50,15 @@ export function hasWalkInContact(contact: { phone?: string | null; idDocument?: 
  * Why this walk-in cannot be registered, as a message key; null when it can.
  * "Cash", "Client"… go on an order with no customer, "Ch-21" on the room's guest.
  */
-export function walkInRefusal(walkIn: {
-  name?: string | null;
-  phone?: string | null;
-  idDocument?: string | null;
-}): string | null {
+export function walkInRefusal(
+  walkIn: {
+    name?: string | null;
+    phone?: string | null;
+    idDocument?: string | null;
+  },
+  /** Front Desk check-in: the guest is known by their room, phone and ID are optional. */
+  { contactOptional = false }: { contactOptional?: boolean } = {},
+): string | null {
   const placeholder = placeholderGuestName(walkIn.name);
   if (placeholder === 'anonymous') {
     return 'menu:guest.anonymousName';
@@ -64,6 +68,10 @@ export function walkInRefusal(walkIn: {
   }
   if (hasWalkInContact(walkIn)) {
     return null;
+  }
+  if (contactOptional) {
+    // No contact is fine; a made-up number typed in is still refused.
+    return isPlaceholderPhone(walkIn.phone) ? 'menu:guest.fakePhone' : null;
   }
   return isPlaceholderPhone(walkIn.phone) ? 'menu:guest.fakePhone' : 'menu:guest.contactRequired';
 }

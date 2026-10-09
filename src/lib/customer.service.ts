@@ -342,9 +342,9 @@ export async function findHomonyms(db: AnyDb, name: string): Promise<Customer[]>
   const rows = rowsOf<Customer>(
     await db.query(
       `SELECT *, ${LAST_ORDER_AT} FROM ${Tables.customers}
-       WHERE ${ACTIVE_CUSTOMER} AND string::contains(string::lowercase(name ?? ''), $token)
+       WHERE ${ACTIVE_CUSTOMER} AND string::contains(string::lowercase(name ?? ''), $word)
        LIMIT 200`,
-      { token: longest },
+      { word: longest },
     ),
   );
   return rows.filter((customer) => namesAreSamePerson(customer.name, name));

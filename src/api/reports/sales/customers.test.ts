@@ -42,4 +42,12 @@ describe('aggregateSalesByCustomer', () => {
 
     expect(rows.map((row) => row.name)).toEqual(['Paul Pierre', 'Marie Joseph']);
   });
+
+  it("shows the room of an ASI guest only, never of a Front Desk stay", () => {
+    const asi = { id: "customer:asi_fd_1", name: "Jean Hotel", source: "asi-fd", room: "21" };
+    const manual = { id: "customer:fd", name: "Ana Desk", source: "walk-in", room: "14", tags: ["walk-in", "manual-stay", "in-house"] };
+    const rows = aggregateSalesByCustomer([order(30, asi), order(20, manual)]);
+
+    expect(rows.map((row) => [row.name, row.room])).toEqual([["Jean Hotel", "21"], ["Ana Desk", undefined]]);
+  });
 });

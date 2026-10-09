@@ -274,7 +274,7 @@ export const FrontDeskScreen = () => {
     }
 
     if (!canCreate) return;
-    const refusal = walkInRefusal({ name: trimmed, phone, idDocument });
+    const refusal = walkInRefusal({ name: trimmed, phone, idDocument }, { contactOptional: true });
     if (refusal) {
       toast.error(t(refusal));
       return;

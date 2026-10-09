@@ -18,6 +18,7 @@ import {
 } from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
+import {reportsAsWalkIn} from "@/lib/guest.ts";
 
 export interface GetOrderDetailOptions {
   orderId?: string;
@@ -791,6 +792,8 @@ export const getOrderDetail = async (
   const figures = getOrderSettlementFigures(order);
   const table = order.table as {name?: string; number?: string | number; source?: string | null; asi_alias?: string | null} | undefined;
   const floor = (order as {floor?: {name?: string}}).floor;
+  // A Front Desk stay is a walk-in in the reports: no room, no rooms floor.
+  const walkIn = reportsAsWalkIn(order);
 
   const result: OrderDetailResult = {
     found: true,
@@ -805,8 +808,8 @@ export const getOrderDetail = async (
       server: personName(order.user as any),
       cashier: personName(order.cashier as any),
       customer: personName(order.customer as any) || (order.customer as {name?: string} | undefined)?.name,
-      table: formatTableLabel(table) || undefined,
-      floor: floor?.name,
+      table: walkIn ? undefined : formatTableLabel(table) || undefined,
+      floor: walkIn ? undefined : floor?.name,
       orderType: order.order_type?.name,
       covers: order.covers,
       notes: order.notes,

@@ -462,3 +462,28 @@ export function orderContextLabel(order?: Order | null): string {
  */
 export const isAsiGuest = (customer?: Pick<Customer, 'source'> | null): boolean =>
   customer?.source === 'asi-fd';
+
+/**
+ * The hotel room an order goes to: an ASI guest's room only. A Front Desk (manual) stay has a
+ * room too, but its orders are not room orders: no room table, no "Chambre 14" on tickets,
+ * orders or reports. Its guest still pays by Room, against the stay.
+ */
+export const orderRoomOf = (customer?: { source?: string | null; room?: string | number | null } | null): string =>
+  isAsiGuest(customer) ? String(customer?.room ?? '').trim() : '';
+
+/**
+ * Reports count a Front Desk (manual) stay as a walk-in. Its order sits on the room table, so
+ * the screens and the kitchen ticket say "Chambre 14"; in the figures only an ASI guest's order
+ * is a room order. Needs the order's customer fetched: a bare reference keeps the room.
+ */
+export function reportsAsWalkIn(order: { table?: unknown; customer?: unknown } | null | undefined): boolean {
+  const table = order?.table as { source?: string | null } | null | undefined;
+  const customer = order?.customer;
+  if (table?.source !== 'asi-room' || customer == null || typeof customer !== 'object') {
+    return false;
+  }
+  if (Object.getPrototypeOf(customer) !== Object.prototype) {
+    return false; // RecordId: not fetched, nothing to tell
+  }
+  return !isAsiGuest(customer as Pick<Customer, 'source'>);
+}
