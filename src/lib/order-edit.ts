@@ -9,6 +9,12 @@ export function canEditOrder(order?: Pick<Order, 'status'> | null): boolean {
   return order?.status === OrderStatus['In Progress'];
 }
 
+/** The line's taxes when fetched as records (bare ids carry no rate to price with). */
+function fetchedTaxes(taxes: OrderItem['taxes']): OrderItem['taxes'] {
+  const fetched = (taxes ?? []).filter((tax) => tax && typeof tax === 'object' && 'rate' in tax);
+  return fetched.length > 0 ? fetched : undefined;
+}
+
 /** Map a fetched order into cart lines (existing items marked as old). */
 export function orderToCartItems(order?: Order | null): MenuItem[] {
   if (!order?.items?.length) {
@@ -28,7 +34,12 @@ export function orderToCartItems(order?: Order | null): MenuItem[] {
       selectedGroups: (item.modifiers || []) as MenuItem['selectedGroups'],
       newOrOld: MenuItemType.old,
       created_at: item.created_at,
-      price: item.price,
+      // The cart prices a line from its menu price and taxes (buildOrderItemPayload). Without
+      // them a sent line saved back on an edit got `tax: 0`, which drops its taxes off the bill.
+      // An inclusive line stores its net price; the menu (gross) price is in original_price.
+      price: item.original_price ?? item.price,
+      taxes: fetchedTaxes(item.taxes),
+      tax_mode: item.tax_mode,
       updated_at: item.updated_at,
       deleted_at: item.deleted_at,
       category: item.category,

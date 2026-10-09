@@ -258,7 +258,11 @@ export const Payment = () => {
       // A change that takes money off a sent line (void, fewer plates, cheaper options) takes the
       // right to; without it that line stays as sent and the change waits for an approver.
       // Anything else (a comment, a dearer option) and new lines are saved and sent either way.
-      const pendingChanges = changesNeedingApproval(sentLineChanges());
+      const lineChanges = sentLineChanges();
+      const pendingChanges = changesNeedingApproval(lineChanges);
+      // Only a sent line whose quantity, comment or options changed is re-priced; the others keep
+      // the price and tax they were sent with.
+      const editedIds = new Set(lineChanges.map((change) => change.order_item));
       const awaitsApproval =
         pendingChanges.length > 0 && (await fetchSentItemsEditMode()) === 'request';
       const awaitingIds = new Set(awaitsApproval ? pendingChanges.map((change) => change.order_item) : []);
@@ -272,7 +276,7 @@ export const Payment = () => {
 
       for (const item of cartToSave()) {
         if (isPersistedCartItem(item)) {
-          if (lineAwaitsApproval(item.id)) {
+          if (lineAwaitsApproval(item.id) || (!item.deleted_at && !editedIds.has(orderIdToString(item.id)))) {
             if (!item.deleted_at) {
               await db.merge(toRecordId(item.id), {
                 seat: item.seat,
