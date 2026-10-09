@@ -39,6 +39,10 @@ const router = express.Router();
 router.post('/login', loginRateLimit(), async (req, res) => {
   try {
     const login = req.body?.login;
+    const deviceId = readDeviceId(req.body);
+    const clientIp = auditLog.clientIpFromReq(req);
+    const userAgent = req.headers?.['user-agent']?.slice(0, 200) || null;
+    const deviceMeta = { deviceId, userAgent };
 
     const user = await authenticatePosUser({ login });
     if (!user) {
@@ -50,8 +54,9 @@ router.post('/login', loginRateLimit(), async (req, res) => {
         res.set('Retry-After', String(Math.ceil(limitInfo.retryAfterMs / 1000)));
         auditLog.logLoginFailure(
           login,
-          req.socket?.remoteAddress || req.ip,
-          'rate_limited'
+          clientIp,
+          'rate_limited',
+          deviceMeta
         ).catch(() => {});
         return res.status(429).json({
           ok: false,
@@ -64,8 +69,9 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       }
       auditLog.logLoginFailure(
         login,
-        req.socket?.remoteAddress || req.ip,
-        'invalid_credentials'
+        clientIp,
+        'invalid_credentials',
+        deviceMeta
       ).catch(() => {});
       return res.status(401).json({
         ok: false,
@@ -108,7 +114,7 @@ router.post('/login', loginRateLimit(), async (req, res) => {
 
     if (!isStationAccount) {
       try {
-        await replaceOtherDeviceSession(user, session, readDeviceId(req.body));
+        await replaceOtherDeviceSession(user, session, deviceId);
       } catch (err) {
         // Never block a login on this: the new session stays valid either way.
         console.error('Replacing the previous session failed', err);
@@ -120,7 +126,8 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       user.id,
       user.login,
       session.roles,
-      req.socket?.remoteAddress || req.ip
+      clientIp,
+      deviceMeta
     ).catch(() => {});
 
     return res.json({

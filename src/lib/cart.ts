@@ -235,31 +235,38 @@ export const cartItemMergeKey = (item: MenuItem): string =>
   ].join('\u001f');
 
 /**
- * Pending lines of the same dish (same seat, comment, menu, hold) shown as one cart row, e.g.
- * "2 grilled fish" with rice on one and mash on the other. Each stays its own line underneath,
- * so the kitchen, prices and reports keep which choices go with which plate. Sent and voided
- * lines are never grouped. Groups keep the position of their first line.
+ * Display identity: same dish, oz/variant, seat, note, hold and unit price (dish +
+ * sides). Different oz or different unit price stay separate. Storage stays one
+ * line per plate when sides differ (`mergeCartItem` / DB).
+ */
+export const cartDisplayGroupKey = (item: MenuItem): string =>
+  [
+    item.dish?.id?.toString?.() ?? '',
+    item.variant ?? '',
+    item.seat ?? '',
+    item.comments ?? '',
+    item.category_id ?? item.category ?? '',
+    item.menu_name ?? '',
+    item.tax_mode ?? '',
+    item.isHold ? '1' : '0',
+    String(Math.round(getCartItemTaxableUnitBase(item) * 100)),
+  ].join('\u001f');
+
+/**
+ * Display-only: one cart row per dish+oz+unit price, sides listed under it.
+ * Voided lines stay alone. Pending and sent lines can share a group.
  */
 export const groupCartLines = (items: MenuItem[]): MenuItem[][] => {
   const groups: MenuItem[][] = [];
   const byKey = new Map<string, MenuItem[]>();
 
   for (const item of items) {
-    if (item.newOrOld !== MenuItemType.new || item.deleted_at) {
+    if (item.deleted_at) {
       groups.push([item]);
       continue;
     }
 
-    const key = [
-      item.dish?.id?.toString?.() ?? '',
-      item.variant ?? '',
-      item.seat ?? '',
-      item.comments ?? '',
-      item.category_id ?? item.category ?? '',
-      item.menu_name ?? '',
-      item.tax_mode ?? '',
-      item.isHold ? '1' : '0',
-    ].join('\u001f');
+    const key = cartDisplayGroupKey(item);
     const group = byKey.get(key);
 
     if (group) {

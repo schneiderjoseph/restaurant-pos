@@ -1,5 +1,7 @@
 'use strict';
 
+const { appendUserLog } = require('./user-file-logger');
+
 const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 };
 const ACTIVE = LEVELS[process.env.PAYMENT_LOG_LEVEL || 'info'] ?? LEVELS.info;
 
@@ -16,6 +18,29 @@ function write(level, tag, message, data) {
   } else {
     console[level](prefix, message);
   }
+}
+
+function mirrorErrorToFile(tag, message, data) {
+  const meta =
+    data && typeof data === 'object' && !Array.isArray(data)
+      ? { ...data }
+      : data !== undefined
+        ? { data }
+        : undefined;
+  const user = meta?.user || meta?.login;
+  if (meta) {
+    delete meta.user;
+    delete meta.login;
+    delete meta.stack;
+  }
+  appendUserLog({
+    user,
+    level: 'ERROR',
+    service: 'payment',
+    action: tag,
+    message,
+    meta,
+  });
 }
 
 function maskSecret(value, visible = 4) {
@@ -64,7 +89,10 @@ module.exports = {
   debug: (tag, message, data) => write('debug', tag, message, data),
   info: (tag, message, data) => write('info', tag, message, data),
   warn: (tag, message, data) => write('warn', tag, message, data),
-  error: (tag, message, data) => write('error', tag, message, data),
+  error: (tag, message, data) => {
+    write('error', tag, message, data);
+    mirrorErrorToFile(tag, message, data);
+  },
   maskSecret,
   sanitizeBody,
   sanitizeMpesaCredentials,

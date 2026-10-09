@@ -495,6 +495,12 @@ export const FloorLayout = () => {
 
       const noSeat = cart.some(item => item.seat === undefined);
 
+      // Keep the order's own type on reopen — not the table's first allowed type.
+      const orderTypeId = order?.order_type?.id?.toString?.() ?? order?.order_type?.toString?.();
+      const orderTypeFromOrder = orderTypeId
+        ? (orderTypes.find((type) => type.id?.toString() === orderTypeId) ?? order.order_type)
+        : undefined;
+
       setState(prev => ({
         ...prev,
         table: item,
@@ -514,7 +520,9 @@ export const FloorLayout = () => {
         resortEntry: prev.resortEntry === 'floor' ? 'floor' : prev.resortEntry,
         // Table lists narrow the menu at render time (header / categories); the
         // global cache stays whole so the next table sees every type.
-        orderType: narrowToTableList(orderTypes, item.order_types)[0] ?? orderTypes[0]
+        orderType: orderTypeFromOrder
+          ?? narrowToTableList(orderTypes, item.order_types)[0]
+          ?? orderTypes[0]
       }));
 
       await db.merge(item.id, {

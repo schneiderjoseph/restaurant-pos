@@ -12,17 +12,24 @@ import {useTranslation} from "react-i18next";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {calculateCartItemNetTotal} from "@/lib/cart.ts";
+import {
+  cartGroupIsPending,
+  flattenCartGroupModifiers,
+} from "@/lib/line-display-group.ts";
+import {groupRepeatedModifiers} from "@/lib/modifier-repeats.ts";
 
 interface Props {
-  /** Pending lines of one dish (see `groupCartLines`), newest first. */
+  /** Lines of one dish+oz+price (see `groupCartLines`), newest first. */
   items: MenuItem[]
+  /** Sent lines the kitchen finished: green header. */
+  ready?: boolean
 }
 
 /**
- * One cart row for several pending lines of the same dish with different choices, e.g.
- * "2 grilled fish" with rice and mash. The lines stay separate underneath (unfold to edit one).
+ * One cart row for several lines of the same dish/oz at the same unit price, e.g.
+ * "3 grilled fish" with rice, fries and mash listed flat underneath.
  */
-export const CartItemGroup = ({ items }: Props) => {
+export const CartItemGroup = ({ items, ready = false }: Props) => {
   const { t } = useTranslation(['cart', 'common']);
   const [, setState] = useAtom(appState);
   const [expanded, setExpanded] = useState(false);
@@ -35,6 +42,11 @@ export const CartItemGroup = ({ items }: Props) => {
     [items]
   );
   const allSelected = items.every((item) => item.isSelected);
+  const pending = cartGroupIsPending(items);
+  const flatSides = useMemo(
+    () => groupRepeatedModifiers(flattenCartGroupModifiers(items)),
+    [items],
+  );
 
   const newest = items[0];
 
@@ -64,6 +76,7 @@ export const CartItemGroup = ({ items }: Props) => {
         className={cn(
           "flex items-center gap-2 rounded-md cursor-pointer select-none px-2 py-1.5 min-h-[44px]",
           allSelected ? 'bg-neutral-300' : (first.isHold ? 'bg-warning-100' : 'bg-neutral-100'),
+          ready && !first.deleted_at && 'text-success-700',
         )}
         onClick={() => {
           setState((prev) => ({
@@ -75,23 +88,29 @@ export const CartItemGroup = ({ items }: Props) => {
         }}
       >
         <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            className="h-7 w-7 flex items-center justify-center rounded bg-white border border-neutral-300 text-sm"
-            aria-label={t('common:actions.remove')}
-            onClick={decrement}
-          >
-            <FontAwesomeIcon icon={quantity <= 1 ? faTrash : faMinus} className="text-xs"/>
-          </button>
-          <span className="min-w-[1.75rem] text-center text-sm font-bold tabular-nums">{quantity}</span>
-          <button
-            type="button"
-            className="h-7 w-7 flex items-center justify-center rounded bg-white border border-neutral-300 text-sm"
-            aria-label={t('common:actions.add')}
-            onClick={increment}
-          >
-            <FontAwesomeIcon icon={faPlus} className="text-xs"/>
-          </button>
+          {pending ? (
+            <>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded bg-white border border-neutral-300 text-sm"
+                aria-label={t('common:actions.remove')}
+                onClick={decrement}
+              >
+                <FontAwesomeIcon icon={quantity <= 1 ? faTrash : faMinus} className="text-xs"/>
+              </button>
+              <span className="min-w-[1.75rem] text-center text-sm font-bold tabular-nums">{quantity}</span>
+              <button
+                type="button"
+                className="h-7 w-7 flex items-center justify-center rounded bg-white border border-neutral-300 text-sm"
+                aria-label={t('common:actions.add')}
+                onClick={increment}
+              >
+                <FontAwesomeIcon icon={faPlus} className="text-xs"/>
+              </button>
+            </>
+          ) : (
+            <span className="min-w-[1.75rem] text-center text-sm font-bold tabular-nums">{quantity}</span>
+          )}
         </div>
 
         <div className="flex-1 min-w-0 text-sm leading-snug">
@@ -102,23 +121,20 @@ export const CartItemGroup = ({ items }: Props) => {
           {first.comments && (
             <div className="italic text-sm">({first.comments})</div>
           )}
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="border-[3px] border-l-warning-500 border-r-0 border-y-0 mb-1"
-            >
-              {Number(item.quantity) > 1 && (
-                <span className="pl-x text-xs font-bold" style={{'--padding': '0.875rem'} as any}>
-                  ×{item.quantity}
-                </span>
-              )}
-              {(item.selectedGroups ?? []).flatMap((group) =>
-                (group.selectedModifiers ?? []).map((modifier) => (
-                  <CartItemName key={modifier.id} item={modifier} mainItem={item}/>
-                ))
-              )}
+          {flatSides.length > 0 && (
+            <div className="border-[3px] border-l-warning-500 border-r-0 border-y-0 mb-1">
+              {flatSides.map(({ modifier, count, total, allIncluded }) => (
+                <CartItemName
+                  key={String(modifier.id ?? modifier.dish?.id)}
+                  item={{ ...modifier, isModifier: true }}
+                  mainItem={{ ...first, quantity: 1 }}
+                  count={count}
+                  total={total}
+                  allIncluded={allIncluded}
+                />
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         <div className="shrink-0 text-right" onClick={(e) => e.stopPropagation()}>

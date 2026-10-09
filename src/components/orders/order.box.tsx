@@ -24,7 +24,7 @@ import {
   faUser,
   faUsers
 } from "@fortawesome/free-solid-svg-icons";
-import {OrderItemName} from "@/components/common/order/order.item.tsx";
+import {OrderItemGroupName} from "@/components/common/order/order.item.tsx";
 import {Dropdown, DropdownItem, DropdownSeparator} from "@/components/common/react-aria/dropdown.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {dispatchPrint} from "@/lib/print.service";
@@ -42,6 +42,7 @@ import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import {OrderCancelModal} from "@/components/orders/order.cancel.modal.tsx";
 import {OrderRefundModal} from "@/components/orders/order.refund.modal.tsx";
 import {getOrderDisplayItems, getOrderFilteredItems, newestLinesFirst} from "@/lib/order.ts";
+import {groupOrderLines} from "@/lib/line-display-group.ts";
 import {kitchenOrderItemKey} from "@/lib/order-display.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
@@ -374,18 +375,18 @@ export const OrderBox = ({
                 )}
               </div>
             )}
-            {cardReady && newestLinesFirst(getOrderDisplayItems(order)).map((item, index) => (
-              <OrderItemName
-                item={item}
+            {cardReady && groupOrderLines(newestLinesFirst(getOrderDisplayItems(order))).map((group) => (
+              <OrderItemGroupName
+                items={group}
                 showQuantity={true}
                 showPrice={false}
                 showModifierPrice={showModifierPriceInOrderCard}
-                key={index}
+                key={kitchenOrderItemKey(group[0].id) || group[0].id?.toString?.() || String(group[0].id)}
                 showTotal={true}
                 showGroups={showGroupsInOrderCard}
                 showModifiers={showModifiersInOrderCard}
-                cancelled={order.status === OrderStatus.Cancelled || item.deleted_at != null}
-                ready={readyItemIds?.has(kitchenOrderItemKey(item.id)) ?? false}
+                cancelled={order.status === OrderStatus.Cancelled || group.every((item) => item.deleted_at != null)}
+                ready={group.every((item) => readyItemIds?.has(kitchenOrderItemKey(item.id)) ?? false)}
               />
             ))}
             </div>

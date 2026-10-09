@@ -38,9 +38,9 @@ export const MenuCart = () => {
 
   const newGroups = useMemo(() => groupCartLines(newItems), [newItems]);
 
-  // Lines already sent, the latest sends first.
-  const oldItems = useMemo(() => {
-    return newestLinesFirst(cartItems.filter(item => item.newOrOld === MenuItemType.old));
+  // Lines already sent, the latest sends first — then grouped like the guest bill / KOT.
+  const oldGroups = useMemo(() => {
+    return groupCartLines(newestLinesFirst(cartItems.filter(item => item.newOrOld === MenuItemType.old)));
   }, [cartItems]);
 
   // Every line of the order being edited (all seats), for the kitchen's "ready" marks.
@@ -82,12 +82,21 @@ export const MenuCart = () => {
           ) : (
             <CartItem item={group[0]} key={group[0].id}/>
           ))}
-          {newItems.length > 0 && oldItems.length > 0 && (
+          {newItems.length > 0 && oldGroups.length > 0 && (
             <div className="h-[2px] bg-neutral-900 my-1 rounded-full"></div>
           )}
-          {oldItems.map((item) => (
-            <CartItem item={item} key={item.id} ready={readyLines.has(kitchenOrderItemKey(item.id))}/>
-          ))}
+          {oldGroups.map((group) => {
+            const ready = group.every((item) => readyLines.has(kitchenOrderItemKey(item.id)));
+            return group.length > 1 ? (
+              <CartItemGroup items={group} key={group[0].id} ready={ready}/>
+            ) : (
+              <CartItem
+                item={group[0]}
+                key={group[0].id}
+                ready={readyLines.has(kitchenOrderItemKey(group[0].id))}
+              />
+            );
+          })}
         </ScrollContainer>
       </div>
       <div className="flex-shrink-0" data-testid="cart-payment">

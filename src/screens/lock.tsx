@@ -24,7 +24,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import { appPage } from "@/store/jotai.ts";
-import { getGatewayBaseUrl, authHeaders } from "@/lib/session.ts";
+import { getGatewayBaseUrl, authHeaders, isLoginServerFailure } from "@/lib/session.ts";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -59,7 +59,11 @@ export const Lock = () => {
       if (!res.ok || !data.ok) {
         // Rate limiter may have kicked in — surface the error.
         const msg = data.error || t("toast:auth.invalidCredentials", { defaultValue: "Invalid credentials" });
-        if (res.status === 429) {
+        if (isLoginServerFailure(res.status)) {
+          setError(t("auth:login.serverUnavailable", {
+            defaultValue: "Server unavailable — your PIN was not checked. Try again in a moment or call the manager.",
+          }));
+        } else if (res.status === 429) {
           setError(t("toast:auth.tooManyAttempts", { defaultValue: "Too many attempts. Try again later." }));
         } else {
           setError(msg);

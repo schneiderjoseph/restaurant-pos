@@ -9,7 +9,7 @@ import {calculateCartItemNetTotal} from "@/lib/cart.ts";
 import {sameCustomer} from "@/lib/customer.service.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
-import {orderAutoExtras, syncOrderAutoExtras} from "@/lib/order-auto-extras.ts";
+import {isOrderTimeExtra, orderAutoExtras, syncOrderAutoExtras} from "@/lib/order-auto-extras.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Extra} from "@/api/model/extra.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -93,18 +93,41 @@ export const Payment = () => {
     : (storedDueAt ? toLuxonDateTime(storedDueAt).toUTC().toISO() : null);
   const dueChanged = state.dueAt !== undefined;
 
+  const storedOrderTypeId = refKey(
+    order?.order_type ?? editSession?.order?.order_type ?? state?.order?.order?.order_type
+  );
+  const orderTypeChanged = Boolean(
+    state?.orderType?.id && refKey(state.orderType) !== storedOrderTypeId
+  );
+
   /** Value written to `order.due_at`: a time already past is stored as "as soon as possible". */
   const dueAtForSave = () => {
     const due = dueAt ? toLuxonDateTime(dueAt) : null;
     return isDueAhead(due, nowInAppTimezone()) ? toSurrealDateTime(due) : null;
   };
 
-  /** An existing order whose cart did not change still gets its new due time. */
-  const saveDueAtOnly = async () => {
-    if (!dueChanged || !state?.order?.id || state.order.id === 'new') {
+  /** An existing order whose cart did not change still gets due time / order type updates. */
+  const saveOrderMetaOnly = async () => {
+    if (!state?.order?.id || state.order.id === 'new') {
       return;
     }
-    await db.merge(toRecordId(state.order.id), {due_at: dueAtForSave()});
+    if (!dueChanged && !orderTypeChanged) {
+      return;
+    }
+    const patch: Record<string, unknown> = {};
+    if (dueChanged) {
+      patch.due_at = dueAtForSave();
+    }
+    if (orderTypeChanged && state.orderType?.id) {
+      patch.order_type = toRecordId(state.orderType.id);
+    }
+    await db.merge(toRecordId(state.order.id), patch);
+    if (orderTypeChanged) {
+      await syncOrderAutoExtras(db, state.order.id, {
+        orderTypeId: state.orderType?.id?.toString(),
+        tableId: state?.table?.id?.toString(),
+      });
+    }
   };
 
   const total = useMemo(() => {
@@ -591,7 +614,9 @@ export const Payment = () => {
         });
       }
 
-      const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;
+      // KOTs only for lines this send actually put on a kitchen ticket — never on a
+      // meta-only save (due / order type) or an edit with no new plates.
+      const hasKitchenPrintItems = hasNewItems && Object.keys(kitchenItems).length > 0;
       if (hasKitchenPrintItems) {
         const [kitchens]: any = await db.query(`SELECT *
                                                 from ${Tables.kitchens}
@@ -644,13 +669,15 @@ export const Payment = () => {
 
   const createOrderAndBack = async () => {
     try {
-      if (hasCartChangesToPersist()) {
-        const result = await createOrder();
-        if (result === 'busy') {
-          return;
-        }
-      } else {
-        await saveDueAtOnly();
+      // Cart untouched (or only due / order type): save meta, never kitchen-print.
+      if (!hasCartChangesToPersist()) {
+        await saveOrderMetaOnly();
+        await reset();
+        return;
+      }
+      const result = await createOrder();
+      if (result === 'busy') {
+        return;
       }
       await reset();
     } catch (error) {
@@ -721,13 +748,34 @@ export const Payment = () => {
     tableId: state?.table?.id?.toString(),
   }), [extrasCatalog, state?.orderType?.id, state?.table?.id]);
 
+  // Existing orders use OrderTotals (stored extras). Overlay live type/table extras so
+  // switching to En chambre shows "Service chambre" immediately after the taxes.
+  const orderForTotals = useMemo((): Order | undefined => {
+    if (!order) {
+      return undefined;
+    }
+    const managedNames = new Set(
+      (extrasCatalog?.data ?? []).filter(isOrderTimeExtra).map((extra) => extra.name)
+    );
+    const kept = (order.extras ?? []).filter(
+      (extra) => extra && !managedNames.has(extra.name)
+    );
+    return {
+      ...order,
+      extras: [
+        ...kept,
+        ...cartExtras.map((extra) => ({ name: extra.name, value: extra.value })),
+      ],
+    } as Order;
+  }, [order, cartExtras, extrasCatalog?.data]);
+
   return (
     <>
       <div className="font-bold">
-        {order && (
+        {orderForTotals && (
           <>
             <div className="p-3">
-              <OrderTotals order={order} cart={state.cart} />
+              <OrderTotals order={orderForTotals} cart={state.cart} />
             </div>
             <div className="h-[2px] separator"></div>
           </>
@@ -763,7 +811,7 @@ export const Payment = () => {
           </Button>
           <div className="flex gap-2 mt-3">
             <Button variant="success" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
-                    disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits()) || orderTakingBlocked} isLoading={isLoading}
+                    disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits() && !dueChanged && !orderTypeChanged) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
             <Button variant="danger" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCancel} onClick={cancel}
                     disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>

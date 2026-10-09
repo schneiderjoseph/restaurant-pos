@@ -1,8 +1,35 @@
 'use strict';
 
 const { getClient } = require('../surreal-client');
+const { appendUserLog } = require('../user-file-logger');
 
 const TRACKING_TABLE = 'tracking';
+
+function orderIdFromPayload(payload) {
+  const nested = payload?.payload;
+  const raw =
+    payload?.order ??
+    payload?.order_id ??
+    payload?.orderId ??
+    (nested && typeof nested === 'object'
+      ? nested.order ?? nested.order_id ?? nested.orderId
+      : undefined);
+  if (raw == null || raw === '') return undefined;
+  return String(raw);
+}
+
+function mirrorTrackingToFile(payload, sessionLogin) {
+  appendUserLog({
+    user: sessionLogin || payload?.user || '_unknown',
+    level: 'ACTION',
+    service: 'tracking',
+    action: payload?.module || 'tracking',
+    meta: {
+      page: payload?.page,
+      order: orderIdFromPayload(payload),
+    },
+  });
+}
 
 function normalizeTrackingPayload(raw) {
   const payload = { ...(raw || {}) };
@@ -57,7 +84,7 @@ async function sessionUserName(client, userId) {
   }
 }
 
-async function createTracking(rawPayload, sessionUserId) {
+async function createTracking(rawPayload, sessionUserId, sessionLogin) {
   const client = await getClient();
   const payload = normalizeTrackingPayload(rawPayload);
   const name = await sessionUserName(client, sessionUserId);
@@ -66,9 +93,10 @@ async function createTracking(rawPayload, sessionUserId) {
   }
   const trackingId = toTrackingId(payload.id);
 
+  let result;
   if (trackingId) {
     const { id, ...rest } = payload;
-    const [result] = await client.query(
+    const [created] = await client.query(
       'CREATE type::record($table, $id) CONTENT $data;',
       {
         table: TRACKING_TABLE,
@@ -76,16 +104,19 @@ async function createTracking(rawPayload, sessionUserId) {
         data: rest,
       }
     );
-    return result;
+    result = created;
+  } else {
+    const [created] = await client.query(
+      'CREATE type::table($table) CONTENT $data;',
+      {
+        table: TRACKING_TABLE,
+        data: payload,
+      }
+    );
+    result = created;
   }
 
-  const [result] = await client.query(
-    'CREATE type::table($table) CONTENT $data;',
-    {
-      table: TRACKING_TABLE,
-      data: payload,
-    }
-  );
+  mirrorTrackingToFile(payload, sessionLogin);
   return result;
 }
 

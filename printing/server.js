@@ -37,6 +37,7 @@ const {
   createSessionAuthMiddleware,
   createCorsOriginDelegate,
 } = require('./session-auth.middleware');
+const { appendUserLog } = require('./user-file-logger');
 
 const app = express();
 const PORT = process.env.PRINT_PORT || 3132;
@@ -61,6 +62,13 @@ app.post('/print/preview', requireSession, (req, res) => {
     res.send(html);
   } catch (err) {
     const msg = err && (err.message || String(err));
+    appendUserLog({
+      user: req.posSession?.login,
+      level: 'ERROR',
+      service: 'printing',
+      action: 'preview',
+      message: msg,
+    });
     res.status(400).setHeader('Content-Type', 'text/html; charset=utf-8').send(
       `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview error</title></head><body><p>${String(msg).replace(/</g, '&lt;')}</p></body></html>`
     );
@@ -146,6 +154,13 @@ app.post('/print', requireSession, async (req, res) => {
     res.status(status).json(result);
   } catch (err) {
     const message = err && (err.message || String(err));
+    appendUserLog({
+      user: req.posSession?.login,
+      level: 'ERROR',
+      service: 'printing',
+      action: 'print',
+      message,
+    });
     res.status(400).json({ success: false, error: message });
   }
 });

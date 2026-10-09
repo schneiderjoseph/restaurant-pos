@@ -22,6 +22,8 @@
  * See: RBAC-DESIGN.md → "Audit logging" section
  */
 
+const { appendUserLog, recordDeviceConnection } = require('./user-file-logger');
+
 const logger = {
   info: (...args) => console.log('[audit]', ...args),
   warn: (...args) => console.warn('[audit]', ...args),
@@ -29,6 +31,60 @@ const logger = {
 };
 
 let surrealClient = null;
+
+/** Client IP, preferring proxy headers when present (Docker / nginx). */
+function clientIpFromReq(req) {
+  const forwarded = req.headers?.['x-forwarded-for'] || req.headers?.['x-real-ip'];
+  if (forwarded) {
+    const first = String(forwarded).split(',')[0].trim();
+    if (first) return first;
+  }
+  return req.socket?.remoteAddress || req.ip || null;
+}
+
+function mirrorAuditToFile(entry, payload) {
+  const level =
+    entry.action === 'login_failure' || entry.action === 'permission_denied'
+      ? 'WARN'
+      : 'INFO';
+  const details =
+    payload.details && typeof payload.details === 'object' ? payload.details : null;
+  appendUserLog({
+    user: entry.actor_login || '_unknown',
+    level,
+    service: 'gateway',
+    action: entry.action,
+    meta: {
+      actor_id: payload.actor_id || undefined,
+      table: payload.table_name || undefined,
+      source: payload.source || undefined,
+      ...(details
+        ? {
+            ip: details.ip,
+            device: details.deviceId || details.device_id,
+            path: details.path,
+            status: details.status,
+            reason: details.reason,
+            error: details.error,
+            jti: details.jti,
+          }
+        : {}),
+    },
+  });
+
+  if (
+    (entry.action === 'login_success' || entry.action === 'login_failure') &&
+    details
+  ) {
+    recordDeviceConnection({
+      user: entry.actor_login || '_unknown',
+      ip: details.ip,
+      deviceId: details.deviceId || details.device_id,
+      userAgent: details.user_agent || details.userAgent,
+      ok: entry.action === 'login_success',
+    });
+  }
+}
 
 function setSurrealClient(client) {
   surrealClient = client;
@@ -65,6 +121,9 @@ async function log(entry) {
     source: entry.source || 'gateway',
     details: entry.details || null,
   };
+
+  // Always mirror to per-user daily files (even when Surreal is down).
+  mirrorAuditToFile(entry, payload);
 
   // Best-effort write to Surreal. If it fails, log to stderr and continue.
   if (!surrealClient) {
@@ -115,7 +174,7 @@ async function logPermissionDenied(req, status, error) {
       path: req.path || req.url,
       status,
       error: error || null,
-      ip: req.socket?.remoteAddress || req.ip,
+      ip: clientIpFromReq(req),
       user_agent: req.headers?.['user-agent']?.slice(0, 200),
     },
     source: 'gateway-session-auth',
@@ -132,26 +191,37 @@ function extractBearer(req) {
 
 /**
  * Log a successful login (for the login audit trail).
+ * @param {object} [extra] — { deviceId, userAgent }
  */
-async function logLoginSuccess(userId, login, roles, ip) {
+async function logLoginSuccess(userId, login, roles, ip, extra = {}) {
   await log({
     action: 'login_success',
     actor_id: String(userId),
     actor_login: login,
     actor_roles: roles,
-    details: { ip },
+    details: {
+      ip,
+      deviceId: extra.deviceId || null,
+      user_agent: extra.userAgent || null,
+    },
     source: 'gateway-auth-routes',
   });
 }
 
 /**
  * Log a failed login attempt (rate limiter / wrong credentials).
+ * @param {object} [extra] — { deviceId, userAgent }
  */
-async function logLoginFailure(login, ip, reason) {
+async function logLoginFailure(login, ip, reason, extra = {}) {
   await log({
     action: 'login_failure',
     actor_login: login,
-    details: { ip, reason },
+    details: {
+      ip,
+      reason,
+      deviceId: extra.deviceId || null,
+      user_agent: extra.userAgent || null,
+    },
     source: 'gateway-auth-routes',
   });
 }
@@ -176,5 +246,6 @@ module.exports = {
   logLoginSuccess,
   logLoginFailure,
   logSessionRevoked,
+  clientIpFromReq,
   _TABLE: 'audit_log',
 };

@@ -188,7 +188,7 @@ describe('groupCartLines', () => {
     expect(groups.map((g) => g.map((i) => i.id))).toEqual([['a', 'b'], ['c']]);
   });
 
-  it('keeps apart plates for another seat, with a comment, held, sent or voided', () => {
+  it('keeps apart seat, comment, hold or void; groups pending with sent alike', () => {
     const groups = groupCartLines([
       plate('a'),
       plate('b', { seat: '2' }),
@@ -198,7 +198,13 @@ describe('groupCartLines', () => {
       plate('f', { newOrOld: MenuItemType.old }),
       plate('g', { deleted_at: 'x' as never }),
     ]);
-    expect(groups.every((g) => g.length === 1)).toBe(true);
+    expect(groups.map((g) => g.map((i) => i.id))).toEqual([
+      ['a', 'e', 'f'],
+      ['b'],
+      ['c'],
+      ['d'],
+      ['g'],
+    ]);
   });
 
   it('shows a row total before taxes', () => {

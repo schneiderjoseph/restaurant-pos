@@ -17,12 +17,13 @@ function sendError(res, status, message, details) {
   });
 }
 
-function handleError(res, err) {
+function handleError(res, err, req) {
   const message = err && err.message ? err.message : 'Unexpected server error';
   const details = err && err.details ? err.details : undefined;
   const statusCode = err && err.statusCode ? err.statusCode : null;
 
   logger.error('api', message, {
+    user: req?.posSession?.login,
     statusCode: statusCode || undefined,
     details,
     stack: err && err.stack ? err.stack.split('\n').slice(0, 5) : undefined,

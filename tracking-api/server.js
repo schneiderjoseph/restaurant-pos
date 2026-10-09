@@ -16,6 +16,7 @@ if (fs.existsSync(localEnv)) {
 const express = require('express');
 const cors = require('cors');
 const trackingRoutes = require('./src/routes/tracking.routes');
+const { appendUserLog } = require('./src/user-file-logger');
 const {
   createSessionAuthMiddleware,
   createCorsOriginDelegate,
@@ -38,6 +39,14 @@ app.use('/tracking', requireSession, trackingRoutes);
 app.use((err, req, res, next) => {
   // eslint-disable-next-line no-console
   console.error('Tracking API error:', err);
+  appendUserLog({
+    user: req?.posSession?.login,
+    level: 'ERROR',
+    service: 'tracking',
+    action: 'unhandled',
+    message: err instanceof Error ? err.message : 'Unexpected server error',
+    meta: { path: req?.originalUrl || req?.url },
+  });
   res.status(500).json({
     success: false,
     error: err instanceof Error ? err.message : 'Unexpected server error',

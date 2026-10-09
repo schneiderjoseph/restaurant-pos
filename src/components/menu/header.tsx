@@ -27,6 +27,7 @@ import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {narrowToTableList} from "@/lib/menu-categories.ts";
+import {syncOrderAutoExtras} from "@/lib/order-auto-extras.ts";
 
 export const MenuHeader = () => {
   const db = useDB();
@@ -165,6 +166,11 @@ export const MenuHeader = () => {
     const cart = orderToCartItems(order);
     const noSeat = cart.some((item) => item.seat === undefined || item.seat === null || item.seat === '');
 
+    const typeId = order.order_type?.id?.toString?.() ?? order.order_type?.toString?.();
+    const orderTypeFromOrder = typeId
+      ? (orderTypes.find((type) => type.id?.toString() === typeId) ?? order.order_type)
+      : undefined;
+
     setState((prev) => ({
       ...prev,
       order: {
@@ -176,6 +182,7 @@ export const MenuHeader = () => {
       // Unseated lines only show when seat is undefined (cart filters by exact seat).
       seat: noSeat ? undefined : (seatsArray.length > 0 ? seatsArray[0] : undefined),
       customer: order?.customer ?? prev.customer,
+      orderType: orderTypeFromOrder ?? prev.orderType,
     }));
   }
 
@@ -342,11 +349,55 @@ export const MenuHeader = () => {
                 index === orderTypes.length - 1 && ' !rounded-r-lg'
               )}
               active={item.id.toString() === state?.orderType?.id?.toString()}
-              onClick={() => {
-                setState(prev => ({
-                  ...prev,
-                  orderType: item
-                }))
+              onClick={async () => {
+                setState(prev => {
+                  const orderId = orderIdToString(prev.order?.id);
+                  return {
+                    ...prev,
+                    orderType: item,
+                    order: prev.order?.order
+                      ? {
+                          ...prev.order,
+                          order: { ...prev.order.order, order_type: item },
+                        }
+                      : prev.order,
+                    orders: orderId
+                      ? prev.orders.map((order) =>
+                          orderIdToString(order.id) === orderId
+                            ? { ...order, order_type: item }
+                            : order
+                        )
+                      : prev.orders,
+                  };
+                });
+
+                // Same as covers: persist type immediately on an existing order.
+                const orderId = state?.order?.id;
+                if (orderId && orderId !== 'new') {
+                  try {
+                    await db.merge(toRecordId(orderId), {
+                      order_type: toRecordId(item.id),
+                    });
+                    // Room service etc.: keep order.extras in sync with the type.
+                    await syncOrderAutoExtras(db, orderId, {
+                      orderTypeId: item.id?.toString(),
+                      tableId: state?.table?.id?.toString(),
+                    });
+                    setEditSession((prev) => {
+                      if (!prev || prev.orderId !== orderIdToString(orderId)) {
+                        return prev;
+                      }
+                      return {
+                        ...prev,
+                        orderType: item,
+                        order: { ...prev.order, order_type: item },
+                      };
+                    });
+                  } catch (error) {
+                    console.error(error);
+                    toast.error(t('errors.saveOrderType', { defaultValue: 'Impossible d’enregistrer le type de commande' }));
+                  }
+                }
               }}
               key={index}
               flat

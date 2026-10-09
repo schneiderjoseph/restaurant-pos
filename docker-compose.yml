@@ -67,12 +67,15 @@ services:
     volumes:
       - ./printing:/app
       - printer-node_modules:/app/node_modules
+      - ./shared:/shared:ro
+      - ./logs:/logs
     environment:
       - PRINT_PORT=3132
       - GATEWAY_VERIFY_URL=${GATEWAY_VERIFY_URL:-http://gateway:3142/auth/verify}
       - PRINT_HOST=0.0.0.0
       - TZ=${VITE_APP_TIMEZONE:-UTC}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      - USER_LOG_DIR=/logs
     command: sh -c "npm install && node server.js"
     ports:
       - "3132:3132"
@@ -89,6 +92,8 @@ services:
     volumes:
       - ./payments:/app
       - payment-node_modules:/app/node_modules
+      - ./shared:/shared:ro
+      - ./logs:/logs
     env_file:
       # Root .env first: shared GATEWAY_JWT_SECRET (session auth), service files override it.
       - path: ./.env
@@ -111,6 +116,7 @@ services:
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - PAYMENT_LOG_LEVEL=debug
       - PAYMENT_ALLOWED_ORIGINS=${PAYMENT_ALLOWED_ORIGINS:-http://localhost:5173}
+      - USER_LOG_DIR=/logs
     command: sh -c "npm install && node server.js"
     ports:
       - "3134:3134"
@@ -166,6 +172,8 @@ services:
     volumes:
       - ./tracking-api:/app
       - tracking-api-node_modules:/app/node_modules
+      - ./shared:/shared:ro
+      - ./logs:/logs
     environment:
       - TRACKING_PORT=3138
       - GATEWAY_VERIFY_URL=${GATEWAY_VERIFY_URL:-http://gateway:3142/auth/verify}
@@ -176,6 +184,7 @@ services:
       - TRACKING_DB_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - TRACKING_DB_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+      - USER_LOG_DIR=/logs
     command: sh -c "npm install && npm start"
     ports:
       - "3138:3138"
@@ -190,6 +199,8 @@ services:
     volumes:
       - ./api:/app
       - api-node_modules:/app/node_modules
+      - ./shared:/shared:ro
+      - ./logs:/logs
     env_file:
       # Root .env first: shared GATEWAY_JWT_SECRET (session auth), service files override it.
       - path: ./.env
@@ -210,6 +221,7 @@ services:
       - SURREAL_URL=ws://surrealdb:8000/rpc
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
+      - USER_LOG_DIR=/logs
     command: sh -c "npm install && node server.js"
     ports:
       - "3140:3140"
@@ -228,6 +240,8 @@ services:
     volumes:
       - ./gateway:/app
       - gateway-node_modules:/app/node_modules
+      - ./shared:/shared:ro
+      - ./logs:/logs
     environment:
       - GATEWAY_HOST=0.0.0.0
       - GATEWAY_PORT=3142
@@ -238,6 +252,7 @@ services:
       - SURREAL_DB=${SURREAL_DB:-posr}
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
+      - USER_LOG_DIR=/logs
     command: sh -c "npm install && node server.js"
     ports:
       - "3142:3142"

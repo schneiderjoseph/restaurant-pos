@@ -46,7 +46,7 @@ app.use('/payments', credentialsRoutes);
 app.use('/webhooks', webhooksRoutes);
 
 app.use((err, req, res, next) => {
-  handleError(res, err);
+  handleError(res, err, req);
 });
 
 function start() {

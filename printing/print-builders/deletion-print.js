@@ -22,19 +22,26 @@ const {
   getOrderType,
   getOrderPlaceKind,
   getOrderPlaceValue,
+  calculateOrderItemPricePrint,
+  mergeIdenticalBillLines,
 } = require('../lib/order-mapping');
 
 function mapPrintItems(items) {
-  return items.map((it) => {
-    return {
-      name: getOrderItemDishName(it),
-      qty: it.quantity != null ? it.quantity : 1,
-      price: Number(it.price || 0),
-      total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
-      notes: it.comments || '',
-      modifierLines: getOrderItemPrintLines(it),
-    };
-  });
+  return mergeIdenticalBillLines(
+    items.map((it) => {
+      const qty = it.quantity != null ? it.quantity : 1;
+      const total = calculateOrderItemPricePrint(it);
+      const price = qty > 0 ? total / qty : 0;
+      return {
+        name: getOrderItemDishName(it),
+        qty,
+        price,
+        total,
+        notes: it.comments || '',
+        modifierLines: getOrderItemPrintLines(it),
+      };
+    }),
+  );
 }
 
 /** Place of the order: a hotel room prints as "Room: 20", a dining table as "Table: T7". */

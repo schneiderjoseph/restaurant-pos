@@ -116,7 +116,7 @@ for (const module of modules) {
 }
 
 app.use((err, req, res, next) => {
-  handleError(res, err);
+  handleError(res, err, req);
 });
 
 function start() {

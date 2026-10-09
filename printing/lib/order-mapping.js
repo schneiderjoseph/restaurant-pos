@@ -214,9 +214,64 @@ function getOrderItems(order, showInclusivePrices) {
 }
 
 /**
- * Bill lines for the same dish at the same price, with the same options and note, print as one
- * line: plates added to a sent order are separate order items (so the kitchen gets them as an
- * add-on), but the guest reads "5 Prestige", not three Prestige lines.
+ * Variant label from print sub-lines ("12 oz"), used so 12 oz and 16 oz never merge.
+ * @param {Array<{ name?: string, variant?: boolean }>|undefined} modifierLines
+ * @returns {string}
+ */
+function billLineVariantKey(modifierLines) {
+  const line = (Array.isArray(modifierLines) ? modifierLines : []).find((entry) => entry && entry.variant);
+  return line ? String(line.name || '').trim() : '';
+}
+
+/**
+ * Strip a trailing " (N)" count from a printed side name.
+ * @param {string} name
+ * @returns {{ base: string, count: number }}
+ */
+function parseCountedSideName(name) {
+  const text = String(name || '').trim();
+  const match = text.match(/^(.*)\s+\((\d+)\)$/);
+  if (!match) return { base: text, count: 1 };
+  return { base: match[1].trim(), count: Number(match[2]) || 1 };
+}
+
+/**
+ * One variant line + every side from both lists (same side counted: "Riz (2)").
+ * @param {Array<{ depth?: number, name?: string, variant?: boolean }>|undefined} left
+ * @param {Array<{ depth?: number, name?: string, variant?: boolean }>|undefined} right
+ */
+function mergeBillModifierLines(left, right) {
+  const all = [...(Array.isArray(left) ? left : []), ...(Array.isArray(right) ? right : [])];
+  const variant = all.find((line) => line && line.variant);
+  const order = [];
+  const byKey = new Map();
+  for (const line of all) {
+    if (!line || line.variant) continue;
+    const { base, count } = parseCountedSideName(line.name);
+    if (!base) continue;
+    const depth = typeof line.depth === 'number' ? line.depth : 0;
+    const key = `${depth}\u001f${base}`;
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.count += count;
+      continue;
+    }
+    const created = { depth, base, count };
+    byKey.set(key, created);
+    order.push(created);
+  }
+  const sides = order.map((side) => ({
+    depth: side.depth,
+    name: side.count > 1 ? `${side.base} (${side.count})` : side.base,
+  }));
+  if (!variant) return sides;
+  return [{ depth: 0, name: String(variant.name || '').trim(), variant: true }, ...sides];
+}
+
+/**
+ * Bill / KOT: same dish name, unit price, note and oz/variant print as one line with qty
+ * summed and sides listed under the variant. Different oz or different unit price stay apart.
+ * Options may differ (Riz vs Frites) — they are listed flat under the shared dish line.
  * @param {Array<{ name, qty, price, total, notes, modifierLines }>} items
  */
 function mergeIdenticalBillLines(items) {
@@ -227,15 +282,19 @@ function mergeIdenticalBillLines(items) {
       line.name,
       Math.round(Number(line.price || 0) * 100),
       line.notes || '',
-      line.modifierLines || [],
+      billLineVariantKey(line.modifierLines),
     ]);
     const existing = byKey.get(key);
     if (existing) {
       existing.qty = Number(existing.qty) + Number(line.qty);
       existing.total = Math.round((Number(existing.total) + Number(line.total)) * 100) / 100;
+      existing.modifierLines = mergeBillModifierLines(existing.modifierLines, line.modifierLines);
       continue;
     }
-    const copy = { ...line };
+    const copy = {
+      ...line,
+      modifierLines: Array.isArray(line.modifierLines) ? [...line.modifierLines] : [],
+    };
     byKey.set(key, copy);
     merged.push(copy);
   }
@@ -903,7 +962,7 @@ function mapOrderToKitchen(order, options) {
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
-    items: getOrderItems(order),
+    items: mergeIdenticalBillLines(getOrderItems(order)),
     createdAt: getOrderCreatedAt(order, options),
     priority: getOrderPriority(order),
   };

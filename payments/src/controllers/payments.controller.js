@@ -26,6 +26,7 @@ async function createIntent(req, res, next) {
     sendSuccess(res, data);
   } catch (err) {
     logger.error('controller', 'createIntent failed', {
+      user: req.posSession?.login,
       gateway: req.body?.gateway,
       message: err.message,
       details: err.details,
@@ -47,6 +48,7 @@ async function verifyPayment(req, res, next) {
     sendSuccess(res, data);
   } catch (err) {
     logger.error('controller', 'verifyPayment failed', {
+      user: req.posSession?.login,
       gateway: req.body?.gateway,
       intentId: req.body?.intentId,
       message: err.message,
@@ -72,6 +74,7 @@ async function capturePayment(req, res, next) {
     sendSuccess(res, data);
   } catch (err) {
     logger.error('controller', 'capturePayment failed', {
+      user: req.posSession?.login,
       gateway: req.body?.gateway,
       intentId: req.body?.intentId,
       message: err.message,

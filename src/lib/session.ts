@@ -125,11 +125,16 @@ export async function gatewayLogin(payload: {
   login: string;
   password: string;
 }): Promise<GatewayLoginResponse> {
-  const res = await fetch(`${getGatewayBaseUrl()}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...payload, deviceId: getDeviceId() }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${getGatewayBaseUrl()}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...payload, deviceId: getDeviceId() }),
+    });
+  } catch {
+    return { ok: false, status: 0, error: 'Server unreachable' };
+  }
   const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse & Record<string, unknown>;
   if (!res.ok) {
     return {
@@ -144,6 +149,14 @@ export async function gatewayLogin(payload: {
     };
   }
   return { ...data, ok: true, status: res.status };
+}
+
+/**
+ * Network failure or 5xx (gateway down, nginx 502): the PIN was never checked, so it
+ * must not be reported as a wrong PIN.
+ */
+export function isLoginServerFailure(status?: number): boolean {
+  return status === 0 || (status != null && status >= 500);
 }
 
 let localLogoutAt = 0;

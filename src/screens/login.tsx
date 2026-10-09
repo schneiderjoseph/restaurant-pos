@@ -25,6 +25,7 @@ import {
   gatewayLogin,
   getSessionToken,
   isGatewayAuthEnabled,
+  isLoginServerFailure,
   revokeGatewayToken,
   setSessionTokens,
   type GatewayLoginResponse,
@@ -96,6 +97,13 @@ export const Login = () => {
   });
 
   const showLoginFailureToast = (result?: GatewayLoginResponse) => {
+    if (isLoginServerFailure(result?.status)) {
+      toast.error(t('login.serverUnavailable', {
+        defaultValue: 'Server unavailable — your PIN was not checked. Try again in a moment or call the manager.',
+      }));
+      return;
+    }
+
     if (result?.status === 429 || result?.retryAfterMs != null) {
       const minutes = formatRetryMinutes(result.retryAfterMs, result.lockoutMs);
       const message = result.code === 'rate_limited_ip'
