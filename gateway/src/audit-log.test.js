@@ -12,9 +12,21 @@
  *   node --test src/audit-log.test.js
  */
 
-const { test, beforeEach, afterEach } = require('node:test');
+const { test, beforeEach, afterEach, after } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
+
+// Every log() also writes a per-user file log: keep it out of the repo's logs/.
+const tmpLogDir = fs.mkdtempSync(path.join(os.tmpdir(), 'posr-gateway-audit-logs-'));
+process.env.USER_LOG_DIR = tmpLogDir;
+
+after(async () => {
+  // File appends are fire-and-forget: let them land before removing the folder.
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  fs.rmSync(tmpLogDir, { recursive: true, force: true });
+});
 
 // Load the audit-log module fresh per test to reset state.
 function freshModule() {
