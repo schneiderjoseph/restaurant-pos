@@ -15,11 +15,7 @@ router.post('/', async (req, res, next) => {
       });
     }
 
-    const created = await createTracking(
-      body,
-      req.posSession?.sub,
-      req.posSession?.login
-    );
+    const created = await createTracking(body, req.posSession?.sub);
     return res.status(201).json({
       success: true,
       data: created,

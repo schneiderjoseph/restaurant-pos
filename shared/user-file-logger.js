@@ -1,7 +1,10 @@
 'use strict';
 
 /**
- * Per-user daily file logs: logs/{login}/YYYY-MM-DD.log
+ * Per-user daily file logs: logs/{user id}/YYYY-MM-DD.log ("user_4t5g6rqi…").
+ *
+ * Folders are named by the user's record id, never by the login: a POS login is the PIN.
+ * Callers pass `userId`; anything without one (failed logins) goes to _unknown.
  *
  * Best-effort append — never throws to callers. Never blocks the POS.
  * Set USER_LOG_DIR (Docker default: /logs). Otherwise defaults to <repo>/logs.
@@ -29,7 +32,8 @@ function defaultLogDir() {
   return path.resolve(__dirname, '..', 'logs');
 }
 
-function sanitizeLogin(user) {
+/** Folder name for a user id: "user:abc" → "user_abc". */
+function sanitizeUserKey(user) {
   const raw = user == null ? '' : String(user).trim();
   if (!raw) return UNKNOWN_USER;
   const cleaned = raw.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 64);
@@ -82,7 +86,7 @@ function formatMetaKv(meta) {
   return parts.length ? ` ${parts.join(' ')}` : '';
 }
 
-function resolveUser(explicit) {
+function resolveUserKey(explicit) {
   if (explicit != null && String(explicit).trim()) return explicit;
   const fromStore = userContext.getStore();
   if (fromStore != null && String(fromStore).trim()) return fromStore;
@@ -99,7 +103,7 @@ function buildLine({ level, service, action, message, meta }) {
 }
 
 function userDir(user) {
-  return path.join(defaultLogDir(), sanitizeLogin(user));
+  return path.join(defaultLogDir(), sanitizeUserKey(user));
 }
 
 function filePathFor(user, date = new Date()) {
@@ -117,11 +121,11 @@ function deviceKey({ deviceId, ip }) {
 }
 
 /**
- * Update logs/{login}/last-devices.json and append a daily log line.
+ * Update logs/{user id}/last-devices.json.
  * Best-effort — never throws.
  *
  * @param {object} entry
- * @param {string} [entry.user]
+ * @param {string} [entry.userId] — user record id
  * @param {string} [entry.ip]
  * @param {string} [entry.deviceId]
  * @param {string} [entry.userAgent]
@@ -129,7 +133,7 @@ function deviceKey({ deviceId, ip }) {
  */
 function recordDeviceConnection(entry = {}) {
   try {
-    const user = resolveUser(entry.user);
+    const user = resolveUserKey(entry.userId);
     const now = new Date().toISOString();
     const ip = entry.ip ? String(entry.ip) : null;
     const deviceId = entry.deviceId ? String(entry.deviceId) : null;
@@ -179,7 +183,7 @@ function recordDeviceConnection(entry = {}) {
  * Append one log line for a user. Fire-and-forget; never throws.
  *
  * @param {object} entry
- * @param {string} [entry.user] — login; falls back to AsyncLocalStorage / _unknown
+ * @param {string} [entry.userId] — user record id; falls back to AsyncLocalStorage / _unknown
  * @param {string} [entry.level] — INFO | ACTION | ERROR | WARN
  * @param {string} [entry.service] — gateway | tracking | api | payment | printing
  * @param {string} [entry.action]
@@ -188,7 +192,7 @@ function recordDeviceConnection(entry = {}) {
  */
 function appendUserLog(entry = {}) {
   try {
-    const user = resolveUser(entry.user);
+    const user = resolveUserKey(entry.userId);
     const line = buildLine(entry);
     const filePath = filePathFor(user);
     const dir = path.dirname(filePath);
@@ -205,13 +209,13 @@ function appendUserLog(entry = {}) {
   }
 }
 
-/** Run fn with a default user login for nested appendUserLog calls. */
-function runWithUser(user, fn) {
-  return userContext.run(sanitizeLogin(user) === UNKNOWN_USER ? user : String(user), fn);
+/** Run fn with a default user id for nested appendUserLog calls. */
+function runWithUser(userId, fn) {
+  return userContext.run(sanitizeUserKey(userId) === UNKNOWN_USER ? userId : String(userId), fn);
 }
 
 function setUserContext(user) {
-  // Express-friendly: bind login for the rest of the sync continuation only.
+  // Express-friendly: bind the user id for the rest of the sync continuation only.
   // Prefer runWithUser / passing user= explicitly for async work.
   return userContext.enterWith(user == null ? UNKNOWN_USER : String(user));
 }
@@ -221,7 +225,7 @@ module.exports = {
   recordDeviceConnection,
   runWithUser,
   setUserContext,
-  sanitizeLogin,
+  sanitizeUserKey,
   localDateStamp,
   filePathFor,
   lastDevicesPath,

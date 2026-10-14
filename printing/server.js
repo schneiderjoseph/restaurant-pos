@@ -63,7 +63,7 @@ app.post('/print/preview', requireSession, (req, res) => {
   } catch (err) {
     const msg = err && (err.message || String(err));
     appendUserLog({
-      user: req.posSession?.login,
+      userId: req.posSession?.sub,
       level: 'ERROR',
       service: 'printing',
       action: 'preview',
@@ -161,7 +161,7 @@ app.post('/print', requireSession, async (req, res) => {
   } catch (err) {
     const message = err && (err.message || String(err));
     appendUserLog({
-      user: req.posSession?.login,
+      userId: req.posSession?.sub,
       level: 'ERROR',
       service: 'printing',
       action: 'print',

@@ -17,7 +17,7 @@ process.env.USER_LOG_DIR = tmpRoot;
 const {
   appendUserLog,
   recordDeviceConnection,
-  sanitizeLogin,
+  sanitizeUserKey,
   localDateStamp,
   filePathFor,
   lastDevicesPath,
@@ -33,12 +33,12 @@ after(() => {
   fs.rmSync(tmpRoot, { recursive: true, force: true });
 });
 
-test('sanitizeLogin strips unsafe chars and falls back to _unknown', () => {
-  assert.equal(sanitizeLogin('marie'), 'marie');
-  assert.equal(sanitizeLogin('Marie/Admin'), 'Marie_Admin');
-  assert.equal(sanitizeLogin('../etc'), '.._etc');
-  assert.equal(sanitizeLogin(''), UNKNOWN_USER);
-  assert.equal(sanitizeLogin(null), UNKNOWN_USER);
+test('sanitizeUserKey strips unsafe chars and falls back to _unknown', () => {
+  assert.equal(sanitizeUserKey('user:4t5g6rqi'), 'user_4t5g6rqi');
+  assert.equal(sanitizeUserKey('Marie/Admin'), 'Marie_Admin');
+  assert.equal(sanitizeUserKey('../etc'), '.._etc');
+  assert.equal(sanitizeUserKey(''), UNKNOWN_USER);
+  assert.equal(sanitizeUserKey(null), UNKNOWN_USER);
 });
 
 test('localDateStamp is YYYY-MM-DD', () => {
@@ -71,14 +71,15 @@ test('buildLine is single-line and masks secrets', () => {
 
 test('appendUserLog writes a file asynchronously', async () => {
   appendUserLog({
-    user: 'cashier1',
+    userId: 'user:cashier1',
     level: 'ACTION',
     service: 'tracking',
     action: 'orders.complete',
     meta: { order: 'order:abc' },
   });
 
-  const expected = filePathFor('cashier1');
+  const expected = filePathFor('user:cashier1');
+  assert.equal(path.basename(path.dirname(expected)), 'user_cashier1');
   await new Promise((r) => setTimeout(r, 80));
   assert.equal(fs.existsSync(expected), true);
   const body = fs.readFileSync(expected, 'utf8');
@@ -88,14 +89,14 @@ test('appendUserLog writes a file asynchronously', async () => {
 
 test('recordDeviceConnection keeps last devices with IP', () => {
   recordDeviceConnection({
-    user: 'marie',
+    userId: 'user:marie',
     ip: '192.168.1.40',
     deviceId: 'tablet-AAAA1111',
     userAgent: 'Mozilla/5.0',
     ok: true,
   });
   recordDeviceConnection({
-    user: 'marie',
+    userId: 'user:marie',
     ip: '10.0.0.5',
     deviceId: 'tablet-BBBB2222',
     userAgent: 'POS Tablet',
@@ -103,13 +104,13 @@ test('recordDeviceConnection keeps last devices with IP', () => {
   });
   // Same device, new IP — updates in place, stays first
   recordDeviceConnection({
-    user: 'marie',
+    userId: 'user:marie',
     ip: '10.0.0.9',
     deviceId: 'tablet-BBBB2222',
     ok: true,
   });
 
-  const file = lastDevicesPath('marie');
+  const file = lastDevicesPath('user:marie');
   assert.equal(fs.existsSync(file), true);
   const devices = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.equal(devices.length, 2);
@@ -117,4 +118,11 @@ test('recordDeviceConnection keeps last devices with IP', () => {
   assert.equal(devices[0].ip, '10.0.0.9');
   assert.equal(devices[1].deviceId, 'tablet-AAAA1111');
   assert.equal(devices[1].ip, '192.168.1.40');
+});
+
+test('a login (the PIN) never names a folder', async () => {
+  appendUserLog({ user: '4821', level: 'WARN', service: 'gateway', action: 'login_failure' });
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(fs.existsSync(path.join(tmpRoot, '4821')), false);
+  assert.match(fs.readFileSync(filePathFor(UNKNOWN_USER), 'utf8'), /login_failure/);
 });

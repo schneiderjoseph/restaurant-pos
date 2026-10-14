@@ -27,14 +27,17 @@ function mirrorErrorToFile(tag, message, data) {
       : data !== undefined
         ? { data }
         : undefined;
-  const user = meta?.user || meta?.login;
+  // Log folders are named by user id, never by login (the PIN).
+  const userId = meta?.user_id || meta?.userId;
   if (meta) {
     delete meta.user;
     delete meta.login;
+    delete meta.user_id;
+    delete meta.userId;
     delete meta.stack;
   }
   appendUserLog({
-    user,
+    userId,
     level: 'ERROR',
     service: 'api',
     action: tag,

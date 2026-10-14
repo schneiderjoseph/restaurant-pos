@@ -28,9 +28,9 @@ function actorMeta(payload, sessionUserId) {
   };
 }
 
-function mirrorTrackingToFile(payload, sessionLogin, sessionUserId) {
+function mirrorTrackingToFile(payload, sessionUserId) {
   appendUserLog({
-    user: sessionLogin || payload?.user || '_unknown',
+    userId: sessionUserId || undefined,
     level: 'ACTION',
     service: 'tracking',
     action: payload?.module || 'tracking',
@@ -95,7 +95,7 @@ async function sessionUserName(client, userId) {
   }
 }
 
-async function createTracking(rawPayload, sessionUserId, sessionLogin) {
+async function createTracking(rawPayload, sessionUserId) {
   const client = await getClient();
   const payload = normalizeTrackingPayload(rawPayload);
   const name = await sessionUserName(client, sessionUserId);
@@ -127,7 +127,7 @@ async function createTracking(rawPayload, sessionUserId, sessionLogin) {
     result = created;
   }
 
-  mirrorTrackingToFile(payload, sessionLogin, sessionUserId);
+  mirrorTrackingToFile(payload, sessionUserId);
   return result;
 }
 

@@ -40,7 +40,7 @@ app.use((err, req, res, next) => {
   // eslint-disable-next-line no-console
   console.error('Tracking API error:', err);
   appendUserLog({
-    user: req?.posSession?.login,
+    userId: req?.posSession?.sub,
     level: 'ERROR',
     service: 'tracking',
     action: 'unhandled',

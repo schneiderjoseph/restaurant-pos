@@ -49,8 +49,9 @@ function mirrorAuditToFile(entry, payload) {
       : 'INFO';
   const details =
     payload.details && typeof payload.details === 'object' ? payload.details : null;
+  // The folder is the user id: a failed login has none, and its typed PIN is never written.
   appendUserLog({
-    user: entry.actor_login || '_unknown',
+    userId: payload.actor_id || undefined,
     level,
     service: 'gateway',
     action: entry.action,
@@ -80,7 +81,7 @@ function mirrorAuditToFile(entry, payload) {
     details
   ) {
     recordDeviceConnection({
-      user: entry.actor_login || '_unknown',
+      userId: payload.actor_id || undefined,
       ip: details.ip,
       deviceId: details.deviceId || details.device_id,
       userAgent: details.user_agent || details.userAgent,
