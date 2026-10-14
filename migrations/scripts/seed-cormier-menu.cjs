@@ -24,9 +24,12 @@
  *   ... --hours --apply        # category hours from the JSON (breakfast 06:00–10:00, free for room
  *                                guests, 1 690 a plate for walk-ins). Defines the fields of
  *                                migrations/2026_10_09_category_hours.surql. Keeps orders.
+ *   ... --names --apply        # rename existing dishes (and their variants) to match the JSON.
+ *                                Prices, categories and orders stay.
  *
- * Plage (beach passes, from the ASI PLAGE group, POS BAR prices): own outlet, untaxed like in
- * ASI, and on no station, so they print on bills and pre-bills only, never on a KDS / KOT.
+ * Plage (beach passes, from the ASI PLAGE group, POS BAR prices): own outlet, taxed like the
+ * rest of the menu (TCA + SERVICE), and on no station, so they print on bills and pre-bills
+ * only, never on a KDS / KOT.
  *
  * Options: --url http://127.0.0.1:8000  --ns posr  --db posr  --no-backup
  * Credentials: SURREAL_USER / SURREAL_PASS from ./.env.
@@ -51,6 +54,7 @@ const VARIANTS_ONLY = args.includes('--variants');
 const ADD_ONLY = args.includes('--add');
 const SIDES_ONLY = args.includes('--sides');
 const HOURS_ONLY = args.includes('--hours');
+const NAMES_ONLY = args.includes('--names');
 const URL = opt('url', 'http://127.0.0.1:8000');
 const NS = opt('ns', process.env.SURREAL_NS || 'posr');
 const DB = opt('db', process.env.SURREAL_DB || 'posr');
@@ -91,6 +95,11 @@ const sidesRelation = (dishId) =>
   'has_required_modifiers = true, required_modifiers = 1, included_modifiers = 1, ' +
   'should_auto_open = true, should_auto_select = false, priority = 0;';
 
+/** Category `sides: true`, unless the dish sets `"sides": false` (e.g. Bouillon créole). */
+const itemWantsSides = (data, d) =>
+  d.item.sides !== false &&
+  d.cats.some((key) => data.categories.find((c) => c.key === key)?.sides);
+
 const sideDishSet = (it, priority) =>
   `menu_item:s${it.number} SET name = ${q(it.side_name)}, number = ${q(`S${it.number}`)}, price = 0f, ` +
   `cost = 0f, priority = ${priority}, source = 'manual', deleted_at = NONE, categories = [${SIDES_CATEGORY}]`;
@@ -123,6 +132,47 @@ const hoursSet = (c) =>
 
 const hasHours = (c) => Boolean(c.hours || c.room_included || c.walkin_price != null);
 
+/**
+ * Names only, on a live menu: dish name + variant labels follow the JSON.
+ * Live variant prices stay; categories, soft-deletes and orders stay.
+ */
+async function buildNamesSql(data) {
+  const dishes = [...collectDishes(data).values()];
+  const [rows] = await sql(
+    `SELECT id, name, variants FROM ${dishes.map((d) => d.id).join(', ')};`,
+  ).then((r) => r.map((x) => x.result));
+  const live = new Map((rows ?? []).filter(Boolean).map((r) => [String(r.id), r]));
+
+  const lines = ['BEGIN TRANSACTION;'];
+  const notes = [];
+  for (const d of dishes) {
+    const kept = live.get(d.id);
+    if (!kept) {
+      notes.push(`absent : ${d.id} (${d.item.name})`);
+      continue;
+    }
+    const sets = [`name = ${q(d.item.name)}`];
+    const jsonVariants = d.item.variants;
+    const liveVariants = Array.isArray(kept.variants) ? kept.variants : [];
+    if (jsonVariants && liveVariants.length === jsonVariants.length && liveVariants.length > 0) {
+      const renamed = liveVariants.map((v, i) => ({
+        name: jsonVariants[i].name,
+        price: Number(v.price),
+        ask_quantity: jsonVariants[i].ask_quantity === true || v.ask_quantity === true,
+      }));
+      if (renamed.some((v, i) => v.name !== liveVariants[i].name)) {
+        sets.push(`variants = ${variantsOf(renamed)}`);
+      }
+    }
+    if (kept.name !== d.item.name || sets.length > 1) {
+      lines.push(`UPDATE ${d.id} SET ${sets.join(', ')};`);
+      notes.push(`${kept.name || d.id} → ${d.item.name}`);
+    }
+  }
+  lines.push('COMMIT TRANSACTION;');
+  return { sql: lines.join('\n'), dishCount: notes.length, notes };
+}
+
 /** Hours only, on a live menu: sets them on the JSON's categories that have some. */
 function buildHoursSql(data) {
   // The fields of migrations/2026_10_09_category_hours.surql, so this runs on its own.
@@ -150,7 +200,7 @@ const outletsSql = (data) =>
     (o) => `INSERT IGNORE INTO outlet { id: outlet:${o.key}, name: ${q(o.name)}, priority: ${Number(o.priority ?? 0)} };`,
   );
 
-/** A category's own taxes ([] = untaxed, like the beach passes in ASI), else the menu's. */
+/** A category's own taxes ([] = untaxed override), else the menu's (TCA + SERVICE). */
 const taxesOf = (data, c) => (Array.isArray(c.taxes) ? c.taxes : data.taxes);
 
 /** The menu line of a dish: taxed with its category's taxes. */
@@ -351,7 +401,7 @@ async function buildAddSql(data) {
       lines.push(`UPDATE kitchen SET items += ${d.id} WHERE outlet = outlet:${d.outlet} AND deleted_at = NONE;`);
     }
     // A new main of a sides category (Le poulet) asks for its side like the others.
-    const withSides = d.cats.some((key) => data.categories.find((c) => c.key === key)?.sides);
+    const withSides = itemWantsSides(data, d);
     if (withSides) lines.push(sidesRelation(d.id));
     notes.push(`plat ${d.item.name} ${d.item.price} (${d.taxes.length ? 'taxé' : 'sans taxe'})${withSides ? ', avec accompagnement' : ''}`);
   }
@@ -436,7 +486,7 @@ function buildSql(data) {
   );
   for (const c of data.categories.filter((x) => x.sides)) {
     for (const it of c.items) {
-      if (it.ref) continue;
+      if (it.ref || it.sides === false) continue;
       lines.push(sidesRelation(`menu_item:m${it.number}`));
     }
   }
@@ -470,7 +520,9 @@ async function backup() {
 
 async function main() {
   const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'migrations', 'data', 'cormier-menu.json'), 'utf8'));
-  const { sql: script, dishCount, notes } = HOURS_ONLY
+  const { sql: script, dishCount, notes } = NAMES_ONLY
+    ? await buildNamesSql(data)
+    : HOURS_ONLY
     ? buildHoursSql(data)
     : SIDES_ONLY
     ? buildSidesSql(data)
