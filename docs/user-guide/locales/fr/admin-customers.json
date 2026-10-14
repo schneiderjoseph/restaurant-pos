@@ -29,6 +29,23 @@
       ]
     },
     {
+      "id": "duplicates",
+      "title": "Doublons probables",
+      "intro": "Si des walk-ins semblent enregistrés plusieurs fois, un bandeau orange ⚠ s’affiche au-dessus de la liste : « N clients semblent enregistrés plusieurs fois (même téléphone, nom proche) ». Il n’apparaît que pour un rôle qui peut fusionner, sur la vue des clients actifs, et disparaît quand il n’y a plus de doublon.",
+      "steps": [
+        "Touchez Voir dans le bandeau : la liste des groupes s’ouvre.",
+        "Chaque groupe montre en haut la fiche « À garder (fiche la plus ancienne) », puis ses doublons.",
+        "Vérifiez que c’est bien la même personne, puis touchez Fusionner sur un doublon : la fenêtre de fusion s’ouvre avec la fiche à garder déjà choisie.",
+        "Confirmez avec Fusionner. Le bandeau se met à jour."
+      ],
+      "bullets": [
+        "Un groupe = même téléphone et nom identique, dans le désordre, sans accents, ou à une faute de frappe près dans un mot de 4 lettres ou plus (Napoleon / Napoleom, Moise / Moïse / Moisse).",
+        "Sans téléphone, deux homonymes ne sont jamais signalés : même nom ne veut pas dire même personne.",
+        "Les clients de l’hôtel (ASI) ne sont jamais listés.",
+        "Un spot-check rapide chaque jour suffit : depuis octobre 2026, un walk-in au même nom et au même téléphone ne peut plus être recréé, le bandeau sert surtout pour les fautes de frappe."
+      ]
+    },
+    {
       "id": "asi",
       "title": "Clients de l’hôtel",
       "bullets": [

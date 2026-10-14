@@ -57,8 +57,12 @@
       "image": "srv-guest-register.png",
       "caption": "Enregistrement d’un nouveau client depuis la recherche.",
       "bullets": [
-        "Le téléphone ou la pièce appartient déjà à quelqu’un : POSR vous le dit et propose ce client. Vérifiez avant de créer un doublon.",
-        "Même nom ne veut pas dire même personne : si POSR propose un client connu qui n’est pas le bon, choisissez « Nouveau client « nom » ».",
+        "Cherchez toujours avant d’enregistrer : tapez le nom ou le téléphone, et prenez la fiche proposée si c’est la bonne personne. Un client enregistré deux fois a deux historiques et deux soldes.",
+        "La pièce d’identité appartient déjà à quelqu’un : POSR le dit (« déjà enregistré ») et sélectionne directement ce client.",
+        "Même nom ou même téléphone qu’un client connu : la fenêtre « N client(s) connu(s) pourrai(en)t être cette personne » s’ouvre. Chaque fiche montre le téléphone masqué, la pièce, la chambre et la dernière commande, avec une étiquette orange « Même téléphone » et/ou « Même nom ». Touchez la fiche pour la prendre.",
+        "Même nom ET même téléphone qu’un walk-in : c’est cette personne. Le texte orange « déjà enregistré avec ce téléphone » remplace l’explication et le bouton « Nouveau client « nom » » n’existe pas : il faut toucher sa fiche (ou Annuler). La règle vaut partout où l’on enregistre un walk-in, Front Desk compris.",
+        "Seulement même nom (téléphone différent) ou seulement même téléphone (une famille partage souvent un numéro) : si aucune fiche n’est la bonne, touchez « Nouveau client « nom » » pour créer quand même.",
+        "Les clients de l’hôtel (ASI) ne bloquent jamais : un client d’hôtel au même nom et au même téléphone n’empêche pas d’enregistrer un walk-in.",
         "Le bouton « Enregistrer » n’apparaît que si votre rôle a le droit d’enregistrer des clients walk-in. Sinon, demandez au responsable ou servez via le plan de salle."
       ]
     },

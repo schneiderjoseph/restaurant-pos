@@ -37,6 +37,19 @@
       ]
     },
     {
+      "id": "floor-rules",
+      "title": "Les 5 règles du service",
+      "intro": "Sur des tablettes partagées, ces cinq gestes évitent les clients en double, les notes imprimées deux fois et les déconnexions à la chaîne.",
+      "bullets": [
+        "Chercher avant de créer : tapez le nom ou le téléphone du client avant de l’enregistrer (voir « Enregistrer un client de passage »).",
+        "Prendre la fiche proposée : quand POSR montre un client au même nom ou au même téléphone, vérifiez-le avant de créer. Même nom et même téléphone : POSR impose la fiche existante.",
+        "Attendre avant de réimprimer : une note provisoire sort en quelques secondes. Un deuxième appui est ignoré pendant l’impression, puis demande « Réimprimer ? » pendant 45 secondes.",
+        "Se déconnecter avant de passer la tablette : Marche/Arrêt, pas le cadenas (seul celui qui a verrouillé peut rouvrir). Le collègue entre ensuite son propre PIN.",
+        "Un caissier par encaissement : une seule personne encaisse une commande, du début à la fin, sur la même tablette."
+      ],
+      "note": "Les soirs de forte affluence (le lundi soir notamment), une tablette de plus ou un caissier dédié évite que le personnel se déconnecte l’un l’autre."
+    },
+    {
       "id": "screen",
       "title": "La barre latérale",
       "intro": "À gauche, la barre latérale ne montre que les écrans autorisés pour votre rôle. Un serveur voit en général :",

@@ -9,9 +9,11 @@
         "Vérifiez qu’il ne reste pas de lignes en attente (orange) : elles ne sont pas sur la note.",
         "Dans Commandes, touchez l’imprimante de la carte : la note provisoire s’imprime.",
         "L’imprimante devient orange sur la carte (et une petite imprimante orange s’affiche à côté du prénom) : la note a déjà été imprimée.",
+        "Attendez le papier : un deuxième appui pendant que la note s’imprime ne fait rien, à part le message « La note provisoire est déjà en cours d’impression… ».",
+        "Si la note a été imprimée il y a moins de 45 secondes (sur n’importe quelle tablette), POSR demande « Réimprimer la note provisoire ? ». « Ne pas imprimer » (gris) annule ; « Réimprimer » (orange) imprime une deuxième copie. Ne réimprimez que si le client a vraiment besoin d’une copie.",
         "Si le client recommande, ajoutez les plats puis réimprimez."
       ],
-      "note": "Le nombre d’impressions peut être limité par commande. Au-delà, un responsable doit autoriser avec son PIN (voir « Suivre ses commandes »)."
+      "note": "Le même contrôle s’applique au bouton Note provisoire de l’écran d’encaissement. Le nombre d’impressions peut aussi être limité par commande. Au-delà, un responsable doit autoriser avec son PIN (voir « Suivre ses commandes »)."
     },
     {
       "id": "split",
