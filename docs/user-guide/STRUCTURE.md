@@ -15,6 +15,15 @@ POSR Documentation
 │   ├── Bill, split and payment [planned]
 │   └── Working as a DUO [planned]
 │
+├── 🛎️ Front Desk Guide
+│   ├── Getting started [planned]
+│   ├── Checking a guest in [planned]
+│   ├── Folio, payment and check-out [planned]
+│   ├── Orders charged to rooms [planned]
+│   ├── Late departures and room conflicts [planned]
+│   ├── House credit [planned]
+│   └── Good routine [planned]
+│
 ├── 📗 Cashier and Manager Guide
 │   ├── Cashing and authorizations [planned]
 │   ├── Approving changes to sent orders [planned]

@@ -1,6 +1,6 @@
 {
   "title": "Documentation POSR",
-  "intro": "Guides par poste pour POSR. Choisissez le vôtre : serveur, caisse et responsable, écrans (station et affichage), administrateur ou comptabilité.",
+  "intro": "Guides par poste pour POSR. Choisissez le vôtre : serveur, réception, caisse et responsable, écrans (station et affichage), administrateur ou comptabilité.",
   "toc": "Guides",
   "openGuide": "Ouvrir le guide",
   "statusReady": "Prêt",
@@ -11,6 +11,10 @@
     "server": {
       "title": "Guide serveur",
       "intro": "Le travail en salle sur la tablette : se connecter, trouver le client ou la table, prendre et envoyer la commande, la suivre jusqu’à ce qu’elle soit prête, et faire l’addition."
+    },
+    "frontdesk": {
+      "title": "Guide réception",
+      "intro": "L’écran Réception : check-in et check-out des séjours manuels, relevés de chambre à voir, imprimer et encaisser, commandes posées sur chambre (ROOM), départs en retard et conflits avec ASI, crédit maison."
     },
     "manager": {
       "title": "Guide caisse et responsable",

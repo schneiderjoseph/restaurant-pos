@@ -63,6 +63,24 @@ export const GUIDES = [
     ],
   },
   {
+    id: 'frontdesk',
+    emoji: '🛎️',
+    folder: 'frontdesk',
+    pdfName: 'posr-frontdesk-guide.pdf',
+    defaultTitle: 'Front Desk Guide',
+    defaultIntro:
+      'Reception staff: check guests in and out of manual stays, read and print room folios, collect them, follow orders charged to rooms, and keep rooms free of conflicts with ASI.',
+    chapters: [
+      { key: 'frontdesk-start', plannedTitle: 'Getting started' },
+      { key: 'frontdesk-checkin', plannedTitle: 'Checking a guest in' },
+      { key: 'frontdesk-folio', plannedTitle: 'Folio, payment and check-out' },
+      { key: 'frontdesk-room-charges', plannedTitle: 'Orders charged to rooms' },
+      { key: 'frontdesk-conflicts', plannedTitle: 'Late departures and room conflicts' },
+      { key: 'frontdesk-credit', plannedTitle: 'House credit' },
+      { key: 'frontdesk-routine', plannedTitle: 'Good routine' },
+    ],
+  },
+  {
     id: 'manager',
     emoji: '📗',
     folder: 'manager',

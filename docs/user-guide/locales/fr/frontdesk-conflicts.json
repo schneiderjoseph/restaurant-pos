@@ -1,0 +1,46 @@
+{
+  "title": "Départs en retard et conflits de chambre",
+  "intro": "POSR et ASI attribuent tous deux des chambres. Un conflit arrive presque toujours de la même façon : un client manuel part sans check-out, puis ASI met quelqu’un d’autre dans sa chambre. Le plus sûr est de ne jamais laisser un séjour ouvert après le départ.",
+  "sections": [
+    {
+      "id": "late",
+      "title": "Bandeau orange « départs en retard »",
+      "intro": "Il s’affiche en haut de « Séjours ouverts » dès qu’un séjour manuel a dépassé sa date de départ prévue (le lendemain du départ prévu, pas le jour même).",
+      "steps": [
+        "Chaque séjour en retard est un bouton : chambre, nom, « prévu le … ». Touchez-le : son relevé s’ouvre à droite.",
+        "Le client est parti : encaissez le reste dû, puis « Confirmer le check-out ».",
+        "Le client reste : choisissez la nouvelle date et touchez « Prolonger ». Il sort du bandeau."
+      ],
+      "note": "Dans la liste, ces séjours portent aussi la mention orange « En retard ». Videz ce bandeau à chaque prise de service."
+    },
+    {
+      "id": "conflicts",
+      "title": "Onglet « Conflits de chambre »",
+      "intro": "Chaque carte rouge montre une chambre et les clients qui la réclament (avec « ASI » ou « Séjour manuel »). L’onglet sert à repérer ; on règle depuis « Séjours ouverts ».",
+      "steps": [
+        "Repérez le client « Séjour manuel » de la carte.",
+        "Dans « Séjours ouverts », ouvrez son relevé : le bandeau rouge « ASI a mis … » le confirme.",
+        "Encaissez son reste dû, puis faites son check-out. Le conflit disparaît."
+      ]
+    },
+    {
+      "id": "automatic",
+      "title": "Ce que POSR règle tout seul",
+      "bullets": [
+        "Toutes les 30 secondes, POSR relit les clients d’ASI. Si ASI a mis un autre client dans la chambre d’un séjour manuel et que ce séjour est entièrement payé (reste dû à zéro), POSR fait le check-out automatiquement.",
+        "Une note est ajoutée sur la fiche du client : « Check-out auto … : chambre … reprise dans ASI par … ».",
+        "Si le séjour doit encore de l’argent, POSR ne le ferme jamais tout seul : il reste dans « Conflits de chambre » jusqu’à ce que vous encaissiez. Dès que c’est payé, il se ferme à la synchro suivante.",
+        "Pendant ce temps, les nouvelles commandes de la chambre vont au client ASI, pas à l’ancien client manuel."
+      ]
+    },
+    {
+      "id": "prevent",
+      "title": "Éviter les conflits",
+      "bullets": [
+        "Check-out le jour du départ, pas le lendemain.",
+        "Prolongez dès que le client annonce qu’il reste.",
+        "Un client à la fois dans ASI et dans POSR pour la même chambre, c’est un doublon : gardez ASI, fermez le séjour manuel et demandez à un responsable de fusionner les deux fiches."
+      ]
+    }
+  ]
+}

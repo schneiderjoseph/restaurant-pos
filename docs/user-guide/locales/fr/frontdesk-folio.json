@@ -1,0 +1,66 @@
+{
+  "title": "Relevé, encaissement et check-out",
+  "intro": "Touchez un client dans « Séjours ouverts » : son relevé s’ouvre à droite. Tout ce qui concerne son séjour se fait depuis ce panneau.",
+  "sections": [
+    {
+      "id": "header",
+      "title": "Le haut du relevé",
+      "bullets": [
+        "Nom du client, puis « Chambre 21 · 2026-10-09 → 2026-10-12 · Séjour manuel » (ou « ASI »).",
+        "Séjour manuel : trois cases. « Total Room » = tout ce qui a été mis sur la chambre. « Encaissé » = ce qui a déjà été payé en espèces ou carte. « Reste dû » = la différence ; la case est verte avec « Relevé encaissé » quand tout est payé, orange avec « Relevé non encaissé » sinon.",
+        "Client ASI : une seule case « Total Room », avec « Porté en chambre ASI (encaissement dans ASI) ».",
+        "« N commande(s) encore ouverte(s) » en orange : le client a une table pas encore réglée au restaurant. Faites-la régler avant le check-out, sinon elle ne sera pas sur le relevé."
+      ]
+    },
+    {
+      "id": "fiches",
+      "title": "Fiches du séjour : voir chaque commande",
+      "intro": "Sous le haut du relevé, une ligne par commande mise sur la chambre : numéro de commande, date et heure, montant porté sur la chambre.",
+      "fields": [
+        { "name": "Voir (bouton bleu)", "effect": "Ouvre la facture complète à l’écran : plats et quantités, suppléments, remises, taxes, total et paiements. Rien n’est modifié. Dans la fenêtre, FR et EN impriment cette commande." },
+        { "name": "FR / EN (boutons gris)", "effect": "Imprime la fiche de cette seule commande, en français ou en anglais. Une fenêtre demande d’abord la devise d’impression (USD ou HTG), puis la page d’impression du navigateur s’ouvre." },
+        { "name": "Tout imprimer (FR) / Tout imprimer (EN)", "effect": "En haut à droite. Imprime le relevé complet : toutes les commandes du séjour, puis le total, ce qui a été encaissé et le reste dû. C’est le document à remettre au client au départ. Grisé s’il n’y a encore aucune commande." }
+      ],
+      "note": "« Aucune note Room sur ce séjour » : rien n’a encore été mis sur cette chambre."
+    },
+    {
+      "id": "settle",
+      "title": "Encaisser le relevé",
+      "intro": "Visible seulement pour un séjour manuel, quand il reste un montant dû, et si vous avez le droit d’encaisser.",
+      "steps": [
+        "En bas du panneau, choisissez le « Mode d’encaissement » : CASH, CARD, ZELLE, NATCASH, virement… (ROOM et CREDIT ne sont pas proposés : on ne paie pas une chambre avec la chambre).",
+        "Touchez « Encaisser le relevé (montant) ». Le montant encaissé est toujours tout le reste dû.",
+        "Message « Relevé Room encaissé » : « Encaissé » augmente, « Reste dû » tombe à zéro et la case devient verte."
+      ],
+      "note": "L’encaissement est un vrai paiement : il apparaît dans la caisse et dans les rapports du jour, comme une addition payée au restaurant. Si le client remet ensuite quelque chose sur sa chambre, le reste dû remonte et il faudra encaisser à nouveau."
+    },
+    {
+      "id": "checkout",
+      "title": "Faire le check-out",
+      "steps": [
+        "Encaissez d’abord le relevé : le bouton rouge « Confirmer le check-out » reste grisé tant qu’il reste un montant dû.",
+        "Imprimez le relevé (« Tout imprimer ») si le client le souhaite.",
+        "Touchez « Confirmer le check-out ». Message « Check-out enregistré » : le séjour disparaît de la liste et la chambre redevient libre."
+      ],
+      "note": "Si le client occupe d’autres chambres, il reste « en chambre » pour celles-là : seul ce séjour est fermé. Un client ASI ne fait pas son check-out ici, mais dans ASI."
+    },
+    {
+      "id": "move-extend",
+      "title": "Changer de chambre, prolonger",
+      "fields": [
+        { "name": "Changer de chambre", "effect": "Choisissez la nouvelle chambre dans la liste, puis touchez « Changer de chambre ». Le séjour, ses commandes et son relevé suivent le client. Refusé si la chambre est occupée (ASI ou autre séjour manuel)." },
+        { "name": "Prolonger", "effect": "Choisissez la nouvelle date de départ, puis touchez « Prolonger ». À faire dès que le client annonce qu’il reste : sinon il apparaît en « départ en retard »." }
+      ]
+    },
+    {
+      "id": "takeover",
+      "title": "Bandeau rouge « ASI a mis … en chambre … »",
+      "intro": "Le client manuel est parti sans check-out et ASI a donné sa chambre à quelqu’un d’autre. Les nouvelles commandes de cette chambre vont maintenant au client ASI.",
+      "steps": [
+        "Encaissez le reste dû du client manuel.",
+        "Faites son check-out (s’il est soldé, POSR le fait même tout seul dans la minute, voir « Retards et conflits »).",
+        "Après le check-out, si vous avez le droit de fusionner les fiches clients (responsable), POSR demande si c’est la même personne que le client ASI. « Fusionner dans le client ASI » réunit les deux fiches (notes, allergies, téléphone, pièce d’identité, historique) ; « Personnes différentes » ne change rien."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "title": "Prise en main de la réception",
+  "intro": "L’écran Réception gère les clients logés hors ASI (les « séjours manuels ») et montre aussi les clients logés dans ASI, pour voir et imprimer ce qu’ils ont mis sur leur chambre au restaurant.",
+  "sections": [
+    {
+      "id": "open",
+      "title": "Ouvrir l’écran",
+      "steps": [
+        "Connectez-vous avec votre PIN, comme sur n’importe quelle tablette POSR.",
+        "Dans la barre latérale, touchez « Réception ».",
+        "Les onglets sont en haut à gauche ; le nombre de clients en chambre s’affiche à droite (« 12 en chambre ») quand vous êtes sur Séjours ouverts."
+      ],
+      "note": "Ce que vous voyez dépend de votre rôle. Le rôle Réception fait check-in, check-out et changements de chambre. Le bouton « Encaisser le relevé » n’apparaît qu’aux utilisateurs qui ont aussi le droit d’encaisser (caissier) : sans ce droit, une phrase vous rappelle qu’un caissier doit encaisser."
+    },
+    {
+      "id": "two-kinds",
+      "title": "Deux sortes de clients en chambre",
+      "intro": "Chaque client de la liste porte un carré avec son numéro de chambre. La couleur du carré dit d’où il vient.",
+      "fields": [
+        { "name": "Carré noir · « ASI »", "effect": "Client enregistré dans ASI FrontDesk. POSR le reçoit automatiquement (synchro toutes les 30 secondes). Vous ne pouvez ni le check-in, ni le check-out, ni le changer de chambre ici : tout cela se fait dans ASI. Ici, vous voyez et imprimez ce qu’il a mis sur sa chambre ; l’encaissement se fait dans ASI." },
+        { "name": "Carré bleu · « Séjour manuel »", "effect": "Client logé par la réception dans POSR (hors ASI). Tout se fait ici : check-in, relevé, encaissement, changement de chambre, prolongation, check-out." }
+      ]
+    },
+    {
+      "id": "tabs",
+      "title": "Les onglets",
+      "fields": [
+        { "name": "Séjours ouverts", "effect": "La liste des clients en chambre (ASI en premier, puis séjours manuels) et, à droite, le relevé du client sélectionné. C’est l’onglet de tous les jours. Le petit chiffre sur l’onglet = nombre de clients en chambre." },
+        { "name": "Commandes ROOM", "effect": "Toutes les commandes posées sur chambre (paiement ROOM) sur une période, toutes chambres confondues, avec le détail de chaque facture. Voir le chapitre « Commandes posées sur chambre »." },
+        { "name": "Check-in", "effect": "Créer un client et le mettre en chambre, ou mettre en chambre un client déjà connu." },
+        { "name": "Crédit", "effect": "Les clients autorisés au crédit maison et ce qu’ils doivent. Le chiffre = nombre de comptes crédit." },
+        { "name": "Registre clients", "effect": "Rechercher un client déjà venu (même s’il n’est plus en chambre) pour le remettre en chambre sans le recréer." },
+        { "name": "Conflits de chambre", "effect": "Les chambres réclamées par deux clients à la fois. L’onglet passe en rouge avec un chiffre quand il y en a. Voir « Retards et conflits »." }
+      ]
+    },
+    {
+      "id": "how-room-charges-arrive",
+      "title": "D’où viennent les notes de chambre",
+      "intro": "La réception ne saisit pas les consommations. Ce sont les serveurs et caissiers qui, au moment de l’addition, choisissent le mode de paiement ROOM pour un client logé.",
+      "bullets": [
+        "Client en séjour manuel : la note est rattachée à son séjour. Elle apparaît dans son relevé (« Fiches du séjour ») et augmente son « Reste dû ».",
+        "Client ASI : la note apparaît dans son relevé POSR pour consultation et impression, mais elle s’encaisse dans ASI.",
+        "Une commande annulée ou remboursée disparaît du relevé et n’est plus due."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Crédit maison",
+  "intro": "Certains clients (staff d’organisations, habitués) peuvent consommer à crédit : la note n’est pas payée sur le moment, elle est portée à leur compte. La réception approuve les nouveaux crédits et suit ce qui est dû.",
+  "sections": [
+    {
+      "id": "approve",
+      "title": "Approuver une demande de crédit",
+      "intro": "Quand un caissier veut mettre une note en CREDIT pour un client pas encore autorisé, une fenêtre « Demande de crédit à approuver » s’ouvre sur les tablettes des utilisateurs qui ont le droit d’approuver (rôle Réception compris).",
+      "fields": [
+        { "name": "Plafond de crédit (optionnel)", "effect": "Montant maximum que le client pourra devoir. Laissez vide pour un crédit sans plafond." },
+        { "name": "Approuver", "effect": "Le client est autorisé au crédit (avec ce plafond). Le caissier qui a demandé reçoit la réponse et peut valider sa note en CREDIT." },
+        { "name": "Refuser", "effect": "Le crédit n’est pas ouvert ; le caissier est prévenu et doit encaisser autrement." },
+        { "name": "Plus tard", "effect": "Ferme la fenêtre sans décider ; la demande reste en attente." }
+      ],
+      "note": "Le crédit n’est pas un encaissement : rien n’entre en caisse tant que le client n’a pas réglé son compte."
+    },
+    {
+      "id": "account",
+      "title": "Suivre et encaisser un compte crédit",
+      "steps": [
+        "Onglet « Crédit ». À gauche, les clients autorisés au crédit, avec leur plafond (« Plafond … » ou « Sans plafond »).",
+        "Touchez un client : à droite, « Facturé » (tout ce qui a été mis à crédit), ce qui a déjà été encaissé, le reste dû, et la liste des « Commandes à crédit ».",
+        "Pour encaisser (droit caissier nécessaire), choisissez le mode (espèces, carte…) puis touchez « Encaisse crédit (montant) ». Tout le reste dû est encaissé."
+      ],
+      "note": "Sans le droit d’encaisser, la phrase « Un caissier (réception paiement) doit encaisser le solde crédit » s’affiche à la place du bouton."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "title": "Commandes posées sur chambre (ROOM)",
+  "intro": "L’onglet « Commandes ROOM » montre toutes les factures du restaurant payées avec ROOM, toutes chambres et tous clients confondus (ASI et séjours manuels). C’est là qu’on répond à « qu’est-ce que la chambre 24 a pris hier soir ? » ou qu’on vérifie une note contestée.",
+  "sections": [
+    {
+      "id": "list",
+      "title": "Lire la liste",
+      "steps": [
+        "Ouvrez l’onglet « Commandes ROOM ». Par défaut, il montre les 7 derniers jours.",
+        "Changez « Du » et « Au » pour une autre période (le jour « Au » est inclus).",
+        "Tapez dans « Rechercher » un numéro de chambre, un nom ou un numéro de commande pour filtrer.",
+        "En haut à droite : le nombre de commandes affichées et leur total porté sur chambre."
+      ],
+      "fields": [
+        { "name": "Carré noir", "effect": "La chambre : celle du séjour manuel si la commande y est rattachée, sinon la chambre où la commande a été prise, sinon la chambre du client." },
+        { "name": "Nom, n° de commande, date", "effect": "Le client de la commande, son numéro (comme sur le ticket du restaurant) et l’heure à laquelle elle a été créée." },
+        { "name": "Montant", "effect": "Seulement la part payée avec ROOM. Si le client a payé une partie en espèces, cette partie n’est pas comptée ici." }
+      ],
+      "note": "Les commandes annulées ou remboursées ne sont pas listées : elles ne sont plus dues."
+    },
+    {
+      "id": "view",
+      "title": "Voir une facture",
+      "steps": [
+        "Touchez « Voir » (bouton bleu) sur la ligne.",
+        "La facture complète s’affiche : en-tête de l’établissement, serveur et table, chaque plat avec quantité, prix et suppléments, remises, taxes, total et paiements.",
+        "Pour la remettre au client, touchez FR ou EN en bas de la fenêtre. Sinon, fermez avec la croix : rien n’est modifié."
+      ]
+    },
+    {
+      "id": "print",
+      "title": "Imprimer une fiche",
+      "intro": "FR et EN sur la ligne impriment directement la fiche de cette commande (avec le nom du client et la chambre), sans ouvrir la facture.",
+      "steps": [
+        "Touchez FR (français) ou EN (anglais).",
+        "Choisissez la devise d’impression (USD ou HTG).",
+        "La page d’impression du navigateur s’ouvre : choisissez l’imprimante et imprimez."
+      ],
+      "note": "Pour le relevé complet d’un séjour (toutes ses commandes, avec ce qui est payé et ce qui reste), passez plutôt par Séjours ouverts → le client → « Tout imprimer »."
+    }
+  ]
+}

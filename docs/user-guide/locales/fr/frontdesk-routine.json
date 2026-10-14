@@ -1,0 +1,43 @@
+{
+  "title": "La bonne routine",
+  "intro": "Quelques gestes réguliers suffisent pour que les chambres, les relevés et la caisse restent justes.",
+  "sections": [
+    {
+      "id": "shift-start",
+      "title": "En prenant le service",
+      "steps": [
+        "Ouvrez Réception → « Séjours ouverts ».",
+        "Bandeau orange des départs en retard : pour chaque client, check-out s’il est parti, « Prolonger » s’il reste.",
+        "Onglet « Conflits de chambre » : il doit être vide (pas de chiffre rouge). Sinon, réglez chaque carte (voir « Retards et conflits »)."
+      ]
+    },
+    {
+      "id": "departure",
+      "title": "À chaque départ",
+      "steps": [
+        "Ouvrez le relevé du client.",
+        "Vérifiez qu’il n’a pas de commande encore ouverte au restaurant (message orange « commande(s) encore ouverte(s) »).",
+        "« Tout imprimer » (FR ou EN) et faites vérifier le relevé au client. En cas de doute sur une ligne, touchez « Voir » pour montrer le détail des plats.",
+        "Encaissez le reste dû, puis « Confirmer le check-out »."
+      ]
+    },
+    {
+      "id": "arrival",
+      "title": "À chaque arrivée",
+      "steps": [
+        "Cherchez d’abord le client dans « Registre clients » : s’il est déjà venu, reprenez sa fiche (ses notes et allergies suivent).",
+        "Sinon, check-in avec son vrai nom, et la bonne date de départ.",
+        "Ne logez jamais dans POSR un client déjà enregistré dans ASI."
+      ]
+    },
+    {
+      "id": "never",
+      "title": "À ne pas faire",
+      "bullets": [
+        "Laisser un séjour ouvert après le départ du client : la chambre paraît occupée, et ASI créera un conflit en y mettant quelqu’un.",
+        "Encaisser le relevé avant que le client ait fini de consommer : chaque nouvelle note ROOM fait remonter le reste dû.",
+        "Créer une deuxième fiche pour un client qui existe déjà : utilisez le Registre clients ou la fenêtre de doublon."
+      ]
+    }
+  ]
+}

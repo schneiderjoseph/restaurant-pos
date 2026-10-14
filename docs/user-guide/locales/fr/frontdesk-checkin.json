@@ -1,0 +1,47 @@
+{
+  "title": "Check-in d’un client",
+  "intro": "Le check-in crée un séjour manuel : un client, une chambre, une date d’arrivée et une date de départ prévue. À partir de là, le restaurant peut mettre ses consommations sur sa chambre.",
+  "sections": [
+    {
+      "id": "new-guest",
+      "title": "Nouveau client",
+      "steps": [
+        "Onglet « Check-in ». À gauche, tapez le nom du client (prénom et nom, ex. « Jean Carter »).",
+        "Téléphone et pièce d’identité sont facultatifs ici : le client est reconnu par sa chambre. Ne tapez pas un faux numéro (0000…) : il est refusé.",
+        "Vérifiez la date d’arrivée et la date de départ prévue. Le départ doit être le même jour ou après l’arrivée, sinon « La date de départ doit être ≥ la date d’arrivée ».",
+        "Ajoutez une note si besoin (allergie, demande particulière). Elle s’ajoute aux notes existantes du client, elle n’efface rien.",
+        "À droite, cochez la ou les chambres (case cochée = fond bleu). Les chambres grisées marquées « Chambre occupée » ne peuvent pas être choisies.",
+        "Touchez « Créer et check-in ». Le client arrive dans « Séjours ouverts »."
+      ],
+      "note": "Si POSR trouve un client qui ressemble (même nom ou même téléphone), une fenêtre propose de reprendre la fiche existante au lieu de créer un doublon. Reprenez-la si c’est la même personne ; sinon, créez-en une nouvelle."
+    },
+    {
+      "id": "known-guest",
+      "title": "Client déjà connu",
+      "steps": [
+        "Onglet « Registre clients », cherchez le client (nom, téléphone…).",
+        "Touchez « Check-in » sur sa ligne : vous passez à l’onglet Check-in avec le client déjà choisi (encadré bleu « Check-in de ce client : … »).",
+        "Choisissez les dates et la chambre, puis touchez « Check-in de ce client »."
+      ],
+      "note": "Pour un client ASI, il n’y a pas de bouton Check-in : il est géré dans ASI. Si vous le choisissez quand même, POSR refuse."
+    },
+    {
+      "id": "several-rooms",
+      "title": "Un client, plusieurs chambres",
+      "bullets": [
+        "Cochez plusieurs chambres au check-in, ou, pour un client déjà en chambre, utilisez « Ajouter une chambre » (même bouton, libellé différent).",
+        "Chaque chambre a son propre séjour : son propre relevé, son propre encaissement et son propre check-out.",
+        "Sur la fiche client, les chambres s’affichent ensemble (« 12, 14 »)."
+      ]
+    },
+    {
+      "id": "refusals",
+      "title": "Quand le check-in est refusé",
+      "fields": [
+        { "name": "Chambre occupée par un client ASI", "effect": "ASI a déjà quelqu’un dans cette chambre. Choisissez une autre chambre, ou vérifiez dans ASI." },
+        { "name": "Chambre déjà prise par un séjour manuel", "effect": "Un séjour manuel est encore ouvert sur cette chambre. Faites d’abord le check-out du client précédent (s’il est parti), ou choisissez une autre chambre." },
+        { "name": "Nom refusé", "effect": "« Client », « Anonyme » ou un numéro de chambre ne sont pas des noms : tapez le vrai nom du client." }
+      ]
+    }
+  ]
+}
