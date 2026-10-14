@@ -27,6 +27,7 @@ import { CustomerPreferencesForm } from '@/components/customer/customer.preferen
 import { CustomerDetail } from '@/components/settings/customers/customer.detail.tsx';
 import { CustomerForm } from '@/components/settings/customers/customer.form.tsx';
 import { CustomerDeleteModal, CustomerMergeModal } from '@/components/settings/customers/customer.actions.tsx';
+import { CustomerDuplicatesBanner } from '@/components/settings/customers/customer.duplicates.tsx';
 import { useSecurity } from '@/hooks/useSecurity.ts';
 import { useActionVisible } from '@/hooks/useActionVisible.ts';
 import { getAccessRuleChildLabel } from '@/lib/access.rules.i18n.ts';
@@ -86,6 +87,8 @@ export const AdminCustomers = () => {
   const [preferences, setPreferences] = useState<Customer>();
   const [deleting, setDeleting] = useState<Customer>();
   const [merging, setMerging] = useState<Customer>();
+  const [mergeKeep, setMergeKeep] = useState<Customer>();
+  const [mergedCount, setMergedCount] = useState(0);
   const [creating, setCreating] = useState(false);
 
   const applyFilters = (nextScope: Scope, term: string) => {
@@ -204,7 +207,10 @@ export const AdminCustomers = () => {
               <IconTooltipButton
                 label={t('admin:customers.merge')}
                 variant="warning"
-                onClick={() => guarded('admin.customers.merge', () => setMerging(customer))}
+                onClick={() => guarded('admin.customers.merge', () => {
+                  setMergeKeep(undefined);
+                  setMerging(customer);
+                })}
               >
                 <FontAwesomeIcon icon={faCodeMerge} />
               </IconTooltipButton>
@@ -235,6 +241,15 @@ export const AdminCustomers = () => {
 
   return (
     <>
+      {canMerge && scope === 'active' && (
+        <CustomerDuplicatesBanner
+          refreshKey={mergedCount}
+          onMerge={(duplicate, keep) => guarded('admin.customers.merge', () => {
+            setMergeKeep(keep);
+            setMerging(duplicate);
+          })}
+        />
+      )}
       <TableComponent
         columns={columns}
         loaderHook={loadHook}
@@ -304,7 +319,15 @@ export const AdminCustomers = () => {
         />
       )}
       <CustomerDeleteModal customer={deleting} onClose={() => setDeleting(undefined)} onDone={() => loadHook.fetchData()} />
-      <CustomerMergeModal customer={merging} onClose={() => setMerging(undefined)} onDone={() => loadHook.fetchData()} />
+      <CustomerMergeModal
+        customer={merging}
+        keep={mergeKeep}
+        onClose={() => setMerging(undefined)}
+        onDone={() => {
+          loadHook.fetchData();
+          setMergedCount((count) => count + 1);
+        }}
+      />
     </>
   );
 };

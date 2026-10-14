@@ -78,6 +78,8 @@ export const CustomerDeleteModal = ({ customer, onClose, onDone }: DeleteProps) 
 interface MergeProps {
   /** The duplicate: it is folded into the customer picked here. */
   customer?: Customer;
+  /** The customer to keep, already picked (from the duplicates list). */
+  keep?: Customer;
   onClose: () => void;
   onDone: () => void;
 }
@@ -86,7 +88,7 @@ interface MergeProps {
  * Folds a duplicate into the right customer. The duplicate's orders show with the kept customer,
  * its missing details and preferences are copied over; it stays restorable.
  */
-export const CustomerMergeModal = ({ customer, onClose, onDone }: MergeProps) => {
+export const CustomerMergeModal = ({ customer, keep, onClose, onDone }: MergeProps) => {
   const { t } = useTranslation(['admin', 'menu', 'common']);
   const db = useDB();
   const [page] = useAtom(appPage);
@@ -97,8 +99,8 @@ export const CustomerMergeModal = ({ customer, onClose, onDone }: MergeProps) =>
 
   useEffect(() => {
     setSearch(customer?.name ?? '');
-    setTarget(undefined);
-  }, [customer?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- reset per duplicate
+    setTarget(keep);
+  }, [customer?.id, keep?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- reset per duplicate
 
   useEffect(() => {
     if (!customer) return;

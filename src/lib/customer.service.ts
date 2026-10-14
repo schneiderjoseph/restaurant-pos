@@ -4,7 +4,7 @@ import type { User } from '@/api/model/user.ts';
 import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
 import { normalizeIdDocument } from '@/lib/customer-id-document.ts';
 import { findCustomersByPhone } from '@/lib/customer-phone.ts';
-import { formatPersonName, namesAreSamePerson } from '@/lib/guest.ts';
+import { formatPersonName, guestNameTokens, namesAreSamePerson } from '@/lib/guest.ts';
 import { toRecordId } from '@/lib/utils.ts';
 
 export type CustomerMatchReason = 'phone' | 'name';
@@ -430,4 +430,78 @@ export function canEditCustomerIdentity(
   // flows on /frontdesk write name/phone/ID for new walk-ins.
   const walkIn = customer.source === 'walk-in' || Boolean(customer.tags?.includes('walk-in'));
   return walkIn && Boolean(user?.id) && sameCustomer(customer.created_by, user?.id);
+}
+
+/** Letters to change, add or remove to turn one word into the other. */
+function editDistance(a: string, b: string): number {
+  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    previous = current;
+  }
+  return previous[b.length];
+}
+
+/** Same words, or one word of 4+ letters off by one typo: "Napoleon" and "Napoleom". */
+export function namesLookAlike(a?: string | null, b?: string | null): boolean {
+  if (namesAreSamePerson(a, b)) return true;
+  const left = guestNameTokens(a ?? undefined).sort();
+  const right = guestNameTokens(b ?? undefined).sort();
+  if (left.length === 0 || left.length !== right.length) return false;
+  let typos = 0;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] === right[index]) continue;
+    if (Math.min(left[index].length, right[index].length) < 4 || editDistance(left[index], right[index]) > 1) {
+      return false;
+    }
+    typos += 1;
+  }
+  return typos <= 1;
+}
+
+type DuplicateCandidate = Pick<Customer, 'id' | 'name' | 'phone_e164' | 'number' | 'source' | 'asi_guest_id' | 'asi_checkin_id'>;
+
+/**
+ * Walk-ins that are likely one client registered several times: same phone and a name that
+ * looks alike. Oldest first in each group (the one to keep), biggest groups first.
+ */
+export function groupLikelyDuplicates<T extends DuplicateCandidate>(customers: readonly T[]): T[][] {
+  const byPhone = new Map<string, T[]>();
+  for (const customer of customers) {
+    if (!customer.phone_e164 || !isLocalCustomer(customer)) continue;
+    byPhone.set(customer.phone_e164, [...(byPhone.get(customer.phone_e164) ?? []), customer]);
+  }
+  const groups: T[][] = [];
+  for (const samePhone of byPhone.values()) {
+    const left = [...samePhone];
+    while (left.length > 0) {
+      const group = [left.shift() as T];
+      // Grows by any member's look-alike, so "Moise", "Moïse" and "Moisse" end up together.
+      for (let index = 0; index < left.length; index += 1) {
+        if (group.some((member) => namesLookAlike(member.name, left[index].name))) {
+          group.push(...left.splice(index, 1));
+          index = -1;
+        }
+      }
+      if (group.length > 1) {
+        groups.push(group.sort((a, b) => (a.number ?? Infinity) - (b.number ?? Infinity)));
+      }
+    }
+  }
+  return groups.sort((a, b) => b.length - a.length);
+}
+
+/** Groups of active walk-ins to merge (Manage > Clients). */
+export async function findLikelyDuplicateWalkIns(db: AnyDb): Promise<Customer[][]> {
+  const rows = rowsOf<Customer>(
+    await db.query(
+      `SELECT * FROM ${Tables.customers}
+       WHERE ${ACTIVE_CUSTOMER} AND phone_e164 != NONE AND source != 'asi-fd'
+       LIMIT 20000`,
+    ),
+  );
+  return groupLikelyDuplicates(rows);
 }

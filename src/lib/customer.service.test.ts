@@ -8,8 +8,10 @@ import {
   customerNumberLabel,
   duplicateWalkIn,
   findWalkInMatches,
+  groupLikelyDuplicates,
   mergeCustomers,
   mergedCustomerFields,
+  namesLookAlike,
   parseCustomerNumber,
   sameCustomer,
   softDeleteCustomer,
@@ -133,6 +135,37 @@ describe('walk-in duplicates', () => {
       { customer: asi, reasons: ['phone', 'name'] },
       { customer: walkIn, reasons: ['phone', 'name'] },
     ])?.id).toBe('customer:w');
+  });
+});
+
+describe('likely duplicate walk-ins', () => {
+  it('sees one typo in a long word, not in short ones or extra words', () => {
+    expect(namesLookAlike('Napoleon Jean', 'Jean Napoleom')).toBe(true);
+    expect(namesLookAlike('Moïse', 'MOISE')).toBe(true);
+    expect(namesLookAlike('Moise', 'Moisse')).toBe(true);
+    expect(namesLookAlike('Ana', 'Ena')).toBe(false);
+    expect(namesLookAlike('Moise Paul', 'Moise')).toBe(false);
+    expect(namesLookAlike('Napoleon Jean', 'Napoleom Jeen')).toBe(false);
+  });
+
+  it('groups same phone + look-alike names, oldest first, skipping hotel guests', () => {
+    const c = (id: string, name: string, phone: string | null, number: number, source = 'walk-in') =>
+      customer({ id, name, phone_e164: phone, number, source } as Partial<Customer>);
+    const groups = groupLikelyDuplicates([
+      c('customer:m3', 'Moisse', '+50937000001', 30),
+      c('customer:m1', 'Moise', '+50937000001', 10),
+      c('customer:m2', 'Moïse', '+50937000001', 20),
+      c('customer:other', 'Paul', '+50937000001', 5),
+      c('customer:n1', 'Napoleon', '+50937000002', 40),
+      c('customer:n2', 'Napoleom', '+50937000002', 41),
+      c('customer:asi', 'Napoleon', '+50937000002', 1, 'asi-fd'),
+      c('customer:x', 'Gaby', null, 50),
+      c('customer:y', 'Gaby', null, 51),
+    ]);
+    expect(groups.map((group) => group.map((item) => item.id))).toEqual([
+      ['customer:m1', 'customer:m2', 'customer:m3'],
+      ['customer:n1', 'customer:n2'],
+    ]);
   });
 });
 

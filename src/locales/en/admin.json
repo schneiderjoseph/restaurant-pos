@@ -1054,6 +1054,15 @@
     "mergeKeep": "Client to keep",
     "mergeSummary": "{{from}} will be merged into {{to}}.",
     "mergeConfirm": "Merge",
+    "duplicates": {
+      "banner_one": "1 client looks registered more than once (same phone, look-alike name)",
+      "banner_other": "{{count}} clients look registered more than once (same phone, look-alike name)",
+      "review": "Review",
+      "title_one": "1 likely duplicate",
+      "title_other": "{{count}} likely duplicates",
+      "hint": "Same phone and a name that matches or differs by one typo. Merge each duplicate into the oldest file if it is the same person; hotel guests are not listed.",
+      "keep": "Keep (oldest file)"
+    },
     "merged": "{{from}} merged into {{to}}",
     "mergeFailed": "Could not merge the clients",
     "stats": {

@@ -1053,6 +1053,15 @@
     "mergeKeep": "Client à garder",
     "mergeSummary": "{{from}} sera fusionné dans {{to}}.",
     "mergeConfirm": "Fusionner",
+    "duplicates": {
+      "banner_one": "1 client semble enregistré plusieurs fois (même téléphone, nom proche)",
+      "banner_other": "{{count}} clients semblent enregistrés plusieurs fois (même téléphone, nom proche)",
+      "review": "Voir",
+      "title_one": "1 doublon probable",
+      "title_other": "{{count}} doublons probables",
+      "hint": "Même téléphone et nom identique ou à une faute près. Fusionnez chaque doublon dans la fiche la plus ancienne si c'est la même personne ; les clients de l'hôtel ne sont pas listés.",
+      "keep": "À garder (fiche la plus ancienne)"
+    },
     "merged": "{{from}} fusionné dans {{to}}",
     "mergeFailed": "Impossible de fusionner les clients",
     "stats": {
