@@ -56,6 +56,8 @@ function mirrorAuditToFile(entry, payload) {
     action: entry.action,
     meta: {
       actor_id: payload.actor_id || undefined,
+      name: details?.name || undefined,
+      roles: payload.actor_roles?.length ? payload.actor_roles.join(',') : undefined,
       table: payload.table_name || undefined,
       source: payload.source || undefined,
       ...(details
@@ -67,6 +69,7 @@ function mirrorAuditToFile(entry, payload) {
             reason: details.reason,
             error: details.error,
             jti: details.jti,
+            replaced_by_device: details.replaced_by_device,
           }
         : {}),
     },
@@ -191,7 +194,7 @@ function extractBearer(req) {
 
 /**
  * Log a successful login (for the login audit trail).
- * @param {object} [extra] — { deviceId, userAgent }
+ * @param {object} [extra] — { deviceId, userAgent, name }
  */
 async function logLoginSuccess(userId, login, roles, ip, extra = {}) {
   await log({
@@ -203,6 +206,7 @@ async function logLoginSuccess(userId, login, roles, ip, extra = {}) {
       ip,
       deviceId: extra.deviceId || null,
       user_agent: extra.userAgent || null,
+      name: extra.name || null,
     },
     source: 'gateway-auth-routes',
   });
@@ -227,14 +231,19 @@ async function logLoginFailure(login, ip, reason, extra = {}) {
 }
 
 /**
- * Log a session revocation (logout).
+ * Log a session revocation: a logout, or the user signing in on another device.
+ * @param {object} [extra] — { name, replacedByDevice }
  */
-async function logSessionRevoked(jti, userId, login) {
+async function logSessionRevoked(jti, userId, login, extra = {}) {
   await log({
     action: 'session_revoked',
     actor_id: userId ? String(userId) : null,
     actor_login: login,
-    details: { jti },
+    details: {
+      jti,
+      name: extra.name || null,
+      replaced_by_device: extra.replacedByDevice || null,
+    },
     source: 'gateway-jwt',
   });
 }

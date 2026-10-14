@@ -17,6 +17,10 @@ function readDeviceId(body) {
   return /^[A-Za-z0-9_-]{8,64}$/.test(trimmed) ? trimmed : null;
 }
 
+/** "Jean Pierre", for the audit trail: the login alone is a PIN. */
+const displayName = (user) =>
+  [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim() || null;
+
 /**
  * One device per user: the new session replaces every live one opened on another device.
  * Each is revoked and its database socket closed, so that tablet stops at once.
@@ -30,7 +34,10 @@ async function replaceOtherDeviceSession(user, session, deviceId) {
   for (const old of displaced) {
     await revokeSession(old.jti, Math.ceil(old.expiresAt / 1000));
     closeSessionSockets(old.jti);
-    auditLog.logSessionRevoked(old.jti, user.id, user.login).catch(() => {});
+    auditLog.logSessionRevoked(old.jti, user.id, user.login, {
+      name: displayName(user),
+      replacedByDevice: deviceId,
+    }).catch(() => {});
   }
 }
 
@@ -127,7 +134,7 @@ router.post('/login', loginRateLimit(), async (req, res) => {
       user.login,
       session.roles,
       clientIp,
-      deviceMeta
+      { ...deviceMeta, name: displayName(user) }
     ).catch(() => {});
 
     return res.json({

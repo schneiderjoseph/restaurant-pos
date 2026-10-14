@@ -18,13 +18,24 @@ function orderIdFromPayload(payload) {
   return String(raw);
 }
 
-function mirrorTrackingToFile(payload, sessionLogin) {
+/** Who acted, readable in the file without a database lookup: the folder is only the login. */
+function actorMeta(payload, sessionUserId) {
+  const name = payload?.user && payload.user !== 'unknown' ? String(payload.user) : undefined;
+  return {
+    user_id: sessionUserId ? String(sessionUserId) : undefined,
+    name,
+    role: payload?.user_role || undefined,
+  };
+}
+
+function mirrorTrackingToFile(payload, sessionLogin, sessionUserId) {
   appendUserLog({
     user: sessionLogin || payload?.user || '_unknown',
     level: 'ACTION',
     service: 'tracking',
     action: payload?.module || 'tracking',
     meta: {
+      ...actorMeta(payload, sessionUserId),
       page: payload?.page,
       order: orderIdFromPayload(payload),
     },
@@ -116,7 +127,7 @@ async function createTracking(rawPayload, sessionUserId, sessionLogin) {
     result = created;
   }
 
-  mirrorTrackingToFile(payload, sessionLogin);
+  mirrorTrackingToFile(payload, sessionLogin, sessionUserId);
   return result;
 }
 
