@@ -158,6 +158,7 @@ function renderBillToHtml(bill, config, opts) {
     address,
     phone,
     notes,
+    disclaimer,
     thankYou,
     showPayments = false,
     showChange = false,
@@ -257,7 +258,11 @@ function renderBillToHtml(bill, config, opts) {
 
   if (notes) {
     parts.push('<hr/>');
-    parts.push(`<div class="row"><span>${escapeHtml(notesLabel)}: ${escapeHtml(String(notes).slice(0, 48))}</span></div>`);
+    parts.push(`<div class="row"><span>${escapeHtml(notesLabel)}: ${escapeHtml(String(notes))}</span></div>`);
+  }
+  if (disclaimer) {
+    parts.push('<hr/>');
+    parts.push(`<div class="center thankyou">${escapeHtml(String(disclaimer))}</div>`);
   }
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
@@ -331,6 +336,9 @@ function renderSummaryToHtml(data, config) {
   parts.push(row(L.tips || 'Tips', formatMoney(s.tips, sym)));
   parts.push(`<div class="row bold"><span>${escapeHtml(L.grandTotalDue || 'Grand total (due)')}</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
   parts.push(row(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym)));
+  parts.push(row(L.roomCharges || 'Charged to room', formatMoney(s.roomCharges, sym)));
+  parts.push(row(L.creditCharges || 'Charged to credit', formatMoney(s.creditCharges, sym)));
+  parts.push(row(L.deferredCharges || 'Room + credit total', formatMoney(s.deferredCharges, sym)));
   parts.push(row(L.rounding || 'Rounding', formatMoney(s.rounding, sym)));
   parts.push(row(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym)));
   parts.push('<hr/>');
@@ -370,11 +378,23 @@ function renderSummaryToHtml(data, config) {
     });
   }
   parts.push('<hr/>');
-  parts.push(sect(L.paymentTypes || '6. Payment types'));
+  parts.push(sect(L.paymentTypes || '6. Payment types (collected)'));
   if (!s.paymentTypes || s.paymentTypes.length === 0) {
     parts.push(`<p class="muted">${escapeHtml(L.noPaymentData || 'No payment data for this date.')}</p>`);
   } else {
     s.paymentTypes.forEach((payment) => {
+      const p = formatNum(pct(payment.total, s.amountDue)) + '%';
+      parts.push(
+        row(payment.name, `${formatMoney(payment.total, sym)}  ${p}`)
+      );
+    });
+  }
+  parts.push('<hr/>');
+  parts.push(sect(L.deferredChargesSection || '7. Room and credit (not collected)'));
+  if (!s.deferredTypes || s.deferredTypes.length === 0) {
+    parts.push(`<p class="muted">${escapeHtml(L.noDeferredData || 'No room or credit charges for this date.')}</p>`);
+  } else {
+    s.deferredTypes.forEach((payment) => {
       const p = formatNum(pct(payment.total, s.amountDue)) + '%';
       parts.push(
         row(payment.name, `${formatMoney(payment.total, sym)}  ${p}`)
@@ -636,15 +656,19 @@ function renderPreview(printType, data, config) {
   if (t === 'temp') {
     const order = data && data.order;
     if (!order) throw new Error('data.order is required for temp preview');
+    const documentKind = data && data.documentKind === 'proforma' ? 'proforma' : 'temp';
     const bill = mapOrderToTemp(order, {
       labels: cfg.labels,
       timezone: cfg.timezone,
       locale: cfg.locale,
       showInclusivePrices: !!cfg.showInclusivePrices,
+      documentKind,
     });
+    const isProforma = bill.documentKind === 'proforma';
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
-      notes: bill.note || undefined,
+      notes: isProforma ? undefined : (bill.note || undefined),
+      disclaimer: isProforma ? (bill.note || undefined) : undefined,
       showPayments: false,
       showChange: false,
       showDeliveryLine: false,

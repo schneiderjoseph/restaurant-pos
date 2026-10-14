@@ -27,6 +27,16 @@ const STORE_LOGO_MAX_HEIGHT_PX = 180;
 /** @deprecated use MAX_IMAGE_WIDTH_PX */
 const MAX_LOGO_WIDTH_PX = MAX_IMAGE_WIDTH_PX;
 
+/**
+ * Map Unicode stars to ASCII asterisks for CP850/CP437 thermal printers.
+ * Screen / HTML preview keep ★; ESC/POS would otherwise print "?" for U+2605.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function toPrinterText(value) {
+  return String(value ?? '').replace(/[★☆✦✧✪✫✬✭✮✯✰]/g, '*');
+}
+
 const DEFAULTS = {
   bottomMargin: 0,
   topMargin: 0,
@@ -393,7 +403,7 @@ function printHardwareAlignedLine(printer, text, opts) {
   const size = options.size || 'normal';
   const style = options.style;
   const maxLen = getEffectiveLineWidth(size);
-  const content = String(text || '').slice(0, maxLen);
+  const content = toPrinterText(text).slice(0, maxLen);
   if (!content) return;
   hardResetLayout(printer);
   if (size !== 'normal') applyTextSize(printer, size);
@@ -412,7 +422,7 @@ function printFixedLine(printer, text, opts) {
   if (size !== 'normal') applyTextSize(printer, size);
   if (style === 'bold') printer.style('b');
   else if (style === 'bold-underline') printer.style('bu');
-  printer.align('lt').text(padAlign(text, align, null, size));
+  printer.align('lt').text(padAlign(toPrinterText(text), align, null, size));
   hardResetLayout(printer);
 }
 
@@ -456,8 +466,8 @@ function printLineLeftRight(printer, left, right, opts) {
   else if (options.style === 'bold') printer.style('b');
   const lineWidth = getEffectiveLineWidth(textSize);
   const half = Math.floor(lineWidth / 2);
-  const leftStr = padRight(String(left || '').slice(0, half), half);
-  const rightStr = padLeft(String(right || '').slice(0, half), half);
+  const leftStr = padRight(toPrinterText(left).slice(0, half), half);
+  const rightStr = padLeft(toPrinterText(right).slice(0, half), half);
   const gap = lineWidth - half - half;
   printer.align('lt').text(leftStr + ' '.repeat(Math.max(0, gap)) + rightStr);
   hardResetLayout(printer);
@@ -757,7 +767,7 @@ function printFooterSections(printer, config) {
  * @returns {string}
  */
 function formatItemLine(item, config) {
-  const name = (item.name || item.title || '').slice(0, 28);
+  const name = toPrinterText(item.name || item.title || '').slice(0, 28);
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const total = item.total != null ? Number(item.total) : price * qty;
@@ -778,7 +788,7 @@ function formatItemLine(item, config) {
  * @returns {{ left: string, right: string }}
  */
 function getItemLineLeftRight(item, config) {
-  const name = (item.name || item.title || '').slice(0, 18);
+  const name = toPrinterText(item.name || item.title || '').slice(0, 18);
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const lineTotal = item.total != null ? Number(item.total) : price * qty;
@@ -808,7 +818,7 @@ const ITEM_COL_TOTAL = 10;
  * @returns {string}
  */
 function buildItemRowString(item, config) {
-  const name = (item.name || item.title || '').slice(0, ITEM_COL_NAME);
+  const name = toPrinterText(item.name || item.title || '').slice(0, ITEM_COL_NAME);
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const lineTotal = item.total != null ? Number(item.total) : price * qty;
@@ -1390,6 +1400,7 @@ module.exports = {
   buildItemHeaderString,
   formatMoney,
   printLineLeftRight,
+  toPrinterText,
   sendCashDrawerPulse,
   printFiscalQrRow,
   printFiscalLogoThenQrFallback,

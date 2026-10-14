@@ -148,6 +148,30 @@ try {
         Warn "Le site ne repond pas sur $SiteUrl : verifier nginx."
     }
 
+    # --- 4b. Conf nginx (proxy /print body size, etc.) -----------------------------
+    # install-asi-prod.ps1 copies repo nginx.conf -> C:\nginx\conf\nginx-posr.conf
+    # with root rewritten for host nginx. Deploy must do the same when it changes,
+    # otherwise fixes like client_max_body_size never reach the live proxy (413).
+    if (($changed -contains 'nginx.conf') -or -not (Test-Path (Join-Path $NginxRoot 'conf\nginx-posr.conf'))) {
+        Step 'Mise a jour de la conf nginx'
+        $repoNginx = Join-Path $RepoRoot 'nginx.conf'
+        $posrConf  = Join-Path $NginxRoot 'conf\nginx-posr.conf'
+        if (-not (Test-Path $repoNginx)) { Fail "nginx.conf introuvable dans le depot." }
+        $nginxBin = Join-Path $NginxRoot 'nginx.exe'
+        ((Get-Content $repoNginx -Raw) -replace 'root\s+/usr/share/nginx/html;', 'root html;') |
+            Out-File -FilePath $posrConf -Encoding ascii
+        Ok "nginx-posr.conf synchronise depuis le depot"
+        if (Test-Path $nginxBin) {
+            & $nginxBin -p $NginxRoot -t
+            if ($LASTEXITCODE -ne 0) { Fail 'nginx -t a echoue : conf invalide, rien recharge.' }
+            & $nginxBin -p $NginxRoot -s reload
+            if ($LASTEXITCODE -ne 0) { Fail 'nginx -s reload a echoue.' }
+            Ok 'nginx recharge'
+        } else {
+            Warn "nginx.exe introuvable dans $NginxRoot : conf ecrite mais non rechargee."
+        }
+    }
+
     # --- 5. Services ---------------------------------------------------------------
     Step 'Services docker'
     $restart = @(); $rebuild = @()

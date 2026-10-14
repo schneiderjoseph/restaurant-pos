@@ -93,7 +93,7 @@ app.get('/print/preview', (req, res) => {
 <body>
   <h1>Receipt preview</h1>
   <p>Same JSON as <code>POST /print</code> (printers ignored). Choose type and paste <code>data</code> + <code>config</code>.</p>
-  <label>Print type <select id="pt"><option value="temp">temp (Pre-Sale)</option><option value="final">final</option><option value="delivery">delivery</option><option value="kitchen">kitchen</option><option value="summary">summary</option><option value="refund">refund</option></select></label>
+  <label>Print type <select id="pt"><option value="temp">temp (Pre-Sale)</option><option value="proforma">proforma (Quote)</option><option value="final">final</option><option value="delivery">delivery</option><option value="kitchen">kitchen</option><option value="summary">summary</option><option value="refund">refund</option></select></label>
   <label>JSON body (must include <code>data</code> with <code>order</code>; for refund include <code>data.originalOrder</code> too)</label>
   <textarea id="json">{
   "data": {
@@ -125,7 +125,13 @@ app.get('/print/preview', (req, res) => {
       let body;
       try { body = JSON.parse(document.getElementById('json').value); } catch (e) { alert('Invalid JSON'); return; }
       body.data = body.data || {};
-      body.data.printType = pt;
+      if (pt === 'proforma') {
+        body.data.printType = 'temp';
+        body.data.documentKind = 'proforma';
+      } else {
+        body.data.printType = pt;
+        delete body.data.documentKind;
+      }
       fetch('/print/preview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         .then(function(r) { return r.text(); })
         .then(function(html) { var w = window.open('', '_blank'); w.document.write(html); w.document.close(); })

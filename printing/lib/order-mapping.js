@@ -897,9 +897,11 @@ function scaleBillAmounts(bill, scale, currencyCode) {
 
 /**
  * Temp: Pre-Sale Bill style (CommonBillParts only, no payments/change). Matches presale.bill.tsx.
+ * Pass options.documentKind = 'proforma' for Quote/Proforma (estimate disclaimer, not a final invoice).
  */
 function mapOrderToTemp(order, options) {
   const L = (options && options.labels) || {};
+  const isProforma = options && options.documentKind === 'proforma';
   return {
     ...mapOrderToBill(order, {
       forDelivery: false,
@@ -907,8 +909,13 @@ function mapOrderToTemp(order, options) {
       timezone: options && options.timezone,
       locale: options && options.locale,
     }),
-    title: L.preSaleBill || 'Pre-Sale Bill',
-    note: '',
+    title: isProforma
+      ? (L.proformaBill || 'Proforma')
+      : (L.preSaleBill || 'Pre-Sale Bill'),
+    note: isProforma
+      ? (L.proformaNote || 'Prices may vary. This is not a final invoice.')
+      : '',
+    documentKind: isProforma ? 'proforma' : 'temp',
   };
 }
 

@@ -16,8 +16,46 @@ const {
   printFiscalQrRow,
   printPrintingTimestamp,
   feedDotsAndCut,
+  getEffectiveLineWidth,
 } = require('./receipt-helpers');
 const { formatBillLineage } = require('./order-mapping');
+
+/**
+ * Wrap text to thermal line width (word-aware).
+ * @param {string} text
+ * @param {number} [maxLen]
+ * @returns {string[]}
+ */
+function wrapPrintText(text, maxLen) {
+  const width = Math.max(8, Number(maxLen) || getEffectiveLineWidth('normal') || 42);
+  const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+  const lines = [];
+  let current = '';
+  for (const word of words) {
+    if (!current) {
+      current = word.length > width ? word.slice(0, width) : word;
+      if (word.length > width) {
+        lines.push(current);
+        let rest = word.slice(width);
+        while (rest.length > width) {
+          lines.push(rest.slice(0, width));
+          rest = rest.slice(width);
+        }
+        current = rest;
+      }
+      continue;
+    }
+    if ((current + ' ' + word).length <= width) {
+      current = current + ' ' + word;
+    } else {
+      lines.push(current);
+      current = word.length > width ? word.slice(0, width) : word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
 
 /**
  * Single-discount header: "Discount (10% Summer Sale)" — value before name.
@@ -51,7 +89,7 @@ function formatDiscountMinimalPrint(name, valueType, rate, fallback) {
  * @param {Object} printer - escpos Printer
  * @param {Object} bill - from mapOrderToTemp/Final/Delivery
  * @param {Object} config - normalized config (currencySymbol, showVatNumber, vatName, vatNumber, labels, locale)
- * @param {Object} opts - { title, address?, phone?, notes?, thankYou?, showPayments?, showChange?, showDeliveryLine?, isFinal?, qrcode?, qrcodes? }
+ * @param {Object} opts - { title, address?, phone?, notes?, disclaimer?, thankYou?, showPayments?, showChange?, showDeliveryLine?, isFinal?, qrcode?, qrcodes? }
  * @returns {Promise<void>}
  */
 function printBillLayout(printer, bill, config, opts) {
@@ -69,6 +107,7 @@ function printBillLayout(printer, bill, config, opts) {
     qrcode,
     qrcodes,
     notes,
+    disclaimer,
     thankYou,
     showPayments = false,
     showChange = false,
@@ -195,7 +234,16 @@ function printBillLayout(printer, bill, config, opts) {
 
   if (notes) {
     printDivider(printer);
-    printFixedLine(printer, `${notesLabel}: ${String(notes).slice(0, 48)}`, { align: 'left' });
+    const noteLines = wrapPrintText(`${notesLabel}: ${String(notes)}`);
+    noteLines.forEach((line) => {
+      printFixedLine(printer, line, { align: 'left' });
+    });
+  }
+  if (disclaimer) {
+    printDivider(printer);
+    wrapPrintText(String(disclaimer)).forEach((line) => {
+      printCenteredText(printer, line);
+    });
   }
   if (thankYou) {
     printer.feed(1);

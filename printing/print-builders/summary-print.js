@@ -141,6 +141,9 @@ function printDailySalesSummary(printer, data, cfg) {
   line(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym));
   printer.style('normal');
   line(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym));
+  line(L.roomCharges || 'Charged to room', formatMoney(s.roomCharges, sym));
+  line(L.creditCharges || 'Charged to credit', formatMoney(s.creditCharges, sym));
+  line(L.deferredCharges || 'Room + credit total', formatMoney(s.deferredCharges, sym));
   line(L.rounding || 'Rounding', formatMoney(s.rounding, sym));
   line(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym));
 
@@ -155,10 +158,13 @@ function printDailySalesSummary(printer, data, cfg) {
   sect(printer, L.productMix || '5. Product mix');
   printProductMix(printer, s.categoryMix, s.exclusiveSales, sym, L);
 
-  sect(printer, L.paymentTypes || '6. Payment types');
+  sect(printer, L.paymentTypes || '6. Payment types (collected)');
   printPaymentTypes(printer, s.paymentTypes, s.amountDue, sym, line, L);
 
-  sect(printer, L.taxesBreakdown || '7. Taxes breakdown');
+  sect(printer, L.deferredChargesSection || '7. Room and credit (not collected)');
+  printPaymentTypes(printer, s.deferredTypes, s.amountDue, sym, line, L);
+
+  sect(printer, L.taxesBreakdown || '8. Taxes breakdown');
   if (!s.taxesList || s.taxesList.length === 0) {
     printer.text(L.noTaxRows || 'No tax rows for this date.');
   } else {

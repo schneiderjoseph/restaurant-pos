@@ -41,28 +41,58 @@ function isCashPayment(payment) {
   return t === 'cash' || n === 'cash';
 }
 
+function isDeferredChargePayment(payment) {
+  const t = String(payment?.payment_type?.type || '')
+    .toLowerCase()
+    .trim();
+  return t === 'room' || t === 'credit';
+}
+
 function getOrderPaymentTotals(order) {
   const payments = order?.payments || [];
-  const nonCashBreakdown = payments.reduce((acc, payment) => {
-    if (isCashPayment(payment)) return acc;
-    const label = payment?.payment_type?.name || payment?.payment_type?.title || 'Other';
+  const nonCashBreakdown = {};
+  const deferredBreakdown = {};
+  let cashAmount = 0;
+  let roomAmount = 0;
+  let creditAmount = 0;
+
+  payments.forEach((payment) => {
     const applied = getAppliedAmount(payment);
-    acc[label] = (acc[label] || 0) + applied;
-    return acc;
-  }, {});
-  const cashAmount = payments.reduce((sum, payment) => {
-    if (!isCashPayment(payment)) return sum;
-    return sum + getAppliedAmount(payment);
-  }, 0);
+    if (isCashPayment(payment)) {
+      cashAmount += applied;
+      return;
+    }
+    const label = payment?.payment_type?.name || payment?.payment_type?.title || 'Other';
+    const type = String(payment?.payment_type?.type || '').toLowerCase().trim();
+    if (type === 'room') {
+      deferredBreakdown[label] = (deferredBreakdown[label] || 0) + applied;
+      roomAmount += applied;
+      return;
+    }
+    if (type === 'credit') {
+      deferredBreakdown[label] = (deferredBreakdown[label] || 0) + applied;
+      creditAmount += applied;
+      return;
+    }
+    nonCashBreakdown[label] = (nonCashBreakdown[label] || 0) + applied;
+  });
+
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, x) => sum + x, 0);
-  const totalReceivedWithChange = payments.reduce((sum, p) => sum + getTenderedAmount(p), 0);
+  const deferredAmount = safeNumber(roomAmount + creditAmount);
   const amountCollected = safeNumber(cashAmount + nonCashAmount);
+  const amountApplied = safeNumber(amountCollected + deferredAmount);
+  const totalReceivedWithChange = payments.reduce((sum, p) => sum + getTenderedAmount(p), 0);
   return {
     amountCollected,
     cashAmount,
     nonCashAmount,
     nonCashBreakdown,
-    change: safeNumber(totalReceivedWithChange - amountCollected),
+    deferredAmount,
+    deferredBreakdown,
+    roomAmount: safeNumber(roomAmount),
+    creditAmount: safeNumber(creditAmount),
+    amountApplied,
+    change: safeNumber(totalReceivedWithChange - amountApplied),
     totalReceivedWithChange,
   };
 }
@@ -179,9 +209,19 @@ function computeSummary(props) {
     0
   );
   const amountCollectedRaw = amountCollected;
+  const roomCharges = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.roomAmount), 0);
+  const creditCharges = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.creditAmount), 0);
+  const deferredCharges = paymentTotals.reduce(
+    (sum, totals) => sum + safeNumber(totals.deferredAmount),
+    0
+  );
+  const amountApplied = paymentTotals.reduce(
+    (sum, totals) => sum + safeNumber(totals.amountApplied),
+    0
+  );
 
   const changeGiven = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.change), 0);
-  const rounding = safeNumber(amountCollected - grandTotalDue);
+  const rounding = safeNumber(amountApplied - grandTotalDue);
 
   const refunds = list.reduce((sum, order) => {
     if (order.status === 'Cancelled') {
@@ -222,16 +262,24 @@ function computeSummary(props) {
   const averageOrderCheck = ordersCount > 0 ? amountDue / ordersCount : 0;
 
   const paymentTypeMap = {};
+  const deferredTypeMap = {};
   paymentTotals.forEach((totals) => {
     Object.entries(totals.nonCashBreakdown).forEach(([typeName, amount]) => {
       if (!paymentTypeMap[typeName]) paymentTypeMap[typeName] = 0;
       paymentTypeMap[typeName] += safeNumber(amount);
+    });
+    Object.entries(totals.deferredBreakdown || {}).forEach(([typeName, amount]) => {
+      if (!deferredTypeMap[typeName]) deferredTypeMap[typeName] = 0;
+      deferredTypeMap[typeName] += safeNumber(amount);
     });
     if (!paymentTypeMap.Cash) paymentTypeMap.Cash = 0;
     paymentTypeMap.Cash += safeNumber(totals.cashAmount);
   });
 
   const paymentTypes = Object.entries(paymentTypeMap)
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+  const deferredTypes = Object.entries(deferredTypeMap)
     .map(([name, total]) => ({ name, total }))
     .sort((a, b) => b.total - a.total);
 
@@ -361,6 +409,9 @@ function computeSummary(props) {
     grandTotalDue,
     amountCollected,
     amountCollectedRaw,
+    roomCharges,
+    creditCharges,
+    deferredCharges,
     changeGiven,
     rounding,
     refunds,
@@ -370,6 +421,7 @@ function computeSummary(props) {
     averageCover,
     averageOrderCheck,
     paymentTypes,
+    deferredTypes,
     taxesList,
     discountsList,
     extrasList,
