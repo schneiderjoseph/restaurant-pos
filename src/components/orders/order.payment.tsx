@@ -54,6 +54,9 @@ import {collectOrderTaxRows, getExcludedTaxIds} from "@/lib/tax-calculator.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
 import {roundCurrency} from "@/lib/discount-engine/rounding.ts";
 
+/** Quiet time after the last payment edit before it is tracked. */
+const PAYMENT_TRACKING_SETTLE_MS = 1500;
+
 interface Props {
   order: Order
   onClose: () => void
@@ -106,6 +109,33 @@ export const OrderPayment = ({
   const [selectedPaymentTypeId, setSelectedPaymentTypeId] = useState<string | undefined>();
   const saveInFlightRef = useRef(false);
   const savePendingRef = useRef(false);
+
+  // Auto-save runs on every tender keystroke: track the payment once it settles, not each save.
+  const paymentTrackingRef = useRef<{
+    entry: Parameters<typeof postOrderTracking>[0] | null;
+    timer?: number;
+    sentKey?: string;
+  }>({entry: null});
+  const sendPaymentTracking = useCallback(() => {
+    const state = paymentTrackingRef.current;
+    window.clearTimeout(state.timer);
+    const entry = state.entry;
+    state.entry = null;
+    const key = entry ? JSON.stringify(entry.payload) : undefined;
+    if (!entry || key === state.sentKey) {
+      return;
+    }
+    state.sentKey = key;
+    postOrderTracking(entry);
+  }, []);
+  const queuePaymentTracking = useCallback((entry: Parameters<typeof postOrderTracking>[0]) => {
+    const state = paymentTrackingRef.current;
+    window.clearTimeout(state.timer);
+    state.entry = entry;
+    state.timer = window.setTimeout(sendPaymentTracking, PAYMENT_TRACKING_SETTLE_MS);
+  }, [sendPaymentTracking]);
+  // Leaving the screen sends what is still waiting.
+  useEffect(() => sendPaymentTracking, [sendPaymentTracking]);
 
   const [serviceCharge, setServiceCharge] = useState<number>(0);
   const [serviceChargeAmount, setServiceChargeAmount] = useState<number>(0);
@@ -719,7 +749,7 @@ export const OrderPayment = ({
       syncedTaxKeyRef.current = taxKey;
     }
 
-    postOrderTracking({
+    queuePaymentTracking({
       module: "orders.update_payment",
       page: page?.page,
       orderId: order.id,
@@ -755,7 +785,8 @@ export const OrderPayment = ({
     couponAmount,
     isInitialized,
     page?.page,
-    page?.user
+    page?.user,
+    queuePaymentTracking
   ])
 
   const saveOrderProgressRef = useRef(saveOrderProgress);
@@ -806,6 +837,7 @@ export const OrderPayment = ({
     } finally {
       saveInFlightRef.current = false;
     }
+    sendPaymentTracking();
   };
 
   const closeModal = async () => {
