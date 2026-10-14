@@ -27,6 +27,7 @@ import {
 import { walkInRefusal } from '@/lib/customer-id-document.ts';
 import {
   createWalkInCustomer,
+  WalkInDuplicateError,
   CustomerIdDocumentTakenError,
   findWalkInMatches,
   mergeCustomers,
@@ -426,7 +427,12 @@ export const FrontDeskScreen = () => {
       setWalkInMatches(null);
       await doCheckIn(customer);
     } catch (error) {
-      toast.error(mapError(error));
+      if (error instanceof WalkInDuplicateError) {
+        setForceCreateNew(false);
+        setWalkInMatches([{ customer: error.existing, reasons: ['phone', 'name'] }]);
+      } else {
+        toast.error(mapError(error));
+      }
       setBusy(false);
     }
   };

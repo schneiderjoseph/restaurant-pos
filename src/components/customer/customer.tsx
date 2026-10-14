@@ -28,6 +28,7 @@ import {
   createWalkInCustomer,
   customerNumberLabel,
   CustomerIdDocumentTakenError,
+  WalkInDuplicateError,
   findWalkInMatches,
   parseCustomerNumber,
   type CustomerMatch,
@@ -268,6 +269,10 @@ export const Customers = ({
       toast.success(t("menu:guest.created"));
       await attachCustomer(created);
     } catch (error) {
+      if (error instanceof WalkInDuplicateError) {
+        setMatches([{ customer: error.existing, reasons: ["phone", "name"] }]);
+        return;
+      }
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError

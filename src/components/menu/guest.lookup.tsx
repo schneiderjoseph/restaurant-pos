@@ -44,6 +44,7 @@ import {
   createWalkInCustomer,
   customerHistoryIds,
   CustomerIdDocumentTakenError,
+  WalkInDuplicateError,
   findWalkInMatches,
   LAST_ORDER_AT,
   updateCustomer,
@@ -652,6 +653,10 @@ export const GuestLookup = () => {
         await startNewOrderFor(guest);
       }
     } catch (error) {
+      if (error instanceof WalkInDuplicateError) {
+        setWalkInMatches({ list: [{ customer: error.existing, reasons: ['phone', 'name'] }], andStartOrder });
+        return;
+      }
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError

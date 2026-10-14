@@ -38,6 +38,14 @@ export class CustomerIdDocumentTakenError extends Error {
   }
 }
 
+/** Thrown when an active walk-in already has this name and this phone: it is that client. */
+export class WalkInDuplicateError extends Error {
+  constructor(readonly existing: Customer) {
+    super('A walk-in with this name and phone already exists');
+    this.name = 'WalkInDuplicateError';
+  }
+}
+
 const rowsOf = <T>(result: unknown): T[] => {
   const first = Array.isArray(result) ? result[0] : undefined;
   return Array.isArray(first) ? (first as T[]) : [];
@@ -106,8 +114,17 @@ export interface WalkInInput {
   createdBy?: Pick<User, 'id'> | null;
 }
 
-/** Registers a walk-in. The database gives it its customer number. */
+/**
+ * Registers a walk-in. The database gives it its customer number. Refused with
+ * WalkInDuplicateError when a walk-in with the same name and phone exists: that is them.
+ */
 export async function createWalkInCustomer(db: AnyDb, input: WalkInInput): Promise<Customer> {
+  if (input.phone?.trim()) {
+    const existing = duplicateWalkIn(await findWalkInMatches(db, { name: input.name, phone: input.phone }));
+    if (existing) {
+      throw new WalkInDuplicateError(existing);
+    }
+  }
   const idDocument = normalizeIdDocument(input.idDocument);
   const content: Record<string, unknown> = {
     name: formatPersonName(input.name),
@@ -378,6 +395,22 @@ export async function findWalkInMatches(
   return [...matches.values()].sort((a, b) => rank(a) - rank(b));
 }
 
+/** A walk-in or Front Desk client, not a hotel (ASI) guest. */
+const isLocalCustomer = (
+  customer: Pick<Customer, 'source' | 'asi_guest_id' | 'asi_checkin_id'>,
+): boolean => customer.asi_guest_id == null && customer.asi_checkin_id == null && customer.source !== 'asi-fd';
+
+/**
+ * The walk-in a new registration surely is: same name and same phone. Staff pick them
+ * instead of registering them again. Hotel (ASI) guests never block: the front desk may
+ * register the same guest twice.
+ */
+export function duplicateWalkIn(matches: readonly CustomerMatch[]): Customer | undefined {
+  return matches.find(({ customer, reasons }) =>
+    reasons.includes('phone') && reasons.includes('name') && isLocalCustomer(customer),
+  )?.customer;
+}
+
 /**
  * Who may change a customer's name, phone and ID document: a manager
  * (admin.customers.update), or the server who registered this walk-in.
@@ -389,7 +422,7 @@ export function canEditCustomerIdentity(
   can: (module: string) => boolean,
 ): boolean {
   if (!customer) return false;
-  if (customer.asi_guest_id != null || customer.asi_checkin_id != null || customer.source === 'asi-fd') {
+  if (!isLocalCustomer(customer)) {
     return false;
   }
   if (can('admin.customers.update')) return true;

@@ -6,12 +6,14 @@ import {
   createWalkInCustomer,
   CustomerIdDocumentTakenError,
   customerNumberLabel,
+  duplicateWalkIn,
   findWalkInMatches,
   mergeCustomers,
   mergedCustomerFields,
   parseCustomerNumber,
   sameCustomer,
   softDeleteCustomer,
+  WalkInDuplicateError,
 } from '@/lib/customer.service.ts';
 import { isBirthdayToday } from '@/lib/customer-preferences.ts';
 
@@ -57,7 +59,7 @@ describe('sameCustomer', () => {
 
 describe('createWalkInCustomer', () => {
   it('creates a walk-in with its author and normalized ID', async () => {
-    const db = fakeDb(() => [[{ id: 'customer:new', name: 'Jean Pierre' }]]);
+    const db = fakeDb((sql) => (sql.startsWith('CREATE') ? [[{ id: 'customer:new', name: 'Jean Pierre' }]] : [[]]));
     const created = await createWalkInCustomer(db, {
       name: '  Jean   Pierre ',
       guestCode: 'JEPI1',
@@ -67,7 +69,7 @@ describe('createWalkInCustomer', () => {
       createdBy: { id: 'user:1' },
     });
     expect(created.id).toBe('customer:new');
-    const content = db.calls[0].params?.content as Record<string, unknown>;
+    const content = db.calls.find((call) => call.sql.startsWith('CREATE'))?.params?.content as Record<string, unknown>;
     expect(content).toMatchObject({
       name: 'Jean Pierre',
       guest_code: 'JEPI1',
@@ -88,6 +90,49 @@ describe('createWalkInCustomer', () => {
     await expect(
       createWalkInCustomer(db, { name: 'Marie', guestCode: 'MA1', idDocument: '0034567890' }),
     ).rejects.toBeInstanceOf(CustomerIdDocumentTakenError);
+  });
+});
+
+describe('walk-in duplicates', () => {
+  const jean = { name: 'Jean Pierre', guestCode: 'JEPI1', phone: '+509 3747 3889' };
+  const known = (fields: Partial<Customer>) => fakeDb((sql) => {
+    if (sql.startsWith('CREATE')) return [[{ id: 'customer:new', name: 'Jean Pierre' }]];
+    if (sql.includes('phone_e164 = $e164')) return [[{ id: 'customer:old', name: 'Pierre Jean', ...fields }]];
+    return [[{ id: 'customer:old', name: 'Pierre Jean', ...fields }]];
+  });
+
+  it('refuses a walk-in with the name and phone of a known one', async () => {
+    const db = known({ source: 'walk-in' });
+    const error = await createWalkInCustomer(db, jean).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(WalkInDuplicateError);
+    expect((error as WalkInDuplicateError).existing.id).toBe('customer:old');
+    expect(db.calls.some((call) => call.sql.startsWith('CREATE'))).toBe(false);
+  });
+
+  it('lets the same name and phone as a hotel (ASI) guest through', async () => {
+    const db = known({ source: 'asi-fd', asi_guest_id: 42 } as Partial<Customer>);
+    await expect(createWalkInCustomer(db, jean)).resolves.toMatchObject({ id: 'customer:new' });
+  });
+
+  it('lets a same name with another phone through (staff confirmed it)', async () => {
+    const db = fakeDb((sql) => {
+      if (sql.startsWith('CREATE')) return [[{ id: 'customer:new', name: 'Jean Pierre' }]];
+      if (sql.includes('phone_e164 = $e164')) return [[]];
+      return [[{ id: 'customer:old', name: 'Jean Pierre', source: 'walk-in' }]];
+    });
+    await expect(createWalkInCustomer(db, jean)).resolves.toMatchObject({ id: 'customer:new' });
+  });
+
+  it('only blocks on both reasons, never on a hotel guest', () => {
+    const walkIn = customer({ id: 'customer:w', source: 'walk-in' });
+    const asi = customer({ id: 'customer:a', source: 'asi-fd' });
+    expect(duplicateWalkIn([{ customer: walkIn, reasons: ['name'] }])).toBeUndefined();
+    expect(duplicateWalkIn([{ customer: walkIn, reasons: ['phone'] }])).toBeUndefined();
+    expect(duplicateWalkIn([{ customer: asi, reasons: ['phone', 'name'] }])).toBeUndefined();
+    expect(duplicateWalkIn([
+      { customer: asi, reasons: ['phone', 'name'] },
+      { customer: walkIn, reasons: ['phone', 'name'] },
+    ])?.id).toBe('customer:w');
   });
 });
 

@@ -170,6 +170,7 @@
     "samePhone": "Same phone",
     "sameName": "Same name",
     "createAnyway": "New client “{{name}}”",
+    "duplicateBlocked": "“{{name}}” is already registered with this phone. Pick their file below: a client is never registered twice.",
     "registerAnother": "Register another client named “{{name}}”",
     "idDocumentType": "ID type",
     "allergen": {

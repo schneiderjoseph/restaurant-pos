@@ -170,6 +170,7 @@
     "samePhone": "Même téléphone",
     "sameName": "Même nom",
     "createAnyway": "Nouveau client « {{name}} »",
+    "duplicateBlocked": "« {{name}} » est déjà enregistré avec ce téléphone. Choisissez sa fiche ci-dessous : un client n'est jamais enregistré deux fois.",
     "registerAnother": "Enregistrer un autre client « {{name}} »",
     "idDocumentType": "Type de pièce",
     "allergen": {

@@ -25,6 +25,7 @@ import {
 import {
   createWalkInCustomer,
   CustomerIdDocumentTakenError,
+  WalkInDuplicateError,
   findWalkInMatches,
   type CustomerMatch,
 } from '@/lib/customer.service.ts';
@@ -149,6 +150,10 @@ export const QuickCreateCustomerModal = ({ open, onClose, onCreated }: Props) =>
       toast.success(t('menu:guest.created'));
       finish(created);
     } catch (error) {
+      if (error instanceof WalkInDuplicateError) {
+        setMatches([{ customer: error.existing, reasons: ['phone', 'name'] }]);
+        return;
+      }
       console.error(error);
       toast.error(
         error instanceof CustomerIdDocumentTakenError

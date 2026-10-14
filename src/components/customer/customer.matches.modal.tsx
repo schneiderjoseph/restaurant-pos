@@ -3,7 +3,7 @@ import type { Customer } from '@/api/model/customer.ts';
 import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 import { formatGuestLabel } from '@/lib/guest.ts';
-import { type CustomerMatch } from '@/lib/customer.service.ts';
+import { duplicateWalkIn, type CustomerMatch } from '@/lib/customer.service.ts';
 import { maskIdDocument } from '@/lib/customer-id-document.ts';
 import { maskPhone } from '@/lib/phone.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
@@ -22,10 +22,11 @@ interface Props {
 /**
  * Before registering a walk-in whose name or phone is already known: the same name is not the
  * same person, so staff pick the right client by number, phone and last visit, or register a
- * new one.
+ * new one. A walk-in with the same name and the same phone is that client: no new one then.
  */
 export const CustomerMatchesModal = ({ open, name, matches, creating, onPick, onCreateNew, onClose }: Props) => {
   const { t } = useTranslation(['menu', 'common']);
+  const duplicate = duplicateWalkIn(matches);
 
   return (
     <Modal
@@ -35,7 +36,13 @@ export const CustomerMatchesModal = ({ open, name, matches, creating, onPick, on
       size="md"
       testId="customer-matches"
     >
-      <p className="text-neutral-600 mb-3">{t('menu:customer.matchesHint', { name })}</p>
+      {duplicate ? (
+        <p className="text-warning-800 font-semibold mb-3" data-testid="customer-duplicate-blocked">
+          {t('menu:customer.duplicateBlocked', { name })}
+        </p>
+      ) : (
+        <p className="text-neutral-600 mb-3">{t('menu:customer.matchesHint', { name })}</p>
+      )}
       <div className="divide-y rounded-lg border border-neutral-200 max-h-[50vh] overflow-auto">
         {matches.map(({ customer, reasons }) => {
           const details = [
@@ -73,16 +80,18 @@ export const CustomerMatchesModal = ({ open, name, matches, creating, onPick, on
         <Button variant="neutral" flat className="min-h-[48px]" disabled={creating} onClick={onClose}>
           {t('common:actions.cancel')}
         </Button>
-        <Button
-          variant="primary"
-          filled
-          className="min-h-[48px]"
-          isLoading={creating}
-          onClick={onCreateNew}
-          data-testid="customer-create-anyway"
-        >
-          {t('menu:customer.createAnyway', { name })}
-        </Button>
+        {!duplicate && (
+          <Button
+            variant="primary"
+            filled
+            className="min-h-[48px]"
+            isLoading={creating}
+            onClick={onCreateNew}
+            data-testid="customer-create-anyway"
+          >
+            {t('menu:customer.createAnyway', { name })}
+          </Button>
+        )}
       </div>
     </Modal>
   );
