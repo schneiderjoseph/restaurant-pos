@@ -19,6 +19,7 @@ import { requestBillPrint } from "@/lib/order-print.ts";
 import { nowSurrealDateTime, toSurrealDateTime } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { isRoomPaymentType } from "@/lib/room-charge.ts";
+import { isCreditPaymentType } from "@/lib/credit-charge.ts";
 import { StringRecordId } from "surrealdb";
 import { IntegrationManager } from "@/integrations/core/integration-manager.ts";
 import {
@@ -306,13 +307,17 @@ export async function closeOpenChecks(options: {
     return { closed: 0, failed: 0, candidates: 0, skipped: 0 };
   }
 
-  // Never settle every open order on a room: a Room tender needs each guest's stay checked.
+  // Never settle every open order on Room/Credit: each needs a guest stay or credit check.
   const [paymentTypeRows] = await db.query<[{ type?: string }[]]>(
     `SELECT type FROM $id`,
     { id: toRecordId(paymentTypeId) }
   );
   if (isRoomPaymentType(paymentTypeRows?.[0])) {
     console.warn('Auto check close skipped: its payment type charges the room');
+    return { closed: 0, failed: 0, candidates: 0, skipped: 0 };
+  }
+  if (isCreditPaymentType(paymentTypeRows?.[0])) {
+    console.warn('Auto check close skipped: its payment type charges a house credit account');
     return { closed: 0, failed: 0, candidates: 0, skipped: 0 };
   }
 

@@ -18,6 +18,11 @@ Add one with `npx devia debt add "what is missing"`.
 | D5 |  |  | migrations/2026_10_03_order_edit_request.surql and the order_edit_request queries (src/lib/order-edit-request.ts) were run on SurrealDB 3.2.0 only; run them on 3.0.5 (the prod image) before the ASI production update, per 10_NEVER_ALWAYS | P2 | 2026-10-03 |
 | D6 |  |  | Order change approval strings (orders.editRequest, payment.editRequest, receipts.modifiedKot, the order_edit permission labels) exist in en and fr only; the other nine locales fall back | P2 | 2026-10-03 |
 | D7 |  |  | docs/user-guide images cart-panel.png and cart-payment-actions.png still show the Pay now button removed on 2026-10-03; re-run the docs capture (docs-automation/stories/cart.guide.ts) | P2 | 2026-10-03 |
+| D8 |  |  | Production: create a payment type named Crédit / Credit with `type = 'Credit'` (Manage → Payment types) or house-account tenders never appear; run migrations `2026_10_10_customer_credit.surql` and `2026_10_10_customer_credit_request.surql` on prod SurrealDB | P2 | 2026-10-10 |
+| D12 |  |  | Credit-request and order-edit approval strings (orders.creditRequest, payment.receiving.creditRequest*) exist in en and fr only; other locales fall back | P2 | 2026-10-10 |
+| D9 | done | 2026-10-10 | Credit/Room excluded from `amountCollected` / closing `totalOtherPayments`; shown as deferred charges in Summary + sales reports (`getOrderPaymentTotals`). Cash settle of AR still counts as till money when collected | P2 | 2026-10-10 |
+| D10 |  |  | Mixed Cash+Credit then partial refund: AR is capped with min(Credit tender, remaining goods), which can over-attribute remaining goods to Credit when Cash also paid; Credit-only partial refund is correct. Full refunds (no active lines) are excluded | P2 | 2026-10-10 |
+| D11 |  |  | Partial refund does not recompute tip_amount / service_charge_amount / extras (only taxes via syncOrderTaxes); Credit AR cap uses grandTotalDue so leftover tip/service can keep AR slightly high until a full refund | P2 | 2026-10-10 |
 
 ## Discharged
 

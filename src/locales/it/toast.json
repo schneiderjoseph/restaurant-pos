@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "Caricamento chiusura non riuscito",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "Questo ciclo è già chiuso.",
     "openOrders": "Ci sono ordini aperti. Chiudili prima.",
     "completed": "Chiusura completata con successo!",
@@ -50,7 +52,9 @@
     "noProductMix": "Nessun articolo trovato per il product mix.",
     "noTimeEntries": "Nessuna timbratura completata trovata per questa data.",
     "noServerSales": "Nessun dato vendite per cameriere trovato per questa data.",
-    "loadFailed": "Impossibile caricare gli ordini per questa data."
+    "loadFailed": "Impossibile caricare gli ordini per questa data.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "Nessuna timbratura attiva trovata",

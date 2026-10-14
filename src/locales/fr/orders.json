@@ -32,7 +32,9 @@
   },
   "view": {
     "blocks": "Blocs",
-    "table": "Tableau"
+    "table": "Tableau",
+    "allOrders": "Toutes les commandes",
+    "myOrders": "Mes commandes"
   },
   "list": {
     "empty": "Aucune commande",
@@ -64,6 +66,8 @@
     "ready": "Prête",
     "itemReady": "Prêt",
     "paid": "Payée",
+    "room": "Chambre",
+    "credit": "Crédit",
     "cancelled": "Annulée",
     "spilt": "Divisée",
     "merged": "Fusionnée",
@@ -103,6 +107,7 @@
     "printFinalBillCopy": "Imprimer une copie de la note finale",
     "openCashDrawer": "Ouvrir le tiroir-caisse",
     "tempBill": "Note provisoire",
+    "proforma": "Proforma",
     "payNow": "Payer maintenant",
     "printKotCopy": "Imprimer une copie KOT"
   },
@@ -229,6 +234,10 @@
   "printCurrency": {
     "title": "Imprimer la note en",
     "hint": "Choisissez la devise de la note provisoire",
+    "proformaTitle": "Imprimer le proforma en",
+    "proformaHint": "Choisissez la devise de ce devis / proforma",
+    "folioTitle": "Imprimer la facture en",
+    "folioHint": "Choisissez USD ou HTG pour cette facture de séjour",
     "cancel": "Annuler"
   },
   "loadingItems": "Chargement des articles…",
@@ -258,6 +267,29 @@
   "due": {
     "forTime": "Pour {{time}}",
     "tomorrowShort": "dem."
+  },
+  "creditRequest": {
+    "title": "Demande de crédit à approuver",
+    "more": "{{count}} autre(s) en attente",
+    "pendingCount": "Demandes de crédit à approuver : {{count}}",
+    "requestedBy": "Demandée par {{name}}",
+    "notAPayment": "Le crédit n’est pas un encaissement : la note sera portée au compte du client.",
+    "limitLabel": "Plafond de crédit (optionnel)",
+    "limitPlaceholder": "Laisser vide = pas de plafond",
+    "limitOptional": "Sans montant : crédit sans plafond.",
+    "limitPreview": "Plafond : {{amount}}",
+    "invalidLimit": "Entrez un plafond valide, ou laissez vide",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "later": "Plus tard",
+    "approved": "Crédit ouvert pour ce client",
+    "rejected": "Demande de crédit refusée",
+    "expired": "Le client n’est plus disponible : rien n’a été modifié",
+    "taken": "Quelqu’un d’autre a déjà répondu à cette demande",
+    "failed": "La demande n’a pas pu être appliquée. Réessayez.",
+    "answerApproved": "Votre demande de crédit a été approuvée",
+    "answerRejected": "Votre demande de crédit a été refusée",
+    "answerExpired": "Votre demande de crédit est abandonnée : le client n’est plus disponible"
   },
   "editRequest": {
     "title": "Modification de commande à approuver",

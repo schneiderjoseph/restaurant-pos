@@ -120,6 +120,9 @@ export const ORDER_LIST_FETCHES = [
   'extras',
   'extras.order_extras',
   'tax',
+  // Needed so Room / Credit badges replace "Payée" before card hydrate.
+  'payments',
+  'payments.payment_type',
 ];
 
 /** Card body when an order scrolls into view — items + payments, no deep modifier dishes. */

@@ -71,7 +71,16 @@ export const CashClosingReport = () => {
   const openingBalance = safeNumber(closing?.opening_balance);
   const totalCash = (closing?.terminal_cash || []).reduce((sum, item: any) => sum + safeNumber(item?.cash_amount), 0);
   const totalOtherPayments = (closing?.payments_data || [])
-    .filter((item: any) => String(item?.payment_type?.type || "").toLowerCase() !== "cash")
+    .filter((item: any) => {
+      const type = String(item?.payment_type?.type || "").toLowerCase();
+      return type !== "cash" && type !== "room" && type !== "credit";
+    })
+    .reduce((sum, item: any) => sum + safeNumber(item?.amount), 0);
+  const totalDeferredCharges = (closing?.payments_data || [])
+    .filter((item: any) => {
+      const type = String(item?.payment_type?.type || "").toLowerCase();
+      return type === "room" || type === "credit";
+    })
     .reduce((sum, item: any) => sum + safeNumber(item?.amount), 0);
   const totalExpenses = safeNumber(closing?.expenses);
   const closingBalance = safeNumber(closing?.closing_balance);
@@ -115,6 +124,10 @@ export const CashClosingReport = () => {
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t('labels.otherPayments')}</div>
             <div className="text-xl font-semibold">{withDualCurrency(totalOtherPayments)}</div>
+          </div>
+          <div className="border rounded-lg p-4 bg-neutral-50">
+            <div className="text-sm text-neutral-500">{t('labels.deferredCharges', { defaultValue: 'Room + credit (not collected)' })}</div>
+            <div className="text-xl font-semibold">{withDualCurrency(totalDeferredCharges)}</div>
           </div>
           <div className="border rounded-lg p-4 bg-neutral-50">
             <div className="text-sm text-neutral-500">{t('labels.cashAdded')}</div>

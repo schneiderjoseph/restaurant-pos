@@ -1,6 +1,6 @@
 /**
  * Maps a business_date label (YYYY-MM-DD) to the operational datetime window
- * using the configured closing cycle (e.g. 06:00 on business_date → 02:00 next day).
+ * using the configured closing cycle (e.g. 06:00 on business_date → 04:00 next day).
  */
 import {DateTime} from "luxon";
 import {ClosingCycleConfig, ClosingCycleWindow, loadClosingCycleConfig} from "@/lib/closing-cycle.ts";

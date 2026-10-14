@@ -11,6 +11,8 @@ import {
   unlockReadyChime,
   unlockSpeech,
 } from '@/lib/order-ready-announcement.ts';
+import { nowInAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts';
+import { formatDueLabelForSpeech } from '@/lib/order-due.ts';
 
 const HIGHLIGHT_MS = 18_000;
 
@@ -31,21 +33,49 @@ type BatchSnapshot = {
   context: string
 };
 
+type DueSpeechLabels = {
+  forTime: (time: string) => string
+  tomorrow: string
+  language: string
+};
+
 /** Spoken place words, so R20 is read "Chambre 20" and T7 "Table 7". */
-const orderContext = (group: KitchenOrder, labels: KitchenPlaceLabels) => {
+const orderContext = (
+  group: KitchenOrder,
+  labels: KitchenPlaceLabels,
+  dueLabels: DueSpeechLabels,
+) => {
   const orderNumber = group.order ? getInvoiceNumber(group.order) : '-';
   const table = group.order?.table;
   const tableLabel = formatKitchenPlaceLabel(table, labels);
-  const context = tableLabel || group.order?.order_type?.name || orderNumber;
+  const place = tableLabel || group.order?.order_type?.name || '';
+
+  let dueSpeech = '';
+  const dueAt = group.order?.due_at;
+  if (dueAt) {
+    const due = toLuxonDateTime(dueAt);
+    if (due.isValid) {
+      dueSpeech = dueLabels.forTime(
+        formatDueLabelForSpeech(due, nowInAppTimezone(), dueLabels.tomorrow, dueLabels.language),
+      );
+    }
+  }
+
+  const parts = [place, dueSpeech].filter(Boolean);
+  const context = parts.length > 0 ? parts.join('. ') : orderNumber;
   return { orderNumber, context };
 };
 
-const snapshotFromOrders = (orders: KitchenOrder[], labels: KitchenPlaceLabels) => {
+const snapshotFromOrders = (
+  orders: KitchenOrder[],
+  labels: KitchenPlaceLabels,
+  dueLabels: DueSpeechLabels,
+) => {
   const batches = new Map<string, BatchSnapshot>();
   const items = new Map<string, ItemSnapshot>();
 
   for (const group of orders) {
-    const { orderNumber, context } = orderContext(group, labels);
+    const { orderNumber, context } = orderContext(group, labels, dueLabels);
 
     for (const batch of group.batches) {
       const isAddon = batch.items.some((item) => item.order_item?.is_addition);
@@ -157,10 +187,18 @@ export const useKitchenOrderAnnouncements = (
       return;
     }
 
-    const { batches, items } = snapshotFromOrders(orders, {
-      room: t('labels.room'),
-      table: t('labels.table'),
-    });
+    const { batches, items } = snapshotFromOrders(
+      orders,
+      {
+        room: t('labels.room'),
+        table: t('labels.table'),
+      },
+      {
+        forTime: (time) => t('due.forTime', { time }),
+        tomorrow: t('due.tomorrowSpeech', { defaultValue: t('due.tomorrowShort') }),
+        language: i18n.language,
+      },
+    );
 
     if (!initializedRef.current) {
       initializedRef.current = true;

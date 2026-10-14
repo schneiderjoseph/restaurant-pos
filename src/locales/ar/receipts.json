@@ -1,5 +1,7 @@
 {
   "preSaleBill": "فاتورة مسبقة",
+  "proformaBill": "بروفورما",
+  "proformaNote": "الأسعار قابلة للتغيير. هذه ليست فاتورة نهائية.",
   "finalBill": "الفاتورة النهائية",
   "duplicateFinalBill": "نسخة الفاتورة النهائية",
   "delivery": "توصيل",

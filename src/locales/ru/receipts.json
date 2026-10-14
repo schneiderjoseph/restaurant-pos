@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Предварительный счёт",
+  "proformaBill": "Проформа",
+  "proformaNote": "Цены могут измениться. Это не окончательный счёт.",
   "finalBill": "Итоговый счёт",
   "duplicateFinalBill": "Копия итогового счёта",
   "delivery": "ДОСТАВКА",

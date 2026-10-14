@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Pre-Sale Bill",
+  "proformaBill": "Proforma",
+  "proformaNote": "Prices may vary. This is not a final invoice.",
   "finalBill": "Final Bill",
   "duplicateFinalBill": "Duplicate Final Bill",
   "delivery": "DELIVERY",

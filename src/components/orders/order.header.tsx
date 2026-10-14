@@ -1,6 +1,5 @@
-import { Order, OrderStatus } from "@/api/model/order.ts";
-import { cn } from "@/lib/utils.ts";
-import {formatOrderNumber, translateOrderStatus} from "@/lib/order.ts";
+import { Order } from "@/api/model/order.ts";
+import {formatOrderNumber} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPrint} from "@fortawesome/free-solid-svg-icons";
@@ -8,6 +7,7 @@ import {formatGuestContact, formatGuestLabel} from "@/lib/guest-label.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {OrderLineageLabel} from "@/components/orders/order.lineage.tsx";
 import type {OrderLineage} from "@/lib/order-lineage.ts";
+import {OrderStatusBadge} from "@/components/orders/order.status-badge.tsx";
 
 interface Props {
   order: Order
@@ -24,16 +24,6 @@ export const OrderHeader = ({
 }: Props) => {
   const {t} = useTranslation('orders');
   const guestContact = order?.customer ? formatGuestContact(order.customer) : '';
-  const showKitchenReady = kitchenReady && order.status === OrderStatus["In Progress"];
-
-  const colors = {
-    [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
-    [OrderStatus["Paid"]]: 'bg-success-100 text-success-700',
-    [OrderStatus["Completed"]]: 'bg-success-100 text-success-700',
-    [OrderStatus['Merged']]: 'bg-info-100 text-info-700',
-    [OrderStatus['Spilt']]: 'bg-info-100 text-info-700',
-    [OrderStatus['Cancelled']]: 'bg-danger-100 text-danger-700',
-  };
 
   return (
     <div className="flex justify-between">
@@ -47,13 +37,7 @@ export const OrderHeader = ({
               <span className="text-lg font-bold text-neutral-900">{formatTableLabel(order.table)}</span>
             )}
           </div>
-          <span
-            data-testid="order-status-badge"
-            className={cn(
-              "uppercase p-1 px-3 rounded-lg text-sm font-bold flex-grow-0 flex-shrink",
-              showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
-            )}
-          >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
+          <OrderStatusBadge order={order} kitchenReady={kitchenReady} className="flex-grow-0 flex-shrink" />
           <OrderLineageLabel lineage={lineage}/>
 
         </div>

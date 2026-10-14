@@ -14,11 +14,11 @@ export interface Customer extends ID, Name{
   tags?: string[]
   /** Optional guest/room code when name is absent (display via formatGuestLabel). */
   guest_code?: string
-  /** Hotel room number (PMS / FrontDesk or manual). */
+  /** Hotel room(s): one number, or several joined as "12, 14" for multi-room Front Desk stays. */
   room?: string
   /** True when currently in-house (ASI FD sync also sets tags containing in-house). */
   in_house?: boolean
-  /** Open manual POS stay, if any. Never set on ASI guests. */
+  /** Latest open manual POS stay, if any. Never set on ASI guests. Other open rooms are other stays. */
   current_stay?: unknown
   /** ASI FrontDesk guest master id */
   asi_guest_id?: number | null
@@ -53,6 +53,10 @@ export interface Customer extends ID, Name{
   birthday?: string | null
   vip?: boolean | null
   marketing_consent?: boolean | null
+  /** When true, cashier may tender Credit (house account) for this customer. */
+  credit_allowed?: boolean | null
+  /** Max outstanding Credit balance; null/undefined = no ceiling while credit_allowed. */
+  credit_limit?: number | null
   /** Taxes this customer does not pay: copied to `order.excluded_taxes` of a new order. */
   tax_exemptions?: unknown[] | null
   /** Soft delete: a customer is never removed from the database. */

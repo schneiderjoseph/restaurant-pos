@@ -20,13 +20,13 @@ type ClosingCycleValues = {
 };
 
 const DEFAULT_START_TIME = "06:00";
-const DEFAULT_END_TIME = "02:00";
+const DEFAULT_END_TIME = "04:00";
 
 export const DEFAULT_CLOSING_CYCLE_CONFIG: ClosingCycleConfig = {
   enabled: true,
   startHour: 6,
   startMinute: 0,
-  endHour: 2,
+  endHour: 4,
   endMinute: 0,
 };
 

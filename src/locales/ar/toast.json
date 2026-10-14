@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "فشل تحميل الإغلاق",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "هذه الدورة مغلقة بالفعل.",
     "openOrders": "هناك طلبات مفتوحة. يُرجى إغلاقها أولاً.",
     "completed": "تم الإغلاق بنجاح!",
@@ -50,7 +52,9 @@
     "noProductMix": "لم يُعثر على أصناف لخليط المنتجات.",
     "noTimeEntries": "لم يُعثر على سجلات وقت مكتملة لهذا التاريخ.",
     "noServerSales": "لم يُعثر على بيانات مبيعات الخادم لهذا التاريخ.",
-    "loadFailed": "تعذّر تحميل طلبات هذا التاريخ."
+    "loadFailed": "تعذّر تحميل طلبات هذا التاريخ.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "لم يُعثر على سجل وقت نشط",

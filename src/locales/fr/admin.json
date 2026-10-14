@@ -571,6 +571,9 @@
       "order_edit": {
         "label": "Modification des commandes envoyées"
       },
+      "credit": {
+        "label": "Crédit maison"
+      },
       "summary": {
         "label": "Résumé"
       },
@@ -645,6 +648,7 @@
       "payments.receive": "Recevoir le paiement",
       "order_edit.sent_items": "Modifier directement les lignes déjà envoyées (sans approbation)",
       "order_edit.approve": "Approuver les modifications demandées par les autres",
+      "credit.approve": "Approuver les demandes de crédit depuis l’écran de paiement",
       "summary": "Résumé",
       "summary.print": "Imprimer le résumé",
       "summary.product_mix": "Rapport mix produits",

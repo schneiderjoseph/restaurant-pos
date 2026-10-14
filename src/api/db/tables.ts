@@ -5,6 +5,7 @@ export enum Tables {
   customers = 'customer',
   stays = 'stay',
   stay_settlements = 'stay_settlement',
+  customer_credit_settlements = 'customer_credit_settlement',
   discounts = 'discount',
   discount_reasons = 'discount_reason',
   role_discount_policies = 'role_discount_policy',
@@ -76,6 +77,7 @@ export enum Tables {
 
   auth_permission = 'auth_permission',
   order_edit_requests = 'order_edit_request',
+  customer_credit_requests = 'customer_credit_request',
   duos = 'duo',
   tracking = 'tracking',
 

@@ -16,7 +16,7 @@ import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {getLocalTimeZone, today} from '@internationalized/date';
 import {DateValue} from "react-aria-components";
 import {Button} from "@/components/common/input/button.tsx";
-import {faBars, faChair, faMoneyBillWave, faTableColumns} from "@fortawesome/free-solid-svg-icons";
+import {faBars, faChair, faMoneyBillWave, faTableColumns, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {OrderRow, ORDERS_LIST_GRID_CLASS} from "@/components/orders/order.row.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {Dropdown, DropdownItem} from "@/components/common/react-aria/dropdown.tsx";
@@ -31,6 +31,11 @@ import {loadOrderLineage, OrderLineage} from "@/lib/order-lineage.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {translateOrderStatus} from "@/lib/order.ts";
+import {
+  ORDER_FILTER_CREDIT,
+  ORDER_FILTER_ROOM,
+  orderStatusFilterClause,
+} from "@/lib/order-deferred-charge.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
@@ -66,6 +71,8 @@ export const Orders = () => {
   const [settings] = useAtom(appSettings);
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [view, setView] = useState<'row' | 'column'>('column');
+  /** When the role can see every order: toggle all vs own (same style as blocks/table). */
+  const [orderScope, setOrderScope] = useState<'all' | 'mine'>('all');
   const selectedOrderFilters = useMemo(() => ({
     users: state?.ordersFilters?.users ?? [],
     floors: state?.ordersFilters?.floors ?? [],
@@ -84,6 +91,7 @@ export const Orders = () => {
   const {can} = useModuleAccess();
   const {ownOrdersOnly} = useOrderVisibility();
   const seesAllOrders = seesAllOrdersFor(ownOrdersOnly, can(SEES_ALL_ORDERS_MODULE));
+  const showAllOrders = seesAllOrders && orderScope === 'all';
   const duoUserKey = useDuoUserIds().join('|');
 
   const [orders, setOrders] = useState<OrderModel[]>([]);
@@ -126,7 +134,7 @@ export const Orders = () => {
       f.push(`(${floorFilters.join(' or ')})`);
     }
 
-    if (seesAllOrders) {
+    if (showAllOrders) {
       selectedOrderFilters?.users?.forEach(user => {
         userFilters.push(`user = ${user.value}`);
       });
@@ -140,7 +148,7 @@ export const Orders = () => {
     }
 
     selectedOrderFilters?.statuses?.forEach(status => {
-      statusFilters.push(`status = "${status.value}"`);
+      statusFilters.push(orderStatusFilterClause(String(status.value)));
     });
     if (statusFilters.length > 0) {
       f.push(`(${statusFilters.join(' or ')})`);
@@ -180,7 +188,7 @@ export const Orders = () => {
     params.dayEnd = toSurrealDateTime(dayEnd);
 
     return {orderFilters: f, orderFilterParams: params};
-  }, [selectedOrderFilters, date, seesAllOrders, duoUserKey]);
+  }, [selectedOrderFilters, date, showAllOrders, duoUserKey]);
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), ORDERS_LIST_LIMIT, 0, ['created_at desc'],
@@ -339,10 +347,15 @@ export const Orders = () => {
         >
           <div className="min-w-[120px] flex-1 basis-[120px]">
             <ReactSelect
-              options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
-                label: translateOrderStatus(t, item),
-                value: item
-              }))}
+              options={[
+                { label: translateOrderStatus(t, OrderStatus["In Progress"]), value: OrderStatus["In Progress"] },
+                { label: translateOrderStatus(t, OrderStatus.Paid), value: OrderStatus.Paid },
+                { label: t('status.room'), value: ORDER_FILTER_ROOM },
+                { label: t('status.credit'), value: ORDER_FILTER_CREDIT },
+                { label: translateOrderStatus(t, OrderStatus.Cancelled), value: OrderStatus.Cancelled },
+                { label: translateOrderStatus(t, OrderStatus.Spilt), value: OrderStatus.Spilt },
+                { label: translateOrderStatus(t, OrderStatus.Merged), value: OrderStatus.Merged },
+              ]}
               isMulti
               placeholder={t('filters.status')}
               value={selectedOrderFilters.statuses}
@@ -373,7 +386,7 @@ export const Orders = () => {
               onChange={(value: LabelValue[]) => updateOrderFilter('floors', value)}
             />
           </div>
-          {seesAllOrders && (
+          {showAllOrders && (
           <div className="min-w-[160px] flex-1 basis-[160px]">
             <ReactSelect
               options={users?.data?.map(item => ({
@@ -403,6 +416,28 @@ export const Orders = () => {
           <div className="shrink-0">
             <DatePicker value={date} onChange={setDate} maxValue={today(getLocalTimeZone())} isClearable/>
           </div>
+          {seesAllOrders && (
+            <div className="input-group flex shrink-0" data-testid="orders-scope">
+              <Button
+                icon={faUsers}
+                variant="primary"
+                data-testid="orders-scope-all"
+                onClick={() => setOrderScope('all')}
+                active={orderScope === 'all'}
+              >
+                {t('view.allOrders')}
+              </Button>
+              <Button
+                icon={faUser}
+                variant="primary"
+                data-testid="orders-scope-mine"
+                onClick={() => setOrderScope('mine')}
+                active={orderScope === 'mine'}
+              >
+                {t('view.myOrders')}
+              </Button>
+            </div>
+          )}
           <div className="input-group flex shrink-0 ml-auto" data-testid="orders-toolbar">
             {SHOW_OPEN_CASH_DRAWER && canOpenCashDrawer && (
               <Button

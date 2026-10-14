@@ -203,18 +203,13 @@ export const AdminDishes = () => {
       db,
       id,
       entityLabel: t('entities.dish'),
+      // Soft-delete only for order history / used-as-modifier; menu + kitchen links are cleaned up.
       usageChecks: [
         {
           query: `SELECT count() AS count FROM ${Tables.order_items} WHERE item = $idRecord GROUP ALL`
         },
         {
-          query: `SELECT count() AS count FROM ${Tables.menu_menu_items} WHERE menu_item = $idRecord GROUP ALL`
-        },
-        {
           query: `SELECT count() AS count FROM ${Tables.modifier_groups} WHERE array::any(modifiers.modifier.id ?? [], $idRecord) GROUP ALL`
-        },
-        {
-          query: `SELECT count() AS count FROM ${Tables.kitchens} WHERE items ?= $idRecord GROUP ALL`
         }
       ],
       cleanupQueries: [
@@ -223,6 +218,9 @@ export const AdminDishes = () => {
         },
         {
           query: `DELETE ${Tables.menu_menu_items} WHERE menu_item = $idRecord`
+        },
+        {
+          query: `UPDATE ${Tables.kitchens} SET items = array::complement(items ?? [], [$idRecord]) WHERE items ?= $idRecord`
         }
       ],
       onAfter: async () => {
@@ -280,7 +278,11 @@ export const AdminDishes = () => {
         customSearchHandler={(value) => {
           loadHook.resetFilters();
 
-          loadHook.addFilter('string::lowercase(name) contains $name or array::any(categories, |$var|string::lowercase($var.name) contains $name)', 'and');
+          // name / category.name can be NONE on broken or partially-synced rows
+          loadHook.addFilter(
+            "string::lowercase(name ?? '') contains $name or array::any(categories ?? [], |$var| string::lowercase($var.name ?? '') contains $name)",
+            'and',
+          );
           loadHook.handleParameterChange({
             name: value.toLowerCase()
           })

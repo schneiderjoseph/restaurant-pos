@@ -9,17 +9,25 @@ import {Calendar} from "@/components/common/antd/calendar.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {DailySalesSummaryReport} from '@/components/summary/daily.sales.summary.report.tsx';
 import {useDB} from "@/api/db/db.ts";
-import {dispatchPrint} from "@/lib/print.service.ts";
-import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {useAtom} from "jotai";
-import {appPage} from "@/store/jotai.ts";
 import {useQueryBuilder} from "@/api/db/query-builder.ts";
+import type {Closing as ClosingModel} from "@/api/model/closing.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {orderSellers} from "@/lib/duo.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {printDocument} from "@/lib/export.document.ts";
+import {printLetterTableReport} from "@/lib/summary-letter-print.ts";
+import {
+  buildClosingThermalRows,
+  closingToPrintData,
+  ordersToCashSettlementPrintData,
+} from "@/lib/closing-print.ts";
+import {dispatchPrint} from "@/lib/print.service.ts";
+import {PRINT_TYPE} from "@/lib/print.registry.tsx";
+import {appPage} from "@/store/jotai.ts";
+import {useAtom} from "jotai";
 import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
@@ -81,7 +89,7 @@ const formatDuration = (ms: number): string => {
 };
 
 export const Summary = () => {
-  const {t} = useTranslation(["summary", "toast"]);
+  const {t} = useTranslation(["summary", "toast", "common", "closing"]);
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const [page] = useAtom(appPage);
@@ -90,7 +98,9 @@ export const Summary = () => {
   const canPrintSummary = isVisible("summary.print");
   const canPrintProductMix = isVisible("summary.product_mix");
   const canPrintServerSales = isVisible("summary.server_sales");
-  const showPrintActions = canPrintSummary || canPrintProductMix || canPrintServerSales;
+  // Règlement de caisse (thermal): same people who can print summary or open Closing.
+  const canPrintCashClosing = canPrintSummary || isVisible("closing");
+  const showPrintActions = canPrintSummary || canPrintProductMix || canPrintServerSales || canPrintCashClosing;
 
   const [date, setDate] = useState<DateValue>(getToday());
   const [orders, setOrders] = useState<OrderModel[]>([]);
@@ -100,6 +110,7 @@ export const Summary = () => {
   const [loadFailed, setLoadFailed] = useState(false);
   const [isPrintingMix, setIsPrintingMix] = useState(false);
   const [isPrintingServerSales, setIsPrintingServerSales] = useState(false);
+  const [isPrintingCashClosing, setIsPrintingCashClosing] = useState(false);
   const fetchSeq = useRef(0);
 
   const {orderFilters, orderFilterParams} = useMemo(() => {
@@ -157,13 +168,64 @@ export const Summary = () => {
   const ordersReady = !isLoading && loadedParams === orderFilterParams;
   const todayDate = getToday();
 
+  // Daily summary → Letter (browser printer dialog).
   const handlePrintSummary = useCallback(() => {
     if (!ordersReady) return;
-    void dispatchPrint(db, PRINT_TYPE.summary, {
-      orders,
-      date: date.toString(),
-    }, {userId: page?.user?.id});
-  }, [db, orders, ordersReady, date, page?.user?.id]);
+    printDocument();
+  }, [ordersReady]);
+
+  const closingThermalLabels = useMemo(() => ({
+    terminalCash: t('summary:print.closing.terminalCash'),
+    amount: t('summary:print.closing.amount'),
+    totalCash: t('summary:print.closing.totalCash'),
+    paymentSummary: t('summary:print.closing.paymentSummary'),
+    otherPayments: t('summary:print.closing.otherPayments'),
+    expenses: t('summary:print.closing.expenses'),
+    netAmount: t('summary:print.closing.netAmount'),
+  }), [t]);
+
+  // Règlement de caisse → imprimante thermique (summary_print_printers).
+  const handlePrintCashClosing = useCallback(async () => {
+    if (!ordersReady) return;
+    setIsPrintingCashClosing(true);
+    try {
+      const selectedDate = date.toString();
+      const [rows] = await db.query(
+        `
+          SELECT * FROM ${Tables.closings}
+          WHERE time::format(date_from, "${import.meta.env.VITE_DB_DATABASE_DATE_FORMAT}") = $selectedDate
+          ORDER BY created_at DESC
+          LIMIT 1
+        `,
+        {selectedDate},
+      );
+      const closing = (Array.isArray(rows) && rows[0] ? rows[0] : null) as ClosingModel | null;
+      const title = t('summary:print.closing.title', {date: selectedDate});
+      const data = closing
+        ? closingToPrintData(closing, title)
+        : ordersToCashSettlementPrintData(orders, title);
+
+      if (!closing && (orders || []).length === 0) {
+        toast.error(t('toast:summary.noCashClosing'));
+        return;
+      }
+
+      const ok = await dispatchPrint(db, PRINT_TYPE.summary, {
+        printType: 'table',
+        rows: buildClosingThermalRows(data, closingThermalLabels, formatNumber),
+        cut: true,
+      }, {userId: page?.user?.id});
+      if (!ok) return;
+      if (!closing) {
+        toast.message(t('toast:summary.cashClosingLive'));
+      }
+    } catch (error) {
+      console.error('Summary: cash closing print failed', error);
+      toast.error(t('common:toast.printError'));
+    } finally {
+      setIsPrintingCashClosing(false);
+    }
+  }, [closingThermalLabels, date, db, orders, ordersReady, page?.user?.id, t]);
 
   const handlePrintProductMix = useCallback(async () => {
     if (!ordersReady) return;
@@ -176,7 +238,7 @@ export const Summary = () => {
           const key = String(item?.item?.name || t("summary:report.unknownItem"));
           const qty = safeNumber(item?.quantity);
           const total = safeNumber(calculateOrderItemPrice(item));
-          const prev = dishMap.get(key) || {name: key.substring(0, 12), qty: 0, total: 0};
+          const prev = dishMap.get(key) || {name: key, qty: 0, total: 0};
           prev.qty += qty;
           prev.total += total;
 
@@ -193,45 +255,36 @@ export const Summary = () => {
         return;
       }
 
-      const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: t('summary:print.productMixTitle', {date: date.toString()}), align: 'CENTER', width: 1, style: 'B'}],
-        [{text: t('summary:print.item'), align: 'LEFT', width: 0.30, style: 'B'}, {
-          text: t('summary:print.qty'),
-          align: 'RIGHT',
-          width: 0.18,
-          style: 'B'
-        }, {text: t('summary:print.total'), align: 'RIGHT', width: 0.23, style: 'B'}, {
-          text: '%',
-          align: 'RIGHT',
-          width: 0.23,
-          style: 'B'
-        }],
-        ...rows.map((row) => {
+      const title = t('summary:print.productMixTitle', {date: date.toString()});
+      const ok = printLetterTableReport(
+        title,
+        [
+          {key: 'item', label: t('summary:print.item')},
+          {key: 'qty', label: t('summary:print.qty'), align: 'right'},
+          {key: 'total', label: t('summary:print.total'), align: 'right'},
+          {key: 'pct', label: '%', align: 'right'},
+        ],
+        rows.map((row) => {
           const percent = totalSale > 0 ? (row.total / totalSale) * 100 : 0;
-          return [
-            {text: row.name, align: 'LEFT', width: 0.30},
-            {text: String(formatNumber(row.qty)), align: 'RIGHT', width: 0.18},
-            {text: formatNumber(row.total), align: 'RIGHT', width: 0.23},
-            {text: `${percent.toFixed(2)}%`, align: 'RIGHT', width: 0.23},
-          ];
+          return {
+            item: row.name,
+            qty: formatNumber(row.qty),
+            total: formatNumber(row.total),
+            pct: `${percent.toFixed(2)}%`,
+          };
         }),
-        [{
-          text: t('summary:print.grandTotal'),
-          align: 'LEFT',
-          width: 0.50,
-          style: 'B'
-        }, {text: withCurrency(undefined) + formatNumber(totalSale), align: 'RIGHT', width: 0.50, style: 'B'}],
-      ];
-
-      await dispatchPrint(db, PRINT_TYPE.summary, {
-        printType: 'table',
-        rows: tableRows,
-        cut: true,
-      }, {userId: page?.user?.id});
+        {
+          item: t('summary:print.grandTotal'),
+          qty: '',
+          total: withCurrency(undefined) + formatNumber(totalSale),
+          pct: '',
+        },
+      );
+      if (!ok) toast.error(t("common:toast.printError"));
     } finally {
       setIsPrintingMix(false);
     }
-  }, [db, date, orders, ordersReady, page?.user?.id, t]);
+  }, [date, orders, ordersReady, t]);
 
   const handlePrintServerSales = useCallback(async () => {
     if (!ordersReady) return;
@@ -266,7 +319,7 @@ export const Summary = () => {
         let row = perUser.get(userId);
         if (!row) {
           row = {
-            name: getUserDisplayName(user, t("summary:unknown.user")).substring(0, 12),
+            name: getUserDisplayName(user, t("summary:unknown.user")),
             durationMs: 0,
             guests: 0,
             checks: 0,
@@ -312,63 +365,53 @@ export const Summary = () => {
         sales: acc.sales + row.sales,
       }), {durationMs: 0, guests: 0, checks: 0, sales: 0});
 
-      const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: t('summary:print.serverSalesTitle', {date: reportDate}), align: 'CENTER', width: 1, style: 'B'}],
-        [{text: t('summary:print.name'), align: 'LEFT', width: 0.22, style: 'B'}, {
-          text: t('summary:print.time'),
-          align: 'RIGHT',
-          width: 0.20,
-          style: 'B'
-        }, {text: t('summary:print.guests'), align: 'RIGHT', width: 0.12, style: 'B'}, {
-          text: t('summary:print.checks'),
-          align: 'RIGHT',
-          width: 0.12,
-          style: 'B'
-        }, {text: t('summary:print.sale'), align: 'RIGHT', width: 0.22, style: 'B'}],
-        ...rows.map((row) => ([
-          {text: row.name, align: 'LEFT', width: 0.22},
-          {text: formatDuration(row.durationMs), align: 'RIGHT', width: 0.20},
-          {text: String(Math.round(row.guests)), align: 'RIGHT', width: 0.12},
-          {text: String(Math.round(row.checks)), align: 'RIGHT', width: 0.12},
-          {text: formatNumber(row.sales), align: 'RIGHT', width: 0.22},
-        ])),
-        [{text: t('summary:print.grandTotal'), align: 'LEFT', width: 0.22, style: 'B'}, {
-          text: formatDuration(totals.durationMs),
-          align: 'RIGHT',
-          width: 0.20,
-          style: 'B'
-        }, {
-          text: String(Math.round(totals.guests)),
-          align: 'RIGHT',
-          width: 0.12,
-          style: 'B'
-        }, {
-          text: String(Math.round(totals.checks)),
-          align: 'RIGHT',
-          width: 0.12,
-          style: 'B'
-        }, {text: withCurrency(undefined) + formatNumber(totals.sales), align: 'RIGHT', width: 0.22, style: 'B'}],
-      ];
-
-      await dispatchPrint(db, PRINT_TYPE.summary, {
-        printType: 'table',
-        rows: tableRows,
-        cut: true,
-      }, {userId: page?.user?.id});
+      const title = t('summary:print.serverSalesTitle', {date: reportDate});
+      const ok = printLetterTableReport(
+        title,
+        [
+          {key: 'name', label: t('summary:print.name')},
+          {key: 'time', label: t('summary:print.time'), align: 'right'},
+          {key: 'guests', label: t('summary:print.guests'), align: 'right'},
+          {key: 'checks', label: t('summary:print.checks'), align: 'right'},
+          {key: 'sale', label: t('summary:print.sale'), align: 'right'},
+        ],
+        rows.map((row) => ({
+          name: row.name,
+          time: formatDuration(row.durationMs),
+          guests: String(Math.round(row.guests)),
+          checks: String(Math.round(row.checks)),
+          sale: formatNumber(row.sales),
+        })),
+        {
+          name: t('summary:print.grandTotal'),
+          time: formatDuration(totals.durationMs),
+          guests: String(Math.round(totals.guests)),
+          checks: String(Math.round(totals.checks)),
+          sale: withCurrency(undefined) + formatNumber(totals.sales),
+        },
+      );
+      if (!ok) toast.error(t("common:toast.printError"));
     } catch (error) {
       console.error('Summary: server sales print failed', error);
       toast.error(t("common:toast.printError"));
     } finally {
       setIsPrintingServerSales(false);
     }
-  }, [db, date, orders, ordersReady, page?.user?.id, t]);
+  }, [db, date, orders, ordersReady, t]);
 
   return (
     <Layout overflowHidden>
       <DocumentTitle parts={[tNav('sidebar.summary')]} />
-      <div className="flex gap-5 p-3 flex-col" data-testid="summary-page">
-        <div className="bg-white rounded-xl flex gap-10 justify-center px-5">
-          <div className="flex justify-center items-center flex-col flex-1">
+      {/* Letter 8.5×11 for on-screen summary; product mix / server sales open a Letter window. */}
+      <style>{`
+        @media print {
+          @page { size: letter; margin: 0.5in; }
+          body { background: white !important; }
+        }
+      `}</style>
+      <div className="flex gap-5 p-3 flex-col print:p-0 print:gap-0" data-testid="summary-page">
+        <div className="bg-white rounded-xl flex gap-10 justify-center px-5 print:rounded-none print:shadow-none print:px-0 print:block">
+          <div className="flex justify-center items-center flex-col flex-1 print:hidden">
             <div className="w-[450px]" data-testid="summary-calendar">
               <Calendar
                 onChange={setDate}
@@ -448,16 +491,33 @@ export const Summary = () => {
                     {t("summary:screen.serverSales")}
                   </Button>
                 )}
+                {canPrintCashClosing && (
+                  <Button
+                    icon={faPrint}
+                    variant="lg"
+                    isLoading={isPrintingCashClosing}
+                    disabled={!ordersReady}
+                    onClick={() => {
+                      protectAction(handlePrintCashClosing, {
+                        description: t("summary:security.printCashClosingDescription"),
+                        module: 'summary.print',
+                      });
+                    }}
+                    data-testid="summary-print-cash-closing"
+                  >
+                    {t("summary:screen.printCashClosing")}
+                  </Button>
+                )}
               </div>
             )}
           </div>
-          <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
+          <ScrollContainer className="max-h-[calc(100vh_-_30px)] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none print:max-h-none print:overflow-visible print:py-0 print:flex-none" data-testid="summary-report">
             {loadFailed ? (
-              <div className="flex w-full justify-center items-center flex-1 text-neutral-500">
+              <div className="flex w-full justify-center items-center flex-1 text-neutral-500 print:hidden">
                 {t("toast:summary.loadFailed")}
               </div>
             ) : !ordersReady ? (
-              <div className="flex h-screen w-full justify-center items-center flex-1">
+              <div className="flex h-screen w-full justify-center items-center flex-1 print:hidden">
                 <FontAwesomeIcon icon={faSpinner} spin size="5x"/>
               </div>
             ) : (

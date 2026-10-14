@@ -146,6 +146,7 @@ export type CustomerPatch = Partial<Pick<Customer,
   | 'name' | 'phone' | 'email' | 'id_document_number' | 'id_document_type'
   | 'notes' | 'allergies' | 'dietary' | 'seating_pref' | 'language' | 'birthday'
   | 'vip' | 'marketing_consent' | 'tags'
+  | 'credit_allowed' | 'credit_limit'
 >>;
 
 /** Applies a change and returns the stored customer. Lists are cleaned, the ID normalized. */

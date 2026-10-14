@@ -101,7 +101,8 @@ export const executeSettingsDelete = async ({
     }
 
     if (inUse) {
-      await db.merge(id, {deleted_at: new Date()});
+      // SurrealDB 3 needs a real datetime — never pass an ISO string via merge.
+      await db.query(`UPDATE $idRecord SET deleted_at = time::now()`, {idRecord});
       toast.info(i18n.t('toast:settingsDelete.deactivated', { entity: entityLabel }));
       await emitEntity('deactivate');
       if (onAfter) {

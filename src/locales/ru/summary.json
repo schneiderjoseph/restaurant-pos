@@ -4,7 +4,8 @@
     "nextDate": "Следующая дата",
     "printSummary": "Печать сводки",
     "productMixReport": "Отчёт по ассортименту",
-    "serverSales": "Продажи официантов"
+    "serverSales": "Продажи официантов",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "Печать сводки",
@@ -12,7 +13,8 @@
     "productMixDescription": "Отчёт по ассортименту",
     "productMixModule": "Отчёт по ассортименту",
     "serverSalesDescription": "Продажи официантов",
-    "serverSalesModule": "Продажи официантов"
+    "serverSalesModule": "Продажи официантов",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "Неизвестно",
@@ -178,6 +180,16 @@
     "time": "Время",
     "guests": "Гости",
     "checks": "Чеки",
-    "sale": "Продажи"
+    "sale": "Продажи",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

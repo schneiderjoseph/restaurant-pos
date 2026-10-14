@@ -50,7 +50,9 @@
     "noProductMix": "Aucun article trouvé pour le mix produits.",
     "noTimeEntries": "Aucun pointage terminé trouvé pour cette date.",
     "noServerSales": "Aucune donnée de ventes par serveur trouvée pour cette date.",
-    "loadFailed": "Impossible de charger les commandes de cette date."
+    "loadFailed": "Impossible de charger les commandes de cette date.",
+    "noCashClosing": "Aucune clôture ni commande payée pour cette date.",
+    "cashClosingLive": "Pas de clôture enregistrée — règlement live imprimé depuis les commandes du jour."
   },
   "clock": {
     "noActiveEntry": "Aucun pointage actif trouvé",

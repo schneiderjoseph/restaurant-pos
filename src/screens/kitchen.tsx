@@ -23,15 +23,16 @@ import {KitchenBoardTicket, KitchenOrder} from "@/components/kitchen/kitchen.ord
 import {cn, toRecordId} from "@/lib/utils.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {LiveSubscription} from "surrealdb";
-import {toLuxonDateTime, getAppStartOfDay, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
+import {toLuxonDateTime, getAppStartOfDaySurreal} from "@/lib/datetime.ts";
 import {fetchDueOrderItemIds} from "@/lib/order-due-items.ts";
 import {formatOrderNumber, getInvoiceNumber} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {toast} from "sonner";
 import {useAtom} from "jotai";
 import {appPage, closingEnforcementAtom} from "@/store/jotai.ts";
-import {recallStage} from "@/lib/kitchen/workflow.service.ts";
+import {completeStages, recallStage} from "@/lib/kitchen/workflow.service.ts";
 import {useTranslation} from "react-i18next";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useKitchenOrderAnnouncements} from "@/hooks/useKitchenOrderAnnouncements.ts";
 import {unlockSpeech} from "@/lib/order-ready-announcement.ts";
@@ -273,7 +274,13 @@ export const KitchenScreen = () => {
     return nestBatchesByOrder(groupIntoBatches(records));
   }, [groupIntoBatches, nestBatchesByOrder]);
 
-  const calculateAverageTime = useCallback(async (kitchenId: string) => {
+  const calculateAverageTime = useCallback(async (kitchenId: string | { toString?: () => string }) => {
+    // Always compare as "kitchen:…" — callers sometimes pass a RecordId object.
+    const kitchenKey = recordIdToString(kitchenId);
+    if (!kitchenKey) {
+      return;
+    }
+
     const startDate = getAppStartOfDaySurreal();
     const maxPrepMinutes = 240;
 
@@ -284,7 +291,7 @@ export const KitchenScreen = () => {
          AND completed_at != None
          AND created_at >= $startDate`,
       {
-        kitchen: toRecordId(kitchenId),
+        kitchen: toRecordId(kitchenKey),
         startDate,
       }
     );
@@ -312,7 +319,7 @@ export const KitchenScreen = () => {
       durations.push(minutes);
     }
 
-    if (activeKitchenIdRef.current !== kitchenId) {
+    if (activeKitchenIdRef.current !== kitchenKey) {
       return;
     }
 
@@ -327,7 +334,12 @@ export const KitchenScreen = () => {
     setAvgTime(t('kitchen:labels.avgTimeMins', { count: averageMinutes }));
   }, [t]);
 
-  const loadOrders = useCallback(async (kitchenId: string) => {
+  const loadOrders = useCallback(async (kitchenId: string | { toString?: () => string }) => {
+    const kitchenKey = recordIdToString(kitchenId);
+    if (!kitchenKey) {
+      return;
+    }
+
     const request = ++loadRequestRef.current;
     const startDate = getAppStartOfDaySurreal();
     // Orders taken an earlier day and wanted today or later stay on the board.
@@ -345,13 +357,13 @@ export const KitchenScreen = () => {
         order by created_at desc
             fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.customer, order_item.order.user, order_item.order.order_type
     `, {
-      kitchen: toRecordId(kitchenId),
+      kitchen: toRecordId(kitchenKey),
       startDate,
       dueItems
     });
 
     // A slower, older load (or one for the station just left) must not replace the board.
-    if (request !== loadRequestRef.current || activeKitchenIdRef.current !== kitchenId) {
+    if (request !== loadRequestRef.current || activeKitchenIdRef.current !== kitchenKey) {
       return;
     }
 
@@ -392,13 +404,18 @@ export const KitchenScreen = () => {
         }
       }
     }
-    if (request === loadRequestRef.current && activeKitchenIdRef.current === kitchenId) {
+    if (request === loadRequestRef.current && activeKitchenIdRef.current === kitchenKey) {
       setSplitIntoByOrder(splitInto);
-      await calculateAverageTime(kitchenId);
+      await calculateAverageTime(kitchenKey);
     }
   }, [groupKitchenOrderItems, calculateAverageTime]);
 
-  const loadCompletedOrders = useCallback(async (kitchenId: string) => {
+  const loadCompletedOrders = useCallback(async (kitchenId: string | { toString?: () => string }) => {
+    const kitchenKey = recordIdToString(kitchenId);
+    if (!kitchenKey) {
+      return;
+    }
+
     const request = ++completedRequestRef.current;
     setLoadingCompletedOrders(true);
 
@@ -417,12 +434,12 @@ export const KitchenScreen = () => {
           order by completed_at desc
               fetch order_item, order_item.item, order_item.order, order_item.order.table, order_item.order.customer, order_item.order.user, order_item.order.order_type
       `, {
-        kitchen: toRecordId(kitchenId),
+        kitchen: toRecordId(kitchenKey),
         startDate,
         dueItems
       });
 
-      if (request !== completedRequestRef.current || activeKitchenIdRef.current !== kitchenId) {
+      if (request !== completedRequestRef.current || activeKitchenIdRef.current !== kitchenKey) {
         return;
       }
 
@@ -460,16 +477,8 @@ export const KitchenScreen = () => {
       return;
     }
 
-    // Yesterday's tickets cannot be recalled — only today's fire (or due today).
-    const dayStart = getAppStartOfDay();
+    // Completed list is already scoped to today / due-today — no second client gate.
     const order = ticket.order;
-    const batchCreated = ticket.createdAt ?? recallableItems[0]?.created_at;
-    const createdOk = batchCreated ? toLuxonDateTime(batchCreated) >= dayStart : false;
-    const dueOk = Boolean(order?.due_at && toLuxonDateTime(order.due_at) >= dayStart);
-    if (!createdOk && !dueOk) {
-      toast.error(t("toast:kitchen.recallYesterdayBlocked"));
-      return;
-    }
 
     setRecallingOrderKey(ticket.batchKey);
 
@@ -479,8 +488,12 @@ export const KitchenScreen = () => {
       markBatchRecalled(ticket.batchKey);
 
       await Promise.all(recallableItems.map((item) => {
-        return recallStage(db, item.id.toString(), page?.user?.id);
+        return recallStage(db, recordIdToString(item.id), page?.user?.id);
       }));
+
+      // Board first — a slow / hung printer must not leave the ticket stuck in "recalling".
+      await loadOrders(kitchen.id);
+      await loadCompletedOrders(kitchen.id);
 
       // Re-print like a new fire so the station gets a fresh ticket.
       const printItems = recallableItems
@@ -491,32 +504,27 @@ export const KitchenScreen = () => {
         }));
       if (printItems.length > 0 && kitchen.printers?.length) {
         const guestLabelMode = (page?.menuConfig?.kitchenGuestLabel ?? 'name') as KitchenGuestLabelMode;
-        try {
-          await dispatchPrint(db, 'kitchen', {
-            items: printItems,
-            order,
-            kitchenName: kitchen.name,
-            table: order?.table,
-            guestLabel: formatKitchenGuestLabel(order?.customer, guestLabelMode),
-            placeLabel: formatKitchenPlaceLabel(order?.table, {
-              room: t('kitchen:labels.room'),
-              table: t('kitchen:labels.table'),
-            }),
-            placeKind: order?.table?.source === 'asi-room' ? 'room' : 'table',
-          }, {
-            title: t("payment:print.kitchenTitle"),
-            copies: 1,
-            userId: page?.user?.id,
-            printers: kitchen.printers,
-          });
-        } catch (printError) {
+        void dispatchPrint(db, 'kitchen', {
+          items: printItems,
+          order,
+          kitchenName: kitchen.name,
+          table: order?.table,
+          guestLabel: formatKitchenGuestLabel(order?.customer, guestLabelMode),
+          placeLabel: formatKitchenPlaceLabel(order?.table, {
+            room: t('kitchen:labels.room'),
+            table: t('kitchen:labels.table'),
+          }),
+          placeKind: order?.table?.source === 'asi-room' ? 'room' : 'table',
+        }, {
+          title: t("payment:print.kitchenTitle"),
+          copies: 1,
+          userId: page?.user?.id,
+          printers: kitchen.printers,
+        }).catch((printError) => {
           console.error('Kitchen recall print failed', printError);
           toast.error(t("toast:kitchen.reprintFailed"));
-        }
+        });
       }
-
-      await loadOrders(kitchen.id);
-      await loadCompletedOrders(kitchen.id);
     } catch (error) {
       const message = error instanceof Error ? error.message : t("toast:kitchen.recallFailed");
       toast.error(message);
@@ -583,6 +591,32 @@ export const KitchenScreen = () => {
     };
   }, [kitchenId, loadOrders, scheduleLoadOrders]);
 
+  const completeAllOrders = async () => {
+    const ids = orders.flatMap((group) =>
+      group.batches.flatMap((batch) =>
+        batch.items
+          .filter((item) => !item.order_item?.deleted_at)
+          .map((item) => recordIdToString(item.id))
+          .filter(Boolean)
+      )
+    );
+    if (ids.length === 0) {
+      return;
+    }
+
+    try {
+      await assertOrderMutationsAllowed(db);
+      await completeStages(db, ids, page?.user?.id);
+      if (kitchen?.id) {
+        await loadOrders(kitchen.id);
+      }
+    } catch (error) {
+      console.error('Kitchen complete-all failed', error);
+      const message = error instanceof Error ? error.message : t('toast:kitchen.readyFailed');
+      toast.error(message);
+    }
+  };
+
   const allDishes = useMemo(() => {
     const itemsMap = new Map();
     orders.forEach(group => {
@@ -643,6 +677,19 @@ export const KitchenScreen = () => {
             ))}
           </div>
           <div className="flex gap-3">
+            <DeleteConfirm
+              title={t("kitchen:confirm.title")}
+              message={t("kitchen:confirm.completeAll")}
+              onConfirm={completeAllOrders}
+            >
+              <Button
+                variant="success"
+                size="lg"
+                isDisabled={mutationsBlocked || boardTickets.length === 0}
+              >
+                {t("kitchen:actions.completeAllOpen")}
+              </Button>
+            </DeleteConfirm>
             <Button variant="secondary" size="lg"
                     onClick={openCompletedOrdersModal}>{t("kitchen:actions.completedOrders")}</Button>
             <Button variant="secondary" size="lg"

@@ -18,6 +18,7 @@ import {
 import {toRecordId} from "@/lib/utils.ts";
 import {useTranslation} from 'react-i18next';
 import { isRoomPaymentType } from "@/lib/room-charge.ts";
+import { isCreditPaymentType } from "@/lib/credit-charge.ts";
 interface FormValues {
   enabled: boolean;
   payment_type: { label: string; value: string } | null;
@@ -42,7 +43,7 @@ export const AutoCheckCloseSettingsCard = () => {
 
   const paymentTypeOptions = useMemo(() => {
     return (paymentTypesData?.data ?? [])
-      .filter((pt) => pt.type !== 'remote' && !isRoomPaymentType(pt))
+      .filter((pt) => pt.type !== 'remote' && !isRoomPaymentType(pt) && !isCreditPaymentType(pt))
       .map((pt) => ({
         label: pt.name,
         value: pt.id.toString(),

@@ -4,7 +4,8 @@
     "nextDate": "التاريخ التالي",
     "printSummary": "طباعة الملخص",
     "productMixReport": "تقرير خليط المنتجات",
-    "serverSales": "مبيعات الخادم"
+    "serverSales": "مبيعات الخادم",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "طباعة الملخص",
@@ -12,7 +13,8 @@
     "productMixDescription": "تقرير خليط المنتجات",
     "productMixModule": "تقرير خليط المنتجات",
     "serverSalesDescription": "مبيعات الخادم",
-    "serverSalesModule": "مبيعات الخادم"
+    "serverSalesModule": "مبيعات الخادم",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "غير معروف",
@@ -178,6 +180,16 @@
     "time": "الوقت",
     "guests": "الضيوف",
     "checks": "الفواتير",
-    "sale": "المبيعات"
+    "sale": "المبيعات",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

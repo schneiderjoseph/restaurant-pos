@@ -4,7 +4,8 @@
     "nextDate": "Next date",
     "printSummary": "Print summary",
     "productMixReport": "Product Mix Report",
-    "serverSales": "Server Sales"
+    "serverSales": "Server Sales",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "Print summary",
@@ -12,7 +13,8 @@
     "productMixDescription": "Product mix report",
     "productMixModule": "Product mix report",
     "serverSalesDescription": "Server sales",
-    "serverSalesModule": "Server sales"
+    "serverSalesModule": "Server sales",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "Unknown",
@@ -30,18 +32,20 @@
       "settlementCashier": "3. Settlement and cashier",
       "operationalControls": "4. Operational controls",
       "productMix": "5. Product mix",
-      "paymentTypes": "6. Payment types",
-      "taxesBreakdown": "7. Taxes breakdown",
-      "discountsBreakdown": "8. Discounts breakdown",
-      "extrasBreakdown": "9. Extras breakdown",
-      "couponsBreakdown": "10. Coupons breakdown"
+      "paymentTypes": "6. Payment types (collected)",
+      "deferredCharges": "7. Room and credit (not collected)",
+      "taxesBreakdown": "8. Taxes breakdown",
+      "discountsBreakdown": "9. Discounts breakdown",
+      "extrasBreakdown": "10. Extras breakdown",
+      "couponsBreakdown": "11. Coupons breakdown"
     },
     "subtitles": {
       "surchargesTaxes": "Collected surcharges and tax (from orders; typically calculated on net after discount).",
       "settlementCashier": "Cash drawer view.",
       "operationalControls": "Audit signals (voids separate from gross sales).",
       "productMix": "Categories grouped with dishes and their modifiers.",
-      "paymentTypes": "Collected amount split by payment method.",
+      "paymentTypes": "Money actually taken at the till (cash, card…), excluding room and credit.",
+      "deferredCharges": "Checks posted to the room folio or house account — not till money.",
       "taxesBreakdown": "Tax components collected from orders.",
       "discountsBreakdown": "Discount schemes applied in this period.",
       "extrasBreakdown": "Breakdown of order-level extras.",
@@ -63,6 +67,9 @@
       "tips": "Tips",
       "grandTotalDue": "Grand total (due)",
       "amountCollected": "Amount collected",
+      "roomCharges": "Charged to room",
+      "creditCharges": "Charged to credit",
+      "deferredCharges": "Room + credit total",
       "rounding": "Rounding",
       "changeVariance": "Change / variance",
       "voids": "Voids",
@@ -88,8 +95,11 @@
       "amountDueBeforeTips": "Net sales + service charges + taxes.",
       "tips": "From order tip fields / over-total (not included in gross sales).",
       "grandTotalDue": "Total revenue + tips.",
-      "amountCollected": "Applied payment totals by method (excludes change returned).",
-      "rounding": "Amount collected − grand total (due); over/short vs calculated due.",
+      "amountCollected": "Cash, card and other till tenders (excludes room, credit and change returned).",
+      "roomCharges": "Checks posted to the room — collect at check-out / room folio.",
+      "creditCharges": "Checks posted to house credit — collect later (cash/card).",
+      "deferredCharges": "Sum of room + credit (not in the till).",
+      "rounding": "Applied tenders (collected + room + credit) − grand total due; over/short.",
       "changeVariance": "Cash tendered in excess of applied payment amounts.",
       "voids": "Value of lines removed after ring (not in gross sales above).",
       "refunds": "Returns from negative payments or cancelled checks.",
@@ -108,6 +118,7 @@
     "empty": {
       "noCategoryData": "No category data for this date.",
       "noPaymentData": "No payment data for this date.",
+      "noDeferredData": "No room or credit charges for this date.",
       "noTaxRows": "No tax rows for this date.",
       "noDiscountRows": "No discount rows for this date.",
       "noExtras": "No extras found for this date.",
@@ -178,6 +189,16 @@
     "time": "Time",
     "guests": "Gsts",
     "checks": "Chks",
-    "sale": "Sale"
+    "sale": "Sale",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

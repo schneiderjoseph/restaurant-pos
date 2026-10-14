@@ -1,13 +1,16 @@
 import { Tables } from '@/api/db/tables.ts';
 import type { Customer } from '@/api/model/customer.ts';
+import type { Order } from '@/api/model/order.ts';
 import type { Stay } from '@/api/model/stay.ts';
 import type { Table } from '@/api/model/table.ts';
 import type { User } from '@/api/model/user.ts';
 import { OrderStatus } from '@/api/model/order.ts';
 import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
+import { customerHistoryIds } from '@/lib/customer.service.ts';
 import { generateNextInvoiceNumber, getNextAutoId } from '@/lib/invoice.ts';
 import { isAsiGuest } from '@/lib/guest.ts';
-import { normalizeRoomKey, roomKeyCandidates } from '@/lib/room-key.ts';
+import { isRoomPaymentType } from '@/lib/room-charge.ts';
+import { normalizeRoomKey, roomKeyCandidates, splitGuestRooms } from '@/lib/room-key.ts';
 import { toRecordId } from '@/lib/utils.ts';
 
 const ROOM_TYPE = 'Room';
@@ -93,6 +96,18 @@ export function isStayRoomSettled(
   settledAmount?: number | null,
 ): boolean {
   return stayRoomOutstanding(roomTotal, settledAmount) <= MONEY_EPS;
+}
+
+/**
+ * Open stay past its planned departure day (`today` = YYYY-MM-DD, app timezone).
+ * Left open, its room looks free in ASI and the next ASI guest there makes a conflict.
+ */
+export function isStayOverdue(
+  stay: Pick<Stay, 'status' | 'date_out'>,
+  today: string,
+): boolean {
+  const out = String(stay.date_out ?? '').trim();
+  return stay.status === 'open' && Boolean(out) && Boolean(today) && out < today;
 }
 
 const withInHouseTag = (tags: unknown, add: boolean): string[] => {
@@ -186,6 +201,37 @@ export async function loadManualStayRoomContext(
   };
 }
 
+export async function listOpenStaysForCustomer(db: AnyDb, customerId: unknown): Promise<Stay[]> {
+  if (customerId == null || customerId === '') return [];
+  return rowsOf<Stay>(
+    await db.query(
+      `SELECT * FROM ${Tables.stays}
+       WHERE status = 'open' AND customer = $customer
+       ORDER BY checked_in_at DESC`,
+      { customer: toRecordId(idOf(customerId)) },
+    ),
+  );
+}
+
+/** Open manual stay for this guest on this physical room, if any. */
+export async function findOpenStayForCustomerRoom(
+  db: AnyDb,
+  customerId: unknown,
+  room: string | number | null | undefined,
+): Promise<Stay | undefined> {
+  const key = normalizeRoomKey(room);
+  if (!key || customerId == null || customerId === '') return undefined;
+  const candidateKeys = new Set(
+    (await collectRoomCandidates(db, String(room))).map((c) => normalizeRoomKey(c)).filter(Boolean),
+  );
+  candidateKeys.add(key);
+  const stays = await listOpenStaysForCustomer(db, customerId);
+  return stays.find((stay) => {
+    const stayKey = normalizeRoomKey(stay.room);
+    return Boolean(stayKey && candidateKeys.has(stayKey));
+  });
+}
+
 export interface CheckInStayInput {
   customer: Pick<Customer, 'id' | 'source' | 'asi_checkin_id' | 'asi_guest_id' | 'in_house' | 'tags' | 'current_stay'>;
   room: string;
@@ -194,15 +240,15 @@ export interface CheckInStayInput {
   user?: Pick<User, 'id'> | null;
 }
 
+/**
+ * Check a guest into one room. The same guest may already hold other open rooms —
+ * each room is its own stay (folio, move, check-out).
+ */
 export async function checkInStay(db: AnyDb, input: CheckInStayInput): Promise<Stay> {
   assertNotAsiCustomer(input.customer);
   const room = String(input.room ?? '').trim();
   if (!room) throw new StayServiceError('room_required');
   assertStayDates(input.dateIn, input.dateOut);
-
-  if (input.customer.in_house === true || input.customer.current_stay) {
-    throw new StayServiceError('already_in_house');
-  }
 
   const roomKey = normalizeRoomKey(room);
   if (!roomKey) throw new StayServiceError('room_required');
@@ -222,7 +268,6 @@ export async function checkInStay(db: AnyDb, input: CheckInStayInput): Promise<S
       `BEGIN TRANSACTION;
        LET $cust = (SELECT * FROM ONLY $customer);
        IF $cust = NONE { THROW 'not_found' };
-       IF $cust.current_stay != NONE OR $cust.in_house = true { THROW 'already_in_house' };
        LET $asi = (SELECT id FROM ${Tables.customers}
          WHERE ${ACTIVE_CUSTOMER}
            AND source = 'asi-fd'
@@ -238,10 +283,12 @@ export async function checkInStay(db: AnyDb, input: CheckInStayInput): Promise<S
          status = 'open',
          checked_in_by = $user,
          checked_in_at = time::now());
+       LET $rooms_open = (SELECT VALUE room FROM ${Tables.stays}
+         WHERE status = 'open' AND customer = $customer);
        UPDATE $customer SET
          current_stay = $stay.id,
          in_house = true,
-         room = $room,
+         room = array::join($rooms_open, ', '),
          tags = $tags,
          updated_at = time::now(),
          updated_by = $user;
@@ -304,7 +351,12 @@ export async function moveStay(db: AnyDb, input: MoveStayInput): Promise<Stay> {
            AND id != $customer);
        IF array::len($asi) > 0 { THROW 'room_occupied_asi' };
        UPDATE $id SET room = $room, room_key = $room_key;
-       UPDATE $customer SET room = $room, updated_at = time::now(), updated_by = $user;
+       LET $rooms_open = (SELECT VALUE room FROM ${Tables.stays}
+         WHERE status = 'open' AND customer = $customer);
+       UPDATE $customer SET
+         room = array::join($rooms_open, ', '),
+         updated_at = time::now(),
+         updated_by = $user;
        RETURN (SELECT * FROM ONLY $id);
        COMMIT TRANSACTION;`,
       {
@@ -415,6 +467,176 @@ export async function loadStayRoomPayments(
 export async function loadStayRoomTotal(db: AnyDb, stayId: unknown): Promise<number> {
   const rows = await loadStayRoomPayments(db, stayId);
   return rows.reduce((sum, row) => sum + (Number(row.amount) || 0), 0);
+}
+
+const STAY_FOLIO_ORDER_FETCHES = [
+  'items',
+  'items.item',
+  'payments',
+  'payments.payment_type',
+  'extras',
+  'extras.order_extras',
+  'order_discounts',
+  'order_discounts.discount',
+  'coupon',
+  'coupon.coupon',
+  'tax',
+  'order_taxes',
+  'order_taxes.tax',
+].join(', ');
+
+/**
+ * Paid (or otherwise active) orders that put Room charges on this stay — itemized for the
+ * end-of-stay bill. Oldest first so the printed sheet reads chronologically.
+ */
+export async function loadStayFolioOrders(db: AnyDb, stayId: unknown): Promise<Order[]> {
+  const payments = await loadStayRoomPayments(db, stayId);
+  if (payments.length === 0) return [];
+
+  const paymentIds = payments
+    .map((row) => idOf(row.id))
+    .filter(Boolean)
+    .map((id) => toRecordId(id));
+  if (paymentIds.length === 0) return [];
+
+  return rowsOf<Order>(
+    await db.query(
+      `SELECT * FROM ${Tables.orders}
+       WHERE deleted_at = none
+         AND status NOT IN $excluded
+         AND payments CONTAINSANY $payments
+       ORDER BY created_at ASC
+       FETCH ${STAY_FOLIO_ORDER_FETCHES}`,
+      {
+        payments: paymentIds,
+        excluded: EXCLUDED_ORDER_STATUSES,
+      },
+    ),
+  );
+}
+
+/**
+ * Every order put on a room (Room tender) between `from` and `to`, newest first, for the
+ * Front Desk "Room charges" list. Cancelled / refunded orders are left out, as on the folio.
+ */
+export async function listRoomChargedOrders(
+  db: AnyDb,
+  range: { from: Date; to: Date },
+): Promise<Order[]> {
+  const orders = rowsOf<Order>(
+    await db.query(
+      `SELECT * FROM ${Tables.orders}
+       WHERE deleted_at = none
+         AND status NOT IN $excluded
+         AND created_at >= $from AND created_at < $to
+       ORDER BY created_at DESC
+       LIMIT 1000
+       FETCH ${STAY_FOLIO_ORDER_FETCHES}, customer, table, payments.stay`,
+      { from: range.from, to: range.to, excluded: EXCLUDED_ORDER_STATUSES },
+    ),
+  );
+  return orders.filter(orderHasRoomCharge);
+}
+
+/** Room of a Room-charged order: the manual stay's room, else the room tile, else the guest's room. */
+export function orderRoomLabel(order: Order): string {
+  for (const payment of order.payments ?? []) {
+    const stay = payment?.stay;
+    if (stay && typeof stay === 'object' && (stay as Stay).room) return String((stay as Stay).room);
+  }
+  // Unfetched links come back as record-id strings: only a fetched object carries a number.
+  if (order.table && typeof order.table === 'object' && order.table.number != null && order.table.number !== '') {
+    return String(order.table.number);
+  }
+  if (order.customer && typeof order.customer === 'object' && order.customer.room) {
+    return String(order.customer.room);
+  }
+  return '';
+}
+
+/** True when the order has at least one Room tender line. */
+export function orderHasRoomCharge(order: Pick<Order, 'payments'>): boolean {
+  return (order.payments ?? []).some(
+    (payment) => payment != null && isRoomPaymentType(payment.payment_type),
+  );
+}
+
+/** Sum of Room tender amounts on the order. */
+export function orderRoomChargeTotal(order: Pick<Order, 'payments'>): number {
+  return (order.payments ?? [])
+    .filter((payment) => payment != null && isRoomPaymentType(payment.payment_type))
+    .reduce((sum, payment) => sum + (Number(payment?.amount) || 0), 0);
+}
+
+/**
+ * Room-charged orders for a guest (ASI or local), including orders left on merged duplicates.
+ * ASI Room lines have no stay id — this is how their end-of-stay bill is built.
+ */
+export async function loadCustomerRoomFolioOrders(
+  db: AnyDb,
+  customerId: unknown,
+): Promise<Order[]> {
+  if (customerId == null || customerId === '') return [];
+  const customers = await customerHistoryIds(db, customerId);
+  if (customers.length === 0) return [];
+
+  const orders = rowsOf<Order>(
+    await db.query(
+      `SELECT * FROM ${Tables.orders}
+       WHERE customer IN $customers
+         AND deleted_at = none
+         AND status NOT IN $excluded
+       ORDER BY created_at ASC
+       LIMIT 200
+       FETCH ${STAY_FOLIO_ORDER_FETCHES}`,
+      {
+        customers,
+        excluded: EXCLUDED_ORDER_STATUSES,
+      },
+    ),
+  );
+  return orders.filter(orderHasRoomCharge);
+}
+
+/** Sum of Room charges across guest folio orders. */
+export function customerRoomFolioTotal(orders: Order[]): number {
+  return Math.round(
+    orders.reduce((sum, order) => sum + orderRoomChargeTotal(order), 0) * 100,
+  ) / 100;
+}
+
+/** In-house ASI FrontDesk guests (room folio print; check-out stays in ASI). */
+export async function listAsiInHouseGuests(db: AnyDb): Promise<Customer[]> {
+  return rowsOf<Customer>(
+    await db.query(
+      `SELECT * FROM ${Tables.customers}
+       WHERE ${ACTIVE_CUSTOMER}
+         AND source = 'asi-fd'
+         AND in_house = true
+       ORDER BY room ASC, name ASC`,
+    ),
+  );
+}
+
+export type StaySettlementRow = {
+  id?: unknown;
+  amount?: number;
+  comments?: string;
+  created_at?: unknown;
+  payment_type?: { name?: string; type?: string };
+};
+
+/** Cash/card collections recorded against the Room folio. */
+export async function loadStaySettlements(db: AnyDb, stayId: unknown): Promise<StaySettlementRow[]> {
+  return rowsOf<StaySettlementRow>(
+    await db.query(
+      `SELECT id, amount, comments, created_at, payment_type FROM ${Tables.stay_settlements}
+       WHERE stay = $stay
+       ORDER BY created_at ASC
+       FETCH payment_type`,
+      { stay: toRecordId(idOf(stayId)) },
+    ),
+  );
 }
 
 /** Clear the "fully settled" flag when a new Room charge is posted (keeps prior cash collections). */
@@ -583,7 +805,8 @@ export async function checkOutStay(db: AnyDb, input: CheckOutStayInput): Promise
     throw new StayServiceError('room_unsettled', 'Room folio must be settled before check-out');
   }
 
-  const tags = withInHouseTag(input.customer.tags, false);
+  const tagsOut = withInHouseTag(input.customer.tags, false);
+  const tagsStillIn = withInHouseTag(input.customer.tags, true);
   try {
     const result = await db.query(
       `BEGIN TRANSACTION;
@@ -596,20 +819,34 @@ export async function checkOutStay(db: AnyDb, input: CheckOutStayInput): Promise
          checked_out_by = $user,
          checked_out_at = time::now(),
          room_total_at_checkout = $total;
-       UPDATE $customer SET
-         current_stay = NONE,
-         in_house = false,
-         room = NONE,
-         tags = $tags,
-         updated_at = time::now(),
-         updated_by = $user;
+       LET $remaining = (SELECT id, room, checked_in_at FROM ${Tables.stays}
+         WHERE status = 'open' AND customer = $customer
+         ORDER BY checked_in_at DESC);
+       IF array::len($remaining) = 0 {
+         UPDATE $customer SET
+           current_stay = NONE,
+           in_house = false,
+           room = NONE,
+           tags = $tags_out,
+           updated_at = time::now(),
+           updated_by = $user;
+       } ELSE {
+         UPDATE $customer SET
+           current_stay = $remaining[0].id,
+           in_house = true,
+           room = array::join((SELECT VALUE room FROM $remaining), ', '),
+           tags = $tags_still,
+           updated_at = time::now(),
+           updated_by = $user;
+       };
        RETURN (SELECT * FROM ONLY $id);
        COMMIT TRANSACTION;`,
       {
         id: toRecordId(idOf(input.stay.id)),
         customer: toRecordId(idOf(input.customer.id)),
         user: userRef(input.user),
-        tags,
+        tags_out: tagsOut,
+        tags_still: tagsStillIn,
         total,
       },
       QUIET,
@@ -633,32 +870,81 @@ export async function listOpenStays(db: AnyDb): Promise<Stay[]> {
   );
 }
 
-/** Rooms where both an ASI guest and a manual stay (or two guests) claim the same key. */
-export async function listRoomConflicts(
+/**
+ * Who occupies each hotel room for F&B: ASI guests, plus open manual stays only when ASI
+ * does not already hold that room. A leftover manual stay after ASI check-in still appears
+ * in `conflicts` for Front Desk (settle / check-out), but never as the room's F&B guest.
+ */
+export async function loadInHouseRoomOccupancy(
   db: AnyDb,
-): Promise<Array<{ roomKey: string; guests: Customer[] }>> {
-  const guests = rowsOf<Customer>(
-    await db.query(
-      `SELECT * FROM ${Tables.customers}
-       WHERE ${ACTIVE_CUSTOMER}
-         AND (in_house = true OR tags CONTAINS 'in-house')
-         AND room != NONE AND room != NULL`,
-    ),
-  );
+): Promise<{
+  byRoomKey: Map<string, Customer>;
+  conflictKeys: Set<string>;
+  conflicts: Array<{ roomKey: string; guests: Customer[] }>;
+}> {
   const byKey = new Map<string, Customer[]>();
-  for (const guest of guests) {
-    const key = normalizeRoomKey(guest.room);
-    if (!key) continue;
+  const push = (room: string | number | null | undefined, guest: Customer) => {
+    const key = normalizeRoomKey(room);
+    if (!key) return;
     const list = byKey.get(key) ?? [];
-    list.push(guest);
+    if (!list.some((g) => idOf(g.id) === idOf(guest.id))) {
+      list.push(guest);
+    }
     byKey.set(key, list);
-  }
-  const tables = rowsOf<Table>(
-    await db.query(
-      `SELECT number, asi_alias FROM ${Tables.tables}
-       WHERE deleted_at = none AND source = 'asi-room'`,
+  };
+
+  const [asiGuests, openStays, tables] = await Promise.all([
+    rowsOf<Customer>(
+      await db.query(
+        `SELECT * FROM ${Tables.customers}
+         WHERE ${ACTIVE_CUSTOMER}
+           AND source = 'asi-fd'
+           AND (in_house = true OR tags CONTAINS 'in-house')
+           AND room != NONE AND room != NULL`,
+      ),
     ),
-  );
+    rowsOf<Stay & { customer?: Customer }>(
+      await db.query(
+        `SELECT * FROM ${Tables.stays}
+         WHERE status = 'open'
+         FETCH customer`,
+      ),
+    ),
+    rowsOf<Table>(
+      await db.query(
+        `SELECT number, asi_alias FROM ${Tables.tables}
+         WHERE deleted_at = none AND source = 'asi-room'`,
+      ),
+    ),
+  ]);
+
+  for (const guest of asiGuests) {
+    for (const room of splitGuestRooms(guest.room)) {
+      push(room, guest);
+    }
+  }
+
+  /** Manual stays ASI replaced — keep for Front Desk Conflicts, not for F&B occupancy. */
+  const asiTakeoverConflicts: Array<{ roomKey: string; guests: Customer[] }> = [];
+
+  for (const stay of openStays) {
+    const guest = stay.customer;
+    if (!guest || typeof guest !== 'object' || !('id' in guest)) continue;
+    const key = normalizeRoomKey(stay.room);
+    if (!key) continue;
+    const existing = byKey.get(key) ?? [];
+    const asiHolder = existing.find((g) => g.source === 'asi-fd');
+    if (asiHolder && idOf(asiHolder.id) !== idOf((guest as Customer).id)) {
+      const guests = [...existing];
+      if (!guests.some((g) => idOf(g.id) === idOf((guest as Customer).id))) {
+        guests.push(guest as Customer);
+      }
+      asiTakeoverConflicts.push({ roomKey: key, guests });
+      continue;
+    }
+    push(stay.room, guest as Customer);
+  }
+
   for (const table of tables) {
     const numKey = normalizeRoomKey(table.number);
     const aliasKey = normalizeRoomKey(table.asi_alias as string | undefined);
@@ -674,9 +960,33 @@ export async function listRoomConflicts(
       byKey.delete(aliasKey);
     }
   }
-  return [...byKey.entries()]
-    .filter(([, list]) => list.length > 1)
-    .map(([roomKey, list]) => ({ roomKey, guests: list }));
+
+  const map = new Map<string, Customer>();
+  const conflictKeys = new Set<string>();
+  const conflicts: Array<{ roomKey: string; guests: Customer[] }> = [];
+  for (const [key, list] of byKey) {
+    if (list.length > 1) {
+      conflictKeys.add(key);
+      conflicts.push({ roomKey: key, guests: list });
+    }
+    const preferred = list.find((g) => g.source === 'asi-fd') ?? list[0];
+    if (preferred) map.set(key, preferred);
+  }
+  for (const row of asiTakeoverConflicts) {
+    // Front Desk Conflicts only — do not flag the floor tile (F&B already uses the ASI guest).
+    if (!conflicts.some((c) => c.roomKey === row.roomKey)) {
+      conflicts.push(row);
+    }
+  }
+  return { byRoomKey: map, conflictKeys, conflicts };
+}
+
+/** Rooms where both an ASI guest and a manual stay (or two guests) claim the same key. */
+export async function listRoomConflicts(
+  db: AnyDb,
+): Promise<Array<{ roomKey: string; guests: Customer[] }>> {
+  const { conflicts } = await loadInHouseRoomOccupancy(db);
+  return conflicts;
 }
 
 /** Append a staff note without wiping the previous one. */
@@ -741,9 +1051,7 @@ async function diagnoseCheckInFailure(
     const customer = rowsOf<Customer>(
       await db.query(`SELECT * FROM $id`, { id: toRecordId(idOf(ctx.customerId)) }),
     )[0];
-    if (customer && (customer.current_stay != null || customer.in_house === true)) {
-      return new StayServiceError('already_in_house');
-    }
+    if (!customer) return new StayServiceError('not_found');
     const asi = await findAsiOccupant(db, ctx.roomCandidates, ctx.customerId);
     if (asi) return new StayServiceError('room_occupied_asi');
     const open = rowsOf<{ id: unknown }>(

@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Addition provisoire",
+  "proformaBill": "Proforma",
+  "proformaNote": "Les prix peuvent varier. Ceci n'est pas une facture finale.",
   "finalBill": "Addition finale",
   "duplicateFinalBill": "Duplicata addition finale",
   "delivery": "LIVRAISON",

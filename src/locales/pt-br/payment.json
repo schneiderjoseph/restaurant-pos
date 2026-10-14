@@ -9,16 +9,16 @@
     "cancel": "Cancelar"
   },
   "errors": {
-    "createOrder": "Não foi possível criar o pedido.",
-    "openPayment": "Não foi possível abrir o pagamento.",
-    "noOrderType": "Nenhum tipo de pedido configurado. Crie um em Admin → Tipos de pedido e recarregue o cache."
+    "createOrder": "NÃ£o foi possÃ­vel criar o pedido.",
+    "openPayment": "NÃ£o foi possÃ­vel abrir o pagamento.",
+    "noOrderType": "Nenhum tipo de pedido configurado. Crie um em Admin â†’ Tipos de pedido e recarregue o cache."
   },
   "tracking": {
     "createOrder": "Criar pedido",
     "appendOrder": "Adicionar ao pedido"
   },
   "print": {
-    "kitchenTitle": "Impressão da cozinha"
+    "kitchenTitle": "ImpressÃ£o da cozinha"
   },
   "title": "Pedido#{{invoice}}",
   "tabs": {
@@ -26,9 +26,9 @@
     "taxWithRate": "Imposto ({{label}})",
     "discount": "Desconto",
     "coupon": "Cupom",
-    "serviceCharges": "Taxa de serviço ({{value}}{{unit}})",
+    "serviceCharges": "Taxa de serviÃ§o ({{value}}{{unit}})",
     "tip": "Gorjeta ({{value}}{{unit}})",
-    "notes": "Observações",
+    "notes": "ObservaÃ§Ãµes",
     "total": "Total"
   },
   "totals": {
@@ -40,62 +40,81 @@
   "discount": {
     "noDiscount": "Sem desconto",
     "label": "Desconto",
-    "withMaxCap": "com teto máximo de {{amount}}",
+    "withMaxCap": "com teto mÃ¡ximo de {{amount}}",
     "applied": "Aplicado",
-    "automaticBadge": "Automático",
+    "automaticBadge": "AutomÃ¡tico",
     "selectItems": "Selecionar itens",
     "reason": "Motivo",
     "reasonNotes": "Notas (opcional)",
     "apply": "Aplicar desconto"
   },
   "coupon": {
-    "codeLabel": "Código do cupom",
+    "codeLabel": "CÃ³digo do cupom",
     "applied": "Cupom aplicado: {{code}}",
     "discount": "Desconto: {{amount}}",
     "discountFromCoupon": "Desconto do cupom: {{amount}}",
     "errors": {
-      "notFound": "Cupom não encontrado ou inativo",
-      "unsupportedType": "Este tipo de cupom não é suportado em pedidos",
-      "belowMinimum": "O total do pedido está abaixo do valor mínimo para este cupom",
-      "notValidToday": "O cupom não é válido hoje",
-      "notValidTime": "O cupom não é válido neste horário",
-      "notActiveYet": "O cupom ainda não está ativo",
+      "notFound": "Cupom nÃ£o encontrado ou inativo",
+      "unsupportedType": "Este tipo de cupom nÃ£o Ã© suportado em pedidos",
+      "belowMinimum": "O total do pedido estÃ¡ abaixo do valor mÃ­nimo para este cupom",
+      "notValidToday": "O cupom nÃ£o Ã© vÃ¡lido hoje",
+      "notValidTime": "O cupom nÃ£o Ã© vÃ¡lido neste horÃ¡rio",
+      "notActiveYet": "O cupom ainda nÃ£o estÃ¡ ativo",
       "expired": "O cupom expirou",
       "usageLimitReached": "Limite de uso do cupom atingido",
-      "userLimitReached": "Você atingiu o limite de uso deste cupom",
-      "firstOrderOnly": "Este cupom é válido somente no primeiro pedido",
-      "notStackable": "Este cupom não pode ser usado junto com outros descontos",
-      "noDiscount": "Este cupom não oferece desconto para este pedido"
+      "userLimitReached": "VocÃª atingiu o limite de uso deste cupom",
+      "firstOrderOnly": "Este cupom Ã© vÃ¡lido somente no primeiro pedido",
+      "notStackable": "Este cupom nÃ£o pode ser usado junto com outros descontos",
+      "noDiscount": "Este cupom nÃ£o oferece desconto para este pedido"
     },
     "appliedSuccess": "Cupom aplicado"
   },
   "serviceCharges": {
-    "defaultFromSettings": "Padrão das configurações:",
-    "noServiceCharge": "Sem taxa de serviço"
+    "defaultFromSettings": "PadrÃ£o das configuraÃ§Ãµes:",
+    "noServiceCharge": "Sem taxa de serviÃ§o"
   },
   "tip": {
     "noTip": "Sem Gorjeta"
   },
   "notes": {
-    "title": "Alguma observação",
-    "hint": "Você pode anotar números de cartão ou desconto"
+    "title": "Alguma observaÃ§Ã£o",
+    "hint": "VocÃª pode anotar nÃºmeros de cartÃ£o ou desconto"
   },
   "receiving": {
     "remaining": "Restante",
     "change": "Troco",
     "payIn": "O cliente paga em",
-    "tempBill": "Conta provisória",
+    "tempBill": "Conta provisÃ³ria",
+    "proforma": "Proforma",
     "complete": "Concluir",
     "completeAndPrint": "Complete & print",
-    "cannotAddCard": "Não é possível adicionar mais pagamento para cartão",
-    "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
-    "tempAlreadyPrinted": "Conta provisória já impressa",
+    "cannotAddCard": "NÃ£o Ã© possÃ­vel adicionar mais pagamento para cartÃ£o",
+    "exactCardAmount": "Valor exato adicionado para pagamento com cartÃ£o",
+    "tempAlreadyPrinted": "Conta provisÃ³ria jÃ¡ impressa",
     "roomCheckedOut": "Check-out feito no ASI: este cliente paga diretamente, como um cliente avulso",
-    "roomSyncStale": "Estadia não verificável (sincronização ASI atrasada): o cliente paga diretamente",
-    "roomNotHotelGuest": "Cobrança no quarto exige um hóspede hospedado",
-    "roomDepartsToday": "Saída prevista para hoje",
+    "roomSyncStale": "Estadia nÃ£o verificÃ¡vel (sincronizaÃ§Ã£o ASI atrasada): o cliente paga diretamente",
+    "roomNotHotelGuest": "CobranÃ§a no quarto exige um hÃ³spede hospedado",
+    "roomDepartsToday": "SaÃ­da prevista para hoje",
     "fiscalFailed": "Falha no envio fiscal",
-    "fiscalPartialFailure": "Alguns provedores fiscais falharam; verifique a fila de Integrações"
+    "fiscalPartialFailure": "Alguns provedores fiscais falharam; verifique a fila de IntegraÃ§Ãµes",
+    "creditNoCustomer": "Credit needs a registered customer on the order",
+    "creditNotAllowed": "This customer is not authorized for house credit",
+    "creditOverLimit": "This charge would exceed the customer's credit limit",
+    "creditDeleted": "This customer was removed: credit is not allowed",
+    "creditOutstanding": "House credit due: {{amount}}",
+    "creditSettle": "Collect credit",
+    "creditSettleTender": "Tender",
+    "creditSelectSettleTender": "Choose cash or card",
+    "creditSettledOk": "Credit account settled",
+    "creditSettleFailed": "Could not settle the credit account",
+    "creditSettleError": {
+      "nothing_to_settle": "Nothing left to collect on credit",
+      "invalid_settle": "Invalid credit settlement",
+      "bad_tender": "Settle credit with cash or card only",
+      "not_found": "Customer not found"
+    },
+    "cannotAddCredit": "Cannot add more credit: the ticket is already covered",
+    "exactCreditAmount": "Credit limited to the amount still due on this ticket"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",
@@ -108,34 +127,34 @@
     "fixed": "Fixo"
   },
   "remoteGateway": {
-    "missingProvider": "O tipo de pagamento remoto não possui um provedor de gateway.",
+    "missingProvider": "O tipo de pagamento remoto nÃ£o possui um provedor de gateway.",
     "linkGenerated": "Link de pagamento remoto gerado.",
     "tokenGenerated": "Token remoto gerado: {{token}}",
-    "intentGenerated": "Intenção de pagamento remoto gerada.",
+    "intentGenerated": "IntenÃ§Ã£o de pagamento remoto gerada.",
     "paymentTimedOut": "Pagamento {{gateway}} expirou. Toque em Verificar para checar novamente.",
     "paymentStatus": "Pagamento {{gateway}} {{status}}.",
-    "completeOnPage": "Conclua o pagamento na página do {{gateway}} e retorne ao PDV.",
+    "completeOnPage": "Conclua o pagamento na pÃ¡gina do {{gateway}} e retorne ao PDV.",
     "scanQr": "Escaneie o QR code com o aplicativo {{gateway}} para pagar.",
-    "enterCardDetails": "Digite os dados do cartão abaixo para concluir o pagamento.",
-    "intentCreated": "Intenção de pagamento {{gateway}} criada.",
-    "usePaypalButton": "Use o botão PayPal abaixo para concluir o pagamento.",
+    "enterCardDetails": "Digite os dados do cartÃ£o abaixo para concluir o pagamento.",
+    "intentCreated": "IntenÃ§Ã£o de pagamento {{gateway}} criada.",
+    "usePaypalButton": "Use o botÃ£o PayPal abaixo para concluir o pagamento.",
     "useRazorpayButton": "Toque em Pagar com Razorpay abaixo para concluir o pagamento.",
     "paymentFailed": "Pagamento falhou.",
     "paymentStatusLabel": "Status do pagamento: {{status}}",
-    "paymentIs": "O pagamento está {{status}}.",
-    "paypalPaymentIs": "O pagamento PayPal está {{status}}.",
+    "paymentIs": "O pagamento estÃ¡ {{status}}.",
+    "paypalPaymentIs": "O pagamento PayPal estÃ¡ {{status}}.",
     "razorpayPaymentFailed": "Pagamento Razorpay falhou.",
     "stripePaymentFailed": "Pagamento Stripe falhou.",
-    "mpesaPhoneUnavailable": "O prompt de telefone M-Pesa não está disponível.",
+    "mpesaPhoneUnavailable": "O prompt de telefone M-Pesa nÃ£o estÃ¡ disponÃ­vel.",
     "mpesaPromptSent": "STK push enviado para {{phone}}. Verifique o telefone para digitar o PIN M-Pesa.",
     "mpesaPromptSentGeneric": "STK push enviado. Verifique o telefone para digitar o PIN M-Pesa.",
-    "mpesaInvalidPhone": "Digite um número M-Pesa válido (2547XXXXXXXX ou 07XXXXXXXX).",
+    "mpesaInvalidPhone": "Digite um nÃºmero M-Pesa vÃ¡lido (2547XXXXXXXX ou 07XXXXXXXX).",
     "verifiedAndAdded": "Pagamento remoto verificado e adicionado.",
     "generateFailed": "Falha ao gerar link/token de pagamento remoto",
-    "mustBePaid": "O pagamento está {{status}}. Deve estar pago/autorizado antes de adicionar.",
+    "mustBePaid": "O pagamento estÃ¡ {{status}}. Deve estar pago/autorizado antes de adicionar.",
     "verifyFailed": "Falha ao verificar pagamento remoto",
     "paymentReceived": "Pagamento {{gateway}} recebido.",
-    "payWithCard": "Pagar com cartão",
+    "payWithCard": "Pagar com cartÃ£o",
     "payWithRazorpay": "Pagar com Razorpay"
   }
 }

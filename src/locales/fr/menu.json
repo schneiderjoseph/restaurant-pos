@@ -90,6 +90,9 @@
     "pickGuestPms": "Recherchez un client, ou enregistrez-en un nouveau pour continuer",
     "required": "Sélectionnez d'abord un client",
     "roomRequiresGuest": "Impossible de commander sur une chambre sans client. Choisissez une chambre occupée.",
+    "roomTakenByAsi": "ASI a {{name}} en chambre {{room}}. Ouvrez la commande sur ce client — pas sur l’ancien séjour Front Desk.",
+    "roomTakenByAsiUnknown": "Occupation de la chambre {{room}} non vérifiable. Réessayez, ou choisissez le client ASI du jour.",
+    "roomPriorOrderHint": "La commande #{{number}} appartient encore à {{name}} (séjour précédent). Transférez-la depuis Client, ou continuez pour {{current}}.",
     "walkInBadge": "Passant",
     "listTabs": "Type de client",
     "tabRooms": "Chambres",
@@ -130,7 +133,10 @@
     "phoneCountriesFrequent": "Fréquents",
     "phoneCountriesAll": "Tous les pays",
     "codeUnavailable": "Impossible de générer un code client unique. Réessayez.",
-    "matchLookupFailed": "Impossible de vérifier les clients existants. Réessayez."
+    "matchLookupFailed": "Impossible de vérifier les clients existants. Réessayez.",
+    "printAllFolioFr": "Tout imprimer (FR)",
+    "printAllFolioEn": "Tout imprimer (EN)",
+    "roomTotal": "Total Room"
   },
   "outlets": {
     "all": "Tous"
@@ -201,7 +207,13 @@
       "license": "Permis de conduire",
       "other": "Autre"
     },
-    "vip": "VIP"
+    "vip": "VIP",
+    "creditAllowed": "Crédit autorisé",
+    "creditLimit": "Plafond de crédit",
+    "creditLimitUnlimited": "Illimité",
+    "creditLimitHint": "Laisser vide pour aucun plafond.",
+    "creditLimitInvalid": "Indiquez un plafond valide (0 ou plus), ou laissez vide.",
+    "creditDue": "Crédit dû {{amount}}"
   },
   "dishes": {
     "slideOf": "Diapositive {{current}} sur {{total}}",

@@ -4,6 +4,7 @@ import {
   dueFromOffset,
   dueFromParts,
   formatDueLabel,
+  formatDueLabelForSpeech,
   isDueAhead,
   timerStartWithDue,
 } from '@/lib/order-due.ts';
@@ -61,6 +62,17 @@ describe('formatDueLabel', () => {
   it('reads a UTC instant in the local zone', () => {
     const utc = DateTime.fromISO('2026-10-03T23:30:00Z', { setZone: true });
     expect(formatDueLabel(utc, now)).toBe('19:30');
+  });
+});
+
+describe('formatDueLabelForSpeech', () => {
+  it('says French hours without a colon', () => {
+    expect(formatDueLabelForSpeech(dueFromParts(now, 0, 11, 0), now, 'demain', 'fr')).toBe('11 heures');
+    expect(formatDueLabelForSpeech(dueFromParts(now, 0, 19, 30), now, 'demain', 'fr')).toBe('19 heures 30');
+  });
+
+  it('keeps the tomorrow prefix for speech', () => {
+    expect(formatDueLabelForSpeech(dueFromParts(now, 1, 8, 0), now, 'demain', 'fr')).toBe('demain 8 heures');
   });
 });
 

@@ -33,6 +33,18 @@
   `MenuDish` stamps `state.category` on the line, and `resolveOutlet` reads `category_id` first, so a
   dish found by search was sold under the wrong category and point of sale (found in review
   2026-10-04, before deployment). `MenuDishes.onClick` falls back to the dish's own category.
+- Never start or reopen a hotel-room F&B order on a manual Front Desk stay when ASI already
+  holds that room: the room number alone is yesterday's guest (order 114 / room 32, 2026-10-10).
+  `loadInHouseRoomOccupancy` binds F&B to the ASI guest only (manual leftover stays in Front Desk
+  Conflicts). Hide superseded manuals from the Rooms tab (`asiOccupantForGuestRooms`), refuse
+  `startNewOrderFor` via `findAsiOccupant`, and on the floor only open orders for the current
+  room guest.
+- Never treat menu links or kitchen `items` as dish "in use" for `executeSettingsDelete`: those
+  are owned by the dish and belong in `cleanupQueries`. Putting them in `usageChecks` soft-deletes
+  every sellable dish with a false "désactivé" toast (field report 2026-10-12). Soft-delete only
+  for `order_item` history or when the dish is listed inside a `modifier_group`; remove
+  `menu_menu_item` / kitchen refs in cleanup, and stamp `deleted_at` with `time::now()` not
+  `new Date()` / ISO.
 
 ## Always
 

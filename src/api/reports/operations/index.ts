@@ -146,7 +146,16 @@ export const getCashClosing = async (db: DbClient, options: {date?: string}) => 
     0,
   );
   const totalOtherPayments = (closing.payments_data || [])
-    .filter(item => String(item?.payment_type?.type || "").toLowerCase() !== "cash")
+    .filter(item => {
+      const type = String(item?.payment_type?.type || "").toLowerCase();
+      return type !== "cash" && type !== "room" && type !== "credit";
+    })
+    .reduce((sum, item) => sum + safeNumber(item?.amount), 0);
+  const totalDeferredCharges = (closing.payments_data || [])
+    .filter(item => {
+      const type = String(item?.payment_type?.type || "").toLowerCase();
+      return type === "room" || type === "credit";
+    })
     .reduce((sum, item) => sum + safeNumber(item?.amount), 0);
 
   return {
@@ -155,6 +164,7 @@ export const getCashClosing = async (db: DbClient, options: {date?: string}) => 
     closingBalance: safeNumber(closing.closing_balance),
     totalCash,
     totalOtherPayments,
+    totalDeferredCharges,
     totalExpenses: safeNumber(closing.expenses),
     variance: safeNumber(closing.closing_balance) - safeNumber(closing.opening_balance) - totalCash + safeNumber(closing.expenses),
     dateFrom: closing.date_from,

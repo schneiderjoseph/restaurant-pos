@@ -3,6 +3,7 @@ import { Order } from '@/api/model/order.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 import {formatTableLabel} from "@/lib/table-label.ts";
+import { normalizeRoomKey, splitGuestRooms } from '@/lib/room-key.ts';
 
 export { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 
@@ -10,8 +11,8 @@ export { formatGuestLabel, formatPersonName } from '@/lib/guest-label.ts';
 export type GuestListTab = 'rooms' | 'walkin';
 
 /**
- * Hotel / Front Desk guest with a room stay (ASI in-house or manual stay).
- * Everyone else on the Client list is treated as a walk-in (passant).
+ * Hotel / Front Desk guest with a room stay (ASI in-house or open manual stay).
+ * Checked-out stays are walk-ins again (Passant), even if tags still say manual-stay.
  */
 export function isRoomGuest(
   guest: Pick<Customer, 'room' | 'in_house' | 'tags' | 'current_stay'>,
@@ -22,10 +23,14 @@ export function isRoomGuest(
   if (guest.in_house) {
     return true;
   }
-  if (guest.tags?.includes('in-house') || guest.tags?.includes('manual-stay')) {
+  if (guest.current_stay != null && guest.current_stay !== '') {
     return true;
   }
-  if (guest.current_stay != null && guest.current_stay !== '') {
+  // Stale "in-house" / "manual-stay" tags after check-out must not keep the Rooms badge.
+  if (guest.tags?.includes('checked-out')) {
+    return false;
+  }
+  if (guest.tags?.includes('in-house') || guest.tags?.includes('manual-stay')) {
     return true;
   }
   return false;
@@ -137,12 +142,13 @@ const ID_SEARCH_MIN_CHARS = 3;
 /** One typed word against everything but the name: room, code, phone, email, ID document, folio. */
 function guestFieldMatchesToken(guest: SearchableGuest, token: string): boolean {
   const lower = token.toLowerCase();
-  const room = guest.room != null ? String(guest.room).trim().toLowerCase() : '';
-
-  // "20", "ch20", "r20", "#20": the room itself, not every number that contains 20.
+  // "20", "ch20", "r20", "#20": the room itself (or one of several: "12, 14").
   const roomQuery = lower.replace(/^(?:#|chambre|ch|room|r)/, '');
-  if (room && roomQuery && room === roomQuery) {
-    return true;
+  if (roomQuery) {
+    const rooms = splitGuestRooms(guest.room).map((r) => r.toLowerCase());
+    if (rooms.some((room) => room === roomQuery)) {
+      return true;
+    }
   }
 
   const texts = [guest.guest_code, guest.email, guest.asi_folio_no]
@@ -191,7 +197,7 @@ export function guestMatchesSearchTerm(
   const qLower = q.toLowerCase();
   const extras = [
     guest.guest_code,
-    guest.room != null ? String(guest.room) : '',
+    ...splitGuestRooms(guest.room),
     guest.phone != null ? String(guest.phone) : '',
     guest.email,
   ]
@@ -401,6 +407,28 @@ export function canRegisterGuestFromSearch(term: string): boolean {
     return false;
   }
   return lettersOnlyUpper(trimmed).length >= 2;
+}
+
+/**
+ * When ASI holds a room that a manual Front Desk guest still shows, new F&B orders
+ * must go to the ASI guest — not yesterday's open manual stay (order 114 / room 32).
+ * `occupancyByRoomKey` is from `loadInHouseRoomOccupancy` (ASI preferred on conflicts).
+ */
+export function asiOccupantForGuestRooms<T extends Pick<Customer, 'id' | 'source' | 'name' | 'guest_code'>>(
+  guest: Pick<Customer, 'id' | 'source' | 'room'>,
+  occupancyByRoomKey: ReadonlyMap<string, T>,
+): T | undefined {
+  if (isAsiGuest(guest)) return undefined;
+  const guestId = guest.id != null ? String(guest.id) : '';
+  for (const room of splitGuestRooms(guest.room)) {
+    const key = normalizeRoomKey(room);
+    if (!key) continue;
+    const occupant = occupancyByRoomKey.get(key);
+    if (!occupant || !isAsiGuest(occupant)) continue;
+    if (guestId && String(occupant.id) === guestId) continue;
+    return occupant;
+  }
+  return undefined;
 }
 
 /**

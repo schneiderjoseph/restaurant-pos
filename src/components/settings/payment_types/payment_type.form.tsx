@@ -197,7 +197,8 @@ export const PaymentTypeForm = ({
 
   const types = [
     // Room: charge to the guest's FrontDesk stay, allowed only while it is open (room-charge.ts).
-    'Cash', 'Card', 'Points', 'Remote', 'Room'
+    // Credit: house account for customers with credit_allowed (credit-charge.ts).
+    'Cash', 'Card', 'Points', 'Remote', 'Room', 'Credit'
   ];
   const gatewayModes = ['sandbox', 'live'];
   const selectedType = watch('type');

@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "O lançamento está desativado até que o ciclo atual seja fechado ou o fechamento do ciclo atual seja excluído.",
-    "cycleEnded": "O ciclo de fechamento terminou às {{time}}. Conclua o fechamento do dia se ainda não foi feito."
+    "cycleEnded": "O ciclo de fechamento terminou às {{time}}. O caixa deve concluir o fechamento do dia antes de retomar as vendas."
   },
   "window": {
     "cycle": "Ciclo",

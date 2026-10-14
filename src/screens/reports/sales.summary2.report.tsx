@@ -370,9 +370,21 @@ export const SalesSummary2Report = () => {
     const couponDiscounts = settlementFigures.reduce((sum, figures) => sum + figures.couponDiscount, 0);
     const amountDue = orders.reduce((sum, order) => sum + getOrderAmountDueFromPayments(order), 0);
 
-    const amountCollected = safeNumber(
-      orders.reduce((sum, order) => sum + getOrderPaymentTotals(order).amountCollected, 0)
+    const paymentRollup = orders.reduce(
+      (acc, order) => {
+        const totals = getOrderPaymentTotals(order);
+        acc.amountCollected += totals.amountCollected;
+        acc.roomCharges += totals.roomAmount;
+        acc.creditCharges += totals.creditAmount;
+        acc.deferredCharges += totals.deferredAmount;
+        return acc;
+      },
+      { amountCollected: 0, roomCharges: 0, creditCharges: 0, deferredCharges: 0 },
     );
+    const amountCollected = safeNumber(paymentRollup.amountCollected);
+    const roomCharges = safeNumber(paymentRollup.roomCharges);
+    const creditCharges = safeNumber(paymentRollup.creditCharges);
+    const deferredCharges = safeNumber(paymentRollup.deferredCharges);
 
     const rounding = orders.reduce((sum, order) => sum + getOrderRounding(order), 0);
 
@@ -410,6 +422,9 @@ export const SalesSummary2Report = () => {
       couponDiscounts,
       amountDue,
       amountCollected,
+      roomCharges,
+      creditCharges,
+      deferredCharges,
       rounding,
       net,
       refunds,
@@ -727,8 +742,9 @@ export const SalesSummary2Report = () => {
     // 3rd subsection: Discounts made by users
     const userDiscounts = aggregateOrderDiscountBreakdown(orders, 'user');
 
-    // 4th subsection: Payment types with quantity + total
+    // 4th subsection: Payment types with quantity + total (till only)
     const paymentTypesMap = new Map<string, {quantity: number; total: number}>();
+    const deferredTypesMap = new Map<string, {quantity: number; total: number}>();
     orders.forEach(order => {
       const paymentTotals = getOrderPaymentTotals(order);
       Object.entries(paymentTotals.nonCashBreakdown).forEach(([paymentTypeName, paymentAmount]) => {
@@ -736,6 +752,12 @@ export const SalesSummary2Report = () => {
         existing.quantity = safeNumber(existing.quantity + 1);
         existing.total = safeNumber(existing.total + paymentAmount);
         paymentTypesMap.set(paymentTypeName, existing);
+      });
+      Object.entries(paymentTotals.deferredBreakdown).forEach(([paymentTypeName, paymentAmount]) => {
+        const existing = deferredTypesMap.get(paymentTypeName) || {quantity: 0, total: 0};
+        existing.quantity = safeNumber(existing.quantity + 1);
+        existing.total = safeNumber(existing.total + paymentAmount);
+        deferredTypesMap.set(paymentTypeName, existing);
       });
       if (paymentTotals.cashAmount > 0) {
         const cashExisting = paymentTypesMap.get("Cash") || {quantity: 0, total: 0};
@@ -749,6 +771,9 @@ export const SalesSummary2Report = () => {
       categoryMix,
       userDiscounts,
       paymentTypes: Array.from(paymentTypesMap.entries())
+        .map(([name, data]) => ({name, ...data}))
+        .sort((a, b) => b.total - a.total),
+      deferredTypes: Array.from(deferredTypesMap.entries())
         .map(([name, data]) => ({name, ...data}))
         .sort((a, b) => b.total - a.total),
     };
@@ -851,9 +876,21 @@ export const SalesSummary2Report = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">+ Amount collected</td>
+                    <td className="py-1.5 text-neutral-700">+ Amount collected (till)</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountCollected)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 text-neutral-700">+ Charged to room</td>
+                    <td className="py-1.5 text-right font-semibold text-neutral-900">
+                      {withDualCurrency(financialMetrics.roomCharges)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 text-neutral-700">+ Charged to credit</td>
+                    <td className="py-1.5 text-right font-semibold text-neutral-900">
+                      {withDualCurrency(financialMetrics.creditCharges)}
                     </td>
                   </tr>
                   <tr>
@@ -869,7 +906,7 @@ export const SalesSummary2Report = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">+ Amount collected</td>
+                    <td className="py-1.5 text-neutral-700">+ Amount collected (till)</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountCollected)}
                     </td>
@@ -893,9 +930,15 @@ export const SalesSummary2Report = () => {
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-1.5 text-neutral-700">Amount collected</td>
+                    <td className="py-1.5 text-neutral-700">Amount collected (till)</td>
                     <td className="py-1.5 text-right font-semibold text-neutral-900">
                       {withDualCurrency(financialMetrics.amountCollected)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 text-neutral-700">Room + credit (not collected)</td>
+                    <td className="py-1.5 text-right font-semibold text-neutral-900">
+                      {withDualCurrency(financialMetrics.deferredCharges)}
                     </td>
                   </tr>
                   <tr>
@@ -1473,9 +1516,9 @@ export const SalesSummary2Report = () => {
               )}
             </div>
 
-            {/* 3rd subsection: Payment types */}
+            {/* 3rd subsection: Payment types (till) */}
             <div className="p-4">
-              <h4 className="mb-3  font-semibold text-neutral-600">Payment Types</h4>
+              <h4 className="mb-3  font-semibold text-neutral-600">Payment Types (collected)</h4>
               {breakdownMetrics.paymentTypes.length > 0 ? (
                 <table className="min-w-full ">
                   <thead>
@@ -1501,6 +1544,36 @@ export const SalesSummary2Report = () => {
                 </table>
               ) : (
                 <div className=" text-neutral-500">No payment types data</div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-neutral-200">
+              <h4 className="mb-3 font-semibold text-neutral-600">Room and credit (not collected)</h4>
+              {breakdownMetrics.deferredTypes.length > 0 ? (
+                <table className="min-w-full">
+                  <thead>
+                    <tr>
+                      <th className="py-1.5 text-left font-semibold text-neutral-600">{t('filters.paymentType')}</th>
+                      <th className="py-1.5 text-right font-semibold text-neutral-600">Qty</th>
+                      <th className="py-1.5 text-right font-semibold text-neutral-600">{t('columns.total')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100">
+                    {breakdownMetrics.deferredTypes.map(paymentType => (
+                      <tr key={paymentType.name}>
+                        <td className="py-1.5 text-neutral-700">{paymentType.name}</td>
+                        <td className="py-1.5 text-right text-neutral-700">
+                          {formatNumber(paymentType.quantity)}
+                        </td>
+                        <td className="py-1.5 text-right font-semibold text-neutral-900">
+                          {withDualCurrency(paymentType.total)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="text-neutral-500">No room or credit charges</div>
               )}
             </div>
           </div>

@@ -1,141 +1,160 @@
 {
   "labels": {
-    "subTotal": "المجموع الفرعي ({{count}})",
-    "total": "الإجمالي"
+    "subTotal": "Ø§Ù„Ù…Ø¬Ù…ÙˆØ¹ Ø§Ù„ÙØ±Ø¹ÙŠ ({{count}})",
+    "total": "Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ"
   },
   "actions": {
-    "toKitchen": "إرسال",
-    "payNow": "ادفع الآن",
-    "cancel": "إلغاء"
+    "toKitchen": "Ø¥Ø±Ø³Ø§Ù„",
+    "payNow": "Ø§Ø¯ÙØ¹ Ø§Ù„Ø¢Ù†",
+    "cancel": "Ø¥Ù„ØºØ§Ø¡"
   },
   "errors": {
-    "createOrder": "تعذّر إنشاء الطلب.",
-    "openPayment": "تعذّر فتح الدفع.",
-    "noOrderType": "لا يوجد نوع طلب مُعدّ. أنشئ واحدًا في الإدارة ← أنواع الطلبات، ثم أعد تحميل ذاكرة التخزين المؤقت."
+    "createOrder": "ØªØ¹Ø°Ù‘Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø·Ù„Ø¨.",
+    "openPayment": "ØªØ¹Ø°Ù‘Ø± ÙØªØ­ Ø§Ù„Ø¯ÙØ¹.",
+    "noOrderType": "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù†ÙˆØ¹ Ø·Ù„Ø¨ Ù…ÙØ¹Ø¯Ù‘. Ø£Ù†Ø´Ø¦ ÙˆØ§Ø­Ø¯Ù‹Ø§ ÙÙŠ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© â† Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø·Ù„Ø¨Ø§ØªØŒ Ø«Ù… Ø£Ø¹Ø¯ ØªØ­Ù…ÙŠÙ„ Ø°Ø§ÙƒØ±Ø© Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø¤Ù‚Øª."
   },
   "tracking": {
-    "createOrder": "إنشاء طلب",
-    "appendOrder": "إضافة إلى الطلب"
+    "createOrder": "Ø¥Ù†Ø´Ø§Ø¡ Ø·Ù„Ø¨",
+    "appendOrder": "Ø¥Ø¶Ø§ÙØ© Ø¥Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨"
   },
   "print": {
-    "kitchenTitle": "طباعة المطبخ"
+    "kitchenTitle": "Ø·Ø¨Ø§Ø¹Ø© Ø§Ù„Ù…Ø·Ø¨Ø®"
   },
-  "title": "طلب رقم {{invoice}}",
+  "title": "Ø·Ù„Ø¨ Ø±Ù‚Ù… {{invoice}}",
   "tabs": {
-    "tax": "الضريبة",
-    "taxWithRate": "الضريبة ({{label}})",
-    "discount": "خصم",
-    "coupon": "قسيمة",
-    "serviceCharges": "رسوم الخدمة ({{value}}{{unit}})",
-    "tip": "الإكرامية ({{value}}{{unit}})",
-    "notes": "ملاحظات",
-    "total": "الإجمالي"
+    "tax": "Ø§Ù„Ø¶Ø±ÙŠØ¨Ø©",
+    "taxWithRate": "Ø§Ù„Ø¶Ø±ÙŠØ¨Ø© ({{label}})",
+    "discount": "Ø®ØµÙ…",
+    "coupon": "Ù‚Ø³ÙŠÙ…Ø©",
+    "serviceCharges": "Ø±Ø³ÙˆÙ… Ø§Ù„Ø®Ø¯Ù…Ø© ({{value}}{{unit}})",
+    "tip": "Ø§Ù„Ø¥ÙƒØ±Ø§Ù…ÙŠØ© ({{value}}{{unit}})",
+    "notes": "Ù…Ù„Ø§Ø­Ø¸Ø§Øª",
+    "total": "Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ"
   },
   "totals": {
-    "items": "الأصناف ({{count}})"
+    "items": "Ø§Ù„Ø£ØµÙ†Ø§Ù ({{count}})"
   },
   "tax": {
-    "noTax": "بدون ضريبة"
+    "noTax": "Ø¨Ø¯ÙˆÙ† Ø¶Ø±ÙŠØ¨Ø©"
   },
   "discount": {
-    "noDiscount": "بدون خصم",
-    "label": "خصم",
-    "withMaxCap": "بحد أقصى {{amount}}",
-    "applied": "مطبّق",
-    "automaticBadge": "تلقائي",
-    "selectItems": "اختر العناصر",
-    "reason": "السبب",
-    "reasonNotes": "ملاحظات (اختياري)",
-    "apply": "تطبيق الخصم"
+    "noDiscount": "Ø¨Ø¯ÙˆÙ† Ø®ØµÙ…",
+    "label": "Ø®ØµÙ…",
+    "withMaxCap": "Ø¨Ø­Ø¯ Ø£Ù‚ØµÙ‰ {{amount}}",
+    "applied": "Ù…Ø·Ø¨Ù‘Ù‚",
+    "automaticBadge": "ØªÙ„Ù‚Ø§Ø¦ÙŠ",
+    "selectItems": "Ø§Ø®ØªØ± Ø§Ù„Ø¹Ù†Ø§ØµØ±",
+    "reason": "Ø§Ù„Ø³Ø¨Ø¨",
+    "reasonNotes": "Ù…Ù„Ø§Ø­Ø¸Ø§Øª (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)",
+    "apply": "ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„Ø®ØµÙ…"
   },
   "coupon": {
-    "codeLabel": "رمز القسيمة",
-    "applied": "القسيمة المطبقة: {{code}}",
-    "discount": "الخصم: {{amount}}",
-    "discountFromCoupon": "الخصم من القسيمة: {{amount}}",
+    "codeLabel": "Ø±Ù…Ø² Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©",
+    "applied": "Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© Ø§Ù„Ù…Ø·Ø¨Ù‚Ø©: {{code}}",
+    "discount": "Ø§Ù„Ø®ØµÙ…: {{amount}}",
+    "discountFromCoupon": "Ø§Ù„Ø®ØµÙ… Ù…Ù† Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©: {{amount}}",
     "errors": {
-      "notFound": "القسيمة غير موجودة أو غير نشطة",
-      "unsupportedType": "نوع القسيمة هذا غير مدعوم على الطلبات",
-      "belowMinimum": "إجمالي الطلب أقل من الحد الأدنى لهذه القسيمة",
-      "notValidToday": "القسيمة غير صالحة اليوم",
-      "notValidTime": "القسيمة غير صالحة في هذا الوقت",
-      "notActiveYet": "القسيمة لم تُفعّل بعد",
-      "expired": "انتهت صلاحية القسيمة",
-      "usageLimitReached": "تم الوصول إلى حد استخدام القسيمة",
-      "userLimitReached": "لقد وصلت إلى حد استخدام هذه القسيمة",
-      "firstOrderOnly": "هذه القسيمة صالحة للطلب الأول فقط",
-      "notStackable": "لا يمكن استخدام هذه القسيمة مع خصومات أخرى",
-      "noDiscount": "هذه القسيمة لا توفر أي خصم لهذا الطلب"
+      "notFound": "Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø© Ø£Ùˆ ØºÙŠØ± Ù†Ø´Ø·Ø©",
+      "unsupportedType": "Ù†ÙˆØ¹ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© Ù‡Ø°Ø§ ØºÙŠØ± Ù…Ø¯Ø¹ÙˆÙ… Ø¹Ù„Ù‰ Ø§Ù„Ø·Ù„Ø¨Ø§Øª",
+      "belowMinimum": "Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø·Ù„Ø¨ Ø£Ù‚Ù„ Ù…Ù† Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰ Ù„Ù‡Ø°Ù‡ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©",
+      "notValidToday": "Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© ØºÙŠØ± ØµØ§Ù„Ø­Ø© Ø§Ù„ÙŠÙˆÙ…",
+      "notValidTime": "Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© ØºÙŠØ± ØµØ§Ù„Ø­Ø© ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„ÙˆÙ‚Øª",
+      "notActiveYet": "Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© Ù„Ù… ØªÙÙØ¹Ù‘Ù„ Ø¨Ø¹Ø¯",
+      "expired": "Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©",
+      "usageLimitReached": "ØªÙ… Ø§Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Ø­Ø¯ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©",
+      "userLimitReached": "Ù„Ù‚Ø¯ ÙˆØµÙ„Øª Ø¥Ù„Ù‰ Ø­Ø¯ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ù‡Ø°Ù‡ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©",
+      "firstOrderOnly": "Ù‡Ø°Ù‡ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© ØµØ§Ù„Ø­Ø© Ù„Ù„Ø·Ù„Ø¨ Ø§Ù„Ø£ÙˆÙ„ ÙÙ‚Ø·",
+      "notStackable": "Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ø³ØªØ®Ø¯Ø§Ù… Ù‡Ø°Ù‡ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© Ù…Ø¹ Ø®ØµÙˆÙ…Ø§Øª Ø£Ø®Ø±Ù‰",
+      "noDiscount": "Ù‡Ø°Ù‡ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø© Ù„Ø§ ØªÙˆÙØ± Ø£ÙŠ Ø®ØµÙ… Ù„Ù‡Ø°Ø§ Ø§Ù„Ø·Ù„Ø¨"
     },
-    "appliedSuccess": "تم تطبيق القسيمة"
+    "appliedSuccess": "ØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„Ù‚Ø³ÙŠÙ…Ø©"
   },
   "serviceCharges": {
-    "defaultFromSettings": "الافتراضي من الإعدادات:",
-    "noServiceCharge": "بدون رسوم خدمة"
+    "defaultFromSettings": "Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ Ù…Ù† Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª:",
+    "noServiceCharge": "Ø¨Ø¯ÙˆÙ† Ø±Ø³ÙˆÙ… Ø®Ø¯Ù…Ø©"
   },
   "tip": {
-    "noTip": "بدون إكرامية"
+    "noTip": "Ø¨Ø¯ÙˆÙ† Ø¥ÙƒØ±Ø§Ù…ÙŠØ©"
   },
   "notes": {
-    "title": "أي ملاحظات",
-    "hint": "يمكنك كتابة أرقام البطاقات أو الخصم"
+    "title": "Ø£ÙŠ Ù…Ù„Ø§Ø­Ø¸Ø§Øª",
+    "hint": "ÙŠÙ…ÙƒÙ†Ùƒ ÙƒØªØ§Ø¨Ø© Ø£Ø±Ù‚Ø§Ù… Ø§Ù„Ø¨Ø·Ø§Ù‚Ø§Øª Ø£Ùˆ Ø§Ù„Ø®ØµÙ…"
   },
   "receiving": {
-    "remaining": "المتبقي",
-    "change": "الباقي",
-    "payIn": "العميل يدفع بـ",
-    "tempBill": "فاتورة مؤقتة",
-    "complete": "إكمال",
+    "remaining": "Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ",
+    "change": "Ø§Ù„Ø¨Ø§Ù‚ÙŠ",
+    "payIn": "Ø§Ù„Ø¹Ù…ÙŠÙ„ ÙŠØ¯ÙØ¹ Ø¨Ù€",
+    "tempBill": "ÙØ§ØªÙˆØ±Ø© Ù…Ø¤Ù‚ØªØ©",
+    "proforma": "Proforma",
+    "complete": "Ø¥ÙƒÙ…Ø§Ù„",
     "completeAndPrint": "Complete & print",
-    "cannotAddCard": "لا يمكن إضافة المزيد من الدفع للبطاقة",
-    "exactCardAmount": "تمت إضافة المبلغ الدقيق للدفع بالبطاقة",
-    "tempAlreadyPrinted": "تمت طباعة الفاتورة المؤقتة مسبقاً",
-    "roomCheckedOut": "تم تسجيل المغادرة في ASI: يدفع هذا النزيل مباشرة مثل الزبون العابر",
-    "roomSyncStale": "لا يمكن التحقق من الإقامة (مزامنة ASI متأخرة): يدفع النزيل مباشرة",
-    "roomNotHotelGuest": "التحميل على الغرفة يتطلب نزيلاً مقيماً في الفندق",
-    "roomDepartsToday": "المغادرة مقررة اليوم",
-    "fiscalFailed": "فشل الإرسال الضريبي",
-    "fiscalPartialFailure": "فشل بعض مزودي الخدمة الضريبية؛ تحقق من قائمة انتظار التكاملات"
+    "cannotAddCard": "Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²ÙŠØ¯ Ù…Ù† Ø§Ù„Ø¯ÙØ¹ Ù„Ù„Ø¨Ø·Ø§Ù‚Ø©",
+    "exactCardAmount": "ØªÙ…Øª Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ø¯Ù‚ÙŠÙ‚ Ù„Ù„Ø¯ÙØ¹ Ø¨Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©",
+    "tempAlreadyPrinted": "ØªÙ…Øª Ø·Ø¨Ø§Ø¹Ø© Ø§Ù„ÙØ§ØªÙˆØ±Ø© Ø§Ù„Ù…Ø¤Ù‚ØªØ© Ù…Ø³Ø¨Ù‚Ø§Ù‹",
+    "roomCheckedOut": "ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© ÙÙŠ ASI: ÙŠØ¯ÙØ¹ Ù‡Ø°Ø§ Ø§Ù„Ù†Ø²ÙŠÙ„ Ù…Ø¨Ø§Ø´Ø±Ø© Ù…Ø«Ù„ Ø§Ù„Ø²Ø¨ÙˆÙ† Ø§Ù„Ø¹Ø§Ø¨Ø±",
+    "roomSyncStale": "Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø¥Ù‚Ø§Ù…Ø© (Ù…Ø²Ø§Ù…Ù†Ø© ASI Ù…ØªØ£Ø®Ø±Ø©): ÙŠØ¯ÙØ¹ Ø§Ù„Ù†Ø²ÙŠÙ„ Ù…Ø¨Ø§Ø´Ø±Ø©",
+    "roomNotHotelGuest": "Ø§Ù„ØªØ­Ù…ÙŠÙ„ Ø¹Ù„Ù‰ Ø§Ù„ØºØ±ÙØ© ÙŠØªØ·Ù„Ø¨ Ù†Ø²ÙŠÙ„Ø§Ù‹ Ù…Ù‚ÙŠÙ…Ø§Ù‹ ÙÙŠ Ø§Ù„ÙÙ†Ø¯Ù‚",
+    "roomDepartsToday": "Ø§Ù„Ù…ØºØ§Ø¯Ø±Ø© Ù…Ù‚Ø±Ø±Ø© Ø§Ù„ÙŠÙˆÙ…",
+    "fiscalFailed": "ÙØ´Ù„ Ø§Ù„Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠ",
+    "fiscalPartialFailure": "ÙØ´Ù„ Ø¨Ø¹Ø¶ Ù…Ø²ÙˆØ¯ÙŠ Ø§Ù„Ø®Ø¯Ù…Ø© Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠØ©Ø› ØªØ­Ù‚Ù‚ Ù…Ù† Ù‚Ø§Ø¦Ù…Ø© Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„ØªÙƒØ§Ù…Ù„Ø§Øª",
+    "creditNoCustomer": "Credit needs a registered customer on the order",
+    "creditNotAllowed": "This customer is not authorized for house credit",
+    "creditOverLimit": "This charge would exceed the customer's credit limit",
+    "creditDeleted": "This customer was removed: credit is not allowed",
+    "creditOutstanding": "House credit due: {{amount}}",
+    "creditSettle": "Collect credit",
+    "creditSettleTender": "Tender",
+    "creditSelectSettleTender": "Choose cash or card",
+    "creditSettledOk": "Credit account settled",
+    "creditSettleFailed": "Could not settle the credit account",
+    "creditSettleError": {
+      "nothing_to_settle": "Nothing left to collect on credit",
+      "invalid_settle": "Invalid credit settlement",
+      "bad_tender": "Settle credit with cash or card only",
+      "not_found": "Customer not found"
+    },
+    "cannotAddCredit": "Cannot add more credit: the ticket is already covered",
+    "exactCreditAmount": "Credit limited to the amount still due on this ticket"
   },
   "remote": {
-    "remoteLabel": "{{name}} (عن بُعد)",
-    "status": "الحالة: {{status}}",
-    "openLink": "فتح الرابط",
-    "verify": "تحقق"
+    "remoteLabel": "{{name}} (Ø¹Ù† Ø¨ÙØ¹Ø¯)",
+    "status": "Ø§Ù„Ø­Ø§Ù„Ø©: {{status}}",
+    "openLink": "ÙØªØ­ Ø§Ù„Ø±Ø§Ø¨Ø·",
+    "verify": "ØªØ­Ù‚Ù‚"
   },
   "discountType": {
-    "percent": "نسبة مئوية",
-    "fixed": "ثابت"
+    "percent": "Ù†Ø³Ø¨Ø© Ù…Ø¦ÙˆÙŠØ©",
+    "fixed": "Ø«Ø§Ø¨Øª"
   },
   "remoteGateway": {
-    "missingProvider": "نوع الدفع عن بُعد يفتقد مزود البوابة.",
-    "linkGenerated": "تم إنشاء رابط الدفع عن بُعد.",
-    "tokenGenerated": "تم إنشاء الرمز عن بُعد: {{token}}",
-    "intentGenerated": "تم إنشاء نية الدفع عن بُعد.",
-    "paymentTimedOut": "انتهت مهلة دفع {{gateway}}. اضغط تحقق للمحاولة مجدداً.",
-    "paymentStatus": "دفع {{gateway}} {{status}}.",
-    "completeOnPage": "أكمل الدفع في صفحة {{gateway}}، ثم ارجع إلى نقطة البيع.",
-    "scanQr": "امسح رمز QR بتطبيق {{gateway}} للدفع.",
-    "enterCardDetails": "أدخل بيانات البطاقة أدناه لإكمال الدفع.",
-    "intentCreated": "تم إنشاء نية دفع {{gateway}}.",
-    "usePaypalButton": "استخدم زر PayPal أدناه لإكمال الدفع.",
-    "useRazorpayButton": "اضغط الدفع عبر Razorpay أدناه لإكمال الدفع.",
-    "paymentFailed": "فشل الدفع.",
-    "paymentStatusLabel": "حالة الدفع: {{status}}",
-    "paymentIs": "الدفع {{status}}.",
-    "paypalPaymentIs": "دفع PayPal {{status}}.",
-    "razorpayPaymentFailed": "فشل دفع Razorpay.",
-    "stripePaymentFailed": "فشل دفع Stripe.",
-    "mpesaPhoneUnavailable": "مطالبة هاتف M-Pesa غير متاحة.",
-    "mpesaPromptSent": "تم إرسال STK push إلى {{phone}}. تحقق من الهاتف لإدخال رمز PIN لـ M-Pesa.",
-    "mpesaPromptSentGeneric": "تم إرسال STK push. تحقق من الهاتف لإدخال رمز PIN لـ M-Pesa.",
-    "mpesaInvalidPhone": "أدخل رقم M-Pesa صالحاً (2547XXXXXXXX أو 07XXXXXXXX).",
-    "verifiedAndAdded": "تم التحقق من الدفع عن بُعد وإضافته.",
-    "generateFailed": "فشل إنشاء رابط/رمز الدفع عن بُعد",
-    "mustBePaid": "الدفع {{status}}. يجب أن يكون مدفوعاً/مُصرّحاً قبل الإضافة.",
-    "verifyFailed": "فشل التحقق من الدفع عن بُعد",
-    "paymentReceived": "تم استلام دفع {{gateway}}.",
-    "payWithCard": "الدفع بالبطاقة",
-    "payWithRazorpay": "الدفع عبر Razorpay"
+    "missingProvider": "Ù†ÙˆØ¹ Ø§Ù„Ø¯ÙØ¹ Ø¹Ù† Ø¨ÙØ¹Ø¯ ÙŠÙØªÙ‚Ø¯ Ù…Ø²ÙˆØ¯ Ø§Ù„Ø¨ÙˆØ§Ø¨Ø©.",
+    "linkGenerated": "ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø±Ø§Ø¨Ø· Ø§Ù„Ø¯ÙØ¹ Ø¹Ù† Ø¨ÙØ¹Ø¯.",
+    "tokenGenerated": "ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø±Ù…Ø² Ø¹Ù† Ø¨ÙØ¹Ø¯: {{token}}",
+    "intentGenerated": "ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ù†ÙŠØ© Ø§Ù„Ø¯ÙØ¹ Ø¹Ù† Ø¨ÙØ¹Ø¯.",
+    "paymentTimedOut": "Ø§Ù†ØªÙ‡Øª Ù…Ù‡Ù„Ø© Ø¯ÙØ¹ {{gateway}}. Ø§Ø¶ØºØ· ØªØ­Ù‚Ù‚ Ù„Ù„Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø¬Ø¯Ø¯Ø§Ù‹.",
+    "paymentStatus": "Ø¯ÙØ¹ {{gateway}} {{status}}.",
+    "completeOnPage": "Ø£ÙƒÙ…Ù„ Ø§Ù„Ø¯ÙØ¹ ÙÙŠ ØµÙØ­Ø© {{gateway}}ØŒ Ø«Ù… Ø§Ø±Ø¬Ø¹ Ø¥Ù„Ù‰ Ù†Ù‚Ø·Ø© Ø§Ù„Ø¨ÙŠØ¹.",
+    "scanQr": "Ø§Ù…Ø³Ø­ Ø±Ù…Ø² QR Ø¨ØªØ·Ø¨ÙŠÙ‚ {{gateway}} Ù„Ù„Ø¯ÙØ¹.",
+    "enterCardDetails": "Ø£Ø¯Ø®Ù„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¨Ø·Ø§Ù‚Ø© Ø£Ø¯Ù†Ø§Ù‡ Ù„Ø¥ÙƒÙ…Ø§Ù„ Ø§Ù„Ø¯ÙØ¹.",
+    "intentCreated": "ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ù†ÙŠØ© Ø¯ÙØ¹ {{gateway}}.",
+    "usePaypalButton": "Ø§Ø³ØªØ®Ø¯Ù… Ø²Ø± PayPal Ø£Ø¯Ù†Ø§Ù‡ Ù„Ø¥ÙƒÙ…Ø§Ù„ Ø§Ù„Ø¯ÙØ¹.",
+    "useRazorpayButton": "Ø§Ø¶ØºØ· Ø§Ù„Ø¯ÙØ¹ Ø¹Ø¨Ø± Razorpay Ø£Ø¯Ù†Ø§Ù‡ Ù„Ø¥ÙƒÙ…Ø§Ù„ Ø§Ù„Ø¯ÙØ¹.",
+    "paymentFailed": "ÙØ´Ù„ Ø§Ù„Ø¯ÙØ¹.",
+    "paymentStatusLabel": "Ø­Ø§Ù„Ø© Ø§Ù„Ø¯ÙØ¹: {{status}}",
+    "paymentIs": "Ø§Ù„Ø¯ÙØ¹ {{status}}.",
+    "paypalPaymentIs": "Ø¯ÙØ¹ PayPal {{status}}.",
+    "razorpayPaymentFailed": "ÙØ´Ù„ Ø¯ÙØ¹ Razorpay.",
+    "stripePaymentFailed": "ÙØ´Ù„ Ø¯ÙØ¹ Stripe.",
+    "mpesaPhoneUnavailable": "Ù…Ø·Ø§Ù„Ø¨Ø© Ù‡Ø§ØªÙ M-Pesa ØºÙŠØ± Ù…ØªØ§Ø­Ø©.",
+    "mpesaPromptSent": "ØªÙ… Ø¥Ø±Ø³Ø§Ù„ STK push Ø¥Ù„Ù‰ {{phone}}. ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ù‡Ø§ØªÙ Ù„Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù…Ø² PIN Ù„Ù€ M-Pesa.",
+    "mpesaPromptSentGeneric": "ØªÙ… Ø¥Ø±Ø³Ø§Ù„ STK push. ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ù‡Ø§ØªÙ Ù„Ø¥Ø¯Ø®Ø§Ù„ Ø±Ù…Ø² PIN Ù„Ù€ M-Pesa.",
+    "mpesaInvalidPhone": "Ø£Ø¯Ø®Ù„ Ø±Ù‚Ù… M-Pesa ØµØ§Ù„Ø­Ø§Ù‹ (2547XXXXXXXX Ø£Ùˆ 07XXXXXXXX).",
+    "verifiedAndAdded": "ØªÙ… Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø¯ÙØ¹ Ø¹Ù† Ø¨ÙØ¹Ø¯ ÙˆØ¥Ø¶Ø§ÙØªÙ‡.",
+    "generateFailed": "ÙØ´Ù„ Ø¥Ù†Ø´Ø§Ø¡ Ø±Ø§Ø¨Ø·/Ø±Ù…Ø² Ø§Ù„Ø¯ÙØ¹ Ø¹Ù† Ø¨ÙØ¹Ø¯",
+    "mustBePaid": "Ø§Ù„Ø¯ÙØ¹ {{status}}. ÙŠØ¬Ø¨ Ø£Ù† ÙŠÙƒÙˆÙ† Ù…Ø¯ÙÙˆØ¹Ø§Ù‹/Ù…ÙØµØ±Ù‘Ø­Ø§Ù‹ Ù‚Ø¨Ù„ Ø§Ù„Ø¥Ø¶Ø§ÙØ©.",
+    "verifyFailed": "ÙØ´Ù„ Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø¯ÙØ¹ Ø¹Ù† Ø¨ÙØ¹Ø¯",
+    "paymentReceived": "ØªÙ… Ø§Ø³ØªÙ„Ø§Ù… Ø¯ÙØ¹ {{gateway}}.",
+    "payWithCard": "Ø§Ù„Ø¯ÙØ¹ Ø¨Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©",
+    "payWithRazorpay": "Ø§Ù„Ø¯ÙØ¹ Ø¹Ø¨Ø± Razorpay"
   }
 }

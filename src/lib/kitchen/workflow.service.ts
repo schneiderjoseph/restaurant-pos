@@ -5,6 +5,7 @@ import { OrderItemKitchenStatus } from "@/api/model/order_item_kitchen.ts";
 import { Dish } from "@/api/model/dish.ts";
 import { ensureKitchenShowsAllField, recordKey } from "@/lib/kitchen/routing.ts";
 import { toSurrealDateTime } from "@/lib/datetime.ts";
+import { toQueryRecordId } from "@/api/reports/shared/records.ts";
 
 /**
  * Multi-stage kitchen workflow engine.
@@ -560,28 +561,41 @@ export const skipStage = async (
  * Recall a completed stage: reopen it for every screen, so the kitchen board,
  * Orders and the order display all show it in progress again. A ready dish is
  * ready for everyone (the board hides `completed` rows whoever cleared them).
- * When a later stage was activated by this completion, put it back to `waiting`.
+ * When a later workflow stage was activated by this completion, put it back to
+ * `waiting`. Show-all (expo) mirrors have no workflow — do not demote real stages.
  */
 export const recallStage = async (
   db: AnyDb,
   oikId: string,
   _userId?: string | null
 ): Promise<void> => {
-  const oik = toRecordId(oikId);
+  // Qualify the id so a bare key never becomes a table-less bind (can hang the DB socket).
+  const oik = toQueryRecordId(oikId, Tables.order_items_kitchen);
 
-  const row = firstRow<{
+  const row = rowsOf<{
     id: any;
     status?: string | null;
     order_item: any;
     sequence?: number;
     workflow?: any;
-  }>(await db.query(`SELECT * FROM $oik`, { oik }));
-  if (!row) return;
+  }>(
+    await db.query(
+      `SELECT * FROM ${Tables.order_items_kitchen} WHERE id = $oik LIMIT 1`,
+      { oik }
+    )
+  )[0];
+
+  if (!row) {
+    throw new Error(`Kitchen stage not found: ${oik}`);
+  }
 
   const closed =
     row.status === OrderItemKitchenStatus.Completed ||
     row.status === OrderItemKitchenStatus.Skipped;
-  if (!closed) return;
+  if (!closed) {
+    // Already open — treat as success so a double-tap / live race does not toast.
+    return;
+  }
 
   // Re-activate like a fresh fire so the board timer and `activated_at` filter pick it up.
   await db.query(
@@ -589,36 +603,41 @@ export const recallStage = async (
     { oik, pending: OrderItemKitchenStatus.Pending }
   );
 
-  const next = firstRow<any>(
+  // Expo/pass mirrors are sequence-0 rows without a workflow; rolling back
+  // `sequence > 0` would demote a real prep stage to waiting and hide it.
+  if (!row.workflow) {
+    return;
+  }
+
+  const orderItem = toRecordId(recordKey(row.order_item));
+  const next = rowsOf<any>(
     await db.query(
       `SELECT * FROM ${Tables.order_items_kitchen}
        WHERE order_item = $oi AND sequence > $seq
          AND status IN [$pending, $inProgress]
        ORDER BY sequence ASC LIMIT 1`,
       {
-        oi: row.order_item,
+        oi: orderItem,
         seq: Number(row.sequence ?? 0),
         pending: OrderItemKitchenStatus.Pending,
         inProgress: OrderItemKitchenStatus.InProgress,
       }
     )
-  );
+  )[0];
 
   if (next) {
     await db.query(
       `UPDATE $next SET status = $waiting, activated_at = NONE, completed_by = []`,
       { next: next.id, waiting: OrderItemKitchenStatus.Waiting }
     );
-    await db.merge(row.order_item, {
+    await db.merge(orderItem, {
       current_sequence: Number(row.sequence ?? 0),
       workflow_status: "in_progress",
     });
     return;
   }
 
-  if (row.workflow) {
-    await db.merge(row.order_item, { workflow_status: "in_progress" });
-  }
+  await db.merge(orderItem, { workflow_status: "in_progress" });
 };
 
 /**

@@ -110,7 +110,7 @@
   },
   "closingCycle": {
     "title": "Ciclo de fechamento",
-    "description": "Configure o horário de início e término do ciclo. O horário de término pode ser no dia seguinte (exemplo: 06:00 às 02:00).",
+    "description": "Configure o horário de início e término do ciclo. O horário de término pode ser no dia seguinte (exemplo: 06:00 às 04:00). Após o horário de término, o caixa deve fechar o dia antes de retomar as vendas.",
     "startTime": "Horário de início",
     "endTime": "Horário de término",
     "updated": "Configurações do ciclo de fechamento atualizadas",

@@ -18,7 +18,7 @@ Configure the daily closing cycle time window for the restaurant POS system. Thi
 2. Locate the Closing Cycle Settings card
 3. Toggle the "Enabled" switch to turn the feature on or off
 4. Set the "Start Time" using the time picker (default: 06:00)
-5. Set the "End Time" using the time picker (default: 02:00)
+5. Set the "End Time" using the time picker (default: 04:00)
 6. Click the "Save" button
 7. Wait for confirmation message
 8. Closing cycle is now configured with the specified time window
@@ -28,7 +28,8 @@ Configure the daily closing cycle time window for the restaurant POS system. Thi
 - **Global setting**: Closing cycle configuration applies to all users
 - **Time format**: Times are in 24-hour format (HH:MM)
 - **Cross-midnight handling**: End time can be earlier than start time to indicate crossing midnight
-- **Default values**: Default cycle is 06:00 to 02:00 (6 AM to 2 AM next day)
+- **Default values**: Default cycle is 06:00 to 04:00 (6 AM to 4 AM next day)
+- **Cashier closes the day**: After the end time, order taking stays blocked until the cashier completes day closing (manual; not auto-closed)
 - **When disabled**: Closing cycle feature is turned off; no time-based closing operations occur
 - **When enabled**: System uses the configured time window for closing operations
 
@@ -59,8 +60,8 @@ Configure the daily closing cycle time window for the restaurant POS system. Thi
 ### End Time
 - **Purpose**: Set the ending time of the closing cycle
 - **Type**: Time input (24-hour format)
-- **Format**: HH:MM (e.g., 02:00 for 2 AM, 23:00 for 11 PM)
-- **Default**: 02:00
+- **Format**: HH:MM (e.g., 04:00 for 4 AM, 23:00 for 11 PM)
+- **Default**: 04:00
 - **Behavior**: Defines when the closing cycle ends
 - **Cross-midnight**: If end time is earlier than start time, it indicates the cycle crosses midnight
 
@@ -94,9 +95,9 @@ Settings are stored in the database with the following structure:
 
 ### Cross-Midnight Cycle (Default)
 - **Start Time**: 06:00 (6 AM)
-- **End Time**: 02:00 (2 AM)
-- **Duration**: 20 hours
-- **Behavior**: Closing cycle runs from 6 AM to 2 AM next day
+- **End Time**: 04:00 (4 AM)
+- **Duration**: 22 hours
+- **Behavior**: Closing cycle runs from 6 AM to 4 AM next day; cashier then completes day closing
 
 ### 24-Hour Cycle
 - **Start Time**: 00:00 (midnight)

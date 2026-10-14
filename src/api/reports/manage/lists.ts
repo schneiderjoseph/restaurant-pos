@@ -338,7 +338,7 @@ export const getMenuItems = async (db: DbClient, options: MenuItemsOptions = {})
         menu.name AS menu_name
       FROM ${Tables.menu_menu_items}
       WHERE menu.deleted_at = NONE AND menu_item.deleted_at = NONE
-        AND string::lowercase(menu.name) CONTAINS $menuName
+        AND string::lowercase(menu.name ?? '') CONTAINS $menuName
       ORDER BY menu_menu_item.priority ASC
       LIMIT ${safeLimit(limit)}
       FETCH menu, menu_item

@@ -110,7 +110,7 @@
   },
   "closingCycle": {
     "title": "Ciclo di chiusura",
-    "description": "Configura ora di inizio e fine ciclo. L'ora di fine può essere il giorno successivo (esempio: 06:00 - 02:00).",
+    "description": "Configura ora di inizio e fine ciclo. L'ora di fine può essere il giorno successivo (esempio: 06:00 - 04:00). Dopo l'ora di fine, la cassa deve chiudere la giornata prima di riprendere le vendite.",
     "startTime": "Ora inizio",
     "endTime": "Ora fine",
     "updated": "Impostazioni ciclo di chiusura aggiornate",

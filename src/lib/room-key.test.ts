@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeRoomKey, roomKeyCandidates } from '@/lib/room-key.ts';
+import { joinGuestRooms, normalizeRoomKey, roomKeyCandidates, splitGuestRooms } from '@/lib/room-key.ts';
 
 describe('normalizeRoomKey', () => {
   it('collapses numeric leading zeros', () => {
@@ -20,5 +20,17 @@ describe('normalizeRoomKey', () => {
 describe('roomKeyCandidates', () => {
   it('includes raw, normalized and stripped forms', () => {
     expect(roomKeyCandidates('012')).toEqual(expect.arrayContaining(['012', '12']));
+  });
+});
+
+describe('splitGuestRooms / joinGuestRooms', () => {
+  it('splits a multi-room display string', () => {
+    expect(splitGuestRooms('12, 14')).toEqual(['12', '14']);
+    expect(splitGuestRooms('12;14')).toEqual(['12', '14']);
+    expect(splitGuestRooms('5')).toEqual(['5']);
+  });
+
+  it('joins without duplicates', () => {
+    expect(joinGuestRooms(['12', '14', '012'])).toBe('12, 14');
   });
 });

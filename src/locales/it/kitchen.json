@@ -36,7 +36,7 @@
   },
   "confirm": {
     "title": "Conferma",
-    "completeAll": "Completare tutti gli ordini aperti in questa cucina?"
+    "completeAll": "Completare tutti gli ordini aperti in questa stazione?"
   },
   "due": {
     "forTime": "For {{time}}",

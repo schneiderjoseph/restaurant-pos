@@ -10,15 +10,15 @@
   },
   "errors": {
     "createOrder": "Bestellung konnte nicht erstellt werden.",
-    "openPayment": "Zahlung konnte nicht geöffnet werden.",
-    "noOrderType": "Keine Bestellart eingerichtet. Lege eine unter Admin → Bestellarten an und lade dann den Cache neu."
+    "openPayment": "Zahlung konnte nicht geÃ¶ffnet werden.",
+    "noOrderType": "Keine Bestellart eingerichtet. Lege eine unter Admin â†’ Bestellarten an und lade dann den Cache neu."
   },
   "tracking": {
     "createOrder": "Bestellung erstellen",
     "appendOrder": "Bestellung erweitern"
   },
   "print": {
-    "kitchenTitle": "Küchendruck"
+    "kitchenTitle": "KÃ¼chendruck"
   },
   "title": "Bestellung#{{invoice}}",
   "tabs": {
@@ -26,7 +26,7 @@
     "taxWithRate": "MwSt. ({{label}})",
     "discount": "Rabatt",
     "coupon": "Gutschein",
-    "serviceCharges": "Servicegebühr ({{value}}{{unit}})",
+    "serviceCharges": "ServicegebÃ¼hr ({{value}}{{unit}})",
     "tip": "Trinkgeld ({{value}}{{unit}})",
     "notes": "Notizen",
     "total": "Gesamt"
@@ -40,10 +40,10 @@
   "discount": {
     "noDiscount": "Kein Rabatt",
     "label": "Rabatt",
-    "withMaxCap": "mit Höchstbetrag von {{amount}}",
+    "withMaxCap": "mit HÃ¶chstbetrag von {{amount}}",
     "applied": "Angewendet",
     "automaticBadge": "Automatisch",
-    "selectItems": "Artikel auswählen",
+    "selectItems": "Artikel auswÃ¤hlen",
     "reason": "Grund",
     "reasonNotes": "Notizen (optional)",
     "apply": "Rabatt anwenden"
@@ -55,53 +55,72 @@
     "discountFromCoupon": "Rabatt durch Gutschein: {{amount}}",
     "errors": {
       "notFound": "Gutschein nicht gefunden oder inaktiv",
-      "unsupportedType": "Dieser Gutscheintyp wird bei Bestellungen nicht unterstützt",
-      "belowMinimum": "Bestellsumme liegt unter dem Mindestbetrag für diesen Gutschein",
-      "notValidToday": "Gutschein ist heute nicht gültig",
-      "notValidTime": "Gutschein ist zu dieser Uhrzeit nicht gültig",
+      "unsupportedType": "Dieser Gutscheintyp wird bei Bestellungen nicht unterstÃ¼tzt",
+      "belowMinimum": "Bestellsumme liegt unter dem Mindestbetrag fÃ¼r diesen Gutschein",
+      "notValidToday": "Gutschein ist heute nicht gÃ¼ltig",
+      "notValidTime": "Gutschein ist zu dieser Uhrzeit nicht gÃ¼ltig",
       "notActiveYet": "Gutschein ist noch nicht aktiv",
       "expired": "Gutschein ist abgelaufen",
       "usageLimitReached": "Nutzungslimit des Gutscheins erreicht",
-      "userLimitReached": "Sie haben das Nutzungslimit für diesen Gutschein erreicht",
+      "userLimitReached": "Sie haben das Nutzungslimit fÃ¼r diesen Gutschein erreicht",
       "firstOrderOnly": "Dieser Gutschein gilt nur bei der ersten Bestellung",
       "notStackable": "Dieser Gutschein kann nicht mit anderen Rabatten kombiniert werden",
-      "noDiscount": "Dieser Gutschein bietet für diese Bestellung keinen Rabatt"
+      "noDiscount": "Dieser Gutschein bietet fÃ¼r diese Bestellung keinen Rabatt"
     },
     "appliedSuccess": "Gutschein angewendet"
   },
   "serviceCharges": {
     "defaultFromSettings": "Standard aus Einstellungen:",
-    "noServiceCharge": "Keine Servicegebühr"
+    "noServiceCharge": "Keine ServicegebÃ¼hr"
   },
   "tip": {
     "noTip": "Kein Trinkgeld"
   },
   "notes": {
     "title": "Notizen",
-    "hint": "Sie können Kartennummern oder Rabatte eintragen"
+    "hint": "Sie kÃ¶nnen Kartennummern oder Rabatte eintragen"
   },
   "receiving": {
     "remaining": "Verbleibend",
     "change": "Wechselgeld",
     "payIn": "Kunde zahlt in",
     "tempBill": "Zwischenrechnung",
-    "complete": "Abschließen",
+    "proforma": "Proforma",
+    "complete": "AbschlieÃŸen",
     "completeAndPrint": "Complete & print",
-    "cannotAddCard": "Keine weitere Kartenzahlung möglich",
-    "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
+    "cannotAddCard": "Keine weitere Kartenzahlung mÃ¶glich",
+    "exactCardAmount": "Exakter Betrag fÃ¼r Kartenzahlung hinzugefÃ¼gt",
     "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt",
     "roomCheckedOut": "In ASI ausgecheckt: Dieser Gast zahlt direkt, wie ein Laufkunde",
-    "roomSyncStale": "Aufenthalt nicht prüfbar (ASI-Synchronisierung verspätet): Der Gast zahlt direkt",
-    "roomNotHotelGuest": "Zimmerbelastung nur für anwesende Hotelgäste",
+    "roomSyncStale": "Aufenthalt nicht prÃ¼fbar (ASI-Synchronisierung verspÃ¤tet): Der Gast zahlt direkt",
+    "roomNotHotelGuest": "Zimmerbelastung nur fÃ¼r anwesende HotelgÃ¤ste",
     "roomDepartsToday": "Abreise heute geplant",
-    "fiscalFailed": "Fiskalübermittlung fehlgeschlagen",
-    "fiscalPartialFailure": "Einige Fiskalanbieter sind fehlgeschlagen; prüfen Sie die Integrations-Warteschlange"
+    "fiscalFailed": "FiskalÃ¼bermittlung fehlgeschlagen",
+    "fiscalPartialFailure": "Einige Fiskalanbieter sind fehlgeschlagen; prÃ¼fen Sie die Integrations-Warteschlange",
+    "creditNoCustomer": "Credit needs a registered customer on the order",
+    "creditNotAllowed": "This customer is not authorized for house credit",
+    "creditOverLimit": "This charge would exceed the customer's credit limit",
+    "creditDeleted": "This customer was removed: credit is not allowed",
+    "creditOutstanding": "House credit due: {{amount}}",
+    "creditSettle": "Collect credit",
+    "creditSettleTender": "Tender",
+    "creditSelectSettleTender": "Choose cash or card",
+    "creditSettledOk": "Credit account settled",
+    "creditSettleFailed": "Could not settle the credit account",
+    "creditSettleError": {
+      "nothing_to_settle": "Nothing left to collect on credit",
+      "invalid_settle": "Invalid credit settlement",
+      "bad_tender": "Settle credit with cash or card only",
+      "not_found": "Customer not found"
+    },
+    "cannotAddCredit": "Cannot add more credit: the ticket is already covered",
+    "exactCreditAmount": "Credit limited to the amount still due on this ticket"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",
     "status": "Status: {{status}}",
-    "openLink": "Link öffnen",
-    "verify": "Prüfen"
+    "openLink": "Link Ã¶ffnen",
+    "verify": "PrÃ¼fen"
   },
   "discountType": {
     "percent": "Prozent",
@@ -112,28 +131,28 @@
     "linkGenerated": "Remote-Zahlungslink erstellt.",
     "tokenGenerated": "Remote-Token erstellt: {{token}}",
     "intentGenerated": "Remote-Zahlungsabsicht erstellt.",
-    "paymentTimedOut": "{{gateway}}-Zahlung abgelaufen. Tippen Sie auf Prüfen, um erneut zu prüfen.",
+    "paymentTimedOut": "{{gateway}}-Zahlung abgelaufen. Tippen Sie auf PrÃ¼fen, um erneut zu prÃ¼fen.",
     "paymentStatus": "{{gateway}}-Zahlung {{status}}.",
-    "completeOnPage": "Schließen Sie die Zahlung auf der {{gateway}}-Seite ab und kehren Sie dann zur Kasse zurück.",
+    "completeOnPage": "SchlieÃŸen Sie die Zahlung auf der {{gateway}}-Seite ab und kehren Sie dann zur Kasse zurÃ¼ck.",
     "scanQr": "Scannen Sie den QR-Code mit der {{gateway}}-App zum Bezahlen.",
-    "enterCardDetails": "Geben Sie unten die Kartendaten ein, um die Zahlung abzuschließen.",
+    "enterCardDetails": "Geben Sie unten die Kartendaten ein, um die Zahlung abzuschlieÃŸen.",
     "intentCreated": "{{gateway}}-Zahlungsabsicht erstellt.",
-    "usePaypalButton": "Verwenden Sie die PayPal-Schaltfläche unten, um die Zahlung abzuschließen.",
-    "useRazorpayButton": "Tippen Sie unten auf Mit Razorpay bezahlen, um die Zahlung abzuschließen.",
+    "usePaypalButton": "Verwenden Sie die PayPal-SchaltflÃ¤che unten, um die Zahlung abzuschlieÃŸen.",
+    "useRazorpayButton": "Tippen Sie unten auf Mit Razorpay bezahlen, um die Zahlung abzuschlieÃŸen.",
     "paymentFailed": "Zahlung fehlgeschlagen.",
     "paymentStatusLabel": "Zahlungsstatus: {{status}}",
     "paymentIs": "Zahlung ist {{status}}.",
     "paypalPaymentIs": "PayPal-Zahlung ist {{status}}.",
     "razorpayPaymentFailed": "Razorpay-Zahlung fehlgeschlagen.",
     "stripePaymentFailed": "Stripe-Zahlung fehlgeschlagen.",
-    "mpesaPhoneUnavailable": "M-Pesa-Telefonaufforderung ist nicht verfügbar.",
-    "mpesaPromptSent": "STK-Push an {{phone}} gesendet. Prüfen Sie das Telefon zur Eingabe der M-Pesa-PIN.",
-    "mpesaPromptSentGeneric": "STK-Push gesendet. Prüfen Sie das Telefon zur Eingabe der M-Pesa-PIN.",
-    "mpesaInvalidPhone": "Geben Sie eine gültige M-Pesa-Nummer ein (2547XXXXXXXX oder 07XXXXXXXX).",
-    "verifiedAndAdded": "Remote-Zahlung geprüft und hinzugefügt.",
+    "mpesaPhoneUnavailable": "M-Pesa-Telefonaufforderung ist nicht verfÃ¼gbar.",
+    "mpesaPromptSent": "STK-Push an {{phone}} gesendet. PrÃ¼fen Sie das Telefon zur Eingabe der M-Pesa-PIN.",
+    "mpesaPromptSentGeneric": "STK-Push gesendet. PrÃ¼fen Sie das Telefon zur Eingabe der M-Pesa-PIN.",
+    "mpesaInvalidPhone": "Geben Sie eine gÃ¼ltige M-Pesa-Nummer ein (2547XXXXXXXX oder 07XXXXXXXX).",
+    "verifiedAndAdded": "Remote-Zahlung geprÃ¼ft und hinzugefÃ¼gt.",
     "generateFailed": "Remote-Zahlungslink/Token konnte nicht erstellt werden",
-    "mustBePaid": "Zahlung ist {{status}}. Sie muss bezahlt/autorisiert sein, bevor sie hinzugefügt werden kann.",
-    "verifyFailed": "Remote-Zahlung konnte nicht geprüft werden",
+    "mustBePaid": "Zahlung ist {{status}}. Sie muss bezahlt/autorisiert sein, bevor sie hinzugefÃ¼gt werden kann.",
+    "verifyFailed": "Remote-Zahlung konnte nicht geprÃ¼ft werden",
     "paymentReceived": "{{gateway}}-Zahlung erhalten.",
     "payWithCard": "Mit Karte bezahlen",
     "payWithRazorpay": "Mit Razorpay bezahlen"

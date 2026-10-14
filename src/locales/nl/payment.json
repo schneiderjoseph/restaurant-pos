@@ -11,7 +11,7 @@
   "errors": {
     "createOrder": "Kan bestelling niet aanmaken.",
     "openPayment": "Kan betaling niet openen.",
-    "noOrderType": "Er is geen ordertype ingesteld. Maak er een aan in Admin → Ordertypes en laad daarna de cache opnieuw."
+    "noOrderType": "Er is geen ordertype ingesteld. Maak er een aan in Admin â†’ Ordertypes en laad daarna de cache opnieuw."
   },
   "tracking": {
     "createOrder": "Bestelling aanmaken",
@@ -85,6 +85,7 @@
     "change": "Wisselgeld",
     "payIn": "Klant betaalt in",
     "tempBill": "Tijdelijke rekening",
+    "proforma": "Proforma",
     "complete": "Voltooien",
     "completeAndPrint": "Complete & print",
     "cannotAddCard": "Kan geen extra betaling toevoegen voor kaart",
@@ -95,13 +96,31 @@
     "roomNotHotelGuest": "Op de kamer zetten kan alleen voor een aanwezige hotelgast",
     "roomDepartsToday": "Vertrek vandaag gepland",
     "fiscalFailed": "Fiscale verzending mislukt",
-    "fiscalPartialFailure": "Sommige fiscale providers zijn mislukt; controleer de wachtrij Integraties"
+    "fiscalPartialFailure": "Sommige fiscale providers zijn mislukt; controleer de wachtrij Integraties",
+    "creditNoCustomer": "Credit needs a registered customer on the order",
+    "creditNotAllowed": "This customer is not authorized for house credit",
+    "creditOverLimit": "This charge would exceed the customer's credit limit",
+    "creditDeleted": "This customer was removed: credit is not allowed",
+    "creditOutstanding": "House credit due: {{amount}}",
+    "creditSettle": "Collect credit",
+    "creditSettleTender": "Tender",
+    "creditSelectSettleTender": "Choose cash or card",
+    "creditSettledOk": "Credit account settled",
+    "creditSettleFailed": "Could not settle the credit account",
+    "creditSettleError": {
+      "nothing_to_settle": "Nothing left to collect on credit",
+      "invalid_settle": "Invalid credit settlement",
+      "bad_tender": "Settle credit with cash or card only",
+      "not_found": "Customer not found"
+    },
+    "cannotAddCredit": "Cannot add more credit: the ticket is already covered",
+    "exactCreditAmount": "Credit limited to the amount still due on this ticket"
   },
   "remote": {
     "remoteLabel": "{{name}} (Op afstand)",
     "status": "Status: {{status}}",
     "openLink": "Link openen",
-    "verify": "Verifiëren"
+    "verify": "VerifiÃ«ren"
   },
   "discountType": {
     "percent": "Percentage",
@@ -112,7 +131,7 @@
     "linkGenerated": "Betalingslink op afstand gegenereerd.",
     "tokenGenerated": "Token op afstand gegenereerd: {{token}}",
     "intentGenerated": "Betalingsintentie op afstand gegenereerd.",
-    "paymentTimedOut": "{{gateway}}-betaling verlopen. Tik op Verifiëren om opnieuw te controleren.",
+    "paymentTimedOut": "{{gateway}}-betaling verlopen. Tik op VerifiÃ«ren om opnieuw te controleren.",
     "paymentStatus": "{{gateway}}-betaling {{status}}.",
     "completeOnPage": "Voltooi de betaling op de {{gateway}}-pagina en keer terug naar de kassa.",
     "scanQr": "Scan de QR-code met de {{gateway}}-app om te betalen.",
@@ -133,7 +152,7 @@
     "verifiedAndAdded": "Betaling op afstand geverifieerd en toegevoegd.",
     "generateFailed": "Betalingslink/token op afstand genereren mislukt",
     "mustBePaid": "Betaling is {{status}}. Deze moet betaald/geautoriseerd zijn voordat deze wordt toegevoegd.",
-    "verifyFailed": "Betaling op afstand verifiëren mislukt",
+    "verifyFailed": "Betaling op afstand verifiÃ«ren mislukt",
     "paymentReceived": "{{gateway}}-betaling ontvangen.",
     "payWithCard": "Betalen met kaart",
     "payWithRazorpay": "Betalen met Razorpay"

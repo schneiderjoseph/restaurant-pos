@@ -32,7 +32,9 @@
   },
   "view": {
     "blocks": "Blocks",
-    "table": "Table"
+    "table": "Table",
+    "allOrders": "All orders",
+    "myOrders": "My orders"
   },
   "list": {
     "empty": "No orders",
@@ -64,6 +66,8 @@
     "ready": "Ready",
     "itemReady": "Ready",
     "paid": "Paid",
+    "room": "Room",
+    "credit": "Credit",
     "cancelled": "Cancelled",
     "spilt": "Spilt",
     "merged": "Merged",
@@ -97,6 +101,7 @@
     "printFinalBillCopy": "Print final bill copy",
     "openCashDrawer": "Open cash drawer",
     "tempBill": "Temp bill",
+    "proforma": "Proforma",
     "payNow": "Pay Now",
     "printKotCopy": "Print KOT copy",
     "splitByClients": "Split by clients",
@@ -112,6 +117,10 @@
   "printCurrency": {
     "title": "Print prebill in",
     "hint": "Choose the currency for this prebill",
+    "proformaTitle": "Print proforma in",
+    "proformaHint": "Choose the currency for this quote / proforma",
+    "folioTitle": "Print invoice in",
+    "folioHint": "Choose USD or HTG for this stay bill",
     "cancel": "Cancel"
   },
   "cancel": {
@@ -258,6 +267,29 @@
   "due": {
     "forTime": "For {{time}}",
     "tomorrowShort": "tom."
+  },
+  "creditRequest": {
+    "title": "Credit request to approve",
+    "more": "{{count}} more waiting",
+    "pendingCount": "Credit requests to approve: {{count}}",
+    "requestedBy": "Requested by {{name}}",
+    "notAPayment": "Credit is not a till payment: the check will be posted to the customer's account.",
+    "limitLabel": "Credit limit (optional)",
+    "limitPlaceholder": "Leave empty = no limit",
+    "limitOptional": "No amount: unlimited house credit.",
+    "limitPreview": "Limit: {{amount}}",
+    "invalidLimit": "Enter a valid limit, or leave empty",
+    "approve": "Approve",
+    "reject": "Refuse",
+    "later": "Later",
+    "approved": "House credit opened for this customer",
+    "rejected": "Credit request refused",
+    "expired": "The customer is no longer available: nothing was changed",
+    "taken": "Someone else already answered this request",
+    "failed": "The request could not be applied. Try again.",
+    "answerApproved": "Your credit request was approved",
+    "answerRejected": "Your credit request was refused",
+    "answerExpired": "Your credit request was dropped: the customer is no longer available"
   },
   "editRequest": {
     "title": "Order change to approve",

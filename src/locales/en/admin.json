@@ -725,6 +725,9 @@
       "order_edit": {
         "label": "Editing sent orders"
       },
+      "credit": {
+        "label": "House credit"
+      },
       "summary": {
         "label": "Summary"
       },
@@ -799,6 +802,7 @@
       "payments.receive": "Receive payment",
       "order_edit.sent_items": "Change lines already sent directly (no approval)",
       "order_edit.approve": "Approve the changes to sent lines others ask for",
+      "credit.approve": "Approve house-credit requests from the payment screen",
       "summary": "Summary",
       "summary.print": "Print summary",
       "summary.product_mix": "Product mix report",

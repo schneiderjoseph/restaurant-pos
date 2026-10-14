@@ -20,7 +20,7 @@ interface ClosingCycleValues {
 const DEFAULT_VALUES: ClosingCycleValues = {
   enabled: true,
   start_time: "06:00",
-  end_time: "02:00",
+  end_time: "04:00",
 };
 
 export const ClosingCycleSettingsCard = () => {

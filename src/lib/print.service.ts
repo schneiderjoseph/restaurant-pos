@@ -36,6 +36,7 @@ import {
   getCachedRestaurantLogoDataUrl,
   logoToDataUrl,
 } from '@/lib/restaurant-profile.ts';
+import { slimOrdersForSummaryPrint } from '@/lib/summary-print-payload.ts';
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -340,6 +341,11 @@ export async function dispatchPrint<Payload = any>(
     if (needsEnrich) {
       printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
     }
+  }
+
+  // Summary: drop dish images / nested relations so nginx does not 413 on busy days.
+  if (template === 'summary' && printPayload.orders != null) {
+    printPayload.orders = slimOrdersForSummaryPrint(printPayload.orders);
   }
 
   // A bill of an order from a split or a merge says where it comes from ("Split 1/2 of #088").

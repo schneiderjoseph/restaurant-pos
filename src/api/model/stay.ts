@@ -4,7 +4,7 @@ import type { User } from '@/api/model/user.ts';
 
 export type StayStatus = 'open' | 'closed';
 
-/** One POS Front Desk stay (manual, outside ASI). A customer may have many over time. */
+/** One POS Front Desk stay (manual, outside ASI). A customer may hold several open rooms at once (one stay each). */
 export interface Stay extends ID {
   customer?: Customer | string | null;
   /** Display room number as assigned at check-in / move. */

@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "Error al cargar el cierre",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "Este ciclo ya está cerrado.",
     "openOrders": "Hay pedidos abiertos. Ciérrelos primero.",
     "completed": "¡Cierre completado correctamente!",
@@ -50,7 +52,9 @@
     "noProductMix": "No se encontraron artículos para la mezcla de productos.",
     "noTimeEntries": "No se encontraron registros de tiempo completados para esta fecha.",
     "noServerSales": "No se encontraron datos de ventas del servidor para esta fecha.",
-    "loadFailed": "No se pudieron cargar los pedidos de esta fecha."
+    "loadFailed": "No se pudieron cargar los pedidos de esta fecha.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "No se encontró registro de tiempo activo",

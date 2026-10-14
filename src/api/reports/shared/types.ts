@@ -34,10 +34,15 @@ export interface SalesSummaryResult {
   totalNetSales: number;
   paymentSummary: {
     amountDue: number;
+    /** Till money only (excludes Room + Credit). */
     amountCollected: number;
     cashPayments: number;
     nonCashPayments: number;
     nonCashBreakdown: Record<string, number>;
+    roomCharges: number;
+    creditCharges: number;
+    deferredCharges: number;
+    deferredBreakdown: Record<string, number>;
   };
   roundingBenefit: number;
   serviceCharges: number;

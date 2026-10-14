@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "La saisie est désactivée jusqu'à la clôture du cycle en cours, ou supprimez la clôture du cycle actuel.",
-    "cycleEnded": "Le cycle de clôture s'est terminé à {{time}}. Veuillez effectuer la clôture de journée si ce n'est pas déjà fait."
+    "cycleEnded": "Le cycle de clôture s'est terminé à {{time}}. La caisse doit effectuer la clôture de journée avant de reprendre les ventes."
   },
   "window": {
     "cycle": "Cycle",
@@ -66,7 +66,8 @@
     "totalExpenses": "Total des dépenses : {{amount}}",
     "previousBalance": "Solde précédent",
     "totalCashShort": "Total espèces",
-    "otherPayments": "Autres paiements",
+    "otherPayments": "Autres paiements (encaissés)",
+    "deferredCharges": "Chambre + crédit (non encaissés)",
     "totalExpensesShort": "Total des dépenses",
     "netAmount": "Montant net"
   },

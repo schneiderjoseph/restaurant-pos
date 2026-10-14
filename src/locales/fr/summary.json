@@ -4,7 +4,8 @@
     "nextDate": "Date suivante",
     "printSummary": "Imprimer le résumé",
     "productMixReport": "Rapport mix produits",
-    "serverSales": "Ventes par serveur"
+    "serverSales": "Ventes par serveur",
+    "printCashClosing": "Imprimer règlement de caisse"
   },
   "security": {
     "printSummaryDescription": "Imprimer le résumé",
@@ -12,7 +13,8 @@
     "productMixDescription": "Rapport mix produits",
     "productMixModule": "Rapport mix produits",
     "serverSalesDescription": "Ventes par serveur",
-    "serverSalesModule": "Ventes par serveur"
+    "serverSalesModule": "Ventes par serveur",
+    "printCashClosingDescription": "Imprimer le règlement de caisse sur l'imprimante caisse"
   },
   "unknown": {
     "user": "Inconnu",
@@ -30,18 +32,20 @@
       "settlementCashier": "3. Règlement et caisse",
       "operationalControls": "4. Contrôles opérationnels",
       "productMix": "5. Mix produits",
-      "paymentTypes": "6. Types de paiement",
-      "taxesBreakdown": "7. Détail des taxes",
-      "discountsBreakdown": "8. Détail des remises",
-      "extrasBreakdown": "9. Détail des suppléments",
-      "couponsBreakdown": "10. Détail des coupons"
+      "paymentTypes": "6. Types de paiement (encaissés)",
+      "deferredCharges": "7. Chambre et crédit (non encaissés)",
+      "taxesBreakdown": "8. Détail des taxes",
+      "discountsBreakdown": "9. Détail des remises",
+      "extrasBreakdown": "10. Détail des suppléments",
+      "couponsBreakdown": "11. Détail des coupons"
     },
     "subtitles": {
       "surchargesTaxes": "Suppléments et taxes collectés (depuis les commandes ; généralement calculés sur le net après remise).",
       "settlementCashier": "Vue de la caisse.",
       "operationalControls": "Signaux d'audit (annulations distinctes du chiffre d'affaires brut).",
       "productMix": "Catégories regroupées avec les plats et leurs modificateurs.",
-      "paymentTypes": "Montant collecté réparti par mode de paiement.",
+      "paymentTypes": "Montant réellement encaissé (espèces, carte…), hors chambre et crédit.",
+      "deferredCharges": "Notes portées en chambre ou au compte crédit — ce n’est pas de l’argent en caisse.",
       "taxesBreakdown": "Composantes fiscales collectées sur les commandes.",
       "discountsBreakdown": "Schémas de remise appliqués sur cette période.",
       "extrasBreakdown": "Détail des suppléments au niveau de la commande.",
@@ -63,6 +67,9 @@
       "tips": "Pourboires",
       "grandTotalDue": "Total général (dû)",
       "amountCollected": "Montant encaissé",
+      "roomCharges": "Porté en chambre",
+      "creditCharges": "Porté au crédit",
+      "deferredCharges": "Total chambre + crédit",
       "rounding": "Arrondi",
       "changeVariance": "Monnaie / écart",
       "voids": "Annulations",
@@ -88,8 +95,11 @@
       "amountDueBeforeTips": "Ventes nettes + frais de service + taxes.",
       "tips": "Depuis les champs pourboire des commandes / au-delà du total (non inclus dans les ventes brutes).",
       "grandTotalDue": "Chiffre d'affaires total + pourboires.",
-      "amountCollected": "Totaux des paiements appliqués par mode (hors monnaie rendue).",
-      "rounding": "Montant encaissé − total général (dû) ; excédent/manque par rapport au dû calculé.",
+      "amountCollected": "Espèces, carte et autres encaissements (hors chambre, crédit et monnaie rendue).",
+      "roomCharges": "Notes mises sur la chambre — à encaisser au check-out / relevé Room.",
+      "creditCharges": "Notes mises au compte crédit — à encaisser plus tard (espèces/carte).",
+      "deferredCharges": "Somme chambre + crédit (pas dans la caisse).",
+      "rounding": "Tenders appliqués (encaissé + chambre + crédit) − total dû ; excédent/manque.",
       "changeVariance": "Espèces remises en excès des montants de paiement appliqués.",
       "voids": "Valeur des lignes supprimées après saisie (non incluse dans les ventes brutes ci-dessus).",
       "refunds": "Retours issus de paiements négatifs ou de tickets annulés.",
@@ -108,6 +118,7 @@
     "empty": {
       "noCategoryData": "Aucune donnée de catégorie pour cette date.",
       "noPaymentData": "Aucune donnée de paiement pour cette date.",
+      "noDeferredData": "Aucune note chambre ou crédit pour cette date.",
       "noTaxRows": "Aucune ligne de taxe pour cette date.",
       "noDiscountRows": "Aucune ligne de remise pour cette date.",
       "noExtras": "Aucun supplément trouvé pour cette date.",
@@ -178,6 +189,16 @@
     "time": "Durée",
     "guests": "Cvts",
     "checks": "Add.",
-    "sale": "Vente"
+    "sale": "Vente",
+    "closing": {
+      "title": "REGLEMENT DE CAISSE ({{date}})",
+      "terminalCash": "Espèces terminal",
+      "amount": "Montant",
+      "totalCash": "Total espèces",
+      "paymentSummary": "Résumé paiements",
+      "otherPayments": "Autres paiements",
+      "expenses": "Dépenses",
+      "netAmount": "Montant net"
+    }
   }
 }

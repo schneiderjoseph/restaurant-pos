@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "Erfassung ist deaktiviert, bis der aktuelle Zyklus abgeschlossen ist oder der aktuelle Zyklusabschluss gelöscht wird.",
-    "cycleEnded": "Abschlusszyklus endete um {{time}}. Bitte Tagesabschluss durchführen, falls noch nicht geschehen."
+    "cycleEnded": "Abschlusszyklus endete um {{time}}. Die Kasse muss den Tagesabschluss durchführen, bevor der Verkauf wieder freigegeben wird."
   },
   "window": {
     "cycle": "Zyklus",

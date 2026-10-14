@@ -22,11 +22,13 @@ import {useFloorMapCamera} from "@/hooks/useFloorMapCamera.ts";
 import {useResortFb} from "@/hooks/useResortFb.ts";
 import {ensureResortFloorTables, loadResortChambresFloor} from "@/lib/resort-floor-tables.ts";
 import {Customer} from "@/api/model/customer.ts";
+import {sameCustomer} from "@/lib/customer.service.ts";
 import {formatGuestLabel} from "@/lib/guest.ts";
+import {getInvoiceNumber} from "@/lib/order.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {narrowToTableList} from "@/lib/menu-categories.ts";
-import {ACTIVE_CUSTOMER} from "@/lib/customer-scope.ts";
 import {normalizeRoomKey} from "@/lib/room-key.ts";
+import {loadInHouseRoomOccupancy} from "@/lib/stay.service.ts";
 
 export const FloorLayout = () => {
   const { t } = useTranslation(['closing', 'menu']);
@@ -146,48 +148,11 @@ export const FloorLayout = () => {
   }
 
   const fetchInHouseRooms = async () => {
-    const [rows] = await db.query<Customer[]>(
-      `SELECT * FROM ${Tables.customers}
-       WHERE (in_house = true OR tags CONTAINS 'in-house')
-         AND ${ACTIVE_CUSTOMER}
-         AND room != NONE
-         AND room != NULL`
-    );
-    const map = new Map<string, Customer>();
-    const counts = new Map<string, number>();
-    for (const guest of Array.isArray(rows) ? rows : []) {
-      const key = normalizeRoomKey(guest.room);
-      if (!key) continue;
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-      // Two guests on one room (ASI after a manual stay): the room shows the ASI guest.
-      const held = map.get(key);
-      if (!held || (held.source !== 'asi-fd' && guest.source === 'asi-fd')) {
-        map.set(key, guest);
-      }
-    }
-    // Merge asi_alias onto the same conflict key when both number and alias are occupied.
-    for (const table of settings.tables ?? []) {
-      if (table.source !== 'asi-room') continue;
-      const numKey = normalizeRoomKey(table.number);
-      const aliasKey = normalizeRoomKey(table.asi_alias as string | undefined);
-      if (!numKey || !aliasKey || numKey === aliasKey) continue;
-      const n = (counts.get(numKey) ?? 0) + (counts.get(aliasKey) ?? 0);
-      if (n > 1) {
-        counts.set(numKey, n);
-        const byNumber = map.get(numKey);
-        const byAlias = map.get(aliasKey);
-        if (byAlias && (!byNumber || (byNumber.source !== 'asi-fd' && byAlias.source === 'asi-fd'))) {
-          map.set(numKey, map.get(aliasKey)!);
-        }
-      }
-    }
-    const conflicts = new Set<string>();
-    for (const [key, count] of counts) {
-      if (count > 1) conflicts.add(key);
-    }
-    setConflictRoomKeys(conflicts);
-    setOccupiedRooms(map);
-    return map;
+    // ASI guests + each open manual stay (one guest may occupy several rooms).
+    const { byRoomKey, conflictKeys } = await loadInHouseRoomOccupancy(db);
+    setConflictRoomKeys(conflictKeys);
+    setOccupiedRooms(byRoomKey);
+    return byRoomKey;
   };
 
   const guestFromRoomMap = (item: Table, map: Map<string, Customer>): Customer | undefined => {
@@ -222,6 +187,9 @@ export const FloorLayout = () => {
 
   const runInHouseLiveQuery = async () => {
     keepSubscription(await db.live(Tables.customers, function () {
+      void fetchInHouseRooms();
+    }));
+    keepSubscription(await db.live(Tables.stays, function () {
       void fetchInHouseRooms();
     }));
   }
@@ -407,7 +375,7 @@ export const FloorLayout = () => {
       }))
     }
 
-    if (!item.is_block && !item.is_locked) {
+      if (!item.is_block && !item.is_locked) {
       let ordersForTable = openOrdersToday.filter(orderItem => orderItem?.table?.id?.toString() === item.id.toString());
       let order = ordersForTable[0];
       let cart = state.cart;
@@ -415,10 +383,10 @@ export const FloorLayout = () => {
       // Hotel rooms require an in-house guest — auto-attach when occupied.
       let roomGuest: Customer | undefined;
       if (item.source === 'asi-room') {
-        roomGuest = guestFromRoomMap(item, occupiedRooms) ?? order?.customer;
+        roomGuest = guestFromRoomMap(item, occupiedRooms);
         if (!roomGuest) {
           const freshMap = await fetchInHouseRooms();
-          roomGuest = guestFromRoomMap(item, freshMap) ?? order?.customer;
+          roomGuest = guestFromRoomMap(item, freshMap);
         }
         if (!roomGuest) {
           setAlert(prev => ({
@@ -428,6 +396,27 @@ export const FloorLayout = () => {
             opened: true,
           }));
           return;
+        }
+        // Never reopen yesterday's manual-stay order as today's room guest (ASI preferred).
+        const priorOrders = ordersForTable.filter(
+          (orderItem) => !sameCustomer(orderItem.customer, roomGuest?.id),
+        );
+        ordersForTable = ordersForTable.filter(
+          (orderItem) => sameCustomer(orderItem.customer, roomGuest?.id),
+        );
+        order = ordersForTable[0];
+        if (priorOrders.length > 0) {
+          const prior = priorOrders[0];
+          setAlert((prev) => ({
+            ...prev,
+            message: t('menu:guest.roomPriorOrderHint', {
+              name: formatGuestLabel(prior.customer),
+              current: formatGuestLabel(roomGuest),
+              number: getInvoiceNumber(prior),
+            }),
+            type: 'warning',
+            opened: true,
+          }));
         }
       }
 

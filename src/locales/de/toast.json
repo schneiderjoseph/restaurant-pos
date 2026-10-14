@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "Tagesabschluss konnte nicht geladen werden",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "Dieser Zyklus ist bereits abgeschlossen.",
     "openOrders": "Es gibt offene Bestellungen. Bitte schließen Sie diese zuerst.",
     "completed": "Tagesabschluss erfolgreich abgeschlossen!",
@@ -50,7 +52,9 @@
     "noProductMix": "Keine Artikel für Produktmix gefunden.",
     "noTimeEntries": "Keine abgeschlossenen Zeiteinträge für dieses Datum gefunden.",
     "noServerSales": "Keine Kellnerumsatzdaten für dieses Datum gefunden.",
-    "loadFailed": "Bestellungen für dieses Datum konnten nicht geladen werden."
+    "loadFailed": "Bestellungen für dieses Datum konnten nicht geladen werden.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "Kein aktiver Zeiteintrag gefunden",

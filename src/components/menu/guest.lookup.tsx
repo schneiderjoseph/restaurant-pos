@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useAtom } from 'jotai';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
@@ -10,7 +10,9 @@ import type { User } from '@/api/model/user.ts';
 import { userName } from '@/lib/duo.ts';
 import { Input } from '@/components/common/input/input.tsx';
 import { Button } from '@/components/common/input/button.tsx';
+import ScrollContainer from 'react-indiana-drag-scroll';
 import { getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
+import { orderDeferredCharges } from '@/lib/order-deferred-charge.ts';
 import {
   formatGuestLabel,
   orderZoneLabel,
@@ -18,6 +20,7 @@ import {
   canRegisterGuestFromSearch,
   previewGuestCode,
   searchGuests,
+  asiOccupantForGuestRooms,
   dropSupersededStays,
   isAsiGuest,
   isAnonymousGuest,
@@ -60,16 +63,40 @@ import { toLuxonDateTime, nowSurrealDateTime } from '@/lib/datetime.ts';
 import { getGuestDeparture } from '@/lib/guest-departure.ts';
 import {
   ensureResortFloorTables,
-  findRoomByNumber,
+  findRoomForGuest,
   findTableByNumber,
   loadResortChambresFloor,
 } from '@/lib/resort-floor-tables.ts';
+import {
+  collectRoomCandidates,
+  customerRoomFolioTotal,
+  findAsiOccupant,
+  loadCustomerRoomFolioOrders,
+  loadInHouseRoomOccupancy,
+  listOpenStaysForCustomer,
+} from '@/lib/stay.service.ts';
+import { loadCustomerCreditOutstanding } from '@/lib/credit.service.ts';
+import {
+  buildStayFolioBillHtml,
+  getStayBillLabels,
+  openStayBillPrintWindow,
+  orderRoomChargeAmount,
+  type StayBillLang,
+  writeAndPrintStayBillWindow,
+} from '@/lib/stay-folio-bill.ts';
+import { chooseTempBillCurrency } from '@/components/common/currency/choose-temp-bill-currency.tsx';
+import type { PayCurrencyCode } from '@/lib/currency.ts';
+import {
+  getCachedRestaurantLogoDataUrl,
+  getCachedRestaurantProfile,
+} from '@/lib/restaurant-profile.ts';
+import { splitGuestRooms } from '@/lib/room-key.ts';
 import { usesAsiPmsRooms } from '@/lib/pos-mode.ts';
 import { formatTableLabel } from '@/lib/table-label.ts';
 import { isHotelRoomTable } from '@/lib/kitchen-ticket-label.ts';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { cn, toRecordId } from '@/lib/utils.ts';
+import { cn, toRecordId, withCurrency } from '@/lib/utils.ts';
 import { Modal } from '@/components/common/react-aria/modal.tsx';
 import { Customers } from '@/components/customer/customer.tsx';
 import { canEditOrder } from '@/lib/order-edit.ts';
@@ -108,9 +135,14 @@ export const GuestLookup = () => {
   const [search, setSearch] = useState('');
   const [listTab, setListTab] = useState<GuestListTab>(preferInHouse ? 'rooms' : 'walkin');
   const [guests, setGuests] = useState<Customer[]>([]);
+  /** Room → preferred occupant (ASI wins on conflicts). Manual stays ASI took over leave the Rooms tab. */
+  const [roomOccupancy, setRoomOccupancy] = useState<Map<string, Customer>>(new Map());
   const [loadingGuests, setLoadingGuests] = useState(false);
   const [selected, setSelected] = useState<Customer | undefined>(state.customer);
   const [folio, setFolio] = useState<FolioOrder[]>([]);
+  const [roomFolioOrders, setRoomFolioOrders] = useState<Order[]>([]);
+  const [creditOutstanding, setCreditOutstanding] = useState(0);
+  const [printingBill, setPrintingBill] = useState(false);
   // A hotel room is not a table: it never pre-fills the table-number field.
   const initialTableNumber = isHotelRoomTable(state.table) ? '' : (state.table?.number ?? '');
   const [tableNumber, setTableNumber] = useState(initialTableNumber);
@@ -143,12 +175,15 @@ export const GuestLookup = () => {
   const floors: Floor[] = settings.floors ?? [];
 
   // Rooms vs walk-in, newest guests first; search keeps that order within exact / close.
+  // Manual stays whose room ASI now holds are walk-ins for F&B (Front Desk still settles them).
   const tabGuests = useMemo(() => {
-    const filtered = guests.filter((guest) =>
-      !isAnonymousGuest(guest) && (listTab === 'rooms' ? isRoomGuest(guest) : !isRoomGuest(guest)),
-    );
+    const filtered = guests.filter((guest) => {
+      if (isAnonymousGuest(guest)) return false;
+      const roomGuest = isRoomGuest(guest) && !asiOccupantForGuestRooms(guest, roomOccupancy);
+      return listTab === 'rooms' ? roomGuest : !roomGuest;
+    });
     return sortGuestsNewestFirst(filtered);
-  }, [guests, listTab]);
+  }, [guests, listTab, roomOccupancy]);
   const found = useMemo(() => searchGuests(tabGuests, search), [tabGuests, search]);
   const results = useMemo(() => [...found.exact, ...found.close], [found]);
   const firstCloseId = found.close[0]?.id?.toString();
@@ -212,8 +247,8 @@ export const GuestLookup = () => {
     try {
       // ASI mode: PMS in-house + POSR walk-in / local guests (never hide local registry),
       // plus checked-out FD guests that carry a staff note. Deleted / merged clients never.
-      const [list] = preferInHouse
-        ? await db.query<Customer[]>(
+      const listPromise = preferInHouse
+        ? db.query<Customer[]>(
             `SELECT *, ${LAST_ORDER_AT} FROM ${Tables.customers}
              WHERE ${ACTIVE_CUSTOMER} AND (
                 in_house = true OR tags CONTAINS 'in-house'
@@ -226,17 +261,26 @@ export const GuestLookup = () => {
              ORDER BY created_at DESC
              LIMIT 500`
           )
-        : await db.query<Customer[]>(
+        : db.query<Customer[]>(
             `SELECT *, ${LAST_ORDER_AT} FROM ${Tables.customers}
              WHERE ${ACTIVE_CUSTOMER}
              ORDER BY created_at DESC
              LIMIT 500`
           );
+      const [[list], occupancy] = await Promise.all([
+        listPromise,
+        loadInHouseRoomOccupancy(db).catch((error) => {
+          console.error('Room occupancy failed', error);
+          return { byRoomKey: new Map<string, Customer>() };
+        }),
+      ]);
 
       setGuests(dropSupersededStays(Array.isArray(list) ? list : []));
+      setRoomOccupancy(occupancy.byRoomKey);
     } catch (error) {
       console.error('Guest list failed', error);
       setGuests([]);
+      setRoomOccupancy(new Map());
     } finally {
       setLoadingGuests(false);
     }
@@ -260,7 +304,7 @@ export const GuestLookup = () => {
        WHERE customer IN $customers
        ORDER BY created_at DESC
        LIMIT 20
-       FETCH floor, order_type, customer, table`,
+       FETCH floor, order_type, customer, table, payments, payments.payment_type`,
       { customers }
     );
 
@@ -270,6 +314,13 @@ export const GuestLookup = () => {
     }
 
     setFolio(Array.isArray(rows) ? rows : []);
+    if (isRoomGuest(customer)) {
+      const roomOrders = await loadCustomerRoomFolioOrders(db, customer.id);
+      if (selectedGuestIdRef.current !== requestedId) return;
+      setRoomFolioOrders(roomOrders);
+    } else {
+      setRoomFolioOrders([]);
+    }
   };
 
   useEffect(() => {
@@ -281,11 +332,25 @@ export const GuestLookup = () => {
     // Clear first: the previous guest's folio must not flash under the new one
     // (it also feeds the "last order" line).
     setFolio([]);
+    setRoomFolioOrders([]);
+    setCreditOutstanding(0);
+    let cancelled = false;
     if (selected?.id) {
       void loadFolio(selected);
+      void loadCustomerCreditOutstanding(db, selected.id)
+        .then((amount) => {
+          if (!cancelled) setCreditOutstanding(amount);
+        })
+        .catch((error) => {
+          console.error('Credit outstanding load failed', error);
+          if (!cancelled) setCreditOutstanding(0);
+        });
     } else {
       setFolio([]);
     }
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reload folio when guest selection changes
   }, [selected?.id]);
 
@@ -433,6 +498,55 @@ export const GuestLookup = () => {
       customer,
     }));
   };
+
+  const hasSearch = search.trim().length > 0;
+  const keyboardResults = useMemo(
+    () => (hasSearch ? results.slice(0, 12) : []),
+    [hasSearch, results],
+  );
+
+  const keyboardHeader: ReactNode = (
+    <div
+      className="h-[76px] pr-12"
+      data-testid="guest-search-keyboard-results"
+    >
+      {!hasSearch ? null : keyboardResults.length === 0 ? (
+        <div className="flex h-full items-center text-neutral-500">
+          {t('menu:guest.noResults')}
+        </div>
+      ) : (
+        <ScrollContainer className="flex h-full flex-nowrap gap-2" mouseScroll>
+          {keyboardResults.map((guest) => (
+            <button
+              key={guest.id?.toString()}
+              type="button"
+              className={cn(
+                'flex w-[180px] shrink-0 flex-col justify-center rounded-lg border border-neutral-200 bg-white px-3 py-2 text-left hover:bg-primary-50 active:bg-primary-100',
+                selected?.id?.toString() === guest.id?.toString() && 'border-primary-400 bg-primary-50',
+              )}
+              onClick={() => selectGuest(guest)}
+              data-testid="guest-search-keyboard-result"
+            >
+              <span className="truncate font-bold text-base leading-tight">
+                {formatGuestLabel(guest)}
+              </span>
+              {guest.room || isRoomGuest(guest) ? (
+                <span className="truncate text-sm text-neutral-600">
+                  {guest.room
+                    ? `${t('menu:guest.room')} ${guest.room}`
+                    : t('menu:guest.room')}
+                </span>
+              ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
+                <span className="truncate text-sm text-neutral-600">
+                  {t('menu:guest.walkInBadge')}
+                </span>
+              ) : null}
+            </button>
+          ))}
+        </ScrollContainer>
+      )}
+    </div>
+  );
 
   /** An existing client chosen instead of registering a new one. */
   const pickExistingGuest = async (customer: Customer, andStartOrder: boolean) => {
@@ -595,9 +709,42 @@ export const GuestLookup = () => {
         return;
       }
     } else if (guestRoom) {
-      table = await findRoomByNumber(db, guestRoom);
+      // Multi-room Front Desk: customer.room may be "17, 25" — resolve each room, prefer latest stay.
+      let preferredRoom: string | undefined;
+      if (splitGuestRooms(guestRoom).length > 1 && guest.id) {
+        try {
+          const stays = await listOpenStaysForCustomer(db, guest.id);
+          preferredRoom = String(stays[0]?.room ?? '').trim() || undefined;
+        } catch (error) {
+          console.error('Failed to load open stays for room pick', error);
+        }
+      }
+      table = await findRoomForGuest(db, guestRoom, preferredRoom);
       if (!table) {
         toast.error(t('menu:guest.roomNotFound', { number: guestRoom }));
+        return;
+      }
+    }
+
+    // ASI owns the room now: never open a new F&B order on the old manual stay.
+    if (table?.source === 'asi-room' && !isAsiGuest(guest)) {
+      const room = String(table.number ?? table.asi_alias ?? guestRoom).trim();
+      try {
+        const asi = await findAsiOccupant(
+          db,
+          await collectRoomCandidates(db, room),
+          guest.id,
+        );
+        if (asi) {
+          toast.error(t('menu:guest.roomTakenByAsi', {
+            name: formatGuestLabel(asi),
+            room,
+          }));
+          return;
+        }
+      } catch (error) {
+        console.error('ASI room occupancy check failed', error);
+        toast.error(t('menu:guest.roomTakenByAsiUnknown', { room }));
         return;
       }
     }
@@ -627,6 +774,69 @@ export const GuestLookup = () => {
       return;
     }
     await startNewOrderFor(selected);
+  };
+
+  const printGuestRoomBill = async (
+    orders: Order[] | null,
+    lang: StayBillLang,
+    opts?: { singleOrder?: boolean },
+  ) => {
+    if (!selected?.id || !isRoomGuest(selected)) return;
+    let printWindow: Window | null = null;
+    const printCurrency = await chooseTempBillCurrency({
+      documentKind: 'folio',
+      onBeforeResolve: () => {
+        printWindow = openStayBillPrintWindow();
+      },
+    });
+    if (!printCurrency) return;
+    if (!printWindow) {
+      toast.error(t('common:toast.error', { defaultValue: 'An error occurred' }));
+      return;
+    }
+    setPrintingBill(true);
+    try {
+      const loaded = orders != null
+        ? orders
+        : (roomFolioOrders.length > 0
+          ? roomFolioOrders
+          : await loadCustomerRoomFolioOrders(db, selected.id));
+      const profile = getCachedRestaurantProfile();
+      const contact = [profile.phone, profile.email].filter(Boolean).join(' · ');
+      const locale = lang === 'en' ? 'en-US' : 'fr-HT';
+      const roomTotal = customerRoomFolioTotal(loaded);
+      const html = buildStayFolioBillHtml({
+        guestName: formatGuestLabel(selected),
+        room: String(selected.room ?? ''),
+        dateIn: '',
+        dateOut: String(selected.asi_date_out ?? ''),
+        restaurantName: profile.name || undefined,
+        restaurantAddress: profile.address || undefined,
+        restaurantContact: contact || undefined,
+        restaurantLogoDataUrl: getCachedRestaurantLogoDataUrl(),
+        orders: loaded,
+        roomTotal,
+        settledAmount: 0,
+        outstanding: roomTotal,
+        settlements: [],
+        labels: getStayBillLabels(lang, { singleOrder: opts?.singleOrder }),
+        printedAt: new Date().toLocaleString(locale),
+        locale,
+        printCurrency: printCurrency as PayCurrencyCode,
+        showStaySummary: false,
+      });
+      writeAndPrintStayBillWindow(printWindow, html);
+    } catch (error) {
+      console.error('Guest room bill print failed', error);
+      try {
+        printWindow.close();
+      } catch {
+        // ignore
+      }
+      toast.error(t('common:toast.error', { defaultValue: 'An error occurred' }));
+    } finally {
+      setPrintingBill(false);
+    }
   };
 
   const openFolioOrderForEdit = async (folioOrder: FolioOrder, guest: Customer | undefined = selected) => {
@@ -797,6 +1007,8 @@ export const GuestLookup = () => {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               autoFocus
+              hideKeyboardTitle
+              keyboardHeader={keyboardHeader}
               data-testid="guest-search"
             />
           </div>
@@ -990,10 +1202,12 @@ export const GuestLookup = () => {
                       </div>
                     )}
                   </div>
-                  {/* A guest in a room (ASI or Front Desk stay) shows the same room badge. */}
-                  {guest.room ? (
+                  {/* Room stay (ASI or Front Desk) → chambre badge; else Passant for walk-ins. */}
+                  {guest.room || isRoomGuest(guest) ? (
                     <span className="shrink-0 rounded-lg bg-primary-100 text-primary-800 px-3 py-2 text-base font-semibold">
-                      {t('menu:guest.room')} {guest.room}
+                      {guest.room
+                        ? `${t('menu:guest.room')} ${guest.room}`
+                        : t('menu:guest.room')}
                     </span>
                   ) : (guest.source === 'walk-in' || guest.tags?.includes('walk-in')) ? (
                     <span className="shrink-0 rounded-lg bg-neutral-200 text-neutral-700 px-3 py-2 text-sm font-medium">
@@ -1082,7 +1296,7 @@ export const GuestLookup = () => {
                   </div>
                 </div>
 
-                <CustomerAlerts customer={selected} />
+                <CustomerAlerts customer={selected} creditOutstanding={creditOutstanding} />
 
                 {showPlace && (
                 <div className="rounded-lg border border-neutral-200 p-3 space-y-3" data-testid="guest-place">
@@ -1318,8 +1532,38 @@ export const GuestLookup = () => {
                     {folio.length === 0 && (
                       <div className="text-neutral-500">{t('menu:guest.folioEmpty')}</div>
                     )}
+                    {selected && isRoomGuest(selected) && roomFolioOrders.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={printingBill}
+                          onClick={() => void printGuestRoomBill(null, 'fr')}
+                          data-testid="guest-print-folio-fr"
+                        >
+                          {t('menu:guest.printAllFolioFr')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={printingBill}
+                          onClick={() => void printGuestRoomBill(null, 'en')}
+                          data-testid="guest-print-folio-en"
+                        >
+                          {t('menu:guest.printAllFolioEn')}
+                        </Button>
+                        <span className="text-sm text-neutral-600 self-center">
+                          {t('menu:guest.roomTotal')}: {withCurrency(customerRoomFolioTotal(roomFolioOrders))}
+                        </span>
+                      </div>
+                    )}
                     <div className="space-y-2">
-                      {folio.map((order) => (
+                      {folio.map((order) => {
+                        const roomCharge = orderRoomChargeAmount(order);
+                        const roomBillOrder = roomCharge > 0
+                          ? roomFolioOrders.find((o) => String(o.id) === String(order.id))
+                          : undefined;
+                        return (
                         <div
                           key={order.id?.toString()}
                           className="border rounded-lg p-3 flex justify-between gap-3 items-start"
@@ -1329,16 +1573,46 @@ export const GuestLookup = () => {
                               {t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}
                             </div>
                             <div className="text-sm text-neutral-600">
-                              {translateOrderStatus(tOrders, order.status)}
+                              {(() => {
+                                const deferred = orderDeferredCharges(order);
+                                if (deferred.length > 0) {
+                                  return deferred.map((k) => tOrders(k === 'room' ? 'status.room' : 'status.credit')).join(' · ');
+                                }
+                                return translateOrderStatus(tOrders, order.status);
+                              })()}
                               {order.table ? ` · ${formatTableLabel(order.table)}` : ''}
                               {!order.table && orderZoneLabel(order) ? ` · ${orderZoneLabel(order)}` : ''}
+                              {roomCharge > 0 ? ` · ${withCurrency(roomCharge)}` : ''}
                             </div>
                             <div className="text-sm text-neutral-500 mt-1">
                               {toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}
                             </div>
                           </div>
-                          {order.status === OrderStatus['In Progress'] && (
-                            <div className="flex flex-col gap-2 shrink-0">
+                          <div className="flex flex-col gap-2 shrink-0">
+                            {roomBillOrder && (
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={printingBill}
+                                  onClick={() => void printGuestRoomBill([roomBillOrder], 'fr', { singleOrder: true })}
+                                  data-testid="guest-print-fiche-fr"
+                                >
+                                  FR
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={printingBill}
+                                  onClick={() => void printGuestRoomBill([roomBillOrder], 'en', { singleOrder: true })}
+                                  data-testid="guest-print-fiche-en"
+                                >
+                                  EN
+                                </Button>
+                              </div>
+                            )}
+                            {order.status === OrderStatus['In Progress'] && (
+                              <>
                               <Button
                                 variant="primary"
                                 filled
@@ -1364,10 +1638,12 @@ export const GuestLookup = () => {
                                   {t('orders:actions.transferToClient')}
                                 </Button>
                               )}
-                            </div>
-                          )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

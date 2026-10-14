@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "L'inserimento ordini è disabilitato finché il ciclo corrente non è chiuso, oppure elimina la chiusura del ciclo corrente.",
-    "cycleEnded": "Il ciclo di chiusura è terminato alle {{time}}. Completa la chiusura giornaliera se non l'hai già fatto."
+    "cycleEnded": "Il ciclo di chiusura è terminato alle {{time}}. La cassa deve completare la chiusura giornaliera prima di riprendere le vendite."
   },
   "window": {
     "cycle": "Ciclo",

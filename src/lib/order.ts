@@ -5,6 +5,8 @@ import {getDiscountValueType} from '@/api/model/discount.ts';
 import {OrderPayment} from "@/api/model/order_payment.ts";
 import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {isCreditPaymentType} from '@/lib/credit-charge.ts';
+import {isRoomPaymentType} from '@/lib/room-charge.ts';
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import type {TFunction} from 'i18next';
@@ -293,6 +295,10 @@ const isCashPayment = (payment?: OrderPayment) => {
   return normalizedType === 'cash' || normalizedName === 'cash';
 };
 
+/** Room / Credit: posted to folio or house account — not till money. */
+export const isDeferredChargePayment = (payment?: OrderPayment | null): boolean =>
+  isRoomPaymentType(payment?.payment_type) || isCreditPaymentType(payment?.payment_type);
+
 /**
  * Amount each payment applied to the check, in payment order. Every payment row carries
  * the order's payable; what was handed over beyond it is change, given back from the
@@ -322,10 +328,18 @@ export const getAppliedPaymentAmounts = (payments: Array<OrderPayment | null | u
 };
 
 export interface OrderPaymentTotals {
+  /** Cash/card/other collected at the till (excludes Room + Credit). */
   amountCollected: number
   cashAmount: number
   nonCashAmount: number
   nonCashBreakdown: Record<string, number>
+  /** Room + Credit posted to folio / house account (not till money). */
+  deferredAmount: number
+  deferredBreakdown: Record<string, number>
+  roomAmount: number
+  creditAmount: number
+  /** Till collected + deferred charges (for rounding vs amount due). */
+  amountApplied: number
   change: number
   totalReceivedWithChange: number
 }
@@ -334,32 +348,49 @@ export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): Orde
   const payments = (order.payments ?? []).filter((payment) => payment != null);
   const appliedAmounts = getAppliedPaymentAmounts(payments);
 
-  const nonCashBreakdown = payments.reduce((acc, payment, index) => {
+  const nonCashBreakdown: Record<string, number> = {};
+  const deferredBreakdown: Record<string, number> = {};
+  let cashAmount = 0;
+  let roomAmount = 0;
+  let creditAmount = 0;
+
+  payments.forEach((payment, index) => {
+    const amount = appliedAmounts[index];
     if (isCashPayment(payment)) {
-      return acc;
+      cashAmount += amount;
+      return;
     }
     const label = payment?.payment_type?.name || 'Other';
-    acc[label] = (acc[label] ?? 0) + appliedAmounts[index];
-    return acc;
-  }, {} as Record<string, number>);
-
-  const cashAmount = payments.reduce((sum, payment, index) => {
-    if (!isCashPayment(payment)) {
-      return sum;
+    if (isRoomPaymentType(payment?.payment_type)) {
+      deferredBreakdown[label] = (deferredBreakdown[label] ?? 0) + amount;
+      roomAmount += amount;
+      return;
     }
-    return sum + appliedAmounts[index];
-  }, 0);
+    if (isCreditPaymentType(payment?.payment_type)) {
+      deferredBreakdown[label] = (deferredBreakdown[label] ?? 0) + amount;
+      creditAmount += amount;
+      return;
+    }
+    nonCashBreakdown[label] = (nonCashBreakdown[label] ?? 0) + amount;
+  });
 
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);
-  const totalReceivedWithChange = payments.reduce((sum, payment) => sum + getTenderedAmount(payment), 0);
+  const deferredAmount = safeNumber(roomAmount + creditAmount);
   const amountCollected = safeNumber(cashAmount + nonCashAmount);
+  const amountApplied = safeNumber(amountCollected + deferredAmount);
+  const totalReceivedWithChange = payments.reduce((sum, payment) => sum + getTenderedAmount(payment), 0);
 
   return {
     amountCollected,
     cashAmount,
     nonCashAmount,
     nonCashBreakdown,
-    change: safeNumber(totalReceivedWithChange - amountCollected),
+    deferredAmount,
+    deferredBreakdown,
+    roomAmount: safeNumber(roomAmount),
+    creditAmount: safeNumber(creditAmount),
+    amountApplied,
+    change: safeNumber(totalReceivedWithChange - amountApplied),
     totalReceivedWithChange,
   };
 };
@@ -429,10 +460,10 @@ export const getOrderAmountDueFromPayments = (order: OrderModel): number => {
   return getOrderSettlementFigures(order).grandTotalDue;
 };
 
-/** Collected minus amount due (zero when payment matches checkout payable). */
+/** Applied tenders (till + Room/Credit) minus amount due. */
 export const getOrderRounding = (order: OrderModel): number => {
   const amountDue = getOrderAmountDueFromPayments(order);
-  return safeNumber(getOrderPaymentTotals(order).amountCollected - amountDue);
+  return safeNumber(getOrderPaymentTotals(order).amountApplied - amountDue);
 };
 
 const ORDER_STATUS_I18N_KEY: Partial<Record<OrderStatus, string>> = {

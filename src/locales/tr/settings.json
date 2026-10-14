@@ -110,7 +110,7 @@
   },
   "closingCycle": {
     "title": "Kapanış döngüsü",
-    "description": "Döngü başlangıç ve bitiş saatini yapılandırın. Bitiş saati ertesi gün olabilir (örnek: 06:00 - 02:00).",
+    "description": "Döngü başlangıç ve bitiş saatini yapılandırın. Bitiş saati ertesi gün olabilir (örnek: 06:00 - 04:00). Bitişten sonra kasa, satışlara devam etmeden önce gün sonu kapanışını yapmalıdır.",
     "startTime": "Başlangıç saati",
     "endTime": "Bitiş saati",
     "updated": "Kapanış döngüsü ayarları güncellendi",

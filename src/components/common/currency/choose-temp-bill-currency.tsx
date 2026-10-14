@@ -12,19 +12,33 @@ import {
 import { useCurrencyDisplay } from "@/hooks/useCurrencyDisplay.ts";
 import { cn } from "@/lib/utils.ts";
 
+type DocumentKind = "temp" | "proforma" | "folio";
+
 type Props = {
   defaultCurrency?: PayCurrencyCode;
+  documentKind?: DocumentKind;
   onChoose: (code: PayCurrencyCode) => void;
   onCancel: () => void;
 };
 
-function TempBillCurrencyDialog({ defaultCurrency, onChoose, onCancel }: Props) {
+function printCurrencyCopy(documentKind: DocumentKind): { titleKey: string; hintKey: string } {
+  if (documentKind === "proforma") {
+    return { titleKey: "printCurrency.proformaTitle", hintKey: "printCurrency.proformaHint" };
+  }
+  if (documentKind === "folio") {
+    return { titleKey: "printCurrency.folioTitle", hintKey: "printCurrency.folioHint" };
+  }
+  return { titleKey: "printCurrency.title", hintKey: "printCurrency.hint" };
+}
+
+function TempBillCurrencyDialog({ defaultCurrency, documentKind = "temp", onChoose, onCancel }: Props) {
   const { t } = useTranslation("orders");
   useCurrencyDisplay();
   const options = getPayableCurrencies();
   const preferred = defaultCurrency && options.includes(defaultCurrency)
     ? defaultCurrency
     : (getAppCurrency() as PayCurrencyCode);
+  const copy = printCurrencyCopy(documentKind);
 
   return (
     <ModalOverlay
@@ -52,10 +66,10 @@ function TempBillCurrencyDialog({ defaultCurrency, onChoose, onCancel }: Props) 
           data-testid="temp-bill-currency-dialog"
         >
           <Heading slot="title" className="text-2xl font-semibold leading-6 my-0 text-neutral-700">
-            {t("printCurrency.title")}
+            {t(copy.titleKey)}
           </Heading>
           <p className="mt-3 text-neutral-600">
-            {t("printCurrency.hint")}
+            {t(copy.hintKey)}
           </p>
           <div className="mt-6 flex flex-col gap-3">
             {options.map((code) => (
@@ -90,15 +104,22 @@ function TempBillCurrencyDialog({ defaultCurrency, onChoose, onCancel }: Props) 
 }
 
 /**
- * Ask which currency to print the prebill in (HTG / USD).
+ * Ask which currency to print the prebill / proforma / stay folio in (HTG / USD).
  * Resolves to the chosen code, or null if cancelled.
  * When dual currency is not configured, resolves immediately to the app currency.
+ *
+ * `onBeforeResolve` runs synchronously on the currency button click (before the
+ * dialog unmounts) so callers can open a print window without losing the user gesture.
  */
 export function chooseTempBillCurrency(opts?: {
   defaultCurrency?: PayCurrencyCode;
+  documentKind?: DocumentKind;
+  onBeforeResolve?: (code: PayCurrencyCode) => void;
 }): Promise<PayCurrencyCode | null> {
   if (!shouldShowSecondaryCurrency()) {
-    return Promise.resolve(getAppCurrency() as PayCurrencyCode);
+    const code = getAppCurrency() as PayCurrencyCode;
+    opts?.onBeforeResolve?.(code);
+    return Promise.resolve(code);
   }
 
   return new Promise((resolve) => {
@@ -114,7 +135,11 @@ export function chooseTempBillCurrency(opts?: {
     root.render(
       <TempBillCurrencyDialog
         defaultCurrency={opts?.defaultCurrency}
-        onChoose={(code) => finish(code)}
+        documentKind={opts?.documentKind}
+        onChoose={(code) => {
+          opts?.onBeforeResolve?.(code);
+          finish(code);
+        }}
         onCancel={() => finish(null)}
       />,
     );

@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "Mevcut döngü kapatılana veya mevcut döngü kapanışı silinene kadar giriş devre dışı.",
-    "cycleEnded": "Kapanış döngüsü {{time}} saatinde sona erdi. Henüz yapılmadıysa lütfen gün sonu kapanışını tamamlayın."
+    "cycleEnded": "Kapanış döngüsü {{time}} saatinde sona erdi. Satışlara devam etmeden önce kasa gün sonu kapanışını tamamlamalıdır."
   },
   "window": {
     "cycle": "Döngü",

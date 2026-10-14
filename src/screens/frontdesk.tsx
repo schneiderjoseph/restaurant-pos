@@ -9,6 +9,7 @@ import { Input } from '@/components/common/input/input.tsx';
 import { useDB } from '@/api/db/db.ts';
 import { Tables } from '@/api/db/tables.ts';
 import type { Customer } from '@/api/model/customer.ts';
+import type { Order } from '@/api/model/order.ts';
 import type { Stay } from '@/api/model/stay.ts';
 import type { Table } from '@/api/model/table.ts';
 import { appPage } from '@/store/jotai.ts';
@@ -16,7 +17,13 @@ import { useModuleAccess } from '@/providers/module-access.provider.tsx';
 import { RECEIVE_PAYMENT_MODULE } from '@/lib/payment-access.ts';
 import { loadResortChambresFloor } from '@/lib/resort-floor-tables.ts';
 import { normalizeRoomKey } from '@/lib/room-key.ts';
-import { formatGuestLabel, generateWalkInGuestCode, isAsiGuest } from '@/lib/guest.ts';
+import {
+  dropSupersededStays,
+  formatGuestLabel,
+  generateWalkInGuestCode,
+  isAsiGuest,
+  searchGuests,
+} from '@/lib/guest.ts';
 import { walkInRefusal } from '@/lib/customer-id-document.ts';
 import {
   createWalkInCustomer,
@@ -35,26 +42,67 @@ import {
   extendStay,
   findAsiOccupant,
   findAsiTakeover,
+  isStayOverdue,
   isStayRoomSettled,
+  customerRoomFolioTotal,
+  listAsiInHouseGuests,
   listOpenStays,
-  listRoomConflicts,
+  listRoomChargedOrders,
+  loadCustomerRoomFolioOrders,
+  loadInHouseRoomOccupancy,
   loadOpenOrdersForCustomer,
-  loadStayRoomPayments,
+  loadStayFolioOrders,
   loadStayRoomTotal,
+  loadStaySettlements,
   moveStay,
+  orderRoomLabel,
   settleStayRoom,
   stayRoomOutstanding,
 } from '@/lib/stay.service.ts';
+import {
+  buildStayFolioBillHtml,
+  getStayBillLabels,
+  openStayBillPrintWindow,
+  orderRoomChargeAmount,
+  type StayBillLang,
+  writeAndPrintStayBillWindow,
+} from '@/lib/stay-folio-bill.ts';
 import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
-import { nowInAppTimezone } from '@/lib/datetime.ts';
-import { withCurrency } from '@/lib/utils.ts';
+import { getAppTimezone, nowInAppTimezone, toLuxonDateTime } from '@/lib/datetime.ts';
+import { DateTime } from 'luxon';
+import { RoomOrderModal } from '@/components/frontdesk/room-order.modal.tsx';
+import { getInvoiceNumber } from '@/lib/order.ts';
+import { cn, withCurrency } from '@/lib/utils.ts';
+import { DualCurrency } from '@/components/common/currency/dual-currency.tsx';
+import { chooseTempBillCurrency } from '@/components/common/currency/choose-temp-bill-currency.tsx';
 import { PhoneInput } from '@/components/customer/phone.input.tsx';
 import { CustomerMatchesModal } from '@/components/customer/customer.matches.modal.tsx';
 import type { PaymentType } from '@/api/model/payment_type.ts';
 import { isRoomPaymentType } from '@/lib/room-charge.ts';
+import { isCreditPaymentType } from '@/lib/credit-charge.ts';
+import {
+  CreditServiceError,
+  customerCreditFolioTotal,
+  customerCreditOutstanding,
+  isCustomerCreditSettled,
+  listCreditCustomers,
+  loadCustomerCreditFolioOrders,
+  loadCustomerCreditSettledTotal,
+  orderCreditChargeTotal,
+  settleCustomerCredit,
+} from '@/lib/credit.service.ts';
 import useApi, { type SettingsData } from '@/api/db/use.api.ts';
+import {
+  getCachedRestaurantLogoDataUrl,
+  getCachedRestaurantProfile,
+} from '@/lib/restaurant-profile.ts';
+import type { PayCurrencyCode } from '@/lib/currency.ts';
 
-type TabId = 'stays' | 'checkin' | 'clients' | 'conflicts';
+type TabId = 'stays' | 'room' | 'checkin' | 'clients' | 'conflicts' | 'credit';
+/** Manual stay or ASI in-house guest selected in the room-folio panel. */
+type FolioSelection =
+  | { kind: 'manual'; stayId: string }
+  | { kind: 'asi'; customerId: string };
 
 const todayYmd = () => nowInAppTimezone().toISODate() ?? '';
 
@@ -62,6 +110,11 @@ const guestOf = (stay: Stay): Customer | undefined => {
   const c = stay.customer;
   if (c && typeof c === 'object' && 'name' in c) return c as Customer;
   return undefined;
+};
+
+const selectionKey = (sel: FolioSelection | null): string => {
+  if (!sel) return '';
+  return sel.kind === 'manual' ? `manual:${sel.stayId}` : `asi:${sel.customerId}`;
 };
 
 export const FrontDeskScreen = () => {
@@ -78,12 +131,20 @@ export const FrontDeskScreen = () => {
 
   const [tab, setTab] = useState<TabId>('stays');
   const [stays, setStays] = useState<Stay[]>([]);
+  const [asiGuests, setAsiGuests] = useState<Customer[]>([]);
   const [conflicts, setConflicts] = useState<Array<{ roomKey: string; guests: Customer[] }>>([]);
   const [rooms, setRooms] = useState<Table[]>([]);
   const [occupiedKeys, setOccupiedKeys] = useState<Set<string>>(new Set());
-  const [selectedStayId, setSelectedStayId] = useState<string>('');
+  const [selection, setSelection] = useState<FolioSelection | null>(null);
+  /** Order whose full receipt is open in the viewer. */
+  const [viewOrderId, setViewOrderId] = useState<unknown>(null);
+  const [roomFrom, setRoomFrom] = useState(() => nowInAppTimezone().minus({ days: 6 }).toISODate() ?? '');
+  const [roomTo, setRoomTo] = useState(() => todayYmd());
+  const [roomSearch, setRoomSearch] = useState('');
+  const [roomOrders, setRoomOrders] = useState<Order[]>([]);
+  const [roomLoading, setRoomLoading] = useState(false);
   const [folioTotal, setFolioTotal] = useState(0);
-  const [folioLines, setFolioLines] = useState<Array<{ id: unknown; amount?: number; comments?: string }>>([]);
+  const [folioOrders, setFolioOrders] = useState<Order[]>([]);
   const [openOrders, setOpenOrders] = useState<Array<{ id: unknown; invoice_number?: unknown }>>([]);
   const [busy, setBusy] = useState(false);
   /** ASI guest who took the selected stay's room after the manual check-in. */
@@ -91,11 +152,11 @@ export const FrontDeskScreen = () => {
   /** After checking out a stay ASI took over: offer to fold the manual record into the ASI one. */
   const [mergeOffer, setMergeOffer] = useState<{ manual: Customer; asi: Customer } | null>(null);
 
-  // Check-in form
+  // Check-in form (several rooms allowed for one guest)
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [idDocument, setIdDocument] = useState('');
-  const [room, setRoom] = useState('');
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [dateIn, setDateIn] = useState(todayYmd);
   const [dateOut, setDateOut] = useState(todayYmd);
   const [notes, setNotes] = useState('');
@@ -104,9 +165,9 @@ export const FrontDeskScreen = () => {
   const [forceCreateNew, setForceCreateNew] = useState(false);
   const [settlePaymentTypeId, setSettlePaymentTypeId] = useState('');
 
-  // Client search
+  // Client registry (hotel guests — same scope as Client / guest lookup)
   const [clientSearch, setClientSearch] = useState('');
-  const [clientHits, setClientHits] = useState<Customer[]>([]);
+  const [clientRegistry, setClientRegistry] = useState<Customer[]>([]);
 
   const [moveRoom, setMoveRoom] = useState('');
   const [extendDate, setExtendDate] = useState('');
@@ -121,42 +182,67 @@ export const FrontDeskScreen = () => {
 
   const settlePaymentTypes = useMemo(
     () => (paymentTypesData?.data ?? []).filter(
-      (pt) => !isRoomPaymentType(pt) && String(pt.type ?? '').toLowerCase() !== 'credit',
+      (pt) => !isRoomPaymentType(pt) && !isCreditPaymentType(pt),
     ),
     [paymentTypesData],
   );
 
+  const [creditCustomers, setCreditCustomers] = useState<Customer[]>([]);
+  const [creditSelectionId, setCreditSelectionId] = useState<string | null>(null);
+  const [creditOrders, setCreditOrders] = useState<Order[]>([]);
+  const [creditCharged, setCreditCharged] = useState(0);
+  const [creditSettledAmt, setCreditSettledAmt] = useState(0);
+  const [creditSettleTenderId, setCreditSettleTenderId] = useState('');
+
+  const selectedCreditCustomer = useMemo(
+    () => creditCustomers.find((c) => String(c.id) === creditSelectionId),
+    [creditCustomers, creditSelectionId],
+  );
+  const creditDue = customerCreditOutstanding(creditCharged, creditSettledAmt);
+  const creditSettled = isCustomerCreditSettled(creditCharged, creditSettledAmt);
+
+  const refreshCreditPanel = useCallback(async () => {
+    const list = await listCreditCustomers(db);
+    setCreditCustomers(list);
+    if (creditSelectionId && !list.some((c) => String(c.id) === creditSelectionId)) {
+      setCreditSelectionId(null);
+    }
+  }, [db, creditSelectionId]);
+
   const selectedStay = useMemo(
-    () => stays.find((s) => String(s.id) === selectedStayId),
-    [stays, selectedStayId],
+    () => (selection?.kind === 'manual'
+      ? stays.find((s) => String(s.id) === selection.stayId)
+      : undefined),
+    [stays, selection],
   );
 
-  const folioOutstanding = stayRoomOutstanding(folioTotal, selectedStay?.settled_amount);
-  const folioSettled = isStayRoomSettled(folioTotal, selectedStay?.settled_amount);
+  const selectedAsiGuest = useMemo(
+    () => (selection?.kind === 'asi'
+      ? asiGuests.find((g) => String(g.id) === selection.customerId)
+      : undefined),
+    [asiGuests, selection],
+  );
+
+  const isAsiSelection = selection?.kind === 'asi';
+  const folioOutstanding = isAsiSelection
+    ? folioTotal
+    : stayRoomOutstanding(folioTotal, selectedStay?.settled_amount);
+  const folioSettled = isAsiSelection
+    ? folioTotal <= 0.009
+    : isStayRoomSettled(folioTotal, selectedStay?.settled_amount);
 
   const refresh = useCallback(async () => {
-    const [open, conflictList, chambres] = await Promise.all([
+    const [open, asi, chambres, occupancy] = await Promise.all([
       listOpenStays(db),
-      listRoomConflicts(db),
+      listAsiInHouseGuests(db),
       loadResortChambresFloor(db),
+      loadInHouseRoomOccupancy(db),
     ]);
     setStays(open);
-    setConflicts(conflictList);
+    setAsiGuests(asi);
+    setConflicts(occupancy.conflicts);
     setRooms(chambres?.tables ?? []);
-
-    const inHouse = await db.query(
-      `SELECT room FROM ${Tables.customers}
-       WHERE ${ACTIVE_CUSTOMER}
-         AND (in_house = true OR tags CONTAINS 'in-house')
-         AND room != NONE AND room != NULL`,
-    );
-    const keys = new Set<string>();
-    const rows = Array.isArray(inHouse) ? inHouse[0] : [];
-    for (const row of Array.isArray(rows) ? rows : []) {
-      const key = normalizeRoomKey((row as { room?: string }).room);
-      if (key) keys.add(key);
-    }
-    setOccupiedKeys(keys);
+    setOccupiedKeys(new Set(occupancy.byRoomKey.keys()));
   }, [db]);
 
   useEffect(() => {
@@ -164,9 +250,21 @@ export const FrontDeskScreen = () => {
   }, [refresh]);
 
   useEffect(() => {
-    if (!selectedStay?.id) {
+    if (selection?.kind === 'manual') {
+      const stillThere = stays.some((s) => String(s.id) === selection.stayId);
+      if (!stillThere) setSelection(null);
+      return;
+    }
+    if (selection?.kind === 'asi') {
+      const stillThere = asiGuests.some((g) => String(g.id) === selection.customerId);
+      if (!stillThere) setSelection(null);
+    }
+  }, [stays, asiGuests, selection]);
+
+  useEffect(() => {
+    if (!selectedStay?.id && !selectedAsiGuest?.id) {
       setFolioTotal(0);
-      setFolioLines([]);
+      setFolioOrders([]);
       setOpenOrders([]);
       setAsiTakeover(undefined);
       return;
@@ -174,28 +272,43 @@ export const FrontDeskScreen = () => {
     let cancelled = false;
     setAsiTakeover(undefined);
     void (async () => {
-      const [total, lines, orders, takeover] = await Promise.all([
+      if (selectedAsiGuest?.id) {
+        const [stayOrders, open] = await Promise.all([
+          loadCustomerRoomFolioOrders(db, selectedAsiGuest.id),
+          loadOpenOrdersForCustomer(db, selectedAsiGuest.id),
+        ]);
+        if (cancelled) return;
+        setFolioOrders(stayOrders);
+        setFolioTotal(customerRoomFolioTotal(stayOrders));
+        setOpenOrders(open);
+        return;
+      }
+      if (!selectedStay?.id) return;
+      const [total, stayOrders, open, takeover] = await Promise.all([
         loadStayRoomTotal(db, selectedStay.id),
-        loadStayRoomPayments(db, selectedStay.id),
+        loadStayFolioOrders(db, selectedStay.id),
         loadOpenOrdersForCustomer(db, selectedStay.customer),
         findAsiTakeover(db, selectedStay),
       ]);
       if (cancelled) return;
       setAsiTakeover(takeover);
       setFolioTotal(total);
-      setFolioLines(lines.map((line) => ({
-        id: line.id,
-        amount: Number(line.amount) || 0,
-        comments: line.comments,
-      })));
-      setOpenOrders(orders);
+      setFolioOrders(stayOrders);
+      setOpenOrders(open);
       setExtendDate(String(selectedStay.date_out ?? ''));
       setMoveRoom(String(selectedStay.room ?? ''));
     })().catch((error) => console.error('Folio load failed', error));
     return () => {
       cancelled = true;
     };
-  }, [db, selectedStay?.id, selectedStay?.date_out, selectedStay?.room, selectedStay?.customer]);
+  }, [
+    db,
+    selectedStay?.id,
+    selectedStay?.date_out,
+    selectedStay?.room,
+    selectedStay?.customer,
+    selectedAsiGuest?.id,
+  ]);
 
   const mapError = (error: unknown): string => {
     if (error instanceof StayServiceError) {
@@ -222,22 +335,28 @@ export const FrontDeskScreen = () => {
 
   const doCheckIn = async (customer: Customer) => {
     if (!canCheckIn) return;
+    const rooms = [...new Set(selectedRooms.map((r) => r.trim()).filter(Boolean))];
+    if (rooms.length === 0) {
+      toast.error(t('selectRoom'));
+      return;
+    }
     setBusy(true);
     try {
       if (isAsiGuest(customer) || customer.asi_checkin_id != null || customer.asi_guest_id != null) {
         throw new StayServiceError('asi_guest');
       }
-      const candidates = await collectRoomCandidates(db, room);
-      const asi = await findAsiOccupant(db, candidates);
-      if (asi) throw new StayServiceError('room_occupied_asi');
-
-      await checkInStay(db, {
-        customer,
-        room,
-        dateIn,
-        dateOut,
-        user: page?.user,
-      });
+      for (const room of rooms) {
+        const candidates = await collectRoomCandidates(db, room);
+        const asi = await findAsiOccupant(db, candidates);
+        if (asi) throw new StayServiceError('room_occupied_asi');
+        await checkInStay(db, {
+          customer,
+          room,
+          dateIn,
+          dateOut,
+          user: page?.user,
+        });
+      }
       // Notes only after a successful check-in, appended (never overwrite).
       if (notes.trim()) {
         const merged = appendCustomerNote(customer.notes, notes);
@@ -249,6 +368,7 @@ export const FrontDeskScreen = () => {
       setName('');
       setPhone('');
       setIdDocument('');
+      setSelectedRooms([]);
       setNotes('');
       setPickedCustomer(null);
       setWalkInMatches(null);
@@ -260,6 +380,12 @@ export const FrontDeskScreen = () => {
     } finally {
       setBusy(false);
     }
+  };
+
+  const toggleRoom = (number: string) => {
+    setSelectedRooms((prev) =>
+      prev.includes(number) ? prev.filter((r) => r !== number) : [...prev, number],
+    );
   };
 
   const onCreateAndCheckIn = async (confirmedNew = false) => {
@@ -325,7 +451,7 @@ export const FrontDeskScreen = () => {
       if (asiTakeover && can('admin.customers.merge')) {
         setMergeOffer({ manual: guest, asi: asiTakeover });
       }
-      setSelectedStayId('');
+      setSelection(null);
       await refresh();
     } catch (error) {
       toast.error(mapError(error));
@@ -381,6 +507,43 @@ export const FrontDeskScreen = () => {
     }
   };
 
+  const onSettleCredit = async () => {
+    if (!canSettle || !selectedCreditCustomer?.id || creditDue <= 0.009) return;
+    const paymentTypeId = creditSettleTenderId || settlePaymentTypes[0]?.id;
+    const paymentType = settlePaymentTypes.find((pt) => String(pt.id) === String(paymentTypeId))
+      ?? settlePaymentTypes[0];
+    if (!paymentType?.id) {
+      toast.error(t('selectSettleTender', { defaultValue: 'Choose Cash or Card' }));
+      return;
+    }
+    setBusy(true);
+    try {
+      await settleCustomerCredit(db, {
+        customerId: selectedCreditCustomer.id,
+        paymentTypeId: paymentType.id,
+        paymentType,
+        user: page?.user,
+      });
+      toast.success(t('creditSettledOk'));
+      const [orders, settled] = await Promise.all([
+        loadCustomerCreditFolioOrders(db, selectedCreditCustomer.id),
+        loadCustomerCreditSettledTotal(db, selectedCreditCustomer.id),
+      ]);
+      setCreditOrders(orders);
+      setCreditCharged(customerCreditFolioTotal(orders));
+      setCreditSettledAmt(settled);
+      await refreshCreditPanel();
+    } catch (error) {
+      if (error instanceof CreditServiceError) {
+        toast.error(t(`creditSettle_${error.code}`, { defaultValue: error.message }));
+      } else {
+        toast.error(mapError(error));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const onMove = async () => {
     if (!canMove || !selectedStay) return;
     setBusy(true);
@@ -409,84 +572,297 @@ export const FrontDeskScreen = () => {
     }
   };
 
-  const printFolio = () => {
-    if (!selectedStay) return;
-    const guest = guestOf(selectedStay);
-    const lines = folioLines.length
-      ? folioLines.map((l) => `${withCurrency(l.amount)} ${l.comments ?? ''}`).join('\n')
-      : t('emptyFolio');
-    const html = `<html><head><title>${t('folioTitle')}</title></head><body>
-      <h1>${t('folioTitle')}</h1>
-      <p>${formatGuestLabel(guest)} — ${t('room')} ${selectedStay.room}</p>
-      <p>${t('dateIn')}: ${selectedStay.date_in} — ${t('dateOut')}: ${selectedStay.date_out}</p>
-      <pre>${lines}</pre>
-      <p><strong>${t('roomTotal')}: ${withCurrency(folioTotal)}</strong></p>
-      </body></html>`;
-    const w = window.open('', '_blank', 'noopener,noreferrer,width=480,height=640');
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    w.print();
-  };
+  const printStayBill = async (
+    orders: Order[] | null,
+    opts?: {
+      singleOrder?: boolean;
+      lang?: StayBillLang;
+      /** Single slip printed from the Room charges list, outside any selected stay. */
+      context?: { guestName: string; room: string };
+    },
+  ) => {
+    if (!opts?.context && !selectedStay && !selectedAsiGuest) return;
+    const guest = opts?.context ? undefined : selectedAsiGuest ?? guestOf(selectedStay!);
+    const room = opts?.context?.room ?? String(selectedAsiGuest?.room ?? selectedStay?.room ?? '');
+    const dateIn = String(selectedStay?.date_in ?? '');
+    const dateOut = String(selectedAsiGuest?.asi_date_out ?? selectedStay?.date_out ?? '');
 
-  const searchClients = async () => {
-    const q = clientSearch.trim();
-    if (!q) {
-      setClientHits([]);
+    const lang: StayBillLang = opts?.lang === 'en' ? 'en' : 'fr';
+    // Open the print window on the currency-button click (user gesture) so the
+    // browser does not block it after the USD/HTG dialog.
+    let printWindow: Window | null = null;
+    const printCurrency = await chooseTempBillCurrency({
+      documentKind: 'folio',
+      onBeforeResolve: () => {
+        printWindow = openStayBillPrintWindow();
+      },
+    });
+    if (!printCurrency) return;
+    if (!printWindow) {
+      toast.error(t('toast:generic.error'));
       return;
     }
-    const rows = await db.query(
-      `SELECT * FROM ${Tables.customers}
-       WHERE ${ACTIVE_CUSTOMER}
-         AND (
-           string::lowercase(name ?? '') CONTAINS string::lowercase($q)
-           OR string::lowercase(guest_code ?? '') CONTAINS string::lowercase($q)
-           OR phone_e164 CONTAINS $q
-           OR tags CONTAINS 'manual-stay'
-         )
-       ORDER BY name ASC
-       LIMIT 40`,
-      { q },
-    );
-    const list = Array.isArray(rows) ? rows[0] : [];
-    setClientHits(Array.isArray(list) ? (list as Customer[]) : []);
+    setBusy(true);
+    try {
+      const loadOrders = async (): Promise<Order[]> => {
+        if (orders != null) return orders;
+        if (selectedAsiGuest?.id) return loadCustomerRoomFolioOrders(db, selectedAsiGuest.id);
+        if (selectedStay?.id) return loadStayFolioOrders(db, selectedStay.id);
+        return [];
+      };
+      const [settlements, loadedOrders] = await Promise.all([
+        opts?.singleOrder || !selectedStay?.id
+          ? Promise.resolve([])
+          : loadStaySettlements(db, selectedStay.id),
+        loadOrders(),
+      ]);
+      const profile = getCachedRestaurantProfile();
+      const contact = [profile.phone, profile.email].filter(Boolean).join(' · ');
+      const locale = lang === 'en' ? 'en-US' : 'fr-HT';
+      const roomTotal = selectedAsiGuest
+        ? customerRoomFolioTotal(loadedOrders)
+        : folioTotal;
+      const settledAmount = selectedAsiGuest ? 0 : Number(selectedStay?.settled_amount) || 0;
+      const outstanding = selectedAsiGuest
+        ? roomTotal
+        : stayRoomOutstanding(roomTotal, selectedStay?.settled_amount);
+      const html = buildStayFolioBillHtml({
+        guestName: opts?.context?.guestName ?? formatGuestLabel(guest),
+        room,
+        dateIn,
+        dateOut,
+        restaurantName: profile.name || undefined,
+        restaurantAddress: profile.address || undefined,
+        restaurantContact: contact || undefined,
+        restaurantLogoDataUrl: getCachedRestaurantLogoDataUrl(),
+        orders: loadedOrders,
+        roomTotal,
+        settledAmount,
+        outstanding,
+        settlements: settlements.map((row) => ({
+          amount: Number(row.amount) || 0,
+          label: row.payment_type?.name,
+          comments: row.comments,
+          at: row.created_at != null
+            ? new Date(String(row.created_at)).toLocaleString(locale)
+            : undefined,
+        })),
+        labels: getStayBillLabels(lang, { singleOrder: opts?.singleOrder }),
+        printedAt: new Date().toLocaleString(locale),
+        locale,
+        printCurrency: printCurrency as PayCurrencyCode,
+        // ASI has no POS settlement ledger — list charges only (check-out stays in ASI).
+        showStaySummary: !opts?.singleOrder && !selectedAsiGuest,
+      });
+      writeAndPrintStayBillWindow(printWindow, html);
+    } catch (error) {
+      console.error('Stay folio print failed', error);
+      try {
+        printWindow.close();
+      } catch {
+        // ignore
+      }
+      toast.error(t('toast:generic.error'));
+    } finally {
+      setBusy(false);
+    }
   };
+
+  const printFolio = async (lang: StayBillLang = 'fr') => {
+    await printStayBill(folioOrders.length > 0 ? folioOrders : null, { lang });
+  };
+
+  const printOneFiche = async (order: Order, lang: StayBillLang = 'fr') => {
+    await printStayBill([order], { singleOrder: true, lang });
+  };
+
+  /** Slip of one Room-charged order from the Room charges list (no stay selected). */
+  const printRoomOrder = async (order: Order, lang: StayBillLang = 'fr') => {
+    const guest = order.customer && typeof order.customer === 'object' ? order.customer : undefined;
+    await printStayBill([order], {
+      singleOrder: true,
+      lang,
+      context: { guestName: formatGuestLabel(guest), room: orderRoomLabel(order) },
+    });
+  };
+
+  const loadRoomOrders = useCallback(async () => {
+    const zone = getAppTimezone();
+    const from = DateTime.fromISO(roomFrom, { zone }).startOf('day');
+    const to = DateTime.fromISO(roomTo, { zone }).startOf('day').plus({ days: 1 });
+    if (!from.isValid || !to.isValid || to <= from) {
+      setRoomOrders([]);
+      return;
+    }
+    setRoomLoading(true);
+    try {
+      setRoomOrders(await listRoomChargedOrders(db, { from: from.toJSDate(), to: to.toJSDate() }));
+    } catch (error) {
+      console.error('Room charges load failed', error);
+      toast.error(t('toast:generic.error'));
+    } finally {
+      setRoomLoading(false);
+    }
+  }, [db, roomFrom, roomTo, t]);
+
+  useEffect(() => {
+    if (tab !== 'room') return;
+    void loadRoomOrders();
+  }, [tab, loadRoomOrders]);
+
+  const roomOrdersShown = useMemo(() => {
+    const q = roomSearch.trim().toLowerCase();
+    if (!q) return roomOrders;
+    return roomOrders.filter((order) => {
+      const guest = order.customer && typeof order.customer === 'object' ? order.customer : undefined;
+      return [orderRoomLabel(order), formatGuestLabel(guest), String(getInvoiceNumber(order))]
+        .some((value) => value.toLowerCase().includes(q));
+    });
+  }, [roomOrders, roomSearch]);
+  const roomOrdersTotal = roomOrdersShown.reduce((sum, order) => sum + orderRoomChargeAmount(order), 0);
+
+  // Same hotel registry as Client / guest lookup: in-house, walk-in, manual stay, local, notes.
+  const loadClientRegistry = useCallback(async () => {
+    try {
+      const [list] = await db.query<Customer[]>(
+        `SELECT * FROM ${Tables.customers}
+         WHERE ${ACTIVE_CUSTOMER} AND (
+            in_house = true OR tags CONTAINS 'in-house'
+            OR source = 'walk-in' OR tags CONTAINS 'walk-in'
+            OR tags CONTAINS 'manual-stay'
+            OR current_stay != NONE
+            OR source = 'local'
+            OR (notes != NONE AND notes != NULL AND notes != '')
+         )
+         ORDER BY in_house DESC, name
+         LIMIT 500`,
+      );
+      setClientRegistry(dropSupersededStays(Array.isArray(list) ? list : []));
+    } catch (error) {
+      console.error('Front Desk client registry failed', error);
+      setClientRegistry([]);
+    }
+  }, [db]);
+
+  useEffect(() => {
+    if (tab !== 'clients') return;
+    void loadClientRegistry();
+  }, [tab, loadClientRegistry]);
+
+  useEffect(() => {
+    if (tab !== 'credit') return;
+    void refreshCreditPanel().catch((error) => console.error('Credit customers load failed', error));
+  }, [tab, refreshCreditPanel]);
+
+  useEffect(() => {
+    // Clear first so the previous guest's folio does not flash under the new name.
+    setCreditOrders([]);
+    setCreditCharged(0);
+    setCreditSettledAmt(0);
+    if (!selectedCreditCustomer?.id) return;
+    let cancelled = false;
+    void (async () => {
+      const [orders, settled] = await Promise.all([
+        loadCustomerCreditFolioOrders(db, selectedCreditCustomer.id),
+        loadCustomerCreditSettledTotal(db, selectedCreditCustomer.id),
+      ]);
+      if (cancelled) return;
+      setCreditOrders(orders);
+      setCreditCharged(customerCreditFolioTotal(orders));
+      setCreditSettledAmt(settled);
+    })().catch((error) => console.error('Credit folio load failed', error));
+    return () => {
+      cancelled = true;
+    };
+  }, [db, selectedCreditCustomer?.id]);
+
+  const clientHits = useMemo(() => {
+    const found = searchGuests(clientRegistry, clientSearch);
+    return [...found.exact, ...found.close];
+  }, [clientRegistry, clientSearch]);
 
   const roomOptions = useMemo(() => {
     return [...rooms].sort((a, b) => String(a.number).localeCompare(String(b.number), undefined, { numeric: true }));
   }, [rooms]);
 
-  const tabs: Array<{ id: TabId; label: string }> = [
-    { id: 'stays', label: t('openStays') },
+  const tabs: Array<{ id: TabId; label: string; badge?: number }> = [
+    { id: 'stays', label: t('openStays'), badge: stays.length + asiGuests.length },
+    { id: 'room', label: t('roomChargesTab') },
     { id: 'checkin', label: t('checkIn') },
+    { id: 'credit', label: t('creditAccounts'), badge: creditCustomers.length || undefined },
     { id: 'clients', label: t('clients') },
-    { id: 'conflicts', label: t('conflicts') },
+    { id: 'conflicts', label: t('conflicts'), badge: conflicts.length || undefined },
   ];
 
-  return (
-    <Layout>
-      <DocumentTitle parts={[t('navigation:sidebar.frontdesk')]} />
-      <div className="p-4 max-w-6xl mx-auto space-y-4" data-testid="frontdesk-screen">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
+  const inHouseTotal = stays.length + asiGuests.length;
 
-        <div className="flex flex-wrap gap-2">
-          {tabs.map((item) => (
-            <Button
-              key={item.id}
-              variant={tab === item.id ? 'primary' : 'secondary'}
-              onClick={() => setTab(item.id)}
-              data-testid={`frontdesk-tab-${item.id}`}
-            >
-              {item.label}
-              {item.id === 'conflicts' && conflicts.length > 0 ? ` (${conflicts.length})` : ''}
-            </Button>
-          ))}
-        </div>
+  /** Manual stays past their departure day: check them out before ASI gives the room away. */
+  const overdueStays = useMemo(() => {
+    const today = todayYmd();
+    return stays
+      .filter((stay) => isStayOverdue(stay, today))
+      .sort((a, b) => String(a.date_out).localeCompare(String(b.date_out)));
+  }, [stays]);
+  const overdueIds = useMemo(() => new Set(overdueStays.map((stay) => String(stay.id))), [overdueStays]);
+
+  return (
+    <Layout overflowHidden containerClassName="h-full flex flex-col">
+      <DocumentTitle parts={[t('navigation:sidebar.frontdesk')]} />
+      <div
+        className="px-4 py-3 lg:px-6 w-full flex-1 min-h-0 flex flex-col gap-3"
+        data-testid="frontdesk-screen"
+      >
+        <header className="flex flex-wrap items-center justify-between gap-3 shrink-0">
+          <nav
+            className="flex flex-wrap gap-1.5 p-1 rounded-xl bg-neutral-100 border border-neutral-200"
+            aria-label={t('title')}
+          >
+            {tabs.map((item) => {
+              const active = tab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={cn(
+                    'min-h-11 px-3.5 rounded-lg text-sm font-semibold transition-colors',
+                    active
+                      ? 'bg-white text-neutral-900 shadow-sm border border-neutral-200'
+                      : 'text-neutral-600 hover:bg-white/70 border border-transparent',
+                    item.id === 'conflicts' && (item.badge ?? 0) > 0 && !active
+                      ? 'text-danger-700'
+                      : '',
+                  )}
+                  onClick={() => setTab(item.id)}
+                  data-testid={`frontdesk-tab-${item.id}`}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {item.label}
+                  {item.badge != null && item.badge > 0 ? (
+                    <span
+                      className={cn(
+                        'ml-1.5 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full text-xs',
+                        item.id === 'conflicts'
+                          ? 'bg-danger-100 text-danger-800'
+                          : 'bg-neutral-200 text-neutral-700',
+                      )}
+                    >
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </nav>
+          {tab === 'stays' && (
+            <p className="text-sm text-neutral-600">
+              {t('inHouseCount', { count: inHouseTotal, defaultValue: '{{count}} in house' })}
+            </p>
+          )}
+        </header>
 
         {mergeOffer && (
           <div
-            className="rounded-xl border border-primary-300 bg-primary-50 p-4 space-y-2"
+            className="rounded-xl border border-primary-300 bg-primary-50 p-4 space-y-2 shrink-0"
             data-testid="frontdesk-merge-asi"
           >
             <p className="font-semibold">
@@ -507,85 +883,452 @@ export const FrontDeskScreen = () => {
           </div>
         )}
 
-        {tab === 'stays' && (
-          <div className="grid lg:grid-cols-2 gap-4">
-            <div className="border rounded-xl p-3 space-y-2 bg-white">
-              <h2 className="font-semibold">{t('openStays')}</h2>
-              {stays.length === 0 && <p className="text-sm text-neutral-600">{t('noOpenStays')}</p>}
-              <ul className="space-y-2 max-h-[60vh] overflow-auto">
-                {stays.map((stay) => {
-                  const guest = guestOf(stay);
-                  return (
-                    <li key={String(stay.id)}>
-                      <button
-                        type="button"
-                        className={`w-full text-left rounded-lg border px-3 py-2 ${
-                          String(stay.id) === selectedStayId ? 'border-primary-500 bg-primary-50' : 'border-neutral-200'
-                        }`}
-                        onClick={() => setSelectedStayId(String(stay.id))}
-                        data-testid={`frontdesk-stay-${stay.id}`}
-                      >
-                        <div className="font-semibold">{formatGuestLabel(guest)}</div>
-                        <div className="text-sm text-neutral-600">
-                          {t('room')} {stay.room} · {stay.date_in} → {stay.date_out}
-                        </div>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+        {tab === 'stays' && overdueStays.length > 0 && (
+          <div
+            className="rounded-xl border border-warning-300 bg-warning-50 px-4 py-3 space-y-2 shrink-0"
+            data-testid="frontdesk-overdue"
+          >
+            <div>
+              <p className="font-semibold text-warning-900">
+                {t('overdueTitle', { count: overdueStays.length })}
+              </p>
+              <p className="text-sm text-warning-800">{t('overdueHint')}</p>
             </div>
-
-            <div className="border rounded-xl p-3 space-y-3 bg-white">
-              {!selectedStay && <p className="text-sm text-neutral-600">{t('openStays')}</p>}
-              {selectedStay && (
-                <>
-                  <h2 className="font-semibold">{formatGuestLabel(guestOf(selectedStay))}</h2>
-                  <p className="text-sm">
-                    {t('room')} {selectedStay.room} · {selectedStay.date_in} → {selectedStay.date_out}
-                  </p>
-                  {asiTakeover && (
-                    <p
-                      className="text-sm rounded-lg border border-danger-300 bg-danger-50 text-danger-800 px-3 py-2"
-                      role="status"
-                      data-testid="frontdesk-asi-takeover"
-                    >
-                      {t('asiTakeoverWarn', { name: formatGuestLabel(asiTakeover), room: selectedStay.room })}
-                    </p>
-                  )}
-                  <p className="text-sm font-semibold">
-                    {t('roomTotal')}: {withCurrency(folioTotal)}
-                    {' · '}
-                    {t('settledAmount', { defaultValue: 'Collected' })}: {withCurrency(Number(selectedStay.settled_amount) || 0)}
-                    {' · '}
-                    {t('outstanding', { defaultValue: 'Due' })}: {withCurrency(folioOutstanding)}
-                    {' '}
-                    {folioSettled ? (
-                      <span className="text-success-700">({t('settled')})</span>
-                    ) : (
-                      <span className="text-warning-700">({t('notSettled')})</span>
+            <div className="flex flex-wrap gap-2">
+              {overdueStays.map((stay) => {
+                const active = selectionKey({ kind: 'manual', stayId: String(stay.id) }) === selectionKey(selection);
+                return (
+                  <button
+                    key={String(stay.id)}
+                    type="button"
+                    className={cn(
+                      'min-h-11 px-3 rounded-lg border text-sm text-left flex items-center gap-2 transition-colors',
+                      active
+                        ? 'bg-white border-warning-500 shadow-sm'
+                        : 'bg-white/70 border-warning-300 hover:bg-white',
                     )}
-                  </p>
-                  {openOrders.length > 0 && (
-                    <p className="text-sm text-warning-800">{t('openOrdersWarn', { count: openOrders.length })}</p>
+                    onClick={() => setSelection({ kind: 'manual', stayId: String(stay.id) })}
+                    data-testid={`frontdesk-overdue-${stay.id}`}
+                  >
+                    <span className="font-bold tabular-nums">{stay.room}</span>
+                    <span className="truncate max-w-48">{formatGuestLabel(guestOf(stay))}</span>
+                    <span className="text-warning-800 tabular-nums">
+                      {t('overdueSince', { date: stay.date_out })}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {tab === 'stays' && (
+          <div className="grid lg:grid-cols-[minmax(280px,380px)_minmax(0,1fr)] gap-3 flex-1 min-h-0">
+            <aside className="border rounded-2xl bg-white flex flex-col min-h-0 h-full shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b shrink-0 flex items-center justify-between gap-2">
+                <h2 className="font-semibold">{t('openStays')}</h2>
+                <span className="text-xs font-medium text-neutral-500 tabular-nums">{inHouseTotal}</span>
+              </div>
+              {stays.length === 0 && asiGuests.length === 0 ? (
+                <p className="text-sm text-neutral-600 p-4">{t('noOpenStays')}</p>
+              ) : (
+                <ul className="flex-1 min-h-0 overflow-auto divide-y">
+                  {asiGuests.map((guest) => {
+                    const key = selectionKey({ kind: 'asi', customerId: String(guest.id) });
+                    const active = key === selectionKey(selection);
+                    return (
+                      <li key={key}>
+                        <button
+                          type="button"
+                          className={cn(
+                            'w-full text-left min-h-16 px-4 py-3 flex items-center gap-3 transition-colors',
+                            active ? 'bg-primary-50' : 'hover:bg-neutral-50',
+                          )}
+                          onClick={() => setSelection({ kind: 'asi', customerId: String(guest.id) })}
+                          data-testid={`frontdesk-asi-${guest.id}`}
+                        >
+                          <span className="shrink-0 inline-flex items-center justify-center min-w-12 h-10 px-2 rounded-lg bg-neutral-900 text-white text-sm font-bold tabular-nums">
+                            {guest.room}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block font-semibold truncate">{formatGuestLabel(guest)}</span>
+                            <span className="block text-sm text-neutral-600 truncate">
+                              {t('badgeAsi')}
+                              {guest.asi_date_out ? ` · → ${guest.asi_date_out}` : ''}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                  {stays.map((stay) => {
+                    const guest = guestOf(stay);
+                    const key = selectionKey({ kind: 'manual', stayId: String(stay.id) });
+                    const active = key === selectionKey(selection);
+                    return (
+                      <li key={key}>
+                        <button
+                          type="button"
+                          className={cn(
+                            'w-full text-left min-h-16 px-4 py-3 flex items-center gap-3 transition-colors',
+                            active ? 'bg-primary-50' : 'hover:bg-neutral-50',
+                          )}
+                          onClick={() => setSelection({ kind: 'manual', stayId: String(stay.id) })}
+                          data-testid={`frontdesk-stay-${stay.id}`}
+                        >
+                          <span className="shrink-0 inline-flex items-center justify-center min-w-12 h-10 px-2 rounded-lg bg-primary-700 text-white text-sm font-bold tabular-nums">
+                            {stay.room}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block font-semibold truncate">{formatGuestLabel(guest)}</span>
+                            <span className="block text-sm text-neutral-600 truncate">
+                              {t('badgeManualStay')} · {stay.date_in} → {stay.date_out}
+                              {overdueIds.has(String(stay.id)) && (
+                                <span className="ml-1.5 font-semibold text-warning-800">
+                                  · {t('overdueBadge')}
+                                </span>
+                              )}
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </aside>
+
+            <section className="border rounded-2xl bg-white flex flex-col min-h-0 h-full shadow-sm overflow-hidden">
+              {!selectedStay && !selectedAsiGuest ? (
+                <div className="flex-1 flex items-center justify-center p-8 text-center">
+                  <div className="max-w-sm space-y-2">
+                    <h2 className="text-lg font-semibold text-neutral-800">
+                      {t('pickStay', { defaultValue: 'Select a stay' })}
+                    </h2>
+                    <p className="text-sm text-neutral-600">
+                      {t('pickStayHelp', {
+                        defaultValue: 'Choose an open stay to view the folio, print invoices, collect payment, or check out.',
+                      })}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="px-4 py-3 border-b shrink-0 space-y-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="text-xl font-bold truncate">
+                          {formatGuestLabel(selectedAsiGuest ?? guestOf(selectedStay!))}
+                        </h2>
+                        <p className="text-sm text-neutral-600 mt-0.5">
+                          <span className="font-semibold text-neutral-800">
+                            {t('room')} {selectedAsiGuest?.room ?? selectedStay?.room}
+                          </span>
+                          {selectedStay
+                            ? ` · ${selectedStay.date_in} → ${selectedStay.date_out}`
+                            : (selectedAsiGuest?.asi_date_out ? ` · → ${selectedAsiGuest.asi_date_out}` : '')}
+                          {' · '}
+                          {selectedAsiGuest ? t('badgeAsi') : t('badgeManualStay')}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 shrink-0">
+                        <Button
+                          variant="secondary"
+                          disabled={busy || folioOrders.length === 0}
+                          onClick={() => void printFolio('fr')}
+                          data-testid="frontdesk-print-folio-fr"
+                        >
+                          {t('printAllFolioFr')}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          disabled={busy || folioOrders.length === 0}
+                          onClick={() => void printFolio('en')}
+                          data-testid="frontdesk-print-folio-en"
+                        >
+                          {t('printAllFolioEn')}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {selectedStay && asiTakeover && (
+                      <p
+                        className="text-sm rounded-lg border border-danger-300 bg-danger-50 text-danger-800 px-3 py-2"
+                        role="status"
+                        data-testid="frontdesk-asi-takeover"
+                      >
+                        {t('asiTakeoverWarn', { name: formatGuestLabel(asiTakeover), room: selectedStay.room })}
+                      </p>
+                    )}
+
+                    {selectedAsiGuest ? (
+                      <div className="rounded-xl bg-neutral-50 border px-4 py-3 flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                          <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('roomTotal')}</div>
+                          <DualCurrency amount={folioTotal} layout="inline" primaryClassName="text-xl font-bold" />
+                        </div>
+                        <p className="text-sm text-neutral-600">{t('asiFolioHint')}</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-xl bg-neutral-50 border px-3 py-2.5">
+                          <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('roomTotal')}</div>
+                          <DualCurrency amount={folioTotal} layout="stack" primaryClassName="text-lg font-bold" className="items-start" />
+                        </div>
+                        <div className="rounded-xl bg-neutral-50 border px-3 py-2.5">
+                          <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('settledAmount')}</div>
+                          <DualCurrency amount={Number(selectedStay?.settled_amount) || 0} layout="stack" primaryClassName="text-lg font-bold" className="items-start" />
+                        </div>
+                        <div className={cn(
+                          'rounded-xl border px-3 py-2.5',
+                          folioSettled ? 'bg-success-50 border-success-200' : 'bg-warning-50 border-warning-200',
+                        )}>
+                          <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('outstanding')}</div>
+                          <DualCurrency amount={folioOutstanding} layout="stack" primaryClassName="text-lg font-bold" className="items-start" />
+                          <div className={cn('text-xs font-semibold mt-1', folioSettled ? 'text-success-700' : 'text-warning-800')}>
+                            {folioSettled ? t('settled') : t('notSettled')}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {openOrders.length > 0 && (
+                      <p className="text-sm text-warning-800 font-medium">{t('openOrdersWarn', { count: openOrders.length })}</p>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-h-0 overflow-auto px-4 py-3 space-y-3">
+                    <h3 className="text-sm font-semibold text-neutral-700">{t('stayFiches')}</h3>
+                    {folioOrders.length === 0 ? (
+                      <p className="text-sm text-neutral-500 border border-dashed rounded-xl p-4 text-center">{t('emptyFolio')}</p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {folioOrders.map((order) => (
+                          <li
+                            key={String(order.id)}
+                            className="border rounded-xl px-3 py-3 flex justify-between gap-3 items-center bg-white hover:border-neutral-300"
+                            data-testid={`frontdesk-fiche-${order.id}`}
+                          >
+                            <div className="min-w-0">
+                              <div className="font-semibold">
+                                {t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}
+                              </div>
+                              <div className="text-sm text-neutral-600 flex flex-wrap items-center gap-x-2">
+                                <span>{toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}</span>
+                                <DualCurrency amount={orderRoomChargeAmount(order)} layout="inline" />
+                              </div>
+                            </div>
+                            <div className="flex gap-1.5 shrink-0">
+                              <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => setViewOrderId(order.id)}
+                                data-testid={`frontdesk-view-fiche-${order.id}`}
+                              >
+                                {t('viewOrder')}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                disabled={busy}
+                                onClick={() => void printOneFiche(order, 'fr')}
+                                data-testid={`frontdesk-print-fiche-fr-${order.id}`}
+                              >
+                                {t('printFicheFr')}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                disabled={busy}
+                                onClick={() => void printOneFiche(order, 'en')}
+                                data-testid={`frontdesk-print-fiche-en-${order.id}`}
+                              >
+                                {t('printFicheEn')}
+                              </Button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {selectedStay && canMove && (
+                      <div className="grid sm:grid-cols-2 gap-3 border-t pt-3">
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium">{t('move')}</label>
+                          <select
+                            className="w-full border rounded-lg px-3 py-2.5 min-h-11"
+                            value={moveRoom}
+                            onChange={(e) => setMoveRoom(e.target.value)}
+                          >
+                            {roomOptions.map((r) => (
+                              <option key={String(r.id)} value={String(r.number)}>
+                                {r.number}{r.asi_alias ? ` (${r.asi_alias})` : ''}
+                              </option>
+                            ))}
+                          </select>
+                          <Button size="sm" disabled={busy} onClick={() => void onMove()}>{t('move')}</Button>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-sm font-medium">{t('extend')}</label>
+                          <Input type="date" value={extendDate} onChange={(e) => setExtendDate(e.target.value)} />
+                          <Button size="sm" disabled={busy} onClick={() => void onExtend()}>{t('extend')}</Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedStay && (
+                    <div className="shrink-0 border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-end">
+                      {canSettle && folioOutstanding > 0 && (
+                        <>
+                          <div className="space-y-1">
+                            <label className="text-xs font-medium">{t('settleTender')}</label>
+                            <select
+                              className="border rounded-lg px-3 py-2.5 min-h-11 bg-white"
+                              value={settlePaymentTypeId || String(settlePaymentTypes[0]?.id ?? '')}
+                              onChange={(e) => setSettlePaymentTypeId(e.target.value)}
+                              data-testid="frontdesk-settle-tender"
+                            >
+                              {settlePaymentTypes.map((pt) => (
+                                <option key={String(pt.id)} value={String(pt.id)}>{pt.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <Button
+                            variant="primary"
+                            disabled={busy || settlePaymentTypes.length === 0}
+                            onClick={() => void onSettle()}
+                            data-testid="frontdesk-settle"
+                          >
+                            {t('settle')} ({withCurrency(folioOutstanding)})
+                          </Button>
+                        </>
+                      )}
+                      {!canSettle && folioOutstanding > 0 && (
+                        <p className="text-xs text-neutral-600 flex-1">{t('settleHint')}</p>
+                      )}
+                      {canCheckOut && (
+                        <Button
+                          variant="danger"
+                          disabled={busy || folioOutstanding > 0}
+                          onClick={() => void onCheckOut()}
+                          data-testid="frontdesk-checkout"
+                          className="ml-auto"
+                        >
+                          {t('confirmCheckout')}
+                        </Button>
+                      )}
+                    </div>
                   )}
-                  <ul className="text-sm max-h-32 overflow-auto border rounded p-2">
-                    {folioLines.length === 0 && <li>{t('emptyFolio')}</li>}
-                    {folioLines.map((line) => (
-                      <li key={String(line.id)}>{withCurrency(line.amount)} {line.comments}</li>
-                    ))}
-                  </ul>
-                  <div className="flex flex-wrap gap-2 items-end">
-                    <Button variant="secondary" onClick={printFolio}>{t('printFolio')}</Button>
-                    {canSettle && folioOutstanding > 0 && (
+                </>
+              )}
+            </section>
+          </div>
+        )}
+
+        {tab === 'credit' && (
+          <div className="grid lg:grid-cols-[minmax(280px,380px)_minmax(0,1fr)] gap-3 flex-1 min-h-0" data-testid="frontdesk-credit">
+            <aside className="border rounded-2xl bg-white flex flex-col min-h-0 h-full shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b shrink-0">
+                <h2 className="font-semibold">{t('creditAccounts')}</h2>
+              </div>
+              {creditCustomers.length === 0 ? (
+                <p className="text-sm text-neutral-600 p-4">{t('noCreditAccounts')}</p>
+              ) : (
+                <ul className="flex-1 min-h-0 overflow-auto divide-y">
+                  {creditCustomers.map((guest) => {
+                    const active = String(guest.id) === creditSelectionId;
+                    return (
+                      <li key={String(guest.id)}>
+                        <button
+                          type="button"
+                          className={cn(
+                            'w-full text-left min-h-16 px-4 py-3 transition-colors',
+                            active ? 'bg-primary-50' : 'hover:bg-neutral-50',
+                          )}
+                          onClick={() => setCreditSelectionId(String(guest.id))}
+                          data-testid={`frontdesk-credit-${guest.id}`}
+                        >
+                          <div className="font-semibold truncate">{formatGuestLabel(guest)}</div>
+                          <div className="text-sm text-neutral-600">
+                            {guest.credit_limit != null
+                              ? t('creditLimitLabel', { amount: withCurrency(Number(guest.credit_limit)) })
+                              : t('creditUnlimited')}
+                          </div>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </aside>
+
+            <section className="border rounded-2xl bg-white flex flex-col min-h-0 h-full shadow-sm overflow-hidden">
+              {!selectedCreditCustomer ? (
+                <div className="flex-1 flex items-center justify-center p-8 text-center">
+                  <p className="text-sm text-neutral-600">{t('creditPickCustomer')}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="px-4 py-3 border-b shrink-0 space-y-3">
+                    <h2 className="text-xl font-bold truncate">{formatGuestLabel(selectedCreditCustomer)}</h2>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="rounded-xl bg-neutral-50 border px-3 py-2.5">
+                        <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('creditCharged')}</div>
+                        <DualCurrency amount={creditCharged} layout="stack" primaryClassName="text-lg font-bold" className="items-start" />
+                      </div>
+                      <div className="rounded-xl bg-neutral-50 border px-3 py-2.5">
+                        <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('settledAmount')}</div>
+                        <DualCurrency amount={creditSettledAmt} layout="stack" primaryClassName="text-lg font-bold" className="items-start" />
+                      </div>
+                      <div className={cn(
+                        'rounded-xl border px-3 py-2.5',
+                        creditSettled ? 'bg-success-50 border-success-200' : 'bg-warning-50 border-warning-200',
+                      )}>
+                        <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('outstanding')}</div>
+                        <DualCurrency amount={creditDue} layout="stack" primaryClassName="text-lg font-bold" className="items-start" />
+                        <div className={cn('text-xs font-semibold mt-1', creditSettled ? 'text-success-700' : 'text-warning-800')}>
+                          {creditSettled ? t('creditSettled') : t('creditNotSettled')}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-auto px-4 py-3 space-y-2">
+                    <h3 className="text-sm font-semibold text-neutral-700">{t('creditOrders')}</h3>
+                    {creditOrders.length === 0 ? (
+                      <p className="text-sm text-neutral-500 border border-dashed rounded-xl p-4 text-center">{t('emptyCreditFolio')}</p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {creditOrders.map((order) => (
+                          <li
+                            key={String(order.id)}
+                            className="border rounded-xl px-3 py-3 flex justify-between gap-3 items-center"
+                            data-testid={`frontdesk-credit-order-${order.id}`}
+                          >
+                            <div className="min-w-0">
+                              <div className="font-semibold">
+                                {t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}
+                              </div>
+                              <div className="text-sm text-neutral-600 flex flex-wrap items-center gap-x-2">
+                                <span>{toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}</span>
+                                <DualCurrency amount={orderCreditChargeTotal(order)} layout="inline" />
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="shrink-0 border-t bg-neutral-50 px-4 py-3 flex flex-wrap gap-2 items-end">
+                    {canSettle && creditDue > 0 && (
                       <>
                         <div className="space-y-1">
-                          <label className="text-xs font-medium">{t('settleTender', { defaultValue: 'Tender' })}</label>
+                          <label className="text-xs font-medium">{t('settleTender')}</label>
                           <select
-                            className="border rounded px-2 py-2"
-                            value={settlePaymentTypeId || String(settlePaymentTypes[0]?.id ?? '')}
-                            onChange={(e) => setSettlePaymentTypeId(e.target.value)}
-                            data-testid="frontdesk-settle-tender"
+                            className="border rounded-lg px-3 py-2.5 min-h-11 bg-white"
+                            value={creditSettleTenderId || String(settlePaymentTypes[0]?.id ?? '')}
+                            onChange={(e) => setCreditSettleTenderId(e.target.value)}
+                            data-testid="frontdesk-credit-settle-tender"
                           >
                             {settlePaymentTypes.map((pt) => (
                               <option key={String(pt.id)} value={String(pt.id)}>{pt.name}</option>
@@ -595,115 +1338,119 @@ export const FrontDeskScreen = () => {
                         <Button
                           variant="primary"
                           disabled={busy || settlePaymentTypes.length === 0}
-                          onClick={() => void onSettle()}
-                          data-testid="frontdesk-settle"
+                          onClick={() => void onSettleCredit()}
+                          data-testid="frontdesk-credit-settle"
                         >
-                          {t('settle')} ({withCurrency(folioOutstanding)})
+                          {t('settleCredit')} ({withCurrency(creditDue)})
                         </Button>
                       </>
                     )}
-                    {!canSettle && folioOutstanding > 0 && (
-                      <p className="text-xs text-neutral-600 w-full">{t('settleHint')}</p>
-                    )}
-                    {canCheckOut && (
-                      <Button
-                        variant="danger"
-                        disabled={busy || (folioOutstanding > 0)}
-                        onClick={() => void onCheckOut()}
-                        data-testid="frontdesk-checkout"
-                      >
-                        {t('confirmCheckout')}
-                      </Button>
+                    {!canSettle && creditDue > 0 && (
+                      <p className="text-xs text-neutral-600 w-full">{t('creditSettleHint')}</p>
                     )}
                   </div>
-                  {canMove && (
-                    <div className="grid sm:grid-cols-2 gap-2 border-t pt-3">
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium">{t('move')}</label>
-                        <select
-                          className="w-full border rounded px-2 py-2"
-                          value={moveRoom}
-                          onChange={(e) => setMoveRoom(e.target.value)}
-                        >
-                          {roomOptions.map((r) => (
-                            <option key={String(r.id)} value={String(r.number)}>
-                              {r.number}{r.asi_alias ? ` (${r.asi_alias})` : ''}
-                            </option>
-                          ))}
-                        </select>
-                        <Button size="sm" disabled={busy} onClick={() => void onMove()}>{t('move')}</Button>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium">{t('extend')}</label>
-                        <Input type="date" value={extendDate} onChange={(e) => setExtendDate(e.target.value)} />
-                        <Button size="sm" disabled={busy} onClick={() => void onExtend()}>{t('extend')}</Button>
-                      </div>
-                    </div>
-                  )}
                 </>
               )}
-            </div>
+            </section>
           </div>
         )}
 
         {tab === 'checkin' && canCheckIn && (
-          <div className="border rounded-xl p-4 bg-white space-y-3 max-w-xl" data-testid="frontdesk-checkin">
-            <h2 className="font-semibold">{t('checkIn')}</h2>
-            <Input
-              placeholder={t('name')}
-              value={name}
-              onChange={(e) => { setName(e.target.value); setPickedCustomer(null); }}
-              data-testid="frontdesk-name"
-            />
-            <PhoneInput value={phone} onChange={setPhone} testId="frontdesk-phone" />
-            <Input
-              placeholder={t('idDocument')}
-              value={idDocument}
-              onChange={(e) => setIdDocument(e.target.value)}
-              data-testid="frontdesk-id"
-            />
-            <label className="block text-sm font-medium">{t('selectRoom')}</label>
-            <select
-              className="w-full border rounded px-2 py-2"
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-              data-testid="frontdesk-room"
-            >
-              <option value="">{t('selectRoom')}</option>
-              {roomOptions.map((r) => {
-                const key = normalizeRoomKey(r.number);
-                const occupied = key && occupiedKeys.has(key);
-                return (
-                  <option key={String(r.id)} value={String(r.number)} disabled={Boolean(occupied)}>
-                    {r.number}{r.asi_alias ? ` (${r.asi_alias})` : ''}{occupied ? ` — ${t('roomOccupied')}` : ''}
-                  </option>
-                );
-              })}
-            </select>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-sm">{t('dateIn')}</label>
-                <Input type="date" value={dateIn} onChange={(e) => setDateIn(e.target.value)} />
+          <div
+            className="border rounded-2xl bg-white shadow-sm flex-1 min-h-0 overflow-auto"
+            data-testid="frontdesk-checkin"
+          >
+            <div className="grid lg:grid-cols-2 gap-0 min-h-full">
+              <div className="p-5 space-y-3 border-b lg:border-b-0 lg:border-r">
+                <h2 className="text-lg font-bold">{t('checkIn')}</h2>
+                <Input
+                  placeholder={t('name')}
+                  value={name}
+                  onChange={(e) => { setName(e.target.value); setPickedCustomer(null); }}
+                  data-testid="frontdesk-name"
+                />
+                <PhoneInput value={phone} onChange={setPhone} testId="frontdesk-phone" />
+                <Input
+                  placeholder={t('idDocument')}
+                  value={idDocument}
+                  onChange={(e) => setIdDocument(e.target.value)}
+                  data-testid="frontdesk-id"
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium">{t('dateIn')}</label>
+                    <Input type="date" value={dateIn} onChange={(e) => setDateIn(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">{t('dateOut')}</label>
+                    <Input type="date" value={dateOut} onChange={(e) => setDateOut(e.target.value)} />
+                  </div>
+                </div>
+                <Input placeholder={t('notes')} value={notes} onChange={(e) => setNotes(e.target.value)} />
+                {pickedCustomer && (
+                  <p className="text-sm rounded-lg bg-primary-50 border border-primary-200 text-primary-900 px-3 py-2">
+                    {t('checkInExisting')}: {formatGuestLabel(pickedCustomer)}
+                  </p>
+                )}
               </div>
-              <div>
-                <label className="text-sm">{t('dateOut')}</label>
-                <Input type="date" value={dateOut} onChange={(e) => setDateOut(e.target.value)} />
+              <div className="p-5 flex flex-col gap-3 min-h-0">
+                <div>
+                  <label className="block text-sm font-semibold">{t('selectRooms')}</label>
+                  <p className="text-xs text-neutral-600 mt-0.5">{t('selectRoomsHelp')}</p>
+                </div>
+                <div
+                  className="flex-1 min-h-48 max-h-80 overflow-auto border rounded-xl p-2 grid grid-cols-2 sm:grid-cols-3 gap-1.5 content-start"
+                  data-testid="frontdesk-rooms"
+                >
+                  {roomOptions.map((r) => {
+                    const number = String(r.number);
+                    const key = normalizeRoomKey(r.number);
+                    const occupied = Boolean(key && occupiedKeys.has(key));
+                    const checked = selectedRooms.includes(number);
+                    return (
+                      <label
+                        key={String(r.id)}
+                        className={cn(
+                          'flex items-center gap-2 rounded-lg px-2.5 py-2.5 text-sm min-h-11 border',
+                          occupied && !checked
+                            ? 'opacity-50 cursor-not-allowed border-transparent'
+                            : 'hover:bg-neutral-50 cursor-pointer',
+                          checked ? 'bg-primary-50 border-primary-300' : 'border-transparent',
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={occupied && !checked}
+                          onChange={() => toggleRoom(number)}
+                          data-testid={`frontdesk-room-${number}`}
+                        />
+                        <span>
+                          {r.number}{r.asi_alias ? ` (${r.asi_alias})` : ''}
+                          {occupied && !checked ? ` — ${t('roomOccupied')}` : ''}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {selectedRooms.length > 0 && (
+                  <p className="text-sm text-primary-800 font-medium">
+                    {t('roomsSelected', { rooms: selectedRooms.join(', ') })}
+                  </p>
+                )}
+                <Button
+                  variant="primary"
+                  className="w-full justify-center min-h-12"
+                  disabled={busy || selectedRooms.length === 0 || (!name.trim() && !pickedCustomer)}
+                  onClick={() => void onCreateAndCheckIn()}
+                  data-testid="frontdesk-create-checkin"
+                >
+                  {pickedCustomer
+                    ? (pickedCustomer.in_house ? t('addRooms') : t('checkInExisting'))
+                    : t('createAndCheckIn')}
+                </Button>
               </div>
             </div>
-            <Input placeholder={t('notes')} value={notes} onChange={(e) => setNotes(e.target.value)} />
-            {pickedCustomer && (
-              <p className="text-sm text-primary-800">
-                {t('checkInExisting')}: {formatGuestLabel(pickedCustomer)}
-              </p>
-            )}
-            <Button
-              variant="primary"
-              disabled={busy || !room || (!name.trim() && !pickedCustomer)}
-              onClick={() => void onCreateAndCheckIn()}
-              data-testid="frontdesk-create-checkin"
-            >
-              {pickedCustomer ? t('checkInExisting') : t('createAndCheckIn')}
-            </Button>
           </div>
         )}
 
@@ -732,72 +1479,173 @@ export const FrontDeskScreen = () => {
         )}
 
         {tab === 'clients' && (
-          <div className="border rounded-xl p-4 bg-white space-y-3" data-testid="frontdesk-clients">
-            <h2 className="font-semibold">{t('clients')}</h2>
-            <div className="flex gap-2">
-              <Input
-                className="flex-1"
-                placeholder={t('searchGuest')}
-                value={clientSearch}
-                onChange={(e) => setClientSearch(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') void searchClients(); }}
-              />
-              <Button onClick={() => void searchClients()}>{t('searchGuest')}</Button>
+          <div className="border rounded-2xl bg-white shadow-sm space-y-3 flex-1 min-h-0 flex flex-col overflow-hidden" data-testid="frontdesk-clients">
+            <div className="px-4 py-3 border-b shrink-0 space-y-3">
+              <h2 className="font-semibold">{t('clients')}</h2>
+              <div className="flex gap-2">
+                <Input
+                  className="flex-1"
+                  placeholder={t('searchGuest')}
+                  value={clientSearch}
+                  onChange={(e) => setClientSearch(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') void loadClientRegistry(); }}
+                />
+                <Button onClick={() => void loadClientRegistry()}>{t('searchGuest')}</Button>
+              </div>
             </div>
-            <ul className="divide-y border rounded max-h-[60vh] overflow-auto">
-              {clientHits.map((c) => (
-                <li key={String(c.id)} className="px-3 py-2 flex items-center justify-between gap-2">
-                  <div>
-                    <div className="font-medium">{formatGuestLabel(c)}</div>
-                    <div className="text-xs text-neutral-600">
-                      {c.in_house ? `${t('room')} ${c.room}` : ''}
-                      {c.tags?.includes('manual-stay') ? ` · ${t('badgeManualStay')}` : ''}
-                      {isAsiGuest(c) ? ' · ASI' : ''}
+            {clientHits.length === 0 ? (
+              <p className="text-sm text-neutral-600 px-4" data-testid="frontdesk-clients-empty">
+                {t('noClients')}
+              </p>
+            ) : (
+              <ul className="divide-y flex-1 min-h-0 overflow-auto" data-testid="frontdesk-clients-list">
+                {clientHits.map((c) => (
+                  <li key={String(c.id)} className="px-4 py-3 min-h-16 flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex items-center gap-3">
+                      {c.in_house && c.room ? (
+                        <span className="shrink-0 inline-flex items-center justify-center min-w-12 h-10 px-2 rounded-lg bg-neutral-900 text-white text-sm font-bold tabular-nums">
+                          {c.room}
+                        </span>
+                      ) : null}
+                      <div className="min-w-0">
+                        <div className="font-semibold truncate">{formatGuestLabel(c)}</div>
+                        <div className="text-xs text-neutral-600">
+                          {c.tags?.includes('manual-stay') ? t('badgeManualStay') : ''}
+                          {isAsiGuest(c) ? `${c.tags?.includes('manual-stay') ? ' · ' : ''}${t('badgeAsi')}` : ''}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  {canCheckIn && !c.in_house && !isAsiGuest(c) && c.asi_checkin_id == null && (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setPickedCustomer(c);
-                        setName(c.name ?? '');
-                        setTab('checkin');
-                      }}
-                    >
-                      {t('checkIn')}
-                    </Button>
-                  )}
-                </li>
-              ))}
-            </ul>
+                    {canCheckIn && !isAsiGuest(c) && c.asi_checkin_id == null && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setPickedCustomer(c);
+                          setName(c.name ?? '');
+                          setTab('checkin');
+                        }}
+                      >
+                        {c.in_house ? t('addRooms') : t('checkIn')}
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {tab === 'room' && (
+          <div className="border rounded-2xl bg-white shadow-sm flex-1 min-h-0 flex flex-col overflow-hidden" data-testid="frontdesk-room-charges">
+            <div className="px-4 py-3 border-b shrink-0 flex flex-wrap items-end gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium">{t('roomChargesFrom')}</label>
+                <Input type="date" value={roomFrom} onChange={(e) => setRoomFrom(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium">{t('roomChargesTo')}</label>
+                <Input type="date" value={roomTo} onChange={(e) => setRoomTo(e.target.value)} />
+              </div>
+              <div className="space-y-1 flex-1 min-w-48">
+                <label className="text-xs font-medium">{t('roomChargesSearch')}</label>
+                <Input
+                  value={roomSearch}
+                  onChange={(e) => setRoomSearch(e.target.value)}
+                  placeholder={t('roomChargesSearchPlaceholder')}
+                />
+              </div>
+              <div className="text-right">
+                <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+                  {t('roomChargesCount', { count: roomOrdersShown.length })}
+                </div>
+                <DualCurrency amount={roomOrdersTotal} layout="inline" primaryClassName="text-lg font-bold" />
+              </div>
+            </div>
+            <div className="flex-1 min-h-0 overflow-auto">
+              {roomLoading ? (
+                <p className="text-sm text-neutral-500 p-6 text-center">{t('roomOrderLoading')}</p>
+              ) : roomOrdersShown.length === 0 ? (
+                <p className="text-sm text-neutral-500 p-6 text-center">{t('roomChargesEmpty')}</p>
+              ) : (
+                <ul className="divide-y">
+                  {roomOrdersShown.map((order) => {
+                    const guest = order.customer && typeof order.customer === 'object' ? order.customer : undefined;
+                    return (
+                      <li
+                        key={String(order.id)}
+                        className="px-4 py-3 flex flex-wrap items-center gap-3"
+                        data-testid={`frontdesk-room-charge-${order.id}`}
+                      >
+                        <span className="shrink-0 inline-flex items-center justify-center min-w-12 h-10 px-2 rounded-lg bg-neutral-900 text-white text-sm font-bold tabular-nums">
+                          {orderRoomLabel(order) || '—'}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold truncate">{formatGuestLabel(guest)}</div>
+                          <div className="text-sm text-neutral-600 flex flex-wrap items-center gap-x-2">
+                            <span>{t('menu:header.orderNumber', { number: getInvoiceNumber(order) })}</span>
+                            <span>{toLuxonDateTime(order.created_at).toFormat('dd LLL HH:mm')}</span>
+                          </div>
+                        </div>
+                        <DualCurrency amount={orderRoomChargeAmount(order)} layout="stack" primaryClassName="font-bold" />
+                        <div className="flex gap-1.5 shrink-0">
+                          <Button size="sm" variant="primary" onClick={() => setViewOrderId(order.id)}>
+                            {t('viewOrder')}
+                          </Button>
+                          <Button size="sm" variant="secondary" disabled={busy} onClick={() => void printRoomOrder(order, 'fr')}>
+                            {t('printFicheFr')}
+                          </Button>
+                          <Button size="sm" variant="secondary" disabled={busy} onClick={() => void printRoomOrder(order, 'en')}>
+                            {t('printFicheEn')}
+                          </Button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           </div>
         )}
 
         {tab === 'conflicts' && (
-          <div className="border rounded-xl p-4 bg-white space-y-2" data-testid="frontdesk-conflicts">
-            <h2 className="font-semibold">{t('conflicts')}</h2>
-            {conflicts.length === 0 && <p className="text-sm text-neutral-600">{t('noConflicts')}</p>}
-            <ul className="space-y-3">
-              {conflicts.map((c) => (
-                <li key={c.roomKey} className="border border-danger-300 rounded-lg p-3 bg-danger-50">
-                  <div className="font-semibold text-danger-800">
-                    {t('conflictBadge')} — {t('room')} {c.roomKey}
-                  </div>
-                  <ul className="text-sm mt-1">
-                    {c.guests.map((g) => (
-                      <li key={String(g.id)}>
-                        {formatGuestLabel(g)}
-                        {isAsiGuest(g) ? ' · ASI' : ''}
-                        {g.tags?.includes('manual-stay') ? ` · ${t('badgeManualStay')}` : ''}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
+          <div className="border rounded-2xl bg-white shadow-sm flex-1 min-h-0 overflow-auto" data-testid="frontdesk-conflicts">
+            <div className="px-4 py-3 border-b">
+              <h2 className="font-semibold">{t('conflicts')}</h2>
+            </div>
+            <div className="p-4 space-y-3">
+              {conflicts.length === 0 && <p className="text-sm text-neutral-600">{t('noConflicts')}</p>}
+              <ul className="space-y-3">
+                {conflicts.map((c) => (
+                  <li key={c.roomKey} className="border border-danger-300 rounded-xl p-4 bg-danger-50">
+                    <div className="font-semibold text-danger-800 flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center min-w-12 h-9 px-2 rounded-lg bg-danger-700 text-white text-sm font-bold tabular-nums">
+                        {c.roomKey}
+                      </span>
+                      {t('conflictBadge')}
+                    </div>
+                    <ul className="text-sm mt-2 space-y-1">
+                      {c.guests.map((g) => (
+                        <li key={String(g.id)}>
+                          {formatGuestLabel(g)}
+                          {isAsiGuest(g) ? ` · ${t('badgeAsi')}` : ''}
+                          {g.tags?.includes('manual-stay') ? ` · ${t('badgeManualStay')}` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         )}
       </div>
+      <RoomOrderModal
+        orderId={viewOrderId}
+        onClose={() => setViewOrderId(null)}
+        onPrint={(order, lang) => {
+          setViewOrderId(null);
+          void (tab === 'room' ? printRoomOrder(order, lang) : printOneFiche(order, lang));
+        }}
+      />
     </Layout>
   );
 };

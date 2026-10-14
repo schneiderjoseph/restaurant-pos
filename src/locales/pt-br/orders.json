@@ -57,6 +57,8 @@
     "ready": "Pronto",
     "itemReady": "Pronto",
     "paid": "Pago",
+    "room": "Quarto",
+    "credit": "Crédito",
     "cancelled": "Cancelado",
     "spilt": "Dividido",
     "merged": "Mesclado",
@@ -209,6 +211,10 @@
   "printCurrency": {
     "title": "Print prebill in",
     "hint": "Choose the currency for this prebill",
+    "proformaTitle": "Print proforma in",
+    "proformaHint": "Choose the currency for this quote / proforma",
+    "folioTitle": "Print invoice in",
+    "folioHint": "Choose USD or HTG for this stay bill",
     "cancel": "Cancel"
   },
   "loadingItems": "Carregando itens…",

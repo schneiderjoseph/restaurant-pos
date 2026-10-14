@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Conto provvisorio",
+  "proformaBill": "Proforma",
+  "proformaNote": "I prezzi possono variare. Questo non è una fattura finale.",
   "finalBill": "Conto finale",
   "duplicateFinalBill": "Copia conto finale",
   "delivery": "CONSEGNA",

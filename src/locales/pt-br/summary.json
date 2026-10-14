@@ -4,7 +4,8 @@
     "nextDate": "Próxima data",
     "printSummary": "Imprimir resumo",
     "productMixReport": "Relatório de Mix de Produtos",
-    "serverSales": "Vendas por Garçom"
+    "serverSales": "Vendas por Garçom",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "Imprimir resumo",
@@ -12,7 +13,8 @@
     "productMixDescription": "Relatório de mix de produtos",
     "productMixModule": "Relatório de mix de produtos",
     "serverSalesDescription": "Vendas por garçom",
-    "serverSalesModule": "Vendas por garçom"
+    "serverSalesModule": "Vendas por garçom",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "Desconhecido",
@@ -178,6 +180,16 @@
     "time": "Tempo",
     "guests": "Pess",
     "checks": "Contas",
-    "sale": "Venda"
+    "sale": "Venda",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

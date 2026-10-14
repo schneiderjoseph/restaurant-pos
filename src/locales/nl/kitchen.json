@@ -36,7 +36,7 @@
   },
   "confirm": {
     "title": "Bevestigen",
-    "completeAll": "Alle open bestellingen in deze keuken voltooien?"
+    "completeAll": "Alle open bestellingen op dit station voltooien?"
   },
   "due": {
     "forTime": "For {{time}}",

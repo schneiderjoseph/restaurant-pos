@@ -61,6 +61,8 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
   const [birthday, setBirthday] = useState('');
   const [vip, setVip] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [creditAllowed, setCreditAllowed] = useState(false);
+  const [creditLimit, setCreditLimit] = useState('');
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [{ taxes }] = useAtom(appSettings);
@@ -79,6 +81,12 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
     setBirthday(customer.birthday ?? '');
     setVip(Boolean(customer.vip));
     setConsent(Boolean(customer.marketing_consent));
+    setCreditAllowed(Boolean(customer.credit_allowed));
+    setCreditLimit(
+      customer.credit_limit != null && Number.isFinite(Number(customer.credit_limit))
+        ? String(customer.credit_limit)
+        : '',
+    );
     setNotes(customer.notes ?? '');
     setExemptTaxIds(getCustomerTaxExemptionIds(customer));
   }, [open, customer]);
@@ -117,6 +125,13 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
       const pendingAllergies = allergyDraft.trim()
         ? cleanList([...allergies, ...allergyDraft.split(/[,;]/)])
         : allergies;
+      const limitTrim = creditLimit.trim();
+      const parsedLimit = limitTrim === '' ? null : Number(limitTrim);
+      if (creditAllowed && limitTrim !== '' && (!Number.isFinite(parsedLimit) || (parsedLimit as number) < 0)) {
+        toast.error(t('menu:customer.creditLimitInvalid'));
+        setSaving(false);
+        return;
+      }
       let updated = await updateCustomer(
         db,
         customer.id,
@@ -128,6 +143,8 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
           birthday,
           vip,
           marketing_consent: consent,
+          credit_allowed: creditAllowed,
+          credit_limit: creditAllowed ? parsedLimit : null,
           notes,
         },
         page?.user,
@@ -250,7 +267,30 @@ export const CustomerPreferencesForm = ({ open, customer, onClose, onSaved }: Pr
           <Switch checked={consent} onChange={(event) => setConsent(event.target.checked)}>
             {t('menu:customer.marketingConsent')}
           </Switch>
+          <Switch
+            checked={creditAllowed}
+            onChange={(event) => setCreditAllowed(event.target.checked)}
+            data-testid="customer-credit-allowed"
+          >
+            {t('menu:customer.creditAllowed')}
+          </Switch>
         </section>
+
+        {creditAllowed && (
+          <section className="max-w-xs">
+            <Input
+              label={t('menu:customer.creditLimit')}
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder={t('menu:customer.creditLimitUnlimited')}
+              value={creditLimit}
+              onChange={(event) => setCreditLimit(event.target.value)}
+              data-testid="customer-credit-limit"
+            />
+            <p className="text-sm text-neutral-500 mt-1">{t('menu:customer.creditLimitHint')}</p>
+          </section>
+        )}
 
         {canExempt && (taxes ?? []).length > 0 && (
           <section>

@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "El registro está deshabilitado hasta que se cierre el ciclo actual, o elimine el cierre del ciclo actual.",
-    "cycleEnded": "El ciclo de cierre terminó a las {{time}}. Complete el cierre del día si aún no lo ha hecho."
+    "cycleEnded": "El ciclo de cierre terminó a las {{time}}. La caja debe completar el cierre del día antes de reanudar las ventas."
   },
   "window": {
     "cycle": "Ciclo",

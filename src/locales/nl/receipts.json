@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Voorlopige rekening",
+  "proformaBill": "Proforma",
+  "proformaNote": "Prijzen kunnen wijzigen. Dit is geen definitieve factuur.",
   "finalBill": "Eindafrekening",
   "duplicateFinalBill": "Dubbele eindafrekening",
   "delivery": "BEZORGING",

@@ -199,8 +199,14 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
       acc.amountCollected += paymentTotals.amountCollected;
       acc.cashPayments += paymentTotals.cashAmount;
       acc.nonCashPayments += paymentTotals.nonCashAmount;
+      acc.roomCharges += paymentTotals.roomAmount;
+      acc.creditCharges += paymentTotals.creditAmount;
+      acc.deferredCharges += paymentTotals.deferredAmount;
       Object.entries(paymentTotals.nonCashBreakdown).forEach(([typeName, amount]) => {
         acc.nonCashBreakdown[typeName] = (acc.nonCashBreakdown[typeName] ?? 0) + amount;
+      });
+      Object.entries(paymentTotals.deferredBreakdown).forEach(([typeName, amount]) => {
+        acc.deferredBreakdown[typeName] = (acc.deferredBreakdown[typeName] ?? 0) + amount;
       });
       return acc;
     },
@@ -210,6 +216,10 @@ export const aggregateSalesSummary = (orders: Order[], orderVoids: OrderVoid[]):
       cashPayments: 0,
       nonCashPayments: 0,
       nonCashBreakdown: {} as Record<string, number>,
+      roomCharges: 0,
+      creditCharges: 0,
+      deferredCharges: 0,
+      deferredBreakdown: {} as Record<string, number>,
     },
   );
 

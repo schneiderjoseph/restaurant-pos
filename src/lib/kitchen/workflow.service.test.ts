@@ -68,25 +68,32 @@ describe("kitchen fire time", () => {
 });
 
 describe("recallStage", () => {
-  const recallDb = (status: string) => {
+  const recallDb = (status: string, opts?: { workflow?: unknown; next?: unknown }) => {
     const updates: string[] = [];
+    const merges: unknown[] = [];
     const db = {
-      merge: vi.fn(),
+      merge: vi.fn(async (target: unknown, patch: unknown) => {
+        merges.push({ target, patch });
+      }),
       query: vi.fn(async (sql: string) => {
-        if (sql.startsWith("SELECT * FROM $oik")) {
+        if (sql.includes("WHERE id = $oik")) {
           return [[{
             id: id("order_item_kitchen:1"),
             status,
             completed_by: [{ toString: () => "user:other" }],
             order_item: id("order_item:1"),
             sequence: 0,
+            workflow: opts?.workflow,
           }]];
+        }
+        if (sql.includes("sequence > $seq")) {
+          return [opts?.next ? [opts.next] : []];
         }
         updates.push(sql);
         return [[]];
       }),
     };
-    return { db, updates };
+    return { db, updates, merges };
   };
 
   it("reopens a completed stage for everyone, whoever cleared it", async () => {
@@ -105,5 +112,49 @@ describe("recallStage", () => {
     await recallStage(db, "order_item_kitchen:1", "user:chef");
 
     expect(updates.filter((sql) => sql.includes("SET status = $pending"))).toHaveLength(0);
+  });
+
+  it("does not demote workflow stages when recalling a show-all mirror", async () => {
+    const next = {
+      id: id("order_item_kitchen:2"),
+      order_item: id("order_item:1"),
+      sequence: 1,
+      status: OrderItemKitchenStatus.Pending,
+    };
+    const { db, updates, merges } = recallDb(OrderItemKitchenStatus.Completed, { next });
+
+    await recallStage(db, "order_item_kitchen:1", "user:chef");
+
+    expect(updates.some((sql) => sql.includes("SET status = $pending"))).toBe(true);
+    expect(updates.some((sql) => sql.includes("SET status = $waiting"))).toBe(false);
+    expect(merges).toHaveLength(0);
+  });
+
+  it("rolls back the next workflow stage when recalling a real stage", async () => {
+    const next = {
+      id: id("order_item_kitchen:2"),
+      order_item: id("order_item:1"),
+      sequence: 1,
+      status: OrderItemKitchenStatus.Pending,
+    };
+    const { db, updates } = recallDb(OrderItemKitchenStatus.Completed, {
+      workflow: id("workflow:1"),
+      next,
+    });
+
+    await recallStage(db, "order_item_kitchen:1", "user:chef");
+
+    expect(updates.some((sql) => sql.includes("SET status = $waiting"))).toBe(true);
+  });
+
+  it("qualifies a bare kitchen row id before querying", async () => {
+    const { db } = recallDb(OrderItemKitchenStatus.Completed);
+
+    await recallStage(db, "barekeyonly", "user:chef");
+
+    const select = (db.query as ReturnType<typeof vi.fn>).mock.calls.find(
+      ([sql]) => String(sql).includes("WHERE id = $oik")
+    );
+    expect(String(select?.[1]?.oik)).toContain("order_item_kitchen:barekeyonly");
   });
 });

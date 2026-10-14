@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "Kapanış yüklenemedi",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "Bu döngü zaten kapatıldı.",
     "openOrders": "Açık siparişler var. Lütfen önce bunları kapatın.",
     "completed": "Kapanış başarıyla tamamlandı!",
@@ -50,7 +52,9 @@
     "noProductMix": "Ürün karışımı için öğe bulunamadı.",
     "noTimeEntries": "Bu tarih için tamamlanmış zaman kaydı bulunamadı.",
     "noServerSales": "Bu tarih için garson satış verisi bulunamadı.",
-    "loadFailed": "Bu tarihin siparişleri yüklenemedi."
+    "loadFailed": "Bu tarihin siparişleri yüklenemedi.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "Aktif zaman kaydı bulunamadı",

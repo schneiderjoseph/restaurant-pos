@@ -1,6 +1,7 @@
 import { Tables } from '@/api/db/tables.ts';
 import type { Floor } from '@/api/model/floor.ts';
 import type { Table } from '@/api/model/table.ts';
+import { normalizeRoomKey, splitGuestRooms } from '@/lib/room-key.ts';
 import { toRecordId } from '@/lib/utils.ts';
 
 /** Default count of numbered tables seeded for resort / ASI tablets. */
@@ -343,6 +344,27 @@ export async function findRoomByNumber(
     ),
   );
   return rows[0];
+}
+
+/**
+ * Resolve a floor room for a guest. `customer.room` may list several ("17, 25") —
+ * try each token (preferred room first when set).
+ */
+export async function findRoomForGuest(
+  db: AnyDb,
+  guestRoom: string | number | null | undefined,
+  preferredRoom?: string | number | null,
+): Promise<Table | undefined> {
+  const rooms = splitGuestRooms(guestRoom);
+  const pref = String(preferredRoom ?? '').trim();
+  const ordered = pref
+    ? [pref, ...rooms.filter((r) => normalizeRoomKey(r) !== normalizeRoomKey(pref))]
+    : rooms;
+  for (const room of ordered) {
+    const table = await findRoomByNumber(db, room);
+    if (table) return table;
+  }
+  return undefined;
 }
 
 /** Load Chambres floor + ASI rooms into cache (no seeding). */

@@ -4,138 +4,157 @@
     "total": "Toplam"
   },
   "actions": {
-    "toKitchen": "Gönder",
-    "payNow": "Şimdi Öde",
-    "cancel": "İptal"
+    "toKitchen": "GÃ¶nder",
+    "payNow": "Åžimdi Ã–de",
+    "cancel": "Ä°ptal"
   },
   "errors": {
-    "createOrder": "Sipariş oluşturulamadı.",
-    "openPayment": "Ödeme açılamadı.",
-    "noOrderType": "Tanımlı sipariş türü yok. Yönetim → Sipariş türleri bölümünden bir tane oluşturun, ardından önbelleği yeniden yükleyin."
+    "createOrder": "SipariÅŸ oluÅŸturulamadÄ±.",
+    "openPayment": "Ã–deme aÃ§Ä±lamadÄ±.",
+    "noOrderType": "TanÄ±mlÄ± sipariÅŸ tÃ¼rÃ¼ yok. YÃ¶netim â†’ SipariÅŸ tÃ¼rleri bÃ¶lÃ¼mÃ¼nden bir tane oluÅŸturun, ardÄ±ndan Ã¶nbelleÄŸi yeniden yÃ¼kleyin."
   },
   "tracking": {
-    "createOrder": "Sipariş oluştur",
-    "appendOrder": "Siparişe ekle"
+    "createOrder": "SipariÅŸ oluÅŸtur",
+    "appendOrder": "SipariÅŸe ekle"
   },
   "print": {
-    "kitchenTitle": "Mutfak yazdırma"
+    "kitchenTitle": "Mutfak yazdÄ±rma"
   },
-  "title": "Sipariş#{{invoice}}",
+  "title": "SipariÅŸ#{{invoice}}",
   "tabs": {
     "tax": "Vergi",
     "taxWithRate": "Vergi ({{label}})",
-    "discount": "İndirim",
+    "discount": "Ä°ndirim",
     "coupon": "Kupon",
-    "serviceCharges": "Servis ücretleri ({{value}}{{unit}})",
-    "tip": "Bahşiş ({{value}}{{unit}})",
+    "serviceCharges": "Servis Ã¼cretleri ({{value}}{{unit}})",
+    "tip": "BahÅŸiÅŸ ({{value}}{{unit}})",
     "notes": "Notlar",
     "total": "Toplam"
   },
   "totals": {
-    "items": "Ürünler ({{count}})"
+    "items": "ÃœrÃ¼nler ({{count}})"
   },
   "tax": {
     "noTax": "Vergi Yok"
   },
   "discount": {
-    "noDiscount": "İndirim yok",
-    "label": "İndirim",
+    "noDiscount": "Ä°ndirim yok",
+    "label": "Ä°ndirim",
     "withMaxCap": "maksimum {{amount}} ile",
-    "applied": "Uygulandı",
+    "applied": "UygulandÄ±",
     "automaticBadge": "Otomatik",
-    "selectItems": "Ürünleri seç",
+    "selectItems": "ÃœrÃ¼nleri seÃ§",
     "reason": "Neden",
-    "reasonNotes": "Notlar (isteğe bağlı)",
-    "apply": "İndirimi uygula"
+    "reasonNotes": "Notlar (isteÄŸe baÄŸlÄ±)",
+    "apply": "Ä°ndirimi uygula"
   },
   "coupon": {
     "codeLabel": "Kupon kodu",
     "applied": "Uygulanan kupon: {{code}}",
-    "discount": "İndirim: {{amount}}",
+    "discount": "Ä°ndirim: {{amount}}",
     "discountFromCoupon": "Kupondan indirim: {{amount}}",
     "errors": {
-      "notFound": "Kupon bulunamadı veya aktif değil",
-      "unsupportedType": "Bu kupon türü siparişlerde desteklenmiyor",
-      "belowMinimum": "Sipariş toplamı bu kupon için minimum tutarın altında",
-      "notValidToday": "Kupon bugün geçerli değil",
-      "notValidTime": "Kupon bu saatte geçerli değil",
-      "notActiveYet": "Kupon henüz aktif değil",
-      "expired": "Kuponun süresi doldu",
-      "usageLimitReached": "Kupon kullanım limitine ulaşıldı",
-      "userLimitReached": "Bu kupon için kullanım limitinize ulaştınız",
-      "firstOrderOnly": "Bu kupon yalnızca ilk siparişte geçerlidir",
-      "notStackable": "Bu kupon diğer indirimlerle birlikte kullanılamaz",
-      "noDiscount": "Bu kupon bu sipariş için herhangi bir indirim sağlamıyor"
+      "notFound": "Kupon bulunamadÄ± veya aktif deÄŸil",
+      "unsupportedType": "Bu kupon tÃ¼rÃ¼ sipariÅŸlerde desteklenmiyor",
+      "belowMinimum": "SipariÅŸ toplamÄ± bu kupon iÃ§in minimum tutarÄ±n altÄ±nda",
+      "notValidToday": "Kupon bugÃ¼n geÃ§erli deÄŸil",
+      "notValidTime": "Kupon bu saatte geÃ§erli deÄŸil",
+      "notActiveYet": "Kupon henÃ¼z aktif deÄŸil",
+      "expired": "Kuponun sÃ¼resi doldu",
+      "usageLimitReached": "Kupon kullanÄ±m limitine ulaÅŸÄ±ldÄ±",
+      "userLimitReached": "Bu kupon iÃ§in kullanÄ±m limitinize ulaÅŸtÄ±nÄ±z",
+      "firstOrderOnly": "Bu kupon yalnÄ±zca ilk sipariÅŸte geÃ§erlidir",
+      "notStackable": "Bu kupon diÄŸer indirimlerle birlikte kullanÄ±lamaz",
+      "noDiscount": "Bu kupon bu sipariÅŸ iÃ§in herhangi bir indirim saÄŸlamÄ±yor"
     },
-    "appliedSuccess": "Kupon uygulandı"
+    "appliedSuccess": "Kupon uygulandÄ±"
   },
   "serviceCharges": {
-    "defaultFromSettings": "Ayarlardan varsayılan:",
-    "noServiceCharge": "Servis ücreti yok"
+    "defaultFromSettings": "Ayarlardan varsayÄ±lan:",
+    "noServiceCharge": "Servis Ã¼creti yok"
   },
   "tip": {
-    "noTip": "Bahşiş Yok"
+    "noTip": "BahÅŸiÅŸ Yok"
   },
   "notes": {
     "title": "Notlar",
-    "hint": "Kart numaraları veya indirim yazabilirsiniz"
+    "hint": "Kart numaralarÄ± veya indirim yazabilirsiniz"
   },
   "receiving": {
     "remaining": "Kalan",
-    "change": "Para üstü",
-    "payIn": "Müşteri şu para biriminde öder",
-    "tempBill": "Geçici fatura",
+    "change": "Para Ã¼stÃ¼",
+    "payIn": "MÃ¼ÅŸteri ÅŸu para biriminde Ã¶der",
+    "tempBill": "GeÃ§ici fatura",
+    "proforma": "Proforma",
     "complete": "Tamamla",
     "completeAndPrint": "Complete & print",
-    "cannotAddCard": "Kart için daha fazla ödeme eklenemez",
-    "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi",
-    "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı",
-    "roomCheckedOut": "ASI’de çıkış yapıldı: bu misafir doğrudan öder, dışarıdan gelen müşteri gibi",
-    "roomSyncStale": "Konaklama doğrulanamıyor (ASI senkronizasyonu gecikti): misafir doğrudan öder",
-    "roomNotHotelGuest": "Odaya yazmak için konaklayan bir otel misafiri gerekir",
-    "roomDepartsToday": "Bugün ayrılış planlandı",
-    "fiscalFailed": "Mali gönderim başarısız",
-    "fiscalPartialFailure": "Bazı mali sağlayıcılar başarısız oldu; Entegrasyonlar kuyruğunu kontrol edin"
+    "cannotAddCard": "Kart iÃ§in daha fazla Ã¶deme eklenemez",
+    "exactCardAmount": "Kart tabanlÄ± Ã¶deme iÃ§in tam tutar eklendi",
+    "tempAlreadyPrinted": "GeÃ§ici fatura zaten yazdÄ±rÄ±ldÄ±",
+    "roomCheckedOut": "ASIâ€™de Ã§Ä±kÄ±ÅŸ yapÄ±ldÄ±: bu misafir doÄŸrudan Ã¶der, dÄ±ÅŸarÄ±dan gelen mÃ¼ÅŸteri gibi",
+    "roomSyncStale": "Konaklama doÄŸrulanamÄ±yor (ASI senkronizasyonu gecikti): misafir doÄŸrudan Ã¶der",
+    "roomNotHotelGuest": "Odaya yazmak iÃ§in konaklayan bir otel misafiri gerekir",
+    "roomDepartsToday": "BugÃ¼n ayrÄ±lÄ±ÅŸ planlandÄ±",
+    "fiscalFailed": "Mali gÃ¶nderim baÅŸarÄ±sÄ±z",
+    "fiscalPartialFailure": "BazÄ± mali saÄŸlayÄ±cÄ±lar baÅŸarÄ±sÄ±z oldu; Entegrasyonlar kuyruÄŸunu kontrol edin",
+    "creditNoCustomer": "Credit needs a registered customer on the order",
+    "creditNotAllowed": "This customer is not authorized for house credit",
+    "creditOverLimit": "This charge would exceed the customer's credit limit",
+    "creditDeleted": "This customer was removed: credit is not allowed",
+    "creditOutstanding": "House credit due: {{amount}}",
+    "creditSettle": "Collect credit",
+    "creditSettleTender": "Tender",
+    "creditSelectSettleTender": "Choose cash or card",
+    "creditSettledOk": "Credit account settled",
+    "creditSettleFailed": "Could not settle the credit account",
+    "creditSettleError": {
+      "nothing_to_settle": "Nothing left to collect on credit",
+      "invalid_settle": "Invalid credit settlement",
+      "bad_tender": "Settle credit with cash or card only",
+      "not_found": "Customer not found"
+    },
+    "cannotAddCredit": "Cannot add more credit: the ticket is already covered",
+    "exactCreditAmount": "Credit limited to the amount still due on this ticket"
   },
   "remote": {
     "remoteLabel": "{{name}} (Uzaktan)",
     "status": "Durum: {{status}}",
-    "openLink": "Bağlantıyı aç",
-    "verify": "Doğrula"
+    "openLink": "BaÄŸlantÄ±yÄ± aÃ§",
+    "verify": "DoÄŸrula"
   },
   "discountType": {
-    "percent": "Yüzde",
+    "percent": "YÃ¼zde",
     "fixed": "Sabit"
   },
   "remoteGateway": {
-    "missingProvider": "Uzaktan ödeme türünde ağ geçidi sağlayıcısı eksik.",
-    "linkGenerated": "Uzaktan ödeme bağlantısı oluşturuldu.",
-    "tokenGenerated": "Uzaktan token oluşturuldu: {{token}}",
-    "intentGenerated": "Uzaktan ödeme niyeti oluşturuldu.",
-    "paymentTimedOut": "{{gateway}} ödemesi zaman aşımına uğradı. Tekrar kontrol etmek için Doğrula'ya dokunun.",
-    "paymentStatus": "{{gateway}} ödemesi {{status}}.",
-    "completeOnPage": "{{gateway}} sayfasında ödemeyi tamamlayın, ardından POS'a dönün.",
-    "scanQr": "Ödemek için {{gateway}} uygulamasıyla QR kodu tarayın.",
-    "enterCardDetails": "Ödemeyi tamamlamak için aşağıya kart bilgilerini girin.",
-    "intentCreated": "{{gateway}} ödeme niyeti oluşturuldu.",
-    "usePaypalButton": "Ödemeyi tamamlamak için aşağıdaki PayPal düğmesini kullanın.",
-    "useRazorpayButton": "Ödemeyi tamamlamak için aşağıdaki Razorpay ile Öde'ye dokunun.",
-    "paymentFailed": "Ödeme başarısız.",
-    "paymentStatusLabel": "Ödeme durumu: {{status}}",
-    "paymentIs": "Ödeme {{status}}.",
-    "paypalPaymentIs": "PayPal ödemesi {{status}}.",
-    "razorpayPaymentFailed": "Razorpay ödemesi başarısız.",
-    "stripePaymentFailed": "Stripe ödemesi başarısız.",
-    "mpesaPhoneUnavailable": "M-Pesa telefon istemi kullanılamıyor.",
-    "mpesaPromptSent": "STK push {{phone}} numarasına gönderildi. M-Pesa PIN girmek için telefonu kontrol edin.",
-    "mpesaPromptSentGeneric": "STK push gönderildi. M-Pesa PIN girmek için telefonu kontrol edin.",
-    "mpesaInvalidPhone": "Geçerli bir M-Pesa numarası girin (2547XXXXXXXX veya 07XXXXXXXX).",
-    "verifiedAndAdded": "Uzaktan ödeme doğrulandı ve eklendi.",
-    "generateFailed": "Uzaktan ödeme bağlantısı/token oluşturulamadı",
-    "mustBePaid": "Ödeme {{status}}. Eklemeden önce ödenmiş/yetkilendirilmiş olmalıdır.",
-    "verifyFailed": "Uzaktan ödeme doğrulanamadı",
-    "paymentReceived": "{{gateway}} ödemesi alındı.",
-    "payWithCard": "Kartla öde",
-    "payWithRazorpay": "Razorpay ile öde"
+    "missingProvider": "Uzaktan Ã¶deme tÃ¼rÃ¼nde aÄŸ geÃ§idi saÄŸlayÄ±cÄ±sÄ± eksik.",
+    "linkGenerated": "Uzaktan Ã¶deme baÄŸlantÄ±sÄ± oluÅŸturuldu.",
+    "tokenGenerated": "Uzaktan token oluÅŸturuldu: {{token}}",
+    "intentGenerated": "Uzaktan Ã¶deme niyeti oluÅŸturuldu.",
+    "paymentTimedOut": "{{gateway}} Ã¶demesi zaman aÅŸÄ±mÄ±na uÄŸradÄ±. Tekrar kontrol etmek iÃ§in DoÄŸrula'ya dokunun.",
+    "paymentStatus": "{{gateway}} Ã¶demesi {{status}}.",
+    "completeOnPage": "{{gateway}} sayfasÄ±nda Ã¶demeyi tamamlayÄ±n, ardÄ±ndan POS'a dÃ¶nÃ¼n.",
+    "scanQr": "Ã–demek iÃ§in {{gateway}} uygulamasÄ±yla QR kodu tarayÄ±n.",
+    "enterCardDetails": "Ã–demeyi tamamlamak iÃ§in aÅŸaÄŸÄ±ya kart bilgilerini girin.",
+    "intentCreated": "{{gateway}} Ã¶deme niyeti oluÅŸturuldu.",
+    "usePaypalButton": "Ã–demeyi tamamlamak iÃ§in aÅŸaÄŸÄ±daki PayPal dÃ¼ÄŸmesini kullanÄ±n.",
+    "useRazorpayButton": "Ã–demeyi tamamlamak iÃ§in aÅŸaÄŸÄ±daki Razorpay ile Ã–de'ye dokunun.",
+    "paymentFailed": "Ã–deme baÅŸarÄ±sÄ±z.",
+    "paymentStatusLabel": "Ã–deme durumu: {{status}}",
+    "paymentIs": "Ã–deme {{status}}.",
+    "paypalPaymentIs": "PayPal Ã¶demesi {{status}}.",
+    "razorpayPaymentFailed": "Razorpay Ã¶demesi baÅŸarÄ±sÄ±z.",
+    "stripePaymentFailed": "Stripe Ã¶demesi baÅŸarÄ±sÄ±z.",
+    "mpesaPhoneUnavailable": "M-Pesa telefon istemi kullanÄ±lamÄ±yor.",
+    "mpesaPromptSent": "STK push {{phone}} numarasÄ±na gÃ¶nderildi. M-Pesa PIN girmek iÃ§in telefonu kontrol edin.",
+    "mpesaPromptSentGeneric": "STK push gÃ¶nderildi. M-Pesa PIN girmek iÃ§in telefonu kontrol edin.",
+    "mpesaInvalidPhone": "GeÃ§erli bir M-Pesa numarasÄ± girin (2547XXXXXXXX veya 07XXXXXXXX).",
+    "verifiedAndAdded": "Uzaktan Ã¶deme doÄŸrulandÄ± ve eklendi.",
+    "generateFailed": "Uzaktan Ã¶deme baÄŸlantÄ±sÄ±/token oluÅŸturulamadÄ±",
+    "mustBePaid": "Ã–deme {{status}}. Eklemeden Ã¶nce Ã¶denmiÅŸ/yetkilendirilmiÅŸ olmalÄ±dÄ±r.",
+    "verifyFailed": "Uzaktan Ã¶deme doÄŸrulanamadÄ±",
+    "paymentReceived": "{{gateway}} Ã¶demesi alÄ±ndÄ±.",
+    "payWithCard": "Kartla Ã¶de",
+    "payWithRazorpay": "Razorpay ile Ã¶de"
   }
 }

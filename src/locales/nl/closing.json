@@ -19,7 +19,7 @@
   },
   "guard": {
     "punchDisabled": "Invoeren is uitgeschakeld totdat de huidige cyclus is afgesloten, of verwijder de huidige cyclusafsluiting.",
-    "cycleEnded": "Afsluitingscyclus beëindigd om {{time}}. Voltooi de dagafsluiting als dit nog niet is gedaan."
+    "cycleEnded": "Afsluitingscyclus beëindigd om {{time}}. De kassa moet de dagafsluiting voltooien voordat de verkoop hervat."
   },
   "window": {
     "cycle": "Cyclus",

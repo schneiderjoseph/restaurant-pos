@@ -12,6 +12,7 @@ import { maskIdDocument } from '@/lib/customer-id-document.ts';
 import { visiblePhone } from '@/lib/phone.ts';
 import { formatGuestLabel } from '@/lib/guest.ts';
 import { calculateOrderNetSales, getInvoiceNumber, translateOrderStatus } from '@/lib/order.ts';
+import { orderDeferredCharges } from '@/lib/order-deferred-charge.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { withCurrency } from '@/lib/utils.ts';
 
@@ -174,7 +175,13 @@ export const CustomerDetail = ({ customer, canViewIdDocument, canViewPhone, onCl
                   <div className="text-sm text-neutral-500">
                     {toLuxonDateTime(order.created_at).toFormat('dd LLL yyyy HH:mm')}
                     {' · '}
-                    {translateOrderStatus(tOrders, order.status)}
+                    {(() => {
+                      const deferred = orderDeferredCharges(order);
+                      if (deferred.length > 0) {
+                        return deferred.map((k) => tOrders(k === 'room' ? 'status.room' : 'status.credit')).join(' · ');
+                      }
+                      return translateOrderStatus(tOrders, order.status);
+                    })()}
                   </div>
                 </div>
                 <div className="font-semibold whitespace-nowrap">{withCurrency(calculateOrderNetSales(order))}</div>

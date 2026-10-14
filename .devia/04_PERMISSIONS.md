@@ -11,7 +11,9 @@
 |---|---|---|
 | POS user (role modules) | Open modules listed on their `user_role.roles` (and legacy aliases) | Open modules not granted — sidebar/tabs hidden; deep links redirected |
 | Front Desk (seeded role) | `frontdesk.*` + `customers.create` / preferences / view phone & ID — screen `/frontdesk` | Menu, orders, `payments.receive`; does **not** get blanket identity edit on the server guest list (`canEditCustomerIdentity`) |
-| Cashier settling a folio | `payments.receive` (+ must open `/frontdesk`, so also `frontdesk` or a dual role) | Collects Cash/Card via `stay_settlement`; does not grant identity edit |
+| Cashier settling a folio | `payments.receive` (+ must open `/frontdesk`, so also `frontdesk` or a dual role) | Collects Cash/Card via `stay_settlement` or `customer_credit_settlement`; does not grant identity edit |
+| Staff editing house credit flag | Customer preferences (same grant as VIP / preferences edit) | Sets `credit_allowed` / `credit_limit` directly; taking Credit tender still needs `payments.receive` + role payment types |
+| Approving a credit request from Payment | `credit.approve` | Opens house credit on the customer (optional limit). On deploy, holders of `customers.preferences` also get `credit.approve` (`migrations/2026_10_10_customer_credit_request.surql`). Cashier with `payments.receive` may send « Demande de crédit » without this grant |
 | Manager override | Approve `protectAction` for modules they themselves hold | — |
 
 Permission IDs and hierarchy live in `src/lib/access.rules.ts` (`ACCESS_RULE_MODULES`,

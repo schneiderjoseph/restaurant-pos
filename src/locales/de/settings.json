@@ -110,7 +110,7 @@
   },
   "closingCycle": {
     "title": "Abschlusszyklus",
-    "description": "Start- und Endzeit des Zyklus konfigurieren. Endzeit kann am nächsten Tag liegen (Beispiel: 06:00 bis 02:00).",
+    "description": "Start- und Endzeit des Zyklus konfigurieren. Endzeit kann am nächsten Tag liegen (Beispiel: 06:00 bis 04:00). Nach der Endzeit muss die Kasse den Tagesabschluss machen, bevor der Verkauf weitergeht.",
     "startTime": "Startzeit",
     "endTime": "Endzeit",
     "updated": "Abschlusszyklus-Einstellungen aktualisiert",

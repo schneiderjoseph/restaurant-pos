@@ -4,7 +4,8 @@
     "nextDate": "Sonraki tarih",
     "printSummary": "Özeti yazdır",
     "productMixReport": "Ürün Karışımı Raporu",
-    "serverSales": "Garson Satışları"
+    "serverSales": "Garson Satışları",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "Özeti yazdır",
@@ -12,7 +13,8 @@
     "productMixDescription": "Ürün karışımı raporu",
     "productMixModule": "Ürün karışımı raporu",
     "serverSalesDescription": "Garson satışları",
-    "serverSalesModule": "Garson satışları"
+    "serverSalesModule": "Garson satışları",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "Bilinmiyor",
@@ -178,6 +180,16 @@
     "time": "Süre",
     "guests": "Misafir",
     "checks": "Hesap",
-    "sale": "Satış"
+    "sale": "Satış",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

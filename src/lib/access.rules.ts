@@ -58,6 +58,12 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
     label: "Editing sent orders",
     children: ["order_edit.sent_items", "order_edit.approve"],
   },
+  // House-credit open requests from the payment screen. Own section so every cashier is not
+  // an approver; holders of customers.preferences get credit.approve on deploy (migration).
+  credit: {
+    label: "House credit",
+    children: ["credit.approve"],
+  },
   // Customers from the POS, its own section for the same reason. Managing the customer file
   // (edit any customer, delete, restore, merge) is admin.customers.*.
   customers: {

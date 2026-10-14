@@ -7,8 +7,15 @@ import {
   checkInStay,
   checkOutStay,
   settleStayRoom,
+  isStayOverdue,
+  listRoomChargedOrders,
+  orderRoomLabel,
   isStayRoomSettled,
+  loadInHouseRoomOccupancy,
   loadManualStayRoomContext,
+  loadCustomerRoomFolioOrders,
+  loadStayFolioOrders,
+  orderHasRoomCharge,
   stayRoomOutstanding,
 } from '@/lib/stay.service.ts';
 
@@ -64,16 +71,32 @@ describe('checkInStay', () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
-  it('refuses when already in-house', async () => {
-    const db = { query: vi.fn() };
+  it('allows a second room when the guest is already in-house', async () => {
+    const db = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes('BEGIN TRANSACTION')) {
+          return [{ id: 'stay:2', room_key: '14', room: '14', status: 'open' }];
+        }
+        if (sql.includes('asi-room')) return [[]];
+        if (sql.includes("source = 'asi-fd'")) return [[]];
+        return [[]];
+      }),
+    };
     await expect(
       checkInStay(db, {
-        customer: { id: 'customer:1', source: 'walk-in', in_house: true },
-        room: '12',
+        customer: {
+          id: 'customer:1',
+          source: 'walk-in',
+          in_house: true,
+          current_stay: 'stay:1',
+          tags: ['manual-stay', 'in-house'],
+        },
+        room: '14',
         dateIn: '2026-10-08',
         dateOut: '2026-10-10',
       }),
-    ).rejects.toMatchObject({ code: 'already_in_house' });
+    ).resolves.toMatchObject({ room: '14' });
+    expect(db.query.mock.calls.some(([sql]) => String(sql).includes('already_in_house'))).toBe(false);
   });
 
   it('maps a failed transaction to room_occupied_asi after re-read', async () => {
@@ -192,6 +215,113 @@ describe('settleStayRoom', () => {
   });
 });
 
+describe('orderHasRoomCharge', () => {
+  it('detects Room tender lines', () => {
+    expect(orderHasRoomCharge({
+      payments: [{ amount: 10, payment_type: { type: 'Room' } }],
+    } as never)).toBe(true);
+    expect(orderHasRoomCharge({
+      payments: [{ amount: 10, payment_type: { type: 'Cash' } }],
+    } as never)).toBe(false);
+  });
+});
+
+describe('loadCustomerRoomFolioOrders', () => {
+  it('keeps only orders with Room payments for the guest history', async () => {
+    const roomOrder = {
+      id: 'order:1',
+      payments: [{ amount: 50, payment_type: { type: 'Room' } }],
+    };
+    const cashOrder = {
+      id: 'order:2',
+      payments: [{ amount: 20, payment_type: { type: 'Cash' } }],
+    };
+    const db = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes('merged_into')) return [[]];
+        if (sql.includes('CONTAINSANY') || sql.includes('customer IN $customers')) {
+          return [[roomOrder, cashOrder]];
+        }
+        return [[]];
+      }),
+    };
+    await expect(loadCustomerRoomFolioOrders(db, 'customer:asi')).resolves.toEqual([roomOrder]);
+  });
+});
+
+describe('loadStayFolioOrders', () => {
+  it('returns [] when the stay has no Room payments', async () => {
+    const db = {
+      query: vi.fn(async () => [[]]),
+    };
+    await expect(loadStayFolioOrders(db, 'stay:1')).resolves.toEqual([]);
+  });
+
+  it('loads active orders that contain the stay Room payments', async () => {
+    const order = { id: 'order:9', invoice_number: 9, items: [], payments: ['order_payment:1'] };
+    const db = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes('order_payment') && sql.includes('FETCH')) {
+          return [[{ id: 'order_payment:1', amount: 40, payment_type: { type: 'Room' } }]];
+        }
+        if (sql.includes('status IN $bad')) {
+          return [[]];
+        }
+        if (sql.includes('CONTAINSANY')) {
+          return [[order]];
+        }
+        return [[]];
+      }),
+    };
+    await expect(loadStayFolioOrders(db, 'stay:1')).resolves.toEqual([order]);
+    const folioCall = (db.query.mock.calls as Array<[string, Record<string, unknown>?]>)
+      .find(([sql]) => sql.includes('CONTAINSANY'));
+    expect(folioCall?.[1]).toMatchObject({
+      payments: expect.arrayContaining([expect.anything()]),
+    });
+  });
+});
+
+describe('loadInHouseRoomOccupancy', () => {
+  it('binds F&B to the ASI guest when a manual stay is still open on that room', async () => {
+    const asi = { id: 'customer:asi_fd_1', source: 'asi-fd', room: '32', name: 'Matchalie', in_house: true };
+    const manual = { id: 'customer:pablo', source: 'walk-in', room: '32', name: 'Pablo', in_house: true };
+    const db = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("source = 'asi-fd'")) return [[asi]];
+        if (sql.includes('FROM stay') || sql.includes('status = \'open\'')) {
+          return [[{ id: 'stay:1', room: '32', status: 'open', customer: manual }]];
+        }
+        if (sql.includes('asi-room')) return [[{ number: '32', asi_alias: '32' }]];
+        return [[]];
+      }),
+    };
+    const { byRoomKey, conflictKeys, conflicts } = await loadInHouseRoomOccupancy(db);
+    expect(byRoomKey.get('32')).toEqual(asi);
+    expect(conflictKeys.has('32')).toBe(false);
+    expect(conflicts[0]?.guests.map((g) => g.id)).toEqual(
+      expect.arrayContaining([asi.id, manual.id]),
+    );
+  });
+
+  it('keeps a manual stay as the occupant when ASI is not in the room', async () => {
+    const manual = { id: 'customer:pablo', source: 'walk-in', room: '14', name: 'Pablo', in_house: true };
+    const db = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("source = 'asi-fd'")) return [[]];
+        if (sql.includes('status = \'open\'')) {
+          return [[{ id: 'stay:1', room: '14', status: 'open', customer: manual }]];
+        }
+        if (sql.includes('asi-room')) return [[]];
+        return [[]];
+      }),
+    };
+    const { byRoomKey, conflictKeys } = await loadInHouseRoomOccupancy(db);
+    expect(byRoomKey.get('14')).toEqual(manual);
+    expect(conflictKeys.has('14')).toBe(false);
+  });
+});
+
 describe('loadManualStayRoomContext', () => {
   const dbWith = (asiInRoom: boolean, status = 'open') => ({
     query: vi.fn(async (sql: string) => {
@@ -221,5 +351,37 @@ describe('loadManualStayRoomContext', () => {
       .resolves.toEqual({ stayDateOut: null, asiOccupied: false });
     await expect(loadManualStayRoomContext(dbWith(true), { in_house: false }, 'stay:1'))
       .resolves.toEqual({ stayDateOut: null, asiOccupied: false });
+  });
+});
+
+describe('isStayOverdue', () => {
+  it('flags an open stay only once its departure day is past', () => {
+    expect(isStayOverdue({ status: 'open', date_out: '2026-10-12' }, '2026-10-14')).toBe(true);
+    expect(isStayOverdue({ status: 'open', date_out: '2026-10-14' }, '2026-10-14')).toBe(false);
+    expect(isStayOverdue({ status: 'closed', date_out: '2026-10-12' }, '2026-10-14')).toBe(false);
+    expect(isStayOverdue({ status: 'open', date_out: '' }, '2026-10-14')).toBe(false);
+  });
+});
+
+describe('orderRoomLabel', () => {
+  it('prefers the manual stay room, then the room tile, then the guest room', () => {
+    const roomType = { type: 'Room' };
+    expect(orderRoomLabel({ payments: [{ amount: 1, payment_type: roomType, stay: { room: '21' } }], table: { number: '17' } } as never)).toBe('21');
+    expect(orderRoomLabel({ payments: [{ amount: 1, payment_type: roomType, stay: 'stay:1' }], table: { number: '17' } } as never)).toBe('17');
+    expect(orderRoomLabel({ payments: [], table: 'floor_table:1', customer: { room: '30' } } as never)).toBe('30');
+    expect(orderRoomLabel({ payments: [] } as never)).toBe('');
+  });
+});
+
+describe('listRoomChargedOrders', () => {
+  it('keeps only orders with a Room tender line', async () => {
+    const db = {
+      query: vi.fn().mockResolvedValue([[
+        { id: 'order:1', payments: [{ amount: 10, payment_type: { type: 'Room' } }] },
+        { id: 'order:2', payments: [{ amount: 10, payment_type: { type: 'Cash' } }] },
+      ]]),
+    };
+    const rows = await listRoomChargedOrders(db, { from: new Date('2026-10-01'), to: new Date('2026-10-08') });
+    expect(rows.map((row) => row.id)).toEqual(['order:1']);
   });
 });

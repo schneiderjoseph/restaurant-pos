@@ -1,6 +1,6 @@
 {
   "actions": {
-    "completeAllOpen": "Terminer toutes les commandes en cours",
+    "completeAllOpen": "Terminer toutes les commandes",
     "completedOrders": "Commandes terminées",
     "viewAllDishes": "Voir tous les plats",
     "recall": "Rappeler",
@@ -38,10 +38,11 @@
   },
   "confirm": {
     "title": "Confirmer",
-    "completeAll": "Terminer toutes les commandes en cours dans cette cuisine ?"
+    "completeAll": "Terminer toutes les commandes dans cette station ?"
   },
   "due": {
     "forTime": "Pour {{time}}",
-    "tomorrowShort": "dem."
+    "tomorrowShort": "dem.",
+    "tomorrowSpeech": "demain"
   }
 }

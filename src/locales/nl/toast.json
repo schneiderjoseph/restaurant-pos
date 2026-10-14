@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "Afsluiting laden mislukt",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "Deze cyclus is al afgesloten.",
     "openOrders": "Er zijn open bestellingen. Sluit deze eerst.",
     "completed": "Afsluiting succesvol voltooid!",
@@ -50,7 +52,9 @@
     "noProductMix": "Geen artikelen gevonden voor productmix.",
     "noTimeEntries": "Geen voltooide tijdregistraties gevonden voor deze datum.",
     "noServerSales": "Geen serververkoopgegevens gevonden voor deze datum.",
-    "loadFailed": "Bestellingen voor deze datum konden niet worden geladen."
+    "loadFailed": "Bestellingen voor deze datum konden niet worden geladen.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "Geen actieve tijdregistratie gevonden",

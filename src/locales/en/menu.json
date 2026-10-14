@@ -90,6 +90,9 @@
     "subtitlePms": "Type a name to find a guest, or register them if missing. Or open the floor plan.",
     "pickGuestPms": "Search for a guest, or register a new one to continue",
     "roomRequiresGuest": "Cannot order on a room without a guest. Pick an occupied room.",
+    "roomTakenByAsi": "ASI has {{name}} in room {{room}}. Start the order on that guest — not the previous Front Desk stay.",
+    "roomTakenByAsiUnknown": "Room {{room}} occupancy could not be verified. Retry, or pick the current ASI guest.",
+    "roomPriorOrderHint": "Open order #{{number}} still belongs to {{name}} (previous stay). Transfer it from Client, or continue for {{current}}.",
     "walkInBadge": "Walk-in",
     "listTabs": "Guest type",
     "tabRooms": "Rooms",
@@ -130,7 +133,10 @@
     "phoneCountriesFrequent": "Frequent",
     "phoneCountriesAll": "All countries",
     "codeUnavailable": "Could not generate a unique guest code. Try again.",
-    "matchLookupFailed": "Could not check for existing clients. Try again."
+    "matchLookupFailed": "Could not check for existing clients. Try again.",
+    "printAllFolioFr": "Print all (FR)",
+    "printAllFolioEn": "Print all (EN)",
+    "roomTotal": "Room total"
   },
   "outlets": {
     "all": "All"
@@ -201,7 +207,13 @@
       "license": "Driving licence",
       "other": "Other"
     },
-    "vip": "VIP"
+    "vip": "VIP",
+    "creditAllowed": "House credit",
+    "creditLimit": "Credit limit",
+    "creditLimitUnlimited": "Unlimited",
+    "creditLimitHint": "Leave empty for no ceiling.",
+    "creditLimitInvalid": "Enter a valid credit limit (0 or more), or leave empty.",
+    "creditDue": "Credit due {{amount}}"
   },
   "dishes": {
     "slideOf": "Slide {{current}} of {{total}}",

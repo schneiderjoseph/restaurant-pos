@@ -38,10 +38,11 @@
   },
   "confirm": {
     "title": "Confirm",
-    "completeAll": "Complete all open orders in this kitchen?"
+    "completeAll": "Complete all open orders on this station?"
   },
   "due": {
     "forTime": "For {{time}}",
-    "tomorrowShort": "tom."
+    "tomorrowShort": "tom.",
+    "tomorrowSpeech": "tomorrow"
   }
 }

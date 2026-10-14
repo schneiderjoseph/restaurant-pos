@@ -4,7 +4,8 @@
     "nextDate": "Volgende datum",
     "printSummary": "Overzicht afdrukken",
     "productMixReport": "Productmixrapport",
-    "serverSales": "Serververkoop"
+    "serverSales": "Serververkoop",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "Overzicht afdrukken",
@@ -12,7 +13,8 @@
     "productMixDescription": "Productmixrapport",
     "productMixModule": "Productmixrapport",
     "serverSalesDescription": "Serververkoop",
-    "serverSalesModule": "Serververkoop"
+    "serverSalesModule": "Serververkoop",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "Onbekend",
@@ -178,6 +180,16 @@
     "time": "Tijd",
     "guests": "Gasten",
     "checks": "Bonnen",
-    "sale": "Verkoop"
+    "sale": "Verkoop",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

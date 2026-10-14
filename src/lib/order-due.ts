@@ -48,3 +48,35 @@ export const formatDueLabel = (due: DateTime, now: DateTime, tomorrowLabel?: str
   if (days === 1 && tomorrowLabel) return `${tomorrowLabel} ${time}`;
   return `${local.toFormat('dd/MM')} ${time}`;
 };
+
+/** Wall-clock part for TTS — "11 heures" / "11 heures 30" in French, plain digits elsewhere. */
+export const formatDueTimeForSpeech = (due: DateTime, language?: string): string => {
+  const hour = due.hour;
+  const minute = due.minute;
+  const lang = (language ?? '').toLowerCase();
+  if (lang.startsWith('fr')) {
+    return minute === 0 ? `${hour} heures` : `${hour} heures ${minute}`;
+  }
+  if (minute === 0) {
+    return `${hour}`;
+  }
+  return `${hour} ${String(minute).padStart(2, '0')}`;
+};
+
+/**
+ * Same day rules as `formatDueLabel`, but times are spoken clearly by kitchen TTS
+ * (colons in "11:00" are often mangled by speech engines).
+ */
+export const formatDueLabelForSpeech = (
+  due: DateTime,
+  now: DateTime,
+  tomorrowLabel?: string,
+  language?: string,
+): string => {
+  const local = due.setZone(now.zone);
+  const days = Math.round(local.startOf('day').diff(now.startOf('day'), 'days').days);
+  const time = formatDueTimeForSpeech(local, language);
+  if (days === 0) return time;
+  if (days === 1 && tomorrowLabel) return `${tomorrowLabel} ${time}`;
+  return `${local.toFormat('dd/MM')} ${time}`;
+};

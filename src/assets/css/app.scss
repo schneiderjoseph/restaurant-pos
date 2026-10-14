@@ -12,6 +12,14 @@ body {
   @apply text-neutral-800;
 }
 
+/* Office reports (Résumé, Rapports) print Letter 8.5×11; thermal tickets use ESC-POS. */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+}
+
 
 :root {
   scroll-behavior: smooth;

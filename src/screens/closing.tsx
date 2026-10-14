@@ -28,6 +28,7 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {ClosingCycleWindow, resolveClosingWindow} from "@/lib/closing-cycle.ts";
 import {getCurrentCycleClosing, hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
+import {buildClosingThermalRows} from "@/lib/closing-print.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { useActionVisible } from "@/hooks/useActionVisible.ts";
 import {useTranslation} from "react-i18next";
@@ -35,7 +36,7 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { publishDayClosed } from "@/integrations/events/publish/ops.ts";
 import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
-import { getAppliedPaymentAmounts } from "@/lib/order.ts";
+import { getAppliedPaymentAmounts, isDeferredChargePayment } from "@/lib/order.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -256,7 +257,16 @@ export const Closing = () => {
 
   const totalOtherPayments = useMemo(() => {
     return paymentSummaries
-      .filter(ps => ps.payment_type.type?.toLowerCase() !== "cash")
+      .filter(ps =>
+        ps.payment_type.type?.toLowerCase() !== "cash"
+        && !isDeferredChargePayment({ payment_type: ps.payment_type } as never),
+      )
+      .reduce((sum, ps) => sum + ps.amount, 0);
+  }, [paymentSummaries]);
+
+  const totalDeferredCharges = useMemo(() => {
+    return paymentSummaries
+      .filter(ps => isDeferredChargePayment({ payment_type: ps.payment_type } as never))
       .reduce((sum, ps) => sum + ps.amount, 0);
   }, [paymentSummaries]);
 
@@ -353,56 +363,34 @@ export const Closing = () => {
   };
 
   const buildClosingPrintRows = () => {
-    return [
-      [{text: `CLOSING SUMMARY (${today})`, align: "CENTER", width: 1, style: "B"}],
-      [{text: closingWindowLabel, align: "LEFT", width: 1}],
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Terminal Cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Amount",
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      ...computedTerminalCash.map(terminal => ([
-        {text: terminal.terminal_name, align: "LEFT", width: 0.6},
-        {text: formatNumber(terminal.cash_amount), align: "RIGHT", width: 0.4}
-      ])),
-      [{text: "Total Cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalCash),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Payment Summary", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Amount",
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      ...paymentSummaries.map(ps => ([
-        {text: ps.payment_type.name, align: "LEFT", width: 0.6},
-        {text: formatNumber(ps.amount), align: "RIGHT", width: 0.4}
-      ])),
-      [{text: "Other Payments", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalOtherPayments),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Expenses", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalExpenses),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Net Amount", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(netAmount),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-    ];
+    return buildClosingThermalRows(
+      {
+        title: `CLOSING SUMMARY (${today})`,
+        windowLabel: closingWindowLabel,
+        terminalCash: computedTerminalCash.map((terminal) => ({
+          name: terminal.terminal_name,
+          amount: terminal.cash_amount,
+        })),
+        payments: paymentSummaries.map((ps) => ({
+          name: ps.payment_type.name,
+          amount: ps.amount,
+        })),
+        totalCash,
+        totalOtherPayments,
+        totalExpenses,
+        netAmount,
+      },
+      {
+        terminalCash: "Terminal Cash",
+        amount: "Amount",
+        totalCash: "Total Cash",
+        paymentSummary: "Payment Summary",
+        otherPayments: "Other Payments",
+        expenses: "Expenses",
+        netAmount: "Net Amount",
+      },
+      formatNumber,
+    );
   };
 
   const saveClosing = async (complete = false) => {
@@ -514,6 +502,7 @@ export const Closing = () => {
     }
   };
 
+  // Règlement de caisse → imprimante thermique (summary_print_printers), pas Letter.
   const printClosing = async () => {
     await dispatchPrint(db, PRINT_TYPE.summary, {
       printType: "table",
@@ -762,6 +751,10 @@ export const Closing = () => {
                 <div>
                   <div className="text-sm text-gray-600">{t("closing:totals.otherPayments")}</div>
                   <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">{t("closing:totals.deferredCharges")}</div>
+                  <div className="text-xl font-semibold">{withCurrency(totalDeferredCharges)}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">{t("closing:totals.totalExpensesShort")}</div>

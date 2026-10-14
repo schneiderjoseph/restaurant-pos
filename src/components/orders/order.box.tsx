@@ -282,6 +282,27 @@ export const OrderBox = ({
     });
   };
 
+  const printProforma = () => {
+    void withFullOrder(async (full) => {
+      const printCurrency = await chooseTempBillCurrency({ documentKind: 'proforma' });
+      if (!printCurrency) return;
+      void protectAction(() => {
+        void dispatchPrint(db, PRINT_TYPE.presale_bill, {
+          order: full,
+          taxes,
+          documentKind: 'proforma',
+        }, {
+          userId: page?.user?.id,
+          printCurrency,
+        }).then(() => onAction?.());
+      }, {
+        module: 'orders.print_temp',
+        description: t('actions.proforma'),
+        payload: { order: full.id.toString(), documentKind: 'proforma' },
+      });
+    });
+  };
+
   const printFinalCopy = () => {
     void withFullOrder(async (full) => { await requestBillPrint({
       db,
@@ -440,6 +461,10 @@ export const OrderBox = ({
 
                   if (key === 'temp_bill') {
                     printTempBill();
+                  }
+
+                  if (key === 'proforma') {
+                    printProforma();
                   }
 
                   if (key === 'final_bill') {
@@ -612,6 +637,15 @@ export const OrderBox = ({
                         <DropdownSeparator/>
                         <DropdownItem isDisabled={mutationsBlocked || !cardReady} id="merge" key="merge" data-testid="order-menu-merge" className="min-w-[50px]">
                           <FontAwesomeIcon icon={faObjectGroup}/> {t('actions.mergeOrders')}
+                        </DropdownItem>
+                      </>
+                    )}
+                    {showTempBillCard && (
+                      <>
+                        <DropdownSeparator/>
+                        <DropdownItem isDisabled={isLoadingFull} id="proforma" key="proforma"
+                                      data-testid="order-menu-proforma" className="min-w-[50px]">
+                          <FontAwesomeIcon icon={faPrint}/> {t('actions.proforma')}
                         </DropdownItem>
                       </>
                     )}

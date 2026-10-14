@@ -235,6 +235,15 @@ describe('isRoomGuest', () => {
       current_stay: null,
     })).toBe(false);
   });
+
+  it('is false after check-out even if manual-stay / in-house tags linger', () => {
+    expect(isRoomGuest({
+      room: null,
+      in_house: false,
+      tags: ['walk-in', 'manual-stay', 'in-house', 'checked-out'],
+      current_stay: null,
+    })).toBe(false);
+  });
 });
 
 describe('sortGuestsNewestFirst', () => {

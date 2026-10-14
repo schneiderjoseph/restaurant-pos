@@ -4,7 +4,8 @@
     "nextDate": "Data successiva",
     "printSummary": "Stampa riepilogo",
     "productMixReport": "Report product mix",
-    "serverSales": "Vendite per cameriere"
+    "serverSales": "Vendite per cameriere",
+    "printCashClosing": "Print cash closing"
   },
   "security": {
     "printSummaryDescription": "Stampa riepilogo",
@@ -12,7 +13,8 @@
     "productMixDescription": "Report product mix",
     "productMixModule": "Report product mix",
     "serverSalesDescription": "Vendite per cameriere",
-    "serverSalesModule": "Vendite per cameriere"
+    "serverSalesModule": "Vendite per cameriere",
+    "printCashClosingDescription": "Print cash closing on receipt printer"
   },
   "unknown": {
     "user": "Sconosciuto",
@@ -178,6 +180,16 @@
     "time": "Tempo",
     "guests": "Coperti",
     "checks": "Conti",
-    "sale": "Vendita"
+    "sale": "Vendita",
+    "closing": {
+      "title": "CASH CLOSING ({{date}})",
+      "terminalCash": "Terminal Cash",
+      "amount": "Amount",
+      "totalCash": "Total Cash",
+      "paymentSummary": "Payment Summary",
+      "otherPayments": "Other Payments",
+      "expenses": "Expenses",
+      "netAmount": "Net Amount"
+    }
   }
 }

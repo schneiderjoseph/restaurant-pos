@@ -154,6 +154,12 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       0,
     );
     const amountCollectedRaw = amountCollected;
+    const roomCharges = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.roomAmount), 0);
+    const creditCharges = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.creditAmount), 0);
+    const deferredCharges = paymentTotals.reduce(
+      (sum, totals) => sum + safeNumber(totals.deferredAmount),
+      0,
+    );
 
     const changeGiven = paymentTotals.reduce((sum, totals) => sum + safeNumber(totals.change), 0);
     const rounding = list.reduce((sum, order) => sum + getOrderRounding(order), 0);
@@ -197,12 +203,16 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const averageOrderCheck = ordersCount > 0 ? amountDue / ordersCount : 0;
 
     const paymentTypeMap: Record<string, number> = {};
+    const deferredTypeMap: Record<string, number> = {};
     paymentTotals.forEach(totals => {
       Object.entries(totals.nonCashBreakdown).forEach(([typeName, amount]) => {
         if (!paymentTypeMap[typeName]) {
           paymentTypeMap[typeName] = 0;
         }
         paymentTypeMap[typeName] += safeNumber(amount);
+      });
+      Object.entries(totals.deferredBreakdown).forEach(([typeName, amount]) => {
+        deferredTypeMap[typeName] = (deferredTypeMap[typeName] ?? 0) + safeNumber(amount);
       });
       if (!paymentTypeMap.Cash) {
         paymentTypeMap.Cash = 0;
@@ -211,6 +221,9 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     });
 
     const paymentTypes = Object.entries(paymentTypeMap)
+      .map(([name, total]) => ({name, total}))
+      .sort((a, b) => b.total - a.total);
+    const deferredTypes = Object.entries(deferredTypeMap)
       .map(([name, total]) => ({name, total}))
       .sort((a, b) => b.total - a.total);
 
@@ -339,6 +352,9 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       grandTotalDue,
       amountCollected,
       amountCollectedRaw,
+      roomCharges,
+      creditCharges,
+      deferredCharges,
       changeGiven,
       rounding,
       refunds,
@@ -348,6 +364,7 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       averageCover,
       averageOrderCheck,
       paymentTypes,
+      deferredTypes,
       taxesList,
       discountsList,
       extrasList,
@@ -459,6 +476,21 @@ export function DailySalesSummaryReport({orders, date}: Props) {
           hint={t('report.hints.amountCollected')}
         />
         <Row
+          label={t('report.rows.roomCharges')}
+          value={withDualCurrency(f.roomCharges)}
+          hint={t('report.hints.roomCharges')}
+        />
+        <Row
+          label={t('report.rows.creditCharges')}
+          value={withDualCurrency(f.creditCharges)}
+          hint={t('report.hints.creditCharges')}
+        />
+        <Row
+          label={t('report.rows.deferredCharges')}
+          value={withDualCurrency(f.deferredCharges)}
+          hint={t('report.hints.deferredCharges')}
+        />
+        <Row
           label={t('report.rows.rounding')}
           value={withDualCurrency(f.rounding)}
           hint={t('report.hints.rounding')}
@@ -554,6 +586,24 @@ export function DailySalesSummaryReport({orders, date}: Props) {
           <p className="py-3 text-sm text-neutral-500">{t('report.empty.noPaymentData')}</p>
         ) : (
           f.paymentTypes.map(payment => (
+            <div key={payment.name} className="border-b border-neutral-200 py-2 last:border-b-0">
+              <div className="flex justify-between gap-3 text-sm">
+                <span>{payment.name}</span>
+                <span className="tabular-nums font-medium">{withDualCurrency(payment.total)}</span>
+                <span className="tabular-nums text-neutral-600">
+                  {formatNumber(f.amountDue > 0 ? (payment.total / f.amountDue) * 100 : 0)}%
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </Section>
+
+      <Section title={t('report.sections.deferredCharges')} subtitle={t('report.subtitles.deferredCharges')}>
+        {f.deferredTypes.length === 0 ? (
+          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noDeferredData')}</p>
+        ) : (
+          f.deferredTypes.map(payment => (
             <div key={payment.name} className="border-b border-neutral-200 py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{payment.name}</span>

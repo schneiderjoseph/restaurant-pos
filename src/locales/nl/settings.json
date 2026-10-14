@@ -110,7 +110,7 @@
   },
   "closingCycle": {
     "title": "Afsluitingscyclus",
-    "description": "Configureer start- en eindtijd. Eindtijd kan de volgende dag zijn (voorbeeld: 06:00 tot 02:00).",
+    "description": "Configureer start- en eindtijd. Eindtijd kan de volgende dag zijn (voorbeeld: 06:00 tot 04:00). Na de eindtijd moet de kassa de dag afsluiten voordat de verkoop hervat.",
     "startTime": "Starttijd",
     "endTime": "Eindtijd",
     "updated": "Afsluitingscyclus bijgewerkt",

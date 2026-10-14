@@ -1,5 +1,5 @@
 import {Button} from "@/components/common/input/button.tsx";
-import {cn, toRecordId} from "@/lib/utils.ts";
+import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {
   convertPayToPrimary,
   convertPrimaryToPay,
@@ -53,7 +53,25 @@ import {
   type RoomChargeCheck,
   type RoomChargeRefusal,
 } from "@/lib/room-charge.ts";
-import {loadManualStayRoomContext} from "@/lib/stay.service.ts";
+import {
+  checkCreditCharge,
+  isCreditPaymentType,
+  loadCustomerForCreditCharge,
+  type CreditChargeCheck,
+  type CreditChargeRefusal,
+} from "@/lib/credit-charge.ts";
+import {
+  CreditServiceError,
+  loadCustomerCreditOutstanding,
+  settleCustomerCredit,
+} from "@/lib/credit.service.ts";
+import {
+  CREDIT_REQUEST_DECIDED_EVENT,
+  createCreditRequest,
+  CreditRequestError,
+  findPendingCreditRequest,
+} from "@/lib/credit-request.ts";
+import {findOpenStayForCustomerRoom, loadManualStayRoomContext} from "@/lib/stay.service.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
@@ -71,6 +89,12 @@ import {
   publishPaymentCompleted,
 } from "@/integrations/events/publish/payments.ts";
 import {toast} from "sonner";
+import {recordKey} from "@/lib/kitchen/routing.ts";
+
+const customerRefKey = (value: unknown): string => {
+  const key = recordKey(value);
+  return key && key !== '[object Object]' ? key : recordKey((value as { id?: unknown })?.id);
+};
 
 export type PaymentCompleteOptions = {
   /** When true, parent should print the final bill after closing. */
@@ -194,8 +218,22 @@ const OrderPaymentReceivingContent = ({
     'not-hotel-guest': t('receiving.roomNotHotelGuest'),
   };
 
+  const creditRefusalMessage: Record<CreditChargeRefusal, string> = {
+    'no-customer': t('receiving.creditNoCustomer'),
+    'not-allowed': t('receiving.creditNotAllowed'),
+    'over-limit': t('receiving.creditOverLimit'),
+    'deleted': t('receiving.creditDeleted'),
+  };
+
   /** Room tender state for this order's guest, read from the database (shown on the buttons). */
   const [roomCheck, setRoomCheck] = useState<RoomChargeCheck>();
+  /** Credit tender eligibility (probe with a tiny amount against current outstanding). */
+  const [creditCheck, setCreditCheck] = useState<CreditChargeCheck>();
+  const [creditOutstanding, setCreditOutstanding] = useState(0);
+  const [creditSettleTenderId, setCreditSettleTenderId] = useState('');
+  const [creditSettling, setCreditSettling] = useState(false);
+  const [creditRequestPending, setCreditRequestPending] = useState(false);
+  const [creditRequesting, setCreditRequesting] = useState(false);
 
   /**
    * The guest and their manual stay as stored right now. A failed read throws: the callers
@@ -203,8 +241,23 @@ const OrderPaymentReceivingContent = ({
    */
   const readRoomCheck = async (): Promise<RoomChargeCheck> => {
     const customer = await loadCustomerForRoomCharge(db, order?.customer);
-    const context = await loadManualStayRoomContext(db, customer, stayIdOf(customer?.current_stay));
-    return checkRoomCharge(customer, nowInAppTimezone(), context);
+    // Multi-room Front Desk guest: charge the stay of the order's room when known.
+    let stayId = stayIdOf(customer?.current_stay);
+    const table = order?.table;
+    if (customer?.id && table?.source === 'asi-room') {
+      const matched = await findOpenStayForCustomerRoom(
+        db,
+        customer.id,
+        table.number ?? table.asi_alias,
+      );
+      if (matched?.id) stayId = stayIdOf(matched.id);
+    }
+    const context = await loadManualStayRoomContext(db, customer, stayId);
+    return checkRoomCharge(
+      customer ? { ...customer, current_stay: stayId ?? customer.current_stay } : customer,
+      nowInAppTimezone(),
+      context,
+    );
   };
 
   /** Reads the stay again right now: the guest may have checked out since the order was taken. */
@@ -237,6 +290,71 @@ const OrderPaymentReceivingContent = ({
   };
 
   const customerKey = String((order?.customer as { id?: unknown } | undefined)?.id ?? order?.customer ?? '');
+
+  const ticketCreditPending = useMemo(
+    () => payments
+      .filter((payment) => isCreditPaymentType(payment.payment_type))
+      .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0),
+    [payments],
+  );
+
+  const readCreditState = async (): Promise<{
+    check: CreditChargeCheck;
+    outstanding: number;
+  }> => {
+    const customer = await loadCustomerForCreditCharge(db, order?.customer);
+    const outstanding = customer?.id
+      ? await loadCustomerCreditOutstanding(db, customer.id)
+      : 0;
+    // Probe with 0.01 so the button reflects eligibility / headroom, not the keypad amount.
+    const check = checkCreditCharge(customer, 0.01, outstanding + ticketCreditPending);
+    return { check, outstanding };
+  };
+
+  const refreshCreditState = async (): Promise<{
+    check: CreditChargeCheck;
+    outstanding: number;
+  }> => {
+    const result = await readCreditState();
+    setCreditOutstanding(result.outstanding);
+    setCreditCheck(result.check);
+    return result;
+  };
+
+  const ensureCreditChargeAllowed = async (amount: number): Promise<boolean> => {
+    let customer;
+    let outstanding = 0;
+    try {
+      customer = await loadCustomerForCreditCharge(db, order?.customer);
+      outstanding = customer?.id
+        ? await loadCustomerCreditOutstanding(db, customer.id)
+        : 0;
+    } catch (error) {
+      console.error('Credit charge check failed', error);
+      setCreditCheck({ ok: false, reason: 'not-allowed' });
+      setAlert((prev) => ({
+        ...prev,
+        opened: true,
+        type: 'error',
+        message: creditRefusalMessage['not-allowed'],
+      }));
+      return false;
+    }
+    const check = checkCreditCharge(customer, amount, outstanding + ticketCreditPending);
+    setCreditOutstanding(outstanding);
+    setCreditCheck(checkCreditCharge(customer, 0.01, outstanding + ticketCreditPending));
+    if (!check.ok) {
+      setAlert((prev) => ({
+        ...prev,
+        opened: true,
+        type: 'error',
+        message: creditRefusalMessage[check.reason ?? 'not-allowed'],
+      }));
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     let cancelled = false;
     void readRoomCheck()
@@ -247,10 +365,46 @@ const OrderPaymentReceivingContent = ({
         console.error('Room charge check failed', error);
         if (!cancelled) setRoomCheck({ok: false, reason: 'sync-stale'});
       });
+    void readCreditState()
+      .then((result) => {
+        if (cancelled) return;
+        setCreditOutstanding(result.outstanding);
+        setCreditCheck(result.check);
+      })
+      .catch((error) => {
+        console.error('Credit charge check failed', error);
+        if (!cancelled) setCreditCheck({ ok: false, reason: 'not-allowed' });
+      });
+    void findPendingCreditRequest(db, order?.customer)
+      .then((pending) => {
+        if (!cancelled) setCreditRequestPending(Boolean(pending));
+      })
+      .catch(() => {
+        if (!cancelled) setCreditRequestPending(false);
+      });
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-check when the order's customer changes; db identity changes every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-check when the order's customer or ticket credit changes
+  }, [customerKey, ticketCreditPending]);
+
+  useEffect(() => {
+    const onDecided = (event: Event) => {
+      const detail = (event as CustomEvent<{ customerId?: string }>).detail;
+      const thisCustomer = customerRefKey(order?.customer);
+      if (detail?.customerId && thisCustomer && detail.customerId !== thisCustomer) {
+        return;
+      }
+      void refreshCreditState().catch((error) => {
+        console.error('Credit charge refresh after approval failed', error);
+      });
+      void findPendingCreditRequest(db, order?.customer)
+        .then((pending) => setCreditRequestPending(Boolean(pending)))
+        .catch(() => setCreditRequestPending(false));
+    };
+    window.addEventListener(CREDIT_REQUEST_DECIDED_EVENT, onDecided);
+    return () => window.removeEventListener(CREDIT_REQUEST_DECIDED_EVENT, onDecided);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- order customer + db for this ticket only
   }, [customerKey]);
 
   const {
@@ -299,6 +453,95 @@ const OrderPaymentReceivingContent = ({
 
     return filterPaymentTypesForRole(forTable, rolePaymentTypes);
   }, [table, allPaymentTypes, rolePaymentTypes]);
+
+  const settleCreditPaymentTypes = useMemo(
+    () => (paymentTypes ?? []).filter(
+      (pt) => !isRoomPaymentType(pt) && !isCreditPaymentType(pt),
+    ),
+    [paymentTypes],
+  );
+
+  /** Cash / Card / Room / … — Credit is a house charge, not till money. */
+  const collectedPaymentTypes = useMemo(
+    () => (paymentTypes ?? []).filter((pt) => !isCreditPaymentType(pt)),
+    [paymentTypes],
+  );
+  const creditPaymentTypes = useMemo(
+    () => (paymentTypes ?? []).filter((pt) => isCreditPaymentType(pt)),
+    [paymentTypes],
+  );
+  const canRequestCredit = Boolean(
+    canReceivePayment
+    && creditPaymentTypes.length > 0
+    && order?.customer
+    && creditCheck
+    && creditCheck.reason === 'not-allowed'
+    && !creditRequestPending,
+  );
+
+  const onRequestCredit = async () => {
+    const customerId = (order?.customer as { id?: unknown } | undefined)?.id ?? order?.customer;
+    if (!customerId || !page?.user?.id) return;
+    setCreditRequesting(true);
+    try {
+      await createCreditRequest(db, {
+        customerId,
+        requestedBy: page.user.id,
+        orderId: order.id,
+      });
+      setCreditRequestPending(true);
+      toast.success(t('receiving.creditRequestSent'));
+      postOrderTracking({
+        module: 'payments.receive',
+        page: page?.page,
+        orderId: String(order.id),
+        payload: { action: 'credit_request', customer: customerRefKey(customerId) },
+        user: page?.user,
+      });
+    } catch (error) {
+      if (error instanceof CreditRequestError && error.code === 'already_pending') {
+        setCreditRequestPending(true);
+        toast.info(t('receiving.creditRequestPending'));
+        return;
+      }
+      console.error('Credit request failed', error);
+      toast.error(t('receiving.creditRequestFailed'));
+    } finally {
+      setCreditRequesting(false);
+    }
+  };
+
+  const onSettleCredit = async () => {
+    const customerId = (order?.customer as { id?: unknown } | undefined)?.id ?? order?.customer;
+    if (!customerId || creditOutstanding <= 0.009) return;
+    const paymentTypeId = creditSettleTenderId || settleCreditPaymentTypes[0]?.id;
+    const paymentType = settleCreditPaymentTypes.find((pt) => String(pt.id) === String(paymentTypeId))
+      ?? settleCreditPaymentTypes[0];
+    if (!paymentType?.id) {
+      toast.error(t('receiving.creditSelectSettleTender'));
+      return;
+    }
+    setCreditSettling(true);
+    try {
+      await settleCustomerCredit(db, {
+        customerId,
+        paymentTypeId: paymentType.id,
+        paymentType,
+        user: page?.user,
+      });
+      toast.success(t('receiving.creditSettledOk'));
+      await refreshCreditState();
+    } catch (error) {
+      if (error instanceof CreditServiceError) {
+        toast.error(t(`receiving.creditSettleError.${error.code}`, { defaultValue: error.message }));
+      } else {
+        console.error('Credit settle failed', error);
+        toast.error(t('receiving.creditSettleFailed'));
+      }
+    } finally {
+      setCreditSettling(false);
+    }
+  };
 
   // const [paymentType, setPaymentType] = useState<string>();
   const [payCurrency, setPayCurrency] = useState<PayCurrencyCode>(() => getAppCurrency() as PayCurrencyCode);
@@ -365,6 +608,27 @@ const OrderPaymentReceivingContent = ({
       // Last check before money is recorded: a Room tender added earlier may now be on a closed stay.
       if (payments.some(payment => isRoomPaymentType(payment.payment_type)) && !(await ensureRoomChargeAllowed())) {
         return;
+      }
+
+      const creditOnTicket = payments
+        .filter((payment) => isCreditPaymentType(payment.payment_type))
+        .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0);
+      if (creditOnTicket > 0) {
+        // Re-check limit against DB outstanding only (ticket lines are not settled yet).
+        const customer = await loadCustomerForCreditCharge(db, order?.customer);
+        const outstanding = customer?.id
+          ? await loadCustomerCreditOutstanding(db, customer.id)
+          : 0;
+        const check = checkCreditCharge(customer, creditOnTicket, outstanding);
+        if (!check.ok) {
+          setAlert((prev) => ({
+            ...prev,
+            opened: true,
+            type: 'error',
+            message: creditRefusalMessage[check.reason ?? 'not-allowed'],
+          }));
+          return;
+        }
       }
 
       // Sync payments incrementally — reuse existing order_payment rows when present
@@ -633,6 +897,31 @@ const OrderPaymentReceivingContent = ({
       amount = -1 * localChangeDue;
     }
 
+    // Credit must not overpay the ticket: excess would inflate house AR with no goods due.
+    if (isCreditPaymentType(paymentType)) {
+      if (localChangeDue >= 0) {
+        setAlert((prev) => ({
+          ...prev,
+          opened: true,
+          type: 'error',
+          message: t('receiving.cannotAddCredit'),
+        }));
+        return;
+      }
+      if (Number(amount) > Number(-1 * localChangeDue)) {
+        setAlert((prev) => ({
+          ...prev,
+          opened: true,
+          type: 'warning',
+          message: t('receiving.exactCreditAmount'),
+        }));
+        amount = -1 * localChangeDue;
+      }
+      if (!(await ensureCreditChargeAllowed(Number(amount)))) {
+        return;
+      }
+    }
+
     setPayments(prev => [
       ...prev,
       {
@@ -758,8 +1047,46 @@ const OrderPaymentReceivingContent = ({
             </div>
           )
         )}
+        {creditPaymentTypes.length > 0 && creditCheck && !creditCheck.ok && creditCheck.reason !== 'not-allowed' && (
+          <div className="alert alert-warning" role="status" data-testid="payment-credit-refused">
+            {creditRefusalMessage[creditCheck.reason ?? 'not-allowed']}
+          </div>
+        )}
+        {creditOutstanding > 0.009 && (
+          <div
+            className="rounded-lg border border-warning-300 bg-warning-50 p-3 space-y-2"
+            data-testid="payment-credit-settle"
+          >
+            <p className="text-sm font-semibold">
+              {t('receiving.creditOutstanding', { amount: withCurrency(creditOutstanding) })}
+            </p>
+            <div className="flex flex-wrap gap-2 items-end">
+              <div className="space-y-1">
+                <label className="text-xs font-medium">{t('receiving.creditSettleTender')}</label>
+                <select
+                  className="border rounded px-2 py-2"
+                  value={creditSettleTenderId || String(settleCreditPaymentTypes[0]?.id ?? '')}
+                  onChange={(e) => setCreditSettleTenderId(e.target.value)}
+                  data-testid="payment-credit-settle-tender"
+                >
+                  {settleCreditPaymentTypes.map((pt) => (
+                    <option key={String(pt.id)} value={String(pt.id)}>{pt.name}</option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                variant="primary"
+                disabled={creditSettling || settleCreditPaymentTypes.length === 0}
+                onClick={() => void onSettleCredit()}
+                data-testid="payment-credit-settle-btn"
+              >
+                {t('receiving.creditSettle')} ({withCurrency(creditOutstanding)})
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="flex gap-2 overflow-x-auto" data-testid="payment-types">
-          {paymentTypes?.map(item => (
+          {collectedPaymentTypes.map(item => (
             <Button
               className="flex-1 whitespace-nowrap"
               variant="primary"
@@ -782,6 +1109,61 @@ const OrderPaymentReceivingContent = ({
             </Button>
           ))}
         </div>
+        {creditPaymentTypes.length > 0 && (
+          <div
+            className="rounded-lg border border-neutral-300 bg-neutral-50 p-3 space-y-2"
+            data-testid="payment-credit-account"
+          >
+            <p className="text-sm font-semibold text-neutral-800">{t('receiving.creditAccountTitle')}</p>
+            <p className="text-xs text-neutral-600">{t('receiving.creditNotAPayment')}</p>
+            <div className="flex flex-wrap gap-2">
+              {creditCheck?.ok === true && creditPaymentTypes.map((item) => (
+                <Button
+                  className="flex-1 whitespace-nowrap"
+                  variant="primary"
+                  key={item.id}
+                  data-testid="payment-type-credit"
+                  onClick={() => {
+                    const payable = applyPaymentTypeTaxAndDiscount(item);
+                    if (selectedAmount.trim().length > 0) {
+                      void addPayment(toPrimary(Number(selectedAmount)), item, payable);
+                    } else if (changeDue < 0) {
+                      void addPayment(payable - tendered, item, payable);
+                    }
+                  }}
+                  size="lg"
+                >
+                  {t('receiving.creditCharge')}
+                </Button>
+              ))}
+              {canRequestCredit && (
+                <Button
+                  className="flex-1 whitespace-nowrap"
+                  variant="warning"
+                  filled
+                  disabled={creditRequesting}
+                  isLoading={creditRequesting}
+                  data-testid="payment-credit-request"
+                  onClick={() => void onRequestCredit()}
+                  size="lg"
+                >
+                  {t('receiving.creditRequest')}
+                </Button>
+              )}
+              {creditRequestPending && creditCheck?.reason === 'not-allowed' && (
+                <div
+                  className="flex-1 rounded-lg bg-warning-100 text-warning-800 px-3 py-2 text-sm font-semibold text-center"
+                  data-testid="payment-credit-request-pending"
+                >
+                  {t('receiving.creditRequestPending')}
+                </div>
+              )}
+              {!order?.customer && creditCheck?.reason === 'no-customer' && (
+                <div className="text-sm text-neutral-600">{creditRefusalMessage['no-customer']}</div>
+              )}
+            </div>
+          </div>
+        )}
         </>
         )}
 
@@ -813,6 +1195,7 @@ const OrderPaymentReceivingContent = ({
       </div>
       <div className="flex gap-3" data-testid="payment-finish-actions">
         {isVisible('orders.print_temp') && (
+        <>
         <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
           <Button
             variant={tempPrinted ? "warning" : "primary"}
@@ -850,6 +1233,43 @@ const OrderPaymentReceivingContent = ({
             }}
           >{t('receiving.tempBill')}</Button>
         </span>
+        <span className="flex-1 flex">
+          <Button
+            variant="secondary"
+            className="flex-1"
+            flat
+            icon={faPrint}
+            size="xl"
+            data-testid="payment-proforma"
+            onClick={() => {
+              void (async () => {
+                const printCurrency = await chooseTempBillCurrency({
+                  defaultCurrency: payCurrency,
+                  documentKind: 'proforma',
+                });
+                if (!printCurrency) return;
+                void protectAction(() => {
+                  void (async () => {
+                    const full = await fetchOrderFull(db, order.id);
+                    if (!full) {
+                      throw new Error('Failed to load order for proforma print');
+                    }
+                    await dispatchPrint(db, PRINT_TYPE.presale_bill, {
+                      order: full,
+                      taxes: allTaxes?.data,
+                      documentKind: 'proforma',
+                    }, { userId: page?.user?.id, printCurrency });
+                  })();
+                }, {
+                  module: 'orders.print_temp',
+                  description: t('receiving.proforma'),
+                  payload: { order: order.id.toString(), documentKind: 'proforma' },
+                });
+              })();
+            }}
+          >{t('receiving.proforma')}</Button>
+        </span>
+        </>
         )}
         {canReceivePayment && isVisible('orders.complete') && (
           <>

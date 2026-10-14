@@ -4,7 +4,7 @@ import React, {useMemo, useState} from "react";
 import {cn} from "@/lib/utils.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {formatOrderNumber, getOrderDisplayItems, translateOrderStatus} from "@/lib/order.ts";
+import {formatOrderNumber, getOrderDisplayItems} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -17,6 +17,7 @@ import {RECEIVE_PAYMENT_MODULE} from "@/lib/payment-access.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {OrderLineageLabel} from "@/components/orders/order.lineage.tsx";
 import type {OrderLineage} from "@/lib/order-lineage.ts";
+import {OrderStatusBadge} from "@/components/orders/order.status-badge.tsx";
 
 /** Shared by the sticky header and every row so columns line up. */
 export const ORDERS_LIST_GRID_CLASS =
@@ -39,13 +40,6 @@ export const OrderRow = ({
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
   const [isLoadingFull, setIsLoadingFull] = useState(false);
-  const showKitchenReady = kitchenReady && order.status === OrderStatus["In Progress"];
-
-  const colors = {
-    [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
-    [OrderStatus["Paid"]]: 'bg-success-100 text-success-700',
-    [OrderStatus["Completed"]]: 'bg-success-100 text-success-700',
-  };
 
   const total = useMemo(() => {
     const extrasTotal = order?.extras
@@ -122,13 +116,7 @@ export const OrderRow = ({
         <div className="py-2 truncate">{order?.user?.first_name}</div>
 
         <div className="py-2">
-          <span
-            data-testid="order-status-badge"
-            className={cn(
-              "uppercase p-1 px-3 rounded-lg text-sm font-bold inline-block",
-              showKitchenReady ? colors[OrderStatus.Paid] : colors[order?.status]
-            )}
-          >{showKitchenReady ? t('status.ready') : translateOrderStatus(t, order?.status)}</span>
+          <OrderStatusBadge order={order} kitchenReady={kitchenReady} />
         </div>
 
         <div className="py-2 min-h-[2.5rem] flex flex-col justify-center">

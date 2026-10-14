@@ -120,7 +120,7 @@
   },
   "closingCycle": {
     "title": "Closing cycle",
-    "description": "Configure cycle start and end time. End time can be next day (example: 06:00 to 02:00).",
+    "description": "Configure cycle start and end time. End time can be next day (example: 06:00 to 04:00). After the end time, the cashier must complete day closing before sales resume.",
     "startTime": "Start time",
     "endTime": "End time",
     "updated": "Closing cycle settings updated",

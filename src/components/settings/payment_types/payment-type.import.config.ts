@@ -15,7 +15,7 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 
-const PAYMENT_TYPE_KINDS = ["Cash", "Card", "Points", "Remote"] as const;
+const PAYMENT_TYPE_KINDS = ["Cash", "Card", "Points", "Remote", "Room", "Credit"] as const;
 
 function parsePaymentKind(raw: any): (typeof PAYMENT_TYPE_KINDS)[number] {
   const value = String(raw ?? "").trim();

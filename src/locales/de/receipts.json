@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Vorläufige Rechnung",
+  "proformaBill": "Proforma",
+  "proformaNote": "Preise können variieren. Dies ist keine endgültige Rechnung.",
   "finalBill": "Abschlussrechnung",
   "duplicateFinalBill": "Kopie Abschlussrechnung",
   "delivery": "LIEFERUNG",

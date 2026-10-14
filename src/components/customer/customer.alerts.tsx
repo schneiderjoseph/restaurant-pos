@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCakeCandles, faChair, faCrown, faLeaf, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faCakeCandles, faChair, faCrown, faLeaf, faTriangleExclamation, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
 import type { Customer } from '@/api/model/customer.ts';
 import {
   customerAllergies,
@@ -8,7 +8,7 @@ import {
   isBirthdayToday,
 } from '@/lib/customer-preferences.ts';
 import { nowInAppTimezone } from '@/lib/datetime.ts';
-import { cn } from '@/lib/utils.ts';
+import { cn, withCurrency } from '@/lib/utils.ts';
 
 interface Props {
   customer?: Customer | null;
@@ -18,11 +18,20 @@ interface Props {
   hideNotes?: boolean;
   /** Kitchen screen: only what changes the cooking (allergies, diet, note) — no VIP, birthday or seating. */
   kitchen?: boolean;
+  /** Outstanding house-account balance when the parent has loaded it. */
+  creditOutstanding?: number;
   className?: string;
 }
 
 /** What staff must see before serving the customer: allergies first, then diet, VIP, seating… */
-export const CustomerAlerts = ({ customer, compact, hideNotes, kitchen, className }: Props) => {
+export const CustomerAlerts = ({
+  customer,
+  compact,
+  hideNotes,
+  kitchen,
+  creditOutstanding,
+  className,
+}: Props) => {
   const { t } = useTranslation('menu');
   if (!customer) return null;
 
@@ -36,8 +45,12 @@ export const CustomerAlerts = ({ customer, compact, hideNotes, kitchen, classNam
     new Date(appToday.year, appToday.month - 1, appToday.day),
   );
   const vip = !kitchen && Boolean(customer.vip);
+  const credit = !kitchen && Boolean(customer.credit_allowed);
+  const due = !kitchen && creditOutstanding != null && creditOutstanding > 0.009
+    ? creditOutstanding
+    : 0;
 
-  if (!allergies.length && !diets.length && !seating && !notes && !birthday && !vip) {
+  if (!allergies.length && !diets.length && !seating && !notes && !birthday && !vip && !credit && !due) {
     return null;
   }
 
@@ -62,6 +75,16 @@ export const CustomerAlerts = ({ customer, compact, hideNotes, kitchen, classNam
             <FontAwesomeIcon icon={faCrown} className="mr-1" />{t('customer.vip')}
           </span>
         )}
+        {credit && (
+          <span className="rounded-md bg-neutral-800 text-white px-2 py-0.5 text-sm font-semibold" data-testid="customer-credit-badge">
+            <FontAwesomeIcon icon={faFileInvoiceDollar} className="mr-1" />{t('customer.creditAllowed')}
+          </span>
+        )}
+        {due > 0 && (
+          <span className="rounded-md bg-warning-600 text-white px-2 py-0.5 text-sm font-semibold" data-testid="customer-credit-due">
+            {t('customer.creditDue', { amount: withCurrency(due) })}
+          </span>
+        )}
         {birthday && (
           <span className="rounded-md bg-info-100 text-info-800 px-2 py-0.5 text-sm">
             <FontAwesomeIcon icon={faCakeCandles} className="mr-1" />{t('customer.birthdayToday')}
@@ -82,11 +105,21 @@ export const CustomerAlerts = ({ customer, compact, hideNotes, kitchen, classNam
           <div className="text-lg font-semibold text-danger-800">{allergies.join(', ')}</div>
         </div>
       )}
-      {(diets.length > 0 || vip || birthday || seating) && (
+      {(diets.length > 0 || vip || birthday || seating || credit || due > 0) && (
         <div className="flex flex-wrap gap-2">
           {vip && (
             <span className="rounded-lg bg-warning-100 text-warning-800 px-3 py-1.5 font-semibold">
               <FontAwesomeIcon icon={faCrown} className="mr-1" />{t('customer.vip')}
+            </span>
+          )}
+          {credit && (
+            <span className="rounded-lg bg-neutral-800 text-white px-3 py-1.5 font-semibold" data-testid="customer-credit-badge">
+              <FontAwesomeIcon icon={faFileInvoiceDollar} className="mr-1" />{t('customer.creditAllowed')}
+            </span>
+          )}
+          {due > 0 && (
+            <span className="rounded-lg bg-warning-600 text-white px-3 py-1.5 font-semibold" data-testid="customer-credit-due">
+              {t('customer.creditDue', { amount: withCurrency(due) })}
             </span>
           )}
           {birthday && (

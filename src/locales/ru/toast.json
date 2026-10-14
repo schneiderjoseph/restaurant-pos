@@ -36,6 +36,8 @@
   },
   "closing": {
     "loadFailed": "Не удалось загрузить закрытие смены",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders.",
     "alreadyClosed": "Этот цикл уже закрыт.",
     "openOrders": "Есть открытые заказы. Сначала закройте их.",
     "completed": "Закрытие смены успешно завершено!",
@@ -50,7 +52,9 @@
     "noProductMix": "Позиции для отчёта по ассортименту не найдены.",
     "noTimeEntries": "Завершённые записи учёта времени за эту дату не найдены.",
     "noServerSales": "Данные о продажах официантов за эту дату не найдены.",
-    "loadFailed": "Не удалось загрузить заказы за эту дату."
+    "loadFailed": "Не удалось загрузить заказы за эту дату.",
+    "noCashClosing": "No cash closing or paid orders for this date.",
+    "cashClosingLive": "No saved closing — printed live settlement from today's orders."
   },
   "clock": {
     "noActiveEntry": "Активная запись учёта времени не найдена",

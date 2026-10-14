@@ -1,5 +1,7 @@
 {
   "preSaleBill": "Ön Satış Fişi",
+  "proformaBill": "Proforma",
+  "proformaNote": "Fiyatlar değişebilir. Bu nihai fatura değildir.",
   "finalBill": "Son Fiş",
   "duplicateFinalBill": "Son Fiş Kopyası",
   "delivery": "TESLİMAT",

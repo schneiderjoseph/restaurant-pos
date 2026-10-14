@@ -120,7 +120,7 @@
   },
   "closingCycle": {
     "title": "Cycle de clôture",
-    "description": "Configurer l'heure de début et de fin du cycle. L'heure de fin peut être le jour suivant (exemple : 06:00 à 02:00).",
+    "description": "Configurer l'heure de début et de fin du cycle. L'heure de fin peut être le jour suivant (exemple : 06:00 à 04:00). Après l'heure de fin, la caisse doit clôturer la journée avant de reprendre les ventes.",
     "startTime": "Heure de début",
     "endTime": "Heure de fin",
     "updated": "Paramètres du cycle de clôture mis à jour",

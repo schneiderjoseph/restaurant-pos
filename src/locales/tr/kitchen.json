@@ -36,7 +36,7 @@
   },
   "confirm": {
     "title": "Onayla",
-    "completeAll": "Bu mutfaktaki tüm açık siparişler tamamlansın mı?"
+    "completeAll": "Bu istasyondaki tüm açık siparişler tamamlansın mı?"
   },
   "due": {
     "forTime": "For {{time}}",
