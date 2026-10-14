@@ -7,6 +7,7 @@ const { upsertCatalog } = require('./posr-upsert');
 const { readSelectedPosIds, writeAsiOutlets } = require('./outlet-settings');
 const { fetchInHouseGuests } = require('./fd-query');
 const { upsertGuests } = require('./guest-upsert');
+const { closeAsiTakenOverStays } = require('./stay-takeover');
 const { fetchAsiTables } = require('./table-query');
 const { upsertTables } = require('./table-upsert');
 const { fetchAsiRooms } = require('./room-query');
@@ -46,6 +47,13 @@ async function syncGuests(db) {
   log('ASI in-house guests loaded', { count: guests.length });
   const stats = await upsertGuests(db, guests);
   log('Guest sync complete', stats);
+  if (config.autoCheckoutTakenOver) {
+    const takeover = await closeAsiTakenOverStays(db);
+    if (takeover.closed > 0 || takeover.unsettled.length > 0) {
+      log('Manual stays taken over by ASI', takeover);
+    }
+    stats.takeover = takeover;
+  }
   return stats;
 }
 

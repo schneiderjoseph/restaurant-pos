@@ -70,6 +70,8 @@ const config = {
   syncRooms: process.env.ASI_ROOM_SYNC === undefined || process.env.ASI_ROOM_SYNC === ''
     ? bool('ASI_FD_SYNC', false)
     : bool('ASI_ROOM_SYNC', false),
+  /** After guest sync: check out settled manual stays whose room ASI gave to another guest. */
+  autoCheckoutTakenOver: bool('ASI_FD_AUTO_CHECKOUT', true),
   intervalMs: Number(process.env.ASI_SYNC_INTERVAL_MS || 30000),
   once: bool('ASI_SYNC_ONCE', false) || process.argv.includes('--once'),
 };
