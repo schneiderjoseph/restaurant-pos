@@ -123,6 +123,13 @@
     "folioHint": "Choose USD or HTG for this stay bill",
     "cancel": "Cancel"
   },
+  "tempReprint": {
+    "title": "Print the prebill again?",
+    "hint": "It was printed {{seconds}} s ago. Print it again only if the guest needs a second copy.",
+    "confirm": "Print again",
+    "cancel": "Don't print",
+    "busy": "The prebill is already printing…"
+  },
   "cancel": {
     "title": "Cancel order",
     "reason": "Reason",

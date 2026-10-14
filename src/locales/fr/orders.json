@@ -240,6 +240,13 @@
     "folioHint": "Choisissez USD ou HTG pour cette facture de séjour",
     "cancel": "Annuler"
   },
+  "tempReprint": {
+    "title": "Réimprimer la note provisoire ?",
+    "hint": "Elle a été imprimée il y a {{seconds}} s. Réimprimez seulement si le client a besoin d'une deuxième copie.",
+    "confirm": "Réimprimer",
+    "cancel": "Ne pas imprimer",
+    "busy": "La note provisoire est déjà en cours d'impression…"
+  },
   "loadingItems": "Chargement des articles…",
   "retryLoad": "Réessayer le chargement des articles",
   "loadFailed": "Échec du chargement de la commande",

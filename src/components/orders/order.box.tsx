@@ -50,6 +50,7 @@ import {useActionVisible} from "@/hooks/useActionVisible.ts";
 import {useTranslation} from "react-i18next";
 import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
+import { beginTempBillPrint, endTempBillPrint } from "@/components/orders/temp-bill-reprint.tsx";
 import { chooseTempBillCurrency } from "@/components/common/currency/choose-temp-bill-currency.tsx";
 import { printDuplicateKotForOrder } from "@/lib/kitchen/print-duplicate-kot.ts";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
@@ -257,30 +258,39 @@ export const OrderBox = ({
     }
   };
 
-  const printTempBill = () => {
-    void withFullOrder(async (full) => {
-      const printCurrency = await chooseTempBillCurrency();
-      if (!printCurrency) return;
-      await requestBillPrint({
-        db,
-        protectAction,
-        orderId: full.id.toString(),
-        printType: 'temp',
-        printModule: 'orders.print_temp',
-        description: 'Print temp bill',
-        payload: { order: full.id.toString() },
-        userId: page?.user?.id?.toString?.() ?? page?.user?.id,
-        doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, { order: full, taxes }, {
-          userId: page?.user?.id,
-          printCurrency,
-        }),
-        onPrinted: () => {
-          setTempPrintedLocal(true);
-          onAction?.();
-        },
+  const printTempBill = () => void (async () => {
+    const orderId = snapshot.id.toString();
+    if (!(await beginTempBillPrint(db, orderId))) return;
+    let requested = false;
+    try {
+      await withFullOrder(async (full) => {
+        const printCurrency = await chooseTempBillCurrency();
+        if (!printCurrency) return;
+        requested = true;
+        await requestBillPrint({
+          db,
+          protectAction,
+          orderId: full.id.toString(),
+          printType: 'temp',
+          printModule: 'orders.print_temp',
+          description: 'Print temp bill',
+          payload: { order: full.id.toString() },
+          userId: page?.user?.id?.toString?.() ?? page?.user?.id,
+          doPrint: () => dispatchPrint(db, PRINT_TYPE.presale_bill, { order: full, taxes }, {
+            userId: page?.user?.id,
+            printCurrency,
+          }),
+          onPrinted: () => {
+            setTempPrintedLocal(true);
+            onAction?.();
+          },
+          onSettled: (printed) => endTempBillPrint(orderId, printed),
+        });
       });
-    });
-  };
+    } finally {
+      if (!requested) endTempBillPrint(orderId, false);
+    }
+  })();
 
   const printProforma = () => {
     void withFullOrder(async (full) => {

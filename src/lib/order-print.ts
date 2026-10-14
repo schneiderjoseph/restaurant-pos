@@ -67,6 +67,33 @@ export async function countOrderPrints(
   return Number(rows[0]?.total ?? 0);
 }
 
+/** A temp bill printed less than this long ago asks before printing again (double taps). */
+export const TEMP_BILL_COOLDOWN_MS = 45_000;
+
+/** Milliseconds left before the order's temp bill prints without asking; 0 when it may. */
+export function tempBillCooldownLeft(lastPrintedAt: Date | null, now = Date.now()): number {
+  if (!lastPrintedAt || Number.isNaN(lastPrintedAt.getTime())) return 0;
+  return Math.max(0, lastPrintedAt.getTime() + TEMP_BILL_COOLDOWN_MS - now);
+}
+
+/** When the order's last bill of this type was printed, from any device; null if never. */
+export async function lastOrderPrintAt(
+  db: PrintDB,
+  orderId: string,
+  printType: OrderPrintType
+): Promise<Date | null> {
+  const result = await db.query(
+    `SELECT VALUE printed_at FROM ${Tables.order_prints}
+     WHERE order = $order AND print_type = $printType
+     ORDER BY printed_at DESC LIMIT 1`,
+    { order: toRecordId(orderId), printType }
+  );
+  const [value] = firstRows<unknown>(result);
+  if (value == null) return null;
+  const date = value instanceof Date ? value : new Date(String(value));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export async function hasTempPrint(db: PrintDB, orderId: string): Promise<boolean> {
   const count = await countOrderPrints(db, orderId, "temp");
   return count > 0;
@@ -173,6 +200,8 @@ export async function requestBillPrint(opts: {
   userId?: string | null;
   isDuplicate?: boolean;
   onPrinted?: () => void;
+  /** Runs once the print went out or failed (not when an approval prompt is dismissed). */
+  onSettled?: (printed: boolean) => void;
   skipIfOverLimit?: boolean;
 }): Promise<boolean> {
   const gate = await getBillPrintGate(opts.db, opts.orderId, opts.printType);
@@ -181,21 +210,27 @@ export async function requestBillPrint(opts: {
   if (isOverride) {
     toastPrintLimitReached(opts.printType, gate.count, gate.limit);
     if (opts.skipIfOverLimit) {
+      opts.onSettled?.(false);
       return false;
     }
   }
 
   const run = async () => {
-    const ok = await opts.doPrint();
-    if (ok) {
-      await recordOrderPrint(opts.db, {
-        orderId: opts.orderId,
-        printType: opts.printType,
-        userId: opts.userId,
-        isOverride,
-        isDuplicate: opts.isDuplicate === true,
-      });
-      opts.onPrinted?.();
+    let ok = false;
+    try {
+      ok = await opts.doPrint();
+      if (ok) {
+        await recordOrderPrint(opts.db, {
+          orderId: opts.orderId,
+          printType: opts.printType,
+          userId: opts.userId,
+          isOverride,
+          isDuplicate: opts.isDuplicate === true,
+        });
+        opts.onPrinted?.();
+      }
+    } finally {
+      opts.onSettled?.(ok);
     }
     return ok;
   };
