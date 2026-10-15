@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Dashboard kon niet worden geladen"
   },
   "receipt": {
-    "noItems": "Geen artikelen op deze bestelling."
+    "noItems": "Geen artikelen op deze bestelling.",
+    "staySettlement": "Verblijfsafrekening"
   },
   "columns": {
     "invoice": "Factuur #",

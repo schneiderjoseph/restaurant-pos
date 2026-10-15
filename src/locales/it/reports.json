@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Impossibile caricare la dashboard"
   },
   "receipt": {
-    "noItems": "Nessun articolo in questo ordine."
+    "noItems": "Nessun articolo in questo ordine.",
+    "staySettlement": "Saldo soggiorno"
   },
   "columns": {
     "invoice": "Fattura n.",

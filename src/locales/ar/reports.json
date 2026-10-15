@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "فشل تحميل لوحة المعلومات"
   },
   "receipt": {
-    "noItems": "لا توجد أصناف في هذا الطلب."
+    "noItems": "لا توجد أصناف في هذا الطلب.",
+    "staySettlement": "تسوية الإقامة"
   },
   "columns": {
     "invoice": "رقم الفاتورة",

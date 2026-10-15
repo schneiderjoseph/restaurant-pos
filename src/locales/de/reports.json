@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Dashboard konnte nicht geladen werden"
   },
   "receipt": {
-    "noItems": "Keine Artikel in dieser Bestellung."
+    "noItems": "Keine Artikel in dieser Bestellung.",
+    "staySettlement": "Aufenthaltsabrechnung"
   },
   "columns": {
     "invoice": "Rechnung #",

@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "No se pudo cargar el panel"
   },
   "receipt": {
-    "noItems": "No hay artículos en este pedido."
+    "noItems": "No hay artículos en este pedido.",
+    "staySettlement": "Liquidación de estancia"
   },
   "columns": {
     "invoice": "Factura #",

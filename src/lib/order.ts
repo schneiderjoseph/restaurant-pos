@@ -395,6 +395,16 @@ export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): Orde
   };
 };
 
+/** Order tag of a Room folio settlement: a Paid order with no items, only the cash/card line. */
+export const STAY_SETTLEMENT_TAG = 'stay-settlement';
+
+export const isStaySettlementOrder = (order?: Pick<OrderModel, 'tags'> | null): boolean =>
+  !!order?.tags?.includes(STAY_SETTLEMENT_TAG);
+
+/** A settlement order has no items: its total is the money it collected. */
+export const getStaySettlementAmount = (order: Pick<OrderModel, 'payments'>): number =>
+  getOrderPaymentTotals(order).amountApplied;
+
 export interface OrderSettlementFigures {
   itemsTotal: number;
   extrasTotal: number;

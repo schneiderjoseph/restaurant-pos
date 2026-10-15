@@ -6,7 +6,13 @@ import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {previewCartTotals} from "@/lib/cart-tax-preview.ts";
 import {cn} from "@/lib/utils.ts";
 import {DiscountType} from "@/api/model/discount.ts";
-import {getActiveOrderDiscounts, getOrderDisplayItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {
+  getActiveOrderDiscounts,
+  getOrderDisplayItems,
+  getOrderPaymentTotals,
+  getStaySettlementAmount,
+  isStaySettlementOrder,
+} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -104,6 +110,19 @@ export const OrderTotals = ({order, cart, className, compact}: Props) => {
   const preview = useMemo(() => {
     if (cart) {
       return calculateOrderTotalsPreview(order, cart);
+    }
+
+    if (isStaySettlementOrder(order)) {
+      const amount = getStaySettlementAmount(order);
+      return {
+        itemsTotal: amount,
+        itemCount: 1,
+        taxAmount: 0,
+        serviceChargeAmount: 0,
+        discountAmount: 0,
+        tipAmount: 0,
+        total: amount,
+      };
     }
 
     const itemsTotal = calculateOrderTotal(order);

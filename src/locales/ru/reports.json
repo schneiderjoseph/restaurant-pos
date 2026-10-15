@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Не удалось загрузить панель"
   },
   "receipt": {
-    "noItems": "В этом заказе нет позиций."
+    "noItems": "В этом заказе нет позиций.",
+    "staySettlement": "Расчёт за проживание"
   },
   "columns": {
     "invoice": "Накладная №",

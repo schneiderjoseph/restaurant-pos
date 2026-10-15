@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Gösterge paneli yüklenemedi"
   },
   "receipt": {
-    "noItems": "Bu siparişte ürün yok."
+    "noItems": "Bu siparişte ürün yok.",
+    "staySettlement": "Konaklama ödemesi"
   },
   "columns": {
     "invoice": "Fatura #",

@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Falha ao carregar o painel"
   },
   "receipt": {
-    "noItems": "Nenhum item neste pedido."
+    "noItems": "Nenhum item neste pedido.",
+    "staySettlement": "Acerto da estadia"
   },
   "columns": {
     "invoice": "Nota Fiscal #",

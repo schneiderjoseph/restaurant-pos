@@ -5,7 +5,8 @@ import {OrderHeader} from "@/components/orders/order.header.tsx";
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import {OrderTotals} from "@/components/orders/order.totals.tsx";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getOrderFilteredItems, getStaySettlementAmount, isStaySettlementOrder} from "@/lib/order.ts";
+import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {ReactQrCode} from "@/lib/react-qr-code.tsx";
 import type {FiscalQrPrintItem} from "@/integrations/providers/fiscal/shared/runtime-config.ts";
 import {useRestaurantProfile} from "@/hooks/useRestaurantProfile.ts";
@@ -70,7 +71,12 @@ export const OrderReceiptView = ({
         <div className="separator h-[2px]" style={separatorStyle}></div>
 
         <div>
-          {items.length === 0 ? (
+          {items.length === 0 && isStaySettlementOrder(order) ? (
+            <div className="flex py-2 text-sm font-medium" data-testid="order-receipt-stay-settlement">
+              <div className="flex-1">{order.notes || t("receipt.staySettlement")}</div>
+              <div className="text-right"><DualCurrency amount={getStaySettlementAmount(order)} /></div>
+            </div>
+          ) : items.length === 0 ? (
             <div className="py-4 text-center text-sm text-neutral-500">
               {t("receipt.noItems")}
             </div>

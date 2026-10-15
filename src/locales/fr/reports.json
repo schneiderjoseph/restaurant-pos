@@ -267,7 +267,8 @@
     "failedToLoadDashboard": "Échec du chargement du tableau de bord"
   },
   "receipt": {
-    "noItems": "Aucun article sur cette commande."
+    "noItems": "Aucun article sur cette commande.",
+    "staySettlement": "Règlement séjour"
   },
   "columns": {
     "invoice": "Facture n°",

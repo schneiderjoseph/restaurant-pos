@@ -4,7 +4,7 @@ import React, {useMemo, useState} from "react";
 import {cn} from "@/lib/utils.ts";
 import {DualCurrency} from "@/components/common/currency/dual-currency.tsx";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
-import {formatOrderNumber, getOrderDisplayItems} from "@/lib/order.ts";
+import {formatOrderNumber, getOrderDisplayItems, getStaySettlementAmount, isStaySettlementOrder} from "@/lib/order.ts";
 import {useTranslation} from "react-i18next";
 import {useOrderCardHydrate} from "@/hooks/useOrderCardHydrate.ts";
 import {useDB} from "@/api/db/db.ts";
@@ -42,6 +42,9 @@ export const OrderRow = ({
   const [isLoadingFull, setIsLoadingFull] = useState(false);
 
   const total = useMemo(() => {
+    if (isStaySettlementOrder(order)) {
+      return getStaySettlementAmount(order);
+    }
     const extrasTotal = order?.extras
       ? order.extras.reduce((prev, item) => prev + Number(item?.value || 0), 0)
       : 0;

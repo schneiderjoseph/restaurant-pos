@@ -9,6 +9,7 @@ import { ACTIVE_CUSTOMER } from '@/lib/customer-scope.ts';
 import { customerHistoryIds } from '@/lib/customer.service.ts';
 import { generateNextInvoiceNumber, getNextAutoId } from '@/lib/invoice.ts';
 import { isAsiGuest } from '@/lib/guest.ts';
+import { STAY_SETTLEMENT_TAG } from '@/lib/order.ts';
 import { isRoomPaymentType } from '@/lib/room-charge.ts';
 import { normalizeRoomKey, roomKeyCandidates, splitGuestRooms } from '@/lib/room-key.ts';
 import { toRecordId } from '@/lib/utils.ts';
@@ -674,8 +675,7 @@ export interface SettleStayRoomInput {
   user?: Pick<User, 'id'> | null;
 }
 
-/** Order tag of a Room folio settlement: a Paid order with no items, only the cash/card line. */
-export const STAY_SETTLEMENT_TAG = 'stay-settlement';
+export { STAY_SETTLEMENT_TAG };
 
 /** Amount already collected on the stay: the sum of its stay_settlement rows. */
 export async function loadStaySettledTotal(db: AnyDb, stayId: unknown): Promise<number> {
@@ -750,7 +750,7 @@ export async function settleStayRoom(db: AnyDb, input: SettleStayRoomInput): Pro
          created_at = time::now(),
          completed_at = time::now(),
          tags = ['${STAY_SETTLEMENT_TAG}'],
-         notes = $notes);
+         notes = IF $stay.room { $notes + ' · Ch. ' + <string> $stay.room } ELSE { $notes });
        CREATE ${Tables.stay_settlements} SET
          stay = $id,
          order = $order.id,

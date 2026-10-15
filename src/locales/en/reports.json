@@ -267,7 +267,8 @@
     "orderIdRequired": "Order ID is required."
   },
   "receipt": {
-    "noItems": "No items on this order."
+    "noItems": "No items on this order.",
+    "staySettlement": "Stay settlement"
   },
   "columns": {
     "invoice": "Invoice #",
