@@ -107,6 +107,7 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "reports.sales_summary",
       "reports.sales_summary_2",
       "reports.sales_by_customer",
+      "reports.customer_credit",
       "reports.sales_weekly",
       "reports.tips",
       "reports.advanced_sales",

@@ -44,6 +44,7 @@ import {
   REPORTS_TAX,
   REPORTS_TIPS,
   REPORTS_SALES_BY_CUSTOMER,
+  REPORTS_CUSTOMER_CREDIT,
   REPORTS_VOIDS,
   SETTINGS,
   INTEGRATIONS,
@@ -90,6 +91,7 @@ import {
   FrontDeskScreen,
   TipsReport,
   SalesByCustomerReport,
+  CustomerCreditReport,
   VoidsReport,
 } from "@/routes/lazy-screens.ts";
 import {
@@ -150,6 +152,7 @@ export const AppRoutes = () => {
         <Route path={REPORTS_SALES_SUMMARY2} element={<SalesSummary2Report/>}/>
         <Route path={REPORTS_TIPS} element={<TipsReport/>}/>
         <Route path={REPORTS_SALES_BY_CUSTOMER} element={<SalesByCustomerReport/>}/>
+        <Route path={REPORTS_CUSTOMER_CREDIT} element={<CustomerCreditReport/>}/>
         <Route path={REPORTS_SALES_WEEKLY} element={<SalesWeeklyReport/>}/>
         <Route path={REPORTS_TABLES_SUMMARY} element={<TablesSummaryReport/>}/>
         <Route path={REPORTS_VOIDS} element={<VoidsReport/>}/>

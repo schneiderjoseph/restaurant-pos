@@ -107,5 +107,19 @@ export {
   aggregateSalesByCustomer,
   ANONYMOUS_CUSTOMER_ROW,
   CUSTOMER_SALES_FETCHES,
+  excludeHouseSettlementOrders,
+  isHouseSettlementOrder,
+  paymentAmountForTypes,
 } from "@/api/reports/sales/customers.ts";
-export type {CustomerSales} from "@/api/reports/sales/customers.ts";
+export type {
+  AggregateSalesByCustomerOptions,
+  CustomerSales,
+} from "@/api/reports/sales/customers.ts";
+export {
+  aggregateCustomerCreditAr,
+  countedCreditCustomer,
+} from "@/api/reports/sales/customer-credit.ts";
+export type {
+  AggregateCustomerCreditArOptions,
+  CustomerCreditArRow,
+} from "@/api/reports/sales/customer-credit.ts";

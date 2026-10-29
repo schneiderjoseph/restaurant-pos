@@ -346,6 +346,15 @@ export async function customerHistoryIds(db: AnyDb, id: unknown): Promise<unknow
   return [record, ...merged];
 }
 
+/** Display name of a customer record, or '' when it cannot be loaded. */
+export async function loadCustomerName(db: AnyDb, id: unknown): Promise<string> {
+  if (id == null || id === '') return '';
+  const names = rowsOf<string>(
+    await db.query(`SELECT VALUE name FROM ${Tables.customers} WHERE id = $id`, { id: toRecordId(idOf(id)) }),
+  );
+  return String(names[0] ?? '').trim();
+}
+
 /** Projection: created_at of the customer's latest order, to tell homonyms apart. */
 export const LAST_ORDER_AT = `(SELECT VALUE created_at FROM ${Tables.orders}
   WHERE customer = $parent.id ORDER BY created_at DESC LIMIT 1)[0] AS last_order_at`;

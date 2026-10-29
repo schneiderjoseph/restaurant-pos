@@ -95,6 +95,28 @@
     "creditNotSettled":  "Credit not settled",
     "creditOrders":  "Credit orders",
     "emptyCreditFolio":  "No credit charges for this customer",
+
+    "creditBillTitle":  "Credit statement",
+
+    "creditBillAccount":  "Account",
+
+    "creditBillFrom":  "From",
+
+    "creditBillTo":  "To",
+
+    "creditBillCharge":  "Charged to credit",
+
+    "creditBillTotal":  "Credit total",
+
+    "salesBillTitle":  "Customer sales",
+
+    "salesBillOrderTotal":  "Order total",
+
+    "salesBillViaMethods":  "Via selected methods",
+
+    "salesBillPeriodTotal":  "Period total",
+
+    "salesBillEmpty":  "No sales for this customer",
     "settleCredit":  "Collect credit",
     "creditSettleHint":  "A cashier (payment receive) must collect the credit balance in cash or card.",
     "creditSettledOk":  "Credit account settled",

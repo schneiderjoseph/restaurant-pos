@@ -115,3 +115,6 @@ export const AiReport = lazy(() =>
 export const SalesByCustomerReport = lazy(() =>
   import('@/screens/reports/sales.by.customer.report.tsx').then(m => ({default: m.SalesByCustomerReport}))
 );
+export const CustomerCreditReport = lazy(() =>
+  import('@/screens/reports/customer.credit.report.tsx').then(m => ({default: m.CustomerCreditReport}))
+);

@@ -1,19 +1,30 @@
 import { describe, expect, it } from 'vitest';
 import type { Order } from '@/api/model/order.ts';
-import { aggregateSalesByCustomer, ANONYMOUS_CUSTOMER_ROW } from '@/api/reports/sales/customers.ts';
+import {
+  aggregateSalesByCustomer,
+  ANONYMOUS_CUSTOMER_ROW,
+  excludeHouseSettlementOrders,
+  paymentAmountForTypes,
+} from '@/api/reports/sales/customers.ts';
 
-const cashPayment = (amount: number) => ({
+const cashPayment = (amount: number, id = 'payment_type:cash') => ({
   amount,
-  payment_type: { name: 'Cash', type: 'cash' },
+  payment_type: { id, name: 'Cash', type: 'cash' },
 });
 
-const order = (price: number, customer?: Record<string, unknown>) =>
+const creditPayment = (amount: number, id = 'payment_type:credit') => ({
+  amount,
+  payment_type: { id, name: 'Credit', type: 'Credit' },
+});
+
+const order = (price: number, customer?: Record<string, unknown>, payments?: unknown[]) =>
   ({
     id: `order:${Math.random()}`,
     status: 'Paid',
     customer,
     items: [{ id: `order_item:${Math.random()}`, item: { name: 'x' }, quantity: 1, price, modifiers: [] }],
-    payments: [cashPayment(price)],
+    payments: payments ?? [cashPayment(price)],
+    tags: [],
   }) as unknown as Order;
 
 const CASH = { id: 'customer:cash', name: 'Cash', tags: ['walk-in', 'anonymous', 'cash'] };
@@ -49,5 +60,30 @@ describe('aggregateSalesByCustomer', () => {
     const rows = aggregateSalesByCustomer([order(30, asi), order(20, manual)]);
 
     expect(rows.map((row) => [row.name, row.room])).toEqual([["Jean Hotel", "21"], ["Ana Desk", undefined]]);
+  });
+
+  it('keeps full order total and tracks filtered payment share separately', () => {
+    const split = order(100, MARIE, [cashPayment(60), creditPayment(40)]);
+    const [row] = aggregateSalesByCustomer([split], { paymentTypeIds: ['payment_type:credit'] });
+    expect(row.total).toBe(100);
+    expect(row.filteredPayments).toBe(40);
+    expect(paymentAmountForTypes(split, ['payment_type:credit'])).toBe(40);
+  });
+
+  it('drops credit-settlement and stay-settlement shells', () => {
+    const sale = order(30, MARIE);
+    const creditSettle = {
+      ...order(30, MARIE),
+      items: [],
+      tags: ['credit-settlement'],
+    } as unknown as Order;
+    const staySettle = {
+      ...order(20, MARIE),
+      items: [],
+      tags: ['stay-settlement'],
+    } as unknown as Order;
+    const kept = excludeHouseSettlementOrders([sale, creditSettle, staySettle]);
+    expect(kept).toHaveLength(1);
+    expect(aggregateSalesByCustomer(kept)[0].orders).toBe(1);
   });
 });

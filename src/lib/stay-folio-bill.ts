@@ -59,10 +59,20 @@ export type StayFolioBillInput = {
   /** When false, hide stay settlement / due block (single order fiche). Default true. */
   showStaySummary?: boolean;
   /**
+   * When false, the totals block shows only the grand total: no collected / due / status
+   * lines. For a sales statement, which says nothing about what was collected. Default true.
+   */
+  showSettlementTotals?: boolean;
+  /**
    * Print amounts in this currency (HTG / USD). Amounts on the order are stored in the
    * app primary currency; conversion uses the configured USD↔HTG rate.
    */
   printCurrency?: string;
+  /**
+   * Per-order charge line (defaults to Room tender). Credit folios pass
+   * {@link orderCreditChargeTotal} so the sheet never shows a Room amount of 0.
+   */
+  chargeAmountOf?: (order: Order) => number;
 };
 
 const escapeHtml = (value: unknown): string =>
@@ -93,12 +103,14 @@ export function buildStayFolioBillHtml(input: StayFolioBillInput): string {
   const money = (amount: number) =>
     escapeHtml(formatInCurrency(convertPrimaryToPay(Number(amount) || 0, currency), currency));
 
+  const chargeOf = input.chargeAmountOf ?? orderRoomChargeAmount;
+
   const orderBlocks = input.orders.length === 0
     ? `<p class="muted">${escapeHtml(L.emptyFolio)}</p>`
     : input.orders.map((order) => {
       const items = getOrderFilteredItems(order);
       const figures = getOrderSettlementFigures(order);
-      const roomCharge = orderRoomChargeAmount(order);
+      const roomCharge = chargeOf(order);
       const when = formatWhen(order.completed_at ?? order.created_at, input.locale);
       const invoice = getInvoiceNumber(order);
       const rows = items.length === 0
@@ -151,12 +163,15 @@ export function buildStayFolioBillHtml(input: StayFolioBillInput): string {
       </section>`;
 
   const statusLabel = input.outstanding <= 0.009 ? L.settled : L.notSettled;
-  const totalsBlock = showStaySummary
-    ? `<section class="totals">
-      <div class="grand"><span>${escapeHtml(L.roomTotal)}</span><span>${money(input.roomTotal)}</span></div>
+  const settlementTotals = input.showSettlementTotals === false
+    ? ''
+    : `
       <div><span>${escapeHtml(L.settledAmount)}</span><span>${money(input.settledAmount)}</span></div>
       <div><span>${escapeHtml(L.outstanding)}</span><span>${money(input.outstanding)}</span></div>
-      <div class="status">${escapeHtml(statusLabel)}</div>
+      <div class="status">${escapeHtml(statusLabel)}</div>`;
+  const totalsBlock = showStaySummary
+    ? `<section class="totals">
+      <div class="grand"><span>${escapeHtml(L.roomTotal)}</span><span>${money(input.roomTotal)}</span></div>${settlementTotals}
     </section>`
     : '';
   const logo = input.restaurantLogoDataUrl
@@ -262,6 +277,51 @@ export function getStayBillLabels(
     printedAt: t('billPrintedAt'),
     settled: t('settled'),
     notSettled: t('notSettled'),
+  };
+}
+
+/**
+ * Stay-bill labels for a house-credit folio: same sheet layout, no Room wording.
+ * Pass with {@link buildStayFolioBillHtml} and `chargeAmountOf: orderCreditChargeTotal`.
+ */
+export function getCreditBillLabels(lang: StayBillLang): StayFolioBillLabels {
+  const dict = (lang === 'en' ? enFrontdesk : frFrontdesk) as FrontdeskDict;
+  const t = (key: string) => dict[key] ?? key;
+  const base = getStayBillLabels(lang);
+  return {
+    ...base,
+    title: t('creditBillTitle'),
+    room: t('creditBillAccount'),
+    dateIn: t('creditBillFrom'),
+    dateOut: t('creditBillTo'),
+    roomCharge: t('creditBillCharge'),
+    roomTotal: t('creditBillTotal'),
+    emptyFolio: t('emptyCreditFolio'),
+    settled: t('creditSettled'),
+    notSettled: t('creditNotSettled'),
+  };
+}
+
+/**
+ * Stay-bill labels for a customer sales statement (Sales by customer report).
+ * `filtered`: the per-order line is the share paid with the selected methods.
+ * Use with `showSettlementTotals: false`: a sales statement is not a collection receipt.
+ */
+export function getCustomerSalesBillLabels(
+  lang: StayBillLang,
+  opts?: { filtered?: boolean },
+): StayFolioBillLabels {
+  const dict = (lang === 'en' ? enFrontdesk : frFrontdesk) as FrontdeskDict;
+  const t = (key: string) => dict[key] ?? key;
+  return {
+    ...getStayBillLabels(lang),
+    title: t('salesBillTitle'),
+    room: t('creditBillAccount'),
+    dateIn: t('creditBillFrom'),
+    dateOut: t('creditBillTo'),
+    roomCharge: opts?.filtered ? t('salesBillViaMethods') : t('salesBillOrderTotal'),
+    roomTotal: t('salesBillPeriodTotal'),
+    emptyFolio: t('salesBillEmpty'),
   };
 }
 

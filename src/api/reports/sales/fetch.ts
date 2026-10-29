@@ -5,6 +5,7 @@ import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
 import {buildCreatedAtDateConditions, buildNestedRecordAnyCondition, buildOrConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 export const SALES_SUMMARY_FETCHES = [
   "payments",
@@ -44,6 +45,10 @@ export interface FetchOrdersOptions extends DateRangeFilter {
   orderTypeIds?: string[];
   categoryIds?: string[];
   menuItemIds?: string[];
+  /** Customer record ids (already expanded with merged history when needed). */
+  customerIds?: string[];
+  /** payment_type record ids — order must include at least one matching tender. */
+  paymentTypeIds?: string[];
 }
 
 export const fetchOrders = async (
@@ -59,6 +64,8 @@ export const fetchOrders = async (
     orderTypeIds = [],
     categoryIds = [],
     menuItemIds = [],
+    customerIds = [],
+    paymentTypeIds = [],
   } = options;
 
   const conditions: string[] = [];
@@ -82,6 +89,20 @@ export const fetchOrders = async (
   if (orderTypeFilter.condition) {
     conditions.push(orderTypeFilter.condition);
     Object.assign(params, orderTypeFilter.params);
+  }
+
+  const customerFilter = buildOrConditions("customer", customerIds, "customerIds");
+  if (customerFilter.condition) {
+    conditions.push(customerFilter.condition);
+    Object.assign(params, customerFilter.params);
+  }
+
+  if (paymentTypeIds.length > 0) {
+    const paymentParts = paymentTypeIds.map((_, index) => `array::any(payments.payment_type.id, $paymentType${index})`);
+    paymentTypeIds.forEach((id, index) => {
+      params[`paymentType${index}`] = toRecordId(id);
+    });
+    conditions.push(`(${paymentParts.join(" OR ")})`);
   }
 
   const menuItemFilter = buildNestedRecordAnyCondition("items.item", menuItemIds, "menuItem");

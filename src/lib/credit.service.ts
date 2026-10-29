@@ -157,7 +157,6 @@ export async function loadCustomerCreditFolioOrders(
          AND deleted_at = none
          AND status = $paid
        ORDER BY created_at ASC
-       LIMIT 500
        FETCH ${CREDIT_FOLIO_FETCHES}`,
       {
         customers,

@@ -95,6 +95,28 @@
     "creditNotSettled":  "Crédit non soldé",
     "creditOrders":  "Commandes à crédit",
     "emptyCreditFolio":  "Aucune charge crédit pour ce client",
+
+    "creditBillTitle":  "Relevé de crédit",
+
+    "creditBillAccount":  "Compte",
+
+    "creditBillFrom":  "Du",
+
+    "creditBillTo":  "Au",
+
+    "creditBillCharge":  "Porté au crédit",
+
+    "creditBillTotal":  "Total crédit",
+
+    "salesBillTitle":  "Ventes client",
+
+    "salesBillOrderTotal":  "Total commande",
+
+    "salesBillViaMethods":  "Via méthodes sélectionnées",
+
+    "salesBillPeriodTotal":  "Total période",
+
+    "salesBillEmpty":  "Aucune vente pour ce client",
     "settleCredit":  "Encaisse crédit",
     "creditSettleHint":  "Un caissier (réception paiement) doit encaisser le solde crédit en espèces ou carte.",
     "creditSettledOk":  "Compte crédit encaissé",
