@@ -26,7 +26,7 @@ export const SalesByCustomerFilter = () => {
   );
   const { data: paymentTypesData, isLoading: loadingPaymentTypes } = useApi<SettingsData<PaymentType>>(
     Tables.payment_types,
-    [],
+    ['deleted_at = none'],
     ['name asc'],
     0,
     9999,

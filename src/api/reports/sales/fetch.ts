@@ -98,7 +98,8 @@ export const fetchOrders = async (
   }
 
   if (paymentTypeIds.length > 0) {
-    const paymentParts = paymentTypeIds.map((_, index) => `array::any(payments.payment_type.id, $paymentType${index})`);
+    // INSIDE, not array::any: an order without payments (NONE) must not fail the whole query.
+    const paymentParts = paymentTypeIds.map((_, index) => `$paymentType${index} INSIDE payments.payment_type`);
     paymentTypeIds.forEach((id, index) => {
       params[`paymentType${index}`] = toRecordId(id);
     });
