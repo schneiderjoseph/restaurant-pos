@@ -23,7 +23,7 @@ export interface PrintOptions {
 
 export const DEFAULT_PRINT_OPTIONS: PrintOptions = {
   copies: {
-    temp: 1,
+    temp: 2,
     final: 1,
     refund: 1,
     kitchen: 1,
