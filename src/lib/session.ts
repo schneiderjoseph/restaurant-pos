@@ -23,9 +23,10 @@ function readStorage(key: string): string | null {
 }
 
 /**
- * When the SPA is opened via LAN IP (e.g. http://192.168.x.x:5173), rewrite
- * localhost / 127.0.0.1 service URLs to that same host so devices on the
- * network hit this machine's gateway — not their own localhost.
+ * When the SPA is opened via LAN IP / public host (e.g. https://pos.example),
+ * rewrite localhost / 127.0.0.1 service URLs to that same host so devices hit
+ * this machine's gateway — not their own localhost. Also upgrades ws/http →
+ * wss/https when the page itself is HTTPS (Cloudflare Tunnel, etc.).
  */
 export function rewriteServiceUrlForPageHost(url: string): string {
   if (!url || typeof window === 'undefined') {
@@ -39,6 +40,13 @@ export function rewriteServiceUrlForPageHost(url: string): string {
     const parsed = new URL(url, window.location.origin);
     if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
       parsed.hostname = pageHost;
+      if (window.location.protocol === 'https:') {
+        if (parsed.protocol === 'ws:') {
+          parsed.protocol = 'wss:';
+        } else if (parsed.protocol === 'http:') {
+          parsed.protocol = 'https:';
+        }
+      }
       return parsed.toString().replace(/\/$/, '');
     }
   } catch {
