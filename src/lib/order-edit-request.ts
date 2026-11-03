@@ -121,7 +121,15 @@ export const diffSentLines = (
 /** Removes a sent line: struck out, its kitchen work cancelled, and a void kept for the reports. */
 export const voidSentLine = async (
   db: AnyDb,
-  args: { orderId: unknown; itemId: string; quantity: number; deletedBy?: unknown; loggedInUser?: unknown },
+  args: {
+    orderId: unknown;
+    itemId: string;
+    quantity: number;
+    deletedBy?: unknown;
+    loggedInUser?: unknown;
+    /** An `OrderVoidReason`; requests made before the reason picker have none. */
+    reason?: string;
+  },
 ): Promise<void> => {
   const itemRef = toRecordId(args.itemId);
   await db.query(`UPDATE ${itemRef} SET deleted_at = time::now()`);
@@ -146,7 +154,7 @@ export const voidSentLine = async (
         loggedInUser: toRecordId(args.loggedInUser ?? args.deletedBy),
         order: toRecordId(args.orderId),
         quantity: args.quantity,
-        reason: OrderVoidReason.PunchByMistake,
+        reason: args.reason || OrderVoidReason.PunchByMistake,
         item: itemRef,
       },
     );
@@ -157,14 +165,16 @@ export const voidSentLine = async (
 
 export const createOrderEditRequest = async (
   db: AnyDb,
-  args: { orderId: unknown; requestedBy: unknown; changes: SentLineChange[] },
+  args: { orderId: unknown; requestedBy: unknown; changes: SentLineChange[]; reason?: string },
 ): Promise<void> => {
+  // order_edit_request is SCHEMALESS: `reason` needs no migration.
   await db.query(
     `CREATE ${Tables.order_edit_requests} CONTENT {
        order: $order,
        requested_by: $requestedBy,
        status: $status,
        changes: $changes,
+       reason: $reason,
        created_at: time::now()
      }`,
     {
@@ -172,6 +182,7 @@ export const createOrderEditRequest = async (
       requestedBy: toRecordId(args.requestedBy),
       status: OrderEditRequestStatus.pending,
       changes: args.changes,
+      reason: args.reason || OrderVoidReason.PunchByMistake,
     },
   );
 };
@@ -230,7 +241,7 @@ export const rejectOrderEditRequest = async (
  */
 export const approveOrderEditRequest = async (
   db: AnyDb,
-  request: Pick<OrderEditRequest, 'id' | 'order' | 'requested_by' | 'changes'>,
+  request: Pick<OrderEditRequest, 'id' | 'order' | 'requested_by' | 'changes' | 'reason'>,
   decidedBy: unknown,
 ): Promise<OrderEditApproval> => {
   const orderId = refKey(request.order);
@@ -267,6 +278,7 @@ export const approveOrderEditRequest = async (
           quantity: change.quantity,
           deletedBy: requestedBy,
           loggedInUser: decidedBy,
+          reason: request.reason,
         });
         voided.push(itemRef);
         applied.push(change);

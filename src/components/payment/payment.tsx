@@ -9,6 +9,7 @@ import {calculateCartItemNetTotal} from "@/lib/cart.ts";
 import {sameCustomer} from "@/lib/customer.service.ts";
 import {buildOrderItemPayload} from "@/lib/order-item-pricing.ts";
 import {syncOrderTaxes} from "@/lib/order-tax.service.ts";
+import {appendItemsToOrder} from "@/lib/order-items-append.ts";
 import {isOrderTimeExtra, orderAutoExtras, syncOrderAutoExtras} from "@/lib/order-auto-extras.ts";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Extra} from "@/api/model/extra.ts";
@@ -35,6 +36,7 @@ import {cancelItemStages, createStageRows, kitchenFireTime} from "@/lib/kitchen/
 import {nowInAppTimezone, nowSurrealDateTime, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 import {formatDueLabel, isDueAhead} from "@/lib/order-due.ts";
 import {OrderDueModal} from "@/components/menu/order-due.modal.tsx";
+import {VoidReasonModal} from "@/components/payment/void-reason.modal.tsx";
 import {useTranslation} from "react-i18next";
 import {DateTime} from "luxon";
 import {
@@ -79,6 +81,7 @@ export const Payment = () => {
   const createInFlightRef = useRef(false);
   const [order, setOrder] = useState<Order>();
   const [dueOpen, setDueOpen] = useState(false);
+  const [voidReasonOpen, setVoidReasonOpen] = useState(false);
 
   // An exempt customer's order starts without those taxes, from the cart on.
   const customerExemptTaxIds = useMemo(
@@ -224,7 +227,7 @@ export const Payment = () => {
 
   const hasCartChangesToPersist = () => hasNewCartItems() || hasPersistedCartEdits();
 
-  const softVoidPersistedItem = async (itemId: string, quantity: number) => {
+  const softVoidPersistedItem = async (itemId: string, quantity: number, reason?: OrderVoidReason) => {
     const now = nowSurrealDateTime();
     const itemRef = toRecordId(itemId);
     await db.merge(itemRef, { deleted_at: now });
@@ -238,7 +241,7 @@ export const Payment = () => {
           logged_in_user: toRecordId(page.user.id),
           order: toRecordId(state.order.id),
           quantity,
-          reason: OrderVoidReason.PunchByMistake,
+          reason: reason ?? OrderVoidReason.PunchByMistake,
           items: [itemRef],
         });
       } catch (error) {
@@ -247,7 +250,8 @@ export const Payment = () => {
     }
   };
 
-  const createOrder = async () => {
+  /** `voidReason`: chosen in VoidReasonModal when the send takes money off sent lines. */
+  const createOrder = async (voidReason?: OrderVoidReason) => {
     const isNewOrder = state?.order?.id === 'new';
     const hasNewItems = hasNewCartItems();
     const hasOldEdits = hasPersistedCartEdits();
@@ -315,6 +319,7 @@ export const Payment = () => {
             await softVoidPersistedItem(
               orderIdToString(item.id) || String(item.id),
               Number(item.quantity) || 1,
+              voidReason,
             );
             continue;
           }
@@ -422,7 +427,7 @@ export const Payment = () => {
             items.push(toRecordId(id));
             continue;
           }
-          await softVoidPersistedItem(id, Number(orig.quantity) || 1);
+          await softVoidPersistedItem(id, Number(orig.quantity) || 1, voidReason);
         }
       }
 
@@ -465,7 +470,10 @@ export const Payment = () => {
         floor: state?.floor?.id ? toRecordId(state.floor.id) : null,
         covers: parseInt(state?.persons) || 1,
         customer: customer,
-        items: items,
+        // New orders set items below. Existing orders must not REPLACE items with this
+        // cart snapshot — another server may have appended lines since we loaded
+        // (BAR/kitchen still fire; the fiche loses them). Appends go via appendItemsToOrder.
+        ...(isNewOrder ? {items} : {}),
         // NONE when tableless; never pass undefined (Surreal error "undefined doesn't exist")
         table: state?.table?.id ? toRecordId(state.table.id) : null,
       };
@@ -558,6 +566,8 @@ export const Payment = () => {
             order: orderObj.id
           });
         }
+        // Atomic append so a concurrent add cannot wipe lines we did not load.
+        await appendItemsToOrder(db, state?.order?.id, newItemIds);
       }
 
       const normalizedOrder = isNewOrder ? orderObj[0] : orderObj;
@@ -586,6 +596,7 @@ export const Payment = () => {
           orderId: normalizedOrder?.id,
           requestedBy: page?.user?.id,
           changes: pendingChanges,
+          reason: voidReason,
         });
         toast.info(t("payment:editRequest.sent"));
       }
@@ -667,7 +678,24 @@ export const Payment = () => {
     }
   }
 
-  const createOrderAndBack = async () => {
+  /** Lines the send takes money off, as the server reads them in VoidReasonModal. */
+  const voidReasonLines = () =>
+    changesNeedingApproval(sentLineChanges()).map((change) =>
+      change.action === 'void'
+        ? `${change.quantity} × ${change.name}`
+        : `${change.name} : ${change.from_quantity} → ${change.quantity}`,
+    );
+
+  // A send that takes money off sent lines asks why first; the reason goes on the voids.
+  const sendToKitchen = () => {
+    if (hasCartChangesToPersist() && hasEditsNeedingApproval()) {
+      setVoidReasonOpen(true);
+      return;
+    }
+    void createOrderAndBack();
+  };
+
+  const createOrderAndBack = async (voidReason?: OrderVoidReason) => {
     try {
       // Cart untouched (or only due / order type): save meta, never kitchen-print.
       if (!hasCartChangesToPersist()) {
@@ -675,7 +703,7 @@ export const Payment = () => {
         await reset();
         return;
       }
-      const result = await createOrder();
+      const result = await createOrder(voidReason);
       if (result === 'busy') {
         return;
       }
@@ -810,7 +838,7 @@ export const Payment = () => {
               : t("payment:due.asapButton")}
           </Button>
           <div className="flex gap-2 mt-3">
-            <Button variant="success" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCheck} onClick={createOrderAndBack}
+            <Button variant="success" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCheck} onClick={sendToKitchen}
                     disabled={isLoading || (cartItemCount === 0 && !hasPersistedCartEdits() && !dueChanged && !orderTypeChanged) || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
             <Button variant="danger" className="flex-1 min-w-0 whitespace-nowrap" size="lg" icon={faCancel} onClick={cancel}
@@ -820,6 +848,17 @@ export const Payment = () => {
           </div>
         </div>
       </div>
+      {voidReasonOpen && (
+        <VoidReasonModal
+          open={voidReasonOpen}
+          lines={voidReasonLines()}
+          onClose={() => setVoidReasonOpen(false)}
+          onConfirm={(reason) => {
+            setVoidReasonOpen(false);
+            void createOrderAndBack(reason);
+          }}
+        />
+      )}
       {dueOpen && (
         <OrderDueModal
           value={dueAt}

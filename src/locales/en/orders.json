@@ -318,7 +318,8 @@
     "failed": "The change could not be applied. Try again.",
     "answerApproved": "Your order change was approved",
     "answerRejected": "Your order change was refused",
-    "answerExpired": "Your order change was dropped: the order is no longer open"
+    "answerExpired": "Your order change was dropped: the order is no longer open",
+    "reason": "Reason: {{reason}}"
   },
   "lineage": {
     "splitFrom": "Split from {{numbers}}",

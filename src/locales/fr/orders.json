@@ -318,7 +318,8 @@
     "failed": "La modification n'a pas pu être appliquée. Réessayez.",
     "answerApproved": "Votre modification de commande a été approuvée",
     "answerRejected": "Votre modification de commande a été refusée",
-    "answerExpired": "Votre modification de commande est abandonnée : la commande n'est plus ouverte"
+    "answerExpired": "Votre modification de commande est abandonnée : la commande n'est plus ouverte",
+    "reason": "Motif : {{reason}}"
   },
   "lineage": {
     "splitFrom": "Divisée de {{numbers}}",

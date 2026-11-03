@@ -9,7 +9,8 @@ import {OrderEditRequest, OrderEditRequestStatus, SentLineChange} from "@/api/mo
 import {appPage} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {fetchUserModules, userModulesGrant} from "@/lib/access.rules.ts";
-import {formatOrderNumber} from "@/lib/order.ts";
+import {formatOrderNumber, translateVoidReason} from "@/lib/order.ts";
+import {OrderVoidReason} from "@/api/model/order_void.ts";
 import {playReadyChime} from "@/lib/order-ready-announcement.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {printApprovedOrderEdit} from "@/lib/kitchen/print-order-edit.ts";
@@ -266,6 +267,15 @@ export const OrderEditRequestWatcher = () => {
           <p className="text-4xl font-black tabular-nums">{order ? formatOrderNumber(order) : ''}</p>
           {table && <p className="text-lg font-semibold">{t('readyAlert.table', {table})}</p>}
           <p className="text-neutral-700">{t('editRequest.requestedBy', {name: requester})}</p>
+          {current.reason && (
+            <p className="font-semibold text-danger-600" data-testid="order-edit-request-reason">
+              {t('editRequest.reason', {
+                reason: Object.values(OrderVoidReason).includes(current.reason as OrderVoidReason)
+                  ? translateVoidReason(t as any, current.reason as OrderVoidReason)
+                  : current.reason,
+              })}
+            </p>
+          )}
         </div>
         <ul className="flex flex-col gap-2 overflow-y-auto text-lg" data-testid="order-edit-request-changes">
           {(current.changes ?? []).flatMap(describe).map((line, index) => (

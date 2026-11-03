@@ -45,6 +45,8 @@ export interface OrderEditRequest {
   requested_by: User
   status: OrderEditRequestStatus
   changes: SentLineChange[]
+  /** Why lines are taken off (an `OrderVoidReason`), chosen by the requester; written on the voids. */
+  reason?: string
   created_at: DateTime
   decided_by?: User
   decided_at?: DateTime

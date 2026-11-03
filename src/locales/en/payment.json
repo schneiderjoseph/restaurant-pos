@@ -196,5 +196,10 @@
   "editRequest": {
     "notice": "Send: an approver will approve the changes to lines already sent.",
     "sent": "Changes to lines already sent were submitted for approval."
+  },
+  "voidReason": {
+    "title": "Why are these items taken off?",
+    "back": "Back",
+    "confirm": "Confirm and send"
   }
 }

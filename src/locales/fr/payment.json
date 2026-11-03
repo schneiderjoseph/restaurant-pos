@@ -196,5 +196,10 @@
   "editRequest": {
     "notice": "Envoyez : un approbateur approuvera les modifications des lignes déjà envoyées.",
     "sent": "Les modifications des lignes déjà envoyées ont été envoyées pour approbation."
+  },
+  "voidReason": {
+    "title": "Pourquoi retirer ces articles ?",
+    "back": "Retour",
+    "confirm": "Valider et envoyer"
   }
 }

@@ -4,6 +4,8 @@ import { MenuItem, MenuItemType } from '@/api/model/cart_item.ts';
 import { OrderItem } from '@/api/model/order_item.ts';
 import { OrderStatus } from '@/api/model/order.ts';
 import { OrderEditRequestStatus, SentLineChange } from '@/api/model/order_edit_request.ts';
+import { OrderVoidReason } from '@/api/model/order_void.ts';
+import { Tables } from '@/api/db/tables.ts';
 import { userModulesGrant } from '@/lib/access.rules.ts';
 import {
   APPROVE_SENT_ITEMS_EDIT_MODULE,
@@ -143,7 +145,11 @@ describe('diffSentLines', () => {
 
 /** Just enough of the database for the decision path: one request, one order, its lines. */
 const fakeDb = (orderStatus: OrderStatus, lines: Record<string, { deleted_at?: unknown }>) => {
-  const state = { requestStatus: OrderEditRequestStatus.pending as string, writes: [] as string[] };
+  const state = {
+    requestStatus: OrderEditRequestStatus.pending as string,
+    writes: [] as string[],
+    voidReasons: [] as unknown[],
+  };
   const query = async (sql: string, params?: Record<string, unknown>) => {
     const q = sql.replace(/\s+/g, ' ').trim();
     if (q.startsWith('SELECT id, status FROM order:')) {
@@ -167,17 +173,21 @@ const fakeDb = (orderStatus: OrderStatus, lines: Record<string, { deleted_at?: u
     if (q.includes('MERGE $patch') && params?.patch && (params.patch as { fail?: boolean }).fail) {
       throw new Error('write failed');
     }
+    if (q.startsWith(`CREATE ${Tables.order_voids}`)) {
+      state.voidReasons.push(params?.reason);
+    }
     state.writes.push(q);
     return [[]];
   };
   return { state, db: { query } };
 };
 
-const request = (changes: SentLineChange[]) => ({
+const request = (changes: SentLineChange[], reason?: string) => ({
   id: 'order_edit_request:1',
   order: { id: 'order:1' },
   requested_by: { id: 'user:server' },
   changes,
+  reason,
 }) as unknown as Parameters<typeof approveOrderEditRequest>[1];
 
 const voidA: SentLineChange = {
@@ -196,6 +206,18 @@ describe('approveOrderEditRequest', () => {
     expect(state.requestStatus).toBe(OrderEditRequestStatus.approved);
     expect(state.writes.some((q) => q.startsWith('UPDATE order_item:a SET deleted_at'))).toBe(true);
     expect(state.writes.some((q) => q.startsWith('UPDATE order_item:b MERGE $patch'))).toBe(true);
+  });
+
+  it('writes the reason the server chose on the void', async () => {
+    const { db, state } = fakeDb(OrderStatus['In Progress'], { 'order_item:a': {} });
+    await approveOrderEditRequest(db, request([voidA], OrderVoidReason.GuestNotMade), 'user:manager');
+    expect(state.voidReasons).toEqual([OrderVoidReason.GuestNotMade]);
+  });
+
+  it('falls back to "Punch By Mistake" for a request made before the reason picker', async () => {
+    const { db, state } = fakeDb(OrderStatus['In Progress'], { 'order_item:a': {} });
+    await approveOrderEditRequest(db, request([voidA]), 'user:manager');
+    expect(state.voidReasons).toEqual([OrderVoidReason.PunchByMistake]);
   });
 
   it('expires the request without touching a paid order', async () => {
