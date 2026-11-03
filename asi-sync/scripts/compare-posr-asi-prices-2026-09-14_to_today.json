@@ -1,0 +1,2741 @@
+{
+  "generated_at": "2026-10-14T19:03:29.620Z",
+  "window_days": 30,
+  "since": "2026-09-14",
+  "note": "ASI guest rates prefer BAR (drinks/plage) or Restaurant (food). BARRESTO is often a lower internal rate and is shown separately.",
+  "summary": {
+    "posr_orders": 353,
+    "posr_lines": 1473,
+    "lines_mapped_to_asi": 942,
+    "matched_orders": 253,
+    "unmatched_orders": 100,
+    "items_main_price_lower": 3,
+    "items_main_price_higher": 6,
+    "items_main_price_same": 53,
+    "items_with_any_undercharge_qty": 6,
+    "matched_orders_with_price_diffs": 32
+  },
+  "sold_below_asi_guest_rate": [
+    {
+      "name": "Plage adulte",
+      "number": "3001",
+      "asi_item_id": 393,
+      "asi_name": "PLAGE ADULTE",
+      "asi_pos": "2:BAR",
+      "how": "db",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 125
+        },
+        {
+          "price": 390,
+          "qty": 90
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": 390,
+      "delta": 0,
+      "qty": 215,
+      "qty_sold_below_asi": 90,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 125,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Serviettes plage",
+      "number": "3004",
+      "asi_item_id": 436,
+      "asi_name": "SERVIETTES PLAGES",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 156,
+      "charged_variants": [
+        {
+          "price": 156,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 200,
+      "asi_barresto": 156,
+      "delta": -44,
+      "qty": 4,
+      "qty_sold_below_asi": 4,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 0,
+      "lower_than_asi": true,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Piña Colada",
+      "number": "1626",
+      "asi_item_id": 449,
+      "asi_name": "PINA COLADA/RHUM BLANC",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 1600,
+      "charged_variants": [
+        {
+          "price": 1600,
+          "qty": 31
+        },
+        {
+          "price": 1000,
+          "qty": 3
+        }
+      ],
+      "asi_rate": 1600,
+      "asi_barresto": 250,
+      "delta": 0,
+      "qty": 34,
+      "qty_sold_below_asi": 3,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 31,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Spaghetti hot-dog",
+      "number": "402",
+      "asi_item_id": 439,
+      "asi_name": "SPAGHETTI HOT DOG",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1370,
+      "charged_variants": [
+        {
+          "price": 1370,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 3000,
+      "asi_barresto": 380,
+      "delta": -1630,
+      "qty": 2,
+      "qty_sold_below_asi": 2,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 0,
+      "lower_than_asi": true,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Sandwich poulet",
+      "number": "1110",
+      "asi_item_id": 248,
+      "asi_name": "SANDWICH POULET",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 890,
+      "charged_variants": [
+        {
+          "price": 890,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 3120,
+      "asi_barresto": 250,
+      "delta": -2230,
+      "qty": 2,
+      "qty_sold_below_asi": 2,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 0,
+      "lower_than_asi": true,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Omelette créole",
+      "number": "106",
+      "asi_item_id": 408,
+      "asi_name": "Omelette Creole",
+      "asi_pos": "1:BARRESTO",
+      "how": "name",
+      "posr_main_price": 1690,
+      "charged_variants": [
+        {
+          "price": 1690,
+          "qty": 1
+        },
+        {
+          "price": 0,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 280,
+      "asi_barresto": 280,
+      "delta": 1410,
+      "qty": 2,
+      "qty_sold_below_asi": 1,
+      "qty_sold_above_asi": 1,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": true
+    }
+  ],
+  "catalog_main_lower": [
+    {
+      "name": "Sandwich poulet",
+      "number": "1110",
+      "asi_item_id": 248,
+      "asi_name": "SANDWICH POULET",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 890,
+      "charged_variants": [
+        {
+          "price": 890,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 3120,
+      "asi_barresto": 250,
+      "delta": -2230,
+      "qty": 2,
+      "qty_sold_below_asi": 2,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 0,
+      "lower_than_asi": true,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Spaghetti hot-dog",
+      "number": "402",
+      "asi_item_id": 439,
+      "asi_name": "SPAGHETTI HOT DOG",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1370,
+      "charged_variants": [
+        {
+          "price": 1370,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 3000,
+      "asi_barresto": 380,
+      "delta": -1630,
+      "qty": 2,
+      "qty_sold_below_asi": 2,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 0,
+      "lower_than_asi": true,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Serviettes plage",
+      "number": "3004",
+      "asi_item_id": 436,
+      "asi_name": "SERVIETTES PLAGES",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 156,
+      "charged_variants": [
+        {
+          "price": 156,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 200,
+      "asi_barresto": 156,
+      "delta": -44,
+      "qty": 4,
+      "qty_sold_below_asi": 4,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 0,
+      "lower_than_asi": true,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    }
+  ],
+  "catalog_main_higher": [
+    {
+      "name": "Omelette créole",
+      "number": "106",
+      "asi_item_id": 408,
+      "asi_name": "Omelette Creole",
+      "asi_pos": "1:BARRESTO",
+      "how": "name",
+      "posr_main_price": 1690,
+      "charged_variants": [
+        {
+          "price": 1690,
+          "qty": 1
+        },
+        {
+          "price": 0,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 280,
+      "asi_barresto": 280,
+      "delta": 1410,
+      "qty": 2,
+      "qty_sold_below_asi": 1,
+      "qty_sold_above_asi": 1,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": true
+    },
+    {
+      "name": "Plat de patate douce sautées",
+      "number": "1207",
+      "asi_item_id": 432,
+      "asi_name": "PATATE DOUCE SAUTEES",
+      "asi_pos": "1:BARRESTO",
+      "how": "name",
+      "posr_main_price": 850,
+      "charged_variants": [
+        {
+          "price": 850,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 200,
+      "asi_barresto": 200,
+      "delta": 650,
+      "qty": 1,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 1,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": false
+    },
+    {
+      "name": "Plat acras",
+      "number": "1204",
+      "asi_item_id": 1676,
+      "asi_name": "PLAT ACRAS",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 910,
+      "charged_variants": [
+        {
+          "price": 910,
+          "qty": 15
+        }
+      ],
+      "asi_rate": 460,
+      "asi_barresto": null,
+      "delta": 450,
+      "qty": 15,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 15,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": false
+    },
+    {
+      "name": "Plat de riz",
+      "number": "1208",
+      "asi_item_id": 292,
+      "asi_name": "PLAT RIZ",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 680,
+      "charged_variants": [
+        {
+          "price": 680,
+          "qty": 23
+        }
+      ],
+      "asi_rate": 293,
+      "asi_barresto": null,
+      "delta": 387,
+      "qty": 23,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 23,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": false
+    },
+    {
+      "name": "Cuba Libre 5 ★★★★★ Simple",
+      "number": "1610",
+      "asi_item_id": 273,
+      "asi_name": "CUBA LIBRE 3* SIMPLE",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 900,
+      "charged_variants": [
+        {
+          "price": 900,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 655,
+      "asi_barresto": 100,
+      "delta": 245,
+      "qty": 4,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 4,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": false
+    },
+    {
+      "name": "Mojito Perrier",
+      "number": "1622",
+      "asi_item_id": 6896,
+      "asi_name": "Mojito Perrier",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 1500,
+      "charged_variants": [
+        {
+          "price": 1500,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 1300,
+      "asi_barresto": null,
+      "delta": 200,
+      "qty": 1,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 1,
+      "qty_sold_equal": 0,
+      "lower_than_asi": false,
+      "higher_than_asi": true,
+      "had_undercharge": false
+    }
+  ],
+  "catalog_main_same": [
+    {
+      "name": "Plat de frites",
+      "number": "1202",
+      "asi_item_id": 254,
+      "asi_name": "PLAT DE FRITES",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 900,
+      "charged_variants": [
+        {
+          "price": 900,
+          "qty": 32
+        }
+      ],
+      "asi_rate": 900,
+      "asi_barresto": 100,
+      "delta": 0,
+      "qty": 32,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 32,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Plage adulte",
+      "number": "3001",
+      "asi_item_id": 393,
+      "asi_name": "PLAGE ADULTE",
+      "asi_pos": "2:BAR",
+      "how": "db",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 125
+        },
+        {
+          "price": 390,
+          "qty": 90
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": 390,
+      "delta": 0,
+      "qty": 215,
+      "qty_sold_below_asi": 90,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 125,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Amaretto Sour",
+      "number": "1601",
+      "asi_item_id": 270,
+      "asi_name": "AMARETTO SOUR",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 1250,
+      "charged_variants": [
+        {
+          "price": 1250,
+          "qty": 24
+        }
+      ],
+      "asi_rate": 1250,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 24,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 24,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Prestige",
+      "number": "1705",
+      "asi_item_id": 1,
+      "asi_name": "PRESTIGE",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 430,
+      "charged_variants": [
+        {
+          "price": 430,
+          "qty": 302
+        }
+      ],
+      "asi_rate": 430,
+      "asi_barresto": 80,
+      "delta": 0,
+      "qty": 302,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 302,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Cheese burger double",
+      "number": "1107",
+      "asi_item_id": 247,
+      "asi_name": "CHEESE BURGER DOUBLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1000,
+      "charged_variants": [
+        {
+          "price": 1000,
+          "qty": 39
+        }
+      ],
+      "asi_rate": 1000,
+      "asi_barresto": 360,
+      "delta": 0,
+      "qty": 39,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 39,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Eau",
+      "number": "1803",
+      "asi_item_id": 13,
+      "asi_name": "EAU",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 220,
+      "charged_variants": [
+        {
+          "price": 220,
+          "qty": 164
+        }
+      ],
+      "asi_rate": 220,
+      "asi_barresto": 40,
+      "delta": 0,
+      "qty": 164,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 164,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Rhum Sour 3 ★★★",
+      "number": "1631",
+      "asi_item_id": 280,
+      "asi_name": "RHUM SOUR 3*",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 610,
+      "charged_variants": [
+        {
+          "price": 610,
+          "qty": 33
+        },
+        {
+          "price": 900,
+          "qty": 19
+        }
+      ],
+      "asi_rate": 610,
+      "asi_barresto": 120,
+      "delta": 0,
+      "qty": 52,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 19,
+      "qty_sold_equal": 33,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Poulet à la créole",
+      "number": "702",
+      "asi_item_id": 6828,
+      "asi_name": "POULET CREOLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 21
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 21,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 21,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Frozen Daiquiri",
+      "number": "1612",
+      "asi_item_id": 266,
+      "asi_name": "FROZEN DAIQUIRI",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 705,
+      "charged_variants": [
+        {
+          "price": 705,
+          "qty": 12
+        }
+      ],
+      "asi_rate": 705,
+      "asi_barresto": 120,
+      "delta": 0,
+      "qty": 12,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 12,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Fruit Punch",
+      "number": "1806",
+      "asi_item_id": 287,
+      "asi_name": "FRUIT PUNCH",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 700,
+      "charged_variants": [
+        {
+          "price": 700,
+          "qty": 18
+        }
+      ],
+      "asi_rate": 700,
+      "asi_barresto": 120,
+      "delta": 0,
+      "qty": 18,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 18,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Coca",
+      "number": "1802",
+      "asi_item_id": 11,
+      "asi_name": "COCA-COLA",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 250,
+      "charged_variants": [
+        {
+          "price": 250,
+          "qty": 74
+        }
+      ],
+      "asi_rate": 250,
+      "asi_barresto": 111,
+      "delta": 0,
+      "qty": 74,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 74,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Hamburger simple",
+      "number": "1104",
+      "asi_item_id": 397,
+      "asi_name": "HAMBURGER SIMPLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 850,
+      "charged_variants": [
+        {
+          "price": 850,
+          "qty": 6
+        }
+      ],
+      "asi_rate": 850,
+      "asi_barresto": 270,
+      "delta": 0,
+      "qty": 6,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 6,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Couronne",
+      "number": "1863",
+      "asi_item_id": 53,
+      "asi_name": "COURONNE",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 250,
+      "charged_variants": [
+        {
+          "price": 250,
+          "qty": 21
+        }
+      ],
+      "asi_rate": 250,
+      "asi_barresto": 111,
+      "delta": 0,
+      "qty": 21,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 21,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Ceviche de lambi",
+      "number": "302",
+      "asi_item_id": 454,
+      "asi_name": "CEVICHE DE LAMBI",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 9
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": 240,
+      "delta": 0,
+      "qty": 9,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 9,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Piña Colada",
+      "number": "1626",
+      "asi_item_id": 449,
+      "asi_name": "PINA COLADA/RHUM BLANC",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 1600,
+      "charged_variants": [
+        {
+          "price": 1600,
+          "qty": 31
+        },
+        {
+          "price": 1000,
+          "qty": 3
+        }
+      ],
+      "asi_rate": 1600,
+      "asi_barresto": 250,
+      "delta": 0,
+      "qty": 34,
+      "qty_sold_below_asi": 3,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 31,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": true
+    },
+    {
+      "name": "Heineken",
+      "number": "1704",
+      "asi_item_id": 5,
+      "asi_name": "HEINEKEN",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 530,
+      "charged_variants": [
+        {
+          "price": 530,
+          "qty": 75
+        }
+      ],
+      "asi_rate": 530,
+      "asi_barresto": 300,
+      "delta": 0,
+      "qty": 75,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 75,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Cheese burger simple",
+      "number": "1105",
+      "asi_item_id": 246,
+      "asi_name": "CHEESE BURGER SIMPLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 850,
+      "charged_variants": [
+        {
+          "price": 850,
+          "qty": 38
+        }
+      ],
+      "asi_rate": 850,
+      "asi_barresto": 240,
+      "delta": 0,
+      "qty": 38,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 38,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Lambi grillé",
+      "number": "1008",
+      "asi_item_id": 215,
+      "asi_name": "LAMBI GRILLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 3000,
+      "charged_variants": [
+        {
+          "price": 3000,
+          "qty": 29
+        }
+      ],
+      "asi_rate": 3000,
+      "asi_barresto": 2000,
+      "delta": 0,
+      "qty": 29,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 29,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Poulet grillé au citron vert",
+      "number": "701",
+      "asi_item_id": 6818,
+      "asi_name": "Poulet Grillé au Citron Vert",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 13
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 13,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 13,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Poulet à la diable",
+      "number": "703",
+      "asi_item_id": 231,
+      "asi_name": "POULET A LA DIABLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": 380,
+      "delta": 0,
+      "qty": 4,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 4,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Benedicta",
+      "number": "1706",
+      "asi_item_id": 28,
+      "asi_name": "BENEDICTA",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 540,
+      "charged_variants": [
+        {
+          "price": 540,
+          "qty": 27
+        }
+      ],
+      "asi_rate": 540,
+      "asi_barresto": 80,
+      "delta": 0,
+      "qty": 27,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 27,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Jus de papaye",
+      "number": "1852",
+      "asi_item_id": 285,
+      "asi_name": "JUS PAPAYE",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 14
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": 200,
+      "delta": 0,
+      "qty": 14,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 14,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Jus de citron",
+      "number": "1851",
+      "asi_item_id": 281,
+      "asi_name": "JUS CITRON",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 73
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": 60,
+      "delta": 0,
+      "qty": 73,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 73,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Lambi créole",
+      "number": "1007",
+      "asi_item_id": 214,
+      "asi_name": "LAMBI CREOLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 3000,
+      "charged_variants": [
+        {
+          "price": 3000,
+          "qty": 29
+        }
+      ],
+      "asi_rate": 3000,
+      "asi_barresto": 2000,
+      "delta": 0,
+      "qty": 29,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 29,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Ceviche de poisson",
+      "number": "301",
+      "asi_item_id": 223,
+      "asi_name": "CEVICHE DE POISSON",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 19
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": 745,
+      "delta": 0,
+      "qty": 19,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 19,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Plage",
+      "number": "3003",
+      "asi_item_id": 523,
+      "asi_name": "PLAGE",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 78
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 78,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 78,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Cyclonne",
+      "number": "1872",
+      "asi_item_id": 6907,
+      "asi_name": "Cyclonne",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 650,
+      "charged_variants": [
+        {
+          "price": 650,
+          "qty": 6
+        }
+      ],
+      "asi_rate": 650,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 6,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 6,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Tassot de bœuf",
+      "number": "501",
+      "asi_item_id": 239,
+      "asi_name": "TASSOT DE BOEUF",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 7
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": 1466,
+      "delta": 0,
+      "qty": 7,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 7,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Kibby",
+      "number": "1406",
+      "asi_item_id": 6724,
+      "asi_name": "KIBBY",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 1170,
+      "charged_variants": [
+        {
+          "price": 1170,
+          "qty": 26
+        }
+      ],
+      "asi_rate": 1170,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 26,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 26,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Salade de tomate",
+      "number": "201",
+      "asi_item_id": 6837,
+      "asi_name": "SALADE TOMATE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 725,
+      "charged_variants": [
+        {
+          "price": 725,
+          "qty": 10
+        }
+      ],
+      "asi_rate": 725,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 10,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 10,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Spaghetti au poulet",
+      "number": "403",
+      "asi_item_id": 468,
+      "asi_name": "SPAGHETTI POULET",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1700,
+      "charged_variants": [
+        {
+          "price": 1700,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 1700,
+      "asi_barresto": 480,
+      "delta": 0,
+      "qty": 2,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 2,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Filet de bœuf grillé",
+      "number": "502",
+      "asi_item_id": 235,
+      "asi_name": "FILET DE BOEUF GRILLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 2000,
+      "charged_variants": [
+        {
+          "price": 2000,
+          "qty": 11
+        }
+      ],
+      "asi_rate": 2000,
+      "asi_barresto": 1597,
+      "delta": 0,
+      "qty": 11,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 11,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Salade de poulet",
+      "number": "203",
+      "asi_item_id": 6836,
+      "asi_name": "SALADE POULET",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1350,
+      "charged_variants": [
+        {
+          "price": 1350,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 1350,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 4,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 4,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Corona",
+      "number": "1703",
+      "asi_item_id": 4,
+      "asi_name": "CORONA",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 530,
+      "charged_variants": [
+        {
+          "price": 530,
+          "qty": 28
+        }
+      ],
+      "asi_rate": 530,
+      "asi_barresto": 200,
+      "delta": 0,
+      "qty": 28,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 28,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Kinanm",
+      "number": "1801",
+      "asi_item_id": 442,
+      "asi_name": "KINANM",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 380,
+      "charged_variants": [
+        {
+          "price": 380,
+          "qty": 3
+        }
+      ],
+      "asi_rate": 380,
+      "asi_barresto": 40,
+      "delta": 0,
+      "qty": 3,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 3,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Bouillon créole",
+      "number": "304",
+      "asi_item_id": 6908,
+      "asi_name": "Bouillon Créole",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 1530,
+      "charged_variants": [
+        {
+          "price": 1530,
+          "qty": 3
+        }
+      ],
+      "asi_rate": 1530,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 3,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 3,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Gingerale",
+      "number": "1810",
+      "asi_item_id": 2,
+      "asi_name": "GINGER ALE",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 580,
+      "charged_variants": [
+        {
+          "price": 580,
+          "qty": 11
+        }
+      ],
+      "asi_rate": 580,
+      "asi_barresto": 120,
+      "delta": 0,
+      "qty": 11,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 11,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Jus de canne",
+      "number": "1855",
+      "asi_item_id": 6898,
+      "asi_name": "Jus de Canne",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 6
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 6,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 6,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Spaghetti du pêcheur",
+      "number": "404",
+      "asi_item_id": 240,
+      "asi_name": "SPAGHETTI DU PECHEUR",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 4150,
+      "charged_variants": [
+        {
+          "price": 4150,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 4150,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 2,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 2,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Perrier",
+      "number": "1804",
+      "asi_item_id": 22,
+      "asi_name": "PERRIER",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 735,
+      "charged_variants": [
+        {
+          "price": 735,
+          "qty": 6
+        }
+      ],
+      "asi_rate": 735,
+      "asi_barresto": 200,
+      "delta": 0,
+      "qty": 6,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 6,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Hamburger double",
+      "number": "1106",
+      "asi_item_id": 398,
+      "asi_name": "HAMBURGER DOUBLE",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1000,
+      "charged_variants": [
+        {
+          "price": 1000,
+          "qty": 7
+        }
+      ],
+      "asi_rate": 1000,
+      "asi_barresto": 360,
+      "delta": 0,
+      "qty": 7,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 7,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Sprite",
+      "number": "1862",
+      "asi_item_id": 25,
+      "asi_name": "SPRITE",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 250,
+      "charged_variants": [
+        {
+          "price": 250,
+          "qty": 10
+        }
+      ],
+      "asi_rate": 250,
+      "asi_barresto": 111,
+      "delta": 0,
+      "qty": 10,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 10,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Assiette de crudités",
+      "number": "202",
+      "asi_item_id": 194,
+      "asi_name": "ASSIETTE DE CRUDITES",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 1350,
+      "charged_variants": [
+        {
+          "price": 1350,
+          "qty": 3
+        }
+      ],
+      "asi_rate": 1350,
+      "asi_barresto": 200,
+      "delta": 0,
+      "qty": 3,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 3,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Gâteau maison",
+      "number": "1302",
+      "asi_item_id": 256,
+      "asi_name": "GATEAU DE MAISON",
+      "asi_pos": "3:Restaurant",
+      "how": "name",
+      "posr_main_price": 700,
+      "charged_variants": [
+        {
+          "price": 700,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 700,
+      "asi_barresto": 140,
+      "delta": 0,
+      "qty": 2,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 2,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Fresco",
+      "number": "1858",
+      "asi_item_id": 478,
+      "asi_name": "FRESCO",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 500,
+      "charged_variants": [
+        {
+          "price": 500,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 500,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 4,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 4,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Tonic",
+      "number": "1812",
+      "asi_item_id": 24,
+      "asi_name": "TONIC",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 535,
+      "charged_variants": [
+        {
+          "price": 535,
+          "qty": 4
+        }
+      ],
+      "asi_rate": 535,
+      "asi_barresto": 100,
+      "delta": 0,
+      "qty": 4,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 4,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Long Island Ice Tea",
+      "number": "1619",
+      "asi_item_id": 543,
+      "asi_name": "LONG ISLAND ICE TEA",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 4700,
+      "charged_variants": [
+        {
+          "price": 4700,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 4700,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 2,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 2,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Poulet grillé enfant",
+      "number": "705",
+      "asi_item_id": 557,
+      "asi_name": "POULET GRILLE ENFANT/Frites/Purée",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 1000,
+      "charged_variants": [
+        {
+          "price": 1000,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 1000,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 1,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 1,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Rhum Punch 3 ★★★",
+      "number": "1627",
+      "asi_item_id": 263,
+      "asi_name": "RHUM PUNCH 3*",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 900,
+      "charged_variants": [
+        {
+          "price": 900,
+          "qty": 3
+        }
+      ],
+      "asi_rate": 900,
+      "asi_barresto": 200,
+      "delta": 0,
+      "qty": 3,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 3,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Margarita / Cuervo Gold",
+      "number": "1620",
+      "asi_item_id": 438,
+      "asi_name": "MARGARITA/CUERVO GOLD",
+      "asi_pos": "2:BAR",
+      "how": "name",
+      "posr_main_price": 1900,
+      "charged_variants": [
+        {
+          "price": 1900,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 1900,
+      "asi_barresto": 320,
+      "delta": 0,
+      "qty": 1,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 1,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Plat de légumes",
+      "number": "205",
+      "asi_item_id": 431,
+      "asi_name": "PLATS DE LEGUMES",
+      "asi_pos": "1:BARRESTO",
+      "how": "json",
+      "posr_main_price": 200,
+      "charged_variants": [
+        {
+          "price": 200,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 200,
+      "asi_barresto": 200,
+      "delta": 0,
+      "qty": 1,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 1,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Légumes de saison",
+      "number": "1210",
+      "asi_item_id": 291,
+      "asi_name": "LEGUMES DE SAISON",
+      "asi_pos": "3:Restaurant",
+      "how": "json",
+      "posr_main_price": 315,
+      "charged_variants": [
+        {
+          "price": 315,
+          "qty": 2
+        }
+      ],
+      "asi_rate": 315,
+      "asi_barresto": 315,
+      "delta": 0,
+      "qty": 2,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 2,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    },
+    {
+      "name": "Sherley Temple",
+      "number": "1646",
+      "asi_item_id": 6845,
+      "asi_name": "SHERLEY TEMPLE",
+      "asi_pos": "2:BAR",
+      "how": "json",
+      "posr_main_price": 540,
+      "charged_variants": [
+        {
+          "price": 540,
+          "qty": 1
+        }
+      ],
+      "asi_rate": 540,
+      "asi_barresto": null,
+      "delta": 0,
+      "qty": 1,
+      "qty_sold_below_asi": 0,
+      "qty_sold_above_asi": 0,
+      "qty_sold_equal": 1,
+      "lower_than_asi": false,
+      "higher_than_asi": false,
+      "had_undercharge": false
+    }
+  ],
+  "ticket_line_diffs": [
+    {
+      "name": "Omelette créole",
+      "number": "106",
+      "asi_item_id": 408,
+      "qty": 1,
+      "posr": 0,
+      "asi_ticket": 700,
+      "delta": -700,
+      "orders": 1,
+      "invoices": [
+        29
+      ]
+    },
+    {
+      "name": "Piña Colada",
+      "number": "1626",
+      "asi_item_id": 449,
+      "qty": 1,
+      "posr": 1000,
+      "asi_ticket": 1600,
+      "delta": -600,
+      "orders": 1,
+      "invoices": [
+        125
+      ]
+    },
+    {
+      "name": "Plage adulte",
+      "number": "3001",
+      "asi_item_id": 393,
+      "qty": 2,
+      "posr": 390,
+      "asi_ticket": 500,
+      "delta": -110,
+      "orders": 25,
+      "invoices": [
+        219,
+        214,
+        159,
+        217,
+        160,
+        193,
+        204,
+        244,
+        258,
+        239,
+        154,
+        220
+      ]
+    },
+    {
+      "name": "Serviettes plage",
+      "number": "3004",
+      "asi_item_id": 436,
+      "qty": 1,
+      "posr": 156,
+      "asi_ticket": 200,
+      "delta": -44,
+      "orders": 3,
+      "invoices": [
+        289,
+        291,
+        231
+      ]
+    },
+    {
+      "name": "Mojito Perrier",
+      "number": "1622",
+      "asi_item_id": 6896,
+      "qty": 1,
+      "posr": 1500,
+      "asi_ticket": 1300,
+      "delta": 200,
+      "orders": 1,
+      "invoices": [
+        87
+      ]
+    },
+    {
+      "name": "Rhum Sour 5 ★★★★★",
+      "number": "1632",
+      "asi_item_id": 280,
+      "qty": 2,
+      "posr": 900,
+      "asi_ticket": 610,
+      "delta": 290,
+      "orders": 1,
+      "invoices": [
+        33
+      ]
+    }
+  ],
+  "sample_matched_with_diffs": [
+    {
+      "invoice": 219,
+      "day": "2026-10-11",
+      "customer": "Chery Hernso",
+      "asi_voucher": "B102272",
+      "asi_salesID": 1058312,
+      "asi_name": "HERNSO",
+      "asi_pos": 2,
+      "score": 97,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 214,
+      "day": "2026-10-11",
+      "customer": "Gonel Aude Laure",
+      "asi_voucher": "B102237",
+      "asi_salesID": 1058255,
+      "asi_name": "GONEL",
+      "asi_pos": 2,
+      "score": 100.33,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 7,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 125,
+      "day": "2026-10-10",
+      "customer": "Kemlyne Aime",
+      "asi_voucher": "B102201",
+      "asi_salesID": 1058193,
+      "asi_name": "CASH",
+      "asi_pos": 2,
+      "score": 91,
+      "price_diffs": [
+        {
+          "name": "Piña Colada",
+          "number": "1626",
+          "asi_item_id": 449,
+          "qty": 1,
+          "posr": 1000,
+          "asi_ticket": 1600,
+          "delta": -600
+        }
+      ]
+    },
+    {
+      "invoice": 159,
+      "day": "2026-10-11",
+      "customer": "Bigor Lorvensky",
+      "asi_voucher": "B102179",
+      "asi_salesID": 1058160,
+      "asi_name": "BIGOR LORVENSKY",
+      "asi_pos": 2,
+      "score": 87,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 1,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 289,
+      "day": "2026-10-12",
+      "asi_voucher": "B102304",
+      "asi_salesID": 1058366,
+      "asi_name": "NAPOLEON JEAN",
+      "asi_pos": 2,
+      "score": 69.73,
+      "price_diffs": [
+        {
+          "name": "Serviettes plage",
+          "number": "3004",
+          "asi_item_id": 436,
+          "qty": 1,
+          "posr": 156,
+          "asi_ticket": 200,
+          "delta": -44
+        }
+      ]
+    },
+    {
+      "invoice": 291,
+      "day": "2026-10-12",
+      "customer": "Mingot Ermitha",
+      "asi_voucher": "B102307",
+      "asi_salesID": 1058374,
+      "asi_name": "MINGOT ERMITHA",
+      "asi_pos": 2,
+      "score": 94,
+      "price_diffs": [
+        {
+          "name": "Serviettes plage",
+          "number": "3004",
+          "asi_item_id": 436,
+          "qty": 2,
+          "posr": 156,
+          "asi_ticket": 200,
+          "delta": -44
+        }
+      ]
+    },
+    {
+      "invoice": 217,
+      "day": "2026-10-11",
+      "customer": "Jeffly Francois",
+      "asi_voucher": "B102208",
+      "asi_salesID": 1058204,
+      "asi_name": "JEFFLY FRANCOIS",
+      "asi_pos": 2,
+      "score": 140,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 160,
+      "day": "2026-10-11",
+      "customer": "Thony Franck",
+      "asi_voucher": "B102180",
+      "asi_salesID": 1058161,
+      "asi_name": "THONY FRANCK",
+      "asi_pos": 2,
+      "score": 128.89,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 4,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 231,
+      "day": "2026-10-11",
+      "customer": "Mingot Ermitha",
+      "asi_voucher": "B102307",
+      "asi_salesID": 1058374,
+      "asi_name": "MINGOT ERMITHA",
+      "asi_pos": 2,
+      "score": 123.33,
+      "price_diffs": [
+        {
+          "name": "Serviettes plage",
+          "number": "3004",
+          "asi_item_id": 436,
+          "qty": 1,
+          "posr": 156,
+          "asi_ticket": 200,
+          "delta": -44
+        }
+      ]
+    },
+    {
+      "invoice": 193,
+      "day": "2026-10-11",
+      "customer": "Pierre Simeon",
+      "asi_voucher": "B102226",
+      "asi_salesID": 1058233,
+      "asi_name": "PIERRE SIMEON",
+      "asi_pos": 2,
+      "score": 140,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 204,
+      "day": "2026-10-11",
+      "customer": "Etant Dupain",
+      "asi_voucher": "B102221",
+      "asi_salesID": 1058224,
+      "asi_name": "ETANT DUPAIN",
+      "asi_pos": 2,
+      "score": 125.89,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 3,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 244,
+      "day": "2026-10-11",
+      "customer": "Dalencourt Dany",
+      "asi_voucher": "B102233",
+      "asi_salesID": 1058244,
+      "asi_name": "DALENCOURT",
+      "asi_pos": 2,
+      "score": 110.75,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 9,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 258,
+      "day": "2026-10-11",
+      "customer": "Fonie",
+      "asi_voucher": "B102243",
+      "asi_salesID": 1058265,
+      "asi_name": "PIERRE FONIE",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 1,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 239,
+      "day": "2026-10-11",
+      "customer": "Attis Floricaine",
+      "asi_voucher": "B102200",
+      "asi_salesID": 1058191,
+      "asi_name": "ATTIS FLORICAINE",
+      "asi_pos": 2,
+      "score": 140,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 1,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 154,
+      "day": "2026-10-11",
+      "customer": "Marie Olguine Pierre",
+      "asi_voucher": "B102206",
+      "asi_salesID": 1058200,
+      "asi_name": "MARIE OLGUINE",
+      "asi_pos": 2,
+      "score": 103.67,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 220,
+      "day": "2026-10-11",
+      "customer": "Ramiga Cludelli Jean",
+      "asi_voucher": "B102213",
+      "asi_salesID": 1058210,
+      "asi_name": "JN.RAMIGA CLAUDELLI",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 8,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 171,
+      "day": "2026-10-11",
+      "customer": "Michaud Jean Emmanuel",
+      "asi_voucher": "B102176",
+      "asi_salesID": 1058156,
+      "asi_name": "MICHAUD JN.EMMANUEL",
+      "asi_pos": 2,
+      "score": 124.5,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 184,
+      "day": "2026-10-11",
+      "customer": "Sandra Charles",
+      "asi_voucher": "B102184",
+      "asi_salesID": 1058166,
+      "asi_name": "SANDIA CHARLES",
+      "asi_pos": 2,
+      "score": 90,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 87,
+      "day": "2026-10-10",
+      "customer": "Demosthene Pierre",
+      "asi_voucher": "B102106",
+      "asi_salesID": 1058038,
+      "asi_name": "DEMOSTHERNE PIERRE",
+      "asi_pos": 2,
+      "score": 95.21,
+      "price_diffs": [
+        {
+          "name": "Mojito Perrier",
+          "number": "1622",
+          "asi_item_id": 6896,
+          "qty": 1,
+          "posr": 1500,
+          "asi_ticket": 1300,
+          "delta": 200
+        }
+      ]
+    },
+    {
+      "invoice": 267,
+      "day": "2026-10-12",
+      "customer": "Jacques Edris",
+      "asi_voucher": "B102253",
+      "asi_salesID": 1058281,
+      "asi_name": "EDRIS JACQUES",
+      "asi_pos": 2,
+      "score": 140,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 4,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 192,
+      "day": "2026-10-11",
+      "customer": "Belizar Regina Wilda",
+      "asi_voucher": "B102175",
+      "asi_salesID": 1058155,
+      "asi_name": "BELIZAR REGINA.WILDA",
+      "asi_pos": 2,
+      "score": 127.68,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 9,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 257,
+      "day": "2026-10-11",
+      "customer": "Sajousse Vicky",
+      "asi_voucher": "B102242",
+      "asi_salesID": 1058264,
+      "asi_name": "SAJOUSSE",
+      "asi_pos": 2,
+      "score": 117,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 6,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 197,
+      "day": "2026-10-11",
+      "customer": "Willy Severe",
+      "asi_voucher": "B102195",
+      "asi_salesID": 1058184,
+      "asi_name": "WILLY SEVERE",
+      "asi_pos": 2,
+      "score": 112,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 182,
+      "day": "2026-10-11",
+      "customer": "Frandy Mehus",
+      "asi_voucher": "B102187",
+      "asi_salesID": 1058170,
+      "asi_name": "FRANDY MEHUS",
+      "asi_pos": 2,
+      "score": 127.91,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 3,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 235,
+      "day": "2026-10-11",
+      "customer": "Pierre Ferlando",
+      "asi_voucher": "B102287",
+      "asi_salesID": 1058337,
+      "asi_name": "FERLANDO PIERRE",
+      "asi_pos": 2,
+      "score": 119.71,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 4,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 185,
+      "day": "2026-10-11",
+      "customer": "Djenika Cherilus",
+      "asi_voucher": "B102228",
+      "asi_salesID": 1058235,
+      "asi_name": "DJENYKA CHERILUS",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 29,
+      "day": "2026-10-08",
+      "customer": "Chambre32",
+      "asi_voucher": "R59170",
+      "asi_salesID": 1057926,
+      "asi_name": "PABLO MOLGORA",
+      "asi_pos": 3,
+      "score": 57,
+      "price_diffs": [
+        {
+          "name": "Omelette créole",
+          "number": "106",
+          "asi_item_id": 408,
+          "qty": 1,
+          "posr": 0,
+          "asi_ticket": 700,
+          "delta": -700
+        }
+      ]
+    },
+    {
+      "invoice": 203,
+      "day": "2026-10-11",
+      "customer": "Francois Jonathan",
+      "asi_voucher": "B102244",
+      "asi_salesID": 1058266,
+      "asi_name": "FRANCOIS JONATHAN",
+      "asi_pos": 2,
+      "score": 140,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 2,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 212,
+      "day": "2026-10-11",
+      "asi_voucher": "B102230",
+      "asi_salesID": 1058241,
+      "asi_name": "CHARLES KENCIA",
+      "asi_pos": 2,
+      "score": 79.71,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 5,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 162,
+      "day": "2026-10-11",
+      "customer": "Kavita Catherine",
+      "asi_voucher": "B102216",
+      "asi_salesID": 1058217,
+      "asi_name": "KAVITA CATHERINE",
+      "asi_pos": 2,
+      "score": 90,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 1,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    },
+    {
+      "invoice": 33,
+      "day": "2026-10-08",
+      "customer": "Steeve Innocent",
+      "asi_voucher": "B102083",
+      "asi_salesID": 1057990,
+      "asi_name": "SACHA KRAMER",
+      "asi_pos": 2,
+      "score": 57,
+      "price_diffs": [
+        {
+          "name": "Rhum Sour 5 ★★★★★",
+          "number": "1632",
+          "asi_item_id": 280,
+          "qty": 2,
+          "posr": 900,
+          "asi_ticket": 610,
+          "delta": 290
+        }
+      ]
+    },
+    {
+      "invoice": 226,
+      "day": "2026-10-11",
+      "customer": "Paryaj Pam",
+      "asi_voucher": "B102231",
+      "asi_salesID": 1058242,
+      "asi_name": "PARYAJ.PAM",
+      "asi_pos": 2,
+      "score": 107.91,
+      "price_diffs": [
+        {
+          "name": "Plage adulte",
+          "number": "3001",
+          "asi_item_id": 393,
+          "qty": 5,
+          "posr": 390,
+          "asi_ticket": 500,
+          "delta": -110
+        }
+      ]
+    }
+  ],
+  "sample_matched_ok": [
+    {
+      "invoice": 312,
+      "day": "2026-10-13",
+      "customer": "Kedy Cesar",
+      "asi_voucher": "B102329",
+      "asi_salesID": 1058413,
+      "asi_name": "KEDY CESAR",
+      "asi_pos": 2,
+      "score": 137,
+      "price_diffs": []
+    },
+    {
+      "invoice": 187,
+      "day": "2026-10-11",
+      "customer": "Pierre_louis Marie_smith",
+      "asi_voucher": "R59272",
+      "asi_salesID": 1058177,
+      "asi_name": "PIERRE LOUIS",
+      "asi_pos": 3,
+      "score": 90,
+      "price_diffs": []
+    },
+    {
+      "invoice": 303,
+      "day": "2026-10-12",
+      "customer": "Danielle Saul",
+      "asi_voucher": "R59360",
+      "asi_salesID": 1058396,
+      "asi_name": "23",
+      "asi_pos": 3,
+      "score": 94,
+      "price_diffs": []
+    },
+    {
+      "invoice": 117,
+      "day": "2026-10-10",
+      "customer": "Medanor Jonson",
+      "asi_voucher": "B102142",
+      "asi_salesID": 1058093,
+      "asi_name": "MEDANOR JANSON",
+      "asi_pos": 2,
+      "score": 105.71,
+      "price_diffs": []
+    },
+    {
+      "invoice": 146,
+      "day": "2026-10-10",
+      "customer": "Darby Don Sony Fenelus",
+      "asi_voucher": "B102060",
+      "asi_salesID": 1057956,
+      "asi_name": "NEHEMIE JOSEPH",
+      "asi_pos": 2,
+      "score": 75,
+      "price_diffs": []
+    },
+    {
+      "invoice": 68,
+      "day": "2026-10-09",
+      "customer": "Gabriel Aenso",
+      "asi_voucher": "R59206",
+      "asi_salesID": 1058015,
+      "asi_name": "GABRIEL",
+      "asi_pos": 3,
+      "score": 120,
+      "price_diffs": []
+    },
+    {
+      "invoice": 315,
+      "day": "2026-10-13",
+      "customer": "Chery Eunice",
+      "asi_voucher": "B102309",
+      "asi_salesID": 1058378,
+      "asi_name": "CHERI EUNICA",
+      "asi_pos": 2,
+      "score": 100,
+      "price_diffs": []
+    },
+    {
+      "invoice": 57,
+      "day": "2026-10-09",
+      "customer": "Entenor Job",
+      "asi_voucher": "B102075",
+      "asi_salesID": 1057980,
+      "asi_name": "JOB ENTENOR",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": []
+    },
+    {
+      "invoice": 122,
+      "day": "2026-10-10",
+      "customer": "Rony Lefrant",
+      "asi_voucher": "B102160",
+      "asi_salesID": 1058122,
+      "asi_name": "RONY.LEFRANTZ",
+      "asi_pos": 2,
+      "score": 79.5,
+      "price_diffs": []
+    },
+    {
+      "invoice": 58,
+      "day": "2026-10-09",
+      "customer": "Gerard Junior Compere",
+      "asi_voucher": "B102082",
+      "asi_salesID": 1057989,
+      "asi_name": "GERARD JUNIOR",
+      "asi_pos": 2,
+      "score": 87,
+      "price_diffs": []
+    },
+    {
+      "invoice": 52,
+      "day": "2026-10-09",
+      "customer": "Sandro Petit",
+      "asi_voucher": "R59165",
+      "asi_salesID": 1057916,
+      "asi_name": "JH PETERVBAPTISTE",
+      "asi_pos": 3,
+      "score": 100,
+      "price_diffs": []
+    },
+    {
+      "invoice": 55,
+      "day": "2026-10-09",
+      "customer": "Jean Noel, Lovens",
+      "asi_voucher": "B102080",
+      "asi_salesID": 1057987,
+      "asi_name": "LOVENS JN-NOEL",
+      "asi_pos": 2,
+      "score": 88.14,
+      "price_diffs": []
+    },
+    {
+      "invoice": 38,
+      "day": "2026-10-09",
+      "customer": "Cash",
+      "asi_voucher": "B102041",
+      "asi_salesID": 1057925,
+      "asi_name": "CASH",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": []
+    },
+    {
+      "invoice": 249,
+      "day": "2026-10-11",
+      "customer": "Kesnel La Doine",
+      "asi_voucher": "B102267",
+      "asi_salesID": 1058304,
+      "asi_name": "KESNEL.L",
+      "asi_pos": 2,
+      "score": 100.33,
+      "price_diffs": []
+    },
+    {
+      "invoice": 349,
+      "day": "2026-10-14",
+      "customer": "Edlain Pierre",
+      "asi_voucher": "B102373",
+      "asi_salesID": 1058483,
+      "asi_name": "EDLAIN ETIENNE",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": []
+    },
+    {
+      "invoice": 112,
+      "day": "2026-10-10",
+      "customer": "Matchalie Israël",
+      "asi_voucher": "R59222",
+      "asi_salesID": 1058064,
+      "asi_name": "32",
+      "asi_pos": 3,
+      "score": 50,
+      "price_diffs": []
+    },
+    {
+      "invoice": 36,
+      "day": "2026-10-09",
+      "customer": "Cash",
+      "asi_voucher": "B102135",
+      "asi_salesID": 1058081,
+      "asi_name": "CASH",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": []
+    },
+    {
+      "invoice": 64,
+      "day": "2026-10-09",
+      "customer": "Bastien Jean Rolin",
+      "asi_voucher": "B102085",
+      "asi_salesID": 1057992,
+      "asi_name": "BASTIEN.JN",
+      "asi_pos": 2,
+      "score": 120,
+      "price_diffs": []
+    },
+    {
+      "invoice": 104,
+      "day": "2026-10-10",
+      "customer": "Gienie Tienna Monday",
+      "asi_voucher": "R59224",
+      "asi_salesID": 1058070,
+      "asi_name": "GENNIE TIENA.MONDAY",
+      "asi_pos": 3,
+      "score": 74,
+      "price_diffs": []
+    },
+    {
+      "invoice": 290,
+      "day": "2026-10-12",
+      "customer": "Pierre Judex",
+      "asi_voucher": "B102306",
+      "asi_salesID": 1058371,
+      "asi_name": "PIERRE JUDEX",
+      "asi_pos": 2,
+      "score": 103.67,
+      "price_diffs": []
+    }
+  ]
+}
