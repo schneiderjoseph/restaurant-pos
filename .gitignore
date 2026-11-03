@@ -68,3 +68,6 @@ loyverse-sync/.env
 # Regenerate with: .\scripts\generate-branding-icons.ps1 -LogoPath <logo> [-EmblemCrop]
 # Committed fallbacks live in public/icons/. Runtime also follows the restaurant profile logo.
 public/branding/
+
+# Internal reports: customer and staff names, amounts (the GitHub repo is public)
+reports/
