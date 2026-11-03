@@ -79,3 +79,28 @@ test('isRevoked treats Surreal empty result [[]] as not revoked', async () => {
   await store.triggerBootstrap();
   assert.equal(await store.isRevoked('jti_fresh'), false);
 });
+
+test('revoking a jti already stored in Surreal is a silent no-op, not a warning', async () => {
+  const warnings = [];
+  const originalWarn = console.warn;
+  console.warn = (...args) => warnings.push(args.join(' '));
+  try {
+    const fakeClient = {
+      query: async (q) => {
+        if (/^\s*CREATE/.test(q)) {
+          throw new Error(
+            "Database index `revoked_session_jti` already contains 'jti_twice', with record `revoked_session:abc`"
+          );
+        }
+        return [[]];
+      },
+    };
+    store._reset();
+    store.setSurrealClient(fakeClient);
+    await store.revoke('jti_twice', Math.floor(Date.now() / 1000) + 3600);
+    assert.equal(await store.isRevoked('jti_twice'), true);
+    assert.equal(warnings.filter((w) => w.includes('Surreal write failed')).length, 0);
+  } finally {
+    console.warn = originalWarn;
+  }
+});

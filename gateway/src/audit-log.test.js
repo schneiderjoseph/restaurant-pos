@@ -28,6 +28,20 @@ after(async () => {
   fs.rmSync(tmpLogDir, { recursive: true, force: true });
 });
 
+/** Every file log written so far (the `details` of an entry live there, not in audit_log). */
+async function readFileLogs() {
+  await new Promise((resolve) => setTimeout(resolve, 50)); // appends are fire-and-forget
+  let out = '';
+  for (const dir of fs.readdirSync(tmpLogDir)) {
+    const full = path.join(tmpLogDir, dir);
+    if (!fs.statSync(full).isDirectory()) continue;
+    for (const f of fs.readdirSync(full).filter((n) => n.endsWith('.log'))) {
+      out += fs.readFileSync(path.join(full, f), 'utf8');
+    }
+  }
+  return out;
+}
+
 // Load the audit-log module fresh per test to reset state.
 function freshModule() {
   delete require.cache[require.resolve('./audit-log.js')];
@@ -92,10 +106,12 @@ test('log() with a Surreal client calls client.query with the right shape', asyn
   assert.ok(capturedArgs.data);
   assert.equal(capturedArgs.data.action, 'login_success');
   assert.equal(capturedArgs.data.actor_id, 'user:abc');
-  assert.equal(capturedArgs.data.actor_login, 'admin');
+  assert.equal(capturedArgs.data.actor_login, undefined); // the login is the PIN: never stored
   assert.deepEqual(capturedArgs.data.actor_roles, ['admin']);
   assert.equal(capturedArgs.data.source, 'test');
-  assert.ok(capturedArgs.data.occurred_at); // ISO timestamp
+  // SCHEMAFULL table, SurrealDB 3: a Date (sent as datetime), never an ISO string.
+  assert.ok(capturedArgs.data.occurred_at instanceof Date);
+  assert.equal(capturedArgs.data.table_name, 'gateway'); // required string
 });
 
 test('log() never throws even if Surreal query fails', async () => {
@@ -120,10 +136,10 @@ test('logLoginSuccess produces the right payload', async () => {
   await m.logLoginSuccess('user:123', 'manager1', ['manager'], '10.0.0.1');
   assert.equal(captured.action, 'login_success');
   assert.equal(captured.actor_id, 'user:123');
-  assert.equal(captured.actor_login, 'manager1');
+  assert.equal(captured.actor_login, undefined);
   assert.deepEqual(captured.actor_roles, ['manager']);
   assert.equal(captured.source, 'gateway-auth-routes');
-  assert.equal(captured.details.ip, '10.0.0.1');
+  assert.equal(captured.details, undefined); // no column for it: it stays in the file logs
 });
 
 test('logLoginFailure produces the right payload', async () => {
@@ -135,10 +151,10 @@ test('logLoginFailure produces the right payload', async () => {
   m.setSurrealClient(fakeClient);
   await m.logLoginFailure('testuser', '1.2.3.4', 'invalid_credentials');
   assert.equal(captured.action, 'login_failure');
-  assert.equal(captured.actor_login, 'testuser');
-  assert.equal(captured.actor_id, null); // unknown user
-  assert.equal(captured.details.ip, '1.2.3.4');
-  assert.equal(captured.details.reason, 'invalid_credentials');
+  assert.equal(captured.actor_login, undefined); // the typed PIN is never stored
+  // Unknown user: the field is left out, since option<string> refuses NULL.
+  assert.ok(!('actor_id' in captured));
+  assert.ok(Object.values(captured).every((v) => v !== null));
 });
 
 test('logSessionRevoked produces the right payload', async () => {
@@ -151,8 +167,6 @@ test('logSessionRevoked produces the right payload', async () => {
   await m.logSessionRevoked('jti-abc-123', 'user:456', 'waiter1');
   assert.equal(captured.action, 'session_revoked');
   assert.equal(captured.actor_id, 'user:456');
-  assert.equal(captured.actor_login, 'waiter1');
-  assert.equal(captured.details.jti, 'jti-abc-123');
   assert.equal(captured.source, 'gateway-jwt');
 });
 
@@ -185,13 +199,12 @@ test('logPermissionDenied extracts actor from JWT payload (without verifying)', 
   await m.logPermissionDenied(fakeReq, 403, 'Permission denied for payroll_run');
   assert.equal(captured.action, 'permission_denied');
   assert.equal(captured.actor_id, 'user:suspicious');
-  assert.equal(captured.actor_login, 'cashier1');
+  assert.equal(captured.actor_login, undefined);
   assert.deepEqual(captured.actor_roles, ['cashier']);
-  assert.equal(captured.details.method, 'GET');
-  assert.equal(captured.details.path, '/api/sensitive');
-  assert.equal(captured.details.status, 403);
-  assert.equal(captured.details.ip, '203.0.113.99');
   assert.equal(captured.source, 'gateway-session-auth');
+  const logs = await readFileLogs();
+  assert.match(logs, /permission_denied .*path=\/api\/sensitive .*status=403/);
+  assert.match(logs, /ip=203\.0\.113\.99/);
 });
 
 test('logPermissionDenied handles invalid/malformed tokens gracefully', async () => {
@@ -212,10 +225,9 @@ test('logPermissionDenied handles invalid/malformed tokens gracefully', async ()
 
   await m.logPermissionDenied(fakeReq, 401, 'Invalid token');
   assert.equal(captured.action, 'permission_denied');
-  assert.equal(captured.actor_id, null); // couldn't decode
-  assert.equal(captured.actor_login, null);
-  assert.equal(captured.details.status, 401);
-  assert.equal(captured.details.ip, '198.51.100.1');
+  assert.ok(!('actor_id' in captured)); // couldn't decode
+  assert.ok(Object.values(captured).every((v) => v !== null));
+  assert.match(await readFileLogs(), /ip=198\.51\.100\.1 .*status=401/);
 });
 
 test('logPermissionDenied handles request with no token at all', async () => {
@@ -236,6 +248,6 @@ test('logPermissionDenied handles request with no token at all', async () => {
 
   await m.logPermissionDenied(fakeReq, 401, 'No bearer token');
   assert.equal(captured.action, 'permission_denied');
-  assert.equal(captured.actor_id, null);
-  assert.equal(captured.details.error, 'No bearer token');
+  assert.ok(!('actor_id' in captured));
+  assert.match(await readFileLogs(), /error="No bearer token"/);
 });

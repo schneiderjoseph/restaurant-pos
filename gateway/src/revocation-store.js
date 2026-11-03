@@ -119,6 +119,9 @@ async function revoke(jti, expiresAtSeconds) {
       { jti: jtiStr, revokedAt, expiresAt }
     );
   } catch (err) {
+    // Already stored (a logout after the session was replaced by another device, a double
+    // logout): the unique index on jti refuses the second row, and that is the no-op we want.
+    if (/revoked_session_jti.*already contains/i.test(String(err?.message || err))) return;
     // Even if Surreal write fails, we've already cached in memory — the
     // revocation is still effective for this process. Other gateway
     // replicas (if any) would miss it until they re-bootstrap, but a single

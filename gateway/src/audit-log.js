@@ -90,6 +90,28 @@ function mirrorAuditToFile(entry, payload) {
   }
 }
 
+/**
+ * The row written to the SCHEMAFULL `audit_log` table (SurrealDB 3 coerces nothing):
+ * - `occurred_at` is a Date, which the driver sends as a datetime (an ISO string is refused);
+ * - optional fields are left out rather than set to null (`option<string>` refuses NULL);
+ * - `table_name` is a required string, so events not tied to a table use 'gateway';
+ * - `details` has no column in the schema (an unknown field is refused): it stays in the file logs;
+ * - `actor_login` is never stored: on the POS the login is the PIN.
+ */
+function toAuditRow(payload) {
+  const row = {
+    occurred_at: new Date(payload.occurred_at),
+    actor_roles: payload.actor_roles,
+    action: payload.action,
+    table_name: payload.table_name || 'gateway',
+    changed_fields: payload.changed_fields,
+  };
+  if (payload.actor_id) row.actor_id = String(payload.actor_id);
+  if (payload.record_id) row.record_id = String(payload.record_id);
+  if (payload.source) row.source = payload.source;
+  return row;
+}
+
 function setSurrealClient(client) {
   surrealClient = client;
 }
@@ -130,19 +152,18 @@ async function log(entry) {
   mirrorAuditToFile(entry, payload);
 
   // Best-effort write to Surreal. If it fails, log to stderr and continue.
+  // stderr gets the row, never `payload`: its actor_login is the PIN typed at the till.
+  const row = toAuditRow(payload);
   if (!surrealClient) {
-    logger.warn('No Surreal client — audit entry logged to stderr only:', payload);
+    logger.warn('No Surreal client — audit entry logged to stderr only:', row);
     return;
   }
 
   try {
-    await surrealClient.query(
-      `CREATE audit_log CONTENT $data;`,
-      { data: payload }
-    );
+    await surrealClient.query(`CREATE audit_log CONTENT $data;`, { data: row });
   } catch (err) {
     // Never throw — audit logging must not break the POS.
-    logger.error('Failed to write audit log entry:', err.message, payload);
+    logger.error('Failed to write audit log entry:', err.message, row);
   }
 }
 
