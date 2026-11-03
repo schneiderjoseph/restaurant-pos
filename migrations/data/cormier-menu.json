@@ -14,7 +14,8 @@
   "retired": [
     "1805",
     "100",
-    "3003"
+    "3003",
+    "1702"
   ],
   "categories": [
     {
@@ -1115,10 +1116,24 @@
           "name": "Gâteau maison",
           "price": 700,
           "number": "1302",
+          "asi_item_id": 256,
           "description": {
             "fr": "La part généreuse du jour.",
             "en": "Homemade Cake — A generous slice of the day."
-          }
+          },
+          "variants": [
+            {
+              "name": "Tranche",
+              "price": 700,
+              "from": "1302",
+              "ask_quantity": true
+            },
+            {
+              "name": "Entier",
+              "price": 6500,
+              "from": "1308"
+            }
+          ]
         },
         {
           "name": "Pain patate maison",
@@ -1306,7 +1321,7 @@
         },
         {
           "name": "Cormier Punch",
-          "price": 1000,
+          "price": 1150,
           "number": "1608"
         },
         {
@@ -1424,7 +1439,7 @@
         },
         {
           "name": "Piña Colada",
-          "price": 1600,
+          "price": 1000,
           "number": "1626",
           "asi_item_ids": [
             449,
@@ -1443,7 +1458,7 @@
             },
             {
               "name": "Malibu",
-              "price": 1600,
+              "price": 1000,
               "from": "1625"
             }
           ]
@@ -1570,7 +1585,7 @@
         },
         {
           "name": "Vodka Tonic / Grey Goose",
-          "price": 928,
+          "price": 1500,
           "number": "1666",
           "asi_item_id": 617
         },
@@ -1589,18 +1604,18 @@
       "items": [
         {
           "name": "Gin Sour / Beefeater",
-          "price": 600,
+          "price": 775,
           "number": "1613",
           "asi_item_id": 58
         },
         {
           "name": "Gin Sour / Gordon",
-          "price": 1000,
+          "price": 1200,
           "number": "1614"
         },
         {
           "name": "Gin Sour / Tanqueray",
-          "price": 1000,
+          "price": 1200,
           "number": "1615"
         },
         {
@@ -1610,7 +1625,7 @@
         },
         {
           "name": "Gin Tonic / Gordon",
-          "price": 1419,
+          "price": 1550,
           "number": "1617",
           "asi_item_id": 574
         },
@@ -2576,14 +2591,23 @@
           ]
         },
         {
-          "name": "Cointreau – bouteille 750 ml",
-          "price": 8500,
-          "number": "2510"
-        },
-        {
-          "name": "Benedicta",
-          "price": 540,
-          "number": "1702"
+          "name": "Cointreau",
+          "price": 770,
+          "number": "2510",
+          "asi_item_id": 50,
+          "variants": [
+            {
+              "name": "Shot 2 oz",
+              "price": 770,
+              "from": "2510",
+              "ask_quantity": true
+            },
+            {
+              "name": "Bouteille 750 ml",
+              "price": 8500,
+              "from": "2518"
+            }
+          ]
         },
         {
           "name": "Menthe verte",
