@@ -82,7 +82,7 @@ export const getTimeSeries = async (
         const paymentTotals = getOrderPaymentTotals(order);
         return safeNumber(
           // Tips are collected with the bill but are not sales.
-          paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
+          paymentTotals.amountApplied - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
         );
       }),
     };

@@ -171,7 +171,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
       // Tips are collected with the bill but are not sales.
-      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
+      paymentTotals.amountApplied - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
     );
 
     // An order counts for each server by the lines they added (a duo, a colleague adding to it).
@@ -219,7 +219,7 @@ export const getWeeklySales = async (db: DbClient, options: DateRangeFilter) => 
     const paymentTotals = getOrderPaymentTotals(order);
     const netSales = safeNumber(
       // Tips are collected with the bill but are not sales.
-      paymentTotals.amountCollected - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
+      paymentTotals.amountApplied - safeNumber(order.service_charge_amount) - getOrderTaxAmount(order) - safeNumber(order.tip_amount),
     );
     const existing = byDay.get(dayKey) || {netSales: 0, orderCount: 0};
     existing.netSales += netSales;

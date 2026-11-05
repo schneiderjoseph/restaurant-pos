@@ -94,7 +94,7 @@ const mapActiveSession = (entry: TimeEntry): ActiveSessionSummary => {
 const calculateSessionNetSales = (order: Order): number => {
   const paymentTotals = getOrderPaymentTotals(order);
   return safeNumber(
-    paymentTotals.amountCollected
+    paymentTotals.amountApplied
     - safeNumber(order.service_charge_amount)
     - safeNumber(order.tax_amount)
     - safeNumber(order.tip_amount),

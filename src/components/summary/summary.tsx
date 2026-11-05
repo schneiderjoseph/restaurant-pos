@@ -158,10 +158,17 @@ export const Summary = ({
     );
   }, [orders]);
 
-  // Net (amount collected minus service charges and taxes)
+  // Room / house-credit charges: sold, not yet collected.
+  const deferredCharges = useMemo(() => {
+    return safeNumber(
+      orders?.reduce((sum, order) => sum + getOrderPaymentTotals(order).deferredAmount, 0) ?? 0
+    );
+  }, [orders]);
+
+  // Net (everything applied — till + room + credit — minus service charges and taxes)
   const net = useMemo(() => {
-    return safeNumber(amountCollected - serviceCharges - taxCollected);
-  }, [amountCollected, serviceCharges, taxCollected]);
+    return safeNumber(amountCollected + deferredCharges - serviceCharges - taxCollected);
+  }, [amountCollected, deferredCharges, serviceCharges, taxCollected]);
 
   // Refunds (from negative payment amounts or cancelled orders)
   const refunds = useMemo(() => {
@@ -185,10 +192,10 @@ export const Summary = ({
     );
   }, [orders]);
 
-  // Gross (amount collected + refunds + total discounts)
+  // Gross (everything applied + refunds + total discounts)
   const gross = useMemo(() => {
-    return safeNumber(amountCollected + refunds + discounts);
-  }, [amountCollected, refunds, discounts]);
+    return safeNumber(amountCollected + deferredCharges + refunds + discounts);
+  }, [amountCollected, deferredCharges, refunds, discounts]);
 
   // G Sales (Gross Sales) = sale price without tax
   const gSales = salePriceWithoutTax;

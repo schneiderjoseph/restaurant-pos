@@ -444,7 +444,8 @@ export const SalesAdvancedReport = () => {
     const amountDue = getOrderAmountDueFromPayments(order);
     const changeDue = paymentTotals.change;
     const paymentBreakdown = getOrderPaymentBreakdown(paymentTotals);
-    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax - figures.tips);
+    // Room / house-credit charges are sales too: start from everything applied, not only till money.
+    const net = safeNumber(paymentTotals.amountApplied - figures.serviceCharges - figures.tax - figures.tips);
     const rounding = getOrderRounding(order);
 
     return {

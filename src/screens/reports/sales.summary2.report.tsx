@@ -229,7 +229,8 @@ function calculateOrderMetrics(order: Order) {
   const figures = getOrderSettlementFigures(order);
   const paymentTotals = getOrderPaymentTotals(order);
   const amountCollected = paymentTotals.amountCollected;
-  const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
+  // Room / house-credit charges are sales too: start from everything applied, not only till money.
+  const net = safeNumber(paymentTotals.amountApplied - figures.serviceCharges - figures.tax);
   const turnTime = getOrderTurnTimeMinutes(order);
 
   return {
@@ -391,7 +392,7 @@ export const SalesSummary2Report = () => {
 
     const rounding = orders.reduce((sum, order) => sum + getOrderRounding(order), 0);
 
-    const net = safeNumber(amountCollected - serviceCharges - taxCollected);
+    const net = safeNumber(amountCollected + deferredCharges - serviceCharges - taxCollected);
 
     const refunds = safeNumber(
       orders.reduce((sum, order) => {
@@ -413,7 +414,7 @@ export const SalesSummary2Report = () => {
     );
 
     const totalDiscounts = safeNumber(itemDiscounts + subtotalDiscounts);
-    const gross = safeNumber(amountCollected + refunds + totalDiscounts + couponDiscounts);
+    const gross = safeNumber(amountCollected + deferredCharges + refunds + totalDiscounts + couponDiscounts);
 
     return {
       salePriceWithoutTax,
