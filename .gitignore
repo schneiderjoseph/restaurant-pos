@@ -70,4 +70,4 @@ loyverse-sync/.env
 public/branding/
 
 # Internal reports: customer and staff names, amounts (the GitHub repo is public)
-reports/
+/reports/
