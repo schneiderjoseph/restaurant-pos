@@ -994,7 +994,8 @@
       "reports.audit": "Audit",
       "reports.shifts": "Shifts by Employee",
       "reports.cash_audit": "Cash Audit",
-      "reports.kitchen_timing": "Kitchen Timing"
+      "reports.kitchen_timing": "Kitchen Timing",
+      "reports.room_charges": "Charged to Rooms"
     }
   },
   "securityAlerts": {

@@ -60,7 +60,8 @@
     "tablesSummary": "Masa özeti",
     "shifts": "Çalışan vardiyaları",
     "cashAudit": "Nakit tahsilat kontrolü",
-    "kitchenTiming": "Mutfak süreleri"
+    "kitchenTiming": "Mutfak süreleri",
+    "roomCharges": "Odaya yazılanlar"
   },
   "titles": {
     "salesDashboard": "Satış gösterge paneli",
@@ -832,6 +833,7 @@
     "audit": "Hassas işlemlerin kaydı.",
     "shifts": "Vardiya başına: giriş, çıkış, süre ve herkesin tahsil ettiği tutar.",
     "cashAudit": "Ödemeden hemen önce ürün çıkarılan veya ödemesi değiştirilen nakit siparişler.",
-    "kitchenTiming": "Sipariş türüne göre bekleme ve mutfak, aşama ve kategoriye göre hazırlık süresi."
+    "kitchenTiming": "Sipariş türüne göre bekleme ve mutfak, aşama ve kategoriye göre hazırlık süresi.",
+    "roomCharges": "Otel misafirlerinin odalarına yazılan her şey: oda, misafir ve siparişe göre, ASI folyosu ile."
   }
 }

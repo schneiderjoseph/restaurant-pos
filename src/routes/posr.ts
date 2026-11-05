@@ -55,6 +55,7 @@ export const REPORTS_ACTIVITY = REPORTS + '/activity';
 export const REPORTS_PRODUCT_HOURLY = REPORTS + '/product-hourly';
 export const REPORTS_PRODUCT_LIST = REPORTS + '/product-list';
 export const REPORTS_SHIFTS = REPORTS + '/shifts';
+export const REPORTS_ROOM_CHARGES = REPORTS + '/room-charges';
 export const REPORTS_CASH_AUDIT = REPORTS + '/cash-audit';
 export const REPORTS_KITCHEN_TIMING = REPORTS + '/kitchen-timing';
 export const REPORTS_PRODUCT_MIX_SUMMARY = REPORTS + '/product-mix-summary';

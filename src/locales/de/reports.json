@@ -60,7 +60,8 @@
     "tablesSummary": "Tischübersicht",
     "shifts": "Schichten pro Mitarbeiter",
     "cashAudit": "Barzahlungs-Prüfung",
-    "kitchenTiming": "Küchenzeiten"
+    "kitchenTiming": "Küchenzeiten",
+    "roomCharges": "Auf Zimmer gebucht"
   },
   "titles": {
     "salesDashboard": "Umsatz-Dashboard",
@@ -832,6 +833,7 @@
     "audit": "Protokoll sensibler Aktionen.",
     "shifts": "Pro Schicht: Beginn, Ende, Dauer und kassierte Beträge.",
     "cashAudit": "Bar bezahlte Bestellungen, bei denen kurz vor der Zahlung ein Artikel entfernt oder die Zahlung geändert wurde.",
-    "kitchenTiming": "Wartezeit pro Bestellart und Zubereitungszeit pro Küche, Stufe und Kategorie."
+    "kitchenTiming": "Wartezeit pro Bestellart und Zubereitungszeit pro Küche, Stufe und Kategorie.",
+    "roomCharges": "Alles, was auf Hotelzimmer gebucht wurde: nach Zimmer, Gast und Bestellung, mit ASI-Folio."
   }
 }

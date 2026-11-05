@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { REPORTS_CASH_AUDIT, REPORTS_KITCHEN_TIMING, REPORTS_SHIFTS } from '@/routes/posr.ts';
+import { REPORTS_CASH_AUDIT, REPORTS_KITCHEN_TIMING, REPORTS_ROOM_CHARGES, REPORTS_SHIFTS } from '@/routes/posr.ts';
 import { DateRange } from '@/components/reports/filters/date.range.tsx';
 import { Button } from '@/components/common/input/button.tsx';
 
@@ -10,6 +10,17 @@ export const ShiftsFilter = () => {
   const { t } = useTranslation('reports');
   return (
     <form action={REPORTS_SHIFTS} className="flex flex-col gap-3 items-start" target="_blank">
+      <DateRange isRequired />
+      <Button variant="primary" filled type="submit">{t('filters.generate')}</Button>
+    </form>
+  );
+};
+
+/** Charged to rooms: date range only. */
+export const RoomChargesFilter = () => {
+  const { t } = useTranslation('reports');
+  return (
+    <form action={REPORTS_ROOM_CHARGES} className="flex flex-col gap-3 items-start" target="_blank">
       <DateRange isRequired />
       <Button variant="primary" filled type="submit">{t('filters.generate')}</Button>
     </form>

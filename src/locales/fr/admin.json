@@ -840,7 +840,8 @@
       "reports.audit": "Audit",
       "reports.shifts": "Services par employé",
       "reports.cash_audit": "Contrôle des encaissements espèces",
-      "reports.kitchen_timing": "Temps cuisine"
+      "reports.kitchen_timing": "Temps cuisine",
+      "reports.room_charges": "Facturé aux chambres"
     }
   },
   "discountEngine": {

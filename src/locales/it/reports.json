@@ -60,7 +60,8 @@
     "tablesSummary": "Riepilogo tavoli",
     "shifts": "Turni per dipendente",
     "cashAudit": "Controllo incassi in contanti",
-    "kitchenTiming": "Tempi di cucina"
+    "kitchenTiming": "Tempi di cucina",
+    "roomCharges": "Addebitato alle camere"
   },
   "titles": {
     "salesDashboard": "Dashboard vendite",
@@ -832,6 +833,7 @@
     "audit": "Registro delle azioni sensibili.",
     "shifts": "Per timbratura: entrata, uscita, durata e quanto ha incassato ciascuno.",
     "cashAudit": "Ordini pagati in contanti con un articolo rimosso o il pagamento modificato poco prima dell'incasso.",
-    "kitchenTiming": "Attesa per tipo di ordine e preparazione per cucina, fase e categoria."
+    "kitchenTiming": "Attesa per tipo di ordine e preparazione per cucina, fase e categoria.",
+    "roomCharges": "Tutto ciò che è stato addebitato alle camere degli ospiti: per camera, ospite e ordine, con il folio ASI."
   }
 }

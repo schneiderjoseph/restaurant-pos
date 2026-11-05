@@ -60,7 +60,8 @@
     "tablesSummary": "Résumé des tables",
     "shifts": "Services par employé",
     "cashAudit": "Contrôle des encaissements espèces",
-    "kitchenTiming": "Temps cuisine"
+    "kitchenTiming": "Temps cuisine",
+    "roomCharges": "Facturé aux chambres"
   },
   "titles": {
     "salesDashboard": "Tableau de bord des ventes",
@@ -969,6 +970,15 @@
       "slowP90": "1 commande sur 10 attend plus de {{limit}} min : {{names}}.",
       "slowestCategory": "Catégorie la plus longue à préparer : {{name}} ({{avg}} min en moyenne sur {{count}} articles).",
       "ticketAverage": "Une commande dure en moyenne {{avg}} min de l'ouverture au paiement ({{count}} commandes)."
+    },
+    "rooms": {
+      "none": "Aucune commande facturée aux chambres sur la période.",
+      "share": "{{amount}} facturés aux chambres ({{pct}} % des ventes) : {{count}} commande(s) pour {{guests}} client(s).",
+      "topGuest": "Plus gros compte : {{name}}, chambre {{room}} — {{amount}} en {{count}} commande(s) ({{pct}} % du total chambres).",
+      "unsettled": "{{count}} séjour(s) POS fermé(s) sans que la note de chambre soit réglée : {{amount}} à encaisser — {{names}}.",
+      "noFolio": "{{count}} commande(s) ASI sans numéro de folio ({{amount}}) : vérifiez qu'elles sont bien arrivées dans ASI.",
+      "departed": "{{count}} client(s) ont quitté l'hôtel depuis ({{amount}}) — {{names}}. Vérifiez que ces montants figurent sur leur folio.",
+      "large": "{{count}} commande(s) dépassent {{factor}}× la moyenne ({{average}}) : {{orders}}."
     }
   },
   "credit": {
@@ -1028,7 +1038,8 @@
     "audit": "Journal des actions sensibles.",
     "shifts": "Par pointage : arrivée, départ, durée, et ce que chacun a encaissé (espèces, autres, chambre + crédit).",
     "cashAudit": "Commandes payées en espèces où un article a été retiré ou le paiement modifié juste avant l'encaissement.",
-    "kitchenTiming": "Temps d'attente par type de commande et temps de préparation par cuisine, étape et catégorie."
+    "kitchenTiming": "Temps d'attente par type de commande et temps de préparation par cuisine, étape et catégorie.",
+    "roomCharges": "Tout ce qui a été mis sur la chambre des clients de l'hôtel : par chambre, par client et par commande, avec le folio ASI."
   },
   "salesSummary": {
     "vsPrevious": "vs {{value}} ({{change}})",
@@ -1251,5 +1262,32 @@
     "byStage": "Par étape",
     "byCategory": "Par catégorie de plat",
     "explanation": "Temps d'une commande : de son ouverture à son paiement. Temps de préparation : de l'envoi en cuisine à « prêt ». La colonne « 9 sur 10 » montre l'attente des clients les moins bien servis, plus parlante que la moyenne."
+  },
+  "roomCharges": {
+    "room": "Chambre",
+    "guest": "Client",
+    "folio": "Folio",
+    "source": "Origine",
+    "status": "Statut",
+    "sourceAsi": "ASI",
+    "sourceManual": "Séjour POS",
+    "inHouse": "Dans l'hôtel",
+    "departed": "Parti",
+    "unsettled": "Non réglé",
+    "charged": "Facturé chambre",
+    "orderTotal": "Total commande",
+    "lastCharge": "Dernière facturation",
+    "totalCharged": "Total facturé aux chambres",
+    "shareOfSales": "{{pct}} % des ventes de la période",
+    "average": "Moyenne {{amount}} par commande",
+    "guests": "Clients / chambres",
+    "asiManual": "ASI {{asi}} · POS {{manual}}",
+    "unsettledKpi": "Séjours POS non réglés",
+    "unsettledHint": "{{count}} séjour(s) fermé(s) sans règlement",
+    "byGuest": "Par chambre et client",
+    "detail": "Détail des commandes",
+    "search": "Rechercher une chambre, un client, un folio ou une commande…",
+    "explanation": "Commandes payées avec le moyen « Chambre ». Le montant affiché est la part mise sur la chambre (une commande peut être payée en partie en espèces). Les clients ASI sont facturés sur leur folio FrontDesk ; les séjours créés dans le POS se règlent au départ.",
+    "note": "La chambre et le statut « dans l'hôtel » sont ceux d'aujourd'hui pour les clients ASI (dernière synchro FrontDesk). Pour rapprocher avec ASI, comparez le total par folio avec les postes restaurant du folio."
   }
 }

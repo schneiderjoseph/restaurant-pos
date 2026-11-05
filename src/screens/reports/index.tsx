@@ -32,7 +32,7 @@ import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle
 import {OrderReceiptFilter} from "@/components/reports/filters/order.receipt.filter.tsx";
 import {OrderFiscalFilter} from "@/components/reports/filters/order.fiscal.filter.tsx";
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
-import {CashAuditFilter, KitchenTimingFilter, ShiftsFilter} from "@/components/reports/filters/operations.filters.tsx";
+import {CashAuditFilter, KitchenTimingFilter, RoomChargesFilter, ShiftsFilter} from "@/components/reports/filters/operations.filters.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {
@@ -87,6 +87,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   productsHourly: 'reports.products_hourly',
   productList: 'reports.product_list',
   shifts: 'reports.shifts',
+  roomCharges: 'reports.room_charges',
   cashAudit: 'reports.cash_audit',
   kitchenTiming: 'reports.kitchen_timing',
 };
@@ -133,6 +134,7 @@ export const Reports = () => {
         title: t('categories.customers'),
         reports: buildReportEntries(t, [
           { reportKey: 'customerCredit', filter: <CustomerCreditFilter /> },
+          { reportKey: 'roomCharges', filter: <RoomChargesFilter /> },
           { reportKey: 'salesByCustomer', filter: <SalesByCustomerFilter /> },
         ]),
       },

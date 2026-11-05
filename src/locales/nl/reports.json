@@ -60,7 +60,8 @@
     "tablesSummary": "Tafeloverzicht",
     "shifts": "Diensten per medewerker",
     "cashAudit": "Controle contante betalingen",
-    "kitchenTiming": "Keukentijden"
+    "kitchenTiming": "Keukentijden",
+    "roomCharges": "Op kamer geboekt"
   },
   "titles": {
     "salesDashboard": "Verkoopdashboard",
@@ -832,6 +833,7 @@
     "audit": "Logboek van gevoelige acties.",
     "shifts": "Per dienst: begin, einde, duur en wat ieder ontving.",
     "cashAudit": "Contant betaalde bestellingen waarbij vlak voor betaling een artikel werd verwijderd of de betaling gewijzigd.",
-    "kitchenTiming": "Wachttijd per besteltype en bereidingstijd per keuken, stap en categorie."
+    "kitchenTiming": "Wachttijd per besteltype en bereidingstijd per keuken, stap en categorie.",
+    "roomCharges": "Alles wat op hotelkamers is geboekt: per kamer, gast en bestelling, met het ASI-folio."
   }
 }

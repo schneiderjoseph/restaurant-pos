@@ -60,7 +60,8 @@
     "tablesSummary": "Tables summary",
     "shifts": "Shifts by employee",
     "cashAudit": "Cash audit",
-    "kitchenTiming": "Kitchen timing"
+    "kitchenTiming": "Kitchen timing",
+    "roomCharges": "Charged to rooms"
   },
   "titles": {
     "salesDashboard": "Sales dashboard",
@@ -969,6 +970,15 @@
       "slowP90": "1 order in 10 waits more than {{limit}} min: {{names}}.",
       "slowestCategory": "Slowest category to prepare: {{name}} ({{avg}} min on average over {{count}} items).",
       "ticketAverage": "An order lasts {{avg}} min on average from opening to payment ({{count}} orders)."
+    },
+    "rooms": {
+      "none": "No orders charged to rooms in this period.",
+      "share": "{{amount}} charged to rooms ({{pct}}% of sales): {{count}} order(s) for {{guests}} guest(s).",
+      "topGuest": "Largest account: {{name}}, room {{room}} — {{amount}} over {{count}} order(s) ({{pct}}% of room charges).",
+      "unsettled": "{{count}} POS stay(s) closed without the room bill being settled: {{amount}} to collect — {{names}}.",
+      "noFolio": "{{count}} ASI order(s) have no folio number ({{amount}}): check they reached ASI.",
+      "departed": "{{count}} guest(s) have since left the hotel ({{amount}}) — {{names}}. Check these amounts are on their folio.",
+      "large": "{{count}} order(s) exceed {{factor}}× the average ({{average}}): {{orders}}."
     }
   },
   "credit": {
@@ -1028,7 +1038,8 @@
     "audit": "Log of sensitive actions.",
     "shifts": "Per clock-in: in, out, duration, and what each person collected (cash, other, room + credit).",
     "cashAudit": "Cash-paid orders where an item was removed or the payment changed just before payment.",
-    "kitchenTiming": "Wait time per order type and prep time per kitchen, stage and category."
+    "kitchenTiming": "Wait time per order type and prep time per kitchen, stage and category.",
+    "roomCharges": "Everything put on hotel guests' rooms: by room, by guest and by order, with the ASI folio."
   },
   "salesSummary": {
     "vsPrevious": "vs {{value}} ({{change}})",
@@ -1251,5 +1262,32 @@
     "byStage": "By stage",
     "byCategory": "By dish category",
     "explanation": "Order time: from opening to payment. Prep time: from sent to kitchen to ready. The \"9 in 10\" column shows how long the worst-served guests wait, more telling than the average."
+  },
+  "roomCharges": {
+    "room": "Room",
+    "guest": "Guest",
+    "folio": "Folio",
+    "source": "Source",
+    "status": "Status",
+    "sourceAsi": "ASI",
+    "sourceManual": "POS stay",
+    "inHouse": "In-house",
+    "departed": "Departed",
+    "unsettled": "Unsettled",
+    "charged": "Charged to room",
+    "orderTotal": "Order total",
+    "lastCharge": "Last charge",
+    "totalCharged": "Total charged to rooms",
+    "shareOfSales": "{{pct}}% of the period's sales",
+    "average": "Average {{amount}} per order",
+    "guests": "Guests / rooms",
+    "asiManual": "ASI {{asi}} · POS {{manual}}",
+    "unsettledKpi": "Unsettled POS stays",
+    "unsettledHint": "{{count}} stay(s) closed without settlement",
+    "byGuest": "By room and guest",
+    "detail": "Order detail",
+    "search": "Search a room, guest, folio or order…",
+    "explanation": "Orders paid with the Room tender. The amount shown is the part put on the room (an order can be partly paid in cash). ASI guests are charged on their FrontDesk folio; stays created in the POS are settled at check-out.",
+    "note": "For ASI guests, the room and in-house status are today's (last FrontDesk sync). To reconcile with ASI, compare the total per folio with the restaurant postings on the folio."
   }
 }

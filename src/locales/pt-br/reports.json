@@ -60,7 +60,8 @@
     "tablesSummary": "Resumo de mesas",
     "shifts": "Turnos por funcionário",
     "cashAudit": "Controle de recebimentos em dinheiro",
-    "kitchenTiming": "Tempos de cozinha"
+    "kitchenTiming": "Tempos de cozinha",
+    "roomCharges": "Lançado nos quartos"
   },
   "titles": {
     "salesDashboard": "Painel de vendas",
@@ -832,6 +833,7 @@
     "audit": "Registro de ações sensíveis.",
     "shifts": "Por ponto: entrada, saída, duração e o que cada um recebeu.",
     "cashAudit": "Pedidos pagos em dinheiro com item removido ou pagamento alterado logo antes do recebimento.",
-    "kitchenTiming": "Espera por tipo de pedido e preparo por cozinha, etapa e categoria."
+    "kitchenTiming": "Espera por tipo de pedido e preparo por cozinha, etapa e categoria.",
+    "roomCharges": "Tudo o que foi lançado nos quartos dos hóspedes: por quarto, hóspede e pedido, com o fólio ASI."
   }
 }
