@@ -841,7 +841,9 @@
       "reports.shifts": "Services par employé",
       "reports.cash_audit": "Contrôle des encaissements espèces",
       "reports.kitchen_timing": "Temps cuisine",
-      "reports.room_charges": "Facturé aux chambres"
+      "reports.room_charges": "Facturé aux chambres",
+      "settings.fiscal_year": "Exercice fiscal",
+      "reports.sales_monthly": "Ventes mensuelles et annuelles"
     }
   },
   "discountEngine": {

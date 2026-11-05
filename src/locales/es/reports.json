@@ -61,7 +61,8 @@
     "shifts": "Turnos por empleado",
     "cashAudit": "Control de cobros en efectivo",
     "kitchenTiming": "Tiempos de cocina",
-    "roomCharges": "Cargado a habitaciones"
+    "roomCharges": "Cargado a habitaciones",
+    "salesMonthly": "Ventas mensuales y anuales"
   },
   "titles": {
     "salesDashboard": "Panel de ventas",
@@ -214,7 +215,9 @@
     "thisYear": "Este año",
     "lastYear": "Año pasado",
     "allTime": "Todo el tiempo",
-    "custom": "Personalizado"
+    "custom": "Personalizado",
+    "thisFiscalYear": "Año fiscal actual",
+    "lastFiscalYear": "Año fiscal anterior"
   },
   "loading": {
     "report": "Cargando informe...",
@@ -834,6 +837,7 @@
     "shifts": "Por fichaje: entrada, salida, duración y lo cobrado por cada uno.",
     "cashAudit": "Pedidos pagados en efectivo con un artículo retirado o el pago modificado justo antes del cobro.",
     "kitchenTiming": "Tiempo de espera por tipo de pedido y de preparación por cocina, etapa y categoría.",
-    "roomCharges": "Todo lo cargado a las habitaciones de los huéspedes: por habitación, huésped y pedido, con el folio ASI."
+    "roomCharges": "Todo lo cargado a las habitaciones de los huéspedes: por habitación, huésped y pedido, con el folio ASI.",
+    "salesMonthly": "Ventas netas mes a mes del año fiscal, comparadas con el año fiscal anterior."
   }
 }

@@ -773,7 +773,8 @@
       "admin.customers": "Клиенты",
       "admin.customers.update": "Изменять любого клиента",
       "admin.customers.delete": "Удалять и восстанавливать клиентов",
-      "admin.customers.merge": "Объединять дубликаты"
+      "admin.customers.merge": "Объединять дубликаты",
+      "settings.fiscal_year": "Финансовый год"
     }
   },
   "discountEngine": {

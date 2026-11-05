@@ -186,5 +186,13 @@
     "actionLogout": "Abmelden",
     "updated": "Sitzungssicherheitseinstellungen aktualisiert",
     "saveDescription": "Sitzungssicherheitseinstellungen speichern"
+  },
+  "fiscalYear": {
+    "title": "Geschäftsjahr",
+    "description": "Monat, in dem das Geschäftsjahr beginnt. Berichte nutzen ihn für „Aktuelles Geschäftsjahr“, „Vorheriges Geschäftsjahr“ und Monats- und Jahresumsätze.",
+    "startMonth": "Erster Monat des Geschäftsjahres",
+    "preview": "Aktuelles Geschäftsjahr: {{label}} ({{from}} → {{to}})",
+    "updated": "Geschäftsjahr aktualisiert",
+    "saveDescription": "Geschäftsjahr speichern"
   }
 }

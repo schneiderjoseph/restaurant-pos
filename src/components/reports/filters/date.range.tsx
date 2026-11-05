@@ -1,9 +1,11 @@
 import {DateRangePicker} from "@/components/common/antd/date.range.picker.tsx";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {DateTime} from "luxon";
 import { Dayjs } from "dayjs";
 import {getAppTimezone} from "@/lib/datetime.ts";
+import {useDB} from "@/api/db/db.ts";
+import {DEFAULT_FISCAL_START_MONTH, fiscalYearRange, loadFiscalStartMonth} from "@/lib/fiscal-year.ts";
 
 interface DateRangeProps {
   startName?: string;
@@ -21,12 +23,14 @@ type PresetKey =
   | "lastMonth"
   | "thisYear"
   | "lastYear"
+  | "thisFiscalYear"
+  | "lastFiscalYear"
   | "allTime"
   | "custom";
 
 const DATE_TIME_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 
-const resolvePresetRange = (key: PresetKey): [string, string] => {
+const resolvePresetRange = (key: PresetKey, fiscalStartMonth = DEFAULT_FISCAL_START_MONTH): [string, string] => {
   const now = DateTime.now().setZone(getAppTimezone());
   switch (key) {
     case "today":
@@ -77,6 +81,11 @@ const resolvePresetRange = (key: PresetKey): [string, string] => {
         year.endOf("year").toFormat(DATE_TIME_FORMAT),
       ];
     }
+    case "thisFiscalYear":
+    case "lastFiscalYear": {
+      const range = fiscalYearRange(now, fiscalStartMonth, key === "lastFiscalYear" ? -1 : 0);
+      return [range.start.toFormat(DATE_TIME_FORMAT), range.end.toFormat(DATE_TIME_FORMAT)];
+    }
     case "allTime":
       return ["", ""];
     default:
@@ -116,6 +125,8 @@ export function DateRange({
       "lastMonth",
       "thisYear",
       "lastYear",
+      "thisFiscalYear",
+      "lastFiscalYear",
       ...(isRequired ? [] : (["allTime"] as PresetKey[])),
       "custom",
     ];
@@ -125,11 +136,23 @@ export function DateRange({
     }));
   }, [isRequired, t]);
 
+  const db = useDB();
+  const [fiscalStartMonth, setFiscalStartMonth] = useState(DEFAULT_FISCAL_START_MONTH);
+  useEffect(() => {
+    let alive = true;
+    void loadFiscalStartMonth(db).then((month) => {
+      if (alive) setFiscalStartMonth(month);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [db]);
+
   const [selectedKey, setSelectedKey] = useState<PresetKey>("today");
   const [isCustom, setCustom] = useState(false);
   const [customRange, setCustomRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
 
-  const preset = selectedKey === "custom" ? (["", ""] as [string, string]) : resolvePresetRange(selectedKey);
+  const preset = selectedKey === "custom" ? (["", ""] as [string, string]) : resolvePresetRange(selectedKey, fiscalStartMonth);
   const customStart = customRange?.[0] ? formatCustomBound(customRange[0]) : "";
   const customEnd = customRange?.[1] ? formatCustomBound(customRange[1]) : "";
   const datesRequired = isRequired && selectedKey !== "allTime";

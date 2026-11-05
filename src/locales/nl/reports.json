@@ -61,7 +61,8 @@
     "shifts": "Diensten per medewerker",
     "cashAudit": "Controle contante betalingen",
     "kitchenTiming": "Keukentijden",
-    "roomCharges": "Op kamer geboekt"
+    "roomCharges": "Op kamer geboekt",
+    "salesMonthly": "Maand- en jaaromzet"
   },
   "titles": {
     "salesDashboard": "Verkoopdashboard",
@@ -214,7 +215,9 @@
     "thisYear": "Dit jaar",
     "lastYear": "Vorig jaar",
     "allTime": "Alle tijd",
-    "custom": "Aangepast"
+    "custom": "Aangepast",
+    "thisFiscalYear": "Huidig boekjaar",
+    "lastFiscalYear": "Vorig boekjaar"
   },
   "loading": {
     "report": "Rapport laden...",
@@ -834,6 +837,7 @@
     "shifts": "Per dienst: begin, einde, duur en wat ieder ontving.",
     "cashAudit": "Contant betaalde bestellingen waarbij vlak voor betaling een artikel werd verwijderd of de betaling gewijzigd.",
     "kitchenTiming": "Wachttijd per besteltype en bereidingstijd per keuken, stap en categorie.",
-    "roomCharges": "Alles wat op hotelkamers is geboekt: per kamer, gast en bestelling, met het ASI-folio."
+    "roomCharges": "Alles wat op hotelkamers is geboekt: per kamer, gast en bestelling, met het ASI-folio.",
+    "salesMonthly": "Netto-omzet per maand over het boekjaar, vergeleken met het vorige boekjaar."
   }
 }

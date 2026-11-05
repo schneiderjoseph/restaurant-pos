@@ -995,7 +995,9 @@
       "reports.shifts": "Shifts by Employee",
       "reports.cash_audit": "Cash Audit",
       "reports.kitchen_timing": "Kitchen Timing",
-      "reports.room_charges": "Charged to Rooms"
+      "reports.room_charges": "Charged to Rooms",
+      "settings.fiscal_year": "Fiscal year",
+      "reports.sales_monthly": "Monthly & Yearly Sales"
     }
   },
   "securityAlerts": {

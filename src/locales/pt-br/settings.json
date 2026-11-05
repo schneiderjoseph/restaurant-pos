@@ -186,5 +186,13 @@
     "actionLogout": "Sair",
     "updated": "Configurações de segurança da sessão atualizadas",
     "saveDescription": "Salvar configurações de segurança da sessão"
+  },
+  "fiscalYear": {
+    "title": "Ano fiscal",
+    "description": "Mês em que começa o ano fiscal. Os relatórios o usam para «Ano fiscal atual», «Ano fiscal anterior» e as vendas mensais e anuais.",
+    "startMonth": "Primeiro mês do ano fiscal",
+    "preview": "Ano fiscal atual: {{label}} ({{from}} → {{to}})",
+    "updated": "Ano fiscal atualizado",
+    "saveDescription": "Salvar o ano fiscal"
   }
 }

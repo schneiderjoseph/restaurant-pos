@@ -106,6 +106,9 @@ export const OrderFiscalReport = lazy(() =>
 export const RoomChargesReport = lazy(() =>
   import('@/screens/reports/room.charges.report.tsx').then(m => ({default: m.RoomChargesReport}))
 );
+export const SalesMonthlyReport = lazy(() =>
+  import('@/screens/reports/sales.monthly.report.tsx').then(m => ({default: m.SalesMonthlyReport}))
+);
 export const ShiftsReport = lazy(() =>
   import('@/screens/reports/shifts.report.tsx').then(m => ({default: m.ShiftsReport}))
 );

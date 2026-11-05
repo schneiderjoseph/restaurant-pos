@@ -61,7 +61,8 @@
     "shifts": "Çalışan vardiyaları",
     "cashAudit": "Nakit tahsilat kontrolü",
     "kitchenTiming": "Mutfak süreleri",
-    "roomCharges": "Odaya yazılanlar"
+    "roomCharges": "Odaya yazılanlar",
+    "salesMonthly": "Aylık ve yıllık satışlar"
   },
   "titles": {
     "salesDashboard": "Satış gösterge paneli",
@@ -214,7 +215,9 @@
     "thisYear": "Bu yıl",
     "lastYear": "Geçen yıl",
     "allTime": "Tüm zamanlar",
-    "custom": "Özel"
+    "custom": "Özel",
+    "thisFiscalYear": "Bu mali yıl",
+    "lastFiscalYear": "Geçen mali yıl"
   },
   "loading": {
     "report": "Rapor yükleniyor...",
@@ -834,6 +837,7 @@
     "shifts": "Vardiya başına: giriş, çıkış, süre ve herkesin tahsil ettiği tutar.",
     "cashAudit": "Ödemeden hemen önce ürün çıkarılan veya ödemesi değiştirilen nakit siparişler.",
     "kitchenTiming": "Sipariş türüne göre bekleme ve mutfak, aşama ve kategoriye göre hazırlık süresi.",
-    "roomCharges": "Otel misafirlerinin odalarına yazılan her şey: oda, misafir ve siparişe göre, ASI folyosu ile."
+    "roomCharges": "Otel misafirlerinin odalarına yazılan her şey: oda, misafir ve siparişe göre, ASI folyosu ile.",
+    "salesMonthly": "Mali yıl boyunca aylık net satışlar, önceki mali yılla karşılaştırmalı."
   }
 }

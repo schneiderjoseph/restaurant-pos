@@ -61,7 +61,8 @@
     "shifts": "Shifts by employee",
     "cashAudit": "Cash audit",
     "kitchenTiming": "Kitchen timing",
-    "roomCharges": "Charged to rooms"
+    "roomCharges": "Charged to rooms",
+    "salesMonthly": "Monthly & yearly sales"
   },
   "titles": {
     "salesDashboard": "Sales dashboard",
@@ -218,7 +219,9 @@
     "thisYear": "This year",
     "lastYear": "Last year",
     "allTime": "All time",
-    "custom": "Custom"
+    "custom": "Custom",
+    "thisFiscalYear": "This fiscal year",
+    "lastFiscalYear": "Last fiscal year"
   },
   "loading": {
     "report": "Loading report...",
@@ -979,6 +982,16 @@
       "noFolio": "{{count}} ASI order(s) have no folio number ({{amount}}): check they reached ASI.",
       "departed": "{{count}} guest(s) have since left the hotel ({{amount}}) — {{names}}. Check these amounts are on their folio.",
       "large": "{{count}} order(s) exceed {{factor}}× the average ({{average}}): {{orders}}."
+    },
+    "monthly": {
+      "none": "No sales in this fiscal year.",
+      "noHistory": "No sales in the previous fiscal year in the system: nothing to compare with.",
+      "ytd": "{{from}} to {{to}}: {{amount}} against {{previous}} last year ({{pct}}%).",
+      "avgCheck": "Average check {{avg}} against {{previous}} last year ({{pct}}%).",
+      "bestWorst": "Best month: {{best}} ({{bestAmount}}). Weakest: {{worst}} ({{worstAmount}}).",
+      "drops": "{{count}} month(s) down more than {{pct}}% on last year: {{months}}.",
+      "pace": "{{month}} so far: {{amount}}, about {{projected}} for the month at this pace, against {{previous}} last year ({{pct}}%).",
+      "paceNoHistory": "{{month}} so far: {{amount}}, about {{projected}} for the month at this pace."
     }
   },
   "credit": {
@@ -1039,7 +1052,8 @@
     "shifts": "Per clock-in: in, out, duration, and what each person collected (cash, other, room + credit).",
     "cashAudit": "Cash-paid orders where an item was removed or the payment changed just before payment.",
     "kitchenTiming": "Wait time per order type and prep time per kitchen, stage and category.",
-    "roomCharges": "Everything put on hotel guests' rooms: by room, by guest and by order, with the ASI folio."
+    "roomCharges": "Everything put on hotel guests' rooms: by room, by guest and by order, with the ASI folio.",
+    "salesMonthly": "Net sales month by month over the fiscal year, against the previous fiscal year, with running totals and every fiscal year’s total."
   },
   "salesSummary": {
     "vsPrevious": "vs {{value}} ({{change}})",
@@ -1289,5 +1303,36 @@
     "search": "Search a room, guest, folio or order…",
     "explanation": "Orders paid with the Room tender. The amount shown is the part put on the room (an order can be partly paid in cash). ASI guests are charged on their FrontDesk folio; stays created in the POS are settled at check-out.",
     "note": "For ASI guests, the room and in-house status are today's (last FrontDesk sync). To reconcile with ASI, compare the total per folio with the restaurant postings on the folio."
+  },
+  "monthlyReport": {
+    "subtitle": "Fiscal year {{label}} ({{from}} → {{to}}) against {{previous}}",
+    "explanation": "Net sales = everything settled (till + room + credit) minus tax, service charges and tips. Months are counted in the establishment’s timezone. The fiscal year follows the Fiscal year setting in Manage.",
+    "ytd": "Fiscal year to date",
+    "yearTotal": "Fiscal year total",
+    "fy": "Fiscal year {{label}}",
+    "vsPrevious": "Against last year",
+    "previousSame": "{{amount}} over the same period in {{label}}",
+    "avgCheck": "Average check",
+    "checks": "{{count}} order(s)",
+    "bestMonth": "Best month",
+    "previousTotal": "{{label}} total",
+    "month": "Month",
+    "inProgress": "in progress",
+    "netFy": "Net sales {{label}}",
+    "difference": "Difference",
+    "change": "Change",
+    "ordersFy": "Orders {{label}}",
+    "perDay": "Average / open day",
+    "cumulative": "Running total",
+    "cumulativeFy": "Running total {{label}}",
+    "fiscalYear": "Fiscal year",
+    "vsPreviousYear": "Change / previous year",
+    "monthlyAverage": "Monthly average",
+    "monthsWithSales": "{{count}} month(s) with sales",
+    "byMonth": "Month by month",
+    "byYear": "By fiscal year",
+    "current": "current",
+    "filterHint": "The report compares the chosen fiscal year with the one before. The first month of the fiscal year is set in Manage → General → Fiscal year.",
+    "note": "To-date comparison: elapsed months, and for the running month the same share of last year’s month. The year-on-year change is only given between two complete fiscal years (12 months of sales)."
   }
 }

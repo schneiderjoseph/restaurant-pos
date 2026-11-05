@@ -773,7 +773,8 @@
       "admin.customers": "Clientes",
       "admin.customers.update": "Editar qualquer cliente",
       "admin.customers.delete": "Excluir e restaurar clientes",
-      "admin.customers.merge": "Mesclar clientes duplicados"
+      "admin.customers.merge": "Mesclar clientes duplicados",
+      "settings.fiscal_year": "Ano fiscal"
     }
   },
   "discountEngine": {

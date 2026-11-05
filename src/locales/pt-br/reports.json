@@ -61,7 +61,8 @@
     "shifts": "Turnos por funcionário",
     "cashAudit": "Controle de recebimentos em dinheiro",
     "kitchenTiming": "Tempos de cozinha",
-    "roomCharges": "Lançado nos quartos"
+    "roomCharges": "Lançado nos quartos",
+    "salesMonthly": "Vendas mensais e anuais"
   },
   "titles": {
     "salesDashboard": "Painel de vendas",
@@ -214,7 +215,9 @@
     "thisYear": "Este ano",
     "lastYear": "Ano passado",
     "allTime": "Todo o período",
-    "custom": "Personalizado"
+    "custom": "Personalizado",
+    "thisFiscalYear": "Ano fiscal atual",
+    "lastFiscalYear": "Ano fiscal anterior"
   },
   "loading": {
     "report": "Carregando relatório...",
@@ -834,6 +837,7 @@
     "shifts": "Por ponto: entrada, saída, duração e o que cada um recebeu.",
     "cashAudit": "Pedidos pagos em dinheiro com item removido ou pagamento alterado logo antes do recebimento.",
     "kitchenTiming": "Espera por tipo de pedido e preparo por cozinha, etapa e categoria.",
-    "roomCharges": "Tudo o que foi lançado nos quartos dos hóspedes: por quarto, hóspede e pedido, com o fólio ASI."
+    "roomCharges": "Tudo o que foi lançado nos quartos dos hóspedes: por quarto, hóspede e pedido, com o fólio ASI.",
+    "salesMonthly": "Vendas líquidas mês a mês no ano fiscal, comparadas com o ano fiscal anterior."
   }
 }

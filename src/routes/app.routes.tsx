@@ -25,6 +25,7 @@ import {
   REPORTS_DISCOUNTS,
   REPORTS_EXPENSE,
   REPORTS_SHIFTS,
+  REPORTS_SALES_MONTHLY,
   REPORTS_ROOM_CHARGES,
   REPORTS_CASH_AUDIT,
   REPORTS_KITCHEN_TIMING,
@@ -70,6 +71,7 @@ import {
   DiscountsReport,
   ExpenseReport,
   ShiftsReport,
+  SalesMonthlyReport,
   RoomChargesReport,
   CashAuditReport,
   KitchenTimingReport,
@@ -146,6 +148,7 @@ export const AppRoutes = () => {
         <Route path={REPORTS_ORDER_FISCAL} element={<OrderFiscalReport/>}/>
         <Route path={REPORTS_EXPENSE} element={<ExpenseReport/>}/>
         <Route path={REPORTS_SHIFTS} element={<ShiftsReport/>}/>
+        <Route path={REPORTS_SALES_MONTHLY} element={<SalesMonthlyReport/>}/>
         <Route path={REPORTS_ROOM_CHARGES} element={<RoomChargesReport/>}/>
         <Route path={REPORTS_CASH_AUDIT} element={<CashAuditReport/>}/>
         <Route path={REPORTS_KITCHEN_TIMING} element={<KitchenTimingReport/>}/>

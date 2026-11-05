@@ -61,7 +61,8 @@
     "shifts": "Services par employé",
     "cashAudit": "Contrôle des encaissements espèces",
     "kitchenTiming": "Temps cuisine",
-    "roomCharges": "Facturé aux chambres"
+    "roomCharges": "Facturé aux chambres",
+    "salesMonthly": "Ventes mensuelles et annuelles"
   },
   "titles": {
     "salesDashboard": "Tableau de bord des ventes",
@@ -218,7 +219,9 @@
     "thisYear": "Cette année",
     "lastYear": "Année dernière",
     "allTime": "Tout",
-    "custom": "Personnalisé"
+    "custom": "Personnalisé",
+    "thisFiscalYear": "Exercice en cours",
+    "lastFiscalYear": "Exercice précédent"
   },
   "loading": {
     "report": "Chargement du rapport...",
@@ -979,6 +982,16 @@
       "noFolio": "{{count}} commande(s) ASI sans numéro de folio ({{amount}}) : vérifiez qu'elles sont bien arrivées dans ASI.",
       "departed": "{{count}} client(s) ont quitté l'hôtel depuis ({{amount}}) — {{names}}. Vérifiez que ces montants figurent sur leur folio.",
       "large": "{{count}} commande(s) dépassent {{factor}}× la moyenne ({{average}}) : {{orders}}."
+    },
+    "monthly": {
+      "none": "Aucune vente sur cet exercice.",
+      "noHistory": "Pas de ventes sur l’exercice précédent dans le système : pas de comparaison possible.",
+      "ytd": "De {{from}} à {{to}} : {{amount}} contre {{previous}} l’an dernier ({{pct}} %).",
+      "avgCheck": "Ticket moyen {{avg}} contre {{previous}} l’an dernier ({{pct}} %).",
+      "bestWorst": "Meilleur mois : {{best}} ({{bestAmount}}). Plus faible : {{worst}} ({{worstAmount}}).",
+      "drops": "{{count}} mois en baisse de plus de {{pct}} % par rapport à l’an dernier : {{months}}.",
+      "pace": "{{month}} en cours : {{amount}} à ce jour, soit environ {{projected}} sur le mois au rythme actuel, contre {{previous}} l’an dernier ({{pct}} %).",
+      "paceNoHistory": "{{month}} en cours : {{amount}} à ce jour, soit environ {{projected}} sur le mois au rythme actuel."
     }
   },
   "credit": {
@@ -1039,7 +1052,8 @@
     "shifts": "Par pointage : arrivée, départ, durée, et ce que chacun a encaissé (espèces, autres, chambre + crédit).",
     "cashAudit": "Commandes payées en espèces où un article a été retiré ou le paiement modifié juste avant l'encaissement.",
     "kitchenTiming": "Temps d'attente par type de commande et temps de préparation par cuisine, étape et catégorie.",
-    "roomCharges": "Tout ce qui a été mis sur la chambre des clients de l'hôtel : par chambre, par client et par commande, avec le folio ASI."
+    "roomCharges": "Tout ce qui a été mis sur la chambre des clients de l'hôtel : par chambre, par client et par commande, avec le folio ASI.",
+    "salesMonthly": "Les ventes nettes mois par mois sur l’exercice fiscal, comparées à l’exercice précédent, avec le cumul et le total de chaque exercice."
   },
   "salesSummary": {
     "vsPrevious": "vs {{value}} ({{change}})",
@@ -1289,5 +1303,36 @@
     "search": "Rechercher une chambre, un client, un folio ou une commande…",
     "explanation": "Commandes payées avec le moyen « Chambre ». Le montant affiché est la part mise sur la chambre (une commande peut être payée en partie en espèces). Les clients ASI sont facturés sur leur folio FrontDesk ; les séjours créés dans le POS se règlent au départ.",
     "note": "La chambre et le statut « dans l'hôtel » sont ceux d'aujourd'hui pour les clients ASI (dernière synchro FrontDesk). Pour rapprocher avec ASI, comparez le total par folio avec les postes restaurant du folio."
+  },
+  "monthlyReport": {
+    "subtitle": "Exercice {{label}} ({{from}} → {{to}}) comparé à {{previous}}",
+    "explanation": "Ventes nettes = tout ce qui a été réglé (caisse + chambre + crédit) moins taxes, frais de service et pourboires. Les mois sont comptés dans le fuseau horaire de l’établissement. L’exercice suit le réglage « Exercice fiscal » de Gérer.",
+    "ytd": "Exercice à date",
+    "yearTotal": "Total de l’exercice",
+    "fy": "Exercice {{label}}",
+    "vsPrevious": "Comparé à l’an dernier",
+    "previousSame": "{{amount}} sur la même période en {{label}}",
+    "avgCheck": "Ticket moyen",
+    "checks": "{{count}} commande(s)",
+    "bestMonth": "Meilleur mois",
+    "previousTotal": "Total {{label}}",
+    "month": "Mois",
+    "inProgress": "en cours",
+    "netFy": "Ventes nettes {{label}}",
+    "difference": "Écart",
+    "change": "Évolution",
+    "ordersFy": "Commandes {{label}}",
+    "perDay": "Moyenne / jour ouvert",
+    "cumulative": "Cumul",
+    "cumulativeFy": "Cumul {{label}}",
+    "fiscalYear": "Exercice",
+    "vsPreviousYear": "Évolution / exercice précédent",
+    "monthlyAverage": "Moyenne mensuelle",
+    "monthsWithSales": "{{count}} mois avec ventes",
+    "byMonth": "Mois par mois",
+    "byYear": "Par exercice",
+    "current": "en cours",
+    "filterHint": "Le rapport compare l’exercice choisi à celui d’avant. Le premier mois de l’exercice se règle dans Gérer → Général → Exercice fiscal.",
+    "note": "Comparaison « à date » : les mois écoulés, et pour le mois en cours la même fraction du mois de l’an dernier. L’évolution entre exercices n’est donnée que pour deux exercices complets (12 mois de ventes)."
   }
 }

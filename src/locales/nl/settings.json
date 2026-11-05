@@ -186,5 +186,13 @@
     "actionLogout": "Uitloggen",
     "updated": "Sessiebeveiligingsinstellingen bijgewerkt",
     "saveDescription": "Sessiebeveiligingsinstellingen opslaan"
+  },
+  "fiscalYear": {
+    "title": "Boekjaar",
+    "description": "Maand waarin het boekjaar begint. Rapporten gebruiken dit voor „Huidig boekjaar”, „Vorig boekjaar” en maand- en jaaromzet.",
+    "startMonth": "Eerste maand van het boekjaar",
+    "preview": "Huidig boekjaar: {{label}} ({{from}} → {{to}})",
+    "updated": "Boekjaar bijgewerkt",
+    "saveDescription": "Boekjaar opslaan"
   }
 }

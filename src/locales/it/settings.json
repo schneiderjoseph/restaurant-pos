@@ -186,5 +186,13 @@
     "actionLogout": "Esci",
     "updated": "Impostazioni di sicurezza sessione aggiornate",
     "saveDescription": "Salva impostazioni di sicurezza sessione"
+  },
+  "fiscalYear": {
+    "title": "Anno fiscale",
+    "description": "Mese di inizio dell'anno fiscale. I report lo usano per «Anno fiscale corrente», «Anno fiscale precedente» e le vendite mensili e annuali.",
+    "startMonth": "Primo mese dell'anno fiscale",
+    "preview": "Anno fiscale corrente: {{label}} ({{from}} → {{to}})",
+    "updated": "Anno fiscale aggiornato",
+    "saveDescription": "Salva l'anno fiscale"
   }
 }

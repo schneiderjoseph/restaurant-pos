@@ -61,7 +61,8 @@
     "shifts": "Turni per dipendente",
     "cashAudit": "Controllo incassi in contanti",
     "kitchenTiming": "Tempi di cucina",
-    "roomCharges": "Addebitato alle camere"
+    "roomCharges": "Addebitato alle camere",
+    "salesMonthly": "Vendite mensili e annuali"
   },
   "titles": {
     "salesDashboard": "Dashboard vendite",
@@ -214,7 +215,9 @@
     "thisYear": "Quest'anno",
     "lastYear": "Anno scorso",
     "allTime": "Sempre",
-    "custom": "Personalizzato"
+    "custom": "Personalizzato",
+    "thisFiscalYear": "Anno fiscale corrente",
+    "lastFiscalYear": "Anno fiscale precedente"
   },
   "loading": {
     "report": "Caricamento report...",
@@ -834,6 +837,7 @@
     "shifts": "Per timbratura: entrata, uscita, durata e quanto ha incassato ciascuno.",
     "cashAudit": "Ordini pagati in contanti con un articolo rimosso o il pagamento modificato poco prima dell'incasso.",
     "kitchenTiming": "Attesa per tipo di ordine e preparazione per cucina, fase e categoria.",
-    "roomCharges": "Tutto ciò che è stato addebitato alle camere degli ospiti: per camera, ospite e ordine, con il folio ASI."
+    "roomCharges": "Tutto ciò che è stato addebitato alle camere degli ospiti: per camera, ospite e ordine, con il folio ASI.",
+    "salesMonthly": "Vendite nette mese per mese nell’anno fiscale, confrontate con l’anno precedente."
   }
 }

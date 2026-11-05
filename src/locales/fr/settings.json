@@ -225,5 +225,13 @@
     "rolesTitle": "Rôles qui ont accès à l'Affichage",
     "updated": "Accès à l'Affichage mis à jour",
     "saveDescription": "Enregistrer l'accès à l'Affichage"
+  },
+  "fiscalYear": {
+    "title": "Exercice fiscal",
+    "description": "Mois où commence l'exercice. En Haïti l'exercice va d'octobre à septembre. Les rapports s'en servent pour « Exercice en cours », « Exercice précédent » et les ventes mensuelles et annuelles.",
+    "startMonth": "Premier mois de l'exercice",
+    "preview": "Exercice en cours : {{label}} ({{from}} → {{to}})",
+    "updated": "Exercice fiscal mis à jour",
+    "saveDescription": "Enregistrer l'exercice fiscal"
   }
 }

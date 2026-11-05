@@ -773,7 +773,8 @@
       "admin.customers": "Kunden",
       "admin.customers.update": "Jeden Kunden bearbeiten",
       "admin.customers.delete": "Kunden löschen und wiederherstellen",
-      "admin.customers.merge": "Doppelte Kunden zusammenführen"
+      "admin.customers.merge": "Doppelte Kunden zusammenführen",
+      "settings.fiscal_year": "Geschäftsjahr"
     }
   },
   "discountEngine": {

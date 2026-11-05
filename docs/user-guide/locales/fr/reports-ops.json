@@ -52,6 +52,10 @@
           "effect": "Par employé et par moment de la journée : commandes, couverts, ticket moyen, dépense moyenne par couvert, temps d'occupation ; commandes commencées, annulées, fusionnées, reportées. En haut : ventes nettes, tickets, ticket moyen, temps moyen par table. « À retenir » : meilleur vendeur, tickets moyens faibles, remises anormales, tables nettement plus longues que la moyenne (+40 %), remboursements, part non encaissée."
         },
         {
+          "name": "Ventes mensuelles et annuelles",
+          "effect": "Les ventes nettes mois par mois sur un exercice fiscal (octobre → septembre par défaut, réglable dans Gérer → Général → Exercice fiscal), à côté du même mois de l’exercice précédent. Dans le filtre, on choisit l’exercice (les 6 derniers sont proposés). Chiffres clés : exercice à date, évolution par rapport à la même période l’an dernier (le mois en cours est comparé à la même fraction du mois de l’an dernier), ticket moyen, meilleur mois, total de l’exercice précédent. Graphique en barres des 12 mois (cette année en bleu, l’an dernier en gris). Tableau mois par mois : ventes nettes des deux exercices, écart, évolution en % (vert en hausse, rouge en baisse), commandes, ticket moyen, moyenne par jour ouvert, cumul des deux exercices. Puis un tableau par exercice avec le total de chaque exercice ; l’évolution d’un exercice à l’autre n’est donnée qu’entre deux exercices complets. « À retenir » : exercice à date contre l’an dernier, ticket moyen en hausse ou en baisse de 10 % ou plus, meilleur et plus faible mois, mois en baisse de plus de 10 %, projection du mois en cours au rythme actuel."
+        },
+        {
           "name": "Ventes hebdomadaires",
           "effect": "Ventes nettes jour par jour sur une semaine (lundi → dimanche), avec un graphique en barres (le meilleur jour en vert). Chiffres clés : total de la semaine, moyenne par jour ouvert, meilleur et plus faible jour. « À retenir » : part du week-end, jours sans vente, annulations au-dessus de 3 %."
         },

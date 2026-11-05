@@ -61,7 +61,8 @@
     "shifts": "Schichten pro Mitarbeiter",
     "cashAudit": "Barzahlungs-Prüfung",
     "kitchenTiming": "Küchenzeiten",
-    "roomCharges": "Auf Zimmer gebucht"
+    "roomCharges": "Auf Zimmer gebucht",
+    "salesMonthly": "Monats- und Jahresumsatz"
   },
   "titles": {
     "salesDashboard": "Umsatz-Dashboard",
@@ -214,7 +215,9 @@
     "thisYear": "Dieses Jahr",
     "lastYear": "Letztes Jahr",
     "allTime": "Gesamtzeitraum",
-    "custom": "Benutzerdefiniert"
+    "custom": "Benutzerdefiniert",
+    "thisFiscalYear": "Aktuelles Geschäftsjahr",
+    "lastFiscalYear": "Vorheriges Geschäftsjahr"
   },
   "loading": {
     "report": "Bericht wird geladen...",
@@ -834,6 +837,7 @@
     "shifts": "Pro Schicht: Beginn, Ende, Dauer und kassierte Beträge.",
     "cashAudit": "Bar bezahlte Bestellungen, bei denen kurz vor der Zahlung ein Artikel entfernt oder die Zahlung geändert wurde.",
     "kitchenTiming": "Wartezeit pro Bestellart und Zubereitungszeit pro Küche, Stufe und Kategorie.",
-    "roomCharges": "Alles, was auf Hotelzimmer gebucht wurde: nach Zimmer, Gast und Bestellung, mit ASI-Folio."
+    "roomCharges": "Alles, was auf Hotelzimmer gebucht wurde: nach Zimmer, Gast und Bestellung, mit ASI-Folio.",
+    "salesMonthly": "Nettoumsatz Monat für Monat im Geschäftsjahr, verglichen mit dem Vorjahr."
   }
 }

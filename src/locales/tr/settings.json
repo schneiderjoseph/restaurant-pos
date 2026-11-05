@@ -186,5 +186,13 @@
     "actionLogout": "Çıkış yap",
     "updated": "Oturum güvenliği ayarları güncellendi",
     "saveDescription": "Oturum güvenliği ayarlarını kaydet"
+  },
+  "fiscalYear": {
+    "title": "Mali yıl",
+    "description": "Mali yılın başladığı ay. Raporlar bunu «Bu mali yıl», «Geçen mali yıl» ve aylık ve yıllık satışlar için kullanır.",
+    "startMonth": "Mali yılın ilk ayı",
+    "preview": "Bu mali yıl: {{label}} ({{from}} → {{to}})",
+    "updated": "Mali yıl güncellendi",
+    "saveDescription": "Mali yılı kaydet"
   }
 }

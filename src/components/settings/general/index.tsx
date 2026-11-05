@@ -8,6 +8,7 @@ import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AsiOutletsSettingsCard} from "@/components/user_settings/asi_outlets.tsx";
 import {ServiceChargesSettings} from "@/components/user_settings/service_charges.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
+import {FiscalYearSettingsCard} from "@/components/user_settings/fiscal_year.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
@@ -36,6 +37,7 @@ export const AdminGeneralSettings = () => (
     <AsiOutletsSettingsCard />
     <MasonryItem><ServiceChargesSettings /></MasonryItem>
     <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>
+    <MasonryItem><FiscalYearSettingsCard /></MasonryItem>
     <MasonryItem><AutoCheckCloseSettingsCard /></MasonryItem>
     <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
     <MasonryItem><OrderVisibilitySettingsCard /></MasonryItem>

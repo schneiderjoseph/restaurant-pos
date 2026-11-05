@@ -2,6 +2,7 @@ import {Layout} from "@/screens/partials/layout.tsx";
 import {ReactNode, useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {SalesWeeklyFilter} from "@/components/reports/filters/sales.weekly.filter.tsx";
+import {SalesMonthlyFilter} from "@/components/reports/filters/sales.monthly.filter.tsx";
 import {ProductMixWeeklyReportFilter} from "@/components/reports/filters/product.mix.weekly.filter.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckCircle, faChevronRight} from "@fortawesome/free-solid-svg-icons";
@@ -87,6 +88,7 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   productsHourly: 'reports.products_hourly',
   productList: 'reports.product_list',
   shifts: 'reports.shifts',
+  salesMonthly: 'reports.sales_monthly',
   roomCharges: 'reports.room_charges',
   cashAudit: 'reports.cash_audit',
   kitchenTiming: 'reports.kitchen_timing',
@@ -123,6 +125,7 @@ export const Reports = () => {
           { reportKey: 'salesSummary', filter: <SalesSummaryFilter /> },
           { reportKey: 'salesSummary2', filter: <SalesSummary2Filter /> },
           { reportKey: 'salesWeekly', filter: <SalesWeeklyFilter /> },
+          { reportKey: 'salesMonthly', filter: <SalesMonthlyFilter /> },
           { reportKey: 'advancedSales', filter: <SalesAdvancedFilter /> },
           { reportKey: 'serverSales', filter: <SalesServerFilter /> },
           { reportKey: 'tablesSummary', filter: <TableSummaryFilter /> },

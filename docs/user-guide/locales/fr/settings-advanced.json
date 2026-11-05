@@ -27,6 +27,7 @@
       "title": "Cycle de clôture et clôture automatique (module Clôture)",
       "fields": [
         { "name": "Cycle de clôture", "effect": "Heure de début et de fin de la journée de caisse ; la fin peut être le lendemain (06:00 → 04:00). Après l’heure de fin, la caisse doit clôturer manuellement avant de reprendre les ventes." },
+        { "name": "Exercice fiscal", "effect": "Premier mois de l’exercice (octobre par défaut : en Haïti l’exercice va du 1er octobre au 30 septembre). La carte affiche l’exercice en cours avec ses dates. Les rapports s’en servent : choix « Exercice en cours » et « Exercice précédent » dans le sélecteur de dates de tous les rapports, et le rapport Ventes mensuelles et annuelles. Ce réglage ne dépend pas du module Clôture." },
         { "name": "Clôture automatique des tickets", "effect": "À la fin du cycle, ferme les tickets de table encore ouverts avec le type de paiement choisi (obligatoire), et imprime la note finale si coché. Livraisons exclues ; avertissement 1 minute avant." }
       ],
       "note": "Ces cartes n’ont d’effet que si le module Clôture est activé."

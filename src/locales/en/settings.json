@@ -225,5 +225,13 @@
     "rolesTitle": "Roles that can open the order display",
     "updated": "Order display access updated",
     "saveDescription": "Save order display access"
+  },
+  "fiscalYear": {
+    "title": "Fiscal year",
+    "description": "Month the fiscal year starts. In Haiti it runs October to September. Reports use it for \"This fiscal year\", \"Last fiscal year\" and monthly and yearly sales.",
+    "startMonth": "First month of the fiscal year",
+    "preview": "Current fiscal year: {{label}} ({{from}} → {{to}})",
+    "updated": "Fiscal year updated",
+    "saveDescription": "Save the fiscal year"
   }
 }

@@ -773,7 +773,8 @@
       "admin.customers": "Müşteriler",
       "admin.customers.update": "Her müşteriyi düzenle",
       "admin.customers.delete": "Müşteri sil ve geri yükle",
-      "admin.customers.merge": "Kopya müşterileri birleştir"
+      "admin.customers.merge": "Kopya müşterileri birleştir",
+      "settings.fiscal_year": "Mali yıl"
     }
   },
   "discountEngine": {
