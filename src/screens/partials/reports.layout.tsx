@@ -1,4 +1,5 @@
 import { ReactNode, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/common/input/button.tsx";
 import {
@@ -86,7 +87,24 @@ export const ReportsLayout = ({
   const exchangeRateLabel = getExchangeRateLabel();
   const reportRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
+  const [showExportHeader, setShowExportHeader] = useState(false);
   const [generatedAt] = useState(DateTime.now().toFormat(import.meta.env.VITE_DATE_TIME_FORMAT));
+
+  const withExportHeader = async <T,>(fn: () => Promise<T>): Promise<T> => {
+    flushSync(() => {
+      setShowExportHeader(true);
+    });
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => resolve());
+      });
+    });
+    try {
+      return await fn();
+    } finally {
+      setShowExportHeader(false);
+    }
+  };
 
   const handlePrint = () => {
     if (onPrint) {
@@ -137,10 +155,12 @@ export const ReportsLayout = ({
     if (onExportPdf) {
       onExportPdf();
     } else {
-      const file = sanitizeReportFilename(title || "report", "pdf");
-      await exportElementAsPdf(reportRef.current, file, {
-        watermarkDataUrl: logoDataUrl,
-        watermarkText: displayName || title,
+      await withExportHeader(async () => {
+        const file = sanitizeReportFilename(title || "report", "pdf");
+        await exportElementAsPdf(reportRef.current, file, {
+          watermarkDataUrl: logoDataUrl,
+          watermarkText: displayName || title,
+        });
       });
     }
   };
@@ -149,10 +169,12 @@ export const ReportsLayout = ({
     if (onExportImage) {
       onExportImage();
     } else {
-      await exportElementAsImage(
-        reportRef.current,
-        sanitizeReportFilename(title || "report", "png"),
-      );
+      await withExportHeader(async () => {
+        await exportElementAsImage(
+          reportRef.current,
+          sanitizeReportFilename(title || "report", "png"),
+        );
+      });
     }
   };
 
@@ -203,7 +225,13 @@ export const ReportsLayout = ({
           </div>
         )}
         <div className="max-w-full relative" style={{ zIndex: 1 }}>
-          <div className="bg-white/95 shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center">
+          <div
+            data-export-header
+            className={cn(
+              "bg-white/95 shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center",
+              !showExportHeader && "hidden print:block",
+            )}
+          >
             {logoDataUrl && (
               <img
                 src={logoDataUrl}
