@@ -42,6 +42,7 @@ export const ProductHourlyFilter = () => {
       <div className="flex flex-col gap-2">
         <label htmlFor="product-hourly-menu-items">{t('filters.menuItems')}</label>
         <ReactSelect
+          isSearchable
           id="product-hourly-menu-items"
           name="menu_items[]"
           isMulti
@@ -56,6 +57,7 @@ export const ProductHourlyFilter = () => {
       <div className="flex flex-col gap-2">
         <label htmlFor="product-hourly-hours">{t('metrics.hours')}</label>
         <ReactSelect
+          isSearchable
           name="hours[]"
           isMulti
           options={Array.from({length: 24}, (_, i) => i).map(item => ({

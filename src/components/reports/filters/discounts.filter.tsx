@@ -30,6 +30,7 @@ export const DiscountsFilter = () => {
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="discount-filter-discount">{t('reports.discount')}</label>
         <ReactSelect
+          isSearchable
           id="discount-filter-discount"
           name="discount_id"
           isLoading={loadingDiscounts}

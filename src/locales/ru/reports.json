@@ -8,7 +8,6 @@
     "openReport": "Открыть отчёт «{{report}}»"
   },
   "categories": {
-    "ai": "ИИ",
     "dashboard": "Панель",
     "sales": "Продажи",
     "orders": "Заказы",
@@ -17,7 +16,6 @@
     "products": "Товары"
   },
   "reports": {
-    "aiReport": "ИИ-отчёт",
     "salesDashboard": "Панель продаж",
     "serverSales": "Продажи официантов",
     "salesSummary": "Сводка продаж",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "Отчёт по утверждениям менеджера"
   },
   "titles": {
-    "aiReport": "ИИ-отчёт",
-    "aiGeneratedSubtitle": "Сформировано по вашему запросу",
     "salesDashboard": "Панель продаж",
     "serverSales": "Продажи официантов",
     "salesSummary": "Сводка продаж",
@@ -138,36 +134,14 @@
     "orderType": "Тип заказа",
     "paymentType": "Тип оплаты",
     "status": "Статус",
-    "aiPrompt": "Опишите нужный отчёт или анализ...",
     "format": "Формат:",
     "list": "Список",
     "table": "Таблица",
     "run": "Запустить",
     "unnamedUser": "Пользователь без имени",
-    "aiPromptEmpty": "Запрос не может быть пустым.",
-    "aiRunFailed": "Не удалось выполнить отчёт ИИ.",
-    "aiDisabled": "Отчёты ИИ отключены на этом сервере.",
-    "aiDailyLimitReached": "Дневной лимит ИИ исчерпан. Попробуйте снова завтра.",
-    "aiMonthlyLimitReached": "Месячный лимит ИИ исчерпан. Обратитесь к администратору.",
-    "aiUsageDaily": "Сегодня: {{used}} / {{limit}}",
-    "aiUsageMonthly": "В этом месяце: {{used}} / {{limit}}",
-    "aiFetching": "Получение {{tool}}...",
-    "aiRunning": "Выполнение отчёта ИИ...",
-    "aiResponse": "Ответ",
-    "aiExamples": "Примеры запросов",
-    "aiDataUsed": "Использованные данные ({{count}} инструментов)",
-    "aiHistory": "Недавние запросы ({{count}})",
     "prompt": "Запрос",
     "chart": "График",
     "analysis": "Анализ",
-    "aiCategory": {
-      "sales": "Продажи",
-      "charts": "Графики и прогноз",
-      "analysis": "Анализ",
-      "all": "Все",
-      "operations": "Операции",
-      "accounts": "Счета"
-    },
     "location": "Локация",
     "selectDate": "Выберите дату",
     "selectWeek": "Выберите неделю",

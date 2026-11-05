@@ -31,7 +31,10 @@ import {
   getCachedRestaurantProfile,
 } from "@/lib/restaurant-profile.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
-import {cn, formatNumber, withDualCurrency} from "@/lib/utils.ts";
+import {cn, formatNumber, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {REPORTS_SALES_BY_CUSTOMER} from "@/routes/posr.ts";
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
@@ -188,7 +191,58 @@ export const SalesByCustomerReport = () => {
   };
 
   const title = t('reports.salesByCustomer');
-  const colCount = hasPaymentFilter ? 7 : 6;
+
+  const named = rows.filter((row) => row.customerId !== ANONYMOUS_CUSTOMER_ROW);
+  const pctOf = (part: number) => (totals.total > 0 ? Math.round((part / totals.total) * 100) : 0);
+  const customerInsights: ReportInsight[] = [];
+  if (!singleCustomer && named.length > 0) {
+    const byTotal = [...named].sort((a, b) => b.total - a.total);
+    customerInsights.push({id: 'top', severity: 'info', text: t('insights.customers.top', {name: byTotal[0].name ?? '—', amount: withCurrency(byTotal[0].total), pct: pctOf(byTotal[0].total), orders: byTotal[0].orders})});
+    if (named.length >= 10) {
+      const top10 = byTotal.slice(0, 10).reduce((sum, r) => sum + r.total, 0);
+      customerInsights.push({id: 'top10', severity: 'info', text: t('insights.customers.top10', {pct: pctOf(top10), count: named.length})});
+    }
+    const regulars = named.filter((r) => r.orders >= 3);
+    if (regulars.length) {
+      customerInsights.push({id: 'regulars', severity: 'good', text: t('insights.customers.regulars', {count: regulars.length, amount: withCurrency(regulars.reduce((sum, r) => sum + r.total, 0))})});
+    }
+    const namedTotal = named.reduce((sum, r) => sum + r.total, 0);
+    const namedOrders = named.reduce((sum, r) => sum + r.orders, 0);
+    if (anonymous && anonymous.orders > 0 && namedOrders > 0) {
+      customerInsights.push({id: 'avg-compare', severity: 'info', text: t('insights.customers.avgCompare', {named: withCurrency(namedTotal / namedOrders), anonymous: withCurrency(anonymous.total / anonymous.orders)})});
+    }
+  }
+  if (!singleCustomer && anonymousShare >= 50) {
+    customerInsights.push({id: 'anonymous', severity: 'warn', text: t('insights.customers.anonymous', {pct: Math.round(anonymousShare)})});
+  }
+
+  type Row = (typeof rows)[number];
+  const sumOf = (rs: Row[], f: (r: Row) => number) => rs.reduce((acc, r) => acc + f(r), 0);
+  const customerColumns: ReportColumn<Row>[] = [
+    {
+      key: 'customer',
+      header: t('columns.customer'),
+      sortValue: (r) => (r.customerId === ANONYMOUS_CUSTOMER_ROW ? '' : (r.name ?? '').toLowerCase()),
+      searchValue: (r) => `${r.name ?? ''} ${r.room ?? ''}`,
+      render: (r) => r.customerId === ANONYMOUS_CUSTOMER_ROW
+        ? <span className="font-semibold">{t('labels.anonymousCustomer')}</span>
+        : (
+          <a href={`${REPORTS_SALES_BY_CUSTOMER}?customer_id=${encodeURIComponent(r.customerId)}${filters.startDate ? `&start=${encodeURIComponent(filters.startDate)}` : ''}${filters.endDate ? `&end=${encodeURIComponent(filters.endDate)}` : ''}`} className="text-primary-600 hover:underline">
+            {r.name}{r.room && <span className="ml-2 text-neutral-500">#{r.room}</span>}
+          </a>
+        ),
+      cellClass: (r) => cn(r.customerId === ANONYMOUS_CUSTOMER_ROW && 'bg-warning-50'),
+      total: () => t('columns.total'),
+    },
+    {key: 'orders', header: t('columns.orders'), align: 'right', sortValue: (r) => r.orders, render: (r) => formatNumber(r.orders), total: (rs) => formatNumber(sumOf(rs, (r) => r.orders))},
+    {key: 'net', header: t('columns.netSales'), align: 'right', sortValue: (r) => r.netSales, render: (r) => withCurrency(r.netSales), total: (rs) => withCurrency(sumOf(rs, (r) => r.netSales))},
+    {key: 'total', header: t('columns.total'), align: 'right', sortValue: (r) => r.total, render: (r) => <span className="font-semibold">{withCurrency(r.total)}</span>, total: (rs) => withCurrency(sumOf(rs, (r) => r.total))},
+    {key: 'avg', header: t('columns.avgCheck'), align: 'right', sortValue: (r) => (r.orders ? r.total / r.orders : 0), render: (r) => withCurrency(r.orders ? r.total / r.orders : 0)},
+    {key: 'share', header: t('serverSales.share'), align: 'right', sortValue: (r) => r.total, render: (r) => `${pctOf(r.total)} %`},
+    {key: 'cash', header: t('labels.cashPayments'), align: 'right', sortValue: (r) => r.cash, render: (r) => withCurrency(r.cash), total: (rs) => withCurrency(sumOf(rs, (r) => r.cash))},
+    {key: 'other', header: t('columns.otherPayments'), align: 'right', sortValue: (r) => r.otherPayments, render: (r) => withCurrency(r.otherPayments), total: (rs) => withCurrency(sumOf(rs, (r) => r.otherPayments))},
+    ...(hasPaymentFilter ? [{key: 'filtered', header: t('columns.filteredPayments'), align: 'right' as const, sortValue: (r: Row) => r.filteredPayments, render: (r: Row) => withCurrency(r.filteredPayments), total: (rs: Row[]) => withCurrency(sumOf(rs, (r) => r.filteredPayments))}] : []),
+  ];
 
   if (loading) {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.report')}</div></ReportsLayout>;
@@ -245,65 +299,27 @@ export const SalesByCustomerReport = () => {
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-neutral-200 mb-5">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.customer')}</th>
-              <th className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.orders')}</th>
-              <th className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.netSales')}</th>
-              <th className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.total')}</th>
-              <th className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">{t('labels.cashPayments')}</th>
-              <th className="py-3.5 pr-6 pl-3 text-right text-sm font-semibold text-neutral-700">{t('columns.otherPayments')}</th>
-              {hasPaymentFilter && (
-                <th className="py-3.5 pr-6 pl-3 text-right text-sm font-semibold text-neutral-700">{t('columns.filteredPayments')}</th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-            {rows.length > 0 ? rows.map((row) => {
-              const isAnonymous = row.customerId === ANONYMOUS_CUSTOMER_ROW;
-              return (
-                <tr key={row.customerId} className={cn(isAnonymous && "bg-warning-50")} data-testid="sales-by-customer-row">
-                  <td className="py-3 pl-6 pr-3 text-sm text-neutral-800">
-                    <span className={cn(isAnonymous && "font-semibold")}>
-                      {isAnonymous ? t('labels.anonymousCustomer') : row.name}
-                    </span>
-                    {row.room && <span className="ml-2 text-neutral-500">#{row.room}</span>}
-                  </td>
-                  <td className="py-3 px-3 text-right text-sm">{formatNumber(row.orders)}</td>
-                  <td className="py-3 px-3 text-right text-sm">{withDualCurrency(row.netSales)}</td>
-                  <td className="py-3 px-3 text-right text-sm font-semibold">{withDualCurrency(row.total)}</td>
-                  <td className="py-3 px-3 text-right text-sm">{withDualCurrency(row.cash)}</td>
-                  <td className="py-3 pr-6 pl-3 text-right text-sm">{withDualCurrency(row.otherPayments)}</td>
-                  {hasPaymentFilter && (
-                    <td className="py-3 pr-6 pl-3 text-right text-sm">{withDualCurrency(row.filteredPayments)}</td>
-                  )}
-                </tr>
-              );
-            }) : (
-              <tr>
-                <td colSpan={colCount} className="py-6 text-center text-sm text-neutral-500">{t('empty.noSalesData')}</td>
-              </tr>
-            )}
-          </tbody>
-          {rows.length > 0 && (
-            <tfoot className="bg-neutral-50 font-semibold">
-              <tr>
-                <td className="py-3 pl-6 pr-3 text-sm">{t('columns.total')}</td>
-                <td className="py-3 px-3 text-right text-sm">{formatNumber(totals.orders)}</td>
-                <td className="py-3 px-3 text-right text-sm">{withDualCurrency(totals.netSales)}</td>
-                <td className="py-3 px-3 text-right text-sm">{withDualCurrency(totals.total)}</td>
-                <td className="py-3 px-3 text-right text-sm">{withDualCurrency(totals.cash)}</td>
-                <td className="py-3 pr-6 pl-3 text-right text-sm">{withDualCurrency(totals.otherPayments)}</td>
-                {hasPaymentFilter && (
-                  <td className="py-3 pr-6 pl-3 text-right text-sm">{withDualCurrency(totals.filteredPayments)}</td>
-                )}
-              </tr>
-            </tfoot>
-          )}
-        </table>
-      </div>
+      <ReportInsights items={customerInsights} />
+      {!singleCustomer ? (
+        <SortableReportTable
+          rows={rows}
+          columns={customerColumns}
+          rowKey={(r) => r.customerId}
+          initialSort={{key: 'total', dir: 'desc'}}
+          searchPlaceholder={t('credit.searchCustomer')}
+          emptyText={t('empty.noSalesData')}
+          rowTestId="sales-by-customer-row"
+          xlsxTitle={title}
+        />
+      ) : (
+        <SortableReportTable
+          rows={rows}
+          columns={customerColumns.filter((c) => c.key !== 'share')}
+          rowKey={(r) => r.customerId}
+          rowTestId="sales-by-customer-row"
+          xlsxTitle={title}
+        />
+      )}
 
       {singleCustomer && (
         <div className="overflow-x-auto rounded-lg border border-neutral-200">

@@ -8,7 +8,6 @@
     "openReport": "{{report}}-Bericht öffnen"
   },
   "categories": {
-    "ai": "KI",
     "dashboard": "Dashboard",
     "sales": "Umsatz",
     "orders": "Bestellungen",
@@ -17,7 +16,6 @@
     "products": "Produkte"
   },
   "reports": {
-    "aiReport": "KI-Bericht",
     "salesDashboard": "Umsatz-Dashboard",
     "serverSales": "Kellnerumsatz",
     "salesSummary": "Umsatzübersicht",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "Genehmigungsbericht des Managers"
   },
   "titles": {
-    "aiReport": "KI-Bericht",
-    "aiGeneratedSubtitle": "Aus Ihrer Eingabe generiert",
     "salesDashboard": "Umsatz-Dashboard",
     "serverSales": "Kellnerumsatz",
     "salesSummary": "Umsatzübersicht",
@@ -138,36 +134,14 @@
     "orderType": "Bestellart",
     "paymentType": "Zahlungsart",
     "status": "Status",
-    "aiPrompt": "Beschreiben Sie den gewünschten Bericht oder die Analyse...",
     "format": "Format:",
     "list": "Liste",
     "table": "Tabelle",
     "run": "Ausführen",
     "unnamedUser": "Unbenannter Benutzer",
-    "aiPromptEmpty": "Eingabeaufforderung darf nicht leer sein.",
-    "aiRunFailed": "KI-Bericht konnte nicht ausgeführt werden.",
-    "aiDisabled": "KI-Berichte sind auf diesem Server deaktiviert.",
-    "aiDailyLimitReached": "Tägliches KI-Limit erreicht. Bitte morgen erneut versuchen.",
-    "aiMonthlyLimitReached": "Monatliches KI-Limit erreicht. Bitte einen Administrator kontaktieren.",
-    "aiUsageDaily": "Heute: {{used}} / {{limit}}",
-    "aiUsageMonthly": "Diesen Monat: {{used}} / {{limit}}",
-    "aiFetching": "{{tool}} wird abgerufen...",
-    "aiRunning": "KI-Bericht wird ausgeführt...",
-    "aiResponse": "Antwort",
-    "aiExamples": "Beispielaufforderungen",
-    "aiDataUsed": "Verwendete Daten ({{count}} Tools)",
-    "aiHistory": "Letzte Aufforderungen ({{count}})",
     "prompt": "Aufforderung",
     "chart": "Diagramm",
     "analysis": "Analyse",
-    "aiCategory": {
-      "sales": "Umsatz",
-      "charts": "Diagramme & Prognose",
-      "analysis": "Analyse",
-      "all": "Alle",
-      "operations": "Betrieb",
-      "accounts": "Konten"
-    },
     "location": "Standort",
     "selectDate": "Datum auswählen",
     "selectWeek": "Woche auswählen",

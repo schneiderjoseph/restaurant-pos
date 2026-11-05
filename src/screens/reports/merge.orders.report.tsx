@@ -4,6 +4,9 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatNumber} from "@/lib/utils.ts";
+import {ReportKpis} from "@/components/reports/report-kpis.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {GroupTable, groupSum} from "@/components/reports/group-table.tsx";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 
 type MergeRow = {
@@ -80,39 +83,39 @@ export const MergeOrdersReport = () => {
     return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
+  const byName = (row: MergeRow) => `${row.created_by?.first_name || ""} ${row.created_by?.last_name || ""}`.trim() || "-";
+  const orderLabel = (o?: {id?: string; invoice_number?: number}) => (o?.invoice_number ? `#${o.invoice_number}` : o?.id || "-");
+  const oldLabels = (row: MergeRow) => ((row.old_orders || []).length > 0 ? (row.old_orders || []).map(orderLabel).join(", ") : "-");
+  const byUser = groupSum(rows, byName, () => 0);
+  const mergedOrders = rows.reduce((sum, row) => sum + (row.old_orders?.length ?? 0), 0);
+  const columns: ReportColumn<MergeRow>[] = [
+    {key: 'at', header: t('columns.mergedAt'), sortValue: (r) => toLuxonDateTime(r.created_at as never).toMillis(), render: (r) => toLuxonDateTime(r.created_at as never).toFormat("yyyy-LL-dd HH:mm")},
+    {key: 'by', header: t('columns.mergedBy'), sortValue: byName, searchValue: byName, render: byName},
+    {key: 'new', header: t('columns.newOrder'), searchValue: (r) => orderLabel(r.new_order), render: (r) => orderLabel(r.new_order)},
+    {key: 'old', header: t('columns.oldOrders'), searchValue: oldLabels, render: oldLabels, cellClass: () => 'whitespace-normal'},
+  ];
+
   return (
     <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}>
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-          <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.mergedAt')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.mergedBy')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.newOrder')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.oldOrders')}</th>
-          </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-          {rows.length === 0 ? (
-            <tr>
-              <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">{t('empty.noMergeEvents')}</td>
-            </tr>
-          ) : rows.map((row) => (
-            <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{`${row.created_by?.first_name || ""} ${row.created_by?.last_name || ""}`.trim() || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.new_order?.invoice_number ? `#${row.new_order.invoice_number}` : row.new_order?.id || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">
-                {(row.old_orders || []).length > 0
-                  ? (row.old_orders || []).map((order) => order?.invoice_number ? `#${order.invoice_number}` : order?.id || "-").join(", ")
-                  : "-"}
-              </td>
-            </tr>
-          ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="mt-4 text-sm text-neutral-600">{t('labels.totalMergeEvents')} <span className="font-semibold">{formatNumber(rows.length)}</span></div>
+      <ReportKpis items={[
+        {label: t('labels.totalMergeEvents'), value: formatNumber(rows.length), rawValue: rows.length, rawFormat: 'integer'},
+        {label: t('mergeReport.mergedOrders'), value: formatNumber(mergedOrders), rawValue: mergedOrders, rawFormat: 'integer'},
+        {label: t('mergeReport.topUser'), value: byUser[0]?.name ?? '—', hint: byUser[0] ? t('activityReport.actionsCount', {count: byUser[0].count}) : undefined},
+      ]}/>
+      {byUser.length > 1 && (
+        <div className="max-w-xl">
+          <GroupTable title={t('activityReport.byUser')} nameHeader={t('columns.mergedBy')} rows={byUser} showAmount={false}/>
+        </div>
+      )}
+      <SortableReportTable
+        rows={rows}
+        columns={columns}
+        rowKey={(r) => r.id}
+        initialSort={{key: 'at', dir: 'desc'}}
+        searchPlaceholder={t('mergeReport.search')}
+        emptyText={t('empty.noMergeEvents')}
+        xlsxTitle={t('titles.mergeOrders')}
+      />
     </ReportsLayout>
   );
 };

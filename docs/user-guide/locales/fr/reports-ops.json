@@ -1,72 +1,189 @@
 {
   "title": "Rapports",
-  "intro": "L’écran Rapports regroupe une trentaine de rapports par catégorie. Chacun ne s’affiche que si votre rôle y a droit.",
+  "intro": "L’écran Rapports regroupe une trentaine de rapports en 8 catégories. Chacun ne s’affiche que si votre rôle y a droit.",
   "sections": [
     {
       "id": "use",
       "title": "Ouvrir et régler un rapport",
       "steps": [
-        "Touchez Rapports dans la barre latérale, puis une catégorie à gauche et un rapport.",
-        "Réglez les filtres du rapport : la période d’abord (Aujourd’hui, Hier, Cette semaine, Semaine dernière, Ce mois, Mois dernier, Cette année, Année dernière, Tout, ou Personnalisé), puis selon le rapport : utilisateurs, types de commande, modes de paiement, tables, catégories, plats, service, motifs…",
+        "Touchez Rapports dans la barre latérale, puis une catégorie à gauche et un rapport. Une ligne grise sous chaque nom dit à quoi sert le rapport.",
+        "Pour aller plus vite, tapez quelques lettres dans « Rechercher un rapport… » au-dessus des catégories (ex. « crédit », « annul ») : la liste de droite montre tous les rapports qui correspondent, toutes catégories confondues. Touchez-en un pour l’ouvrir.",
+        "Réglez les filtres du rapport : la période d’abord (Aujourd’hui, Hier, Cette semaine, Semaine dernière, Ce mois, Mois dernier, Cette année, Année dernière, Tout, ou Personnalisé), puis selon le rapport : utilisateurs, types de commande, modes de paiement, tables, catégories, plats, service, motifs… Les listes de clients, serveurs, plats, etc. acceptent la saisie : tapez un nom pour le trouver au lieu de faire défiler.",
         "Touchez Générer.",
-        "En haut du rapport : Imprimer, Télécharger en XLSX (Excel), Télécharger en PDF, Télécharger en image, Actualiser."
+        "En haut du rapport : Imprimer, Télécharger en Excel, Télécharger en PDF, Télécharger en image, Actualiser."
       ],
       "bullets": [
-        "Les PDF et XLSX portent le logo et le nom du restaurant, l’heure de génération et, si deux monnaies sont utilisées, le taux de change appliqué (« Montants en … »).",
+        "Les PDF et fichiers Excel portent le logo et le nom du restaurant, l’heure de génération et, si deux monnaies sont utilisées, le taux de change appliqué (« Montants en … »).",
         "Actualiser recalcule avec les mêmes filtres (par exemple en cours de service).",
         "Un rapport long est découpé en pages : Précédent / Suivant, « Page 2 sur 5 »."
+      ]
+    },
+    {
+      "id": "reading",
+      "title": "Lire un rapport : chiffres clés, « À retenir », tableaux",
+      "bullets": [
+        "Chiffres clés : les cartes en haut donnent les 4 à 8 chiffres essentiels. Une carte verte est bonne, orange demande attention, rouge est un problème (ex. dettes de plus de 90 jours). Sous le chiffre, une petite ligne grise donne le contexte : « vs 120 000 G (+8 %) » compare à la période précédente.",
+        "À retenir : l’encadré bleu liste les points à surveiller, calculés par des règles fixes (pas d’intelligence artificielle) à partir des chiffres du rapport. Le plus urgent est en premier : rond rouge = problème, triangle orange = à vérifier, i bleu = information, coche verte = bonne nouvelle.",
+        "Tableaux triables : touchez le titre d’une colonne pour trier (une fois = du plus grand au plus petit, deux fois = l’inverse, trois fois = ordre d’origine). La petite flèche montre la colonne triée.",
+        "Recherche dans un tableau : la case loupe au-dessus filtre les lignes (nom, téléphone, n° de commande…). La ligne Total en bas se recalcule sur les lignes affichées, et l’export Excel reprend ce qui est affiché.",
+        "Export Excel : les montants arrivent comme de vrais nombres (on peut les additionner, les trier, faire un tableau croisé), avec en-têtes en couleur, lignes de total en gras, ligne d’en-tête figée et filtres. Les chiffres clés et les points « À retenir » sont aussi dans le fichier. Quand un rapport a plusieurs tableaux, chaque tableau a en plus sa propre feuille."
+      ]
+    },
+    {
+      "id": "dashboard",
+      "title": "Tableau de bord",
+      "fields": [
+        {
+          "name": "Tableau de bord des ventes",
+          "effect": "Courbes du chiffre d'affaires, commandes par heure, comparaison avec les périodes précédentes. Pour voir les heures de pointe. « À retenir » sous les cartes : évolution des encaissements par rapport à la même période l'an dernier, moment le plus fort, plat le plus vendu, meilleur vendeur, commandes de plus de 30 minutes (orange au-dessus de 15 %), remboursements, remises au-dessus de 5 %."
+        }
       ]
     },
     {
       "id": "sales",
       "title": "Ventes",
       "fields": [
-        { "name": "Tableau de bord des ventes", "effect": "Courbes du chiffre d’affaires, commandes par heure, comparaison avec la période précédente. Pour voir les heures de pointe." },
-        { "name": "Ventes par serveur", "effect": "Ventes, commandes et couverts de chaque serveur. En DUO, chaque plat compte pour celui qui l’a ajouté." },
-        { "name": "Résumé des ventes", "effect": "Ventes nettes, taxes, remises et coupons, ventes par point de vente (Bar, Restaurant…), nombre de commandes par moment de la journée." },
-        { "name": "Résumé des ventes 2", "effect": "Par employé et par moment de la journée : commandes, couverts, ticket moyen, dépense moyenne par couvert, temps d’occupation ; commandes commencées, annulées, fusionnées, reportées." },
-        { "name": "Ventes hebdomadaires", "effect": "Ventes nettes jour par jour sur une semaine, avec gratuités et coupons." },
-        { "name": "Pourboires", "effect": "Total des pourboires et répartitions enregistrées." },
-        { "name": "Ventes avancées", "effect": "Une ligne par commande ou par article : n°, serveur, couverts, prix hors taxe, taxes, frais de service, détail des paiements, notes. Le plus complet pour la comptabilité (export XLSX)." },
-        { "name": "Remise, Taxe, Coupon", "effect": "Qui a appliqué quelle remise (et qui l’a approuvée), avec quel motif ; montants de taxe ; coupons utilisés." },
-        { "name": "Annulations", "effect": "Annulations par motif, par responsable, par article, et le détail ligne par ligne (date, quantité, montant, commentaire). À relire chaque semaine." },
-        { "name": "Résumé des tables", "effect": "Commandes, chiffre d’affaires et ticket moyen par table (et « sans table »)." }
+        {
+          "name": "Résumé des ventes",
+          "effect": "Le rapport de fin de journée. Compare automatiquement avec la période précédente de même durée (hier pour aujourd’hui, la semaine d’avant pour une semaine). Chiffres clés : ventes nettes, tickets, ticket moyen, encaissé en caisse, couverts, non encaissé (chambre + crédit), remises, annulations. Puis : encaissements par moyen de paiement avec % des ventes, ventes par moment de la journée, par type de commande, taxes/frais/réductions avec l’évolution, remises par type, ventes par point de vente. « À retenir » signale : hausse ou baisse et si elle vient du nombre de clients ou du ticket moyen ; remises au-dessus de 5 % des ventes ; annulations au-dessus de 3 % ; part non encaissée (orange au-dessus de 20 %)."
+        },
+        {
+          "name": "Résumé des ventes 2",
+          "effect": "Par employé et par moment de la journée : commandes, couverts, ticket moyen, dépense moyenne par couvert, temps d'occupation ; commandes commencées, annulées, fusionnées, reportées. En haut : ventes nettes, tickets, ticket moyen, temps moyen par table. « À retenir » : meilleur vendeur, tickets moyens faibles, remises anormales, tables nettement plus longues que la moyenne (+40 %), remboursements, part non encaissée."
+        },
+        {
+          "name": "Ventes hebdomadaires",
+          "effect": "Ventes nettes jour par jour sur une semaine (lundi → dimanche), avec un graphique en barres (le meilleur jour en vert). Chiffres clés : total de la semaine, moyenne par jour ouvert, meilleur et plus faible jour. « À retenir » : part du week-end, jours sans vente, annulations au-dessus de 3 %."
+        },
+        {
+          "name": "Ventes avancées",
+          "effect": "Une ligne par commande ou par article : n°, serveur, couverts, prix hors taxe, taxes, frais de service, détail des paiements, notes. Le plus complet pour la comptabilité (export Excel). En haut : chiffres clés, « À retenir » et un tableau par moyen de paiement. La case « Rechercher une commande » au-dessus de la liste filtre par n°, personne, table, type ou note (le résumé, lui, reste sur toute la période)."
+        },
+        {
+          "name": "Ventes par serveur",
+          "effect": "Commence par un classement des serveurs (triable) : ventes nettes, part des ventes, tickets, couverts, ticket moyen, dépense par couvert, remises et % de remises. Touchez un nom pour descendre à son détail. « À retenir » : meilleur vendeur, meilleur ticket moyen, serveurs à moins de 75 % du ticket moyen de l’équipe, serveurs dont le taux de remise dépasse le double de la moyenne (et au moins 5 %). En DUO, chaque plat compte pour celui qui l’a ajouté."
+        },
+        {
+          "name": "Résumé des tables",
+          "effect": "Commandes, couverts, chiffre d’affaires, part du chiffre et ticket moyen par table (et par type de commande pour les commandes sans table). Un ticket moyen en orange est à moins de 60 % de la moyenne. « À retenir » : table la plus rentable, poids des 5 meilleures, part sans table, tables peu utilisées."
+        },
+        {
+          "name": "Densité de livraison",
+          "effect": "Où partent les livraisons et combien elles rapportent (module Livraison)."
+        }
       ]
     },
     {
-      "id": "orders",
-      "title": "Commandes",
+      "id": "customers",
+      "title": "Clients & crédit",
       "fields": [
-        { "name": "Fusion de commandes", "effect": "Quelles commandes ont été fusionnées, dans laquelle, quand et par qui." },
-        { "name": "Division de commandes", "effect": "Commandes divisées et commandes créées." },
-        { "name": "Cycle de vie des commandes", "effect": "Pour une commande : chaque événement dans l’ordre (création, envoi, passage en cuisine, modifications, paiement), avec qui et quand. Pour comprendre une réclamation." },
-        { "name": "Reçu de commande", "effect": "Retrouver et réimprimer le reçu d’une commande par son numéro." },
-        { "name": "Fiscalisation commandes", "effect": "État de la déclaration fiscale de chaque commande : terminée, échouée ou ignorée." }
+        {
+          "name": "Crédit client",
+          "effect": "Qui doit combien et depuis quand. Les paiements sont imputés sur les achats les plus anciens d’abord ; ce qui reste dû est classé par ancienneté : 0–30, 31–60, 61–90, plus de 90 jours. Chiffres clés : total dû (rouge s’il y a des dettes de plus de 90 jours), dû depuis plus de 60 jours, total facturé, taux de recouvrement. Tableau par client avec recherche par nom ou téléphone : commandes, dernier achat, dernier paiement, limite, facturé, réglé, les 4 tranches et le dû (rouge si la limite est dépassée ; étiquette « crédit retiré » si le client n’a plus droit au crédit). Touchez un nom pour son relevé et l’impression FR/EN. « À retenir » : clients à plus de 90 jours, entre 61 et 90 jours, au-dessus de leur limite, crédit retiré mais encore débiteurs, aucun paiement depuis plus de 60 jours, poids des 3 plus gros débiteurs."
+        },
+        {
+          "name": "Ventes par client",
+          "effect": "Ce que chaque client a acheté sur la période : commandes, ventes, total, ticket moyen, part du total, espèces et autres paiements. Recherche par nom ou chambre, tri par colonne ; touchez un nom pour son détail. La ligne « client anonyme » regroupe les commandes sans client. « À retenir » : meilleur client, poids des 10 meilleurs, habitués (3 visites ou plus), ticket moyen nommé vs anonyme, alerte si plus de 50 % des ventes sont anonymes."
+        }
       ]
     },
     {
-      "id": "operations",
-      "title": "Opérations",
+      "id": "cash",
+      "title": "Caisse & encaissements",
       "fields": [
-        { "name": "Activité", "effect": "Chaque action protégée : qui l’a faite, quel module, sur quel appareil, et s’il a fallu l’autorisation d’un responsable (avec son rôle et la méthode : PIN…)." },
-        { "name": "Audit", "effect": "Journal des actions sensibles, filtrable par module." },
-        { "name": "Dépenses", "effect": "Dépenses enregistrées (module Comptabilité)." }
+        {
+          "name": "Clôture de caisse",
+          "effect": "Une clôture : solde de clôture, encaissé (part en espèces), chambre + crédit non encaissé, dépenses. Le tableau « Calcul du solde » refait le calcul de l'écran Clôture (ouverture + espèces + fonds ajouté + autres paiements − dépenses) : si le solde enregistré ne retombe pas dessus, la carte passe en rouge et « À retenir » donne l'écart. Signale aussi une clôture restée en brouillon. Ce n'est pas un comptage de caisse : le rapport ne compare pas avec les billets comptés (module Clôture)."
+        },
+        {
+          "name": "Pourboires",
+          "effect": "Total des pourboires, nombre de répartitions, bénéficiaires, moyenne par personne ; tableau par personne avec sa part. « À retenir » signale un écart entre pourboires enregistrés et pourboires répartis."
+        },
+        {
+          "name": "Taxe",
+          "effect": "Montants de taxe par commande, avec total, moyenne par commande, part des ventes brutes et répartition par caissier. Recherche et tri."
+        }
       ]
     },
     {
       "id": "products",
       "title": "Produits",
       "fields": [
-        { "name": "Mix produits hebdomadaire", "effect": "Quantités vendues par plat, jour par jour sur une semaine." },
-        { "name": "Résumé mix produits", "effect": "Classement des plats : quantité, prix moyen vendu, part des ventes, avec les options." },
-        { "name": "Produits horaires", "effect": "Ce qui se vend à quelle heure (quantités, sous-total, taxe, total)." },
-        { "name": "Liste des produits", "effect": "La carte : code, nom, catégorie, prix. Pratique pour vérifier les prix." }
+        {
+          "name": "Résumé mix produits",
+          "effect": "Classement des plats : quantité, prix moyen vendu, part des ventes, avec les options. Chiffres clés : ventes, unités vendues, prix moyen, plat le plus vendu. « À retenir » : les 3 meilleures ventes, combien de plats font 80 % du chiffre, catégorie la plus forte, plats vendus 2 fois ou moins (à revoir sur la carte), plats avec plus de 15 % de remise."
+        },
+        {
+          "name": "Mix produits hebdomadaire",
+          "effect": "Par preneur de commande, jour par jour sur une semaine : quantités et montants, avec une ligne Total par jour. Chiffres clés : total de la semaine, unités, meilleur jour, meilleur vendeur."
+        },
+        {
+          "name": "Produits horaires",
+          "effect": "Ce qui se vend à quelle heure (quantités, sous-total, taxe, total), avec un graphique des ventes par heure (heure de pointe en vert) et des cellules colorées : plus la case est verte, plus l'article s'est vendu à cette heure. « À retenir » : heure de pointe, poids des 3 meilleures heures, heures très calmes (moins de 2 %)."
+        },
+        {
+          "name": "Liste des produits",
+          "effect": "La carte : code, nom, catégorie, prix, avec recherche et tri, et le nombre d'articles par catégorie. Sert à contrôler la carte : « À retenir » liste les articles sans prix, sans catégorie, sans code, les codes utilisés deux fois (rouge) et les noms en double."
+        }
       ]
     },
     {
-      "id": "ai",
-      "title": "Rapport IA",
-      "intro": "Posez une question en français (« Quels plats se sont le moins vendus ce mois-ci ? ») ou choisissez un exemple, puis Exécuter. La réponse peut être un tableau ou un graphique. L’usage est limité par jour et par mois : le compteur sous la question indique ce qui reste. Vérifiez toujours un chiffre important dans le rapport classique correspondant."
+      "id": "control",
+      "title": "Contrôle : annulations & remises",
+      "fields": [
+        {
+          "name": "Annulations",
+          "effect": "Chiffres clés : montant annulé, nombre d’annulations, motif principal, annulations sans commentaire (orange s’il y en a). Tableaux par motif, par caissier/serveur, par responsable qui a validé et par article, avec la part de chacun. Détail ligne par ligne avec recherche (article, motif, personne, n° de commande). « À retenir » : motif le plus fréquent, caissier qui concentre au moins 40 % du montant annulé (à vérifier), responsable qui valide au moins 60 % des annulations, article le plus annulé, annulations sans commentaire. À relire chaque semaine."
+        },
+        {
+          "name": "Remise, Coupon",
+          "effect": "Remise : chiffres clés (total, commandes, remise moyenne, remises sans motif), tableaux par type de remise, par personne qui a appliqué, par motif, par responsable qui a approuvé, et le détail avec recherche. « À retenir » : remise la plus utilisée, personne qui applique au moins 40 % du montant, remises sans motif, remises approuvées par la personne qui les a appliquées (en orange dans le détail). Coupon : total, moyenne, part des ventes, répartition par caissier."
+        },
+        {
+          "name": "Fusion de commandes",
+          "effect": "Quelles commandes ont été fusionnées, dans laquelle, quand et par qui. Recherche par n° ou personne, et nombre de fusions par personne."
+        },
+        {
+          "name": "Division de commandes",
+          "effect": "Commandes divisées et commandes créées. Recherche, et répartition par personne et par table."
+        }
+      ]
+    },
+    {
+      "id": "orders",
+      "title": "Commandes",
+      "fields": [
+        {
+          "name": "Reçu de commande",
+          "effect": "Retrouver et réimprimer le reçu d’une commande par son numéro."
+        },
+        {
+          "name": "Cycle de vie des commandes",
+          "effect": "Pour une commande : chaque événement dans l’ordre (création, envoi, passage en cuisine, modifications, paiement), avec qui et quand. Pour comprendre une réclamation."
+        },
+        {
+          "name": "Fiscalisation commandes",
+          "effect": "État de la déclaration fiscale de chaque commande : terminée, échouée ou ignorée."
+        }
+      ]
+    },
+    {
+      "id": "operations",
+      "title": "Opérations",
+      "fields": [
+        {
+          "name": "Dépenses",
+          "effect": "Dépenses enregistrées dans les clôtures : total, nombre, plus gros poste, tableau par catégorie, détail avec recherche. « À retenir » : plus gros poste, plus grosse dépense, dépenses sans catégorie, moyenne par clôture."
+        },
+        {
+          "name": "Activité",
+          "effect": "Chaque action protégée : qui l'a faite, quel module, sur quel appareil, et s'il a fallu l'autorisation d'un responsable (avec son rôle et la méthode : PIN…). Tableaux par utilisateur, par module et par responsable qui a autorisé ; journal avec recherche et tri (le plus récent en premier)."
+        },
+        {
+          "name": "Audit",
+          "effect": "Journal des actions sensibles (500 lignes au plus), avec tableaux par utilisateur et par module, recherche et tri."
+        }
+      ]
     },
     {
       "id": "optional",

@@ -8,7 +8,6 @@
     "openReport": "{{report}}-rapport openen"
   },
   "categories": {
-    "ai": "AI",
     "dashboard": "Dashboard",
     "sales": "Verkoop",
     "orders": "Bestellingen",
@@ -17,7 +16,6 @@
     "products": "Producten"
   },
   "reports": {
-    "aiReport": "AI-rapport",
     "salesDashboard": "Verkoopdashboard",
     "serverSales": "Serververkoop",
     "salesSummary": "Verkoopoverzicht",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "Goedkeuringsrapport manager"
   },
   "titles": {
-    "aiReport": "AI-rapport",
-    "aiGeneratedSubtitle": "Gegenereerd vanuit uw prompt",
     "salesDashboard": "Verkoopdashboard",
     "serverSales": "Serververkoop",
     "salesSummary": "Verkoopoverzicht",
@@ -138,36 +134,14 @@
     "orderType": "Bestellingstype",
     "paymentType": "Betaaltype",
     "status": "Status",
-    "aiPrompt": "Beschrijf het rapport of de analyse die u wilt...",
     "format": "Formaat:",
     "list": "Lijst",
     "table": "Tabel",
     "run": "Uitvoeren",
     "unnamedUser": "Naamloze gebruiker",
-    "aiPromptEmpty": "Prompt mag niet leeg zijn.",
-    "aiRunFailed": "AI-rapport uitvoeren mislukt.",
-    "aiDisabled": "AI-rapporten zijn uitgeschakeld op deze server.",
-    "aiDailyLimitReached": "Dagelijkse AI-limiet bereikt. Probeer het morgen opnieuw.",
-    "aiMonthlyLimitReached": "Maandelijkse AI-limiet bereikt. Neem contact op met een beheerder.",
-    "aiUsageDaily": "Vandaag: {{used}} / {{limit}}",
-    "aiUsageMonthly": "Deze maand: {{used}} / {{limit}}",
-    "aiFetching": "{{tool}} ophalen...",
-    "aiRunning": "AI-rapport uitvoeren...",
-    "aiResponse": "Antwoord",
-    "aiExamples": "Voorbeeldprompts",
-    "aiDataUsed": "Gebruikte gegevens ({{count}} tools)",
-    "aiHistory": "Recente prompts ({{count}})",
     "prompt": "Prompt",
     "chart": "Grafiek",
     "analysis": "Analyse",
-    "aiCategory": {
-      "sales": "Omzet",
-      "charts": "Grafieken en prognose",
-      "analysis": "Analyse",
-      "all": "Alles",
-      "operations": "Operaties",
-      "accounts": "Accounts"
-    },
     "location": "Locatie",
     "selectDate": "Selecteer datum",
     "selectWeek": "Selecteer een week",

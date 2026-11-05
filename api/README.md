@@ -69,7 +69,6 @@ win. All secrets remain server-side; do not add them to the frontend `.env`.
 | `AI_<PROFILE>_KEY` | API key (optional when `AUTH=none`) |
 | `AI_<PROFILE>_MODEL` | Model id injected server-side |
 | `AI_<PROFILE>_AUTH` | `bearer` (default), `api-key`, or `none` |
-| `AI_<PROFILE>_COMPACT` | `true` = compact AI report prompts/tools for that profile |
 | `AI_<PROFILE>_PROXY_URL` | Optional URL override |
 | `OPENAI_*` | Legacy single-profile fallback when `AI_PROFILES` is unset |
 | `AI_ENABLED` | `false` / `0` hard-blocks all AI (403). Default `true`. |

@@ -125,7 +125,6 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "reports.product_mix_weekly",
       "reports.product_mix_summary",
       "reports.products_hourly",
-      "reports.ai",
     ],
   },
   closing: {
@@ -385,7 +384,6 @@ export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
   "Product Mix Weekly": "reports.product_mix_weekly",
   "Product Mix Summary": "reports.product_mix_summary",
   "Products Hourly": "reports.products_hourly",
-  "AI Report": "reports.ai",
 
   // Closing
   "Edit Closing": "closing.edit",

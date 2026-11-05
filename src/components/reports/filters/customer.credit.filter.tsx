@@ -42,6 +42,7 @@ export const CustomerCreditFilter = () => {
       <div className="flex flex-col gap-1 w-full max-w-md">
         <label htmlFor="customer-credit-customer">{t('filters.customerOptional')}</label>
         <ReactSelect
+          isSearchable
           inputId="customer-credit-customer"
           name="customer_id"
           isClearable

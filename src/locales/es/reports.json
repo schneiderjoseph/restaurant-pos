@@ -8,7 +8,6 @@
     "openReport": "Abrir informe de {{report}}"
   },
   "categories": {
-    "ai": "IA",
     "dashboard": "Panel",
     "sales": "Ventas",
     "orders": "Pedidos",
@@ -17,7 +16,6 @@
     "products": "Productos"
   },
   "reports": {
-    "aiReport": "Informe de IA",
     "salesDashboard": "Panel de ventas",
     "serverSales": "Ventas del servidor",
     "salesSummary": "Resumen de ventas",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "Informe de aprobación del gerente"
   },
   "titles": {
-    "aiReport": "Informe de IA",
-    "aiGeneratedSubtitle": "Generado a partir de su solicitud",
     "salesDashboard": "Panel de ventas",
     "serverSales": "Ventas del servidor",
     "salesSummary": "Resumen de ventas",
@@ -138,36 +134,14 @@
     "orderType": "Tipo de pedido",
     "paymentType": "Tipo de pago",
     "status": "Estado",
-    "aiPrompt": "Describa el informe o análisis que desea...",
     "format": "Formato:",
     "list": "Lista",
     "table": "Tabla",
     "run": "Ejecutar",
     "unnamedUser": "Usuario sin nombre",
-    "aiPromptEmpty": "El mensaje no puede estar vacío.",
-    "aiRunFailed": "Error al ejecutar el informe de IA.",
-    "aiDisabled": "Los informes de IA están desactivados en este servidor.",
-    "aiDailyLimitReached": "Se alcanzó el límite diario de IA. Inténtelo de nuevo mañana.",
-    "aiMonthlyLimitReached": "Se alcanzó el límite mensual de IA. Contacte a un administrador.",
-    "aiUsageDaily": "Hoy: {{used}} / {{limit}}",
-    "aiUsageMonthly": "Este mes: {{used}} / {{limit}}",
-    "aiFetching": "Obteniendo {{tool}}...",
-    "aiRunning": "Ejecutando informe de IA...",
-    "aiResponse": "Respuesta",
-    "aiExamples": "Ejemplos de mensajes",
-    "aiDataUsed": "Datos utilizados ({{count}} herramientas)",
-    "aiHistory": "Mensajes recientes ({{count}})",
     "prompt": "Mensaje",
     "chart": "Gráfico",
     "analysis": "Análisis",
-    "aiCategory": {
-      "sales": "Ventas",
-      "charts": "Gráficos y pronósticos",
-      "analysis": "Análisis",
-      "all": "Todos",
-      "operations": "Operaciones",
-      "accounts": "Cuentas"
-    },
     "location": "Ubicación",
     "selectDate": "Seleccionar fecha",
     "selectWeek": "Seleccionar una semana",

@@ -226,36 +226,7 @@
         "nested_override": "Prix imbriqué"
       }
     },
-    "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu."
-  },
-  "aiAssistant": {
-    "open": "Ouvrir {{name}}",
-    "title": "{{name}} – Assistant IA",
-    "placeholder": "Posez des questions sur ventes, stocks, gestion ou demandez une création/mise à jour…",
-    "reviewPrompt": "J'ai préparé {{count}} modification(s) de {{entity}} à examiner ci-dessous.",
-    "reviewTitle": "Examiner les modifications",
-    "confirm": "Confirmer",
-    "applied": "Appliqué : {{imported}} créés/mis à jour, {{failed}} échoués, {{skipped}} ignorés.",
-    "cancelled": "L'utilisateur a annulé cette modification.",
-    "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
-    "issues": "Problèmes",
-    "expand": "Agrandir l'assistant",
-    "collapse": "Réduire l'assistant",
-    "clear": "Effacer",
-    "clearConversation": "Effacer la conversation",
-    "clearConfirm": "Effacer cette conversation avec l'assistant sur cet appareil ?",
-    "working": "{{name}} traite votre demande…",
-    "examplesTitle": "Ce que vous pouvez demander",
-    "examplesHint": "Cliquez sur un exemple pour l'essayer avec {{name}} :",
-    "examples": {
-      "salesToday": "Afficher le résumé des ventes d'aujourd'hui",
-      "tablesFloor": "Lister les tables de l'étage Delivery",
-      "bogoDiscount": "Créer une remise BOGO automatique pour les entrées",
-      "addDish": "Ajouter un nouveau plat Margherita à x €",
-      "listUsers": "Lister tous les utilisateurs POS",
-      "voidsToday": "Afficher les annulations d'aujourd'hui"
-    },
-    "unknownConfig": "Configuration d'importation inconnue pour l'aperçu.",
+    "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu.",
     "passwordWillBeSet": "Le mot de passe sera défini à la confirmation"
   }
 }

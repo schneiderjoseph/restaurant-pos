@@ -2,22 +2,24 @@
   "page": {
     "title": "Reports",
     "subReports": "Sub reports",
-    "reportFilters": "Report filters"
+    "reportFilters": "Report filters",
+    "searchReports": "Search a report…"
   },
   "security": {
     "openReport": "Open {{report}} report"
   },
   "categories": {
-    "ai": "AI",
     "dashboard": "Dashboard",
     "sales": "Sales",
     "orders": "Orders",
     "cashClosing": "Cash closing",
     "operations": "Operations",
-    "products": "Products"
+    "products": "Products",
+    "customers": "Customers & credit",
+    "cashAndPayments": "Cash & payments",
+    "control": "Control: voids & discounts"
   },
   "reports": {
-    "aiReport": "AI Report",
     "salesDashboard": "Sales dashboard",
     "serverSales": "Server Sales",
     "salesSummary": "Sales Summary",
@@ -55,8 +57,6 @@
     "managerApprovalReport": "Manager Approval Report"
   },
   "titles": {
-    "aiReport": "AI Report",
-    "aiGeneratedSubtitle": "Generated from your prompt",
     "salesDashboard": "Sales dashboard",
     "serverSales": "Server sales",
     "salesSummary": "Sales summary",
@@ -105,7 +105,7 @@
   "weekOf": "Week of {{date}}",
   "layout": {
     "print": "Print",
-    "downloadXlsx": "Download as XLSX",
+    "downloadXlsx": "Download as Excel",
     "downloadPdf": "Download as PDF",
     "downloadImage": "Download as Image",
     "refresh": "Refresh",
@@ -142,20 +142,6 @@
     "orderType": "Order Type",
     "paymentType": "Payment Type",
     "status": "Status",
-    "aiPrompt": "Describe the report or analysis you want...",
-    "aiPromptEmpty": "Prompt cannot be empty.",
-    "aiRunFailed": "Failed to run AI report.",
-    "aiDisabled": "AI reports are disabled on this server.",
-    "aiDailyLimitReached": "Daily AI limit reached. Try again tomorrow.",
-    "aiMonthlyLimitReached": "Monthly AI limit reached. Contact an administrator.",
-    "aiUsageDaily": "Today: {{used}} / {{limit}}",
-    "aiUsageMonthly": "This month: {{used}} / {{limit}}",
-    "aiFetching": "Fetching {{tool}}...",
-    "aiRunning": "Running AI report...",
-    "aiResponse": "Response",
-    "aiExamples": "Example prompts",
-    "aiDataUsed": "Data used ({{count}} tools)",
-    "aiHistory": "Recent prompts ({{count}})",
     "prompt": "Prompt",
     "format": "Format:",
     "list": "List",
@@ -163,14 +149,6 @@
     "chart": "Chart",
     "analysis": "Analysis",
     "run": "Run",
-    "aiCategory": {
-      "all": "All",
-      "sales": "Sales",
-      "operations": "Operations",
-      "accounts": "Accounts",
-      "charts": "Charts & Forecast",
-      "analysis": "Analysis"
-    },
     "unnamedUser": "Unnamed user",
     "location": "Location",
     "selectDate": "Select date",
@@ -835,5 +813,355 @@
     "5": "Friday",
     "6": "Saturday",
     "7": "Sunday"
+  },
+  "insights": {
+    "title": "Key takeaways",
+    "namesAndMore": "{{names}} and {{count}} more",
+    "credit": {
+      "noneDue": "No open credit: every account is settled.",
+      "over90": "{{count}} customer(s) have owed for more than 90 days: {{amount}} ({{pct}}% of total due) — {{names}}.",
+      "d61_90": "{{count}} customer(s) have 61–90 day debts: {{amount}} — {{names}}. Follow up before they pass 90 days.",
+      "overLimit": "{{count}} customer(s) are over their credit limit: {{names}}.",
+      "revokedOwes": "{{count}} customer(s) lost credit privileges but still owe {{amount}} — {{names}}.",
+      "noPayment60": "{{count}} customer(s) have made no payment for more than 60 days ({{amount}} due) — {{names}}.",
+      "concentration": "The top 3 debtors hold {{pct}}% of the total due: {{names}}.",
+      "collectionRate": "Collection rate on the accounts shown: {{pct}}% ({{settled}} collected of {{charged}} charged)."
+    },
+    "sales": {
+      "noSales": "No sales in the selected period.",
+      "up": "Net sales are up {{pct}}%: {{current}} vs {{previous}} in the previous period.",
+      "down": "Net sales are down {{pct}}%: {{current}} vs {{previous}} in the previous period.",
+      "driverChecks": "The change comes mostly from the number of checks: {{checks}} vs {{prevChecks}} ({{checkPct}}%). The average check moved less ({{avg}} vs {{prevAvg}}).",
+      "driverAverage": "The change comes mostly from the average check: {{avg}} vs {{prevAvg}} ({{avgPct}}%). The number of checks moved less ({{checks}} vs {{prevChecks}}).",
+      "bestDayPart": "The strongest day part is \"{{part}}\": {{amount}}, {{pct}}% of sales.",
+      "topOrderType": "\"{{type}}\" makes up {{pct}}% of net sales.",
+      "highDiscounts": "Discounts and coupons are {{pct}}% of sales ({{amount}}), above the {{limit}}% threshold. See the Discount report.",
+      "highVoids": "Voids are {{pct}}% of sales ({{amount}}), above the {{limit}}% threshold. See the Voids report.",
+      "deferred": "{{amount}} ({{pct}}% of sales) was not collected: {{room}} to rooms, {{credit}} to customer credit."
+    },
+    "voids": {
+      "none": "No voids in this period.",
+      "topReason": "Most frequent reason: \"{{reason}}\" ({{count}} times, {{amount}}, {{pct}}% of voided amount).",
+      "cashierConcentration": "{{name}} accounts for {{pct}}% of the voided amount ({{count}} voids, {{amount}}). Worth checking.",
+      "managerConcentration": "{{name}} approved {{pct}}% of voids.",
+      "topItem": "Most voided item: {{item}} ({{quantity}} units, {{amount}}).",
+      "withoutComment": "{{count}} void(s) without a comment ({{pct}}%). Ask for an explanation every time."
+    },
+    "products": {
+      "none": "No items sold in this period.",
+      "top3": "The top 3 sellers make {{pct}}% of revenue: {{names}}.",
+      "pareto": "{{count}} of {{total}} items ({{pct}}%) make 80% of sales.",
+      "topCategory": "Category \"{{category}}\" is {{pct}}% of sales.",
+      "lowSellers": "{{count}} item(s) sold {{max}} times or fewer: {{names}}. Worth reviewing on the menu.",
+      "heavyDiscounts": "{{count}} item(s) have more than {{limit}}% discount: {{names}}."
+    },
+    "servers": {
+      "topSeller": "{{name}} leads with {{amount}} ({{pct}}% of sales).",
+      "bestAverage": "Best average check: {{name}} ({{avg}}, vs {{team}} for the team).",
+      "lowAverage": "Average check well below the team average ({{team}}): {{names}}. Idea: suggest drinks and desserts.",
+      "heavyReductions": "High discounts compared with the team ({{team}}% on average): {{names}}. See the Discount report."
+    },
+    "tables": {
+      "best": "Most profitable table: {{table}} with {{amount}} ({{pct}}% of revenue, {{orders}} orders).",
+      "top5": "The top 5 tables make {{pct}}% of revenue (out of {{count}} tables used).",
+      "noTable": "{{amount}} ({{pct}}%) comes from orders without a table: {{types}}.",
+      "quiet": "{{count}} table(s) were used only once or twice: {{names}}."
+    },
+    "weekly": {
+      "none": "No sales this week.",
+      "best": "Best day: {{day}} with {{amount}} ({{pct}}% of the week).",
+      "worst": "Weakest day: {{day}} with {{amount}}, vs {{avg}} on average.",
+      "weekend": "The weekend (Saturday + Sunday) makes {{pct}}% of the week ({{amount}}).",
+      "noSalesDays": "No sales: {{days}}.",
+      "voids": "Voids this week: {{amount}} ({{pct}}% of sales). See the Voids report."
+    },
+    "tips": {
+      "top": "{{name}} received the most: {{amount}} ({{pct}}% of distributed tips).",
+      "average": "{{avg}} per person on average, across {{count}} beneficiaries.",
+      "gap": "Gap between recorded tips ({{total}}) and distributed tips ({{distributed}}): {{gap}}. Check the distributions."
+    },
+    "discounts": {
+      "none": "No discounts in this period.",
+      "top": "Most used discount: \"{{name}}\" ({{count}} times, {{amount}}, {{pct}}% of total).",
+      "applierConcentration": "{{name}} applied {{pct}}% of the discount amount ({{amount}}). Worth checking.",
+      "withoutReason": "{{count}} discount(s) without a reason ({{pct}}%). Require a reason every time.",
+      "selfApproved": "{{count}} discount(s) approved by the same person who applied them: {{names}}.",
+      "average": "Average discount: {{avg}} per discounted order ({{orders}} orders)."
+    },
+    "customers": {
+      "top": "Top customer: {{name}} with {{amount}} ({{pct}}% of total, {{orders}} orders).",
+      "top10": "The top 10 customers make {{pct}}% of total (out of {{count}} named customers).",
+      "regulars": "{{count}} customer(s) came 3 times or more, for {{amount}} in total.",
+      "avgCompare": "Average check of a named customer: {{named}}, vs {{anonymous}} for an anonymous one.",
+      "anonymous": "{{pct}}% of sales have no named customer. Entering the customer more often would make this report and credit more useful."
+    },
+    "expenses": {
+      "topCategory": "Largest category: {{category}} with {{amount}} ({{pct}}% of expenses).",
+      "biggest": "Largest expense: \"{{description}}\" for {{amount}} ({{pct}}%).",
+      "uncategorized": "{{count}} expense(s) without a category ({{amount}}). Categorizing them makes tracking clearer.",
+      "perClosing": "{{avg}} of expenses per closing on average ({{count}} closings)."
+    },
+    "activity": {
+      "topUser": "{{name}} is the most active: {{count}} actions ({{pct}}%).",
+      "topModule": "Most used module: {{module}} ({{count}} actions).",
+      "approvals": "{{count}} action(s) ({{pct}}%) needed a manager's approval, most often {{name}} ({{managerCount}} times)."
+    },
+    "productList": {
+      "noPrice": "{{count}} item(s) without a price: {{names}}.",
+      "noCategory": "{{count}} item(s) without a category: {{names}}.",
+      "noCode": "{{count}} item(s) without a code.",
+      "duplicateCodes": "{{count}} code(s) used by several items: {{codes}}. Fix them.",
+      "duplicateNames": "{{count}} duplicate name(s): {{names}}.",
+      "allGood": "The menu is clean: every item has a price, a category and a unique code."
+    },
+    "advanced": {
+      "topTender": "Main payment method: {{name}} ({{pct}}% of collected, {{amount}}).",
+      "reductions": "Discounts and coupons: {{amount}} ({{pct}}% of sales before discounts).",
+      "voids": "Voids: {{amount}} ({{pct}}% of sales). See the Voids report.",
+      "notes": "{{count}} order(s) carry a note: use the search to find them."
+    },
+    "summary2": {
+      "slowTurn": "Tables slower than average ({{avg}} min): {{names}}.",
+      "refunds": "Refunds in this period: {{amount}}. Check the reasons."
+    },
+    "dashboard": {
+      "upLastYear": "Collections up {{pct}}% vs the same period last year ({{amount}}).",
+      "downLastYear": "Collections down {{pct}}% vs the same period last year ({{amount}}).",
+      "topItem": "Best-selling dish: {{name}} ({{quantity}} units, {{amount}}).",
+      "lateOrders": "{{count}} order(s) took more than 30 minutes from opening to completion ({{pct}}%).",
+      "refunds": "{{count}} refunded order(s) in this period. Check the reasons."
+    },
+    "cash": {
+      "balanceGap": "The recorded balance ({{recorded}}) does not match the calculation ({{computed}}): gap of {{gap}}. The closing may have been edited afterwards.",
+      "notClosed": "This closing is not completed (draft): figures may still change.",
+      "deferred": "{{amount}} ({{pct}}% of the day) was charged to rooms or credit and is still to be collected.",
+      "expenses": "Expenses paid: {{amount}}, {{pct}}% of cash collected."
+    },
+    "hourly": {
+      "peak": "Peak hour: {{hour}} with {{amount}} ({{pct}}% of sales).",
+      "top3": "The top 3 hours ({{hours}}) make {{pct}}% of sales: staff accordingly.",
+      "quiet": "Very quiet hours (under 2% of sales): {{hours}}."
+    }
+  },
+  "credit": {
+    "over60": "Due 60+ days",
+    "pctOfDue": "{{pct}}% of total due",
+    "collectionRate": "Collection rate",
+    "bucketCurrent": "0–30 days",
+    "bucket31_60": "31–60 days",
+    "bucket61_90": "61–90 days",
+    "bucketOver90": "Over 90 days",
+    "bucketCurrentShort": "0–30",
+    "agingTitle": "Debt aging",
+    "age": "Age",
+    "customers": "Customers",
+    "byCustomer": "By customer",
+    "searchCustomer": "Search a customer (name or phone)…",
+    "phone": "Phone",
+    "lastCharge": "Last purchase",
+    "lastPayment": "Last payment",
+    "limit": "Limit",
+    "revoked": "credit revoked",
+    "chargesTitle": "Credit purchases"
+  },
+  "table": {
+    "search": "Search…",
+    "shownOf": "{{shown}} of {{total}}",
+    "empty": "No data"
+  },
+  "descriptions": {
+    "salesDashboard": "Revenue, peak hours, comparison with the previous period.",
+    "salesSummary": "Net sales, taxes, discounts, sales by outlet and by day part.",
+    "salesSummary2": "By employee and service: orders, covers, average check, table time.",
+    "salesWeekly": "Net sales day by day over a week.",
+    "advancedSales": "One line per order or item, with payments and taxes. The most complete for accounting.",
+    "serverSales": "Sales, orders and covers per server.",
+    "tablesSummary": "Orders, revenue and average check per table.",
+    "deliveryDensity": "Where deliveries go and what they bring in.",
+    "customerCredit": "Who owes how much and since when (0–30 / 31–60 / 61–90 / 90+ days), limits exceeded.",
+    "salesByCustomer": "What each customer bought over the period.",
+    "cashClosing": "Cash closings: expected, counted, differences.",
+    "tips": "Tip totals and how they were split.",
+    "tax": "Tax amounts collected.",
+    "productMixSummary": "Dish ranking: quantity, average price, share of sales.",
+    "productMixWeekly": "Quantities sold per dish, day by day.",
+    "productsHourly": "What sells at what time.",
+    "productList": "The menu: code, name, category, price.",
+    "voids": "Voids by reason, manager and item. Review weekly.",
+    "discount": "Who applied which discount, approved by whom, and why.",
+    "coupon": "Coupons used and amounts.",
+    "mergeOrders": "Merged orders: which, when, by whom.",
+    "splitOrders": "Split orders and the orders created.",
+    "orderReceipt": "Find and reprint an order receipt.",
+    "orderLifeCycle": "Every event of an order, in order, with who and when.",
+    "orderFiscal": "Fiscal declaration status of each order.",
+    "expense": "Recorded expenses.",
+    "activity": "Protected actions: who, which module, which device, which approval.",
+    "audit": "Log of sensitive actions."
+  },
+  "salesSummary": {
+    "vsPrevious": "vs {{value}} ({{change}})",
+    "collected": "Collected at the till",
+    "collectedHint": "Cash + cards + other tenders",
+    "perGuest": "{{value}} per cover",
+    "notCollected": "Not collected (room + credit)",
+    "pctOfSales": "{{pct}} of net sales",
+    "pctOfGross": "{{pct}} of sales before discounts",
+    "discountsAndCoupons": "Discounts and coupons",
+    "serviceCharges": "Service charges",
+    "taxes": "Taxes",
+    "rounding": "Rounding benefit",
+    "comparedWith": "Compared with the previous period: {{start}} → {{end}}",
+    "paymentsTitle": "Payments",
+    "line": "Line",
+    "pctNetSales": "% of net sales",
+    "room": "Charged to room",
+    "credit": "Charged to customer credit",
+    "dayPartsTitle": "By day part",
+    "orderTypesTitle": "By order type",
+    "orderType": "Order type",
+    "adjustmentsTitle": "Taxes, charges and reductions",
+    "previousPeriod": "Previous period",
+    "change": "Change",
+    "discountTypesTitle": "Discounts by type",
+    "discountType": "Discount type",
+    "noDiscounts": "No discounts in this period."
+  },
+  "voidsReport": {
+    "unknown": "Unknown",
+    "amount": "Voided amount",
+    "count": "Voids",
+    "itemsVoided": "{{count}} item(s) voided",
+    "topReason": "Top reason",
+    "withoutComment": "Without comment",
+    "menuItem": "Item",
+    "manager": "Manager",
+    "orderNumber": "Order #",
+    "noComment": "none",
+    "byReason": "By reason",
+    "byCashier": "By cashier / server",
+    "byManager": "By approving manager",
+    "byItem": "By item",
+    "detail": "Void detail",
+    "search": "Search (item, reason, person, order #)…",
+    "empty": "No voids for these filters."
+  },
+  "productMix": {
+    "unitsSold": "Units sold",
+    "avgPrice": "Average price sold",
+    "bestSeller": "Best seller",
+    "units": "{{count}} unit(s)"
+  },
+  "serverSales": {
+    "server": "Server",
+    "share": "Share of sales",
+    "reductions": "Discounts + coupons",
+    "reductionRate": "% discounts",
+    "servers": "Active servers",
+    "teamAverage": "Team average",
+    "topServer": "Top seller",
+    "ranking": "Server ranking",
+    "search": "Search a server…"
+  },
+  "tablesReport": {
+    "covers": "{{count}} cover(s)",
+    "tablesUsed": "Tables used",
+    "search": "Search a table…"
+  },
+  "weeklyReport": {
+    "weekTotal": "Net sales this week",
+    "dailyAverage": "Average per open day",
+    "openDays": "{{count}} day(s) with sales",
+    "bestDay": "Best day",
+    "weakestDay": "Weakest day",
+    "chartTitle": "Net sales by day"
+  },
+  "tipsReport": {
+    "distributions": "Distributions",
+    "beneficiaries": "Beneficiaries",
+    "averagePerPerson": "Average per person",
+    "byPerson": "By person"
+  },
+  "discountReport": {
+    "noReason": "no reason",
+    "lines": "{{count}} discount line(s)",
+    "avgPerOrder": "Average discount per order",
+    "withoutReason": "Discounts without reason",
+    "byApplier": "By person who applied",
+    "byReason": "By reason",
+    "byApprover": "By approving manager",
+    "search": "Search (order, discount, person, reason)…"
+  },
+  "expenseReport": {
+    "uncategorized": "Uncategorized",
+    "closings": "Closings involved",
+    "topCategory": "Largest item",
+    "byCategory": "By category",
+    "detail": "Expense detail",
+    "search": "Search (description, category)…"
+  },
+  "activityReport": {
+    "actions": "Actions",
+    "users": "Users",
+    "approvals": "Manager approvals",
+    "approvalsHint": "Actions approved by a manager",
+    "modules": "Modules",
+    "mostActive": "Most active",
+    "actionsCount": "{{count}} times",
+    "byUser": "By user",
+    "byModule": "By module",
+    "byManager": "By approving manager",
+    "detail": "Detailed log",
+    "search": "Search (user, module, page, details)…"
+  },
+  "mergeReport": {
+    "mergedOrders": "Merged orders",
+    "topUser": "Done most often by",
+    "search": "Search (order #, person)…"
+  },
+  "splitReport": {
+    "orders": "Split orders",
+    "topTable": "Most affected table",
+    "byTable": "By table"
+  },
+  "productListReport": {
+    "items": "Items",
+    "categories": "Categories",
+    "avgPrice": "Average price",
+    "priceRange": "Cheapest to most expensive",
+    "byCategory": "Items by category",
+    "menu": "The menu",
+    "search": "Search (code, name, category)…"
+  },
+  "advancedReport": {
+    "byTender": "By payment method",
+    "tender": "Payment method",
+    "search": "Search an order (number, person, table, note)…"
+  },
+  "summary2Report": {
+    "avgTurn": "Average table time",
+    "avgTurnHint": "From opening to payment"
+  },
+  "cashReport": {
+    "calculation": "Closing balance calculation",
+    "computedBalance": "Recomputed balance",
+    "collected": "Collected (cash + other)",
+    "cashShare": "{{pct}}% in cash",
+    "expenseLines": "{{count}} expense line(s)",
+    "deferredNote": "Amounts charged to rooms or credit ({{amount}}) are not in the balance: they are not collected yet."
+  },
+  "mixWeeklyReport": {
+    "orderTaker": "Order taker",
+    "qty": "Qty"
+  },
+  "hourlyReport": {
+    "peakHour": "Peak hour",
+    "activeHours": "Hours with sales",
+    "chartTitle": "Sales by hour"
+  },
+  "financeReport": {
+    "perOrder": "Average per order",
+    "shareOfGross": "Share of gross sales",
+    "byCashier": "By cashier"
   }
 }

@@ -2,22 +2,24 @@
   "page": {
     "title": "Rapports",
     "subReports": "Sous-rapports",
-    "reportFilters": "Filtres du rapport"
+    "reportFilters": "Filtres du rapport",
+    "searchReports": "Rechercher un rapport…"
   },
   "security": {
     "openReport": "Ouvrir le rapport {{report}}"
   },
   "categories": {
-    "ai": "IA",
     "dashboard": "Tableau de bord",
     "sales": "Ventes",
     "orders": "Commandes",
     "cashClosing": "Clôture de caisse",
     "operations": "Opérations",
-    "products": "Produits"
+    "products": "Produits",
+    "customers": "Clients & crédit",
+    "cashAndPayments": "Caisse & encaissements",
+    "control": "Contrôle : annulations & remises"
   },
   "reports": {
-    "aiReport": "Rapport IA",
     "salesDashboard": "Tableau de bord des ventes",
     "serverSales": "Ventes par serveur",
     "salesSummary": "Résumé des ventes",
@@ -55,8 +57,6 @@
     "managerApprovalReport": "Rapport d'approbation du responsable"
   },
   "titles": {
-    "aiReport": "Rapport IA",
-    "aiGeneratedSubtitle": "Généré à partir de votre requête",
     "salesDashboard": "Tableau de bord des ventes",
     "serverSales": "Ventes par serveur",
     "salesSummary": "Résumé des ventes",
@@ -105,7 +105,7 @@
   "weekOf": "Semaine du {{date}}",
   "layout": {
     "print": "Imprimer",
-    "downloadXlsx": "Télécharger en XLSX",
+    "downloadXlsx": "Télécharger en Excel",
     "downloadPdf": "Télécharger en PDF",
     "downloadImage": "Télécharger en image",
     "refresh": "Actualiser",
@@ -142,36 +142,14 @@
     "orderType": "Type de commande",
     "paymentType": "Type de paiement",
     "status": "Statut",
-    "aiPrompt": "Décrivez le rapport ou l'analyse souhaité...",
     "format": "Format :",
     "list": "Liste",
     "table": "Tableau",
     "run": "Exécuter",
     "unnamedUser": "Utilisateur sans nom",
-    "aiPromptEmpty": "L'invite ne peut pas être vide.",
-    "aiRunFailed": "Échec de l'exécution du rapport IA.",
-    "aiDisabled": "Les rapports IA sont désactivés sur ce serveur.",
-    "aiDailyLimitReached": "Limite quotidienne d'IA atteinte. Réessayez demain.",
-    "aiMonthlyLimitReached": "Limite mensuelle d'IA atteinte. Contactez un administrateur.",
-    "aiUsageDaily": "Aujourd'hui : {{used}} / {{limit}}",
-    "aiUsageMonthly": "Ce mois-ci : {{used}} / {{limit}}",
-    "aiFetching": "Récupération de {{tool}}...",
-    "aiRunning": "Exécution du rapport IA...",
-    "aiResponse": "Réponse",
-    "aiExamples": "Exemples d'invites",
-    "aiDataUsed": "Données utilisées ({{count}} outils)",
-    "aiHistory": "Invites récentes ({{count}})",
     "prompt": "Invite",
     "chart": "Graphique",
     "analysis": "Analyse",
-    "aiCategory": {
-      "sales": "Ventes",
-      "charts": "Graphiques et prévisions",
-      "analysis": "Analyse",
-      "all": "Tous",
-      "operations": "Opérations",
-      "accounts": "Comptes"
-    },
     "location": "Emplacement",
     "selectDate": "Sélectionner une date",
     "selectWeek": "Sélectionner une semaine",
@@ -835,5 +813,355 @@
     "5": "Vendredi",
     "6": "Samedi",
     "7": "Dimanche"
+  },
+  "insights": {
+    "title": "À retenir",
+    "namesAndMore": "{{names}} et {{count}} autre(s)",
+    "credit": {
+      "noneDue": "Aucun crédit en cours : tous les comptes sont soldés.",
+      "over90": "{{count}} client(s) doivent depuis plus de 90 jours : {{amount}} ({{pct}} % du total dû) — {{names}}.",
+      "d61_90": "{{count}} client(s) ont des dettes de 61 à 90 jours : {{amount}} — {{names}}. À relancer avant qu'elles passent à 90 jours.",
+      "overLimit": "{{count}} client(s) dépassent leur limite de crédit : {{names}}.",
+      "revokedOwes": "{{count}} client(s) n'ont plus droit au crédit mais doivent encore {{amount}} — {{names}}.",
+      "noPayment60": "{{count}} client(s) n'ont fait aucun paiement depuis plus de 60 jours ({{amount}} dû) — {{names}}.",
+      "concentration": "Les 3 plus gros débiteurs représentent {{pct}} % du total dû : {{names}}.",
+      "collectionRate": "Taux de recouvrement sur les comptes affichés : {{pct}} % ({{settled}} encaissés sur {{charged}} facturés)."
+    },
+    "sales": {
+      "noSales": "Aucune vente sur la période choisie.",
+      "up": "Les ventes nettes sont en hausse de {{pct}} % : {{current}} contre {{previous}} sur la période précédente.",
+      "down": "Les ventes nettes sont en baisse de {{pct}} % : {{current}} contre {{previous}} sur la période précédente.",
+      "driverChecks": "L'écart vient surtout du nombre de tickets : {{checks}} contre {{prevChecks}} ({{checkPct}} %). Le ticket moyen bouge moins ({{avg}} contre {{prevAvg}}).",
+      "driverAverage": "L'écart vient surtout du ticket moyen : {{avg}} contre {{prevAvg}} ({{avgPct}} %). Le nombre de tickets bouge moins ({{checks}} contre {{prevChecks}}).",
+      "bestDayPart": "Le moment le plus fort est « {{part}} » : {{amount}}, soit {{pct}} % des ventes.",
+      "topOrderType": "« {{type}} » représente {{pct}} % des ventes nettes.",
+      "highDiscounts": "Les remises et coupons pèsent {{pct}} % des ventes ({{amount}}), au-dessus du seuil de {{limit}} %. Voir le rapport Remise.",
+      "highVoids": "Les annulations représentent {{pct}} % des ventes ({{amount}}), au-dessus du seuil de {{limit}} %. Voir le rapport Annulations.",
+      "deferred": "{{amount}} ({{pct}} % des ventes) n'ont pas été encaissés : {{room}} à la chambre, {{credit}} au crédit client."
+    },
+    "voids": {
+      "none": "Aucune annulation sur la période.",
+      "topReason": "Motif le plus fréquent : « {{reason}} » ({{count}} fois, {{amount}}, {{pct}} % du montant annulé).",
+      "cashierConcentration": "{{name}} concentre {{pct}} % du montant annulé ({{count}} annulations, {{amount}}). À vérifier.",
+      "managerConcentration": "{{name}} a validé {{pct}} % des annulations.",
+      "topItem": "Article le plus annulé : {{item}} ({{quantity}} unités, {{amount}}).",
+      "withoutComment": "{{count}} annulation(s) sans commentaire ({{pct}} %). Demander une explication systématique."
+    },
+    "products": {
+      "none": "Aucun article vendu sur la période.",
+      "top3": "Les 3 meilleures ventes font {{pct}} % du chiffre : {{names}}.",
+      "pareto": "{{count}} articles sur {{total}} ({{pct}} %) font 80 % des ventes.",
+      "topCategory": "La catégorie « {{category}} » pèse {{pct}} % des ventes.",
+      "lowSellers": "{{count}} article(s) vendus {{max}} fois ou moins : {{names}}. À revoir sur la carte.",
+      "heavyDiscounts": "{{count}} article(s) ont plus de {{limit}} % de remise : {{names}}."
+    },
+    "servers": {
+      "topSeller": "{{name}} est en tête avec {{amount}} ({{pct}} % des ventes).",
+      "bestAverage": "Meilleur ticket moyen : {{name}} ({{avg}}, contre {{team}} pour l'équipe).",
+      "lowAverage": "Ticket moyen nettement sous la moyenne de l'équipe ({{team}}) : {{names}}. Piste : suggestion de boissons et desserts.",
+      "heavyReductions": "Remises élevées par rapport à l'équipe ({{team}} % en moyenne) : {{names}}. Voir le rapport Remise."
+    },
+    "tables": {
+      "best": "Table la plus rentable : {{table}} avec {{amount}} ({{pct}} % du chiffre, {{orders}} commandes).",
+      "top5": "Les 5 meilleures tables font {{pct}} % du chiffre (sur {{count}} tables utilisées).",
+      "noTable": "{{amount}} ({{pct}} %) viennent de commandes sans table : {{types}}.",
+      "quiet": "{{count}} table(s) n'ont servi que 1 ou 2 fois : {{names}}."
+    },
+    "weekly": {
+      "none": "Aucune vente cette semaine.",
+      "best": "Meilleur jour : {{day}} avec {{amount}} ({{pct}} % de la semaine).",
+      "worst": "Jour le plus faible : {{day}} avec {{amount}}, contre {{avg}} en moyenne.",
+      "weekend": "Le week-end (samedi + dimanche) fait {{pct}} % de la semaine ({{amount}}).",
+      "noSalesDays": "Aucune vente : {{days}}.",
+      "voids": "Annulations de la semaine : {{amount}} ({{pct}} % des ventes). Voir le rapport Annulations."
+    },
+    "tips": {
+      "top": "{{name}} a reçu le plus : {{amount}} ({{pct}} % des pourboires répartis).",
+      "average": "En moyenne {{avg}} par personne, sur {{count}} bénéficiaires.",
+      "gap": "Écart entre pourboires enregistrés ({{total}}) et pourboires répartis ({{distributed}}) : {{gap}}. Vérifier les répartitions."
+    },
+    "discounts": {
+      "none": "Aucune remise sur la période.",
+      "top": "Remise la plus utilisée : « {{name}} » ({{count}} fois, {{amount}}, {{pct}} % du total).",
+      "applierConcentration": "{{name}} a appliqué {{pct}} % du montant des remises ({{amount}}). À vérifier.",
+      "withoutReason": "{{count}} remise(s) sans motif ({{pct}} %). Exiger un motif à chaque remise.",
+      "selfApproved": "{{count}} remise(s) approuvées par la personne qui les a appliquées : {{names}}.",
+      "average": "Remise moyenne : {{avg}} par commande remisée ({{orders}} commandes)."
+    },
+    "customers": {
+      "top": "Meilleur client : {{name}} avec {{amount}} ({{pct}} % du total, {{orders}} commandes).",
+      "top10": "Les 10 meilleurs clients font {{pct}} % du total (sur {{count}} clients nommés).",
+      "regulars": "{{count}} client(s) sont venus 3 fois ou plus, pour {{amount}} au total.",
+      "avgCompare": "Ticket moyen d'un client nommé : {{named}}, contre {{anonymous}} pour un client anonyme.",
+      "anonymous": "{{pct}} % des ventes n'ont pas de client nommé. Saisir le client plus souvent rendrait ce rapport et le crédit plus utiles."
+    },
+    "expenses": {
+      "topCategory": "Plus gros poste : {{category}} avec {{amount}} ({{pct}} % des dépenses).",
+      "biggest": "Plus grosse dépense : « {{description}} » pour {{amount}} ({{pct}} %).",
+      "uncategorized": "{{count}} dépense(s) sans catégorie ({{amount}}). Les classer rend le suivi plus clair.",
+      "perClosing": "En moyenne {{avg}} de dépenses par clôture ({{count}} clôtures)."
+    },
+    "activity": {
+      "topUser": "{{name}} est le plus actif : {{count}} actions ({{pct}} %).",
+      "topModule": "Module le plus utilisé : {{module}} ({{count}} actions).",
+      "approvals": "{{count}} action(s) ({{pct}} %) ont demandé l'autorisation d'un responsable, le plus souvent {{name}} ({{managerCount}} fois)."
+    },
+    "productList": {
+      "noPrice": "{{count}} article(s) sans prix : {{names}}.",
+      "noCategory": "{{count}} article(s) sans catégorie : {{names}}.",
+      "noCode": "{{count}} article(s) sans code.",
+      "duplicateCodes": "{{count}} code(s) utilisés par plusieurs articles : {{codes}}. À corriger.",
+      "duplicateNames": "{{count}} nom(s) en double : {{names}}.",
+      "allGood": "La carte est propre : tous les articles ont un prix, une catégorie et un code unique."
+    },
+    "advanced": {
+      "topTender": "Moyen de paiement principal : {{name}} ({{pct}} % de l'encaissé, {{amount}}).",
+      "reductions": "Remises et coupons : {{amount}} ({{pct}} % des ventes avant remises).",
+      "voids": "Annulations : {{amount}} ({{pct}} % des ventes). Voir le rapport Annulations.",
+      "notes": "{{count}} commande(s) portent une note : utilisez la recherche pour les retrouver."
+    },
+    "summary2": {
+      "slowTurn": "Tables plus longues que la moyenne ({{avg}} min) : {{names}}.",
+      "refunds": "Remboursements sur la période : {{amount}}. Vérifier les motifs."
+    },
+    "dashboard": {
+      "upLastYear": "Encaissements en hausse de {{pct}} % par rapport à la même période l'an dernier ({{amount}}).",
+      "downLastYear": "Encaissements en baisse de {{pct}} % par rapport à la même période l'an dernier ({{amount}}).",
+      "topItem": "Plat le plus vendu : {{name}} ({{quantity}} unités, {{amount}}).",
+      "lateOrders": "{{count}} commande(s) ont mis plus de 30 minutes entre l'ouverture et la fin ({{pct}} %).",
+      "refunds": "{{count}} commande(s) remboursée(s) sur la période. Vérifier les motifs."
+    },
+    "cash": {
+      "balanceGap": "Le solde enregistré ({{recorded}}) ne correspond pas au calcul ({{computed}}) : écart de {{gap}}. La clôture a peut-être été modifiée après coup.",
+      "notClosed": "Cette clôture n'est pas terminée (brouillon) : les chiffres peuvent encore changer.",
+      "deferred": "{{amount}} ({{pct}} % du jour) sont facturés à la chambre ou au crédit et restent à encaisser.",
+      "expenses": "Dépenses payées : {{amount}}, soit {{pct}} % des espèces encaissées."
+    },
+    "hourly": {
+      "peak": "Heure de pointe : {{hour}} avec {{amount}} ({{pct}} % des ventes).",
+      "top3": "Les 3 meilleures heures ({{hours}}) font {{pct}} % des ventes : prévoir le personnel en conséquence.",
+      "quiet": "Heures très calmes (moins de 2 % des ventes) : {{hours}}."
+    }
+  },
+  "credit": {
+    "over60": "Dû depuis + de 60 jours",
+    "pctOfDue": "{{pct}} % du total dû",
+    "collectionRate": "Taux de recouvrement",
+    "bucketCurrent": "0 à 30 jours",
+    "bucket31_60": "31 à 60 jours",
+    "bucket61_90": "61 à 90 jours",
+    "bucketOver90": "Plus de 90 jours",
+    "bucketCurrentShort": "0–30",
+    "agingTitle": "Ancienneté des dettes",
+    "age": "Ancienneté",
+    "customers": "Clients",
+    "byCustomer": "Détail par client",
+    "searchCustomer": "Rechercher un client (nom ou téléphone)…",
+    "phone": "Téléphone",
+    "lastCharge": "Dernier achat",
+    "lastPayment": "Dernier paiement",
+    "limit": "Limite",
+    "revoked": "crédit retiré",
+    "chargesTitle": "Achats à crédit"
+  },
+  "table": {
+    "search": "Rechercher…",
+    "shownOf": "{{shown}} sur {{total}}",
+    "empty": "Aucune donnée"
+  },
+  "descriptions": {
+    "salesDashboard": "Chiffre d'affaires, heures de pointe, comparaison avec la période précédente.",
+    "salesSummary": "Ventes nettes, taxes, remises, ventes par point de vente et par moment de la journée.",
+    "salesSummary2": "Par employé et par service : commandes, couverts, ticket moyen, temps d'occupation.",
+    "salesWeekly": "Ventes nettes jour par jour sur une semaine.",
+    "advancedSales": "Une ligne par commande ou par article, avec paiements et taxes. Le plus complet pour la comptabilité.",
+    "serverSales": "Ventes, commandes et couverts de chaque serveur.",
+    "tablesSummary": "Commandes, chiffre d'affaires et ticket moyen par table.",
+    "deliveryDensity": "Où partent les livraisons et combien elles rapportent.",
+    "customerCredit": "Qui doit combien, depuis quand (0–30 / 31–60 / 61–90 / 90+ jours), limites dépassées.",
+    "salesByCustomer": "Ce que chaque client a acheté sur la période.",
+    "cashClosing": "Clôtures de caisse : attendu, compté, écarts.",
+    "tips": "Total des pourboires et leur répartition.",
+    "tax": "Montants de taxe collectés.",
+    "productMixSummary": "Classement des plats : quantité, prix moyen, part des ventes.",
+    "productMixWeekly": "Quantités vendues par plat, jour par jour.",
+    "productsHourly": "Ce qui se vend à quelle heure.",
+    "productList": "La carte : code, nom, catégorie, prix.",
+    "voids": "Annulations par motif, responsable et article. À relire chaque semaine.",
+    "discount": "Qui a appliqué quelle remise, approuvée par qui, avec quel motif.",
+    "coupon": "Coupons utilisés et montants.",
+    "mergeOrders": "Commandes fusionnées : lesquelles, quand, par qui.",
+    "splitOrders": "Commandes divisées et commandes créées.",
+    "orderReceipt": "Retrouver et réimprimer le reçu d'une commande.",
+    "orderLifeCycle": "Chaque événement d'une commande, dans l'ordre, avec qui et quand.",
+    "orderFiscal": "État de la déclaration fiscale de chaque commande.",
+    "expense": "Dépenses enregistrées.",
+    "activity": "Actions protégées : qui, quel module, quel appareil, quelle autorisation.",
+    "audit": "Journal des actions sensibles."
+  },
+  "salesSummary": {
+    "vsPrevious": "vs {{value}} ({{change}})",
+    "collected": "Encaissé en caisse",
+    "collectedHint": "Espèces + cartes + autres moyens",
+    "perGuest": "{{value}} par couvert",
+    "notCollected": "Non encaissé (chambre + crédit)",
+    "pctOfSales": "{{pct}} des ventes nettes",
+    "pctOfGross": "{{pct}} des ventes avant remises",
+    "discountsAndCoupons": "Remises et coupons",
+    "serviceCharges": "Frais de service",
+    "taxes": "Taxes",
+    "rounding": "Gain d'arrondi",
+    "comparedWith": "Comparé à la période précédente : {{start}} → {{end}}",
+    "paymentsTitle": "Encaissements",
+    "line": "Ligne",
+    "pctNetSales": "% des ventes nettes",
+    "room": "Facturé à la chambre",
+    "credit": "Facturé au crédit client",
+    "dayPartsTitle": "Par moment de la journée",
+    "orderTypesTitle": "Par type de commande",
+    "orderType": "Type de commande",
+    "adjustmentsTitle": "Taxes, frais et réductions",
+    "previousPeriod": "Période précédente",
+    "change": "Évolution",
+    "discountTypesTitle": "Remises par type",
+    "discountType": "Type de remise",
+    "noDiscounts": "Aucune remise sur la période."
+  },
+  "voidsReport": {
+    "unknown": "Inconnu",
+    "amount": "Montant annulé",
+    "count": "Annulations",
+    "itemsVoided": "{{count}} article(s) annulé(s)",
+    "topReason": "Motif principal",
+    "withoutComment": "Sans commentaire",
+    "menuItem": "Article",
+    "manager": "Responsable",
+    "orderNumber": "N° commande",
+    "noComment": "aucun",
+    "byReason": "Par motif",
+    "byCashier": "Par caissier / serveur",
+    "byManager": "Par responsable qui a validé",
+    "byItem": "Par article",
+    "detail": "Détail des annulations",
+    "search": "Rechercher (article, motif, personne, n° commande)…",
+    "empty": "Aucune annulation pour ces filtres."
+  },
+  "productMix": {
+    "unitsSold": "Unités vendues",
+    "avgPrice": "Prix moyen vendu",
+    "bestSeller": "Plat le plus vendu",
+    "units": "{{count}} unité(s)"
+  },
+  "serverSales": {
+    "server": "Serveur",
+    "share": "Part des ventes",
+    "reductions": "Remises + coupons",
+    "reductionRate": "% remises",
+    "servers": "Serveurs actifs",
+    "teamAverage": "Moyenne de l'équipe",
+    "topServer": "Meilleur vendeur",
+    "ranking": "Classement des serveurs",
+    "search": "Rechercher un serveur…"
+  },
+  "tablesReport": {
+    "covers": "{{count}} couvert(s)",
+    "tablesUsed": "Tables utilisées",
+    "search": "Rechercher une table…"
+  },
+  "weeklyReport": {
+    "weekTotal": "Ventes nettes de la semaine",
+    "dailyAverage": "Moyenne par jour ouvert",
+    "openDays": "{{count}} jour(s) avec ventes",
+    "bestDay": "Meilleur jour",
+    "weakestDay": "Jour le plus faible",
+    "chartTitle": "Ventes nettes par jour"
+  },
+  "tipsReport": {
+    "distributions": "Répartitions",
+    "beneficiaries": "Bénéficiaires",
+    "averagePerPerson": "Moyenne par personne",
+    "byPerson": "Par personne"
+  },
+  "discountReport": {
+    "noReason": "sans motif",
+    "lines": "{{count}} ligne(s) de remise",
+    "avgPerOrder": "Remise moyenne par commande",
+    "withoutReason": "Remises sans motif",
+    "byApplier": "Par personne qui a appliqué",
+    "byReason": "Par motif",
+    "byApprover": "Par responsable qui a approuvé",
+    "search": "Rechercher (commande, remise, personne, motif)…"
+  },
+  "expenseReport": {
+    "uncategorized": "Sans catégorie",
+    "closings": "Clôtures concernées",
+    "topCategory": "Plus gros poste",
+    "byCategory": "Par catégorie",
+    "detail": "Détail des dépenses",
+    "search": "Rechercher (description, catégorie)…"
+  },
+  "activityReport": {
+    "actions": "Actions",
+    "users": "Utilisateurs",
+    "approvals": "Autorisations responsable",
+    "approvalsHint": "Actions validées par un responsable",
+    "modules": "Modules",
+    "mostActive": "Le plus actif",
+    "actionsCount": "{{count}} fois",
+    "byUser": "Par utilisateur",
+    "byModule": "Par module",
+    "byManager": "Par responsable qui a autorisé",
+    "detail": "Journal détaillé",
+    "search": "Rechercher (utilisateur, module, page, détails)…"
+  },
+  "mergeReport": {
+    "mergedOrders": "Commandes fusionnées",
+    "topUser": "Fait le plus souvent par",
+    "search": "Rechercher (n° commande, personne)…"
+  },
+  "splitReport": {
+    "orders": "Commandes divisées",
+    "topTable": "Table la plus concernée",
+    "byTable": "Par table"
+  },
+  "productListReport": {
+    "items": "Articles",
+    "categories": "Catégories",
+    "avgPrice": "Prix moyen",
+    "priceRange": "Du moins cher au plus cher",
+    "byCategory": "Articles par catégorie",
+    "menu": "La carte",
+    "search": "Rechercher (code, nom, catégorie)…"
+  },
+  "advancedReport": {
+    "byTender": "Par moyen de paiement",
+    "tender": "Moyen de paiement",
+    "search": "Rechercher une commande (n°, personne, table, note)…"
+  },
+  "summary2Report": {
+    "avgTurn": "Temps moyen par table",
+    "avgTurnHint": "De l'ouverture au paiement"
+  },
+  "cashReport": {
+    "calculation": "Calcul du solde de clôture",
+    "computedBalance": "Solde recalculé",
+    "collected": "Encaissé (espèces + autres)",
+    "cashShare": "{{pct}} % en espèces",
+    "expenseLines": "{{count}} ligne(s) de dépense",
+    "deferredNote": "Les montants facturés à la chambre ou au crédit ({{amount}}) ne sont pas dans le solde : ils ne sont pas encore encaissés."
+  },
+  "mixWeeklyReport": {
+    "orderTaker": "Preneur de commande",
+    "qty": "Qté"
+  },
+  "hourlyReport": {
+    "peakHour": "Heure de pointe",
+    "activeHours": "Heures avec ventes",
+    "chartTitle": "Ventes par heure"
+  },
+  "financeReport": {
+    "perOrder": "Moyenne par commande",
+    "shareOfGross": "Part des ventes brutes",
+    "byCashier": "Par caissier"
   }
 }

@@ -8,7 +8,6 @@
     "openReport": "فتح تقرير {{report}}"
   },
   "categories": {
-    "ai": "AI",
     "dashboard": "لوحة المعلومات",
     "sales": "المبيعات",
     "orders": "الطلبات",
@@ -17,7 +16,6 @@
     "products": "المنتجات"
   },
   "reports": {
-    "aiReport": "تقرير AI",
     "salesDashboard": "لوحة مبيعات",
     "serverSales": "مبيعات الخادم",
     "salesSummary": "ملخص المبيعات",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "تقرير موافقة المدير"
   },
   "titles": {
-    "aiReport": "تقرير AI",
-    "aiGeneratedSubtitle": "مُنشأ من طلبك",
     "salesDashboard": "لوحة المبيعات",
     "serverSales": "مبيعات الخادم",
     "salesSummary": "ملخص المبيعات",
@@ -138,36 +134,14 @@
     "orderType": "نوع الطلب",
     "paymentType": "نوع الدفع",
     "status": "الحالة",
-    "aiPrompt": "صف التقرير أو التحليل الذي تريده...",
     "format": "التنسيق:",
     "list": "قائمة",
     "table": "جدول",
     "run": "تشغيل",
     "unnamedUser": "مستخدم بدون اسم",
-    "aiPromptEmpty": "لا يمكن أن يكون الطلب فارغًا.",
-    "aiRunFailed": "فشل تشغيل تقرير الذكاء الاصطناعي.",
-    "aiDisabled": "تقارير الذكاء الاصطناعي معطّلة على هذا الخادم.",
-    "aiDailyLimitReached": "تم بلوغ الحد اليومي للذكاء الاصطناعي. حاول مرة أخرى غدًا.",
-    "aiMonthlyLimitReached": "تم بلوغ الحد الشهري للذكاء الاصطناعي. تواصل مع المسؤول.",
-    "aiUsageDaily": "اليوم: {{used}} / {{limit}}",
-    "aiUsageMonthly": "هذا الشهر: {{used}} / {{limit}}",
-    "aiFetching": "جاري جلب {{tool}}...",
-    "aiRunning": "جاري تشغيل تقرير الذكاء الاصطناعي...",
-    "aiResponse": "الاستجابة",
-    "aiExamples": "أمثلة على الطلبات",
-    "aiDataUsed": "البيانات المستخدمة ({{count}} أدوات)",
-    "aiHistory": "الطلبات الأخيرة ({{count}})",
     "prompt": "الطلب",
     "chart": "الرسم البياني",
     "analysis": "التحليل",
-    "aiCategory": {
-      "sales": "المبيعات",
-      "charts": "الرسوم البيانية والتنبؤ",
-      "analysis": "التحليل",
-      "all": "الكل",
-      "operations": "العمليات",
-      "accounts": "الحسابات"
-    },
     "location": "الموقع",
     "selectDate": "اختر التاريخ",
     "selectWeek": "اختر أسبوعًا",

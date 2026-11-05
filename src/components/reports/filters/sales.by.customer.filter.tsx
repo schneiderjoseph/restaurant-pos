@@ -54,6 +54,7 @@ export const SalesByCustomerFilter = () => {
       <div className="flex flex-col gap-1 w-full max-w-md">
         <label htmlFor="sales-by-customer-customer">{t('filters.customerOptional')}</label>
         <ReactSelect
+          isSearchable
           inputId="sales-by-customer-customer"
           name="customer_id"
           isClearable
@@ -66,6 +67,7 @@ export const SalesByCustomerFilter = () => {
       <div className="flex flex-col gap-1 w-full max-w-md">
         <label htmlFor="sales-by-customer-payment-types">{t('filters.paymentTypes')}</label>
         <ReactSelect
+          isSearchable
           inputId="sales-by-customer-payment-types"
           name="payment_types[]"
           isMulti

@@ -26,6 +26,7 @@ export const TaxFilter = () => {
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="tax-filter-tax">{t('reports.tax')}</label>
         <ReactSelect
+          isSearchable
           id="tax-filter-tax"
           name="tax_id"
           isLoading={loadingTaxes}

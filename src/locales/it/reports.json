@@ -8,7 +8,6 @@
     "openReport": "Apri report {{report}}"
   },
   "categories": {
-    "ai": "AI",
     "dashboard": "Dashboard",
     "sales": "Vendite",
     "orders": "Ordini",
@@ -17,7 +16,6 @@
     "products": "Prodotti"
   },
   "reports": {
-    "aiReport": "Report AI",
     "salesDashboard": "Dashboard vendite",
     "serverSales": "Vendite per cameriere",
     "salesSummary": "Riepilogo vendite",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "Report approvazioni manager"
   },
   "titles": {
-    "aiReport": "Report AI",
-    "aiGeneratedSubtitle": "Generato dalla tua richiesta",
     "salesDashboard": "Dashboard vendite",
     "serverSales": "Vendite per cameriere",
     "salesSummary": "Riepilogo vendite",
@@ -138,36 +134,14 @@
     "orderType": "Tipo ordine",
     "paymentType": "Tipo di pagamento",
     "status": "Stato",
-    "aiPrompt": "Descrivi il report o l'analisi che desideri...",
     "format": "Formato:",
     "list": "Elenco",
     "table": "Tabella",
     "run": "Esegui",
     "unnamedUser": "Utente senza nome",
-    "aiPromptEmpty": "Il prompt non può essere vuoto.",
-    "aiRunFailed": "Impossibile eseguire il report IA.",
-    "aiDisabled": "I report IA sono disabilitati su questo server.",
-    "aiDailyLimitReached": "Limite giornaliero IA raggiunto. Riprova domani.",
-    "aiMonthlyLimitReached": "Limite mensile IA raggiunto. Contatta un amministratore.",
-    "aiUsageDaily": "Oggi: {{used}} / {{limit}}",
-    "aiUsageMonthly": "Questo mese: {{used}} / {{limit}}",
-    "aiFetching": "Recupero di {{tool}}...",
-    "aiRunning": "Esecuzione report IA...",
-    "aiResponse": "Risposta",
-    "aiExamples": "Esempi di prompt",
-    "aiDataUsed": "Dati utilizzati ({{count}} strumenti)",
-    "aiHistory": "Prompt recenti ({{count}})",
     "prompt": "Prompt",
     "chart": "Grafico",
     "analysis": "Analisi",
-    "aiCategory": {
-      "sales": "Vendite",
-      "charts": "Grafici e previsioni",
-      "analysis": "Analisi",
-      "all": "Tutti",
-      "operations": "Operazioni",
-      "accounts": "Account"
-    },
     "location": "Posizione",
     "selectDate": "Seleziona data",
     "selectWeek": "Seleziona una settimana",

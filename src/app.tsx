@@ -27,7 +27,6 @@ import {
   isClosingModuleEnabled,
   isDeliveryModuleEnabled,
 } from "@/lib/feature-modules.ts";
-import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
 import {OfflineModeBanner} from "@/components/common/offline-banner.tsx";
 import {ClientUpdateBanner} from "@/components/common/client-update-banner.tsx";
 import {MyOrderReadyAlert} from "@/components/orders/my-order-ready-alert.tsx";
@@ -104,7 +103,6 @@ function App() {
                           <I18nProvider>
                             <SessionIdleProvider>
                               <PwaBranding/>
-                              <AiAssistantWidget/>
                               <MyOrderReadyAlert/>
                               <OrderEditRequestWatcher/>
                               <CreditRequestWatcher/>

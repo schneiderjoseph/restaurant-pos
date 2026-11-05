@@ -66,6 +66,7 @@ export const ProductMixSummaryFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-summary-order-takers">{t('filters.orderTakers')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-summary-order-takers"
             name="order_takers[]"
             isMulti
@@ -82,6 +83,7 @@ export const ProductMixSummaryFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-summary-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-summary-order-types"
             name="order_types[]"
             isMulti
@@ -96,6 +98,7 @@ export const ProductMixSummaryFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-summary-categories">{t('filters.categories')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-summary-categories"
             name="categories[]"
             isMulti
@@ -110,6 +113,7 @@ export const ProductMixSummaryFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-summary-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-summary-menu-items"
             name="menu_items[]"
             isMulti
@@ -124,6 +128,7 @@ export const ProductMixSummaryFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-summary-modifiers">{t('filters.modifiers')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-summary-modifiers"
             name="modifiers[]"
             isMulti

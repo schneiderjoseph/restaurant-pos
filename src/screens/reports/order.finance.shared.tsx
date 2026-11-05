@@ -5,7 +5,10 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, toRecordId, withDualCurrency} from "@/lib/utils.ts";
+import {formatNumber, toRecordId, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {GroupTable, groupSum} from "@/components/reports/group-table.tsx";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderDiscountTotal, getOrderExtrasTotal} from "@/lib/order.ts";
@@ -215,6 +218,26 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
     return orders.reduce((sum, order) => sum + getMetricAmount(order, metric, filters.taxId), 0);
   }, [orders, metric, filters.taxId]);
 
+  const lines = useMemo(() => orders.map((order) => {
+    const gross = calculateGross(order);
+    const amount = getMetricAmount(order, metric, filters.taxId);
+    const net = gross + getOrderTaxAmount(order) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
+      - getOrderDiscountTotal(order);
+    const cashier = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim() || "-";
+    return {
+      id: order.id.toString(),
+      order,
+      at: toLuxonDateTime(order.created_at as never),
+      label: order.invoice_number ? `#${order.invoice_number}` : order.id.toString(),
+      cashier,
+      gross,
+      amount,
+      net,
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [orders, metric, filters.taxId]);
+  const byCashier = useMemo(() => groupSum(lines, (l) => l.cashier, (l) => l.amount), [lines]);
+
   if (loading) {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.report')}</div></ReportsLayout>;
   }
@@ -222,60 +245,42 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
+  type Line = (typeof lines)[number];
+  const sumOf = (ls: Line[], f: (l: Line) => number) => ls.reduce((acc, l) => acc + f(l), 0);
+  const totalGross = sumOf(lines, (l) => l.gross);
+  const columns: ReportColumn<Line>[] = [
+    {key: 'at', header: t('columns.createdAt'), sortValue: (l) => l.at.toMillis(), render: (l) => l.at.toFormat("yyyy-LL-dd HH:mm"), total: () => t('columns.total')},
+    {key: 'order', header: t('columns.order'), sortValue: (l) => l.label, searchValue: (l) => l.label, render: (l) => l.label},
+    {key: 'cashier', header: t('metrics.cashier'), sortValue: (l) => l.cashier, searchValue: (l) => l.cashier, render: (l) => l.cashier},
+    {key: 'gross', header: t('metrics.gross'), align: 'right', sortValue: (l) => l.gross, render: (l) => withCurrency(l.gross), total: (ls) => withCurrency(sumOf(ls, (l) => l.gross))},
+    ...(metric === "tax_amount" ? [{key: 'rate', header: t('columns.taxPercent'), align: 'right' as const, render: (l: Line) => formatTaxPercent(l.order, filters.taxId)}] : []),
+    {key: 'amount', header: metricHeader, align: 'right', sortValue: (l) => l.amount, render: (l) => <span className="font-semibold">{withCurrency(l.amount)}</span>, total: (ls) => withCurrency(sumOf(ls, (l) => l.amount))},
+    {key: 'net', header: t('metrics.net'), align: 'right', sortValue: (l) => l.net, render: (l) => withCurrency(l.net), total: (ls) => withCurrency(sumOf(ls, (l) => l.net))},
+  ];
+  const kpis: ReportKpi[] = [
+    {label: `${t('columns.total')} ${metricHeader.toLowerCase()}`, value: withDualCurrency(totalMetric), rawValue: totalMetric},
+    {label: t('categories.orders'), value: formatNumber(orders.length), rawValue: orders.length, rawFormat: 'integer'},
+    {label: t('financeReport.perOrder'), value: withCurrency(orders.length ? totalMetric / orders.length : 0), rawValue: orders.length ? totalMetric / orders.length : 0},
+    {label: t('financeReport.shareOfGross'), value: `${totalGross > 0 ? Math.round((totalMetric / totalGross) * 1000) / 10 : 0} %`, rawValue: totalGross > 0 ? totalMetric / totalGross : 0, rawFormat: 'percent'},
+  ];
+
   return (
     <ReportsLayout title={title} subtitle={subtitle}>
-      <div className="space-y-4">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('categories.orders')}</div>
-          <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
-          <div className="text-sm text-neutral-500 mt-2">{t('columns.total')} {metricHeader.toLowerCase()}</div>
-          <div className="text-xl font-semibold">{withDualCurrency(totalMetric)}</div>
+      <ReportKpis items={kpis}/>
+      {byCashier.length > 1 && (
+        <div className="max-w-2xl">
+          <GroupTable title={t('financeReport.byCashier')} nameHeader={t('metrics.cashier')} rows={byCashier} countHeader={t('columns.orders')} amountHeader={metricHeader}/>
         </div>
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.createdAt')}</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('metrics.gross')}</th>
-              {metric === "tax_amount" && (
-                <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.taxPercent')}</th>
-              )}
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{metricHeader}</th>
-              <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">{t('metrics.net')}</th>
-            </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
-            {orders.length === 0 ? (
-              <tr>
-                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-neutral-500">{t('empty.noRows')}</td>
-              </tr>
-            ) : orders.map((order) => {
-              const gross = calculateGross(order);
-              const metricAmount = getMetricAmount(order, metric, filters.taxId);
-              const net = gross + getOrderTaxAmount(order) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
-                - getOrderDiscountTotal(order);
-              const cashierName = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim();
-
-              return (
-                <tr key={order.id.toString()}>
-                  <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(order.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{cashierName || "-"}</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(gross)}</td>
-                  {metric === "tax_amount" && (
-                    <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order, filters.taxId)}</td>
-                  )}
-                  <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(metricAmount)}</td>
-                  <td className="py-3 pr-6 text-right text-sm text-neutral-700">{withDualCurrency(net)}</td>
-                </tr>
-              );
-            })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
+      <SortableReportTable
+        rows={lines}
+        columns={columns}
+        rowKey={(l) => l.id}
+        initialSort={{key: 'at', dir: 'asc'}}
+        searchPlaceholder={t('mergeReport.search')}
+        emptyText={t('empty.noRows')}
+        xlsxTitle={title}
+      />
     </ReportsLayout>
   );
 };

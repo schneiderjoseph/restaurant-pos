@@ -26,6 +26,7 @@ export const CouponFilter = () => {
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="coupon-filter-coupon">{t('reports.coupon')}</label>
         <ReactSelect
+          isSearchable
           id="coupon-filter-coupon"
           name="coupon_id"
           isLoading={loadingCoupons}

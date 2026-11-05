@@ -13,7 +13,7 @@ export const formatImportDisplayValue = (
   t: TFunc,
 ): string => {
   if (field.name === "set_password" && value) {
-    return t("aiAssistant.passwordWillBeSet", {defaultValue: "Password will be set on confirm"});
+    return t("dataImport.passwordWillBeSet", {defaultValue: "Password will be set on confirm"});
   }
 
   if (value === null || value === undefined || value === "") return "—";

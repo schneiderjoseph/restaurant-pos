@@ -5,7 +5,11 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
+import {formatNumber, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights} from "@/components/reports/report-insights.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {buildVoidInsights, type VoidGroupRow} from "@/api/reports/insights/voids.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   getOrderItemDisplayLineTotal,
@@ -125,7 +129,7 @@ export const VoidsReport = () => {
   const [error, setError] = useState<string | null>(null);
 
   const filters = useMemo(parseFilters, []);
-  const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
+  const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} → ${filters.endDate}` : undefined;
 
   useEffect(() => {
     queryRef.current = db.query;
@@ -194,78 +198,66 @@ export const VoidsReport = () => {
     fetchData();
   }, [filters.startDate, filters.endDate, filters.reasonIds, filters.managerIds, filters.cashierIds, filters.menuItemIds]);
 
-  // Summary: Voids by reason
-  const voidsByReason = useMemo(() => {
-    const map = new Map<string, {count: number; quantity: number; amount: number}>();
-    
-    orderVoids.forEach(voidItem => {
-      const reason = voidItem.reason || 'Unknown';
-      const voidItems = getVoidItems(voidItem);
-      const quantity = safeNumber(voidItem.quantity ?? 1);
-      const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
-      
-      const existing = map.get(reason) || {count: 0, quantity: 0, amount: 0};
-      existing.count += 1;
-      existing.quantity = safeNumber(existing.quantity + quantity);
-      existing.amount = safeNumber(existing.amount + amount);
-      map.set(reason, existing);
-    });
-    
-    return Array.from(map.entries())
-      .map(([reason, data]) => ({reason, ...data}))
-      .sort((a, b) => b.count - a.count);
-  }, [orderVoids]);
+  const personName = (user?: { first_name?: string; last_name?: string; login?: string } | null) =>
+    user ? (`${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.login || t('voidsReport.unknown')) : t('voidsReport.unknown');
 
-  // Summary: Voids by managers
-  const voidsByManager = useMemo(() => {
-    const map = new Map<string, {count: number; quantity: number; amount: number}>();
-    
-    orderVoids.forEach(voidItem => {
-      const managerName = voidItem.deleted_by 
-        ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || 'Unknown'
-        : 'Unknown';
-      const voidItems = getVoidItems(voidItem);
-      const quantity = safeNumber(voidItem.quantity ?? 1);
-      const amount = voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0);
-      
-      const existing = map.get(managerName) || {count: 0, quantity: 0, amount: 0};
-      existing.count += 1;
-      existing.quantity = safeNumber(existing.quantity + quantity);
-      existing.amount = safeNumber(existing.amount + amount);
-      map.set(managerName, existing);
-    });
-    
-    return Array.from(map.entries())
-      .map(([manager, data]) => ({manager, ...data}))
-      .sort((a, b) => b.count - a.count);
-  }, [orderVoids]);
+  /** One row per void with everything the tables and rules need. */
+  const lines = useMemo(() => orderVoids.map((voidItem) => {
+    const voidItems = getVoidItems(voidItem);
+    const date = toLuxonDateTime(voidItem.created_at);
+    return {
+      id: recordToString(voidItem.id),
+      voidItem,
+      at: date.toMillis(),
+      dateStr: date.toFormat(import.meta.env.VITE_DATE_FORMAT),
+      timeStr: date.toFormat(import.meta.env.VITE_TIME_FORMAT),
+      reason: voidItem.reason || t('voidsReport.unknown'),
+      manager: personName(voidItem.deleted_by as never),
+      cashier: voidItem.order?.cashier ? personName(voidItem.order.cashier as never) : t('voidsReport.unknown'),
+      itemNames: voidItems.map((item) => item?.item?.name || t('voidsReport.unknown')),
+      quantity: safeNumber(voidItem.quantity ?? 1),
+      amount: voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item), 0),
+      displayAmount: voidItems.reduce((sum, item) => sum + getVoidLineAmount(voidItem, item, showInclusive), 0),
+      orderNumber: String(voidItem.order?.invoice_number ?? '—'),
+      comments: voidItem.comments || '',
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [orderVoids, showInclusive, t]);
 
-  // Summary: Voids by menu items
-  const voidsByMenuItem = useMemo(() => {
-    const map = new Map<string, {count: number; quantity: number; amount: number}>();
-    
-    orderVoids.forEach(voidItem => {
-      getVoidItems(voidItem).forEach(item => {
-        const menuItemName = item?.item?.name || 'Unknown';
-        const quantity = safeNumber(voidItem.quantity ?? 1);
-        const amount = getVoidLineAmount(voidItem, item);
-
-        const existing = map.get(menuItemName) || {count: 0, quantity: 0, amount: 0};
-        existing.count += 1;
-        existing.quantity = safeNumber(existing.quantity + quantity);
-        existing.amount = safeNumber(existing.amount + amount);
-        map.set(menuItemName, existing);
+  const groupBy = (keyOf: (l: (typeof lines)[number]) => string[]) => {
+    const map = new Map<string, VoidGroupRow>();
+    lines.forEach((l) => {
+      keyOf(l).forEach((name) => {
+        const row = map.get(name) ?? {name, count: 0, quantity: 0, amount: 0};
+        row.count += 1;
+        row.quantity += l.quantity;
+        row.amount += l.amount;
+        map.set(name, row);
       });
     });
-    
-    return Array.from(map.entries())
-      .map(([menuItem, data]) => ({menuItem, ...data}))
-      .sort((a, b) => b.count - a.count);
-  }, [orderVoids]);
+    return Array.from(map.values()).sort((a, b) => b.amount - a.amount || b.count - a.count);
+  };
+
+  const byReason = useMemo(() => groupBy((l) => [l.reason]), [lines]); // eslint-disable-line react-hooks/exhaustive-deps
+  const byManager = useMemo(() => groupBy((l) => [l.manager]), [lines]); // eslint-disable-line react-hooks/exhaustive-deps
+  const byCashier = useMemo(() => groupBy((l) => [l.cashier]), [lines]); // eslint-disable-line react-hooks/exhaustive-deps
+  const byItem = useMemo(() => groupBy((l) => l.itemNames), [lines]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const totalAmount = lines.reduce((s, l) => s + l.amount, 0);
+  const totalQuantity = lines.reduce((s, l) => s + l.quantity, 0);
+  const withoutComment = lines.filter((l) => !l.comments.trim()).length;
+
+  const insights = useMemo(() => buildVoidInsights(
+    {count: lines.length, amount: totalAmount, byReason, byManager, byCashier, byItem, withoutComment},
+    (k, p) => String(t(k, p as never)),
+    (n) => withCurrency(n),
+  ), [lines.length, totalAmount, byReason, byManager, byCashier, byItem, withoutComment, t]);
+
+  const title = t('titles.voids');
 
   if (loading) {
     return (
-      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+      <ReportsLayout title={title} subtitle={subtitle}>
         <div className="py-12 text-center text-neutral-500">{t('loading.voids')}</div>
       </ReportsLayout>
     );
@@ -273,245 +265,107 @@ export const VoidsReport = () => {
 
   if (error) {
     return (
-      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+      <ReportsLayout title={title} subtitle={subtitle}>
         <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
       </ReportsLayout>
     );
   }
 
-  return (
-    <ReportsLayout
-      title={t('titles.voids')}
-      subtitle={subtitle}
-    >
-      <div className="space-y-8">
-        {/* Summary sections */}
-        <div className="grid grid-cols-3 gap-4">
-          {/* Voids by Reason */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Reason</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
-                  {voidsByReason.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        No voids by reason
-                      </td>
-                    </tr>
-                  ) : (
-                    voidsByReason.map((item) => (
-                      <tr key={item.reason}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.reason}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withDualCurrency(item.amount)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+  const topReason = byReason[0];
+  const kpis: ReportKpi[] = [
+    {label: t('voidsReport.amount'), value: withDualCurrency(totalAmount), rawValue: totalAmount, tone: lines.length ? 'warn' : 'good'},
+    {label: t('voidsReport.count'), value: formatNumber(lines.length), rawValue: lines.length, rawFormat: 'integer', hint: t('voidsReport.itemsVoided', {count: totalQuantity})},
+    {label: t('voidsReport.topReason'), value: topReason?.name ?? '—', hint: topReason ? withCurrency(topReason.amount) : undefined},
+    {label: t('voidsReport.withoutComment'), value: formatNumber(withoutComment), rawValue: withoutComment, rawFormat: 'integer', tone: withoutComment > 0 ? 'warn' : 'good'},
+  ];
 
-          {/* Voids by Managers */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Managers</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
-                  {voidsByManager.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        No voids by manager
-                      </td>
-                    </tr>
-                  ) : (
-                    voidsByManager.map((item) => (
-                      <tr key={item.manager}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.manager}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withDualCurrency(item.amount)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+  const groupColumns = (nameHeader: string): ReportColumn<VoidGroupRow>[] => [
+    {key: 'name', header: nameHeader, sortValue: (r) => r.name.toLowerCase(), render: (r) => <span className="font-medium">{r.name}</span>, total: () => t('columns.total')},
+    {key: 'count', header: t('metrics.count'), align: 'right', sortValue: (r) => r.count, render: (r) => formatNumber(r.count), total: (rs) => formatNumber(rs.reduce((s, r) => s + r.count, 0))},
+    {key: 'quantity', header: t('columns.quantity'), align: 'right', sortValue: (r) => r.quantity, render: (r) => formatNumber(r.quantity), total: (rs) => formatNumber(rs.reduce((s, r) => s + r.quantity, 0))},
+    {key: 'amount', header: t('columns.amount'), align: 'right', sortValue: (r) => r.amount, render: (r) => withCurrency(r.amount), total: (rs) => withCurrency(rs.reduce((s, r) => s + r.amount, 0))},
+    {key: 'pct', header: '%', align: 'right', sortValue: (r) => r.amount, render: (r) => `${totalAmount > 0 ? Math.round((r.amount / totalAmount) * 100) : 0} %`},
+  ];
 
-          {/* Voids by Menu Items */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Menu Items</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
-                  {voidsByMenuItem.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        No voids by menu item
-                      </td>
-                    </tr>
-                  ) : (
-                    voidsByMenuItem.map((item) => (
-                      <tr key={item.menuItem}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.menuItem}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withDualCurrency(item.amount)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Detailed voids table */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids Detail</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
-                <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('common:actions.time')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Order #</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
-                {orderVoids.length === 0 ? (
-                  <tr>
-                    <td colSpan={10} className="py-6 text-center text-sm text-neutral-500">
-                      No voids found for the selected filters
-                    </td>
-                  </tr>
-                ) : (
-                  orderVoids.map((voidItem) => {
-                    const date = toLuxonDateTime(voidItem.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                    const timeStr = date.toFormat(import.meta.env.VITE_TIME_FORMAT);
-                    const managerName = voidItem.deleted_by 
-                      ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || 'Unknown'
-                      : 'Unknown';
-                    const cashierName = voidItem.order?.cashier
-                      ? `${voidItem.order.cashier.first_name ?? ''} ${voidItem.order.cashier.last_name ?? ''}`.trim() || voidItem.order.cashier.login || 'Unknown'
-                      : 'N/A';
-                    const voidItems = getVoidItems(voidItem);
-                    const lineTotal = getVoidItems(voidItem).reduce((sum, item) => sum + getVoidLineAmount(voidItem, item, showInclusive), 0);
-                    const orderNumber = voidItem.order?.invoice_number || 'N/A';
-
-                    return (
-                      <tr key={voidItem.id}>
-                        <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{timeStr}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{voidItem.reason}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">
-                          <div className="space-y-2">
-                            {voidItems.length === 0 ? (
-                              <div>{t('common:actions.unknown')}</div>
-                            ) : (
-                              voidItems.map((item, itemIndex) => {
-                                const modifiers = getVoidItemModifiers(voidItem, item, showInclusive);
-                                return (
-                                  <div
-                                    key={`${recordToString(voidItem.id)}-item-${itemIndex}`}
-                                    className="rounded-md border border-neutral-200 bg-neutral-50/60 px-2.5 py-2"
-                                  >
-                                    <div className="font-semibold text-neutral-900">{item?.item?.name || 'Unknown'}</div>
-                                    {modifiers.length > 0 ? (
-                                      <div className="mt-1.5 space-y-1">
-                                        {modifiers.map((modifier, modifierIndex) => (
-                                          <div
-                                            key={`${recordToString(voidItem.id)}-item-${itemIndex}-modifier-${modifierIndex}`}
-                                            className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 text-xs text-neutral-700 border border-neutral-200"
-                                            style={{marginLeft: `${Math.max(0, modifier.depth - 1) * 14}px`}}
-                                          >
-                                            <span className="font-medium text-neutral-800">{modifier.name}</span>
-                                            <span className="inline-flex items-center gap-2 text-neutral-600">
-                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">Qty {formatNumber(modifier.quantity)}</span>
-                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">{withDualCurrency(modifier.price)}</span>
-                                            </span>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <div className="mt-1 text-xs text-neutral-500">No modifiers</div>
-                                    )}
-                                  </div>
-                                );
-                              })
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(voidItem.quantity)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{withDualCurrency(lineTotal)}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{managerName}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{cashierName}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{orderNumber}</td>
-                        <td className="py-3 pr-6 text-sm text-neutral-700">{voidItem.comments || '-'}</td>
-                      </tr>
-                    );
-                  })
+  type Line = (typeof lines)[number];
+  const detailColumns: ReportColumn<Line>[] = [
+    {key: 'date', header: t('columns.date'), sortValue: (l) => l.at, render: (l) => l.dateStr, total: () => t('columns.total')},
+    {key: 'time', header: t('common:actions.time'), render: (l) => l.timeStr},
+    {key: 'reason', header: t('columns.reason'), sortValue: (l) => l.reason, searchValue: (l) => l.reason, render: (l) => l.reason},
+    {
+      key: 'items',
+      header: t('voidsReport.menuItem'),
+      searchValue: (l) => l.itemNames.join(' '),
+      render: (l) => (
+        <div className="space-y-1 whitespace-normal min-w-[12rem]">
+          {getVoidItems(l.voidItem).map((item, itemIndex) => {
+            const modifiers = getVoidItemModifiers(l.voidItem, item, showInclusive);
+            return (
+              <div key={`${l.id}-item-${itemIndex}`}>
+                <div className="font-semibold text-neutral-900">{item?.item?.name || t('voidsReport.unknown')}</div>
+                {modifiers.length > 0 && (
+                  <div className="text-xs text-neutral-600">
+                    {modifiers.map((m, i) => (
+                      <div key={i} style={{marginLeft: `${Math.max(0, m.depth - 1) * 12}px`}}>
+                        + {m.name} ×{formatNumber(m.quantity)} ({withCurrency(m.price)})
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </tbody>
-              {orderVoids.length > 0 && (
-                <tfoot className="bg-neutral-50">
-                  <tr>
-                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {formatNumber(orderVoids.reduce((sum, v) => sum + safeNumber(v.quantity), 0))}
-                    </td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
-                      {withDualCurrency(orderVoids.reduce((sum, v) => sum + getVoidItems(v).reduce((lineSum, item) => lineSum + getVoidLineAmount(v, item), 0), 0))}
-                    </td>
-                    <td colSpan={4}></td>
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
+              </div>
+            );
+          })}
+        </div>
+      ),
+    },
+    {key: 'quantity', header: t('columns.quantity'), align: 'right', sortValue: (l) => l.quantity, render: (l) => formatNumber(l.quantity), total: (ls) => formatNumber(ls.reduce((s, l) => s + l.quantity, 0))},
+    {key: 'amount', header: t('metrics.lineTotal'), align: 'right', sortValue: (l) => l.displayAmount, render: (l) => withCurrency(l.displayAmount), total: (ls) => withCurrency(ls.reduce((s, l) => s + l.displayAmount, 0))},
+    {key: 'manager', header: t('voidsReport.manager'), sortValue: (l) => l.manager, searchValue: (l) => l.manager, render: (l) => l.manager},
+    {key: 'cashier', header: t('metrics.cashier'), sortValue: (l) => l.cashier, searchValue: (l) => l.cashier, render: (l) => l.cashier},
+    {key: 'order', header: t('voidsReport.orderNumber'), align: 'right', sortValue: (l) => l.orderNumber, searchValue: (l) => l.orderNumber, render: (l) => l.orderNumber},
+    {
+      key: 'comments',
+      header: t('columns.comments'),
+      searchValue: (l) => l.comments,
+      render: (l) => l.comments || <span className="text-amber-700">{t('voidsReport.noComment')}</span>,
+      cellClass: () => 'whitespace-normal',
+    },
+  ];
+
+  return (
+    <ReportsLayout title={title} subtitle={subtitle}>
+      <ReportKpis items={kpis}/>
+      <ReportInsights items={insights}/>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6">
+        <div>
+          <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('voidsReport.byReason')}</h2>
+          <SortableReportTable rows={byReason} columns={groupColumns(t('columns.reason'))} rowKey={(r) => r.name} xlsxTitle={t('voidsReport.byReason')}/>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('voidsReport.byCashier')}</h2>
+          <SortableReportTable rows={byCashier} columns={groupColumns(t('metrics.cashier'))} rowKey={(r) => r.name} xlsxTitle={t('voidsReport.byCashier')}/>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('voidsReport.byManager')}</h2>
+          <SortableReportTable rows={byManager} columns={groupColumns(t('voidsReport.manager'))} rowKey={(r) => r.name} xlsxTitle={t('voidsReport.byManager')}/>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('voidsReport.byItem')}</h2>
+          <SortableReportTable rows={byItem} columns={groupColumns(t('voidsReport.menuItem'))} rowKey={(r) => r.name} xlsxTitle={t('voidsReport.byItem')}/>
         </div>
       </div>
+
+      <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('voidsReport.detail')}</h2>
+      <SortableReportTable
+        rows={lines}
+        columns={detailColumns}
+        rowKey={(l) => l.id}
+        initialSort={{key: 'date', dir: 'asc'}}
+        searchPlaceholder={t('voidsReport.search')}
+        emptyText={t('voidsReport.empty')}
+        xlsxTitle={t('voidsReport.detail')}
+      />
     </ReportsLayout>
   );
 }

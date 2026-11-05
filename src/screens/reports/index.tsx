@@ -33,7 +33,6 @@ import {OrderReceiptFilter} from "@/components/reports/filters/order.receipt.fil
 import {OrderFiscalFilter} from "@/components/reports/filters/order.fiscal.filter.tsx";
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
-import {AiReportFilter} from "@/components/reports/filters/ai.report.filter.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {
   isClosingModuleEnabled,
@@ -47,6 +46,7 @@ type ReportEntry = {
   module: string;
   reportKey: string;
   label: string;
+  description: string;
 };
 
 type ReportCategory = {
@@ -57,7 +57,6 @@ type ReportCategory = {
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const REPORT_PERMISSION_MODULES: Record<string, string> = {
-  aiReport: 'reports.ai',
   salesDashboard: 'reports.sales_dashboard',
   serverSales: 'reports.server_sales',
   salesSummary: 'reports.sales_summary',
@@ -89,12 +88,13 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
 };
 
 const buildReportEntries = (
-  t: (key: string) => string,
+  t: (key: string, options?: Record<string, unknown>) => string,
   reports: Array<{ reportKey: string; filter: ReactNode }>,
 ): ReportEntry[] =>
   reports.map(({ reportKey, filter }) => ({
     reportKey,
     label: t(`reports.${reportKey}`),
+    description: t(`descriptions.${reportKey}`, { defaultValue: '' }),
     filter,
     module: REPORT_PERMISSION_MODULES[reportKey],
   }));
@@ -104,13 +104,6 @@ export const Reports = () => {
   const { t: tNav } = useTranslation('navigation');
   const reportCategories = useMemo((): ReportCategory[] => {
     const categories: ReportCategory[] = [
-      {
-        id: 'ai',
-        title: t('categories.ai'),
-        reports: buildReportEntries(t, [
-          { reportKey: 'aiReport', filter: <AiReportFilter /> },
-        ]),
-      },
       {
         id: 'dashboard',
         title: t('categories.dashboard'),
@@ -122,38 +115,60 @@ export const Reports = () => {
         id: 'sales',
         title: t('categories.sales'),
         reports: buildReportEntries(t, [
-          { reportKey: 'serverSales', filter: <SalesServerFilter /> },
           { reportKey: 'salesSummary', filter: <SalesSummaryFilter /> },
           { reportKey: 'salesSummary2', filter: <SalesSummary2Filter /> },
-          { reportKey: 'salesByCustomer', filter: <SalesByCustomerFilter /> },
-          { reportKey: 'customerCredit', filter: <CustomerCreditFilter /> },
           { reportKey: 'salesWeekly', filter: <SalesWeeklyFilter /> },
-          { reportKey: 'tips', filter: <TipsFilter /> },
           { reportKey: 'advancedSales', filter: <SalesAdvancedFilter /> },
-          { reportKey: 'deliveryDensity', filter: <DeliveryDensityFilter /> },
-          { reportKey: 'discount', filter: <DiscountsFilter /> },
-          { reportKey: 'tax', filter: <TaxFilter /> },
-          { reportKey: 'coupon', filter: <CouponFilter /> },
-          { reportKey: 'voids', filter: <VoidsFilter /> },
+          { reportKey: 'serverSales', filter: <SalesServerFilter /> },
           { reportKey: 'tablesSummary', filter: <TableSummaryFilter /> },
+          { reportKey: 'deliveryDensity', filter: <DeliveryDensityFilter /> },
+        ]),
+      },
+      {
+        id: 'customers',
+        title: t('categories.customers'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'customerCredit', filter: <CustomerCreditFilter /> },
+          { reportKey: 'salesByCustomer', filter: <SalesByCustomerFilter /> },
+        ]),
+      },
+      {
+        id: 'cashClosing',
+        title: t('categories.cashAndPayments'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'cashClosing', filter: <CashClosingFilter /> },
+          { reportKey: 'tips', filter: <TipsFilter /> },
+          { reportKey: 'tax', filter: <TaxFilter /> },
+        ]),
+      },
+      {
+        id: 'products',
+        title: t('categories.products'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'productMixSummary', filter: <ProductMixSummaryFilter /> },
+          { reportKey: 'productMixWeekly', filter: <ProductMixWeeklyReportFilter /> },
+          { reportKey: 'productsHourly', filter: <ProductHourlyFilter /> },
+          { reportKey: 'productList', filter: <ProductListFilter /> },
+        ]),
+      },
+      {
+        id: 'control',
+        title: t('categories.control'),
+        reports: buildReportEntries(t, [
+          { reportKey: 'voids', filter: <VoidsFilter /> },
+          { reportKey: 'discount', filter: <DiscountsFilter /> },
+          { reportKey: 'coupon', filter: <CouponFilter /> },
+          { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
+          { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
         ]),
       },
       {
         id: 'orders',
         title: t('categories.orders'),
         reports: buildReportEntries(t, [
-          { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
-          { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
-          { reportKey: 'orderLifeCycle', filter: <OrderLifecycleFilter /> },
           { reportKey: 'orderReceipt', filter: <OrderReceiptFilter /> },
+          { reportKey: 'orderLifeCycle', filter: <OrderLifecycleFilter /> },
           { reportKey: 'orderFiscal', filter: <OrderFiscalFilter /> },
-        ]),
-      },
-      {
-        id: 'cashClosing',
-        title: t('categories.cashClosing'),
-        reports: buildReportEntries(t, [
-          { reportKey: 'cashClosing', filter: <CashClosingFilter /> },
         ]),
       },
       {
@@ -165,32 +180,19 @@ export const Reports = () => {
           { reportKey: 'audit', filter: <AuditFilter /> },
         ]),
       },
-      {
-        id: 'products',
-        title: t('categories.products'),
-        reports: buildReportEntries(t, [
-          { reportKey: 'productMixWeekly', filter: <ProductMixWeeklyReportFilter /> },
-          { reportKey: 'productMixSummary', filter: <ProductMixSummaryFilter /> },
-          { reportKey: 'productsHourly', filter: <ProductHourlyFilter /> },
-          { reportKey: 'productList', filter: <ProductListFilter /> },
-        ]),
-      },
     ];
 
     const deliveryEnabled = isDeliveryModuleEnabled();
     const closingEnabled = isClosingModuleEnabled();
 
     return categories
-      .filter((category) => closingEnabled || category.id !== 'cashClosing')
-      .map((category) => {
-        if (category.id !== 'sales' || deliveryEnabled) {
-          return category;
-        }
-        return {
-          ...category,
-          reports: category.reports.filter((report) => report.reportKey !== 'deliveryDensity'),
-        };
-      });
+      .map((category) => ({
+        ...category,
+        reports: category.reports.filter((report) =>
+          (deliveryEnabled || report.reportKey !== 'deliveryDensity')
+          && (closingEnabled || report.reportKey !== 'cashClosing')),
+      }))
+      .filter((category) => category.reports.length > 0);
   }, [t]);
 
   const { ready } = useModuleAccess();
@@ -210,6 +212,7 @@ export const Reports = () => {
   const [subReports, setSubReports] = useState<ReportEntry[]>([]);
   const [selectedReportKey, setSelectedReportKey] = useState('');
   const [filter, setFilter] = useState<ReactNode>();
+  const [reportQuery, setReportQuery] = useState('');
 
   const {protectAction} = useSecurity();
 
@@ -236,10 +239,15 @@ export const Reports = () => {
   const selectedReportLabel =
     subReports.find((r) => r.reportKey === selectedReportKey)?.label ?? '';
 
-  const visibleSubReports = useMemo(
-    () => subReports.filter((entry) => isVisible(entry.module)),
-    [subReports, isVisible],
-  );
+  const visibleSubReports = useMemo(() => {
+    const q = reportQuery.trim().toLowerCase();
+    if (q) {
+      return visibleCategories
+        .flatMap((category) => category.reports)
+        .filter((entry) => `${entry.label} ${entry.description}`.toLowerCase().includes(q));
+    }
+    return subReports.filter((entry) => isVisible(entry.module));
+  }, [subReports, isVisible, reportQuery, visibleCategories]);
 
   return (
     <Layout containerClassName="p-5">
@@ -251,6 +259,16 @@ export const Reports = () => {
         <div className="col-span-2">
           <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-categories">
             <h1 className="text-xl text-gray-600 px-5">{t('page.title')}</h1>
+            <div className="px-5 pt-3">
+              <input
+                type="search"
+                value={reportQuery}
+                onChange={(e) => setReportQuery(e.target.value)}
+                placeholder={t('page.searchReports')}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                data-testid="reports-search"
+              />
+            </div>
             <div className="py-5">
               <ul>
                 {visibleCategories.map((category) => (
@@ -287,6 +305,14 @@ export const Reports = () => {
                     data-testid={`reports-report-${entry.reportKey}`}
                     onClick={() => {
                       protectAction(() => {
+                        if (reportQuery.trim()) {
+                          const owner = visibleCategories.find((c) => c.reports.some((r) => r.reportKey === entry.reportKey));
+                          if (owner) {
+                            setSelectedCategoryId(owner.id);
+                            setSubReports(owner.reports);
+                          }
+                          setReportQuery('');
+                        }
                         setSelectedReportKey(entry.reportKey);
                         setFilter(entry.filter);
                       }, {
@@ -296,7 +322,12 @@ export const Reports = () => {
                     }}
                     key={entry.reportKey}
                   >
-                    {entry.label}
+                    <span className="flex flex-col">
+                      <span>{entry.label}</span>
+                      {entry.description && (
+                        <span className="text-xs text-gray-500">{entry.description}</span>
+                      )}
+                    </span>
                     {selectedReportKey === entry.reportKey && (
                       <FontAwesomeIcon icon={faCheckCircle} className="text-success-700" size="lg" />
                     )}

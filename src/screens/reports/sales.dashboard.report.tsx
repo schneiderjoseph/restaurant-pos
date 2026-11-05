@@ -7,7 +7,8 @@ import {Order, OrderStatus} from "@/api/model/order.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
 import {aggregateTopSellingDishes, fetchDashboardOrders, getOrderFigures} from "@/api/reports/sales";
 import {Tracking} from "@/api/model/tracking.ts";
-import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {withCurrency, withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {ResponsivePie} from "@nivo/pie";
@@ -1607,6 +1608,47 @@ export const SalesDashboardReport = () => {
     return t('dashboard.subtitleAllTime');
   }, [filters, t]);
 
+  const dashboardInsights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (kpis.totalOrder === 0) return out;
+    const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
+    const lastYear = periodSales[0]?.amount ?? 0;
+    if (lastYear > 0) {
+      // Same measure as the period tiles: tendered amounts (cash + other) on paid orders.
+      const current = paidOrders.reduce((sum, order) => {
+        const pay = getOrderPaymentTotals(order);
+        return sum + safeNumber(pay.cashAmount + pay.nonCashAmount);
+      }, 0);
+      const change = Math.round(((current - lastYear) / lastYear) * 100);
+      out.push({
+        id: 'vs-last-year',
+        severity: change >= 5 ? 'good' : change <= -10 ? 'bad' : change < 0 ? 'warn' : 'info',
+        text: t(change >= 0 ? 'insights.dashboard.upLastYear' : 'insights.dashboard.downLastYear', {pct: Math.abs(change), amount: withCurrency(lastYear)}),
+      });
+    }
+    const bestPart = [...dayParts].sort((a, b) => b.revenue - a.revenue)[0];
+    if (bestPart && dayParts.length > 1) {
+      out.push({id: 'best-part', severity: 'info', text: t('insights.sales.bestDayPart', {part: bestPart.label, pct: pct(bestPart.revenue, kpis.totalRevenue), amount: withCurrency(bestPart.revenue)})});
+    }
+    if (topItems[0]) {
+      out.push({id: 'top-item', severity: 'info', text: t('insights.dashboard.topItem', {name: topItems[0].name, quantity: formatNumber(topItems[0].quantity), amount: withCurrency(topItems[0].revenue)})});
+    }
+    if (topUsers.length > 1) {
+      out.push({id: 'top-user', severity: 'good', text: t('insights.servers.topSeller', {name: topUsers[0].name, amount: withCurrency(topUsers[0].revenue), pct: pct(topUsers[0].revenue, kpis.totalRevenue)})});
+    }
+    if (kpis.lateOrders > 0) {
+      out.push({id: 'late', severity: pct(kpis.lateOrders, kpis.totalOrder) >= 15 ? 'warn' : 'info', text: t('insights.dashboard.lateOrders', {count: kpis.lateOrders, pct: pct(kpis.lateOrders, kpis.totalOrder)})});
+    }
+    if (kpis.refundOrder > 0) {
+      out.push({id: 'refunds', severity: 'warn', text: t('insights.dashboard.refunds', {count: kpis.refundOrder})});
+    }
+    const reductions = kpis.discount + kpis.coupon;
+    if (pct(reductions, kpis.grossSale) >= 5) {
+      out.push({id: 'discounts', severity: 'warn', text: t('insights.sales.highDiscounts', {pct: pct(reductions, kpis.grossSale), amount: withCurrency(reductions), limit: 5})});
+    }
+    return out;
+  }, [kpis, periodSales, dayParts, topItems, topUsers, paidOrders, t]);
+
   if (error) {
     return (
       <ReportsLayout title={t('reports.salesDashboard')}>
@@ -1788,6 +1830,8 @@ export const SalesDashboardReport = () => {
           <DeliverySection orders={deliveryOrders} />
           <ActivitySection />
         </div>
+
+        <ReportInsights items={dashboardInsights}/>
 
         {/* Sales Chart and Delivery Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

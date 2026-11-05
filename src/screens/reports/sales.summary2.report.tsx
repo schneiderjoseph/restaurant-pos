@@ -8,7 +8,10 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {DiscountType} from "@/api/model/discount.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
-import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {withCurrency, withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
+import {buildServerInsights} from "@/api/reports/insights/servers.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrdersTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {aggregateOrderDiscountBreakdown, getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from "@/lib/order.ts";
@@ -799,6 +802,40 @@ export const SalesSummary2Report = () => {
     setExpandedCategories(new Set());
   };
 
+  const s2Checks = employeeMetrics.reduce((sum, e) => sum + e.checks, 0);
+  const s2Guests = employeeMetrics.reduce((sum, e) => sum + e.guests, 0);
+  const turnSamples = employeeMetrics.filter((e) => e.turnTime > 0);
+  const avgTurn = turnSamples.length ? turnSamples.reduce((sum, e) => sum + e.turnTime, 0) / turnSamples.length : 0;
+
+  const summary2Insights = useMemo((): ReportInsight[] => {
+    const tt = (k: string, params?: Record<string, unknown>) => String(t(k, params as never));
+    const out = buildServerInsights(
+      employeeMetrics.map((e) => ({userId: e.id, name: e.name, netSales: e.net, checks: e.checks, guests: e.guests, reductions: e.discounts + e.coupons})),
+      tt,
+      (n) => withCurrency(n),
+    );
+    const slow = turnSamples.filter((e) => e.checks >= 3 && e.turnTime > avgTurn * 1.4);
+    if (avgTurn > 0 && slow.length) {
+      out.push({id: 'slow-turn', severity: 'info', text: t('insights.summary2.slowTurn', {names: slow.map((e) => `${e.name} (${Math.round(e.turnTime)} min)`).join(', '), avg: Math.round(avgTurn)})});
+    }
+    if (financialMetrics.refunds > 0) {
+      out.push({id: 'refunds', severity: 'warn', text: t('insights.summary2.refunds', {amount: withCurrency(financialMetrics.refunds)})});
+    }
+    if (financialMetrics.deferredCharges > 0 && financialMetrics.net > 0) {
+      const pct = Math.round((financialMetrics.deferredCharges / financialMetrics.net) * 100);
+      out.push({id: 'deferred', severity: pct >= 20 ? 'warn' : 'info', text: t('insights.sales.deferred', {amount: withCurrency(financialMetrics.deferredCharges), pct, room: withCurrency(financialMetrics.roomCharges), credit: withCurrency(financialMetrics.creditCharges)})});
+    }
+    return out;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [employeeMetrics, financialMetrics, avgTurn, t]);
+
+  const summary2Kpis: ReportKpi[] = [
+    {label: t('metrics.net'), value: withDualCurrency(financialMetrics.net), rawValue: financialMetrics.net},
+    {label: t('columns.checks'), value: formatNumber(s2Checks), rawValue: s2Checks, rawFormat: 'integer', hint: t('tablesReport.covers', {count: s2Guests})},
+    {label: t('columns.avgCheck'), value: withCurrency(s2Checks ? financialMetrics.net / s2Checks : 0), rawValue: s2Checks ? financialMetrics.net / s2Checks : 0},
+    {label: t('summary2Report.avgTurn'), value: avgTurn > 0 ? `${Math.round(avgTurn)} min` : '—', hint: t('summary2Report.avgTurnHint')},
+  ];
+
   if (loading) {
     return (
       <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
@@ -817,6 +854,8 @@ export const SalesSummary2Report = () => {
 
   return (
     <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
+      <ReportKpis items={summary2Kpis}/>
+      <ReportInsights items={summary2Insights}/>
       <div className="space-y-8">
         {/* First section: Financial calculations with 4 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">

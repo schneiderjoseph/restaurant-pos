@@ -66,4 +66,3 @@ export const REPORTS_SALES_BY_CUSTOMER = REPORTS + '/sales-by-customer';
 export const REPORTS_CUSTOMER_CREDIT = REPORTS + '/customer-credit';
 export const REPORTS_TABLES_SUMMARY = REPORTS + '/tables-summary';
 export const REPORTS_VOIDS = REPORTS + '/voids';
-export const REPORTS_AI = REPORTS + '/ai';

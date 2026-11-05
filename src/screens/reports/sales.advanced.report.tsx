@@ -6,7 +6,10 @@ import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
-import {formatNumber, safeNumber, toRecordId, withDualCurrency} from "@/lib/utils.ts";
+import {formatNumber, safeNumber, toRecordId, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
+import {GroupTable, type GroupRow} from "@/components/reports/group-table.tsx";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, type OrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
@@ -133,7 +136,8 @@ export const SalesAdvancedReport = () => {
   const [error, setError] = useState<string | null>(null);
 
   const filters = useMemo(parseFilters, []);
-  const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
+  const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} → ${filters.endDate}` : undefined;
+  const [orderQuery, setOrderQuery] = useState('');
 
   useEffect(() => {
     queryRef.current = db.query;
@@ -499,6 +503,63 @@ export const SalesAdvancedReport = () => {
     [orderVoids],
   );
 
+  /** Orders matching the search box (invoice, number, people, table, type, notes). */
+  const visibleOrders = useMemo(() => {
+    const q = orderQuery.trim().toLowerCase();
+    if (!q) return filteredOrders;
+    const person = (u?: {first_name?: string; last_name?: string; login?: string} | null) =>
+      u ? `${u.first_name ?? ''} ${u.last_name ?? ''} ${u.login ?? ''}` : '';
+    return filteredOrders.filter((order) => [
+      order.invoice_number, order.auto_id, person(order.user as never), person(order.cashier as never),
+      order.table?.name, order.table?.number, order.order_type?.name, order.floor?.name, order.notes, order.status,
+    ].some((v) => v != null && String(v).toLowerCase().includes(q)));
+  }, [filteredOrders, orderQuery]);
+
+  /** Collected amounts per tender across all orders. */
+  const paymentRows = useMemo((): GroupRow[] => {
+    const map = new Map<string, GroupRow>();
+    filteredOrders.forEach((order) => {
+      const totals = getOrderPaymentTotals(order);
+      const entries: Array<[string, number]> = Object.entries(totals.nonCashBreakdown);
+      if (totals.cashAmount > 0) entries.push([t('labels.cashPayments'), totals.cashAmount]);
+      entries.forEach(([name, amount]) => {
+        const row = map.get(name) ?? {name, count: 0, amount: 0};
+        row.count += 1;
+        row.amount += safeNumber(amount);
+        map.set(name, row);
+      });
+    });
+    return [...map.values()].sort((a, b) => b.amount - a.amount);
+  }, [filteredOrders, t]);
+
+  const advancedInsights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (totals.ordersCount === 0) return out;
+    const gross = totals.net + totals.discounts + totals.coupons;
+    const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
+    if (paymentRows[0]) {
+      const collected = paymentRows.reduce((sum, r) => sum + r.amount, 0);
+      out.push({id: 'top-tender', severity: 'info', text: t('insights.advanced.topTender', {name: paymentRows[0].name, pct: pct(paymentRows[0].amount, collected), amount: withCurrency(paymentRows[0].amount)})});
+    }
+    const reductions = totals.discounts + totals.coupons;
+    if (reductions > 0) {
+      out.push({id: 'reductions', severity: pct(reductions, gross) >= 5 ? 'warn' : 'info', text: t('insights.advanced.reductions', {amount: withCurrency(reductions), pct: pct(reductions, gross)})});
+    }
+    if (totalVoids > 0) {
+      out.push({id: 'voids', severity: pct(totalVoids, gross + totalVoids) >= 3 ? 'warn' : 'info', text: t('insights.advanced.voids', {amount: withCurrency(totalVoids), pct: pct(totalVoids, gross + totalVoids)})});
+    }
+    const withNotes = filteredOrders.filter((o) => (o.notes ?? '').trim()).length;
+    if (withNotes > 0) out.push({id: 'notes', severity: 'info', text: t('insights.advanced.notes', {count: withNotes})});
+    return out;
+  }, [totals, paymentRows, totalVoids, filteredOrders, t]);
+
+  const advancedKpis: ReportKpi[] = [
+    {label: t('metrics.net'), value: withDualCurrency(totals.net), rawValue: totals.net},
+    {label: t('metrics.totalOrders'), value: formatNumber(totals.ordersCount), rawValue: totals.ordersCount, rawFormat: 'integer'},
+    {label: t('columns.avgCheck'), value: withCurrency(totals.ordersCount ? totals.net / totals.ordersCount : 0), rawValue: totals.ordersCount ? totals.net / totals.ordersCount : 0},
+    {label: t('labels.amountCollected'), value: withDualCurrency(totals.amountCollected), rawValue: totals.amountCollected},
+  ];
+
   if (loading) {
     return (
       <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
@@ -517,6 +578,13 @@ export const SalesAdvancedReport = () => {
 
   return (
     <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
+      <ReportKpis items={advancedKpis}/>
+      <ReportInsights items={advancedInsights}/>
+      {paymentRows.length > 0 && (
+        <div className="max-w-2xl">
+          <GroupTable title={t('advancedReport.byTender')} nameHeader={t('advancedReport.tender')} rows={paymentRows} countHeader={t('columns.orders')}/>
+        </div>
+      )}
       <div className="space-y-8">
         {/* Summary Totals */}
         <div className="overflow-hidden rounded-lg border border-neutral-200">
@@ -594,6 +662,19 @@ export const SalesAdvancedReport = () => {
               </button>
             )}
             <h3 className="text-sm font-semibold text-neutral-700">{t('categories.orders')}</h3>
+            <input
+              type="search"
+              value={orderQuery}
+              onChange={(e) => setOrderQuery(e.target.value)}
+              placeholder={t('advancedReport.search')}
+              className="ml-auto w-full max-w-xs rounded-lg border border-neutral-300 px-3 py-1.5 text-sm print:hidden"
+              data-xlsx-ignore
+            />
+            {orderQuery && (
+              <span className="text-xs text-neutral-500 print:hidden" data-xlsx-ignore>
+                {t('table.shownOf', {shown: visibleOrders.length, total: filteredOrders.length})}
+              </span>
+            )}
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200 table-hover">
@@ -635,7 +716,7 @@ export const SalesAdvancedReport = () => {
               </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-white">
-              {filteredOrders.map(order => {
+              {visibleOrders.map(order => {
                 const orderId = recordToString(order.id);
                 const isExpanded = expandedOrderIds.has(orderId);
                 const orderTotals = calculateOrderTotals(order);
@@ -787,7 +868,7 @@ export const SalesAdvancedReport = () => {
                   </Fragment>
                 );
               })}
-              {filteredOrders.length === 0 && (
+              {visibleOrders.length === 0 && (
                 <tr>
                   <td colSpan={tableColSpan} className="py-6 text-center text-sm text-neutral-500">
                     {t('empty.noOrdersFound')}

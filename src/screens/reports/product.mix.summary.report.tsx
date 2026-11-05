@@ -5,7 +5,10 @@ import {useDB} from "@/api/db/db.ts";
 import {parseMultiFilter} from "@/api/reports/shared/filters.ts";
 import type {CategoryGroup, ModifierSummaryMetrics} from "@/api/reports/shared/types.ts";
 import {aggregateAccumulatedModifiersSummary, aggregateModifiersSummary, aggregateProductMixByCategory, fetchOrders, PRODUCT_MIX_FETCHES} from "@/api/reports/sales";
-import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {withCurrency, withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights} from "@/components/reports/report-insights.tsx";
+import {buildProductMixInsights, type ProductFigure} from "@/api/reports/insights/products.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
@@ -229,6 +232,36 @@ export const ProductMixSummaryReport = () => {
     });
   }, [accumulatedModifiersSummary]);
 
+  const productFigures = useMemo((): ProductFigure[] => categoryGroups.flatMap((category) =>
+    category.items.map((item) => ({
+      name: item.name,
+      category: category.categoryName,
+      quantity: item.numSold,
+      amount: item.amount,
+      discount: item.discount,
+    }))), [categoryGroups]);
+
+  const insights = useMemo(
+    () => buildProductMixInsights(productFigures, (k, p) => String(t(k, p as never)), (n) => withCurrency(n)),
+    [productFigures, t],
+  );
+
+  const bestSeller = useMemo(
+    () => [...productFigures].sort((a, b) => b.quantity - a.quantity)[0],
+    [productFigures],
+  );
+
+  const kpis: ReportKpi[] = [
+    {label: t('columns.netSales'), value: withDualCurrency(grandTotals.amount), rawValue: grandTotals.amount},
+    {label: t('productMix.unitsSold'), value: formatNumber(grandTotals.numSold), rawValue: grandTotals.numSold, rawFormat: 'number'},
+    {label: t('productMix.avgPrice'), value: withCurrency(grandTotals.priceSold), rawValue: grandTotals.priceSold},
+    {
+      label: t('productMix.bestSeller'),
+      value: bestSeller?.name ?? '—',
+      hint: bestSeller ? t('productMix.units', {count: bestSeller.quantity}) : undefined,
+    },
+  ];
+
   if (loading) {
     return (
       <ReportsLayout title={t('reports.productMixSummary')} subtitle={subtitle}>
@@ -247,7 +280,9 @@ export const ProductMixSummaryReport = () => {
 
   return (
     <ReportsLayout onRefresh={fetchData} title={t('reports.productMixSummary')} subtitle={subtitle}>
-      <div className="alert alert-warning">{t('messages.productHourlyDisclaimer')}</div>
+      <ReportKpis items={kpis}/>
+      <ReportInsights items={insights}/>
+      <div className="alert alert-warning" data-xlsx-ignore>{t('messages.productHourlyDisclaimer')}</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">

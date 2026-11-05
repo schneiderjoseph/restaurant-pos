@@ -6,6 +6,9 @@ import { getActivityLog } from '@/api/reports/operations/index.ts';
 import { parseDateRangeFromParams } from '@/api/reports/shared/filters.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { detectBrowser, detectOS, displayValue } from '@/screens/reports/activity.utils.ts';
+import { ReportKpis, type ReportKpi } from '@/components/reports/report-kpis.tsx';
+import { SortableReportTable, type ReportColumn } from '@/components/reports/sortable-report-table.tsx';
+import { GroupTable, groupSum } from '@/components/reports/group-table.tsx';
 
 type AuditRow = Awaited<ReturnType<typeof getActivityLog>>['entries'][number];
 
@@ -23,7 +26,7 @@ export const AuditReport = () => {
   const filters = useMemo(parseFilters, []);
   const subtitle =
     filters.startDate && filters.endDate
-      ? `${filters.startDate} to ${filters.endDate}`
+      ? `${filters.startDate} → ${filters.endDate}`
       : undefined;
 
   const fetchData = useCallback(async () => {
@@ -47,6 +50,29 @@ export const AuditReport = () => {
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
+
+  const byUser = useMemo(() => groupSum(rows, (r) => r.userName || '-', () => 0), [rows]);
+  const byModule = useMemo(() => groupSum(rows, (r) => r.module || '-', () => 0), [rows]);
+  const columns: ReportColumn<AuditRow>[] = [
+    { key: 'time', header: t('common:actions.time'), sortValue: (r) => (r.createdAt ? toLuxonDateTime(r.createdAt as never).toMillis() : 0), render: (r) => (r.createdAt ? toLuxonDateTime(r.createdAt as never).toFormat('yyyy-LL-dd HH:mm:ss') : '-') },
+    { key: 'user', header: t('filters.user'), sortValue: (r) => r.userName || '', searchValue: (r) => r.userName || '', render: (r) => r.userName || '-' },
+    { key: 'module', header: t('columns.module'), sortValue: (r) => r.module || '', searchValue: (r) => r.module || '', render: (r) => r.module || '-' },
+    { key: 'page', header: t('common:table.page'), searchValue: (r) => r.page || '', render: (r) => r.page || '-' },
+    { key: 'auth', header: t('columns.authMethod'), render: (r) => r.authMethod || '-' },
+    { key: 'details', header: t('columns.details'), searchValue: (r) => displayValue(r.payload), render: (r) => displayValue(r.payload), cellClass: () => 'whitespace-normal max-w-[280px] break-all' },
+    { key: 'device', header: t('columns.device'), render: (r) => (
+      <>
+        <div>{detectBrowser(r.userAgent)} / {detectOS(r.userAgent)}</div>
+        <div className="text-neutral-500">{r.resolution || '-'}</div>
+      </>
+    ) },
+  ];
+  const kpis: ReportKpi[] = [
+    { label: t('activityReport.actions'), value: String(rows.length), rawValue: rows.length, rawFormat: 'integer' },
+    { label: t('activityReport.users'), value: String(byUser.length), rawValue: byUser.length, rawFormat: 'integer' },
+    { label: t('activityReport.modules'), value: String(byModule.length), rawValue: byModule.length, rawFormat: 'integer' },
+    { label: t('activityReport.mostActive'), value: byUser[0]?.name ?? '—', hint: byUser[0] ? t('activityReport.actionsCount', { count: byUser[0].count }) : undefined },
+  ];
 
   if (loading) {
     return (
@@ -73,67 +99,23 @@ export const AuditReport = () => {
           {t('messages.auditTruncated', { count: AUDIT_ROW_LIMIT })}
         </div>
       )}
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
-                {t('common:actions.time')}
-              </th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
-                {t('filters.user')}
-              </th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
-                {t('columns.module')}
-              </th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
-                {t('common:table.page')}
-              </th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
-                {t('columns.authMethod')}
-              </th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
-                {t('columns.details')}
-              </th>
-              <th className="py-3 pr-6 text-left text-sm font-semibold text-neutral-700">
-                {t('columns.device')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noActivity')}
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => (
-                <tr key={row.id}>
-                  <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">
-                    {row.createdAt
-                      ? toLuxonDateTime(row.createdAt as never).toFormat('yyyy-LL-dd HH:mm:ss')
-                      : '-'}
-                  </td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{row.userName || '-'}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{row.module || '-'}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{row.page || '-'}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{row.authMethod || '-'}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700 max-w-[280px] break-all">
-                    {displayValue(row.payload)}
-                  </td>
-                  <td className="py-3 pr-6 text-sm text-neutral-700">
-                    <div>
-                      {detectBrowser(row.userAgent)} / {detectOS(row.userAgent)}
-                    </div>
-                    <div className="text-neutral-500">{row.resolution || '-'}</div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ReportKpis items={kpis} />
+      {rows.length > 0 && (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6">
+          <GroupTable title={t('activityReport.byUser')} nameHeader={t('filters.user')} rows={byUser} showAmount={false} />
+          <GroupTable title={t('activityReport.byModule')} nameHeader={t('columns.module')} rows={byModule} showAmount={false} />
+        </div>
+      )}
+      <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('activityReport.detail')}</h2>
+      <SortableReportTable
+        rows={rows}
+        columns={columns}
+        rowKey={(r) => String(r.id)}
+        initialSort={{ key: 'time', dir: 'desc' }}
+        searchPlaceholder={t('activityReport.search')}
+        emptyText={t('empty.noActivity')}
+        xlsxTitle={t('activityReport.detail')}
+      />
     </ReportsLayout>
   );
 };

@@ -18,6 +18,7 @@ export const TipsFilter = () => {
       <div className="w-full">
         <label htmlFor="tips-shift">{t('filters.shift')}</label>
         <ReactSelect
+          isSearchable
           id="tips-shift"
           name="shift"
           isClearable

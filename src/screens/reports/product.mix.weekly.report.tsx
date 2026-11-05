@@ -4,7 +4,9 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order} from "@/api/model/order.ts";
-import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {withCurrency, withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {DateTime} from "luxon";
@@ -264,6 +266,29 @@ export const ProductMixWeeklyReport = () => {
     }));
   }, [weekStart, t]);
 
+  const dayTotals = useMemo(() => dayHeaders.map(({day, dateKey}) => orderTakerMetrics.reduce(
+    (acc, m) => {
+      const d = m.days[dateKey];
+      return {day, dateKey, quantity: acc.quantity + (d?.quantity ?? 0), total: acc.total + (d?.total ?? 0)};
+    },
+    {day, dateKey, quantity: 0, total: 0},
+  )), [dayHeaders, orderTakerMetrics]);
+  const weekQty = dayTotals.reduce((sum, d) => sum + d.quantity, 0);
+  const weekTotal = dayTotals.reduce((sum, d) => sum + d.total, 0);
+  const bestDay = [...dayTotals].sort((a, b) => b.total - a.total)[0];
+  const topTaker = [...orderTakerMetrics].sort((a, b) => b.weeklyTotal.total - a.weeklyTotal.total)[0];
+
+  const weeklyMixInsights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (weekTotal <= 0) return out;
+    const pct = (part: number) => Math.round((part / weekTotal) * 100);
+    if (bestDay) out.push({id: 'best-day', severity: 'info', text: t('insights.weekly.best', {day: bestDay.day, amount: withCurrency(bestDay.total), pct: pct(bestDay.total)})});
+    if (topTaker && orderTakerMetrics.length > 1) {
+      out.push({id: 'top-taker', severity: 'good', text: t('insights.servers.topSeller', {name: topTaker.userName, amount: withCurrency(topTaker.weeklyTotal.total), pct: pct(topTaker.weeklyTotal.total)})});
+    }
+    return out;
+  }, [weekTotal, bestDay, topTaker, orderTakerMetrics.length, t]);
+
   if (loading) {
     return (
       <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
@@ -282,12 +307,19 @@ export const ProductMixWeeklyReport = () => {
 
   return (
     <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
+      <ReportKpis items={[
+        {label: t('weeklyReport.weekTotal'), value: withDualCurrency(weekTotal), rawValue: weekTotal},
+        {label: t('productMix.unitsSold'), value: formatNumber(weekQty), rawValue: weekQty, rawFormat: 'number'},
+        {label: t('weeklyReport.bestDay'), value: bestDay && bestDay.total > 0 ? bestDay.day : '—', hint: bestDay && bestDay.total > 0 ? withCurrency(bestDay.total) : undefined},
+        {label: t('serverSales.topServer'), value: topTaker?.userName ?? '—', hint: topTaker ? withCurrency(topTaker.weeklyTotal.total) : undefined},
+      ] satisfies ReportKpi[]}/>
+      <ReportInsights items={weeklyMixInsights}/>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">
             <tr>
               <th rowSpan={2} className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700 border-r border-neutral-200">
-                Order Taker
+                {t('mixWeeklyReport.orderTaker')}
               </th>
               {dayHeaders.map(({day, dateLabel}) => (
                 <th key={day} colSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
@@ -296,23 +328,23 @@ export const ProductMixWeeklyReport = () => {
                 </th>
               ))}
               <th colSpan={2} className="py-3 pr-6 text-center text-xs font-semibold text-neutral-700">
-                Weekly Total
+                {t('labels.weeklyTotal')}
               </th>
             </tr>
             <tr>
               {dayHeaders.flatMap(({day}) => [
                 <th key={`${day}-qty`} className="py-2 px-3 text-center text-xs font-semibold text-neutral-600 bg-neutral-50 border-r border-neutral-200">
-                  Qty
+                  {t('mixWeeklyReport.qty')}
                 </th>,
                 <th key={`${day}-total`} className="py-2 px-3 text-center text-xs font-semibold text-neutral-600 bg-neutral-50 border-r border-neutral-200">
-                  Total
+                  {t('columns.amount')}
                 </th>
               ])}
               <th className="py-2 px-3 text-center text-xs font-semibold text-neutral-600 bg-neutral-50 border-r border-neutral-200">
-                Qty
+                {t('mixWeeklyReport.qty')}
               </th>
               <th className="py-2 pr-6 text-center text-xs font-semibold text-neutral-600 bg-neutral-50">
-                Total
+                {t('columns.amount')}
               </th>
             </tr>
           </thead>
@@ -349,6 +381,19 @@ export const ProductMixWeeklyReport = () => {
               </tr>
             )}
           </tbody>
+          {orderTakerMetrics.length > 0 && (
+            <tfoot className="bg-neutral-100 font-semibold border-t-2 border-neutral-300">
+              <tr>
+                <td className="py-3 pl-6 pr-3 text-sm border-r border-neutral-200">{t('columns.total')}</td>
+                {dayTotals.flatMap((d) => [
+                  <td key={`${d.dateKey}-qty`} className="py-3 px-3 text-right text-sm border-r border-neutral-200">{formatNumber(d.quantity)}</td>,
+                  <td key={`${d.dateKey}-total`} className="py-3 px-3 text-right text-sm border-r border-neutral-200">{withCurrency(d.total)}</td>,
+                ])}
+                <td className="py-3 px-3 text-right text-sm border-r border-neutral-200">{formatNumber(weekQty)}</td>
+                <td className="py-3 pr-6 text-right text-sm">{withCurrency(weekTotal)}</td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
     </ReportsLayout>

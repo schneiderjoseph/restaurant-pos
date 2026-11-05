@@ -54,6 +54,7 @@ export const SalesServerFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-server-users">{t('filters.users')}</label>
           <ReactSelect
+            isSearchable
             id="sales-server-users"
             name="users[]"
             isMulti
@@ -70,6 +71,7 @@ export const SalesServerFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-server-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
+            isSearchable
             id="sales-server-order-types"
             name="order_types[]"
             isMulti
@@ -84,6 +86,7 @@ export const SalesServerFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-server-categories">{t('filters.categories')}</label>
           <ReactSelect
+            isSearchable
             id="sales-server-categories"
             name="categories[]"
             isMulti
@@ -98,6 +101,7 @@ export const SalesServerFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-server-dishes">{t('metrics.dishes')}</label>
           <ReactSelect
+            isSearchable
             id="sales-server-dishes"
             name="dishes[]"
             isMulti
@@ -112,6 +116,7 @@ export const SalesServerFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-server-floors">{t('metrics.floors')}</label>
           <ReactSelect
+            isSearchable
             id="sales-server-floors"
             name="floors[]"
             isMulti
@@ -126,6 +131,7 @@ export const SalesServerFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-server-tables">{t('filters.tables')}</label>
           <ReactSelect
+            isSearchable
             id="sales-server-tables"
             name="tables[]"
             isMulti

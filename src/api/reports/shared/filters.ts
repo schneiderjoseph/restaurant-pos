@@ -275,3 +275,25 @@ export const parseDateRangeWithPhrase = (
 
   return {};
 };
+
+/**
+ * The period of the same length that ends just before `range` starts, for
+ * "vs previous period" comparisons. Returns null when the range is open-ended
+ * or cannot be parsed.
+ */
+export const previousPeriod = (
+  range: DateRangeFilter,
+  format: string = QUERY_DATE_TIME_FORMAT,
+): (DateRangeFilter & {startDate: string; endDate: string}) | null => {
+  if (!range.startDate || !range.endDate || !format) return null;
+  const zone = getAppTimezone();
+  const start = DateTime.fromFormat(range.startDate, format, {zone});
+  const end = DateTime.fromFormat(range.endDate, format, {zone});
+  if (!start.isValid || !end.isValid || end < start) return null;
+  // Ranges are inclusive to the minute: "00:00 → 23:59" is one whole day.
+  // Calendar units so DST changes do not shift the window by an hour.
+  const length = end.plus({minutes: 1}).diff(start, ["days", "hours", "minutes"]);
+  const prevEnd = start.minus({minutes: 1});
+  const prevStart = start.minus(length);
+  return {startDate: prevStart.toFormat(format), endDate: prevEnd.toFormat(format)};
+};

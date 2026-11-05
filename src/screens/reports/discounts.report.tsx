@@ -8,7 +8,12 @@ import {OrderDiscount} from "@/api/model/order_discount.ts";
 import {DiscountReason} from "@/api/model/discount_reason.ts";
 import {User} from "@/api/model/user.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
+import {formatNumber, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {GroupTable, groupSum} from "@/components/reports/group-table.tsx";
+import {listNames} from "@/api/reports/insights/credit.ts";
 import {
   aggregateOrderDiscountBreakdown,
   getInvoiceNumber,
@@ -262,11 +267,6 @@ export const DiscountsReport = () => {
     [summaryOrders, t],
   );
 
-  const discountsByUsers = useMemo(
-    () => aggregateOrderDiscountBreakdown(summaryOrders, "user", t("labels.customDiscount")),
-    [summaryOrders, t],
-  );
-
   const totalDiscount = useMemo(
     () => detailRows.reduce((sum, row) => sum + row.amount, 0),
     [detailRows],
@@ -276,6 +276,38 @@ export const DiscountsReport = () => {
     const ids = new Set(detailRows.map((row) => row.orderId));
     return ids.size;
   }, [detailRows]);
+
+  const noValue = (v: string) => !v || v === "-";
+  const byApplier = useMemo(() => groupSum(detailRows, (r) => (noValue(r.appliedBy) ? t("voidsReport.unknown") : r.appliedBy), (r) => r.amount), [detailRows, t]);
+  const byReason = useMemo(() => groupSum(detailRows, (r) => (noValue(r.reason) ? t("discountReport.noReason") : r.reason), (r) => r.amount), [detailRows, t]);
+  const byApprover = useMemo(() => groupSum(detailRows.filter((r) => !noValue(r.approvedBy)), (r) => r.approvedBy, (r) => r.amount), [detailRows]);
+  const withoutReason = detailRows.filter((r) => noValue(r.reason)).length;
+  const selfApproved = detailRows.filter((r) => !noValue(r.approvedBy) && r.approvedBy === r.appliedBy);
+
+  const insights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (detailRows.length === 0) {
+      out.push({id: "none", severity: "good", text: t("insights.discounts.none")});
+      return out;
+    }
+    const pct = (part: number) => (totalDiscount > 0 ? Math.round((part / totalDiscount) * 100) : 0);
+    const top = discountTypes[0] ? [...discountTypes].sort((x, y) => y.total - x.total)[0] : null;
+    if (top) out.push({id: "top", severity: "info", text: t("insights.discounts.top", {name: top.name, amount: withCurrency(top.total), pct: pct(top.total), count: top.quantity})});
+    if (byApplier.length >= 2 && pct(byApplier[0].amount) >= 40) {
+      out.push({id: "applier", severity: "warn", text: t("insights.discounts.applierConcentration", {name: byApplier[0].name, pct: pct(byApplier[0].amount), amount: withCurrency(byApplier[0].amount)})});
+    }
+    if (withoutReason > 0) {
+      out.push({id: "no-reason", severity: withoutReason / detailRows.length >= 0.3 ? "warn" : "info", text: t("insights.discounts.withoutReason", {count: withoutReason, pct: Math.round((withoutReason / detailRows.length) * 100)})});
+    }
+    if (selfApproved.length > 0) {
+      out.push({id: "self-approved", severity: "warn", text: t("insights.discounts.selfApproved", {count: selfApproved.length, names: listNames([...new Set(selfApproved.map((r) => r.appliedBy))], (k, p) => String(t(k, p as never)))})});
+    }
+    if (orderCount > 0) {
+      out.push({id: "avg", severity: "info", text: t("insights.discounts.average", {avg: withCurrency(totalDiscount / orderCount), orders: orderCount})});
+    }
+    return out;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailRows, discountTypes, byApplier, withoutReason, selfApproved.length, totalDiscount, orderCount, t]);
 
   if (loading) {
     return (
@@ -293,169 +325,60 @@ export const DiscountsReport = () => {
     );
   }
 
+  type TypeRow = (typeof discountTypes)[number];
+  const typeColumns: ReportColumn<TypeRow>[] = [
+    {key: "name", header: t("columns.name"), sortValue: (r) => r.name.toLowerCase(), render: (r) => <span className="font-medium">{r.name}</span>, total: () => t("columns.total")},
+    {key: "rate", header: t("columns.valueType"), align: "right", render: (r) => r.rateLabel},
+    {key: "qty", header: t("columns.quantity"), align: "right", sortValue: (r) => r.quantity, render: (r) => formatNumber(r.quantity), total: (rs) => formatNumber(rs.reduce((x, r) => x + r.quantity, 0))},
+    {key: "amount", header: t("columns.amount"), align: "right", sortValue: (r) => r.total, render: (r) => withCurrency(r.total), total: (rs) => withCurrency(rs.reduce((x, r) => x + r.total, 0))},
+    {key: "pct", header: "%", align: "right", sortValue: (r) => r.total, render: (r) => `${totalDiscount > 0 ? Math.round((r.total / totalDiscount) * 100) : 0} %`},
+  ];
+
+  type Detail = (typeof detailRows)[number];
+  const detailColumns: ReportColumn<Detail>[] = [
+    {key: "date", header: t("columns.date"), sortValue: (r) => toLuxonDateTime(r.createdAt as never).toMillis(), render: (r) => toLuxonDateTime(r.createdAt as never).toFormat("yyyy-LL-dd HH:mm"), total: () => t("columns.total")},
+    {key: "order", header: t("columns.order"), sortValue: (r) => r.invoiceLabel, searchValue: (r) => r.invoiceLabel, render: (r) => r.invoiceLabel},
+    {key: "cashier", header: t("metrics.cashier"), sortValue: (r) => r.cashierName, searchValue: (r) => r.cashierName, render: (r) => r.cashierName || "-"},
+    {key: "discount", header: t("columns.discount"), sortValue: (r) => r.discountName, searchValue: (r) => r.discountName, render: (r) => <span className="font-medium">{r.discountName}</span>},
+    {key: "scope", header: t("columns.scope"), render: (r) => <span className="capitalize">{r.scope}</span>},
+    {key: "rate", header: t("columns.valueType"), align: "right", render: (r) => r.valueTypeLabel},
+    {key: "amount", header: t("columns.amount"), align: "right", sortValue: (r) => r.amount, render: (r) => withCurrency(r.amount), total: (rs) => withCurrency(rs.reduce((x, r) => x + r.amount, 0))},
+    {key: "application", header: t("columns.applicationType"), render: (r) => <span className="capitalize">{r.applicationType}</span>},
+    {key: "reason", header: t("columns.reason"), searchValue: (r) => r.reason, render: (r) => (noValue(r.reason) ? <span className="text-amber-700">{t("discountReport.noReason")}</span> : r.reason), cellClass: () => "whitespace-normal"},
+    {key: "appliedBy", header: t("columns.appliedBy"), sortValue: (r) => r.appliedBy, searchValue: (r) => r.appliedBy, render: (r) => r.appliedBy},
+    {key: "approvedBy", header: t("columns.approvedBy"), sortValue: (r) => r.approvedBy, searchValue: (r) => r.approvedBy, render: (r) => r.approvedBy, cellClass: (r) => (!noValue(r.approvedBy) && r.approvedBy === r.appliedBy ? "text-amber-700" : "")},
+  ];
+
+  const kpis: ReportKpi[] = [
+    {label: t("labels.totalDiscount"), value: withDualCurrency(totalDiscount), rawValue: totalDiscount},
+    {label: t("categories.orders"), value: formatNumber(orderCount), rawValue: orderCount, rawFormat: "integer", hint: t("discountReport.lines", {count: detailRows.length})},
+    {label: t("discountReport.avgPerOrder"), value: withCurrency(orderCount ? totalDiscount / orderCount : 0), rawValue: orderCount ? totalDiscount / orderCount : 0},
+    {label: t("discountReport.withoutReason"), value: formatNumber(withoutReason), rawValue: withoutReason, rawFormat: "integer", tone: withoutReason > 0 ? "warn" : "good"},
+  ];
+
   return (
     <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
-      <div className="space-y-8">
-        <div className="grid grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t("categories.orders")}</div>
-            <div className="text-xl font-semibold">{formatNumber(orderCount)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t("labels.discountLines")}</div>
-            <div className="text-xl font-semibold">{formatNumber(detailRows.length)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t("labels.totalDiscount")}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(totalDiscount)}</div>
-          </div>
+      <ReportKpis items={kpis}/>
+      <ReportInsights items={insights}/>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6">
+        <div>
+          <h2 className="text-base font-semibold text-neutral-800 mb-2">{t("labels.discountTypes")}</h2>
+          <SortableReportTable rows={discountTypes} columns={typeColumns} rowKey={(r) => `${r.name}-${r.rateLabel}`} initialSort={{key: "amount", dir: "desc"}} emptyText={t("empty.noDiscountTypes")} xlsxTitle={t("labels.discountTypes")}/>
         </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
-              {t("labels.discountTypes")}
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.name")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.valueType")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.quantity")}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t("columns.amount")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
-                  {discountTypes.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        {t("empty.noDiscountTypes")}
-                      </td>
-                    </tr>
-                  ) : (
-                    discountTypes.map((item) => (
-                      <tr key={`${item.name}-${item.rateLabel}`}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withDualCurrency(item.total)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
-              {t("labels.discountsByUsers")}
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.user")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.valueType")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.quantity")}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t("columns.amount")}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
-                  {discountsByUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                        {t("empty.noDiscountsByUsers")}
-                      </td>
-                    </tr>
-                  ) : (
-                    discountsByUsers.map((item) => (
-                      <tr key={`${item.name}-${item.rateLabel}`}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
-                          {withDualCurrency(item.total)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
-            {t("labels.discountDetails")}
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
-                <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.date")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.order")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("metrics.cashier")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.discount")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.scope")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.valueType")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.amount")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.applicationType")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.reason")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.appliedBy")}</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t("columns.approvedBy")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
-                {detailRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={11} className="py-6 text-center text-sm text-neutral-500">
-                      {t("empty.noDiscountRows")}
-                    </td>
-                  </tr>
-                ) : (
-                  detailRows.map((row) => (
-                    <tr key={row.key}>
-                      <td className="py-3 pl-6 pr-3 text-sm text-neutral-900 whitespace-nowrap">
-                        {toLuxonDateTime(row.createdAt as any).toFormat("yyyy-LL-dd HH:mm")}
-                      </td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.invoiceLabel}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.cashierName || "-"}</td>
-                      <td className="py-3 px-3 text-sm font-medium text-neutral-900">{row.discountName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700 capitalize">{row.scope}</td>
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{row.valueTypeLabel}</td>
-                      <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
-                        {withDualCurrency(row.amount)}
-                      </td>
-                      <td className="py-3 px-3 text-sm text-neutral-700 capitalize">{row.applicationType}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.reason}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.appliedBy}</td>
-                      <td className="py-3 pr-6 text-sm text-neutral-700">{row.approvedBy}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-              {detailRows.length > 0 && (
-                <tfoot className="bg-neutral-50">
-                  <tr>
-                    <td colSpan={6} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">
-                      {t("columns.total")}
-                    </td>
-                    <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
-                      {withDualCurrency(totalDiscount)}
-                    </td>
-                    <td colSpan={4} />
-                  </tr>
-                </tfoot>
-              )}
-            </table>
-          </div>
-        </div>
+        <GroupTable title={t("discountReport.byApplier")} nameHeader={t("columns.appliedBy")} rows={byApplier}/>
+        <GroupTable title={t("discountReport.byReason")} nameHeader={t("columns.reason")} rows={byReason}/>
+        {byApprover.length > 0 && <GroupTable title={t("discountReport.byApprover")} nameHeader={t("columns.approvedBy")} rows={byApprover}/>}
       </div>
+      <h2 className="text-base font-semibold text-neutral-800 mb-2">{t("labels.discountDetails")}</h2>
+      <SortableReportTable
+        rows={detailRows}
+        columns={detailColumns}
+        rowKey={(r) => r.key}
+        initialSort={{key: "date", dir: "asc"}}
+        searchPlaceholder={t("discountReport.search")}
+        emptyText={t("empty.noDiscountRows")}
+        xlsxTitle={t("labels.discountDetails")}
+      />
     </ReportsLayout>
   );
 };

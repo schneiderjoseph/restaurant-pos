@@ -6,6 +6,9 @@ import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {formatTableLabel} from "@/lib/table-label.ts";
 import {reportsAsWalkIn} from "@/lib/guest.ts";
+import {ReportKpis} from "@/components/reports/report-kpis.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {GroupTable, groupSum} from "@/components/reports/group-table.tsx";
 
 type SplitOrderRow = {
   id: string;
@@ -87,38 +90,48 @@ export const SplitOrdersReport = () => {
     return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
+  const userName = (row: SplitOrderRow) => `${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-";
+  const tableLabel = (row: SplitOrderRow) => (!row.table
+    ? "-"
+    : reportsAsWalkIn(row as never)
+      ? t("labels.walkIn")
+      : row.table.name || row.table.source === "asi-room"
+        ? formatTableLabel(row.table as never)
+        : `Table ${row.table.number ?? ""}`.trim());
+  const orderLabel = (row: SplitOrderRow) => (row.invoice_number ? `#${row.invoice_number}` : row.id);
+  const byUser = groupSum(rows, userName, () => 0);
+  const byTable = groupSum(rows, tableLabel, () => 0);
+  const columns: ReportColumn<SplitOrderRow>[] = [
+    {key: 'at', header: t('columns.createdAt'), sortValue: (r) => toLuxonDateTime(r.created_at as never).toMillis(), render: (r) => toLuxonDateTime(r.created_at as never).toFormat("yyyy-LL-dd HH:mm")},
+    {key: 'order', header: t('columns.order'), sortValue: (r) => r.invoice_number ?? 0, searchValue: orderLabel, render: orderLabel},
+    {key: 'split', header: t('columns.splitNumber'), sortValue: (r) => r.split ?? 0, render: (r) => r.split ?? "-"},
+    {key: 'status', header: t('filters.status'), sortValue: (r) => r.status || '', searchValue: (r) => r.status || '', render: (r) => r.status || "-"},
+    {key: 'table', header: t('filters.table'), sortValue: tableLabel, searchValue: tableLabel, render: tableLabel},
+    {key: 'user', header: t('filters.user'), sortValue: userName, searchValue: userName, render: userName},
+  ];
+
   return (
     <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}>
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-          <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('columns.createdAt')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.splitNumber')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.status')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.table')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
-          </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-          {rows.length === 0 ? (
-            <tr>
-              <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">{t('empty.noSplitOrders')}</td>
-            </tr>
-          ) : rows.map((row) => (
-            <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.invoice_number ? `#${row.invoice_number}` : row.id}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.split ?? "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.status || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{!row.table ? "-" : reportsAsWalkIn(row) ? t("labels.walkIn") : row.table.name || row.table.source === "asi-room" ? formatTableLabel(row.table) : `Table ${row.table.number ?? ""}`.trim()}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{`${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-"}</td>
-            </tr>
-          ))}
-          </tbody>
-        </table>
-      </div>
+      <ReportKpis items={[
+        {label: t('splitReport.orders'), value: String(rows.length), rawValue: rows.length, rawFormat: 'integer'},
+        {label: t('mergeReport.topUser'), value: byUser[0]?.name ?? '—', hint: byUser[0] ? t('activityReport.actionsCount', {count: byUser[0].count}) : undefined},
+        {label: t('splitReport.topTable'), value: byTable[0]?.name ?? '—', hint: byTable[0] ? t('activityReport.actionsCount', {count: byTable[0].count}) : undefined},
+      ]}/>
+      {rows.length > 0 && (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6">
+          <GroupTable title={t('activityReport.byUser')} nameHeader={t('filters.user')} rows={byUser} showAmount={false}/>
+          <GroupTable title={t('splitReport.byTable')} nameHeader={t('filters.table')} rows={byTable} showAmount={false}/>
+        </div>
+      )}
+      <SortableReportTable
+        rows={rows}
+        columns={columns}
+        rowKey={(r) => r.id}
+        initialSort={{key: 'at', dir: 'desc'}}
+        searchPlaceholder={t('mergeReport.search')}
+        emptyText={t('empty.noSplitOrders')}
+        xlsxTitle={t('titles.splitOrders')}
+      />
     </ReportsLayout>
   );
 };

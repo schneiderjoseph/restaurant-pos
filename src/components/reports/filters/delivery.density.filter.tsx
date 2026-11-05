@@ -118,6 +118,7 @@ export const DeliveryDensityFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="delivery-density-coupons">{t('metrics.coupons')}</label>
           <ReactSelect
+            isSearchable
             id="delivery-density-coupons"
             name="coupons[]"
             isMulti
@@ -132,6 +133,7 @@ export const DeliveryDensityFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="delivery-density-payment-types">{t('filters.paymentTypes')}</label>
           <ReactSelect
+            isSearchable
             id="delivery-density-payment-types"
             name="payment_types[]"
             isMulti
@@ -146,6 +148,7 @@ export const DeliveryDensityFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="delivery-density-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
+            isSearchable
             id="delivery-density-menu-items"
             name="menu_items[]"
             isMulti
@@ -219,6 +222,7 @@ export const DeliveryDensityFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="delivery-density-areas">{t('filters.areas')}</label>
           <ReactSelect
+            isSearchable
             id="delivery-density-areas"
             name="areas[]"
             isMulti

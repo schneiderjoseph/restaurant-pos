@@ -4,7 +4,11 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
+import {formatNumber, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {GroupTable, groupSum} from "@/components/reports/group-table.tsx";
 
 type ExpenseItem = {
   id?: string;
@@ -100,6 +104,27 @@ export const ExpenseReport = () => {
   }, [filters.endDate, filters.startDate, t]);
 
   const totalExpenses = useMemo(() => rows.reduce((sum, row) => sum + row.amount, 0), [rows]);
+  const byCategory = useMemo(() => groupSum(rows, (r) => r.category || t('expenseReport.uncategorized'), (r) => r.amount), [rows, t]);
+  const closings = useMemo(() => new Set(rows.map((r) => r.closingId)).size, [rows]);
+
+  const insights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (rows.length === 0) return out;
+    const pct = (part: number) => (totalExpenses > 0 ? Math.round((part / totalExpenses) * 100) : 0);
+    if (byCategory[0]) {
+      out.push({id: 'top-category', severity: 'info', text: t('insights.expenses.topCategory', {category: byCategory[0].name, amount: withCurrency(byCategory[0].amount), pct: pct(byCategory[0].amount)})});
+    }
+    const biggest = [...rows].sort((x, y) => y.amount - x.amount)[0];
+    out.push({id: 'biggest', severity: 'info', text: t('insights.expenses.biggest', {description: biggest.description || '—', amount: withCurrency(biggest.amount), pct: pct(biggest.amount)})});
+    const uncategorized = rows.filter((r) => !r.category);
+    if (uncategorized.length) {
+      out.push({id: 'uncategorized', severity: 'warn', text: t('insights.expenses.uncategorized', {count: uncategorized.length, amount: withCurrency(uncategorized.reduce((sum, r) => sum + r.amount, 0))})});
+    }
+    if (closings > 1) {
+      out.push({id: 'per-closing', severity: 'info', text: t('insights.expenses.perClosing', {avg: withCurrency(totalExpenses / closings), count: closings})});
+    }
+    return out;
+  }, [rows, byCategory, totalExpenses, closings, t]);
 
   if (loading) {
     return <ReportsLayout title={t('titles.expense')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.expense')}</div></ReportsLayout>;
@@ -108,44 +133,41 @@ export const ExpenseReport = () => {
     return <ReportsLayout title={t('titles.expense')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
+  type Row = (typeof rows)[number];
+  const fmtWindow = (r: Row) => `${toLuxonDateTime(r.dateFrom as never).toFormat("yyyy-LL-dd HH:mm")} - ${toLuxonDateTime(r.dateTo as never).toFormat("yyyy-LL-dd HH:mm")}`;
+  const columns: ReportColumn<Row>[] = [
+    {key: 'window', header: t('metrics.dateWindow'), sortValue: (r) => toLuxonDateTime(r.dateFrom as never).toMillis(), render: fmtWindow, total: () => t('columns.total')},
+    {key: 'description', header: t('columns.description'), sortValue: (r) => r.description.toLowerCase(), searchValue: (r) => r.description, render: (r) => r.description, cellClass: () => 'whitespace-normal'},
+    {key: 'category', header: t('columns.category'), sortValue: (r) => r.category.toLowerCase(), searchValue: (r) => r.category, render: (r) => r.category || <span className="text-amber-700">{t('expenseReport.uncategorized')}</span>},
+    {key: 'amount', header: t('columns.amount'), align: 'right', sortValue: (r) => r.amount, render: (r) => <span className="font-semibold">{withCurrency(r.amount)}</span>, total: (rs) => withCurrency(rs.reduce((sum, r) => sum + r.amount, 0))},
+  ];
+
+  const kpis: ReportKpi[] = [
+    {label: t('labels.totalExpenses'), value: withDualCurrency(totalExpenses), rawValue: totalExpenses},
+    {label: t('labels.expenseRows'), value: formatNumber(rows.length), rawValue: rows.length, rawFormat: 'integer'},
+    {label: t('expenseReport.closings'), value: formatNumber(closings), rawValue: closings, rawFormat: 'integer'},
+    {label: t('expenseReport.topCategory'), value: byCategory[0]?.name ?? '—', hint: byCategory[0] ? withCurrency(byCategory[0].amount) : undefined},
+  ];
+
   return (
     <ReportsLayout title={t('titles.expense')} subtitle={subtitle}>
-      <div className="space-y-4">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('labels.expenseRows')}</div>
-          <div className="text-xl font-semibold">{formatNumber(rows.length)}</div>
-          <div className="text-sm text-neutral-500 mt-2">{t('labels.totalExpenses')}</div>
-          <div className="text-xl font-semibold">{withDualCurrency(totalExpenses)}</div>
+      <ReportKpis items={kpis}/>
+      <ReportInsights items={insights}/>
+      {byCategory.length > 0 && (
+        <div className="max-w-2xl">
+          <GroupTable title={t('expenseReport.byCategory')} nameHeader={t('columns.category')} rows={byCategory}/>
         </div>
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('metrics.dateWindow')}</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.description')}</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.category')}</th>
-              <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">{t('columns.amount')}</th>
-            </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">{t('empty.noExpenses')}</td>
-              </tr>
-            ) : rows.map((row, index) => (
-              <tr key={`${row.closingId}-${index}`}>
-                <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">
-                  {`${toLuxonDateTime(row.dateFrom as any).toFormat("yyyy-LL-dd HH:mm")} - ${toLuxonDateTime(row.dateTo as any).toFormat("yyyy-LL-dd HH:mm")}`}
-                </td>
-                <td className="py-3 px-3 text-sm text-neutral-700">{row.description}</td>
-                <td className="py-3 px-3 text-sm text-neutral-700">{row.category}</td>
-                <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(row.amount)}</td>
-              </tr>
-            ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
+      <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('expenseReport.detail')}</h2>
+      <SortableReportTable
+        rows={rows}
+        columns={columns}
+        rowKey={(r) => `${r.closingId}-${r.description}-${r.amount}`}
+        initialSort={{key: 'window', dir: 'asc'}}
+        searchPlaceholder={t('expenseReport.search')}
+        emptyText={t('empty.noExpenses')}
+        xlsxTitle={t('expenseReport.detail')}
+      />
     </ReportsLayout>
   );
 };

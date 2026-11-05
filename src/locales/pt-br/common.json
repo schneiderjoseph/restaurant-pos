@@ -94,7 +94,7 @@
     "retryConnection": "Tentar conexão novamente",
     "connecting": "Conectando ao servidor..."
   },
-   "update": {
+  "update": {
     "available": "Update available — tap to reload"
   },
   "offline": {
@@ -226,36 +226,7 @@
         "nested_override": "Preço aninhado"
       }
     },
-    "ingredientMustExist": "Deve corresponder exatamente ao nome ou código de um item de inventário existente (sem diferenciar maiúsculas). Escolha na lista se não for resolvido."
-  },
-  "aiAssistant": {
-    "open": "Abrir {{name}}",
-    "title": "{{name}} – Assistente de IA",
-    "placeholder": "Pergunte sobre vendas, estoque, gestão ou solicite criar/atualizar…",
-    "reviewPrompt": "Preparei {{count}} alteração(ões) de {{entity}} para você revisar abaixo.",
-    "reviewTitle": "Revisar alterações",
-    "confirm": "Confirmar",
-    "applied": "Aplicado: {{imported}} criados/atualizados, {{failed}} falharam, {{skipped}} ignorados.",
-    "cancelled": "O usuário cancelou esta alteração.",
-    "sessionExpired": "Sua sessão expirou. Faça login novamente.",
-    "issues": "Problemas",
-    "expand": "Expandir assistente",
-    "collapse": "Recolher assistente",
-    "clear": "Limpar",
-    "clearConversation": "Limpar conversa",
-    "clearConfirm": "Limpar esta conversa do assistente neste dispositivo?",
-    "working": "{{name}} está trabalhando na sua solicitação…",
-    "examplesTitle": "O que você pode perguntar",
-    "examplesHint": "Clique em um exemplo para testar com {{name}}:",
-    "examples": {
-      "salesToday": "Mostrar o resumo de vendas de hoje",
-      "tablesFloor": "Listar mesas do andar Delivery",
-      "bogoDiscount": "Criar desconto BOGO automático para entradas",
-      "addDish": "Adicionar um novo prato Margherita por R$x",
-      "listUsers": "Listar todos os usuários do POS",
-      "voidsToday": "Show voids for today"
-    },
-    "unknownConfig": "Configuração de importação desconhecida para visualização.",
+    "ingredientMustExist": "Deve corresponder exatamente ao nome ou código de um item de inventário existente (sem diferenciar maiúsculas). Escolha na lista se não for resolvido.",
     "passwordWillBeSet": "A senha será definida ao confirmar"
   }
 }

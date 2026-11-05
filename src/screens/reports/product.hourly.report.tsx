@@ -5,7 +5,9 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
-import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {withCurrency, withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
 import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
@@ -232,6 +234,43 @@ export const ProductHourlyReport = () => {
     return totals;
   }, [menuItemMetrics]);
 
+  const hourTotals = useMemo(() => displayHours.map((hour) => {
+    const key = hour.toString();
+    let quantity = 0;
+    let amount = 0;
+    menuItemMetrics.forEach((m) => {
+      const h = m.hours[key];
+      if (h) {
+        quantity += h.quantity;
+        amount += h.subtotal + h.tax;
+      }
+    });
+    return {hour, quantity, amount};
+  }), [displayHours, menuItemMetrics]);
+  const maxCellQty = useMemo(() => Math.max(0, ...menuItemMetrics.flatMap((m) => Object.values(m.hours).map((h) => h.quantity))), [menuItemMetrics]);
+  const maxHourAmount = Math.max(0, ...hourTotals.map((h) => h.amount));
+  const hourLabel = (hour: number) => (hour === 0 ? '12am' : hour === 12 ? '12pm' : hour < 12 ? `${hour}am` : `${hour - 12}pm`);
+
+  const hourlyInsights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    const active = hourTotals.filter((h) => h.amount > 0);
+    if (active.length === 0) return out;
+    const total = active.reduce((sum, h) => sum + h.amount, 0);
+    const sorted = [...active].sort((a, b) => b.amount - a.amount);
+    const peak = sorted[0];
+    out.push({id: 'peak', severity: 'info', text: t('insights.hourly.peak', {hour: hourLabel(peak.hour), amount: withCurrency(peak.amount), pct: Math.round((peak.amount / total) * 100)})});
+    const top3 = sorted.slice(0, 3);
+    if (active.length > 4) {
+      out.push({id: 'top3', severity: 'info', text: t('insights.hourly.top3', {hours: top3.map((h) => hourLabel(h.hour)).join(', '), pct: Math.round((top3.reduce((sum, h) => sum + h.amount, 0) / total) * 100)})});
+    }
+    const quiet = active.filter((h) => h.amount < total * 0.02);
+    if (quiet.length) {
+      out.push({id: 'quiet', severity: 'info', text: t('insights.hourly.quiet', {hours: quiet.map((h) => hourLabel(h.hour)).join(', ')})});
+    }
+    return out;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hourTotals, t]);
+
   if (loading) {
     return (
       <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
@@ -250,7 +289,27 @@ export const ProductHourlyReport = () => {
 
   return (
     <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
-      <div className="alert alert-warning">{t('messages.productHourlyDisclaimer')}</div>
+      <ReportKpis items={[
+        {label: t('columns.grandTotal'), value: withDualCurrency(grandTotals.finalTotal), rawValue: grandTotals.finalTotal},
+        {label: t('productMix.unitsSold'), value: formatNumber(grandTotals.quantity), rawValue: grandTotals.quantity, rawFormat: 'number'},
+        {label: t('hourlyReport.peakHour'), value: maxHourAmount > 0 ? hourLabel(hourTotals.find((h) => h.amount === maxHourAmount)!.hour) : '—', hint: maxHourAmount > 0 ? withCurrency(maxHourAmount) : undefined},
+        {label: t('hourlyReport.activeHours'), value: String(hourTotals.filter((h) => h.amount > 0).length), rawValue: hourTotals.filter((h) => h.amount > 0).length, rawFormat: 'integer'},
+      ] satisfies ReportKpi[]}/>
+      <ReportInsights items={hourlyInsights}/>
+      {maxHourAmount > 0 && (
+        <div className="mb-6 rounded-lg border border-neutral-200 p-4 break-inside-avoid" data-xlsx-ignore>
+          <h2 className="text-sm font-semibold text-neutral-700 mb-3">{t('hourlyReport.chartTitle')}</h2>
+          <div className="flex items-end gap-1 h-36">
+            {hourTotals.map((h) => (
+              <div key={h.hour} className="flex-1 flex flex-col items-center justify-end h-full gap-1" title={`${hourLabel(h.hour)} : ${withCurrency(h.amount)}`}>
+                <div className={h.amount === maxHourAmount ? 'w-full rounded-t bg-emerald-500' : 'w-full rounded-t bg-primary-400'} style={{height: `${Math.max(1, (h.amount / maxHourAmount) * 100)}%`}}/>
+                <span className="text-[10px] text-neutral-600">{hourLabel(h.hour)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="alert alert-warning" data-xlsx-ignore>{t('messages.productHourlyDisclaimer')}</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">
@@ -289,7 +348,11 @@ export const ProductHourlyReport = () => {
                   const hourKey = hour.toString();
                   const hourMetrics = metrics.hours[hourKey] || {quantity: 0, subtotal: 0, tax: 0};
                   return (
-                    <td key={hour} className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
+                    <td
+                      key={hour}
+                      className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200"
+                      style={hourMetrics.quantity > 0 && maxCellQty > 0 ? {backgroundColor: `rgba(16, 185, 129, ${0.08 + 0.5 * (hourMetrics.quantity / maxCellQty)})`} : undefined}
+                    >
                       {formatNumber(hourMetrics.quantity)}
                     </td>
                   );

@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { ReportsLayout } from "@/screens/partials/reports.layout.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
-import { withDualCurrency, toRecordId } from "@/lib/utils.ts";
+import { withCurrency, withDualCurrency, toRecordId } from "@/lib/utils.ts";
+import { ReportKpis, type ReportKpi } from "@/components/reports/report-kpis.tsx";
+import { ReportInsights, type ReportInsight } from "@/components/reports/report-insights.tsx";
+import { SortableReportTable, type ReportColumn } from "@/components/reports/sortable-report-table.tsx";
 
 const normalizeId = (value: any): string => {
   if (!value) return "";
@@ -103,18 +106,42 @@ export const TipsReport = () => {
   const totalDistributions = distributions.length;
 
   const tipsByUser = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { amount: number; count: number }>();
     distributions.forEach((distribution: any) => {
       (distribution.users || []).forEach((share: any) => {
         const user = share?.user;
         const userName = user
-          ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
-          : normalizeId(share?.user) || "Unknown";
-        map.set(userName, (map.get(userName) || 0) + safeNumber(share?.amount));
+          ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || t('voidsReport.unknown')
+          : normalizeId(share?.user) || t('voidsReport.unknown');
+        const row = map.get(userName) || { amount: 0, count: 0 };
+        row.amount += safeNumber(share?.amount);
+        row.count += 1;
+        map.set(userName, row);
       });
     });
-    return Array.from(map.entries()).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount);
-  }, [distributions]);
+    return Array.from(map.entries()).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.amount - a.amount);
+  }, [distributions, t]);
+
+  type TipRow = (typeof tipsByUser)[number];
+  const distributedTotal = tipsByUser.reduce((sum, r) => sum + r.amount, 0);
+  const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
+
+  const insights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (tipsByUser.length === 0) return out;
+    const top = tipsByUser[0];
+    out.push({ id: 'top', severity: 'info', text: t('insights.tips.top', { name: top.name, amount: withCurrency(top.amount), pct: pct(top.amount, distributedTotal) }) });
+    if (tipsByUser.length >= 2) {
+      const avg = distributedTotal / tipsByUser.length;
+      out.push({ id: 'average', severity: 'info', text: t('insights.tips.average', { avg: withCurrency(avg), count: tipsByUser.length }) });
+    }
+    const gap = totalTips - distributedTotal;
+    if (Math.abs(gap) > 0.5) {
+      out.push({ id: 'gap', severity: 'warn', text: t('insights.tips.gap', { total: withCurrency(totalTips), distributed: withCurrency(distributedTotal), gap: withCurrency(gap) }) });
+    }
+    return out;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tipsByUser, distributedTotal, totalTips, t]);
 
   if (loading) {
     return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.tips')}</div></ReportsLayout>;
@@ -124,43 +151,32 @@ export const TipsReport = () => {
     return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
 
+  const columns: ReportColumn<TipRow>[] = [
+    { key: 'name', header: t('filters.user'), sortValue: (r) => r.name.toLowerCase(), searchValue: (r) => r.name, render: (r) => <span className="font-medium">{r.name}</span>, total: () => t('columns.total') },
+    { key: 'count', header: t('tipsReport.distributions'), align: 'right', sortValue: (r) => r.count, render: (r) => r.count, total: (rs) => rs.reduce((sum, r) => sum + r.count, 0) },
+    { key: 'amount', header: t('reports.tips'), align: 'right', sortValue: (r) => r.amount, render: (r) => withCurrency(r.amount), total: (rs) => withCurrency(rs.reduce((sum, r) => sum + r.amount, 0)) },
+    { key: 'share', header: t('serverSales.share'), align: 'right', sortValue: (r) => r.amount, render: (r) => `${pct(r.amount, distributedTotal)} %` },
+  ];
+
+  const kpis: ReportKpi[] = [
+    { label: t('metrics.totalTips'), value: withDualCurrency(totalTips), rawValue: totalTips },
+    { label: t('metrics.savedDistributions'), value: String(totalDistributions), rawValue: totalDistributions, rawFormat: 'integer' },
+    { label: t('tipsReport.beneficiaries'), value: String(tipsByUser.length), rawValue: tipsByUser.length, rawFormat: 'integer' },
+    { label: t('tipsReport.averagePerPerson'), value: withCurrency(tipsByUser.length ? distributedTotal / tipsByUser.length : 0), rawValue: tipsByUser.length ? distributedTotal / tipsByUser.length : 0 },
+  ];
+
   return (
     <ReportsLayout title={t('titles.tips')} subtitle={subtitle}>
-      <div className="grid grid-cols-2 gap-4 mb-5">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('metrics.totalTips')}</div>
-          <div className="text-2xl font-semibold">{withDualCurrency(totalTips)}</div>
-        </div>
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('metrics.savedDistributions')}</div>
-          <div className="text-2xl font-semibold">{totalDistributions}</div>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
-              <th className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">{t('reports.tips')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-            {tipsByUser.length > 0 ? (
-              tipsByUser.map((item) => (
-                <tr key={item.name}>
-                  <td className="py-3 pl-6 pr-3 text-sm text-neutral-800">{item.name}</td>
-                  <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withDualCurrency(item.amount)}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">{t('empty.noTips')}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ReportKpis items={kpis} />
+      <ReportInsights items={insights} />
+      <SortableReportTable
+        rows={tipsByUser}
+        columns={columns}
+        rowKey={(r) => r.name}
+        initialSort={{ key: 'amount', dir: 'desc' }}
+        emptyText={t('empty.noTips')}
+        xlsxTitle={t('tipsReport.byPerson')}
+      />
     </ReportsLayout>
   );
 };

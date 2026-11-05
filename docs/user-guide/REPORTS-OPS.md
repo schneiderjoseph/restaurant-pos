@@ -15,7 +15,7 @@ The Reports hub lists operational and sales reports by category. Pick a category
 
 ### Categories
 
-Categories group related reports: dashboards, sales, orders, cash closing, operations, products, inventory, labor, and AI.
+Categories group related reports: dashboards, sales, orders, cash closing, operations, products, inventory, and labor.
 
 1. Click a category to load its report list.
 2. A check mark shows the active category.

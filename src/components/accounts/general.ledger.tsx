@@ -199,6 +199,7 @@ export const GeneralLedger = () => {
             name="account"
             render={({field}) => (
               <ReactSelect
+                isSearchable
                 {...field}
                 options={accountOptions}
                 isClearable={true}

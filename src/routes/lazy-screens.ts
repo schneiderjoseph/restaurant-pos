@@ -109,9 +109,6 @@ export const ExpenseReport = lazy(() =>
 export const ActivityReport = lazy(() =>
   import('@/screens/reports/activity.report.tsx').then(m => ({default: m.ActivityReport}))
 );
-export const AiReport = lazy(() =>
-  import('@/screens/reports/ai.report.tsx').then(m => ({default: m.AiReport}))
-);
 export const SalesByCustomerReport = lazy(() =>
   import('@/screens/reports/sales.by.customer.report.tsx').then(m => ({default: m.SalesByCustomerReport}))
 );

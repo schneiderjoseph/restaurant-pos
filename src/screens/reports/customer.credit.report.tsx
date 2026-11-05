@@ -33,9 +33,21 @@ import {
 } from '@/lib/restaurant-profile.ts';
 import { getInvoiceNumber } from '@/lib/order.ts';
 import { loadCustomerName } from '@/lib/customer.service.ts';
-import { cn, withDualCurrency } from '@/lib/utils.ts';
+import { cn, withCurrency, withDualCurrency } from '@/lib/utils.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { REPORTS_CUSTOMER_CREDIT } from '@/routes/posr.ts';
+import { computeCreditAging } from '@/api/reports/sales/customer-credit.ts';
+import { buildCreditInsights } from '@/api/reports/insights/credit.ts';
+import { ReportKpis, type ReportKpi } from '@/components/reports/report-kpis.tsx';
+import { ReportInsights } from '@/components/reports/report-insights.tsx';
+import { SortableReportTable, type ReportColumn } from '@/components/reports/sortable-report-table.tsx';
+
+const fmtDate = (d?: Date | null) =>
+  d ? toLuxonDateTime(d as never).toFormat('yyyy-LL-dd') : '—';
+
+const pctOf = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
+
+const sumBy = <R,>(rs: R[], f: (r: R) => number) => rs.reduce((acc, r) => acc + f(r), 0);
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
@@ -120,11 +132,125 @@ export const CustomerCreditReport = () => {
           charged: sum.charged + row.charged,
           settled: sum.settled + row.settled,
           due: sum.due + row.due,
+          current: sum.current + (row.aging?.current ?? 0),
+          d31_60: sum.d31_60 + (row.aging?.d31_60 ?? 0),
+          d61_90: sum.d61_90 + (row.aging?.d61_90 ?? 0),
+          over90: sum.over90 + (row.aging?.over90 ?? 0),
+          orders: sum.orders + (row.orderCount ?? 0),
         }),
-        { charged: 0, settled: 0, due: 0 },
+        { charged: 0, settled: 0, due: 0, current: 0, d31_60: 0, d61_90: 0, over90: 0, orders: 0 },
       ),
     [rows],
   );
+
+  /** Single-customer aging computed from the loaded folio. */
+  const folioAging = useMemo(() => {
+    if (!singleCustomer) return null;
+    return computeCreditAging(
+      orders.map((o) => ({
+        at: o.created_at ? toLuxonDateTime(o.created_at as never).toJSDate() : null,
+        amount: orderCreditChargeTotal(o),
+      })),
+      settledAmt,
+      new Date(),
+    );
+  }, [orders, settledAmt, singleCustomer]);
+
+  const aging = singleCustomer && folioAging
+    ? folioAging
+    : { current: totals.current, d31_60: totals.d31_60, d61_90: totals.d61_90, over90: totals.over90, oldestDueDays: null };
+  const over60 = aging.d61_90 + aging.over90;
+
+  const insights = useMemo(
+    () => buildCreditInsights(
+      singleCustomer && folioAging && rows[0] ? [{ ...rows[0], aging: folioAging }] : rows,
+      (key, params) => String(t(key, params as never)),
+      (n) => withCurrency(n),
+    ),
+    [rows, singleCustomer, folioAging, t],
+  );
+
+  const debtorCount = rows.filter((r) => r.due > 0.009).length;
+  const kpis: ReportKpi[] = [
+    {
+      label: t('columns.creditDue'),
+      value: withDualCurrency(totals.due),
+      rawValue: totals.due,
+      tone: aging.over90 > 0.009 ? 'bad' : over60 > 0.009 ? 'warn' : 'default',
+      hint: singleCustomer ? undefined : t('labels.customerCount', { count: debtorCount }),
+    },
+    {
+      label: t('credit.over60'),
+      value: withDualCurrency(over60),
+      rawValue: over60,
+      tone: over60 > 0.009 ? 'warn' : 'good',
+      hint: t('credit.pctOfDue', { pct: pctOf(over60, totals.due) }),
+    },
+    {
+      label: t('columns.creditCharged'),
+      value: withDualCurrency(totals.charged),
+      rawValue: totals.charged,
+      hint: t('labels.creditOrdersCount', { count: singleCustomer ? orders.length : totals.orders }),
+    },
+    {
+      label: t('credit.collectionRate'),
+      value: `${pctOf(totals.settled, totals.charged)} %`,
+      rawValue: totals.charged > 0 ? totals.settled / totals.charged : 0,
+      rawFormat: 'percent',
+      tone: pctOf(totals.settled, totals.charged) >= 80 ? 'good' : 'default',
+      hint: `${t('columns.creditSettled')} : ${withCurrency(totals.settled)}`,
+    },
+  ];
+
+  const agingRows: Array<{ key: 'current' | 'd31_60' | 'd61_90' | 'over90'; label: string; amount: number; tone: string }> = [
+    { key: 'current', label: t('credit.bucketCurrent'), amount: aging.current, tone: '' },
+    { key: 'd31_60', label: t('credit.bucket31_60'), amount: aging.d31_60, tone: 'text-amber-700' },
+    { key: 'd61_90', label: t('credit.bucket61_90'), amount: aging.d61_90, tone: 'text-orange-700' },
+    { key: 'over90', label: t('credit.bucketOver90'), amount: aging.over90, tone: 'text-red-700 font-semibold' },
+  ];
+  const agingTotal = agingRows.reduce((sum, r) => sum + r.amount, 0);
+
+  const debtorColumns: ReportColumn<CustomerCreditArRow>[] = [
+    {
+      key: 'name',
+      header: t('columns.customer'),
+      sortValue: (r) => r.name.toLowerCase(),
+      searchValue: (r) => `${r.name} ${r.phone ?? ''}`,
+      render: (r) => (
+        <a
+          href={`${REPORTS_CUSTOMER_CREDIT}?customer_id=${encodeURIComponent(r.customerId)}`}
+          className="text-primary-600 hover:underline"
+          data-testid="credit-ar-customer-link"
+        >
+          {r.name}
+          {r.creditAllowed === false && (
+            <span className="ml-2 text-xs rounded bg-neutral-200 px-1.5 py-0.5 text-neutral-700">{t('credit.revoked')}</span>
+          )}
+        </a>
+      ),
+      total: () => t('columns.total'),
+    },
+    { key: 'phone', header: t('credit.phone'), render: (r) => r.phone || '—', sortValue: (r) => r.phone ?? '' },
+    { key: 'orders', header: t('columns.orders'), align: 'right', sortValue: (r) => r.orderCount ?? 0, render: (r) => r.orderCount ?? 0, total: (rs) => sumBy(rs, (r) => r.orderCount ?? 0) },
+    { key: 'lastCharge', header: t('credit.lastCharge'), sortValue: (r) => r.lastChargeAt?.getTime() ?? 0, render: (r) => fmtDate(r.lastChargeAt) },
+    { key: 'lastPayment', header: t('credit.lastPayment'), sortValue: (r) => r.lastSettlementAt?.getTime() ?? 0, render: (r) => fmtDate(r.lastSettlementAt) },
+    { key: 'limit', header: t('credit.limit'), align: 'right', sortValue: (r) => r.creditLimit ?? 0, render: (r) => (r.creditLimit ? withCurrency(r.creditLimit) : '—') },
+    { key: 'charged', header: t('columns.creditCharged'), align: 'right', sortValue: (r) => r.charged, render: (r) => withCurrency(r.charged), total: (rs) => withCurrency(sumBy(rs, (r) => r.charged)) },
+    { key: 'settled', header: t('columns.creditSettled'), align: 'right', sortValue: (r) => r.settled, render: (r) => withCurrency(r.settled), total: (rs) => withCurrency(sumBy(rs, (r) => r.settled)) },
+    { key: 'current', header: t('credit.bucketCurrentShort'), align: 'right', sortValue: (r) => r.aging?.current ?? 0, render: (r) => withCurrency(r.aging?.current ?? 0), total: (rs) => withCurrency(sumBy(rs, (r) => r.aging?.current ?? 0)) },
+    { key: 'd31_60', header: '31–60', align: 'right', sortValue: (r) => r.aging?.d31_60 ?? 0, render: (r) => withCurrency(r.aging?.d31_60 ?? 0), cellClass: (r) => ((r.aging?.d31_60 ?? 0) > 0.009 ? 'text-amber-700' : ''), total: (rs) => withCurrency(sumBy(rs, (r) => r.aging?.d31_60 ?? 0)) },
+    { key: 'd61_90', header: '61–90', align: 'right', sortValue: (r) => r.aging?.d61_90 ?? 0, render: (r) => withCurrency(r.aging?.d61_90 ?? 0), cellClass: (r) => ((r.aging?.d61_90 ?? 0) > 0.009 ? 'text-orange-700' : ''), total: (rs) => withCurrency(sumBy(rs, (r) => r.aging?.d61_90 ?? 0)) },
+    { key: 'over90', header: '90+', align: 'right', sortValue: (r) => r.aging?.over90 ?? 0, render: (r) => withCurrency(r.aging?.over90 ?? 0), cellClass: (r) => ((r.aging?.over90 ?? 0) > 0.009 ? 'text-red-700 font-semibold' : ''), total: (rs) => withCurrency(sumBy(rs, (r) => r.aging?.over90 ?? 0)) },
+    {
+      key: 'due',
+      header: t('columns.creditDue'),
+      align: 'right',
+      sortValue: (r) => r.due,
+      render: (r) => withCurrency(r.due),
+      cellClass: (r) => cn(r.due > 0.009 && 'font-semibold', r.creditLimit && r.due > r.creditLimit ? 'text-red-700' : ''),
+      total: (rs) => withCurrency(sumBy(rs, (r) => r.due)),
+    },
+  ];
 
   const printCreditFolio = async (lang: StayBillLang) => {
     if (!singleCustomer) return;
@@ -231,80 +357,73 @@ export const CustomerCreditReport = () => {
 
   return (
     <ReportsLayout title={title} subtitle={subtitle} customActions={printActions}>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('columns.creditCharged')}</div>
-          <div className="text-2xl font-semibold">{withDualCurrency(totals.charged)}</div>
-        </div>
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('columns.creditSettled')}</div>
-          <div className="text-2xl font-semibold">{withDualCurrency(totals.settled)}</div>
-        </div>
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('columns.creditDue')}</div>
-          <div className="text-2xl font-semibold">{withDualCurrency(totals.due)}</div>
-          <div className="text-sm text-neutral-500">
-            {t('labels.customerCount', { count: rows.length })}
-          </div>
-        </div>
+      <ReportKpis items={kpis} />
+      <ReportInsights items={insights} />
+
+      <h2 className="text-sm font-semibold text-neutral-700 mb-2">{t('credit.agingTitle')}</h2>
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 mb-5 max-w-2xl">
+        <table className="min-w-full divide-y divide-neutral-200" data-xlsx-title={t('credit.agingTitle')}>
+          <thead className="bg-neutral-50">
+            <tr>
+              <th className="py-2.5 pl-4 pr-3 text-left text-sm font-semibold text-neutral-700">{t('credit.age')}</th>
+              <th className="py-2.5 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.amount')}</th>
+              <th className="py-2.5 pr-4 pl-3 text-right text-sm font-semibold text-neutral-700">%</th>
+              {!singleCustomer && (
+                <th className="py-2.5 pr-4 pl-3 text-right text-sm font-semibold text-neutral-700">{t('credit.customers')}</th>
+              )}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-100 bg-white">
+            {agingRows.map((r) => (
+              <tr key={r.key}>
+                <td className="py-2 pl-4 pr-3 text-sm">{r.label}</td>
+                <td className={cn('py-2 px-3 text-right text-sm', r.amount > 0.009 && r.tone)}>{withCurrency(r.amount)}</td>
+                <td className="py-2 pr-4 pl-3 text-right text-sm">
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="hidden sm:block w-24 h-2 bg-neutral-100 rounded" data-xlsx-ignore>
+                      <div className="h-2 rounded bg-primary-500" style={{ width: `${pctOf(r.amount, agingTotal)}%` }} />
+                    </div>
+                    <span>{pctOf(r.amount, agingTotal)} %</span>
+                  </div>
+                </td>
+                {!singleCustomer && (
+                  <td className="py-2 pr-4 pl-3 text-right text-sm">
+                    {rows.filter((row) => (row.aging?.[r.key] ?? 0) > 0.009).length}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot className="bg-neutral-50 font-semibold">
+            <tr>
+              <td className="py-2 pl-4 pr-3 text-sm">{t('columns.total')}</td>
+              <td className="py-2 px-3 text-right text-sm">{withCurrency(agingTotal)}</td>
+              <td className="py-2 pr-4 pl-3 text-right text-sm">100 %</td>
+              {!singleCustomer && <td className="py-2 pr-4 pl-3 text-right text-sm">{debtorCount}</td>}
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
       {!singleCustomer && (
-        <div className="overflow-x-auto rounded-lg border border-neutral-200 mb-5">
-          <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
-              <tr>
-                <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
-                  {t('columns.customer')}
-                </th>
-                <th className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
-                  {t('columns.creditCharged')}
-                </th>
-                <th className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
-                  {t('columns.creditSettled')}
-                </th>
-                <th className="py-3.5 pr-6 pl-3 text-right text-sm font-semibold text-neutral-700">
-                  {t('columns.creditDue')}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
-              {rows.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
-                    {t('empty.noCreditBalances')}
-                  </td>
-                </tr>
-              ) : (
-                rows.map((row) => (
-                  <tr key={row.customerId} data-testid="credit-ar-row">
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-800">
-                      <a
-                        href={`${REPORTS_CUSTOMER_CREDIT}?customer_id=${encodeURIComponent(row.customerId)}`}
-                        className="text-primary-600 hover:underline"
-                        data-testid="credit-ar-customer-link"
-                      >
-                        {row.name}
-                      </a>
-                    </td>
-                    <td className="py-3 px-3 text-right text-sm">{withDualCurrency(row.charged)}</td>
-                    <td className="py-3 px-3 text-right text-sm">{withDualCurrency(row.settled)}</td>
-                    <td className={cn(
-                      'py-3 pr-6 pl-3 text-right text-sm',
-                      row.due > 0.009 && 'font-semibold',
-                    )}>
-                      {withDualCurrency(row.due)}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <h2 className="text-sm font-semibold text-neutral-700 mb-2">{t('credit.byCustomer')}</h2>
+          <SortableReportTable
+            rows={rows}
+            columns={debtorColumns}
+            rowKey={(r) => r.customerId}
+            initialSort={{ key: 'due', dir: 'desc' }}
+            searchPlaceholder={t('credit.searchCustomer')}
+            emptyText={t('empty.noCreditBalances')}
+            rowTestId="credit-ar-row"
+            xlsxTitle={t('credit.byCustomer')}
+          />
+        </>
       )}
 
       {singleCustomer && (
         <>
+          <h2 className="text-sm font-semibold text-neutral-700 mb-2">{t('credit.chargesTitle')}</h2>
           <div className="overflow-x-auto rounded-lg border border-neutral-200 mb-5">
             <table className="min-w-full divide-y divide-neutral-200">
               <thead className="bg-neutral-50">
@@ -343,6 +462,15 @@ export const CustomerCreditReport = () => {
                   ))
                 )}
               </tbody>
+              {orders.length > 0 && (
+                <tfoot className="bg-neutral-100 font-semibold border-t-2 border-neutral-300">
+                  <tr>
+                    <td className="py-2.5 pl-6 pr-3 text-sm">{t('columns.total')}</td>
+                    <td className="py-2.5 px-3 text-sm">{t('labels.creditOrdersCount', { count: orders.length })}</td>
+                    <td className="py-2.5 pr-6 pl-3 text-right text-sm">{withCurrency(totals.charged)}</td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
 
@@ -389,6 +517,15 @@ export const CustomerCreditReport = () => {
                   ))
                 )}
               </tbody>
+              {settlements.length > 0 && (
+                <tfoot className="bg-neutral-100 font-semibold border-t-2 border-neutral-300">
+                  <tr>
+                    <td className="py-2.5 pl-6 pr-3 text-sm">{t('columns.total')}</td>
+                    <td className="py-2.5 px-3 text-sm" />
+                    <td className="py-2.5 pr-6 pl-3 text-right text-sm">{withCurrency(totals.settled)}</td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
           <div className="mt-3 text-sm text-neutral-500">

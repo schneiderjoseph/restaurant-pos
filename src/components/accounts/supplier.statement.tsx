@@ -132,6 +132,7 @@ export const SupplierStatement = () => {
             name="account"
             render={({field}) => (
               <ReactSelect
+                isSearchable
                 {...field}
                 options={accountOptions}
                 placeholder={t('reports.selectSupplierAccount')}

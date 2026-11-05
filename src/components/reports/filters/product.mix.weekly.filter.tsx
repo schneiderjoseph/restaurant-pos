@@ -176,6 +176,7 @@ export const ProductMixWeeklyReportFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-weekly-order-takers">{t('filters.orderTakers')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-weekly-order-takers"
             name="order_takers[]"
             isMulti
@@ -192,6 +193,7 @@ export const ProductMixWeeklyReportFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-weekly-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-weekly-order-types"
             name="order_types[]"
             isMulti
@@ -206,6 +208,7 @@ export const ProductMixWeeklyReportFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-weekly-categories">{t('filters.categories')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-weekly-categories"
             name="categories[]"
             isMulti
@@ -220,6 +223,7 @@ export const ProductMixWeeklyReportFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="product-mix-weekly-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
+            isSearchable
             id="product-mix-weekly-menu-items"
             name="menu_items[]"
             isMulti

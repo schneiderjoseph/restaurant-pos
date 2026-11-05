@@ -8,7 +8,6 @@
     "openReport": "{{report}} raporunu aç"
   },
   "categories": {
-    "ai": "AI",
     "dashboard": "Gösterge Paneli",
     "sales": "Satışlar",
     "orders": "Siparişler",
@@ -17,7 +16,6 @@
     "products": "Ürünler"
   },
   "reports": {
-    "aiReport": "AI Raporu",
     "salesDashboard": "Satış gösterge paneli",
     "serverSales": "Garson Satışları",
     "salesSummary": "Satış Özeti",
@@ -55,8 +53,6 @@
     "managerApprovalReport": "Yönetici onay raporu"
   },
   "titles": {
-    "aiReport": "AI Raporu",
-    "aiGeneratedSubtitle": "İsteğinizden oluşturuldu",
     "salesDashboard": "Satış gösterge paneli",
     "serverSales": "Garson satışları",
     "salesSummary": "Satış özeti",
@@ -138,36 +134,14 @@
     "orderType": "Sipariş Türü",
     "paymentType": "Ödeme Türü",
     "status": "Durum",
-    "aiPrompt": "İstediğiniz raporu veya analizi açıklayın...",
     "format": "Biçim:",
     "list": "Liste",
     "table": "Tablo",
     "run": "Çalıştır",
     "unnamedUser": "Adsız kullanıcı",
-    "aiPromptEmpty": "İstem boş olamaz.",
-    "aiRunFailed": "Yapay zeka raporu çalıştırılamadı.",
-    "aiDisabled": "Yapay zeka raporları bu sunucuda devre dışı.",
-    "aiDailyLimitReached": "Günlük yapay zeka limiti doldu. Yarın tekrar deneyin.",
-    "aiMonthlyLimitReached": "Aylık yapay zeka limiti doldu. Bir yöneticinize başvurun.",
-    "aiUsageDaily": "Bugün: {{used}} / {{limit}}",
-    "aiUsageMonthly": "Bu ay: {{used}} / {{limit}}",
-    "aiFetching": "{{tool}} getiriliyor...",
-    "aiRunning": "Yapay zeka raporu çalıştırılıyor...",
-    "aiResponse": "Yanıt",
-    "aiExamples": "Örnek istemler",
-    "aiDataUsed": "Kullanılan veriler ({{count}} araç)",
-    "aiHistory": "Son istemler ({{count}})",
     "prompt": "İstem",
     "chart": "Grafik",
     "analysis": "Analiz",
-    "aiCategory": {
-      "sales": "Satış",
-      "charts": "Grafikler ve Tahmin",
-      "analysis": "Analiz",
-      "all": "Tümü",
-      "operations": "Operasyonlar",
-      "accounts": "Hesaplar"
-    },
     "location": "Konum",
     "selectDate": "Tarih seçin",
     "selectWeek": "Bir hafta seçin",

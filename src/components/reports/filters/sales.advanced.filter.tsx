@@ -59,6 +59,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-order-takers">{t('filters.orderTakers')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-order-takers"
             name="order_takers[]"
             isMulti
@@ -75,6 +76,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-cashiers">{t('metrics.cashiers')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-cashiers"
             name="cashiers[]"
             isMulti
@@ -91,6 +93,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-tables">{t('filters.tables')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-tables"
             name="tables[]"
             isMulti
@@ -105,6 +108,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-floors">{t('metrics.floors')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-floors"
             name="floors[]"
             isMulti
@@ -119,6 +123,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-order-types">{t('filters.orderTypes')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-order-types"
             name="order_types[]"
             isMulti
@@ -145,6 +150,7 @@ export const SalesAdvancedFilter = () => {
             <Checkbox name="without_discount" value="1" label={t('filters.withoutDiscount')} />
           </div>
           <ReactSelect
+            isSearchable
             id="sales-advanced-discounts"
             name="discounts[]"
             isMulti
@@ -160,6 +166,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-payment-types">{t('filters.paymentTypes')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-payment-types"
             name="payment_types[]"
             isMulti
@@ -174,6 +181,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-menus">{t('filters.menus')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-menus"
             name="menus[]"
             isMulti
@@ -188,6 +196,7 @@ export const SalesAdvancedFilter = () => {
         <div className="flex flex-col gap-2">
           <label htmlFor="sales-advanced-menu-items">{t('filters.menuItems')}</label>
           <ReactSelect
+            isSearchable
             id="sales-advanced-menu-items"
             name="menu_items[]"
             isMulti

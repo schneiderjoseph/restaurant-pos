@@ -220,36 +220,7 @@
         "nested_override": "Nested price override"
       }
     },
-    "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved."
-  },
-  "aiAssistant": {
-    "open": "Open {{name}}",
-    "title": "{{name}} - AI Assistant",
-    "placeholder": "Ask about sales, inventory, manage—or request a create or update…",
-    "reviewPrompt": "I've prepared {{count}} {{entity}} change(s) for you to review below.",
-    "reviewTitle": "Review changes",
-    "confirm": "Confirm",
-    "applied": "Applied: {{imported}} created/updated, {{failed}} failed, {{skipped}} skipped.",
-    "cancelled": "User cancelled this change.",
-    "sessionExpired": "Your session expired. Please sign in again.",
-    "issues": "Issues",
-    "expand": "Expand assistant",
-    "collapse": "Collapse assistant",
-    "clear": "Clear",
-    "clearConversation": "Clear conversation",
-    "clearConfirm": "Clear this assistant conversation on this device?",
-    "working": "{{name}} is working on your request…",
-    "examplesTitle": "What you can ask",
-    "examplesHint": "Click a prompt to try it with {{name}}:",
-    "examples": {
-      "salesToday": "Show me today's sales summary",
-      "tablesFloor": "List tables on the Delivery floor",
-      "bogoDiscount": "Create automatic BOGO discount for starters",
-      "addDish": "Add a new dish Margherita for x price",
-      "listUsers": "List all POS users",
-      "voidsToday": "Show voids for today"
-    },
-    "unknownConfig": "Unknown import configuration for preview.",
+    "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved.",
     "passwordWillBeSet": "Password will be set on confirm"
   },
   "moduleAccess": {

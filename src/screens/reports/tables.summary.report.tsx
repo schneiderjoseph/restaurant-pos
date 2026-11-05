@@ -5,13 +5,18 @@ import { useDB } from '@/api/db/db.ts';
 import { fetchPaidOrders, getOrderFigures } from '@/api/reports/sales';
 import { parseDateRangeFromParams } from '@/api/reports/shared/filters.ts';
 import { formatTableLabel } from '@/lib/table-label.ts';
-import { formatNumber, withDualCurrency } from '@/lib/utils.ts';
+import { formatNumber, withCurrency, withDualCurrency } from '@/lib/utils.ts';
+import { ReportKpis, type ReportKpi } from '@/components/reports/report-kpis.tsx';
+import { ReportInsights, type ReportInsight } from '@/components/reports/report-insights.tsx';
+import { SortableReportTable, type ReportColumn } from '@/components/reports/sortable-report-table.tsx';
 
 type TableSummaryRow = {
   table: string;
   orders: number;
+  covers: number;
   revenue: number;
   avgCheck: number;
+  hasTable: boolean;
 };
 
 const parseFilters = () => parseDateRangeFromParams(new URLSearchParams(window.location.search));
@@ -25,7 +30,7 @@ export const TablesSummaryReport = () => {
   const filters = useMemo(parseFilters, []);
   const subtitle =
     filters.startDate && filters.endDate
-      ? `${filters.startDate} to ${filters.endDate}`
+      ? `${filters.startDate} → ${filters.endDate}`
       : undefined;
 
   const fetchData = async () => {
@@ -56,15 +61,16 @@ export const TablesSummaryReport = () => {
         ],
       });
 
-      const map = new Map<string, { orders: number; revenue: number }>();
+      const map = new Map<string, { orders: number; covers: number; revenue: number; hasTable: boolean }>();
       orders.forEach((order) => {
         const figures = getOrderFigures(order);
         // No table: grouped by its order type (takeaway, delivery…), not all as delivery.
         const table = order?.table
           ? formatTableLabel(order.table, i18n.language)
           : order?.order_type?.name || t('columns.noTable');
-        const current = map.get(table) || { orders: 0, revenue: 0 };
+        const current = map.get(table) || { orders: 0, covers: 0, revenue: 0, hasTable: Boolean(order?.table) };
         current.orders += 1;
+        current.covers += Number(order?.covers) || 0;
         current.revenue += figures.totalRevenue;
         map.set(table, current);
       });
@@ -74,7 +80,9 @@ export const TablesSummaryReport = () => {
           .map(([table, data]) => ({
             table,
             orders: data.orders,
+            covers: data.covers,
             revenue: data.revenue,
+            hasTable: data.hasTable,
             avgCheck: data.orders > 0 ? data.revenue / data.orders : 0,
           }))
           .sort((a, b) => b.revenue - a.revenue),
@@ -96,13 +104,39 @@ export const TablesSummaryReport = () => {
       rows.reduce(
         (acc, row) => {
           acc.orders += row.orders;
+          acc.covers += row.covers;
           acc.revenue += row.revenue;
           return acc;
         },
-        { orders: 0, revenue: 0 },
+        { orders: 0, covers: 0, revenue: 0 },
       ),
     [rows],
   );
+
+  const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
+  const teamAvg = totals.orders > 0 ? totals.revenue / totals.orders : 0;
+
+  const insights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (rows.length === 0) return out;
+    const seated = rows.filter((r) => r.hasTable);
+    const best = seated[0] ?? rows[0];
+    out.push({ id: 'best', severity: 'good', text: t('insights.tables.best', { table: best.table, amount: withCurrency(best.revenue), pct: pct(best.revenue, totals.revenue), orders: best.orders }) });
+    if (seated.length >= 8) {
+      const top5 = seated.slice(0, 5);
+      out.push({ id: 'top5', severity: 'info', text: t('insights.tables.top5', { pct: pct(top5.reduce((sum, r) => sum + r.revenue, 0), totals.revenue), count: seated.length }) });
+    }
+    const noTable = rows.filter((r) => !r.hasTable);
+    if (noTable.length) {
+      const amount = noTable.reduce((sum, r) => sum + r.revenue, 0);
+      out.push({ id: 'no-table', severity: 'info', text: t('insights.tables.noTable', { amount: withCurrency(amount), pct: pct(amount, totals.revenue), types: noTable.map((r) => r.table).join(', ') }) });
+    }
+    const quiet = seated.filter((r) => r.orders <= 2);
+    if (quiet.length && seated.length >= 5) {
+      out.push({ id: 'quiet', severity: 'info', text: t('insights.tables.quiet', { count: quiet.length, names: quiet.slice(0, 8).map((r) => r.table).join(', ') }) });
+    }
+    return out;
+  }, [rows, totals.revenue, t]);
 
   if (loading) {
     return (
@@ -122,66 +156,48 @@ export const TablesSummaryReport = () => {
     );
   }
 
+  const sumOf = (rs: TableSummaryRow[], f: (r: TableSummaryRow) => number) => rs.reduce((acc, r) => acc + f(r), 0);
+  const columns: ReportColumn<TableSummaryRow>[] = [
+    { key: 'table', header: t('columns.table'), sortValue: (r) => r.table.toLowerCase(), searchValue: (r) => r.table, render: (r) => <span className="font-medium">{r.table}</span>, total: () => t('columns.total') },
+    { key: 'orders', header: t('columns.orders'), align: 'right', sortValue: (r) => r.orders, render: (r) => formatNumber(r.orders, 0), total: (rs) => formatNumber(sumOf(rs, (r) => r.orders), 0) },
+    { key: 'covers', header: t('columns.covers'), align: 'right', sortValue: (r) => r.covers, render: (r) => formatNumber(r.covers, 0), total: (rs) => formatNumber(sumOf(rs, (r) => r.covers), 0) },
+    { key: 'revenue', header: t('columns.revenue'), align: 'right', sortValue: (r) => r.revenue, render: (r) => withCurrency(r.revenue), total: (rs) => withCurrency(sumOf(rs, (r) => r.revenue)) },
+    { key: 'share', header: t('serverSales.share'), align: 'right', sortValue: (r) => r.revenue, render: (r) => `${pct(r.revenue, totals.revenue)} %` },
+    {
+      key: 'avg',
+      header: t('columns.avgCheck'),
+      align: 'right',
+      sortValue: (r) => r.avgCheck,
+      render: (r) => withCurrency(r.avgCheck),
+      cellClass: (r) => (teamAvg > 0 && r.orders >= 3 && r.avgCheck < teamAvg * 0.6 ? 'text-amber-700' : ''),
+      total: (rs) => {
+        const o = sumOf(rs, (r) => r.orders);
+        return withCurrency(o ? sumOf(rs, (r) => r.revenue) / o : 0);
+      },
+    },
+  ];
+
+  const tablesUsed = rows.filter((r) => r.hasTable).length;
+  const kpis: ReportKpi[] = [
+    { label: t('columns.revenue'), value: withDualCurrency(totals.revenue), rawValue: totals.revenue },
+    { label: t('columns.orders'), value: formatNumber(totals.orders, 0), rawValue: totals.orders, rawFormat: 'integer', hint: t('tablesReport.covers', { count: totals.covers }) },
+    { label: t('columns.avgCheck'), value: withCurrency(teamAvg), rawValue: teamAvg },
+    { label: t('tablesReport.tablesUsed'), value: formatNumber(tablesUsed, 0), rawValue: tablesUsed, rawFormat: 'integer' },
+  ];
+
   return (
     <ReportsLayout title={t('titles.tablesSummary')} subtitle={subtitle} onRefresh={fetchData}>
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
-            <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">#</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">
-                {t('columns.table')}
-              </th>
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">
-                {t('columns.orders')}
-              </th>
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">
-                {t('columns.revenue')}
-              </th>
-              <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">
-                {t('columns.avgCheck')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">
-                  {t('empty.noTables')}
-                </td>
-              </tr>
-            ) : (
-              <>
-                {rows.map((row, index) => (
-                  <tr key={row.table}>
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{index + 1}</td>
-                    <td className="py-3 px-3 text-sm text-neutral-900">{row.table}</td>
-                    <td className="py-3 px-3 text-sm text-neutral-700 text-right">
-                      {formatNumber(row.orders, 0)}
-                    </td>
-                    <td className="py-3 px-3 text-sm text-neutral-900 text-right">
-                      {withDualCurrency(row.revenue)}
-                    </td>
-                    <td className="py-3 pr-6 text-sm text-neutral-900 text-right">
-                      {withDualCurrency(row.avgCheck)}
-                    </td>
-                  </tr>
-                ))}
-                <tr className="bg-neutral-50 font-semibold">
-                  <td className="py-3 pl-6 pr-3 text-sm" colSpan={2}>
-                    {t('columns.total')}
-                  </td>
-                  <td className="py-3 px-3 text-sm text-right">{formatNumber(totals.orders, 0)}</td>
-                  <td className="py-3 px-3 text-sm text-right">{withDualCurrency(totals.revenue)}</td>
-                  <td className="py-3 pr-6 text-sm text-right">
-                    {withDualCurrency(totals.orders > 0 ? totals.revenue / totals.orders : 0)}
-                  </td>
-                </tr>
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <ReportKpis items={kpis} />
+      <ReportInsights items={insights} />
+      <SortableReportTable
+        rows={rows}
+        columns={columns}
+        rowKey={(r) => r.table}
+        initialSort={{ key: 'revenue', dir: 'desc' }}
+        searchPlaceholder={t('tablesReport.search')}
+        emptyText={t('empty.noTables')}
+        xlsxTitle={t('titles.tablesSummary')}
+      />
     </ReportsLayout>
   );
 };

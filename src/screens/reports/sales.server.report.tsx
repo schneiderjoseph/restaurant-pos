@@ -7,7 +7,11 @@ import {Order} from "@/api/model/order.ts";
 import {getOrderTaxAmount, getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
-import {formatNumber, withDualCurrency} from "@/lib/utils.ts";
+import {formatNumber, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights} from "@/components/reports/report-insights.tsx";
+import {SortableReportTable, type ReportColumn} from "@/components/reports/sortable-report-table.tsx";
+import {buildServerInsights, type ServerFigure} from "@/api/reports/insights/servers.ts";
 import {OrderItem} from "@/api/model/order_item.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
@@ -446,8 +450,53 @@ export const SalesServerReport = () => {
   }, [filteredOrders, filters.userIds, t]);
 
   const subtitle = filters.startDate && filters.endDate
-    ? `${filters.startDate} to ${filters.endDate}`
+    ? `${filters.startDate} → ${filters.endDate}`
     : undefined;
+
+  /** One line per server for the ranking table and the rules. */
+  const ranking = useMemo((): ServerFigure[] => sections.map((section) => {
+    const dp = section.dayParts.reduce((acc, row) => ({
+      netSales: acc.netSales + row.netSales,
+      checks: acc.checks + row.checks,
+      guests: acc.guests + row.guests,
+    }), {netSales: 0, checks: 0, guests: 0});
+    const reductions = section.categories.reduce((sum, row) => sum + row.discounts + row.coupons, 0);
+    return {userId: section.userId, name: section.userName, ...dp, reductions};
+  }), [sections]);
+
+  const teamTotals = ranking.reduce((acc, s) => ({
+    netSales: acc.netSales + s.netSales,
+    checks: acc.checks + s.checks,
+    guests: acc.guests + s.guests,
+    reductions: acc.reductions + s.reductions,
+  }), {netSales: 0, checks: 0, guests: 0, reductions: 0});
+
+  const insights = useMemo(
+    () => buildServerInsights(ranking, (k, p) => String(t(k, p as never)), (n) => withCurrency(n)),
+    [ranking, t],
+  );
+
+  const pct = (part: number, whole: number) => `${whole > 0 ? Math.round((part / whole) * 100) : 0} %`;
+  const sumOf = (rs: ServerFigure[], f: (s: ServerFigure) => number) => rs.reduce((acc, s) => acc + f(s), 0);
+  const rankingColumns: ReportColumn<ServerFigure>[] = [
+    {key: 'name', header: t('serverSales.server'), sortValue: (s) => s.name.toLowerCase(), searchValue: (s) => s.name, render: (s) => <a href={`#server-${s.userId}`} className="text-primary-600 hover:underline">{s.name}</a>, total: () => t('columns.total')},
+    {key: 'net', header: t('columns.netSales'), align: 'right', sortValue: (s) => s.netSales, render: (s) => withCurrency(s.netSales), total: (rs) => withCurrency(sumOf(rs, (s) => s.netSales))},
+    {key: 'share', header: t('serverSales.share'), align: 'right', sortValue: (s) => s.netSales, render: (s) => pct(s.netSales, teamTotals.netSales)},
+    {key: 'checks', header: t('columns.checks'), align: 'right', sortValue: (s) => s.checks, render: (s) => formatNumber(s.checks), total: (rs) => formatNumber(sumOf(rs, (s) => s.checks))},
+    {key: 'guests', header: t('columns.covers'), align: 'right', sortValue: (s) => s.guests, render: (s) => formatNumber(s.guests), total: (rs) => formatNumber(sumOf(rs, (s) => s.guests))},
+    {key: 'avg', header: t('columns.avgCheck'), align: 'right', sortValue: (s) => (s.checks ? s.netSales / s.checks : 0), render: (s) => withCurrency(s.checks ? s.netSales / s.checks : 0), total: (rs) => { const c = sumOf(rs, (s) => s.checks); return withCurrency(c ? sumOf(rs, (s) => s.netSales) / c : 0); }},
+    {key: 'perGuest', header: t('columns.avgGuest'), align: 'right', sortValue: (s) => (s.guests ? s.netSales / s.guests : 0), render: (s) => withCurrency(s.guests ? s.netSales / s.guests : 0)},
+    {key: 'reductions', header: t('serverSales.reductions'), align: 'right', sortValue: (s) => s.reductions, render: (s) => withCurrency(s.reductions), total: (rs) => withCurrency(sumOf(rs, (s) => s.reductions))},
+    {key: 'reductionRate', header: t('serverSales.reductionRate'), align: 'right', sortValue: (s) => (s.netSales + s.reductions ? s.reductions / (s.netSales + s.reductions) : 0), render: (s) => pct(s.reductions, s.netSales + s.reductions)},
+  ];
+
+  const best = [...ranking].sort((a, b) => b.netSales - a.netSales)[0];
+  const kpis: ReportKpi[] = [
+    {label: t('columns.netSales'), value: withDualCurrency(teamTotals.netSales), rawValue: teamTotals.netSales},
+    {label: t('serverSales.servers'), value: formatNumber(ranking.length), rawValue: ranking.length, rawFormat: 'integer'},
+    {label: t('columns.avgCheck'), value: withCurrency(teamTotals.checks ? teamTotals.netSales / teamTotals.checks : 0), rawValue: teamTotals.checks ? teamTotals.netSales / teamTotals.checks : 0, hint: t('serverSales.teamAverage')},
+    {label: t('serverSales.topServer'), value: best?.name ?? '—', hint: best ? withCurrency(best.netSales) : undefined},
+  ];
 
   if (loading) {
     return (
@@ -482,7 +531,18 @@ export const SalesServerReport = () => {
       title={t('titles.serverSales')}
       subtitle={subtitle}
     >
-      <div className="flex flex-col gap-10">
+      <ReportKpis items={kpis}/>
+      <ReportInsights items={insights}/>
+      <h2 className="text-base font-semibold text-neutral-800 mb-2">{t('serverSales.ranking')}</h2>
+      <SortableReportTable
+        rows={ranking}
+        columns={rankingColumns}
+        rowKey={(s) => s.userId}
+        initialSort={{key: 'net', dir: 'desc'}}
+        searchPlaceholder={t('serverSales.search')}
+        xlsxTitle={t('serverSales.ranking')}
+      />
+      <div className="flex flex-col gap-10 mt-8">
         {sections.map(section => {
           const categoryTotals = section.categories.reduce((totals, row) => ({
             amountDue: totals.amountDue + row.amountDue,
@@ -523,7 +583,7 @@ export const SalesServerReport = () => {
           });
 
           return (
-            <section key={section.userId} className="space-y-6">
+            <section key={section.userId} id={`server-${section.userId}`} className="space-y-6 scroll-mt-4">
               <div>
                 <h2 className="text-2xl font-bold">{section.userName}</h2>
                 <p className="text-sm text-gray-500">{t('labels.serverId', {id: section.userId})}</p>

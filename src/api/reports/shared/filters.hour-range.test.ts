@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {parseHourRangeFromPhrase} from '@/api/reports/shared/filters.ts';
+import {parseHourRangeFromPhrase, previousPeriod} from '@/api/reports/shared/filters.ts';
 
 describe('parseHourRangeFromPhrase', () => {
   it('keeps a morning range in the morning', () => {
@@ -16,5 +16,22 @@ describe('parseHourRangeFromPhrase', () => {
 
   it('does not push a bare morning start past a pm end', () => {
     expect(parseHourRangeFromPhrase('11 - 2 pm')).toEqual({startHour: 11, endHour: 14});
+  });
+});
+
+describe('previousPeriod', () => {
+  const f = 'yyyy-MM-dd HH:mm';
+  it('returns the same-length window just before a full day', () => {
+    expect(previousPeriod({startDate: '2026-11-05 00:00', endDate: '2026-11-05 23:59'}, f))
+      .toEqual({startDate: '2026-11-04 00:00', endDate: '2026-11-04 23:59'});
+  });
+
+  it('handles a whole week', () => {
+    expect(previousPeriod({startDate: '2026-11-01 00:00', endDate: '2026-11-07 23:59'}, f))
+      .toEqual({startDate: '2026-10-25 00:00', endDate: '2026-10-31 23:59'});
+  });
+
+  it('returns null for open ranges', () => {
+    expect(previousPeriod({startDate: '2026-11-01 00:00'}, f)).toBeNull();
   });
 });

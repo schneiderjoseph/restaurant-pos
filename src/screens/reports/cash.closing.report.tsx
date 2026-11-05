@@ -4,7 +4,9 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {DayClosing} from "@/api/model/day_closing.ts";
-import {withDualCurrency} from "@/lib/utils.ts";
+import {cn, withCurrency, withDualCurrency} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 
 const parseFilters = () => {
@@ -68,7 +70,8 @@ export const CashClosingReport = () => {
     return Number.isFinite(parsed) ? parsed : 0;
   };
   const subtitle = selectedDate || t('labels.selectedDay');
-  const openingBalance = safeNumber(closing?.opening_balance);
+  // The closing screen saves the carried-over balance as previous_day_balance; opening_balance is the legacy name.
+  const openingBalance = safeNumber(closing?.opening_balance ?? (closing as (DayClosing & {previous_day_balance?: number}) | null)?.previous_day_balance);
   const totalCash = (closing?.terminal_cash || []).reduce((sum, item: any) => sum + safeNumber(item?.cash_amount), 0);
   const totalOtherPayments = (closing?.payments_data || [])
     .filter((item: any) => {
@@ -84,6 +87,42 @@ export const CashClosingReport = () => {
     .reduce((sum, item: any) => sum + safeNumber(item?.amount), 0);
   const totalExpenses = safeNumber(closing?.expenses);
   const closingBalance = safeNumber(closing?.closing_balance);
+
+  const cashAdded = safeNumber(closing?.cash_added);
+  // Same formula as the closing screen (closing.tsx netAmount): room/credit charges are not cash in hand.
+  const computedBalance = openingBalance + totalCash + cashAdded + totalOtherPayments - totalExpenses;
+  const balanceGap = closing ? Math.abs(computedBalance - closingBalance) > 0.5 : false;
+  const calcRows = [
+    {label: t('labels.openingBalance'), amount: openingBalance, sign: '+'},
+    {label: t('labels.totalCash'), amount: totalCash, sign: '+'},
+    {label: t('labels.cashAdded'), amount: cashAdded, sign: '+'},
+    {label: t('labels.otherPayments'), amount: totalOtherPayments, sign: '+'},
+    {label: t('columns.expenses'), amount: totalExpenses, sign: '−'},
+  ];
+  const collected = totalCash + totalOtherPayments;
+  const cashKpis: ReportKpi[] = [
+    {label: t('labels.closingBalance'), value: withDualCurrency(closingBalance), rawValue: closingBalance, tone: balanceGap ? 'bad' : 'default'},
+    {label: t('cashReport.collected'), value: withDualCurrency(collected), rawValue: collected, hint: t('cashReport.cashShare', {pct: collected > 0 ? Math.round((totalCash / collected) * 100) : 0})},
+    {label: t('labels.deferredCharges', { defaultValue: 'Room + credit (not collected)' }), value: withDualCurrency(totalDeferredCharges), rawValue: totalDeferredCharges},
+    {label: t('columns.expenses'), value: withDualCurrency(totalExpenses), rawValue: totalExpenses, hint: t('cashReport.expenseLines', {count: (closing?.expenses_data || []).length})},
+  ];
+  const cashInsights: ReportInsight[] = [];
+  if (closing) {
+    if (balanceGap) {
+      cashInsights.push({id: 'gap', severity: 'bad', text: t('insights.cash.balanceGap', {computed: withCurrency(computedBalance), recorded: withCurrency(closingBalance), gap: withCurrency(closingBalance - computedBalance)})});
+    }
+    if (String(closing.status || '').toLowerCase() !== 'completed' && !closing.closed_at) {
+      cashInsights.push({id: 'open', severity: 'warn', text: t('insights.cash.notClosed')});
+    }
+    const total = collected + totalDeferredCharges;
+    if (totalDeferredCharges > 0 && total > 0) {
+      const pct = Math.round((totalDeferredCharges / total) * 100);
+      cashInsights.push({id: 'deferred', severity: pct >= 20 ? 'warn' : 'info', text: t('insights.cash.deferred', {amount: withCurrency(totalDeferredCharges), pct})});
+    }
+    if (totalExpenses > 0 && totalCash > 0) {
+      cashInsights.push({id: 'expenses', severity: 'info', text: t('insights.cash.expenses', {amount: withCurrency(totalExpenses), pct: Math.round((totalExpenses / totalCash) * 100)})});
+    }
+  }
 
   if (loading) {
     return (
@@ -112,35 +151,32 @@ export const CashClosingReport = () => {
   return (
     <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
       <div className="space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.openingBalance')}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(openingBalance)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.totalCash')}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(totalCash)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.otherPayments')}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(totalOtherPayments)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.deferredCharges', { defaultValue: 'Room + credit (not collected)' })}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(totalDeferredCharges)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.cashAdded')}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(Number(closing.cash_added || 0))}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('columns.expenses')}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(totalExpenses)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.closingBalance')}</div>
-            <div className="text-xl font-semibold">{withDualCurrency(closingBalance)}</div>
-          </div>
+        <ReportKpis items={cashKpis}/>
+        <ReportInsights items={cashInsights}/>
+
+        <div className="overflow-hidden rounded-lg border border-neutral-200 max-w-2xl">
+          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('cashReport.calculation')}</h3>
+          <table className="min-w-full divide-y divide-neutral-200" data-xlsx-title={t('cashReport.calculation')}>
+            <tbody className="divide-y divide-neutral-100 bg-white">
+              {calcRows.map((row) => (
+                <tr key={row.label}>
+                  <td className="py-2.5 pl-6 pr-3 text-sm text-neutral-800">{row.sign} {row.label}</td>
+                  <td className={cn('py-2.5 pr-6 text-right text-sm', row.sign === '−' && 'text-red-700')}>{withCurrency(row.amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-neutral-100 font-semibold border-t-2 border-neutral-300">
+              <tr>
+                <td className="py-2.5 pl-6 pr-3 text-sm">= {t('cashReport.computedBalance')}</td>
+                <td className="py-2.5 pr-6 text-right text-sm">{withCurrency(computedBalance)}</td>
+              </tr>
+              <tr>
+                <td className="py-2.5 pl-6 pr-3 text-sm">{t('labels.closingBalance')}</td>
+                <td className={cn('py-2.5 pr-6 text-right text-sm', balanceGap ? 'text-red-700' : 'text-emerald-700')}>{withCurrency(closingBalance)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <p className="px-6 py-2 text-xs text-neutral-500" data-xlsx-ignore>{t('cashReport.deferredNote', {amount: withCurrency(totalDeferredCharges)})}</p>
         </div>
 
         <div className="overflow-hidden rounded-lg border border-neutral-200">

@@ -31,6 +31,7 @@ export const OrderFiscalFilter = () => {
           <label htmlFor="order-fiscal-providers">{t('filters.provider')}</label>
           <div className="w-full">
             <ReactSelect
+              isSearchable
               id="order-fiscal-providers"
               name="providers[]"
               isMulti
@@ -45,6 +46,7 @@ export const OrderFiscalFilter = () => {
           <label htmlFor="order-fiscal-statuses">{t('filters.status')}</label>
           <div className="w-full">
             <ReactSelect
+              isSearchable
               id="order-fiscal-statuses"
               name="statuses[]"
               isMulti

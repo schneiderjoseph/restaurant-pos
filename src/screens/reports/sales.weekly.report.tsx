@@ -5,7 +5,9 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
-import {withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {withCurrency, withDualCurrency, formatNumber} from "@/lib/utils.ts";
+import {ReportKpis, type ReportKpi} from "@/components/reports/report-kpis.tsx";
+import {ReportInsights, type ReportInsight} from "@/components/reports/report-insights.tsx";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DateTime} from "luxon";
 import { getAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
@@ -362,6 +364,42 @@ export const SalesWeeklyReport = () => {
     return rowData;
   }, [dayMetrics, dayHeaders, t]);
 
+  const daySales = useMemo(
+    () => dayHeaders.map((h) => ({...h, sales: dayMetrics[h.dateKey]?.netSales || 0, voids: dayMetrics[h.dateKey]?.voids || 0})),
+    [dayHeaders, dayMetrics],
+  );
+  const weekTotal = daySales.reduce((sum, d) => sum + d.sales, 0);
+  const openDays = daySales.filter((d) => d.sales > 0);
+  const bestDay = [...daySales].sort((a, b) => b.sales - a.sales)[0];
+  const worstDay = [...openDays].sort((a, b) => a.sales - b.sales)[0];
+  const dailyAverage = openDays.length ? weekTotal / openDays.length : 0;
+  const maxDay = Math.max(0, ...daySales.map((d) => d.sales));
+
+  const insights = useMemo((): ReportInsight[] => {
+    const out: ReportInsight[] = [];
+    if (weekTotal <= 0 || !bestDay) {
+      out.push({id: 'none', severity: 'info', text: t('insights.weekly.none')});
+      return out;
+    }
+    const pct = (part: number) => Math.round((part / weekTotal) * 100);
+    out.push({id: 'best', severity: 'good', text: t('insights.weekly.best', {day: bestDay.day, amount: withCurrency(bestDay.sales), pct: pct(bestDay.sales)})});
+    if (worstDay && worstDay !== bestDay) {
+      out.push({id: 'worst', severity: 'info', text: t('insights.weekly.worst', {day: worstDay.day, amount: withCurrency(worstDay.sales), avg: withCurrency(dailyAverage)})});
+    }
+    // Saturday + Sunday are the last two columns (week starts Monday).
+    const weekend = daySales.slice(5).reduce((sum, d) => sum + d.sales, 0);
+    out.push({id: 'weekend', severity: 'info', text: t('insights.weekly.weekend', {pct: pct(weekend), amount: withCurrency(weekend)})});
+    const closed = daySales.filter((d) => d.sales <= 0);
+    if (closed.length) {
+      out.push({id: 'closed', severity: 'info', text: t('insights.weekly.noSalesDays', {days: closed.map((d) => d.day).join(', ')})});
+    }
+    const voids = daySales.reduce((sum, d) => sum + d.voids, 0);
+    if (voids > 0 && voids / (weekTotal + voids) >= 0.03) {
+      out.push({id: 'voids', severity: 'warn', text: t('insights.weekly.voids', {amount: withCurrency(voids), pct: Math.round((voids / (weekTotal + voids)) * 100)})});
+    }
+    return out;
+  }, [daySales, weekTotal, bestDay, worstDay, dailyAverage, t]);
+
   if (loading) {
     return (
       <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
@@ -380,6 +418,28 @@ export const SalesWeeklyReport = () => {
 
   return (
     <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
+      <ReportKpis items={[
+        {label: t('weeklyReport.weekTotal'), value: withDualCurrency(weekTotal), rawValue: weekTotal},
+        {label: t('weeklyReport.dailyAverage'), value: withCurrency(dailyAverage), rawValue: dailyAverage, hint: t('weeklyReport.openDays', {count: openDays.length})},
+        {label: t('weeklyReport.bestDay'), value: bestDay && bestDay.sales > 0 ? bestDay.day : '—', hint: bestDay && bestDay.sales > 0 ? withCurrency(bestDay.sales) : undefined, tone: 'good'},
+        {label: t('weeklyReport.weakestDay'), value: worstDay ? worstDay.day : '—', hint: worstDay ? withCurrency(worstDay.sales) : undefined},
+      ] satisfies ReportKpi[]}/>
+      <ReportInsights items={insights}/>
+      <div className="mb-6 rounded-lg border border-neutral-200 p-4 break-inside-avoid" data-xlsx-ignore>
+        <h2 className="text-sm font-semibold text-neutral-700 mb-3">{t('weeklyReport.chartTitle')}</h2>
+        <div className="grid grid-cols-7 gap-3 items-end h-40">
+          {daySales.map((d) => (
+            <div key={d.dateKey} className="flex flex-col items-center justify-end h-full gap-1">
+              <span className="text-xs text-neutral-600 whitespace-nowrap">{withCurrency(d.sales)}</span>
+              <div
+                className={d === bestDay && d.sales > 0 ? 'w-full rounded-t bg-emerald-500' : 'w-full rounded-t bg-primary-400'}
+                style={{height: `${maxDay > 0 ? Math.max(2, (d.sales / maxDay) * 100) : 2}%`}}
+              />
+              <span className="text-xs font-medium text-neutral-700">{d.day.slice(0, 3)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
           <thead className="bg-neutral-50">

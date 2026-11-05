@@ -94,7 +94,7 @@
     "retryConnection": "إعادة محاولة الاتصال",
     "connecting": "جارٍ الاتصال بالخادم..."
   },
-   "update": {
+  "update": {
     "available": "Update available — tap to reload"
   },
   "offline": {
@@ -226,36 +226,7 @@
         "nested_override": "تجاوز سعر متداخل"
       }
     },
-    "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل."
-  },
-  "aiAssistant": {
-    "open": "فتح {{name}}",
-    "title": "{{name}} – مساعد الذكاء الاصطناعي",
-    "placeholder": "اسأل عن المبيعات والمخزون والإدارة، أو اطلب إنشاء/تحديث…",
-    "reviewPrompt": "لقد أعددت {{count}} تغيير(ات) على {{entity}} للمراجعة أدناه.",
-    "reviewTitle": "مراجعة التغييرات",
-    "confirm": "تأكيد",
-    "applied": "تم التطبيق: {{imported}} تم إنشاؤها/تحديثها، {{failed}} فشلت، {{skipped}} تم تخطيها.",
-    "cancelled": "ألغى المستخدم هذا التغيير.",
-    "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.",
-    "issues": "المشكلات",
-    "expand": "توسيع المساعد",
-    "collapse": "تصغير المساعد",
-    "clear": "مسح",
-    "clearConversation": "مسح المحادثة",
-    "clearConfirm": "هل تريد مسح محادثة المساعد على هذا الجهاز؟",
-    "working": "{{name}} يعمل على طلبك…",
-    "examplesTitle": "ما يمكنك أن تسأل",
-    "examplesHint": "انقر على مثال لتجربته مع {{name}}:",
-    "examples": {
-      "salesToday": "أظهر ملخص مبيعات اليوم",
-      "tablesFloor": "اعرض الطاولات في طابق التوصيل",
-      "bogoDiscount": "أنشئ خصم BOGO تلقائي للمقبلات",
-      "addDish": "أضف طبقًا جديدًا مارغريتا بـ x",
-      "listUsers": "اعرض جميع مستخدمي نقطة البيع",
-      "voidsToday": "Show voids for today"
-    },
-    "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
+    "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل.",
     "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد"
   }
 }

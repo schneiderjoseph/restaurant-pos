@@ -14,16 +14,18 @@ import {
   exportElementAsPdf,
   printDocument,
 } from "@/lib/export.document.ts";
-import * as XLSX from "xlsx";
 import { DateTime } from "luxon";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { useCurrencyDisplay } from "@/hooks/useCurrencyDisplay.ts";
 import { getExchangeRateLabel } from "@/lib/currency.ts";
 import { useRestaurantProfile } from "@/hooks/useRestaurantProfile.ts";
+import { sanitizeReportFilename } from "@/lib/report.branding.ts";
+import { getAppLocale } from "@/lib/currency.ts";
 import {
-  buildReportExcelHeaderRows,
-  sanitizeReportFilename,
-} from "@/lib/report.branding.ts";
+  buildReportWorkbook,
+  downloadWorkbook,
+  extractReportSections,
+} from "@/lib/report.excel.ts";
 
 export interface ReportsLayoutProps {
   /** Report title */
@@ -83,6 +85,7 @@ export const ReportsLayout = ({
   const displayEmail = profile.email;
   const exchangeRateLabel = getExchangeRateLabel();
   const reportRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
   const [generatedAt] = useState(DateTime.now().toFormat(import.meta.env.VITE_DATE_TIME_FORMAT));
 
   const handlePrint = () => {
@@ -99,38 +102,35 @@ export const ReportsLayout = ({
       return;
     }
 
-    const tables = Array.from(
-      reportRef.current?.querySelectorAll("table") ?? [],
-    );
-    if (tables.length === 0) return;
-
-    const headerRows = buildReportExcelHeaderRows({
-      title,
-      subtitle,
-      generatedAt: `${t('layout.generatedAt')} ${generatedAt}`,
-      profile: {
-        name: displayName,
-        address: displayAddress,
-        phone: displayPhone,
-        email: displayEmail,
-        website: profile.website,
-        taxId: profile.taxId,
-      },
-    });
-
-    const wb = XLSX.utils.book_new();
-    let ws = XLSX.utils.aoa_to_sheet(headerRows);
-    let nextRow = XLSX.utils.decode_range(ws["!ref"] ?? "A1").e.r + 1;
-
-    tables.forEach((table) => {
-      const tableWs = XLSX.utils.table_to_sheet(table);
-      ws = appendWorksheetAtRow(ws, tableWs, nextRow);
-      const range = XLSX.utils.decode_range(ws["!ref"] ?? "A1");
-      nextRow = range.e.r + 2;
-    });
-
-    XLSX.utils.book_append_sheet(wb, ws, "Report");
-    XLSX.writeFile(wb, sanitizeReportFilename(title || "report", "xlsx"));
+    if (!reportRef.current || exporting) return;
+    setExporting(true);
+    try {
+      const sections = extractReportSections(reportRef.current, getAppLocale(), title);
+      if (sections.length === 0) return;
+      const wb = await buildReportWorkbook({
+        branding: {
+          title,
+          subtitle,
+          generatedAt: `${t('layout.generatedAt')} ${generatedAt}`,
+          profile: {
+            name: displayName,
+            address: displayAddress,
+            phone: displayPhone,
+            email: displayEmail,
+            website: profile.website,
+            taxId: profile.taxId,
+          },
+        },
+        sections,
+        logoDataUrl,
+        sheetName: title,
+        decimals: Number(import.meta.env.VITE_DECIMAL_PLACES ?? 2) || 0,
+        exchangeRateLabel: exchangeRateLabel ? t('layout.dualCurrency', { rate: exchangeRateLabel }) : null,
+      });
+      await downloadWorkbook(wb, sanitizeReportFilename(title || "report", "xlsx"));
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleExportPdf = async () => {
@@ -170,19 +170,19 @@ export const ReportsLayout = ({
       <div className="flex items-center justify-between gap-3 p-4 bg-white shadow-sm border-b print:hidden">
         <div className="flex items-center gap-2">
           <Button variant="primary" onClick={handlePrint} icon={faPrint} size="sm">
-            Print
+            {t('layout.print')}
           </Button>
-          <Button variant="primary" onClick={handleExportExcel} icon={faFile} size="sm">
-            Download as XLSX
+          <Button variant="primary" onClick={handleExportExcel} icon={faFile} size="sm" disabled={exporting}>
+            {t('layout.downloadXlsx')}
           </Button>
           <Button variant="primary" onClick={handleExportPdf} icon={faFile} size="sm">
-            Download as PDF
+            {t('layout.downloadPdf')}
           </Button>
           <Button variant="primary" onClick={handleExportImage} icon={faImage} size="sm">
-            Download as Image
+            {t('layout.downloadImage')}
           </Button>
           <Button variant="primary" onClick={handleRefresh} icon={faRefresh} size="sm">
-            Refresh
+            {t('layout.refresh')}
           </Button>
           {customActions}
         </div>
@@ -276,36 +276,3 @@ export const ReportsLayout = ({
   );
 };
 
-function appendWorksheetAtRow(
-  target: XLSX.WorkSheet,
-  source: XLSX.WorkSheet,
-  startRow: number,
-): XLSX.WorkSheet {
-  const sourceRange = XLSX.utils.decode_range(source["!ref"] ?? "A1");
-  const targetRange = XLSX.utils.decode_range(target["!ref"] ?? "A1");
-
-  for (let row = sourceRange.s.r; row <= sourceRange.e.r; row++) {
-    for (let col = sourceRange.s.c; col <= sourceRange.e.c; col++) {
-      const sourceAddress = XLSX.utils.encode_cell({ r: row, c: col });
-      const cell = source[sourceAddress];
-      if (!cell) continue;
-
-      const destAddress = XLSX.utils.encode_cell({
-        r: startRow + (row - sourceRange.s.r),
-        c: col,
-      });
-      target[destAddress] = { ...cell };
-    }
-  }
-
-  const endRow = startRow + (sourceRange.e.r - sourceRange.s.r);
-  target["!ref"] = XLSX.utils.encode_range({
-    s: targetRange.s,
-    e: {
-      r: Math.max(targetRange.e.r, endRow),
-      c: Math.max(targetRange.e.c, sourceRange.e.c),
-    },
-  });
-
-  return target;
-}
