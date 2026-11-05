@@ -96,6 +96,10 @@
           "effect": "Une clôture : solde de clôture, encaissé (part en espèces), chambre + crédit non encaissé, dépenses. Le tableau « Calcul du solde » refait le calcul de l'écran Clôture (ouverture + espèces + fonds ajouté + autres paiements − dépenses) : si le solde enregistré ne retombe pas dessus, la carte passe en rouge et « À retenir » donne l'écart. Signale aussi une clôture restée en brouillon. Ce n'est pas un comptage de caisse : le rapport ne compare pas avec les billets comptés (module Clôture)."
         },
         {
+          "name": "Services par employé",
+          "effect": "Le « rapport de shift » : une ligne par pointage (arrivée, départ, durée) avec ce que l'employé a encaissé pendant ce service : espèces, autres moyens, chambre + crédit, ventes nettes, pourboires, ventes par heure. Une commande compte pour la personne qui l'a encaissée (sinon celle qui l'a prise), dans le service ouvert à ce moment-là ; une commande encaissée sans pointage ouvert va sur une ligne « hors pointage » (orange), pour que le total corresponde toujours aux ventes payées. « À retenir » : services encore ouverts, services de plus de 14 h (oubli de dépointer ?), encaissements hors pointage, services d'une heure ou plus sans vente."
+        },
+        {
           "name": "Pourboires",
           "effect": "Total des pourboires, nombre de répartitions, bénéficiaires, moyenne par personne ; tableau par personne avec sa part. « À retenir » signale un écart entre pourboires enregistrés et pourboires répartis."
         },
@@ -146,6 +150,10 @@
         {
           "name": "Division de commandes",
           "effect": "Commandes divisées et commandes créées. Recherche, et répartition par personne et par table."
+        },
+        {
+          "name": "Contrôle des encaissements espèces",
+          "effect": "Liste les commandes payées en espèces où, peu avant le paiement (10, 30, 60 ou 120 minutes, au choix dans le filtre), un article a été retiré ou le paiement modifié : c'est le schéma classique d'un encaissement détourné. Chiffres clés : commandes payées en espèces, commandes signalées et leur part. Tableaux par caissier et par type de changement, détail avec recherche ; un changement fait dans les 2 dernières minutes est en rouge. Ce n'est pas une preuve, c'est une liste à vérifier avec les personnes concernées."
         }
       ]
     },
@@ -174,6 +182,10 @@
         {
           "name": "Dépenses",
           "effect": "Dépenses enregistrées dans les clôtures : total, nombre, plus gros poste, tableau par catégorie, détail avec recherche. « À retenir » : plus gros poste, plus grosse dépense, dépenses sans catégorie, moyenne par clôture."
+        },
+        {
+          "name": "Temps cuisine",
+          "effect": "Temps d'une commande par type (de l'ouverture au paiement) et temps de préparation par cuisine, par étape et par catégorie de plat (de l'envoi en cuisine à « prêt »), sur les heures choisies dans le filtre (toute la journée par défaut). Pour chaque ligne : moyenne, médiane et « 9 sur 10 en moins de », en minutes (rouge au-dessus de 30 min). « À retenir » : cuisine la plus lente comparée à la plus rapide, types de commande où 1 client sur 10 attend plus de 30 min, catégorie la plus longue."
         },
         {
           "name": "Activité",

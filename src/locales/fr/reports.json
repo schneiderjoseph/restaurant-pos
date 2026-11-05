@@ -54,7 +54,13 @@
     "lateArrivalReport": "Rapport des retards",
     "absenceReport": "Rapport des absences",
     "holidayCostReport": "Rapport des coûts de jours fériés",
-    "managerApprovalReport": "Rapport d'approbation du responsable"
+    "managerApprovalReport": "Rapport d'approbation du responsable",
+    "audit": "Rapport d'audit",
+    "productList": "Liste des produits",
+    "tablesSummary": "Résumé des tables",
+    "shifts": "Services par employé",
+    "cashAudit": "Contrôle des encaissements espèces",
+    "kitchenTiming": "Temps cuisine"
   },
   "titles": {
     "salesDashboard": "Tableau de bord des ventes",
@@ -941,6 +947,28 @@
       "peak": "Heure de pointe : {{hour}} avec {{amount}} ({{pct}} % des ventes).",
       "top3": "Les 3 meilleures heures ({{hours}}) font {{pct}} % des ventes : prévoir le personnel en conséquence.",
       "quiet": "Heures très calmes (moins de 2 % des ventes) : {{hours}}."
+    },
+    "shifts": {
+      "none": "Aucun pointage ni encaissement sur la période.",
+      "open": "{{count}} service(s) encore ouverts : {{names}}.",
+      "long": "{{count}} service(s) de plus de {{hours}} h : {{names}}. Oubli de dépointer ?",
+      "outside": "{{count}} commande(s) encaissées sans pointage ouvert ({{amount}}) : {{names}}.",
+      "top": "{{name}} a encaissé le plus : {{amount}} ({{pct}} %).",
+      "noSales": "{{count}} service(s) d'au moins une heure sans aucune vente : {{names}}."
+    },
+    "cashAudit": {
+      "clean": "Aucun changement suspect sur {{count}} commande(s) payées en espèces (fenêtre de {{minutes}} min).",
+      "flagged": "{{count}} commande(s) sur {{total}} payées en espèces ({{pct}} %) ont été modifiées moins de {{minutes}} min avant le paiement.",
+      "concentration": "{{name}} concentre {{count}} changement(s) signalé(s), soit {{pct}} % du total. À vérifier en priorité.",
+      "top": "Le plus de changements signalés : {{name}} ({{count}}).",
+      "lastMinute": "{{count}} changement(s) faits dans les 2 dernières minutes avant le paiement (en rouge)."
+    },
+    "kitchen": {
+      "none": "Aucune commande ni préparation mesurée sur la période.",
+      "slowestKitchen": "Cuisine la plus lente : {{name}} ({{avg}} min en moyenne), contre {{fastAvg}} min pour {{fast}}.",
+      "slowP90": "1 commande sur 10 attend plus de {{limit}} min : {{names}}.",
+      "slowestCategory": "Catégorie la plus longue à préparer : {{name}} ({{avg}} min en moyenne sur {{count}} articles).",
+      "ticketAverage": "Une commande dure en moyenne {{avg}} min de l'ouverture au paiement ({{count}} commandes)."
     }
   },
   "credit": {
@@ -997,7 +1025,10 @@
     "orderFiscal": "État de la déclaration fiscale de chaque commande.",
     "expense": "Dépenses enregistrées.",
     "activity": "Actions protégées : qui, quel module, quel appareil, quelle autorisation.",
-    "audit": "Journal des actions sensibles."
+    "audit": "Journal des actions sensibles.",
+    "shifts": "Par pointage : arrivée, départ, durée, et ce que chacun a encaissé (espèces, autres, chambre + crédit).",
+    "cashAudit": "Commandes payées en espèces où un article a été retiré ou le paiement modifié juste avant l'encaissement.",
+    "kitchenTiming": "Temps d'attente par type de commande et temps de préparation par cuisine, étape et catégorie."
   },
   "salesSummary": {
     "vsPrevious": "vs {{value}} ({{change}})",
@@ -1163,5 +1194,62 @@
     "perOrder": "Moyenne par commande",
     "shareOfGross": "Part des ventes brutes",
     "byCashier": "Par caissier"
+  },
+  "shiftsReport": {
+    "employee": "Employé",
+    "outside": "hors pointage",
+    "inProgress": "en cours",
+    "clockIn": "Arrivée",
+    "clockOut": "Départ",
+    "duration": "Durée",
+    "otherTenders": "Autres moyens",
+    "deferred": "Chambre + crédit",
+    "perHour": "Ventes / heure",
+    "sessions": "Services pointés",
+    "employees": "{{count}} employé(s)",
+    "byEmployee": "Par employé",
+    "sessionsCount": "Services",
+    "detail": "Détail des services",
+    "search": "Rechercher un employé ou un rôle…",
+    "note": "Une commande compte pour la personne qui l'a encaissée (sinon celle qui l'a prise), dans le service pointé ouvert à ce moment-là. Les commandes encaissées sans pointage ouvert apparaissent sur une ligne « hors pointage » : le total correspond toujours à toutes les commandes payées de la période."
+  },
+  "cashAudit": {
+    "windowLabel": "Changement considéré comme suspect s'il a lieu moins de…",
+    "windowOption": "{{count}} minutes avant le paiement",
+    "itemRemoved": "Article retiré",
+    "paymentChange": "Paiement modifié",
+    "changedBy": "Modifié par",
+    "change": "Changement",
+    "minutesBefore": "Minutes avant paiement",
+    "cashOrders": "Commandes payées en espèces",
+    "flaggedOrders": "Commandes signalées",
+    "flaggedShare": "Part signalée",
+    "cashCollected": "Espèces encaissées",
+    "changes": "Changements",
+    "byType": "Par type de changement",
+    "detail": "Changements signalés",
+    "search": "Rechercher (n° commande, personne, article)…",
+    "empty": "Aucun changement suspect sur la période.",
+    "explanation": "Une commande est signalée quand, moins de {{minutes}} minutes avant son paiement en espèces, un article a été retiré ou le paiement modifié. Ce n'est pas une preuve : c'est une liste à vérifier (erreur de saisie, client qui change d'avis…)."
+  },
+  "kitchenTiming": {
+    "fromHour": "De",
+    "toHour": "À",
+    "avg": "Moyenne (min)",
+    "median": "Médiane (min)",
+    "p90": "9 sur 10 en moins de (min)",
+    "items": "Articles",
+    "stage": "Étape",
+    "ticketAvg": "Temps moyen d'une commande",
+    "ticketsTimed": "{{count}} commande(s) mesurée(s)",
+    "prepAvg": "Préparation moyenne d'un article",
+    "itemsTimed": "{{count}} article(s) mesuré(s)",
+    "slowestKitchen": "Cuisine la plus lente",
+    "hours": "Heures analysées",
+    "byOrderType": "Par type de commande (ouverture → paiement)",
+    "byKitchen": "Par cuisine",
+    "byStage": "Par étape",
+    "byCategory": "Par catégorie de plat",
+    "explanation": "Temps d'une commande : de son ouverture à son paiement. Temps de préparation : de l'envoi en cuisine à « prêt ». La colonne « 9 sur 10 » montre l'attente des clients les moins bien servis, plus parlante que la moyenne."
   }
 }

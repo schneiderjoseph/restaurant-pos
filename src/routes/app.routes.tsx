@@ -24,6 +24,9 @@ import {
   REPORTS_DELIVERY_DENSITY,
   REPORTS_DISCOUNTS,
   REPORTS_EXPENSE,
+  REPORTS_SHIFTS,
+  REPORTS_CASH_AUDIT,
+  REPORTS_KITCHEN_TIMING,
   REPORTS_MERGE_ORDERS,
   REPORTS_ORDER_FISCAL,
   REPORTS_ORDER_LIFECYCLE,
@@ -65,6 +68,9 @@ import {
   DeliveryDensityReport,
   DiscountsReport,
   ExpenseReport,
+  ShiftsReport,
+  CashAuditReport,
+  KitchenTimingReport,
   MergeOrdersReport,
   OrderDisplayScreen,
   OrderFiscalReport,
@@ -137,6 +143,9 @@ export const AppRoutes = () => {
         <Route path={REPORTS_ORDER_RECEIPT} element={<OrderReceiptReport/>}/>
         <Route path={REPORTS_ORDER_FISCAL} element={<OrderFiscalReport/>}/>
         <Route path={REPORTS_EXPENSE} element={<ExpenseReport/>}/>
+        <Route path={REPORTS_SHIFTS} element={<ShiftsReport/>}/>
+        <Route path={REPORTS_CASH_AUDIT} element={<CashAuditReport/>}/>
+        <Route path={REPORTS_KITCHEN_TIMING} element={<KitchenTimingReport/>}/>
         <Route path={REPORTS_ACTIVITY} element={<ActivityReport/>}/>
         <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
         <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>

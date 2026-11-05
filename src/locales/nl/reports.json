@@ -2,7 +2,8 @@
   "page": {
     "title": "Rapporten",
     "subReports": "Subrapporten",
-    "reportFilters": "Rapportfilters"
+    "reportFilters": "Rapportfilters",
+    "searchReports": "Rapport zoeken…"
   },
   "security": {
     "openReport": "{{report}}-rapport openen"
@@ -13,7 +14,10 @@
     "orders": "Bestellingen",
     "cashClosing": "Kasafsluiting",
     "operations": "Operaties",
-    "products": "Producten"
+    "products": "Producten",
+    "customers": "Klanten & krediet",
+    "cashAndPayments": "Kassa & betalingen",
+    "control": "Controle: annuleringen & kortingen"
   },
   "reports": {
     "salesDashboard": "Verkoopdashboard",
@@ -50,7 +54,13 @@
     "lateArrivalReport": "Te-laat-rapport",
     "absenceReport": "Afwezigheidsrapport",
     "holidayCostReport": "Feestdagenkostenrapport",
-    "managerApprovalReport": "Goedkeuringsrapport manager"
+    "managerApprovalReport": "Goedkeuringsrapport manager",
+    "audit": "Auditrapport",
+    "productList": "Productlijst",
+    "tablesSummary": "Tafeloverzicht",
+    "shifts": "Diensten per medewerker",
+    "cashAudit": "Controle contante betalingen",
+    "kitchenTiming": "Keukentijden"
   },
   "titles": {
     "salesDashboard": "Verkoopdashboard",
@@ -790,5 +800,38 @@
     "5": "Vrijdag",
     "6": "Zaterdag",
     "7": "Zondag"
+  },
+  "descriptions": {
+    "salesDashboard": "Omzet, piekuren, vergelijking met de vorige periode.",
+    "salesSummary": "Netto-omzet, belastingen, kortingen, omzet per verkooppunt en dagdeel.",
+    "salesSummary2": "Per medewerker en dienst: bestellingen, gasten, gemiddelde bon, tafeltijd.",
+    "salesWeekly": "Netto-omzet dag per dag over een week.",
+    "advancedSales": "Eén regel per bestelling of artikel, met betalingen en belastingen. Het meest volledig voor de boekhouding.",
+    "serverSales": "Omzet, bestellingen en gasten per ober.",
+    "tablesSummary": "Bestellingen, omzet en gemiddelde bon per tafel.",
+    "deliveryDensity": "Waar leveringen heen gaan en wat ze opbrengen.",
+    "customerCredit": "Wie hoeveel schuldig is en sinds wanneer (0–30 / 31–60 / 61–90 / 90+ dagen), overschreden limieten.",
+    "salesByCustomer": "Wat elke klant in de periode kocht.",
+    "cashClosing": "Kassa-afsluitingen: saldo, ontvangen, uitgaven.",
+    "tips": "Totaal fooien en verdeling.",
+    "tax": "Ontvangen belastingbedragen.",
+    "productMixSummary": "Ranglijst van gerechten: aantal, gemiddelde prijs, aandeel in de omzet.",
+    "productMixWeekly": "Verkochte aantallen per ober, dag per dag.",
+    "productsHourly": "Wat op welk uur verkocht wordt.",
+    "productList": "De kaart: code, naam, categorie, prijs.",
+    "voids": "Annuleringen per reden, verantwoordelijke en artikel. Wekelijks nakijken.",
+    "discount": "Wie welke korting gaf, goedgekeurd door wie en waarom.",
+    "coupon": "Gebruikte coupons en bedragen.",
+    "mergeOrders": "Samengevoegde bestellingen: welke, wanneer, door wie.",
+    "splitOrders": "Gesplitste bestellingen en aangemaakte bestellingen.",
+    "orderReceipt": "Bon van een bestelling zoeken en opnieuw afdrukken.",
+    "orderLifeCycle": "Elke gebeurtenis van een bestelling, op volgorde, met wie en wanneer.",
+    "orderFiscal": "Fiscale status van elke bestelling.",
+    "expense": "Geregistreerde uitgaven.",
+    "activity": "Beveiligde acties: wie, welke module, welk apparaat, welke goedkeuring.",
+    "audit": "Logboek van gevoelige acties.",
+    "shifts": "Per dienst: begin, einde, duur en wat ieder ontving.",
+    "cashAudit": "Contant betaalde bestellingen waarbij vlak voor betaling een artikel werd verwijderd of de betaling gewijzigd.",
+    "kitchenTiming": "Wachttijd per besteltype en bereidingstijd per keuken, stap en categorie."
   }
 }

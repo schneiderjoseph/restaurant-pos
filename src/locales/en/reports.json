@@ -54,7 +54,13 @@
     "lateArrivalReport": "Late Arrival Report",
     "absenceReport": "Absence Report",
     "holidayCostReport": "Holiday Cost Report",
-    "managerApprovalReport": "Manager Approval Report"
+    "managerApprovalReport": "Manager Approval Report",
+    "audit": "Audit report",
+    "productList": "Product list",
+    "tablesSummary": "Tables summary",
+    "shifts": "Shifts by employee",
+    "cashAudit": "Cash audit",
+    "kitchenTiming": "Kitchen timing"
   },
   "titles": {
     "salesDashboard": "Sales dashboard",
@@ -941,6 +947,28 @@
       "peak": "Peak hour: {{hour}} with {{amount}} ({{pct}}% of sales).",
       "top3": "The top 3 hours ({{hours}}) make {{pct}}% of sales: staff accordingly.",
       "quiet": "Very quiet hours (under 2% of sales): {{hours}}."
+    },
+    "shifts": {
+      "none": "No clock-in or payment in this period.",
+      "open": "{{count}} shift(s) still open: {{names}}.",
+      "long": "{{count}} shift(s) longer than {{hours}} h: {{names}}. Forgot to clock out?",
+      "outside": "{{count}} order(s) paid with no open shift ({{amount}}): {{names}}.",
+      "top": "{{name}} collected the most: {{amount}} ({{pct}}%).",
+      "noSales": "{{count}} shift(s) of at least one hour with no sale: {{names}}."
+    },
+    "cashAudit": {
+      "clean": "No suspicious change across {{count}} cash-paid order(s) ({{minutes}} min window).",
+      "flagged": "{{count}} of {{total}} cash-paid orders ({{pct}}%) were changed less than {{minutes}} min before payment.",
+      "concentration": "{{name}} accounts for {{count}} flagged change(s), {{pct}}% of the total. Check first.",
+      "top": "Most flagged changes: {{name}} ({{count}}).",
+      "lastMinute": "{{count}} change(s) made in the last 2 minutes before payment (in red)."
+    },
+    "kitchen": {
+      "none": "No order or prep timed in this period.",
+      "slowestKitchen": "Slowest kitchen: {{name}} ({{avg}} min on average), vs {{fastAvg}} min for {{fast}}.",
+      "slowP90": "1 order in 10 waits more than {{limit}} min: {{names}}.",
+      "slowestCategory": "Slowest category to prepare: {{name}} ({{avg}} min on average over {{count}} items).",
+      "ticketAverage": "An order lasts {{avg}} min on average from opening to payment ({{count}} orders)."
     }
   },
   "credit": {
@@ -997,7 +1025,10 @@
     "orderFiscal": "Fiscal declaration status of each order.",
     "expense": "Recorded expenses.",
     "activity": "Protected actions: who, which module, which device, which approval.",
-    "audit": "Log of sensitive actions."
+    "audit": "Log of sensitive actions.",
+    "shifts": "Per clock-in: in, out, duration, and what each person collected (cash, other, room + credit).",
+    "cashAudit": "Cash-paid orders where an item was removed or the payment changed just before payment.",
+    "kitchenTiming": "Wait time per order type and prep time per kitchen, stage and category."
   },
   "salesSummary": {
     "vsPrevious": "vs {{value}} ({{change}})",
@@ -1163,5 +1194,62 @@
     "perOrder": "Average per order",
     "shareOfGross": "Share of gross sales",
     "byCashier": "By cashier"
+  },
+  "shiftsReport": {
+    "employee": "Employee",
+    "outside": "no clock-in",
+    "inProgress": "in progress",
+    "clockIn": "In",
+    "clockOut": "Out",
+    "duration": "Duration",
+    "otherTenders": "Other tenders",
+    "deferred": "Room + credit",
+    "perHour": "Sales / hour",
+    "sessions": "Clocked shifts",
+    "employees": "{{count}} employee(s)",
+    "byEmployee": "By employee",
+    "sessionsCount": "Shifts",
+    "detail": "Shift detail",
+    "search": "Search an employee or role…",
+    "note": "An order counts for the person who took the payment (else the order taker), in the shift they had open at that time. Orders paid with no open shift appear on a \"no clock-in\" row, so the total always matches every paid order in the period."
+  },
+  "cashAudit": {
+    "windowLabel": "A change is flagged if it happens less than…",
+    "windowOption": "{{count}} minutes before payment",
+    "itemRemoved": "Item removed",
+    "paymentChange": "Payment changed",
+    "changedBy": "Changed by",
+    "change": "Change",
+    "minutesBefore": "Minutes before payment",
+    "cashOrders": "Cash-paid orders",
+    "flaggedOrders": "Flagged orders",
+    "flaggedShare": "Flagged share",
+    "cashCollected": "Cash collected",
+    "changes": "Changes",
+    "byType": "By change type",
+    "detail": "Flagged changes",
+    "search": "Search (order #, person, item)…",
+    "empty": "No suspicious change in this period.",
+    "explanation": "An order is flagged when, less than {{minutes}} minutes before it was paid in cash, an item was removed or the payment changed. It is not proof: it is a list to check (typing mistake, guest changing their mind…)."
+  },
+  "kitchenTiming": {
+    "fromHour": "From",
+    "toHour": "To",
+    "avg": "Average (min)",
+    "median": "Median (min)",
+    "p90": "9 in 10 under (min)",
+    "items": "Items",
+    "stage": "Stage",
+    "ticketAvg": "Average order time",
+    "ticketsTimed": "{{count}} order(s) timed",
+    "prepAvg": "Average item prep",
+    "itemsTimed": "{{count}} item(s) timed",
+    "slowestKitchen": "Slowest kitchen",
+    "hours": "Hours analysed",
+    "byOrderType": "By order type (opening → payment)",
+    "byKitchen": "By kitchen",
+    "byStage": "By stage",
+    "byCategory": "By dish category",
+    "explanation": "Order time: from opening to payment. Prep time: from sent to kitchen to ready. The \"9 in 10\" column shows how long the worst-served guests wait, more telling than the average."
   }
 }

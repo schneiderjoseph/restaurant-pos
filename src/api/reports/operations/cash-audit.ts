@@ -7,6 +7,19 @@ import {toJsDate} from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
+export const PAYMENT_MODULES = [
+  "Update order payment details",
+  "Complete order payment",
+  "Delete order item",
+  "Void order item",
+];
+
+const personName = (u: unknown): string => {
+  if (!u || typeof u !== "object") return "";
+  const p = u as {first_name?: string; last_name?: string; login?: string};
+  return `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || p.login || "";
+};
+
 const isCashPayment = (type?: string, name?: string): boolean => {
   const normalizedType = type?.toLowerCase()?.trim() ?? "";
   const normalizedName = name?.toLowerCase()?.trim() ?? "";
@@ -40,10 +53,15 @@ export const getCashSettlementAudit = async (
   );
 
   const orderIds = cashOrders.map(order => recordIdToString(order.id)).filter(Boolean);
+  // Only the payment-related tracked actions, filtered in the query so a busy
+  // period does not push them out of the row cap.
+  const paymentModules = new Set(PAYMENT_MODULES);
+  const trackingConditions = ["module INSIDE $paymentModules", ...conditions];
   const trackingEntries = orderIds.length > 0
     ? unwrapQueryResult<{
         module?: string;
         page?: string;
+        user?: string;
         user_name?: string;
         created_at?: unknown;
         payload?: Record<string, unknown>;
@@ -51,26 +69,22 @@ export const getCashSettlementAudit = async (
         await db.query(
           `
             SELECT * FROM ${Tables.tracking}
-            ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
+            WHERE ${trackingConditions.join(" AND ")}
             ORDER BY created_at DESC
-            LIMIT 500
+            LIMIT 5000
           `,
-          params,
+          {...params, paymentModules: PAYMENT_MODULES},
         ),
       )
     : [];
 
-  const paymentModules = new Set([
-    "Update order payment details",
-    "Complete order payment",
-    "Delete order item",
-    "Void order item",
-  ]);
 
   const modifications: Array<{
     orderId: string;
     invoiceNumber?: number;
     cashierName?: string;
+    /** Who made the change (tracked user), when known. */
+    by?: string;
     modificationType: string;
     module?: string;
     minutesBeforeClose?: number;
@@ -80,6 +94,7 @@ export const getCashSettlementAudit = async (
 
   cashOrders.forEach(order => {
     const orderId = recordIdToString(order.id);
+    const cashierName = personName(order.cashier) || personName(order.user) || undefined;
     const completedAt = order.completed_at
       ? toJsDate(order.completed_at as Parameters<typeof toJsDate>[0]).getTime()
       : null;
@@ -98,11 +113,10 @@ export const getCashSettlementAudit = async (
           modifications.push({
             orderId,
             invoiceNumber: order.invoice_number,
-            cashierName: (order.cashier as {first_name?: string; last_name?: string} | undefined)
-              ? `${(order.cashier as {first_name?: string}).first_name ?? ""} ${(order.cashier as {last_name?: string}).last_name ?? ""}`.trim()
-              : undefined,
+            cashierName,
             modificationType: "item_removed",
             minutesBeforeClose: minutesBefore,
+            createdAt: item.deleted_at,
             payload: {itemName: item.item?.name},
           });
         }
@@ -127,6 +141,8 @@ export const getCashSettlementAudit = async (
         modifications.push({
           orderId,
           invoiceNumber: order.invoice_number,
+          cashierName,
+          by: entry.user ?? entry.user_name,
           modificationType: "payment_or_item_change",
           module: entry.module,
           minutesBeforeClose: minutesBefore,
@@ -146,6 +162,7 @@ export const getCashSettlementAudit = async (
       return {
         orderId: recordIdToString(order.id),
         invoiceNumber: order.invoice_number,
+        cashierName: personName(order.cashier) || personName(order.user) || undefined,
         cashAmount: paymentTotals.cashAmount,
         amountCollected: paymentTotals.amountCollected,
         completedAt: order.completed_at,

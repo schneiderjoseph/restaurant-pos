@@ -834,7 +834,13 @@
       "admin.customers": "Clients",
       "admin.customers.update": "Modifier n'importe quel client",
       "admin.customers.delete": "Supprimer et restaurer des clients",
-      "admin.customers.merge": "Fusionner les doublons"
+      "admin.customers.merge": "Fusionner les doublons",
+      "reports.product_list": "Liste des produits",
+      "reports.tables_summary": "Résumé des tables",
+      "reports.audit": "Audit",
+      "reports.shifts": "Services par employé",
+      "reports.cash_audit": "Contrôle des encaissements espèces",
+      "reports.kitchen_timing": "Temps cuisine"
     }
   },
   "discountEngine": {

@@ -2,7 +2,8 @@
   "page": {
     "title": "Relatórios",
     "subReports": "Sub-relatórios",
-    "reportFilters": "Filtros do relatório"
+    "reportFilters": "Filtros do relatório",
+    "searchReports": "Buscar um relatório…"
   },
   "security": {
     "openReport": "Abrir relatório {{report}}"
@@ -13,7 +14,10 @@
     "orders": "Pedidos",
     "cashClosing": "Fechamento de caixa",
     "operations": "Operações",
-    "products": "Produtos"
+    "products": "Produtos",
+    "customers": "Clientes e crédito",
+    "cashAndPayments": "Caixa e recebimentos",
+    "control": "Controle: cancelamentos e descontos"
   },
   "reports": {
     "salesDashboard": "Painel de vendas",
@@ -50,7 +54,13 @@
     "lateArrivalReport": "Relatório de atrasos",
     "absenceReport": "Relatório de ausências",
     "holidayCostReport": "Relatório de custo de feriados",
-    "managerApprovalReport": "Relatório de aprovação do gerente"
+    "managerApprovalReport": "Relatório de aprovação do gerente",
+    "audit": "Relatório de auditoria",
+    "productList": "Lista de produtos",
+    "tablesSummary": "Resumo de mesas",
+    "shifts": "Turnos por funcionário",
+    "cashAudit": "Controle de recebimentos em dinheiro",
+    "kitchenTiming": "Tempos de cozinha"
   },
   "titles": {
     "salesDashboard": "Painel de vendas",
@@ -790,5 +800,38 @@
     "5": "Sexta-feira",
     "6": "Sábado",
     "7": "Domingo"
+  },
+  "descriptions": {
+    "salesDashboard": "Faturamento, horários de pico, comparação com o período anterior.",
+    "salesSummary": "Vendas líquidas, impostos, descontos, vendas por ponto de venda e por período do dia.",
+    "salesSummary2": "Por funcionário e turno: pedidos, pessoas, ticket médio, tempo de mesa.",
+    "salesWeekly": "Vendas líquidas dia a dia em uma semana.",
+    "advancedSales": "Uma linha por pedido ou item, com pagamentos e impostos. O mais completo para a contabilidade.",
+    "serverSales": "Vendas, pedidos e pessoas por garçom.",
+    "tablesSummary": "Pedidos, faturamento e ticket médio por mesa.",
+    "deliveryDensity": "Para onde vão as entregas e quanto rendem.",
+    "customerCredit": "Quem deve quanto e desde quando (0–30 / 31–60 / 61–90 / 90+ dias), limites ultrapassados.",
+    "salesByCustomer": "O que cada cliente comprou no período.",
+    "cashClosing": "Fechamentos de caixa: saldo, recebido, despesas.",
+    "tips": "Total de gorjetas e divisão.",
+    "tax": "Valores de impostos recebidos.",
+    "productMixSummary": "Ranking de pratos: quantidade, preço médio, participação nas vendas.",
+    "productMixWeekly": "Quantidades vendidas por garçom, dia a dia.",
+    "productsHourly": "O que vende em cada horário.",
+    "productList": "O cardápio: código, nome, categoria, preço.",
+    "voids": "Cancelamentos por motivo, responsável e item. Revisar toda semana.",
+    "discount": "Quem aplicou qual desconto, aprovado por quem e por quê.",
+    "coupon": "Cupons usados e valores.",
+    "mergeOrders": "Pedidos mesclados: quais, quando, por quem.",
+    "splitOrders": "Pedidos divididos e pedidos criados.",
+    "orderReceipt": "Encontrar e reimprimir o recibo de um pedido.",
+    "orderLifeCycle": "Cada evento de um pedido, em ordem, com quem e quando.",
+    "orderFiscal": "Situação fiscal de cada pedido.",
+    "expense": "Despesas registradas.",
+    "activity": "Ações protegidas: quem, qual módulo, qual dispositivo, qual autorização.",
+    "audit": "Registro de ações sensíveis.",
+    "shifts": "Por ponto: entrada, saída, duração e o que cada um recebeu.",
+    "cashAudit": "Pedidos pagos em dinheiro com item removido ou pagamento alterado logo antes do recebimento.",
+    "kitchenTiming": "Espera por tipo de pedido e preparo por cozinha, etapa e categoria."
   }
 }

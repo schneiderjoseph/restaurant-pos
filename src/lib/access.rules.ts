@@ -125,6 +125,12 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "reports.product_mix_weekly",
       "reports.product_mix_summary",
       "reports.products_hourly",
+      "reports.product_list",
+      "reports.tables_summary",
+      "reports.audit",
+      "reports.shifts",
+      "reports.cash_audit",
+      "reports.kitchen_timing",
     ],
   },
   closing: {

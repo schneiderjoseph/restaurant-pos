@@ -988,7 +988,13 @@
       "admin.customers": "Clients",
       "admin.customers.update": "Edit any client",
       "admin.customers.delete": "Delete and restore clients",
-      "admin.customers.merge": "Merge duplicate clients"
+      "admin.customers.merge": "Merge duplicate clients",
+      "reports.product_list": "Product List",
+      "reports.tables_summary": "Tables Summary",
+      "reports.audit": "Audit",
+      "reports.shifts": "Shifts by Employee",
+      "reports.cash_audit": "Cash Audit",
+      "reports.kitchen_timing": "Kitchen Timing"
     }
   },
   "securityAlerts": {

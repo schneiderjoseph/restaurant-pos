@@ -2,7 +2,8 @@
   "page": {
     "title": "Raporlar",
     "subReports": "Alt raporlar",
-    "reportFilters": "Rapor filtreleri"
+    "reportFilters": "Rapor filtreleri",
+    "searchReports": "Rapor ara…"
   },
   "security": {
     "openReport": "{{report}} raporunu aç"
@@ -13,7 +14,10 @@
     "orders": "Siparişler",
     "cashClosing": "Kasa kapanışı",
     "operations": "Operasyonlar",
-    "products": "Ürünler"
+    "products": "Ürünler",
+    "customers": "Müşteriler ve kredi",
+    "cashAndPayments": "Kasa ve tahsilat",
+    "control": "Kontrol: iptaller ve indirimler"
   },
   "reports": {
     "salesDashboard": "Satış gösterge paneli",
@@ -50,7 +54,13 @@
     "lateArrivalReport": "Geç gelme raporu",
     "absenceReport": "Devamsızlık raporu",
     "holidayCostReport": "Tatil maliyeti raporu",
-    "managerApprovalReport": "Yönetici onay raporu"
+    "managerApprovalReport": "Yönetici onay raporu",
+    "audit": "Denetim raporu",
+    "productList": "Ürün listesi",
+    "tablesSummary": "Masa özeti",
+    "shifts": "Çalışan vardiyaları",
+    "cashAudit": "Nakit tahsilat kontrolü",
+    "kitchenTiming": "Mutfak süreleri"
   },
   "titles": {
     "salesDashboard": "Satış gösterge paneli",
@@ -790,5 +800,38 @@
     "5": "Cuma",
     "6": "Cumartesi",
     "7": "Pazar"
+  },
+  "descriptions": {
+    "salesDashboard": "Ciro, yoğun saatler, önceki dönemle karşılaştırma.",
+    "salesSummary": "Net satış, vergiler, indirimler, satış noktası ve gün dilimine göre satışlar.",
+    "salesSummary2": "Çalışan ve vardiyaya göre: siparişler, kişi sayısı, ortalama fiş, masa süresi.",
+    "salesWeekly": "Bir hafta boyunca gün gün net satış.",
+    "advancedSales": "Sipariş veya ürün başına bir satır, ödemeler ve vergilerle. Muhasebe için en kapsamlısı.",
+    "serverSales": "Garson başına satış, sipariş ve kişi sayısı.",
+    "tablesSummary": "Masa başına sipariş, ciro ve ortalama fiş.",
+    "deliveryDensity": "Teslimatların nereye gittiği ve ne kazandırdığı.",
+    "customerCredit": "Kim ne kadar ve ne zamandan beri borçlu (0–30 / 31–60 / 61–90 / 90+ gün), aşılan limitler.",
+    "salesByCustomer": "Her müşterinin dönem içinde aldıkları.",
+    "cashClosing": "Kasa kapanışları: bakiye, tahsilat, giderler.",
+    "tips": "Toplam bahşiş ve dağılımı.",
+    "tax": "Toplanan vergi tutarları.",
+    "productMixSummary": "Yemek sıralaması: miktar, ortalama fiyat, satış payı.",
+    "productMixWeekly": "Garson başına gün gün satılan miktarlar.",
+    "productsHourly": "Hangi saatte ne satıldığı.",
+    "productList": "Menü: kod, ad, kategori, fiyat.",
+    "voids": "Nedene, sorumluya ve ürüne göre iptaller. Her hafta gözden geçirin.",
+    "discount": "Kim hangi indirimi yaptı, kim onayladı ve neden.",
+    "coupon": "Kullanılan kuponlar ve tutarlar.",
+    "mergeOrders": "Birleştirilen siparişler: hangileri, ne zaman, kim tarafından.",
+    "splitOrders": "Bölünen siparişler ve oluşturulan siparişler.",
+    "orderReceipt": "Bir siparişin fişini bul ve yeniden yazdır.",
+    "orderLifeCycle": "Bir siparişin her olayı, sırayla, kim ve ne zaman.",
+    "orderFiscal": "Her siparişin mali durumu.",
+    "expense": "Kaydedilen giderler.",
+    "activity": "Korumalı işlemler: kim, hangi modül, hangi cihaz, hangi onay.",
+    "audit": "Hassas işlemlerin kaydı.",
+    "shifts": "Vardiya başına: giriş, çıkış, süre ve herkesin tahsil ettiği tutar.",
+    "cashAudit": "Ödemeden hemen önce ürün çıkarılan veya ödemesi değiştirilen nakit siparişler.",
+    "kitchenTiming": "Sipariş türüne göre bekleme ve mutfak, aşama ve kategoriye göre hazırlık süresi."
   }
 }

@@ -2,7 +2,8 @@
   "page": {
     "title": "Berichte",
     "subReports": "Unterberichte",
-    "reportFilters": "Berichtsfilter"
+    "reportFilters": "Berichtsfilter",
+    "searchReports": "Bericht suchen…"
   },
   "security": {
     "openReport": "{{report}}-Bericht öffnen"
@@ -13,7 +14,10 @@
     "orders": "Bestellungen",
     "cashClosing": "Kassenabschluss",
     "operations": "Betrieb",
-    "products": "Produkte"
+    "products": "Produkte",
+    "customers": "Kunden & Kredit",
+    "cashAndPayments": "Kasse & Zahlungen",
+    "control": "Kontrolle: Stornos & Rabatte"
   },
   "reports": {
     "salesDashboard": "Umsatz-Dashboard",
@@ -50,7 +54,13 @@
     "lateArrivalReport": "Verspätungsbericht",
     "absenceReport": "Abwesenheitsbericht",
     "holidayCostReport": "Feiertagskostenbericht",
-    "managerApprovalReport": "Genehmigungsbericht des Managers"
+    "managerApprovalReport": "Genehmigungsbericht des Managers",
+    "audit": "Prüf-Bericht",
+    "productList": "Produktliste",
+    "tablesSummary": "Tischübersicht",
+    "shifts": "Schichten pro Mitarbeiter",
+    "cashAudit": "Barzahlungs-Prüfung",
+    "kitchenTiming": "Küchenzeiten"
   },
   "titles": {
     "salesDashboard": "Umsatz-Dashboard",
@@ -790,5 +800,38 @@
     "5": "Freitag",
     "6": "Samstag",
     "7": "Sonntag"
+  },
+  "descriptions": {
+    "salesDashboard": "Umsatz, Stoßzeiten, Vergleich mit dem Vorzeitraum.",
+    "salesSummary": "Nettoumsatz, Steuern, Rabatte, Umsatz nach Verkaufsstelle und Tageszeit.",
+    "salesSummary2": "Nach Mitarbeiter und Schicht: Bestellungen, Gäste, Durchschnittsbon, Tischzeit.",
+    "salesWeekly": "Nettoumsatz Tag für Tag über eine Woche.",
+    "advancedSales": "Eine Zeile pro Bestellung oder Artikel, mit Zahlungen und Steuern. Am vollständigsten für die Buchhaltung.",
+    "serverSales": "Umsatz, Bestellungen und Gäste pro Kellner.",
+    "tablesSummary": "Bestellungen, Umsatz und Durchschnittsbon pro Tisch.",
+    "deliveryDensity": "Wohin Lieferungen gehen und was sie einbringen.",
+    "customerCredit": "Wer wie viel schuldet und seit wann (0–30 / 31–60 / 61–90 / 90+ Tage), überschrittene Limits.",
+    "salesByCustomer": "Was jeder Kunde im Zeitraum gekauft hat.",
+    "cashClosing": "Kassenabschlüsse: Saldo, Einnahmen, Ausgaben.",
+    "tips": "Trinkgeldsumme und Verteilung.",
+    "tax": "Eingenommene Steuerbeträge.",
+    "productMixSummary": "Rangliste der Gerichte: Menge, Durchschnittspreis, Umsatzanteil.",
+    "productMixWeekly": "Verkaufte Mengen pro Bedienung, Tag für Tag.",
+    "productsHourly": "Was zu welcher Uhrzeit verkauft wird.",
+    "productList": "Die Karte: Code, Name, Kategorie, Preis.",
+    "voids": "Stornos nach Grund, Verantwortlichem und Artikel. Wöchentlich prüfen.",
+    "discount": "Wer welchen Rabatt gewährt hat, von wem genehmigt und warum.",
+    "coupon": "Verwendete Gutscheine und Beträge.",
+    "mergeOrders": "Zusammengeführte Bestellungen: welche, wann, von wem.",
+    "splitOrders": "Geteilte Bestellungen und erstellte Bestellungen.",
+    "orderReceipt": "Beleg einer Bestellung finden und erneut drucken.",
+    "orderLifeCycle": "Jedes Ereignis einer Bestellung, in Reihenfolge, mit wer und wann.",
+    "orderFiscal": "Fiskalstatus jeder Bestellung.",
+    "expense": "Erfasste Ausgaben.",
+    "activity": "Geschützte Aktionen: wer, welches Modul, welches Gerät, welche Freigabe.",
+    "audit": "Protokoll sensibler Aktionen.",
+    "shifts": "Pro Schicht: Beginn, Ende, Dauer und kassierte Beträge.",
+    "cashAudit": "Bar bezahlte Bestellungen, bei denen kurz vor der Zahlung ein Artikel entfernt oder die Zahlung geändert wurde.",
+    "kitchenTiming": "Wartezeit pro Bestellart und Zubereitungszeit pro Küche, Stufe und Kategorie."
   }
 }

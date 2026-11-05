@@ -2,7 +2,8 @@
   "page": {
     "title": "Report",
     "subReports": "Sotto-report",
-    "reportFilters": "Filtri report"
+    "reportFilters": "Filtri report",
+    "searchReports": "Cerca un report…"
   },
   "security": {
     "openReport": "Apri report {{report}}"
@@ -13,7 +14,10 @@
     "orders": "Ordini",
     "cashClosing": "Chiusura cassa",
     "operations": "Operazioni",
-    "products": "Prodotti"
+    "products": "Prodotti",
+    "customers": "Clienti e credito",
+    "cashAndPayments": "Cassa e incassi",
+    "control": "Controllo: storni e sconti"
   },
   "reports": {
     "salesDashboard": "Dashboard vendite",
@@ -50,7 +54,13 @@
     "lateArrivalReport": "Report ritardi",
     "absenceReport": "Report assenze",
     "holidayCostReport": "Report costi festivi",
-    "managerApprovalReport": "Report approvazioni manager"
+    "managerApprovalReport": "Report approvazioni manager",
+    "audit": "Report audit",
+    "productList": "Elenco prodotti",
+    "tablesSummary": "Riepilogo tavoli",
+    "shifts": "Turni per dipendente",
+    "cashAudit": "Controllo incassi in contanti",
+    "kitchenTiming": "Tempi di cucina"
   },
   "titles": {
     "salesDashboard": "Dashboard vendite",
@@ -790,5 +800,38 @@
     "5": "Venerdì",
     "6": "Sabato",
     "7": "Domenica"
+  },
+  "descriptions": {
+    "salesDashboard": "Fatturato, ore di punta, confronto con il periodo precedente.",
+    "salesSummary": "Vendite nette, tasse, sconti, vendite per punto vendita e fascia oraria.",
+    "salesSummary2": "Per dipendente e turno: ordini, coperti, scontrino medio, tempo al tavolo.",
+    "salesWeekly": "Vendite nette giorno per giorno su una settimana.",
+    "advancedSales": "Una riga per ordine o articolo, con pagamenti e tasse. Il più completo per la contabilità.",
+    "serverSales": "Vendite, ordini e coperti per cameriere.",
+    "tablesSummary": "Ordini, fatturato e scontrino medio per tavolo.",
+    "deliveryDensity": "Dove vanno le consegne e quanto rendono.",
+    "customerCredit": "Chi deve quanto e da quando (0–30 / 31–60 / 61–90 / 90+ giorni), limiti superati.",
+    "salesByCustomer": "Cosa ha acquistato ogni cliente nel periodo.",
+    "cashClosing": "Chiusure di cassa: saldo, incassato, spese.",
+    "tips": "Totale mance e ripartizione.",
+    "tax": "Importi delle tasse incassate.",
+    "productMixSummary": "Classifica dei piatti: quantità, prezzo medio, quota delle vendite.",
+    "productMixWeekly": "Quantità vendute per cameriere, giorno per giorno.",
+    "productsHourly": "Cosa si vende a che ora.",
+    "productList": "Il menu: codice, nome, categoria, prezzo.",
+    "voids": "Storni per motivo, responsabile e articolo. Da rivedere ogni settimana.",
+    "discount": "Chi ha applicato quale sconto, approvato da chi e perché.",
+    "coupon": "Coupon usati e importi.",
+    "mergeOrders": "Ordini uniti: quali, quando, da chi.",
+    "splitOrders": "Ordini divisi e ordini creati.",
+    "orderReceipt": "Trovare e ristampare la ricevuta di un ordine.",
+    "orderLifeCycle": "Ogni evento di un ordine, in ordine, con chi e quando.",
+    "orderFiscal": "Stato fiscale di ogni ordine.",
+    "expense": "Spese registrate.",
+    "activity": "Azioni protette: chi, quale modulo, quale dispositivo, quale autorizzazione.",
+    "audit": "Registro delle azioni sensibili.",
+    "shifts": "Per timbratura: entrata, uscita, durata e quanto ha incassato ciascuno.",
+    "cashAudit": "Ordini pagati in contanti con un articolo rimosso o il pagamento modificato poco prima dell'incasso.",
+    "kitchenTiming": "Attesa per tipo di ordine e preparazione per cucina, fase e categoria."
   }
 }

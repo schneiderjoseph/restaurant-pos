@@ -32,6 +32,7 @@ import {OrderLifecycleFilter} from "@/components/reports/filters/order.lifecycle
 import {OrderReceiptFilter} from "@/components/reports/filters/order.receipt.filter.tsx";
 import {OrderFiscalFilter} from "@/components/reports/filters/order.fiscal.filter.tsx";
 import {ExpenseFilter} from "@/components/reports/filters/expense.filter.tsx";
+import {CashAuditFilter, KitchenTimingFilter, ShiftsFilter} from "@/components/reports/filters/operations.filters.tsx";
 import {ActivityFilter} from "@/components/reports/filters/activity.filter.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {
@@ -85,6 +86,9 @@ const REPORT_PERMISSION_MODULES: Record<string, string> = {
   productMixSummary: 'reports.product_mix_summary',
   productsHourly: 'reports.products_hourly',
   productList: 'reports.product_list',
+  shifts: 'reports.shifts',
+  cashAudit: 'reports.cash_audit',
+  kitchenTiming: 'reports.kitchen_timing',
 };
 
 const buildReportEntries = (
@@ -137,6 +141,7 @@ export const Reports = () => {
         title: t('categories.cashAndPayments'),
         reports: buildReportEntries(t, [
           { reportKey: 'cashClosing', filter: <CashClosingFilter /> },
+          { reportKey: 'shifts', filter: <ShiftsFilter /> },
           { reportKey: 'tips', filter: <TipsFilter /> },
           { reportKey: 'tax', filter: <TaxFilter /> },
         ]),
@@ -160,6 +165,7 @@ export const Reports = () => {
           { reportKey: 'coupon', filter: <CouponFilter /> },
           { reportKey: 'mergeOrders', filter: <MergeOrdersFilter /> },
           { reportKey: 'splitOrders', filter: <SplitOrdersFilter /> },
+          { reportKey: 'cashAudit', filter: <CashAuditFilter /> },
         ]),
       },
       {
@@ -176,6 +182,7 @@ export const Reports = () => {
         title: t('categories.operations'),
         reports: buildReportEntries(t, [
           { reportKey: 'expense', filter: <ExpenseFilter /> },
+          { reportKey: 'kitchenTiming', filter: <KitchenTimingFilter /> },
           { reportKey: 'activity', filter: <ActivityFilter /> },
           { reportKey: 'audit', filter: <AuditFilter /> },
         ]),

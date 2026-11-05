@@ -103,6 +103,15 @@ export const OrderReceiptReport = lazy(() =>
 export const OrderFiscalReport = lazy(() =>
   import('@/screens/reports/order.fiscal.report.tsx').then(m => ({default: m.OrderFiscalReport}))
 );
+export const ShiftsReport = lazy(() =>
+  import('@/screens/reports/shifts.report.tsx').then(m => ({default: m.ShiftsReport}))
+);
+export const CashAuditReport = lazy(() =>
+  import('@/screens/reports/cash.audit.report.tsx').then(m => ({default: m.CashAuditReport}))
+);
+export const KitchenTimingReport = lazy(() =>
+  import('@/screens/reports/kitchen.timing.report.tsx').then(m => ({default: m.KitchenTimingReport}))
+);
 export const ExpenseReport = lazy(() =>
   import('@/screens/reports/expense.report.tsx').then(m => ({default: m.ExpenseReport}))
 );
